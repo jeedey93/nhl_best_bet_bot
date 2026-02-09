@@ -14,6 +14,8 @@ jobs:
       # 1️⃣ Checkout repo
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          persist-credentials: false
 
       # 2️⃣ Set up Python
       - name: Set up Python
@@ -37,6 +39,11 @@ jobs:
         run: python daily_run.py
 
       # 6️⃣ Commit and push the new results file
+      - name: Debug PAT length
+        run: echo "PAT length: \${#GH_PAT}"
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
+
       - name: Commit results
         env:
           GH_PAT: ${{ secrets.GH_PAT }}
@@ -45,6 +52,4 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add results/daily_results_*.txt
           git commit -m "Add daily results for $(date -u +%Y-%m-%d)" || echo "No changes to commit"
-
-          # Push using your PAT
-          git push https://$GH_PAT@github.com/${{ github.repository }} HEAD:master
+          git push --set-upstream https://$GH_PAT@github.com/${{ github.repository }} HEAD:master
