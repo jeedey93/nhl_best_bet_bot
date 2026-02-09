@@ -2,7 +2,7 @@ import requests
 from datetime import date
 
 def get_games_today():
-    date_str = "2026-02-26"
+    date_str = "2026-02-25"
     today = date.today().isoformat()
     url = f"https://api-web.nhle.com/v1/schedule/{today}"
 
