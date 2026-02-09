@@ -1,0 +1,45 @@
+name: Daily NHL Best Bet Bot
+
+# Run automatically every day + allow manual runs
+on:
+  schedule:
+    - cron: '0 15 * * *'  # every day at 15:00 UTC (~10 AM EST)
+  workflow_dispatch:
+
+jobs:
+  run-bot:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1️⃣ Checkout the repo
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # 2️⃣ Set up Python
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.13
+
+      # 3️⃣ Install dependencies
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install python-dotenv requests pillow
+
+      # 4️⃣ Create .env from GitHub Secrets
+      - name: Set environment variables
+        run: |
+          echo "ODDS_API_KEY=${{ secrets.ODDS_API_KEY }}" > .env
+
+      # 5️⃣ Run your bot
+      - name: Run NHL bot
+        run: python daily_run.py
+
+      # 6️⃣ Upload results as artifact
+      - name: Upload results
+        uses: actions/upload-artifact@v3
+        with:
+          name: daily-results
+          path: daily_results_*.txt
