@@ -11,11 +11,18 @@ from data.odds import get_odds, match_odds_to_games
 def analyze_results(results_text):
     api_key = os.environ["GOOGLE_API_KEY"]
     client = genai.Client(api_key=api_key)
+    prompt = (
+        "You are a disciplined NHL betting analyst.\n"
+        "Your job is to:\n"
+        "- Ignore coin-flip games\n"
+        "- Highlight only +EV spots\n"
+        "- Rank plays by confidence\n"
+        "- Explain in 1–2 sentences per play\n"
+        f"\nAnalyze the following NHL betting results:\n{results_text}"
+    )
     response = client.models.generate_content(
-        model="models/gemini-2.5-flash",  # Use the full model name
-        contents=types.Part.from_text(
-            text=f"Analyze the following NHL betting results and give a short summary:\n{results_text}"
-        ),
+        model="models/gemini-2.5-flash",
+        contents=types.Part.from_text(text=prompt),
     )
     return response.candidates[0].content.parts[0].text
 
