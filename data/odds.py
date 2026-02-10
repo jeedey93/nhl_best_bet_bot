@@ -34,7 +34,39 @@ def get_nba_odds():
     return response.json()
 
 NHL_TEAM_NAME_MAP = {
-    # ... (your NHL mapping here)
+    "anaheim": "Anaheim Ducks",
+    "arizona": "Arizona Coyotes",
+    "boston": "Boston Bruins",
+    "buffalo": "Buffalo Sabres",
+    "calgary": "Calgary Flames",
+    "carolina": "Carolina Hurricanes",
+    "chicago": "Chicago Blackhawks",
+    "colorado": "Colorado Avalanche",
+    "columbus": "Columbus Blue Jackets",
+    "dallas": "Dallas Stars",
+    "detroit": "Detroit Red Wings",
+    "edmonton": "Edmonton Oilers",
+    "florida": "Florida Panthers",
+    "losangeles": "Los Angeles Kings",
+    "minnesota": "Minnesota Wild",
+    "montreal": "Montreal Canadiens",
+    "nashville": "Nashville Predators",
+    "newjersey": "New Jersey Devils",
+    "nyislanders": "New York Islanders",
+    "nyrangers": "New York Rangers",
+    "ottawa": "Ottawa Senators",
+    "philadelphia": "Philadelphia Flyers",
+    "pittsburgh": "Pittsburgh Penguins",
+    "sanJose": "San Jose Sharks",
+    "seattle": "Seattle Kraken",
+    "stlouis": "St. Louis Blues",
+    "tampabay": "Tampa Bay Lightning",
+    "toronto": "Toronto Maple Leafs",
+    "utah": "Utah Hockey Club",
+    "vancouver": "Vancouver Canucks",
+    "vegas": "Vegas Golden Knights",
+    "washington": "Washington Capitals",
+    "winnipeg": "Winnipeg Jets"
 }
 
 NBA_TEAM_NAME_MAP = {

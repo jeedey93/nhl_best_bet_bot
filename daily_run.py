@@ -5,6 +5,7 @@ from google.genai import types
 from data.nhl_games import get_games_today
 from data.odds import get_nhl_odds, match_odds_to_games
 from datetime import date
+from data.odds import NHL_TEAM_NAME_MAP
 
 load_dotenv()
 
@@ -30,7 +31,7 @@ games = get_games_today()
 today_str = date.today().isoformat()
 results_folder = "results"
 os.makedirs(results_folder, exist_ok=True)
-filename = os.path.join(results_folder, f"daily_results_{today_str}.txt")
+filename = os.path.join(results_folder, f"nhl_daily_results_{today_str}.txt")
 
 with open(filename, "w") as f:
     f.write(f"Date: {today_str}\n\n")
@@ -40,7 +41,7 @@ with open(filename, "w") as f:
         print("No NHL games today")
     else:
         odds_data = get_nhl_odds()
-        matched = match_odds_to_games(games, odds_data)
+        matched = match_odds_to_games(games, odds_data, NHL_TEAM_NAME_MAP)
 
         results_text = ""
         for g in matched:
@@ -56,7 +57,5 @@ with open(filename, "w") as f:
             summary = analyze_results(results_text)
             f.write("\nAI Analysis Summary:\n")
             f.write(summary + "\n")
-            print("\nAI Analysis Summary:")
-            print(summary)
 
 print(f"Saved daily results to {filename}")
