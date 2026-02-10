@@ -43,17 +43,11 @@ jobs:
       - name: Run NBA bot
         run: python nba_daily_run.py
 
-      # 6️⃣ Commit and push the new results file
-      - name: Debug PAT length
-        run: |
-          if [ -n "$GH_PAT" ]; then
-            echo "PAT length: $(echo -n "$GH_PAT" | wc -c)"
-          else
-            echo "PAT is empty"
-          fi
-        env:
-          GH_PAT: ${{ secrets.GH_PAT }}
+      # 5️⃣ Run the bot to generate the results file
+      - name: Run Result bot
+        run: python result_daily_run.py
 
+      # 6️⃣ Commit and push the new results files to the repository
       - name: Commit results
         env:
           GH_PAT: ${{ secrets.GH_PAT }}
