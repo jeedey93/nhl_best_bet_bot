@@ -79,17 +79,6 @@ Or if quota is exceeded:
 AI analysis skipped: Gemini API quota exceeded.
 ```
 
-## Troubleshooting
-
-- **ModuleNotFoundError:**  
-  If you see errors like `No module named 'dateutil'` or `No module named 'pytz'`, install missing packages:
-  ```bash
-  pip install python-dateutil pytz
-  ```
-
-- **Gemini API Quota Exceeded:**  
-  The script will skip analysis and print a warning if your quota is exceeded.
-
 ## Project Structure
 
 - `data/` — Game and odds data modules
