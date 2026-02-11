@@ -35,7 +35,7 @@ def analyze_results_with_actuals(results_text, actuals_text):
             raise
 
 # Read the predictions file
-yesterday = "2026-02-03"
+yesterday = (date.today() - timedelta(days=1)).isoformat()
 predictions_file = f"predictions/nhl/nhl_daily_predictions_{yesterday}.txt"
 with open(predictions_file, "r") as f:
     predictions_text = f.read()
