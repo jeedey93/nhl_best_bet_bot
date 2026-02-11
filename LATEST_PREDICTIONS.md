@@ -11,19 +11,19 @@ Charlotte Hornets vs Atlanta Hawks
 Home odds: 1.51, Away odds: 2.66, O/U: 232.5
 ------
 Cleveland Cavaliers vs Washington Wizards
-Home odds: 1.07, Away odds: 9.1, O/U: 238.5
+Home odds: 1.07, Away odds: 9.3, O/U: 239.5
 ------
 Toronto Raptors vs Detroit Pistons
 Home odds: 2.06, Away odds: 1.81, O/U: 223.5
 ------
 Philadelphia 76ers vs New York Knicks
-Home odds: 1.74, Away odds: 2.16, O/U: 221.5
+Home odds: 1.75, Away odds: 2.14, O/U: 221.5
 ------
 Boston Celtics vs Chicago Bulls
 Home odds: 1.14, Away odds: 6.0, O/U: 224.5
 ------
 Brooklyn Nets vs Indiana Pacers
-Home odds: 1.53, Away odds: 2.6, O/U: 214.5
+Home odds: 1.56, Away odds: 2.52, O/U: 216.5
 ------
 Houston Rockets vs Los Angeles Clippers
 Home odds: 1.27, Away odds: 3.95, O/U: 208.5
@@ -32,46 +32,62 @@ New Orleans Pelicans vs Miami Heat
 Home odds: 1.91, Away odds: 1.94, O/U: 231.5
 ------
 Minnesota Timberwolves vs Portland Trail Blazers
-Home odds: 1.36, Away odds: 3.25, O/U: 238.5
+Home odds: 1.33, Away odds: 3.45, O/U: 236.5
 ------
 Phoenix Suns vs Oklahoma City Thunder
 Home odds: 3.15, Away odds: 1.38, O/U: 217.5
 ------
 Denver Nuggets vs Memphis Grizzlies
-Home odds: 1.14, Away odds: 6.3, O/U: 237.5
+Home odds: 1.14, Away odds: 6.2, O/U: 238.5
 ------
 Utah Jazz vs Sacramento Kings
-Home odds: 1.39, Away odds: 3.1, O/U: 232.5
+Home odds: 1.4, Away odds: 3.05, O/U: 230.5
 ------
 Golden State Warriors vs San Antonio Spurs
 Home odds: 3.15, Away odds: 1.38, O/U: 221.5
 ------
 
 AI Analysis Summary:
-Here are your NBA betting recommendations, blending deep market analysis with critical situational insights:
+Here are your top NBA betting plays, analyzed with a blend of market dynamics and situational basketball theory:
 
 ### High Confidence
 
-*   **New York Knicks ML vs Philadelphia 76ers**
-    Knicks are currently in strong form, playing excellent defense, while the 76ers are without their key offensive superstar. Their defensive intensity and efficient scoring should exploit Philadelphia's compromised lineup.
-*   **Denver Nuggets Under 237.5**
-    The Grizzlies are severely impacted by injuries, significantly limiting their offensive production against a methodical and defensively capable Nuggets team. Denver controls the game's pace, further diminishing high-scoring opportunities for a short-handed opponent.
-*   **Cleveland Cavaliers Under 238.5**
-    Cleveland's stingy defense is among the league's best, consistently slowing down opponents and forcing tough shots. The Wizards, despite their pace, are prone to inefficiency and turnovers, which the Cavaliers are adept at punishing.
+1.  **New York Knicks ML vs Philadelphia 76ers**
+    The Philadelphia 76ers are significantly weakened without Joel Embiid, while the New York Knicks are playing exceptionally well with strong defense and fluid offense. New York's collective effort and current winning form should overcome a depleted Philadelphia team.
+
+2.  **Brooklyn Nets vs Indiana Pacers - Under 216.5**
+    The Indiana Pacers' high-octane offense is severely compromised by the absence of Tyrese Haliburton, forcing a slower pace. The Brooklyn Nets, despite their inconsistencies, possess a capable defense. Without their star playmaker, Indiana will struggle to generate enough points against a decent Nets defense, keeping the total low.
+
+3.  **Minnesota Timberwolves vs Portland Trail Blazers - Under 236.5**
+    Minnesota boasts one of the most formidable defenses in the league, consistently limiting opponent scoring. The Portland Trail Blazers are a developing team that often struggles with offensive consistency. The Timberwolves' suffocating defense, coupled with the Trail Blazers' limited scoring ability, suggests a game falling below the projected total.
+
+### Medium Confidence
+
+4.  **Cleveland Cavaliers vs Washington Wizards - Under 239.5**
+    The Cleveland Cavaliers are a defensive stronghold known for their controlled game pace, facing a Washington Wizards team that consistently ranks among the league's least efficient offenses. Cleveland's dominant defense will restrict Washington's scoring opportunities, ensuring the game total stays under the mark.
+
+5.  **Denver Nuggets vs Memphis Grizzlies - Under 238.5**
+    The Memphis Grizzlies are severely depleted by injuries, leaving their offense significantly hampered against the disciplined Denver Nuggets. Denver, while potent, can dictate a controlled pace at home. Memphis's extensive injury list severely cripples their ability to score against a top-tier Nuggets team, leading to a lower-scoring contest.
+
+6.  **Houston Rockets vs Los Angeles Clippers - Under 208.5**
+    The Los Angeles Clippers are missing Kawhi Leonard, which is a significant blow to their offensive production, playing against a Houston Rockets team that excels in home defense. Without Kawhi Leonard, the Clippers will find scoring difficult, and Houston's robust defense is well-equipped to limit their offensive output.
 
 ### Leans
 
-*   **Brooklyn Nets Under 214.5**
-    The Nets have shown defensive improvements and can limit opponents' scoring, while the Pacers' high-octane offense can be contained on the road when not fully firing. This low total indicates a potentially slower-paced game with controlled scoring.
-*   **San Antonio Spurs ML vs Golden State Warriors**
-    Without their star player Stephen Curry, the Warriors' offense struggles immensely, allowing the young Spurs team to capitalize on their disrupted rhythm. Victor Wembanyama and the Spurs' recent energetic play give them a significant advantage over a depleted Golden State.
-*   **Charlotte Hornets ML vs Atlanta Hawks**
-    The Hornets are playing with renewed energy at home against an Atlanta team that continues to struggle with consistency and key injuries. Charlotte's competitive spirit and home-court advantage position them well against a slumping Hawks squad.
+7.  **Charlotte Hornets vs Atlanta Hawks - Over 232.5**
+    Atlanta plays at a rapid pace and frequently gives up points due to defensive lapses, leading to high-scoring games. The Charlotte Hornets possess enough offensive talent to keep pace and contribute to a high total. Atlanta's fast tempo and defensive struggles create an environment conducive to an offensive shootout.
+
+8.  **Detroit Pistons ML vs Toronto Raptors**
+    The Toronto Raptors are navigating significant roster changes following recent trades, which may lead to immediate chemistry issues and inconsistent performance. The Detroit Pistons, playing at home, have an opportunity to capitalize on a potentially disjointed opponent. Toronto's new lineup could lead to a disorganized showing, providing the Pistons a chance for a home victory.
+
+9.  **Golden State Warriors vs San Antonio Spurs - Under 221.5**
+    The Golden State Warriors will be without both Stephen Curry and Draymond Green, severely impacting their offensive firepower and defensive organization. San Antonio's offense is still in development and lacks consistent scoring. The significant absences for Golden State will severely hinder their scoring potential, leading to a lower-scoring game against a developing Spurs offense.
 
 ---
 
-**Bet of the Day:** New York Knicks ML vs Philadelphia 76ers @ 2.17
-Reason: The New York Knicks are playing with significant momentum and boast a stifling defense, making them a formidable opponent. With the Philadelphia 76ers missing their dominant offensive force in Joel Embiid, their scoring and defensive anchor are severely compromised, creating a clear advantage for the disciplined and well-rounded Knicks.
+**Bet of the Day: New York Knicks ML vs Philadelphia 76ers @ 2.17**
+
+The New York Knicks are in exceptional form, playing with high energy and stifling defense, while the Philadelphia 76ers are severely handicapped by the absence of their MVP candidate, Joel Embiid. New York's cohesive unit and current momentum create a clear advantage against a Philadelphia team missing its primary scorer and defensive anchor.
 
 ```
 
