@@ -20,15 +20,28 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 load_dotenv()
 
-# New: explicit regex for "Bet of the Day" block
+# New: explicit regex for "Bet of the Day" in multiple formats
+# Supported formats:
+# 1) Single line: "**Bet of the Day:** New York Knicks ML vs Philadelphia 76ers @ 2.17"
+# 2) Header + line (old format):
+#    "### Bet of the Day\n\n**New York Knicks ML vs Philadelphia 76ers @ 2.17**\nReason: ..."
 BET_OF_DAY_REGEX = re.compile(
     r"""
-    ^\s*\#{0,6}\s*Bet\s+of\s+the\s+Day\s*$      # header line
-    (?:\s*\n)+                                  # one or more newlines
-    \s*\**\s*                                   # optional bold start (**)
-    (?P<betline>.+?)                            # full bet line (e.g., "Team ML vs Opponent")
-    \s*@\s*(?P<odds>[\d\.]+)\s*                 # odds after '@'
-    \**\s*$                                     # optional bold end
+    # Either a single-line label with the bet inline
+    \s*\**\s*Bet\s+of\s+the\s+Day\s*\**\s*:?\s*       # "Bet of the Day" label (bold optional), optional colon
+    (?:                                                     
+        \s*\**\s*                                         # optional bold start
+        (?P<betline_inline>[^\n@]+?)                       # capture betline up to '@' (e.g., "New York Knicks ML vs Philadelphia 76ers")
+        \s*@\s*(?P<odds_inline>[\d\.]+)\s*               # odds after '@'
+        \**                                                # optional bold end
+        |                                                  
+        # Or block style where the header appears alone and betline is on a following line
+        (?:\s*\n)+                                        # one or more newlines
+        \s*\**\s*                                         # optional bold start
+        (?P<betline_block>.+?)                              # full bet line (e.g., "Team ML vs Opponent")
+        \s*@\s*(?P<odds_block>[\d\.]+)\s*               # odds after '@'
+        \**\s*$                                            # optional bold end and EOL
+    )
     """,
     re.IGNORECASE | re.VERBOSE | re.MULTILINE,
 )
@@ -38,8 +51,8 @@ FIRST_PLAY_REGEX = re.compile(
     \**\s*                                   # optional bold start
     (?P<teams>.+?(?:\s+vs\s+|\s+@\s+).+?)    # "Team A vs Team B" or "Team A @ Team B"
     \s*:\s*                                  # colon separator
-    (?P<bet>.+?)                              # bet description
-    (?:                                       # odds as @ price OR (Odds: price)
+    (?P<bet>.+?)                               # bet description
+    (?:                                        # odds as @ price OR (Odds: price)
         \s*@\s*(?P<price1>[\d\.]+)           # "@ 1.95"
         |
         \s*\(\s*Odds:\s*(?P<price2>[\d\.]+)\s*\)  # "(Odds: 1.95)"
@@ -85,11 +98,12 @@ def extract_first_play(predictions_text: str) -> dict | None:
     """Extract the highest-confidence play to render an image.
     Priority: "Bet of the Day: <betline> @ <odds>" if present; otherwise fallback to the first bold play line.
     """
-    # 1) Look for explicit Bet of the Day block
+    # 1) Look for explicit Bet of the Day block (supports single-line and header+line styles)
     bod_match = BET_OF_DAY_REGEX.search(predictions_text)
     if bod_match:
-        betline = bod_match.group("betline").strip()
-        odds = bod_match.group("odds").strip()
+        # Prefer inline capture; else block capture
+        betline = (bod_match.group("betline_inline") or bod_match.group("betline_block") or "").strip()
+        odds = (bod_match.group("odds_inline") or bod_match.group("odds_block") or "").strip()
         home, away, bet_desc = _split_teams_from_betline(betline)
         return {
             "home": home,
@@ -98,8 +112,6 @@ def extract_first_play(predictions_text: str) -> dict | None:
             "odds": odds,
             "game": f"{home} vs {away}" if home and away else betline,
         }
-
-    print(bod_match)
 
     # 2) Fallback: first bold play line in the AI Analysis Summary
     match = FIRST_PLAY_REGEX.search(predictions_text)
@@ -178,6 +190,7 @@ def generate_image_with_gemini(play: dict, api_key: str) -> bytes | None:
                 contents=types.Part.from_text(text=prompt),
                 # Some image generation endpoints return binary; google-genai returns parts
             )
+            print("[debug] Response type:", type(response))
         except Exception as e:
             print("[error] Gemini generation failed:", str(e))
             return None
@@ -189,59 +202,91 @@ def generate_image_with_gemini(play: dict, api_key: str) -> bytes | None:
                 if getattr(p, "inline_data", None) and getattr(p.inline_data, "mime_type", "").startswith("image/"):
                     return p.inline_data.data
         return None
-    except Exception:
+    except Exception as e:
+        print("[error] Unexpected in generate_image_with_gemini:", str(e))
         return None
 
 
 def generate_image_with_pillow(play: dict, out_path: str):
-    # Simple 1200x675 banner image with team names and bet text
+    """
+    Renders a clean centered NBA matchup image:
+        - Header: "NBA Matchup"
+        - Lines: Home, "vs", Away
+        - Bet line: "<Bet> @ <Odds>"
+        - Dark background, all text centered.
+    """
+    # Canvas
     width, height = 1200, 675
-    img = Image.new("RGB", (width, height), color=(20, 24, 28))
+    img = Image.new("RGB", (width, height), color=(18, 22, 26))  # dark background
     draw = ImageDraw.Draw(img)
 
-    # Try to load a system font; fallback to default
+    # Fonts: try system fonts first, fallback to default
     try:
-        font_title = ImageFont.truetype("Arial.ttf", 64)
-        font_vs = ImageFont.truetype("Arial.ttf", 54)
-        font_sub = ImageFont.truetype("Arial.ttf", 40)
+        font_header = ImageFont.truetype("Arial.ttf", 40)
+        font_team = ImageFont.truetype("Arial.ttf", 72)
+        font_vs = ImageFont.truetype("Arial.ttf", 56)
+        font_bet = ImageFont.truetype("Arial.ttf", 44)
     except Exception:
-        font_title = ImageFont.load_default()
+        font_header = ImageFont.load_default()
+        font_team = ImageFont.load_default()
         font_vs = ImageFont.load_default()
-        font_sub = ImageFont.load_default()
+        font_bet = ImageFont.load_default()
 
-    bet_line = f"Odds @ {play['odds']}"
-    footer = "Generated by le Parieur Discipliné"
+    # Colors
+    color_header = (180, 220, 255)
+    color_team = (255, 255, 255)
+    color_vs = (210, 210, 210)
+    color_bet = (255, 215, 0)
 
-    # Centered text helper
-    def center_text(text, y, font, fill=(240, 240, 240)):
-        w, h = draw.textbbox((0, 0), text, font=font)[2:]
+    # Text helpers
+    def text_size(text: str, font: ImageFont.FreeTypeFont) -> tuple[int, int]:
+        bbox = draw.textbbox((0, 0), text, font=font)
+        return bbox[2] - bbox[0], bbox[3] - bbox[1]
+
+    def center_text(text: str, y: int, font: ImageFont.FreeTypeFont, fill=(255, 255, 255)) -> int:
+        w, h = text_size(text, font)
         x = (width - w) // 2
         draw.text((x, y), text, font=font, fill=fill)
         return h
 
     # Header
-    center_text("NBA Matchup", 40, font_sub, (180, 220, 255))
+    header_y = 36
+    center_text("NBA Matchup", header_y, font_header, color_header)
 
-    # Three-line title: Home \n vs \n Away
-    home_h = draw.textbbox((0, 0), play['home'], font=font_title)[3]
-    vs_h = draw.textbbox((0, 0), "vs", font=font_vs)[3]
-    away_h = draw.textbbox((0, 0), play['away'], font=font_title)[3]
+    # Teams: three lines centered vertically
+    home = play.get("home", "Home").strip()
+    away = play.get("away", "Away").strip()
 
-    base_y = 140  # top of the block
-    center_text(play['home'], base_y, font_title, (255, 255, 255))
-    center_text("vs", base_y + home_h + 10, font_vs, (200, 200, 200))
-    center_text(play['away'], base_y + home_h + 10 + vs_h + 10, font_title, (255, 255, 255))
+    # Measure heights to compute spacing
+    home_w, home_h = text_size(home, font_team)
+    vs_w, vs_h = text_size("vs", font_vs)
+    away_w, away_h = text_size(away, font_team)
 
-    # Bet line below the title block
-    center_text(bet_line, 330, font_sub, (255, 215, 0))
+    # Top of the block so that the trio is vertically well placed
+    block_top = 140
+    gap_small = 10
 
-    # Simple halves background accent
-    draw.rectangle([0, 370, width//2, height], fill=(35, 45, 60))
-    draw.rectangle([width//2, 370, width, height], fill=(60, 45, 35))
+    # Draw Home
+    cur_y = block_top
+    center_text(home, cur_y, font_team, color_team)
+    cur_y += home_h + gap_small
 
-    # Footer
-    center_text(footer, 620, font_sub, (180, 180, 180))
+    # Draw VS
+    center_text("vs", cur_y, font_vs, color_vs)
+    cur_y += vs_h + gap_small
 
+    # Draw Away
+    center_text(away, cur_y, font_team, color_team)
+    cur_y += away_h
+
+    # Bet line: "<Bet> @ <Odds>"
+    odds = str(play.get("odds", "")).strip()
+    bet_line = f"@ {odds}"
+
+    bet_y = cur_y + 24  # below the teams block
+    center_text(bet_line, bet_y, font_bet, color_bet)
+
+    # Save image
     img.save(out_path, format="PNG")
 
 

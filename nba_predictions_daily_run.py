@@ -43,7 +43,7 @@ def analyze_results(results_text):
         "After listing plays, choose the single highest-confidence pick that fits the <= 2.2 odds constraint and mark it clearly as: \n"
         "\n"
         "Bet of the Day: <TEAM or MARKET> @ <ODDS>\n"
-        "One-sentence reason in plain language.\n"
+        "Provide a reason in plain language focusing on form, matchup, and injuries; do not mention bookmakers, odds, price/line variance, EV, or market data.\n"
         "\n"
         "### DATA TO ANALYZE\n"
         f"{results_text}"
