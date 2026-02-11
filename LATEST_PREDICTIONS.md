@@ -17,13 +17,13 @@ Toronto Raptors vs Detroit Pistons
 Home odds: 2.06, Away odds: 1.81, O/U: 223.5
 ------
 Philadelphia 76ers vs New York Knicks
-Home odds: 1.74, Away odds: 2.16, O/U: 221.5
+Home odds: 1.75, Away odds: 2.14, O/U: 221.5
 ------
 Boston Celtics vs Chicago Bulls
 Home odds: 1.14, Away odds: 6.0, O/U: 224.5
 ------
 Brooklyn Nets vs Indiana Pacers
-Home odds: 1.53, Away odds: 2.6, O/U: 214.5
+Home odds: 1.51, Away odds: 2.66, O/U: 216.5
 ------
 Houston Rockets vs Los Angeles Clippers
 Home odds: 1.27, Away odds: 3.95, O/U: 208.5
@@ -32,46 +32,55 @@ New Orleans Pelicans vs Miami Heat
 Home odds: 1.91, Away odds: 1.94, O/U: 231.5
 ------
 Minnesota Timberwolves vs Portland Trail Blazers
-Home odds: 1.36, Away odds: 3.25, O/U: 238.5
+Home odds: 1.34, Away odds: 3.35, O/U: 238.5
 ------
 Phoenix Suns vs Oklahoma City Thunder
 Home odds: 3.15, Away odds: 1.38, O/U: 217.5
 ------
 Denver Nuggets vs Memphis Grizzlies
-Home odds: 1.14, Away odds: 6.2, O/U: 237.5
+Home odds: 1.14, Away odds: 6.2, O/U: 238.5
 ------
 Utah Jazz vs Sacramento Kings
-Home odds: 1.39, Away odds: 3.1, O/U: 232.5
+Home odds: 1.42, Away odds: 2.98, O/U: 232.5
 ------
 Golden State Warriors vs San Antonio Spurs
 Home odds: 3.15, Away odds: 1.38, O/U: 221.5
 ------
 
 AI Analysis Summary:
-As an elite NBA Betting Analyst, I've dissected the provided matchups, blending market intelligence with on-court situational factors. My recommendations prioritize safety, focusing strictly on odds at or below 2.2, and identifying clear value where others might hesitate.
+Here are your top NBA betting plays, analyzed with precision for today's slate:
 
 ---
 
-### High Confidence Plays
+**High Confidence**
 
-1.  **New York Knicks ML vs Philadelphia 76ers**
-    The Knicks are playing exceptionally well, exhibiting strong defensive discipline and cohesive offensive execution despite recent roster challenges. Their current momentum and ability to grind out wins provide a clear advantage against a Philadelphia team that can sometimes lack consistency.
-2.  **Denver Nuggets vs Memphis Grizzlies Under 238.0**
-    The Nuggets deploy a controlled pace and elite defense, particularly at home, while the Grizzlies are severely hampered by injuries, drastically limiting their offensive output. This combination points towards a lower-scoring affair where Memphis struggles to reach a high total.
+San Antonio Spurs ML vs Golden State Warriors @ 1.38
+The San Antonio Spurs face a Golden State team severely lacking its primary scoring threat and offensive engine. Their formidable young talent and superior energy should dominate a struggling Warriors lineup.
 
-### Leans
+Houston Rockets vs Los Angeles Clippers Under 208.5 @ 1.93
+A short-handed and fatigued Clippers squad struggles to score against a disciplined Houston Rockets defense. Los Angeles' offensive limitations coupled with Houston's defensive effort will keep the overall score low.
 
-1.  **Toronto Raptors ML vs Detroit Pistons**
-    The Raptors often elevate their play in front of their home crowd, and the Pistons frequently struggle to maintain leads and execute effectively in crucial moments. Toronto's potential for timely scoring bursts and Detroit's defensive fragilities make the home team a worthwhile consideration.
-2.  **Cleveland Cavaliers vs Washington Wizards Under 238.5**
-    Cleveland boasts one of the league's top defenses, consistently limiting opponents' scoring opportunities, while Washington often struggles with offensive efficiency despite their fast pace. This matchup is primed for fewer total points than expected, given the Cavaliers' defensive prowess.
+Denver Nuggets vs Memphis Grizzlies Under 238.5 @ 1.95
+The injury-ravaged Memphis Grizzlies will struggle immensely to score against the elite defense of the Denver Nuggets. Denver's defensive mastery and Memphis's lack of offensive options point to a low-scoring contest.
+
+**Leans**
+
+New York Knicks ML vs Philadelphia 76ers @ 2.14
+The tenacious New York Knicks bring their robust defense against a Philadelphia squad significantly weakened without its star center. Their disciplined play and physical style will exploit the Sixers' diminished offensive capabilities.
+
+Charlotte Hornets ML vs Atlanta Hawks @ 1.51
+The Hornets, playing with improved form at home, take on an Atlanta team that struggles defensively. Charlotte's offensive playmakers should capitalize on the Hawks' porous defense for a home victory.
+
+Toronto Raptors ML vs Detroit Pistons @ 2.06
+Toronto seeks a much-needed home victory against a Detroit team suffering from significant road woes and inconsistent play. The Raptors' balanced scoring and home-court advantage should be enough to overcome the Pistons.
+
+Brooklyn Nets vs Indiana Pacers Over 216.5 @ 1.94
+Indiana and Brooklyn both prefer an up-tempo game, often trading baskets with limited defensive resistance. Expect a high-scoring contest as both teams showcase their offensive talent over defensive stops.
 
 ---
 
-### Bet of the Day
-
-**New York Knicks ML vs Philadelphia 76ers @ 2.17**
-The Knicks' superior current form and tenacious defense offer significant value in this road matchup against the 76ers.
+**Bet of the Day: Denver Nuggets vs Memphis Grizzlies Under 238.5 @ 1.95**
+The severely depleted Grizzlies roster struggles to generate any consistent offense, especially against the dominant defensive schemes of the Denver Nuggets. This matchup strongly favors a lower-scoring game.
 
 ```
 
