@@ -51,6 +51,10 @@ jobs:
       - name: Run NBA daily results bot
         run: python nba_results_daily_run.py
 
+      # 5️⃣ Generate the latest prediction image
+      - name: Generate the latest prediction image
+        run: python generate_prediction_image.py
+
       # 5️⃣ Update latest predictions markdown file
       - name: Update latest predictions markdown
         run: python update_latest_predictions.py
@@ -66,6 +70,8 @@ jobs:
           git add predictions/nba/nba_daily_predictions_*.txt
           git add bot_results/nhl/nhl_daily_results_*.txt
           git add bot_results/nba/nba_daily_results_*.txt
+          git add images/generated/nba_*.png
+          git add images/generated/nhl_*.png
           git add LATEST_PREDICTIONS.md
           git commit -m "Add daily results for $(date -u +%Y-%m-%d)" || echo "No changes to commit"
           git push --set-upstream https://$GH_PAT@github.com/${{ github.repository }} HEAD:master
