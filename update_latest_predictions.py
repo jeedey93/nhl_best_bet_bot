@@ -30,12 +30,16 @@ def update_latest_predictions():
         else:
             content += f"## {sport.upper()}\nNo {sport.upper()} predictions found.\n\n"
 
-        # Latest generated image for the sport
+        # Latest generated image for the sport (use HTML to control size/centering)
         latest_img_file = get_latest_file(images_dir, f"{sport}", ext="png")
         if latest_img_file:
-            # Use relative path for Markdown
             img_rel_path = latest_img_file.replace("\\", "/")
-            content += f"![{sport.upper()} Bet of the day]({img_rel_path})\n\n"
+            # Center and size the image (GitHub supports HTML in Markdown)
+            content += (
+                f'<p align="center">\n'
+                f'  <img src="{img_rel_path}" alt="{sport.upper()} Bet of the Day" width="720" />\n'
+                f'</p>\n\n'
+            )
         else:
             content += f"(No generated {sport.upper()} image found)\n\n"
 

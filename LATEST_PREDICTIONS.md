@@ -38,7 +38,7 @@ Phoenix Suns vs Oklahoma City Thunder
 Home odds: 3.15, Away odds: 1.38, O/U: 217.5
 ------
 Denver Nuggets vs Memphis Grizzlies
-Home odds: 1.14, Away odds: 6.2, O/U: 237.5
+Home odds: 1.14, Away odds: 6.3, O/U: 237.5
 ------
 Utah Jazz vs Sacramento Kings
 Home odds: 1.39, Away odds: 3.1, O/U: 232.5
@@ -48,34 +48,36 @@ Home odds: 3.15, Away odds: 1.38, O/U: 221.5
 ------
 
 AI Analysis Summary:
-As an elite NBA Betting Analyst, I've dissected the provided matchups, blending market intelligence with on-court situational factors. My recommendations prioritize safety, focusing strictly on odds at or below 2.2, and identifying clear value where others might hesitate.
+Here are your NBA betting recommendations, blending deep market analysis with critical situational insights:
 
----
+### High Confidence
 
-### High Confidence Plays
-
-1.  **New York Knicks ML vs Philadelphia 76ers**
-    The Knicks are playing exceptionally well, exhibiting strong defensive discipline and cohesive offensive execution despite recent roster challenges. Their current momentum and ability to grind out wins provide a clear advantage against a Philadelphia team that can sometimes lack consistency.
-2.  **Denver Nuggets vs Memphis Grizzlies Under 238.0**
-    The Nuggets deploy a controlled pace and elite defense, particularly at home, while the Grizzlies are severely hampered by injuries, drastically limiting their offensive output. This combination points towards a lower-scoring affair where Memphis struggles to reach a high total.
+*   **New York Knicks ML vs Philadelphia 76ers**
+    Knicks are currently in strong form, playing excellent defense, while the 76ers are without their key offensive superstar. Their defensive intensity and efficient scoring should exploit Philadelphia's compromised lineup.
+*   **Denver Nuggets Under 237.5**
+    The Grizzlies are severely impacted by injuries, significantly limiting their offensive production against a methodical and defensively capable Nuggets team. Denver controls the game's pace, further diminishing high-scoring opportunities for a short-handed opponent.
+*   **Cleveland Cavaliers Under 238.5**
+    Cleveland's stingy defense is among the league's best, consistently slowing down opponents and forcing tough shots. The Wizards, despite their pace, are prone to inefficiency and turnovers, which the Cavaliers are adept at punishing.
 
 ### Leans
 
-1.  **Toronto Raptors ML vs Detroit Pistons**
-    The Raptors often elevate their play in front of their home crowd, and the Pistons frequently struggle to maintain leads and execute effectively in crucial moments. Toronto's potential for timely scoring bursts and Detroit's defensive fragilities make the home team a worthwhile consideration.
-2.  **Cleveland Cavaliers vs Washington Wizards Under 238.5**
-    Cleveland boasts one of the league's top defenses, consistently limiting opponents' scoring opportunities, while Washington often struggles with offensive efficiency despite their fast pace. This matchup is primed for fewer total points than expected, given the Cavaliers' defensive prowess.
+*   **Brooklyn Nets Under 214.5**
+    The Nets have shown defensive improvements and can limit opponents' scoring, while the Pacers' high-octane offense can be contained on the road when not fully firing. This low total indicates a potentially slower-paced game with controlled scoring.
+*   **San Antonio Spurs ML vs Golden State Warriors**
+    Without their star player Stephen Curry, the Warriors' offense struggles immensely, allowing the young Spurs team to capitalize on their disrupted rhythm. Victor Wembanyama and the Spurs' recent energetic play give them a significant advantage over a depleted Golden State.
+*   **Charlotte Hornets ML vs Atlanta Hawks**
+    The Hornets are playing with renewed energy at home against an Atlanta team that continues to struggle with consistency and key injuries. Charlotte's competitive spirit and home-court advantage position them well against a slumping Hawks squad.
 
 ---
 
-### Bet of the Day
-
-**New York Knicks ML vs Philadelphia 76ers @ 2.17**
-The Knicks' superior current form and tenacious defense offer significant value in this road matchup against the 76ers.
+**Bet of the Day:** New York Knicks ML vs Philadelphia 76ers @ 2.17
+Reason: The New York Knicks are playing with significant momentum and boast a stifling defense, making them a formidable opponent. With the Philadelphia 76ers missing their dominant offensive force in Joel Embiid, their scoring and defensive anchor are severely compromised, creating a clear advantage for the disciplined and well-rounded Knicks.
 
 ```
 
-![NBA Bet of the day](images/generated/nba_2026-02-11.png)
+<p align="center">
+  <img src="images/generated/nba_2026-02-11.png" alt="NBA Bet of the Day" width="720" />
+</p>
 
 ## NHL (2026-02-11)
 ```
