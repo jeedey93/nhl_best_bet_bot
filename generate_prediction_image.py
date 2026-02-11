@@ -20,13 +20,22 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 load_dotenv()
 
+# New: explicit regex for "Bet of the Day" block
+BET_OF_DAY_REGEX = re.compile(
+    r"""
+    Bet\s+of\s+the\s+Day\s*:\s*         # literal header
+    (?P<betline>.+?)\s*@\s*(?P<odds>[\d\.]+)  # e.g., "Team A to Win @ 2.05" or "Over 226.5 @ 1.95"
+    """,
+    re.IGNORECASE | re.VERBOSE,
+)
+
 FIRST_PLAY_REGEX = re.compile(
     r"""
     \**\s*                                   # optional bold start
     (?P<teams>.+?(?:\s+vs\s+|\s+@\s+).+?)    # "Team A vs Team B" or "Team A @ Team B"
     \s*:\s*                                  # colon separator
-    (?P<bet>.+?)                             # bet description
-    (?:                                      # odds as @ price OR (Odds: price)
+    (?P<bet>.+?)                              # bet description
+    (?:                                       # odds as @ price OR (Odds: price)
         \s*@\s*(?P<price1>[\d\.]+)           # "@ 1.95"
         |
         \s*\(\s*Odds:\s*(?P<price2>[\d\.]+)\s*\)  # "(Odds: 1.95)"
@@ -47,10 +56,46 @@ def get_latest_predictions_file(sport_prefix: str) -> str | None:
     return max(files, key=os.path.getctime)
 
 
+def _split_teams_from_betline(betline: str) -> tuple[str, str, str]:
+    """Try to derive home/away from a betline string.
+    Returns (home, away, bet_desc). bet_desc is the original betline if teams are not derivable.
+    """
+    line = betline.strip()
+    # Common formats we may see:
+    # "Minnesota Timberwolves vs Atlanta Hawks: Over 246.5"
+    # "Toronto Maple Leafs @ Edmonton Oilers: Maple Leafs ML"
+    # "Vancouver Canucks to Win" (no explicit opponent)
+    if " vs " in line:
+        teams_part, _, bet_desc = line.partition(":")
+        home, away = teams_part.split(" vs ", 1)
+        return home.strip(), away.strip(), (bet_desc or "").strip() or line
+    if " @ " in line:
+        teams_part, _, bet_desc = line.partition(":")
+        away, home = teams_part.split(" @ ", 1)
+        return home.strip(), away.strip(), (bet_desc or "").strip() or line
+    # No teams in line; return empty away, use line as bet_desc
+    return line, "", line
+
+
 def extract_first_play(predictions_text: str) -> dict | None:
-    # Look for the first bold play line in the AI Analysis Summary
-    # Example: **Minnesota Timberwolves vs Atlanta Hawks: Over 246.5 (Odds: 2.0)**
-    # Or: **Toronto Maple Leafs to Win @ 2.00** (NHL style)
+    """Extract the highest-confidence play to render an image.
+    Priority: "Bet of the Day: <betline> @ <odds>" if present; otherwise fallback to the first bold play line.
+    """
+    # 1) Look for explicit Bet of the Day block
+    bod_match = BET_OF_DAY_REGEX.search(predictions_text)
+    if bod_match:
+        betline = bod_match.group("betline").strip()
+        odds = bod_match.group("odds").strip()
+        home, away, bet_desc = _split_teams_from_betline(betline)
+        return {
+            "home": home,
+            "away": away,
+            "bet": bet_desc if bet_desc else betline,
+            "odds": odds,
+            "game": f"{home} vs {away}" if home and away else betline,
+        }
+
+    # 2) Fallback: first bold play line in the AI Analysis Summary
     match = FIRST_PLAY_REGEX.search(predictions_text)
     if not match:
         # Fallback: scan line by line
@@ -213,7 +258,7 @@ def main():
     out_path = os.path.join(OUTPUT_DIR, f"{sport_found}_{today_str}.png")
 
     # Try Gemini image generation first
-    api_key = os.environ["GOOGLE_API_KEY"]
+    api_key = os.environ.get("GOOGLE_API_KEY", "")
     image_bytes = None
     if api_key:
         image_bytes = generate_image_with_gemini(play, api_key)
