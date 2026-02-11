@@ -2,8 +2,11 @@ import os
 from dotenv import load_dotenv
 from google import genai
 from google.genai import types
-from data.odds import get_nba_odds
+from data.odds import get_nba_odds, match_nba_odds_to_games
 from datetime import date
+from data.odds import NBA_TEAM_NAME_MAP
+from data.nba_games import get_nba_games_today
+
 
 load_dotenv()
 
@@ -47,49 +50,65 @@ predictions_folder = os.path.join("predictions", "nba")
 os.makedirs(predictions_folder, exist_ok=True)
 filename = os.path.join(predictions_folder, f"nba_daily_predictions_{today_str}.txt")
 
+games = get_nba_games_today()
 odds = get_nba_odds()
+
+# Match structured odds to games
+matched = match_nba_odds_to_games(games, odds, NBA_TEAM_NAME_MAP)
 predictions_text = ""
 
 with open(filename, "w") as f:
     f.write(f"Date: {today_str}\n\n")
-    if not odds:
-        f.write("No NBA games today\n")
-        print("No NBA games today")
+    if not matched:
+        f.write("No NBA games today or no odds available\n")
+        print("No NBA games today or no odds available")
     else:
-        for game in odds:
-            home_odds = None
-            away_odds = None
-            ou = None
-            ou_over_odds = None
-            ou_under_odds = None
-            for market in game['bookmakers'][0]['markets']:
-                if market['key'] == 'h2h':
-                    for outcome in market['outcomes']:
-                        if outcome['name'] == game['home_team']:
-                            home_odds = outcome['price']
-                        elif outcome['name'] == game['away_team']:
-                            away_odds = outcome['price']
-                elif market['key'] == 'totals':
-                    for outcome in market['outcomes']:
-                        if outcome['name'] == 'Over':
-                            ou = outcome['point']
-                            ou_over_odds = outcome['price']
-                        elif outcome['name'] == 'Under':
-                            ou_under_odds = outcome['price']
+        print("NBA Matchups and Odds:")
+        for g in matched:
+            # Headline summary per game
             line = (
-                f"{game['home_team']} vs {game['away_team']}\n"
-                f"Home odds: {home_odds}, Away odds: {away_odds}, "
-                f"O/U: {ou} (Over odds: {ou_over_odds}, Under odds: {ou_under_odds})\n"
+                f"{g['home']} vs {g['away']}\n"
+                f"Home odds: {g.get('home_odds')}, Away odds: {g.get('away_odds')}, "
+                f"O/U: {g.get('over_under')}\n"
                 "------\n"
             )
+            print(line, end="")
             f.write(line)
             predictions_text += line
 
-        print("NBA Matchups and Odds:")
-        print(predictions_text)
+            # Verbose per-bookmaker markets for the same game
+            bm_list = g.get('bookmakers_odds', [])
+            if bm_list:
+                f.write("Bookmakers snapshot:\n")
+                predictions_text += "Bookmakers snapshot:\n"
+                for bm in bm_list:
+                    title = bm.get('title') or bm.get('key') or 'Unknown Bookmaker'
+                    f.write(f"  {title}\n")
+                    predictions_text += f"  {title}\n"
+                    for m in bm.get('markets', []):
+                        mkey = m.get('key', 'unknown')
+                        outcomes = m.get('outcomes', [])
+                        # Render outcomes compactly: Name: price [point]
+                        out_strs = []
+                        for o in outcomes:
+                            if isinstance(o, dict):
+                                name = o.get('name', 'N/A')
+                                price = o.get('price', 'N/A')
+                                point = o.get('point')
+                                if point is not None:
+                                    out_strs.append(f"{name} @ {price} (point {point})")
+                                else:
+                                    out_strs.append(f"{name} @ {price}")
+                            else:
+                                out_strs.append(str(o))
+                        line_bm = f"    {mkey}: " + ", ".join(out_strs) + "\n"
+                        f.write(line_bm)
+                        predictions_text += line_bm
+                f.write("------\n")
+                predictions_text += "------\n"
 
         if predictions_text:
-            summary = analyze_results(odds)
+            summary = analyze_results(predictions_text)
             f.write("\nAI Analysis Summary:\n")
             f.write(summary + "\n")
             print("\nAI Analysis Summary:")

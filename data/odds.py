@@ -170,3 +170,63 @@ def match_odds_to_games(games, odds_data, team_name_map):
             })
 
     return matched_games
+
+def match_nba_odds_to_games(games, odds_data, team_name_map=NBA_TEAM_NAME_MAP):
+    matched_games = []
+    for game in games:
+        home_city = normalize(game["home"])
+        away_city = normalize(game["away"])
+        home = team_name_map.get(home_city, game["home"])
+        away = team_name_map.get(away_city, game["away"])
+        # NBA game objects use 'commence_time'
+        start_time = game.get("commence_time")
+        home_odds = None
+        away_odds = None
+        over_under = None
+        bookmakers_odds = []
+
+        for odds_game in odds_data:
+            if (normalize(odds_game.get("home_team", "")) == normalize(home) and
+                    normalize(odds_game.get("away_team", "")) == normalize(away)):
+                for bookmaker in odds_game.get("bookmakers", []):
+                    bookmaker_entry = {
+                        "title": bookmaker.get("title"),
+                        "markets": []
+                    }
+                    for market in bookmaker.get("markets", []):
+                        market_entry = {
+                            "key": market.get("key"),
+                            "outcomes": market.get("outcomes", [])
+                        }
+                        bookmaker_entry["markets"].append(market_entry)
+                        # Extract summary odds once (first seen h2h and totals)
+                        if home_odds is None and market.get("key") == "h2h":
+                            for outcome in market.get("outcomes", []):
+                                name = outcome.get("name", "")
+                                price = outcome.get("price")
+                                if price is None:
+                                    continue
+                                if normalize(name) == normalize(home):
+                                    home_odds = price
+                                elif normalize(name) == normalize(away):
+                                    away_odds = price
+                        if over_under is None and market.get("key") == "totals":
+                            outcomes = market.get("outcomes", [])
+                            if outcomes:
+                                over_under = outcomes[0].get("point")
+                    bookmakers_odds.append(bookmaker_entry)
+                break
+
+        if home_odds is not None and away_odds is not None:
+            matched_games.append({
+                "game_id": game.get("game_id"),
+                "home": home,
+                "away": away,
+                "start_time": start_time,
+                "home_odds": home_odds,
+                "away_odds": away_odds,
+                "over_under": over_under,
+                "bookmakers_odds": bookmakers_odds
+            })
+
+    return matched_games
