@@ -4,9 +4,8 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from data.nhl_games import get_todays_nhl_games
-from data.nba_games import get_todays_nba_games
-from data.odds import get_odds
+from data.odds import get_nhl_odds, get_nba_odds
+import requests
 
 
 def format_time(iso_time):
@@ -14,6 +13,71 @@ def format_time(iso_time):
     dt = datetime.fromisoformat(iso_time.replace('Z', '+00:00'))
     montreal_time = dt.astimezone(ZoneInfo('America/Toronto'))
     return montreal_time.strftime("%I:%M %p ET")
+
+
+def parse_odds(odds_data, home_team, away_team):
+    """Parse odds from The Odds API response."""
+    # Normalize team names for matching
+    def normalize(name):
+        return name.lower().replace('.', '').replace(' ', '').replace('-', '')
+
+    home_norm = normalize(home_team)
+    away_norm = normalize(away_team)
+
+    for odds_game in odds_data:
+        odds_home = normalize(odds_game.get('home_team', ''))
+        odds_away = normalize(odds_game.get('away_team', ''))
+
+        # Check if this odds entry matches our game
+        if home_norm in odds_home or odds_home in home_norm or away_norm in odds_away or odds_away in away_norm:
+            markets = {}
+
+            # Extract odds from bookmakers
+            for bookmaker in odds_game.get('bookmakers', []):
+                for market in bookmaker.get('markets', []):
+                    market_key = market['key']
+
+                    if market_key == 'h2h' and 'h2h' not in markets:
+                        # Moneyline
+                        for outcome in market['outcomes']:
+                            if normalize(outcome['name']) in odds_home or odds_home in normalize(outcome['name']):
+                                if 'h2h' not in markets:
+                                    markets['h2h'] = {}
+                                markets['h2h']['home'] = outcome['price']
+                            elif normalize(outcome['name']) in odds_away or odds_away in normalize(outcome['name']):
+                                if 'h2h' not in markets:
+                                    markets['h2h'] = {}
+                                markets['h2h']['away'] = outcome['price']
+
+                    elif market_key == 'totals' and 'totals' not in markets:
+                        # Totals
+                        markets['totals'] = {}
+                        for outcome in market['outcomes']:
+                            if outcome['name'].lower() == 'over':
+                                markets['totals']['over'] = outcome['price']
+                                markets['totals']['point'] = outcome['point']
+                            elif outcome['name'].lower() == 'under':
+                                markets['totals']['under'] = outcome['price']
+
+                    elif market_key == 'spreads' and 'spreads' not in markets:
+                        # Spreads
+                        markets['spreads'] = {}
+                        for outcome in market['outcomes']:
+                            if normalize(outcome['name']) in odds_home or odds_home in normalize(outcome['name']):
+                                markets['spreads']['home'] = outcome['price']
+                                markets['spreads']['home_point'] = outcome['point']
+                            elif normalize(outcome['name']) in odds_away or odds_away in normalize(outcome['name']):
+                                markets['spreads']['away'] = outcome['price']
+                                markets['spreads']['away_point'] = outcome['point']
+
+            if markets:
+                return {
+                    'home_team': odds_game['home_team'],
+                    'away_team': odds_game['away_team'],
+                    'markets': markets
+                }
+
+    return None
 
 
 def generate_game_card(away_team, home_team, game_time, game_odds):
@@ -77,21 +141,28 @@ def generate_games_page():
 
     # Generate NHL games
     nhl_html = ""
-    nhl_games = get_todays_nhl_games()
-    nhl_odds = get_odds("icehockey_nhl")
+
+    # Get NHL games from the official API
+    today = datetime.now(ZoneInfo('America/Toronto')).date().isoformat()
+    nhl_api_url = f"https://api-web.nhle.com/v1/schedule/{today}"
+    try:
+        response = requests.get(nhl_api_url, timeout=10)
+        response.raise_for_status()
+        nhl_data = response.json()
+        nhl_games = nhl_data.get("gameWeek", [])[0].get("games", []) if nhl_data.get("gameWeek") else []
+    except:
+        nhl_games = []
+
+    nhl_odds_data = get_nhl_odds()
 
     if nhl_games:
         for game in nhl_games:
-            away_team = game['awayTeam']['name']['default']
-            home_team = game['homeTeam']['name']['default']
+            away_team = game['awayTeam']['placeName']['default']
+            home_team = game['homeTeam']['placeName']['default']
             game_time = format_time(game['startTimeUTC'])
 
-            # Find odds for this game
-            game_odds = None
-            for odds_game in nhl_odds:
-                if home_team in odds_game['home_team'] or away_team in odds_game['away_team']:
-                    game_odds = odds_game
-                    break
+            # Parse odds for this game
+            game_odds = parse_odds(nhl_odds_data, home_team, away_team)
 
             nhl_html += generate_game_card(away_team, home_team, game_time, game_odds)
     else:
@@ -99,21 +170,20 @@ def generate_games_page():
 
     # Generate NBA games
     nba_html = ""
-    nba_games = get_todays_nba_games()
-    nba_odds = get_odds("basketball_nba")
+
+    # Import get_nba_games_today dynamically
+    from data.nba_games import get_nba_games_today
+    nba_games = get_nba_games_today()
+    nba_odds_data = get_nba_odds()
 
     if nba_games:
         for game in nba_games:
-            away_team = game['awayTeam']['teamName']
-            home_team = game['homeTeam']['teamName']
-            game_time = format_time(game['gameTimeUTC'])
+            away_team = game['away']
+            home_team = game['home']
+            game_time = format_time(game['commence_time'])
 
-            # Find odds for this game
-            game_odds = None
-            for odds_game in nba_odds:
-                if home_team in odds_game['home_team'] or away_team in odds_game['away_team']:
-                    game_odds = odds_game
-                    break
+            # Parse odds for this game
+            game_odds = parse_odds(nba_odds_data, home_team, away_team)
 
             nba_html += generate_game_card(away_team, home_team, game_time, game_odds)
     else:
