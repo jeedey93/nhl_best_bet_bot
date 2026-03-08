@@ -239,9 +239,12 @@ def parse_odds(odds_data, home_team, away_team):
     return None
 
 
-def generate_game_card(away_team, home_team, game_time, game_odds, away_record=None, home_record=None, sport='nhl', away_logo=None, home_logo=None):
+def generate_game_card(away_team, home_team, game_time, game_odds, away_record=None, home_record=None, sport='nhl', away_logo=None, home_logo=None, game_id=None):
     """Generate HTML for a single game card."""
-    html = "<div class='game-card'>\n"
+    # Create anchor ID for navigation
+    anchor_id = f"game-{game_id}" if game_id else f"game-{away_team.replace(' ', '-')}-{home_team.replace(' ', '-')}"
+
+    html = f"<div class='game-card' id='{anchor_id}'>\n"
     html += f"<div class='game-time'>🕐 {game_time}</div>\n"
     html += f"<div class='matchup'>{away_team} @ {home_team}</div>\n"
 
@@ -458,8 +461,12 @@ def generate_games_page():
         away_logo = game['awayTeam'].get('logo')
         home_logo = game['homeTeam'].get('logo')
         game_time = format_time(game['startTimeUTC'])
+        game_id = game.get('id', '')
 
-        scroller_html += "<div class='mini-game-tile'>\n"
+        # Create anchor link
+        anchor_id = f"game-{game_id}" if game_id else f"game-{away_team.replace(' ', '-')}-{home_team.replace(' ', '-')}"
+
+        scroller_html += f"<a href='#{anchor_id}' class='mini-game-tile'>\n"
         scroller_html += "<div class='mini-time'>🏒 " + game_time + "</div>\n"
         scroller_html += "<div class='mini-teams'>\n"
         if away_logo:
@@ -469,7 +476,7 @@ def generate_games_page():
             scroller_html += f"<img src='{home_logo}' class='mini-logo' />\n"
         scroller_html += "</div>\n"
         scroller_html += f"<div class='mini-matchup'>{away_team[:3].upper()} @ {home_team[:3].upper()}</div>\n"
-        scroller_html += "</div>\n"
+        scroller_html += "</a>\n"
 
     # Add NBA games to scroller
     for game in nba_games:
@@ -478,8 +485,12 @@ def generate_games_page():
         away_logo = NBA_TEAM_LOGOS.get(away_team)
         home_logo = NBA_TEAM_LOGOS.get(home_team)
         game_time = format_time(game['commence_time'])
+        game_id = game.get('game_id', '')
 
-        scroller_html += "<div class='mini-game-tile'>\n"
+        # Create anchor link
+        anchor_id = f"game-{game_id}" if game_id else f"game-{away_team.replace(' ', '-')}-{home_team.replace(' ', '-')}"
+
+        scroller_html += f"<a href='#{anchor_id}' class='mini-game-tile'>\n"
         scroller_html += "<div class='mini-time'>🏀 " + game_time + "</div>\n"
         scroller_html += "<div class='mini-teams'>\n"
         if away_logo:
@@ -489,7 +500,7 @@ def generate_games_page():
             scroller_html += f"<img src='{home_logo}' class='mini-logo' />\n"
         scroller_html += "</div>\n"
         scroller_html += f"<div class='mini-matchup'>{away_team[:15]} @ {home_team[:15]}</div>\n"
-        scroller_html += "</div>\n"
+        scroller_html += "</a>\n"
 
     scroller_html += "</div>\n"  # Close scroller-container
     scroller_html += "</div>\n"  # Close games-scroller
@@ -502,6 +513,7 @@ def generate_games_page():
             away_team = game['awayTeam']['placeName']['default']
             home_team = game['homeTeam']['placeName']['default']
             game_time = format_time(game['startTimeUTC'])
+            game_id = game.get('id', '')
 
             # Extract team logos
             away_logo = game['awayTeam'].get('logo')
@@ -518,7 +530,7 @@ def generate_games_page():
             # Parse odds for this game
             game_odds = parse_odds(nhl_odds_data, home_team, away_team)
 
-            nhl_html += generate_game_card(away_team, home_team, game_time, game_odds, away_record, home_record, sport='nhl', away_logo=away_logo, home_logo=home_logo)
+            nhl_html += generate_game_card(away_team, home_team, game_time, game_odds, away_record, home_record, sport='nhl', away_logo=away_logo, home_logo=home_logo, game_id=game_id)
     else:
         nhl_html = "<div class='no-games'>No NHL games scheduled for today</div>\n"
 
@@ -530,6 +542,7 @@ def generate_games_page():
             away_team = game['away']
             home_team = game['home']
             game_time = format_time(game['commence_time'])
+            game_id = game.get('game_id', '')
 
             # Get NBA logos from mapping
             away_logo = NBA_TEAM_LOGOS.get(away_team)
@@ -539,7 +552,7 @@ def generate_games_page():
             game_odds = parse_odds(nba_odds_data, home_team, away_team)
 
             # For NBA, we don't have records readily available, pass None
-            nba_html += generate_game_card(away_team, home_team, game_time, game_odds, None, None, sport='nba', away_logo=away_logo, home_logo=home_logo)
+            nba_html += generate_game_card(away_team, home_team, game_time, game_odds, None, None, sport='nba', away_logo=away_logo, home_logo=home_logo, game_id=game_id)
     else:
         nba_html = "<div class='no-games'>No NBA games scheduled for today</div>\n"
 
