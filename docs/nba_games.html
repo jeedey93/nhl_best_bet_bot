@@ -319,6 +319,25 @@ body {
   border: 2px solid #dc2626;
   box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
 }
+.streak-badge {
+  display: inline-block;
+  padding: 8px 20px;
+  border-radius: 20px;
+  font-size: 0.95em;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+.win-streak {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: white;
+  border: 2px solid #d97706;
+}
+.lose-streak {
+  background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+  color: white;
+  border: 2px solid #4b5563;
+}
 @keyframes pulse-glow {
   0%, 100% {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -758,7 +777,8 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='game-time'>01:11 PM</div>
 <div class='matchup'>Boston Celtics vs Cleveland Cavaliers</div>
 <div class='signals-row'>
-<div class='prediction-indicator home-favored'>↗ Trending: Cleveland Cavaliers</div>
+<div class='prediction-indicator away-favored'>↗ Trending: Boston Celtics</div>
+<div class='streak-badge lose-streak'>❄️ Boston Celtics 3L Streak</div>
 </div>
 <div class='key-insights'>
 <div class='insights-title'>📊 Key Insights</div>
@@ -773,15 +793,15 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='stats-tiles'>
 <div class='stat-tile'>
 <div class='stat-label'>Avg Points Scored</div>
-<div class='stat-value'>113.0</div>
+<div class='stat-value'>111.5</div>
 </div>
 <div class='stat-tile'>
 <div class='stat-label'>Avg Points Allowed</div>
-<div class='stat-value'>110.7</div>
+<div class='stat-value'>107.8</div>
 </div>
 <div class='stat-tile record-tile'>
 <div class='stat-label'>Recent Form</div>
-<div class='stat-record'>4-6</div>
+<div class='stat-record'>1-3</div>
 </div>
 </div>
 <div class='stat-games'>Last 10 games</div>
@@ -796,15 +816,15 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='stats-tiles'>
 <div class='stat-tile'>
 <div class='stat-label'>Avg Points Scored</div>
-<div class='stat-value'>120.7</div>
+<div class='stat-value'>121.0</div>
 </div>
 <div class='stat-tile'>
 <div class='stat-label'>Avg Points Allowed</div>
-<div class='stat-value'>115.5</div>
+<div class='stat-value'>121.5</div>
 </div>
 <div class='stat-tile record-tile'>
 <div class='stat-label'>Recent Form</div>
-<div class='stat-record'>7-3</div>
+<div class='stat-record'>1-1</div>
 </div>
 </div>
 <div class='stat-games'>Last 10 games</div>
@@ -816,8 +836,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='game-time'>03:43 PM</div>
 <div class='matchup'>New York Knicks vs Los Angeles Lakers</div>
 <div class='signals-row'>
-<div class='prediction-indicator away-favored'>↗ Trending: New York Knicks</div>
-<div class='ou-signal over-signal'>📈 Over 221.5</div>
+<div class='ou-signal over-signal'>📈 Over 219.5</div>
 </div>
 <div class='key-insights'>
 <div class='insights-title'>📊 Key Insights</div>
@@ -832,15 +851,15 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='stats-tiles'>
 <div class='stat-tile'>
 <div class='stat-label'>Avg Points Scored</div>
-<div class='stat-value'>121.8</div>
+<div class='stat-value'>110.3</div>
 </div>
 <div class='stat-tile'>
 <div class='stat-label'>Avg Points Allowed</div>
-<div class='stat-value'>112.7</div>
+<div class='stat-value'>107.0</div>
 </div>
 <div class='stat-tile record-tile'>
 <div class='stat-label'>Recent Form</div>
-<div class='stat-record'>7-3</div>
+<div class='stat-record'>2-1</div>
 </div>
 </div>
 <div class='stat-games'>Last 10 games</div>
@@ -855,15 +874,15 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='stats-tiles'>
 <div class='stat-tile'>
 <div class='stat-label'>Avg Points Scored</div>
-<div class='stat-value'>117.8</div>
+<div class='stat-value'>118.5</div>
 </div>
 <div class='stat-tile'>
 <div class='stat-label'>Avg Points Allowed</div>
-<div class='stat-value'>117.1</div>
+<div class='stat-value'>114.5</div>
 </div>
 <div class='stat-tile record-tile'>
 <div class='stat-label'>Recent Form</div>
-<div class='stat-record'>7-3</div>
+<div class='stat-record'>1-1</div>
 </div>
 </div>
 <div class='stat-games'>Last 10 games</div>
@@ -876,18 +895,18 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='odds-grid'>
 <div class='odds-card'>
 <div class='odds-label'>Moneyline</div>
-<div class='odds-value'><span>New York Knicks</span><span>1.49</span></div>
-<div class='odds-value'><span>Los Angeles Lak</span><span>2.58</span></div>
+<div class='odds-value'><span>New York Knicks</span><span>1.71</span></div>
+<div class='odds-value'><span>Los Angeles Lak</span><span>2.1</span></div>
 </div>
 <div class='odds-card'>
 <div class='odds-label'>Total</div>
-<div class='odds-value'><span>Over 221.5</span><span>1.89</span></div>
-<div class='odds-value'><span>Under 221.5</span><span>1.85</span></div>
+<div class='odds-value'><span>Over 219.5</span><span>1.82</span></div>
+<div class='odds-value'><span>Under 219.5</span><span>1.93</span></div>
 </div>
 <div class='odds-card'>
 <div class='odds-label'>Spread</div>
-<div class='odds-value'><span>New York Knicks -5.5</span><span>2.0</span></div>
-<div class='odds-value'><span>Los Angeles Lak +5.5</span><span>1.76</span></div>
+<div class='odds-value'><span>New York Knicks -2.5</span><span>1.93</span></div>
+<div class='odds-value'><span>Los Angeles Lak +2.5</span><span>1.82</span></div>
 </div>
 </div>
 </div>
@@ -898,7 +917,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='matchup'>Dallas Mavericks vs Toronto Raptors</div>
 <div class='signals-row'>
 <div class='prediction-indicator home-favored'>↗ Trending: Toronto Raptors</div>
-<div class='ou-signal under-signal'>📉 Under 229.5</div>
+<div class='ou-signal over-signal'>📈 Over 229.5</div>
 </div>
 <div class='key-insights'>
 <div class='insights-title'>📊 Key Insights</div>
@@ -913,15 +932,15 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='stats-tiles'>
 <div class='stat-tile'>
 <div class='stat-label'>Avg Points Scored</div>
-<div class='stat-value'>106.5</div>
+<div class='stat-value'>112.7</div>
 </div>
 <div class='stat-tile'>
 <div class='stat-label'>Avg Points Allowed</div>
-<div class='stat-value'>113.3</div>
+<div class='stat-value'>123.7</div>
 </div>
 <div class='stat-tile record-tile'>
 <div class='stat-label'>Recent Form</div>
-<div class='stat-record'>3-7</div>
+<div class='stat-record'>1-2</div>
 </div>
 </div>
 <div class='stat-games'>Last 10 games</div>
@@ -936,15 +955,15 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='stats-tiles'>
 <div class='stat-tile'>
 <div class='stat-label'>Avg Points Scored</div>
-<div class='stat-value'>119.3</div>
+<div class='stat-value'>127.0</div>
 </div>
 <div class='stat-tile'>
 <div class='stat-label'>Avg Points Allowed</div>
-<div class='stat-value'>117.1</div>
+<div class='stat-value'>120.0</div>
 </div>
 <div class='stat-tile record-tile'>
 <div class='stat-label'>Recent Form</div>
-<div class='stat-record'>5-5</div>
+<div class='stat-record'>1-1</div>
 </div>
 </div>
 <div class='stat-games'>Last 10 games</div>
@@ -978,7 +997,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='game-time'>06:10 PM</div>
 <div class='matchup'>Detroit Pistons vs Miami Heat</div>
 <div class='signals-row'>
-<div class='prediction-indicator away-favored'>↗ Trending: Detroit Pistons</div>
+<div class='prediction-indicator home-favored'>↗ Trending: Miami Heat</div>
 <div class='ou-signal over-signal'>📈 Over 230.5</div>
 </div>
 <div class='key-insights'>
@@ -994,15 +1013,15 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='stats-tiles'>
 <div class='stat-tile'>
 <div class='stat-label'>Avg Points Scored</div>
-<div class='stat-value'>116.1</div>
+<div class='stat-value'>113.0</div>
 </div>
 <div class='stat-tile'>
 <div class='stat-label'>Avg Points Allowed</div>
-<div class='stat-value'>110.5</div>
+<div class='stat-value'>113.0</div>
 </div>
 <div class='stat-tile record-tile'>
 <div class='stat-label'>Recent Form</div>
-<div class='stat-record'>8-2</div>
+<div class='stat-record'>1-1</div>
 </div>
 </div>
 <div class='stat-games'>Last 10 games</div>
@@ -1017,15 +1036,15 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='stats-tiles'>
 <div class='stat-tile'>
 <div class='stat-label'>Avg Points Scored</div>
-<div class='stat-value'>124.1</div>
+<div class='stat-value'>133.5</div>
 </div>
 <div class='stat-tile'>
 <div class='stat-label'>Avg Points Allowed</div>
-<div class='stat-value'>118.0</div>
+<div class='stat-value'>119.5</div>
 </div>
 <div class='stat-tile record-tile'>
 <div class='stat-label'>Recent Form</div>
-<div class='stat-record'>6-4</div>
+<div class='stat-record'>1-1</div>
 </div>
 </div>
 <div class='stat-games'>Last 10 games</div>
@@ -1038,8 +1057,8 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='odds-grid'>
 <div class='odds-card'>
 <div class='odds-label'>Moneyline</div>
-<div class='odds-value'><span>Detroit Pistons</span><span>1.85</span></div>
-<div class='odds-value'><span>Miami Heat</span><span>2.0</span></div>
+<div class='odds-value'><span>Detroit Pistons</span><span>1.82</span></div>
+<div class='odds-value'><span>Miami Heat</span><span>2.04</span></div>
 </div>
 <div class='odds-card'>
 <div class='odds-label'>Total</div>
@@ -1059,8 +1078,9 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='game-time'>07:10 PM</div>
 <div class='matchup'>Washington Wizards vs New Orleans Pelicans</div>
 <div class='signals-row'>
-<div class='prediction-indicator home-favored'>↗ Trending: New Orleans Pelicans</div>
+<div class='prediction-indicator away-favored'>↗ Trending: Washington Wizards</div>
 <div class='ou-signal under-signal'>📉 Under 244.5</div>
+<div class='streak-badge lose-streak'>❄️ New Orleans Pelicans 6L Streak</div>
 </div>
 <div class='key-insights'>
 <div class='insights-title'>📊 Key Insights</div>
@@ -1075,15 +1095,15 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='stats-tiles'>
 <div class='stat-tile'>
 <div class='stat-label'>Avg Points Scored</div>
-<div class='stat-value'>111.5</div>
+<div class='stat-value'>118.5</div>
 </div>
 <div class='stat-tile'>
 <div class='stat-label'>Avg Points Allowed</div>
-<div class='stat-value'>128.4</div>
+<div class='stat-value'>120.0</div>
 </div>
 <div class='stat-tile record-tile'>
 <div class='stat-label'>Recent Form</div>
-<div class='stat-record'>1-9</div>
+<div class='stat-record'>1-1</div>
 </div>
 </div>
 <div class='stat-games'>Last 10 games</div>
@@ -1098,15 +1118,15 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='stats-tiles'>
 <div class='stat-tile'>
 <div class='stat-label'>Avg Points Scored</div>
-<div class='stat-value'>108.0</div>
+<div class='stat-value'>108.9</div>
 </div>
 <div class='stat-tile'>
 <div class='stat-label'>Avg Points Allowed</div>
-<div class='stat-value'>121.3</div>
+<div class='stat-value'>123.9</div>
 </div>
 <div class='stat-tile record-tile'>
 <div class='stat-label'>Recent Form</div>
-<div class='stat-record'>2-8</div>
+<div class='stat-record'>1-6</div>
 </div>
 </div>
 <div class='stat-games'>Last 10 games</div>
@@ -1140,8 +1160,9 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='game-time'>08:10 PM</div>
 <div class='matchup'>Houston Rockets vs San Antonio Spurs</div>
 <div class='signals-row'>
-<div class='prediction-indicator away-favored'>↗ Trending: Houston Rockets</div>
+<div class='prediction-indicator home-favored'>↗ Trending: San Antonio Spurs</div>
 <div class='ou-signal over-signal'>📈 Over 222.5</div>
+<div class='streak-badge win-streak'>🔥 San Antonio Spurs 5W Streak</div>
 </div>
 <div class='key-insights'>
 <div class='insights-title'>📊 Key Insights</div>
@@ -1160,11 +1181,11 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 <div class='stat-tile'>
 <div class='stat-label'>Avg Points Allowed</div>
-<div class='stat-value'>113.0</div>
+<div class='stat-value'>116.3</div>
 </div>
 <div class='stat-tile record-tile'>
 <div class='stat-label'>Recent Form</div>
-<div class='stat-record'>7-3</div>
+<div class='stat-record'>1-2</div>
 </div>
 </div>
 <div class='stat-games'>Last 10 games</div>
@@ -1179,15 +1200,15 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='stats-tiles'>
 <div class='stat-tile'>
 <div class='stat-label'>Avg Points Scored</div>
-<div class='stat-value'>119.3</div>
+<div class='stat-value'>118.2</div>
 </div>
 <div class='stat-tile'>
 <div class='stat-label'>Avg Points Allowed</div>
-<div class='stat-value'>111.3</div>
+<div class='stat-value'>108.2</div>
 </div>
 <div class='stat-tile record-tile'>
 <div class='stat-label'>Recent Form</div>
-<div class='stat-record'>8-2</div>
+<div class='stat-record'>5-1</div>
 </div>
 </div>
 <div class='stat-games'>Last 10 games</div>
@@ -1200,8 +1221,8 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='odds-grid'>
 <div class='odds-card'>
 <div class='odds-label'>Moneyline</div>
-<div class='odds-value'><span>Houston Rockets</span><span>2.76</span></div>
-<div class='odds-value'><span>San Antonio Spu</span><span>1.48</span></div>
+<div class='odds-value'><span>Houston Rockets</span><span>2.8</span></div>
+<div class='odds-value'><span>San Antonio Spu</span><span>1.47</span></div>
 </div>
 <div class='odds-card'>
 <div class='odds-label'>Total</div>
@@ -1210,8 +1231,8 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 <div class='odds-card'>
 <div class='odds-label'>Spread</div>
-<div class='odds-value'><span>Houston Rockets +5.5</span><span>1.91</span></div>
-<div class='odds-value'><span>San Antonio Spu -5.5</span><span>1.91</span></div>
+<div class='odds-value'><span>Houston Rockets +5.5</span><span>1.93</span></div>
+<div class='odds-value'><span>San Antonio Spu -5.5</span><span>1.89</span></div>
 </div>
 </div>
 </div>
@@ -1241,11 +1262,11 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 <div class='stat-tile'>
 <div class='stat-label'>Avg Points Allowed</div>
-<div class='stat-value'>116.2</div>
+<div class='stat-value'>116.0</div>
 </div>
 <div class='stat-tile record-tile'>
 <div class='stat-label'>Recent Form</div>
-<div class='stat-record'>4-6</div>
+<div class='stat-record'>1-1</div>
 </div>
 </div>
 <div class='stat-games'>Last 10 games</div>
@@ -1260,15 +1281,15 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='stats-tiles'>
 <div class='stat-tile'>
 <div class='stat-label'>Avg Points Scored</div>
-<div class='stat-value'>120.0</div>
+<div class='stat-value'>122.7</div>
 </div>
 <div class='stat-tile'>
 <div class='stat-label'>Avg Points Allowed</div>
-<div class='stat-value'>118.5</div>
+<div class='stat-value'>118.0</div>
 </div>
 <div class='stat-tile record-tile'>
 <div class='stat-label'>Recent Form</div>
-<div class='stat-record'>6-4</div>
+<div class='stat-record'>2-1</div>
 </div>
 </div>
 <div class='stat-games'>Last 10 games</div>
@@ -1304,6 +1325,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='signals-row'>
 <div class='prediction-indicator away-favored'>↗ Trending: Chicago Bulls</div>
 <div class='ou-signal under-signal'>📉 Under 236.5</div>
+<div class='streak-badge win-streak'>🔥 Chicago Bulls 5W Streak</div>
 </div>
 <div class='key-insights'>
 <div class='insights-title'>📊 Key Insights</div>
@@ -1318,15 +1340,15 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='stats-tiles'>
 <div class='stat-tile'>
 <div class='stat-label'>Avg Points Scored</div>
-<div class='stat-value'>119.2</div>
+<div class='stat-value'>121.7</div>
 </div>
 <div class='stat-tile'>
 <div class='stat-label'>Avg Points Allowed</div>
-<div class='stat-value'>118.4</div>
+<div class='stat-value'>116.3</div>
 </div>
 <div class='stat-tile record-tile'>
 <div class='stat-label'>Recent Form</div>
-<div class='stat-record'>6-4</div>
+<div class='stat-record'>5-1</div>
 </div>
 </div>
 <div class='stat-games'>Last 10 games</div>
@@ -1341,15 +1363,15 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='stats-tiles'>
 <div class='stat-tile'>
 <div class='stat-label'>Avg Points Scored</div>
-<div class='stat-value'>115.3</div>
+<div class='stat-value'>110.5</div>
 </div>
 <div class='stat-tile'>
 <div class='stat-label'>Avg Points Allowed</div>
-<div class='stat-value'>123.9</div>
+<div class='stat-value'>112.0</div>
 </div>
 <div class='stat-tile record-tile'>
 <div class='stat-label'>Recent Form</div>
-<div class='stat-record'>3-7</div>
+<div class='stat-record'>1-1</div>
 </div>
 </div>
 <div class='stat-games'>Last 10 games</div>
@@ -1384,7 +1406,8 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='matchup'>Indiana Pacers vs Portland Trail Blazers</div>
 <div class='signals-row'>
 <div class='prediction-indicator home-favored'>↗ Trending: Portland Trail Blazers</div>
-<div class='ou-signal under-signal'>📉 Under 236.5</div>
+<div class='ou-signal over-signal'>📈 Over 236.5</div>
+<div class='streak-badge lose-streak'>❄️ Indiana Pacers 5L Streak</div>
 </div>
 <div class='key-insights'>
 <div class='insights-title'>📊 Key Insights</div>
@@ -1399,15 +1422,15 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='stats-tiles'>
 <div class='stat-tile'>
 <div class='stat-label'>Avg Points Scored</div>
-<div class='stat-value'>107.6</div>
+<div class='stat-value'>112.5</div>
 </div>
 <div class='stat-tile'>
 <div class='stat-label'>Avg Points Allowed</div>
-<div class='stat-value'>118.7</div>
+<div class='stat-value'>121.2</div>
 </div>
 <div class='stat-tile record-tile'>
 <div class='stat-label'>Recent Form</div>
-<div class='stat-record'>1-9</div>
+<div class='stat-record'>1-5</div>
 </div>
 </div>
 <div class='stat-games'>Last 10 games</div>
@@ -1422,15 +1445,15 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='stats-tiles'>
 <div class='stat-tile'>
 <div class='stat-label'>Avg Points Scored</div>
-<div class='stat-value'>120.6</div>
+<div class='stat-value'>126.5</div>
 </div>
 <div class='stat-tile'>
 <div class='stat-label'>Avg Points Allowed</div>
-<div class='stat-value'>119.3</div>
+<div class='stat-value'>118.5</div>
 </div>
 <div class='stat-tile record-tile'>
 <div class='stat-label'>Recent Form</div>
-<div class='stat-record'>5-5</div>
+<div class='stat-record'>1-1</div>
 </div>
 </div>
 <div class='stat-games'>Last 10 games</div>
@@ -1443,13 +1466,13 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='odds-grid'>
 <div class='odds-card'>
 <div class='odds-label'>Moneyline</div>
-<div class='odds-value'><span>Indiana Pacers</span><span>4.2</span></div>
-<div class='odds-value'><span>Portland Trail </span><span>1.25</span></div>
+<div class='odds-value'><span>Indiana Pacers</span><span>4.1</span></div>
+<div class='odds-value'><span>Portland Trail </span><span>1.26</span></div>
 </div>
 <div class='odds-card'>
 <div class='odds-label'>Total</div>
-<div class='odds-value'><span>Over 236.5</span><span>1.91</span></div>
-<div class='odds-value'><span>Under 236.5</span><span>1.91</span></div>
+<div class='odds-value'><span>Over 236.5</span><span>1.89</span></div>
+<div class='odds-value'><span>Under 236.5</span><span>1.93</span></div>
 </div>
 <div class='odds-card'>
 <div class='odds-label'>Spread</div>
@@ -1464,7 +1487,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='game-time'>10:10 PM</div>
 <div class='matchup'>Charlotte Hornets vs Phoenix Suns</div>
 <div class='signals-row'>
-<div class='prediction-indicator home-favored'>↗ Trending: Phoenix Suns</div>
+<div class='prediction-indicator away-favored'>↗ Trending: Charlotte Hornets</div>
 <div class='ou-signal over-signal'>📈 Over 218.5</div>
 </div>
 <div class='key-insights'>
@@ -1480,7 +1503,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='stats-tiles'>
 <div class='stat-tile'>
 <div class='stat-label'>Avg Points Scored</div>
-<div class='stat-value'>118.2</div>
+<div class='stat-value'>128.5</div>
 </div>
 <div class='stat-tile'>
 <div class='stat-label'>Avg Points Allowed</div>
@@ -1488,7 +1511,7 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 <div class='stat-tile record-tile'>
 <div class='stat-label'>Recent Form</div>
-<div class='stat-record'>3-7</div>
+<div class='stat-record'>1-1</div>
 </div>
 </div>
 <div class='stat-games'>Last 10 games</div>
@@ -1503,15 +1526,15 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='stats-tiles'>
 <div class='stat-tile'>
 <div class='stat-label'>Avg Points Scored</div>
-<div class='stat-value'>116.4</div>
+<div class='stat-value'>111.0</div>
 </div>
 <div class='stat-tile'>
 <div class='stat-label'>Avg Points Allowed</div>
-<div class='stat-value'>116.7</div>
+<div class='stat-value'>122.5</div>
 </div>
 <div class='stat-tile record-tile'>
 <div class='stat-label'>Recent Form</div>
-<div class='stat-record'>5-5</div>
+<div class='stat-record'>1-1</div>
 </div>
 </div>
 <div class='stat-games'>Last 10 games</div>

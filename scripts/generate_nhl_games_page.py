@@ -133,6 +133,10 @@ def get_nhl_team_last_games(team_name, last_n_games=10):
         first_5_goals = []
         last_5_goals = []
 
+        # Track streak (most recent games first in API)
+        streak_type = None  # 'W' or 'L'
+        streak_count = 0
+
         for idx, game in enumerate(completed_games):
             away_abbrev = game['awayTeam']['abbrev']
             home_abbrev = game['homeTeam']['abbrev']
@@ -170,6 +174,19 @@ def get_nhl_team_last_games(team_name, last_n_games=10):
                 else:
                     losses += 1
 
+            # Calculate current streak
+            current_result = 'W' if is_win else 'L'
+            if streak_type is None:
+                # First game (most recent)
+                streak_type = current_result
+                streak_count = 1
+            elif current_result == streak_type:
+                # Continue the streak
+                streak_count += 1
+            else:
+                # Streak broken, stop counting
+                break
+
         # Calculate form trend
         form_trend = None
         if len(completed_games) >= 10:
@@ -184,7 +201,9 @@ def get_nhl_team_last_games(team_name, last_n_games=10):
             'wins': wins,
             'losses': losses,
             'ot_losses': ot_losses,
-            'form_trend': round(form_trend, 2) if form_trend is not None else None
+            'form_trend': round(form_trend, 2) if form_trend is not None else None,
+            'streak_type': streak_type,  # 'W' or 'L'
+            'streak_count': streak_count  # Number of consecutive wins or losses
         }
 
     except Exception as e:
@@ -503,7 +522,25 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
         elif home_b2b:
             b2b_badge = f"<div class='b2b-badge'>⚠️ {home_team} on Back-to-Back</div>\n"
 
-    if prediction_html or over_under_signal or h2h_totals_badge or b2b_badge:
+    # Generate streak badges
+    streak_badges = ""
+    if away_stats and away_stats.get('streak_count', 0) >= 3:
+        streak_type = away_stats.get('streak_type')
+        streak_count = away_stats.get('streak_count')
+        if streak_type == 'W':
+            streak_badges += f"<div class='streak-badge win-streak'>🔥 {away_team} {streak_count}W Streak</div>\n"
+        elif streak_type == 'L':
+            streak_badges += f"<div class='streak-badge lose-streak'>❄️ {away_team} {streak_count}L Streak</div>\n"
+
+    if home_stats and home_stats.get('streak_count', 0) >= 3:
+        streak_type = home_stats.get('streak_type')
+        streak_count = home_stats.get('streak_count')
+        if streak_type == 'W':
+            streak_badges += f"<div class='streak-badge win-streak'>🔥 {home_team} {streak_count}W Streak</div>\n"
+        elif streak_type == 'L':
+            streak_badges += f"<div class='streak-badge lose-streak'>❄️ {home_team} {streak_count}L Streak</div>\n"
+
+    if prediction_html or over_under_signal or h2h_totals_badge or b2b_badge or streak_badges:
         html += "<div class='signals-row'>\n"
         if prediction_html:
             html += prediction_html
@@ -513,6 +550,8 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
             html += h2h_totals_badge
         if b2b_badge:
             html += b2b_badge
+        if streak_badges:
+            html += streak_badges
         html += "</div>\n"
 
     # Key Insights Section
