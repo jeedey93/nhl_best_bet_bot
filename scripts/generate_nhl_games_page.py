@@ -45,6 +45,135 @@ NBA_TEAM_LOGOS = {
 }
 
 
+# NHL team abbreviation mapping
+NHL_TEAM_ABBREV_MAP = {
+    'Anaheim': 'ANA',
+    'Boston': 'BOS',
+    'Buffalo': 'BUF',
+    'Calgary': 'CGY',
+    'Carolina': 'CAR',
+    'Chicago': 'CHI',
+    'Colorado': 'COL',
+    'Columbus': 'CBJ',
+    'Dallas': 'DAL',
+    'Detroit': 'DET',
+    'Edmonton': 'EDM',
+    'Florida': 'FLA',
+    'Los Angeles': 'LAK',
+    'Minnesota': 'MIN',
+    'Montréal': 'MTL',
+    'Nashville': 'NSH',
+    'New Jersey': 'NJD',
+    'New York': 'NYI',  # Islanders
+    'Ottawa': 'OTT',
+    'Philadelphia': 'PHI',
+    'Pittsburgh': 'PIT',
+    'San Jose': 'SJS',
+    'Seattle': 'SEA',
+    'St. Louis': 'STL',
+    'Tampa Bay': 'TBL',
+    'Toronto': 'TOR',
+    'Vancouver': 'VAN',
+    'Vegas': 'VGK',
+    'Washington': 'WSH',
+    'Winnipeg': 'WPG',
+}
+
+
+def get_team_stats_from_api(team_name, sport='nhl', last_n_games=10):
+    """
+    Calculate team stats from API for last N games.
+
+    Args:
+        team_name: Name of the team
+        sport: 'nhl' or 'nba'
+        last_n_games: Number of recent games to analyze
+
+    Returns:
+        dict with avg_scored, avg_allowed, games_analyzed, wins, losses, ot_losses
+    """
+    if sport == 'nhl':
+        return get_nhl_team_last_games(team_name, last_n_games)
+    elif sport == 'nba':
+        return get_nba_team_last_games(team_name, last_n_games)
+    return None
+
+
+def get_nhl_team_last_games(team_name, last_n_games=10):
+    """
+    Get last N games for an NHL team from the API.
+
+    Returns:
+        dict with avg_scored, avg_allowed, games_analyzed, wins, losses, ot_losses
+    """
+    try:
+        # Get team abbreviation
+        team_abbrev = NHL_TEAM_ABBREV_MAP.get(team_name)
+        if not team_abbrev:
+            return None
+
+        url = f'https://api-web.nhle.com/v1/club-schedule-season/{team_abbrev}/now'
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()
+        data = response.json()
+
+        # Get completed games
+        completed_games = [g for g in data.get('games', []) if g.get('gameState') in ['OFF', 'FINAL']][:last_n_games]
+
+        if not completed_games:
+            return None
+
+        scores_for = []
+        scores_against = []
+        wins = 0
+        losses = 0
+        ot_losses = 0
+
+        for game in completed_games:
+            away_abbrev = game['awayTeam']['abbrev']
+            home_abbrev = game['homeTeam']['abbrev']
+            away_score = game['awayTeam'].get('score', 0)
+            home_score = game['homeTeam'].get('score', 0)
+
+            # Determine team's score and result
+            if away_abbrev == team_abbrev:
+                team_score = away_score
+                opponent_score = home_score
+                is_win = away_score > home_score
+            else:
+                team_score = home_score
+                opponent_score = away_score
+                is_win = home_score > away_score
+
+            scores_for.append(team_score)
+            scores_against.append(opponent_score)
+
+            # Track wins/losses
+            if is_win:
+                wins += 1
+            else:
+                # Check if it was an OT/SO loss
+                game_outcome = game.get('gameOutcome', {})
+                last_period = game_outcome.get('lastPeriodType', 'REG')
+                if last_period in ['OT', 'SO']:
+                    ot_losses += 1
+                else:
+                    losses += 1
+
+        return {
+            'avg_scored': round(sum(scores_for) / len(scores_for), 1) if scores_for else 0,
+            'avg_allowed': round(sum(scores_against) / len(scores_against), 1) if scores_against else 0,
+            'games_analyzed': len(completed_games),
+            'wins': wins,
+            'losses': losses,
+            'ot_losses': ot_losses
+        }
+
+    except Exception as e:
+        print(f"⚠️ Error fetching NHL team stats for {team_name}: {e}")
+        return None
+
+
 def get_team_stats_from_results(team_name, sport='nhl', last_n_games=10):
     """
     Calculate average goals/points for a team from results_with_scores files.
@@ -250,8 +379,8 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
     html += f"<div class='matchup'>{away_team} @ {home_team}</div>\n"
 
     # Get team stats for prediction
-    away_stats = get_team_stats_from_results(away_team, sport=sport, last_n_games=10)
-    home_stats = get_team_stats_from_results(home_team, sport=sport, last_n_games=10)
+    away_stats = get_team_stats_from_api(away_team, sport=sport, last_n_games=10)
+    home_stats = get_team_stats_from_api(home_team, sport=sport, last_n_games=10)
 
     # Calculate prediction if both teams have stats
     prediction_html = ""

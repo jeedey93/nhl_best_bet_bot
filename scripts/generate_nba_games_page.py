@@ -46,6 +46,135 @@ NBA_TEAM_LOGOS = {
 }
 
 
+# ESPN NBA team ID mapping
+NBA_TEAM_ID_MAP = {
+    'Atlanta Hawks': '1',
+    'Boston Celtics': '2',
+    'Brooklyn Nets': '17',
+    'Charlotte Hornets': '30',
+    'Chicago Bulls': '4',
+    'Cleveland Cavaliers': '5',
+    'Dallas Mavericks': '6',
+    'Denver Nuggets': '7',
+    'Detroit Pistons': '8',
+    'Golden State Warriors': '9',
+    'Houston Rockets': '10',
+    'Indiana Pacers': '11',
+    'LA Clippers': '12',
+    'Los Angeles Clippers': '12',
+    'Los Angeles Lakers': '13',
+    'Memphis Grizzlies': '29',
+    'Miami Heat': '14',
+    'Milwaukee Bucks': '15',
+    'Minnesota Timberwolves': '16',
+    'New Orleans Pelicans': '3',
+    'New York Knicks': '18',
+    'Oklahoma City Thunder': '25',
+    'Orlando Magic': '19',
+    'Philadelphia 76ers': '20',
+    'Phoenix Suns': '21',
+    'Portland Trail Blazers': '22',
+    'Sacramento Kings': '23',
+    'San Antonio Spurs': '24',
+    'Toronto Raptors': '28',
+    'Utah Jazz': '26',
+    'Washington Wizards': '27',
+}
+
+
+def get_team_stats_from_api(team_name, sport='nhl', last_n_games=10):
+    """
+    Calculate team stats from API for last N games.
+
+    Args:
+        team_name: Name of the team
+        sport: 'nhl' or 'nba'
+        last_n_games: Number of recent games to analyze
+
+    Returns:
+        dict with avg_scored, avg_allowed, games_analyzed, wins, losses, ot_losses (NHL only)
+    """
+    if sport == 'nhl':
+        return get_nhl_team_last_games(team_name, last_n_games)
+    elif sport == 'nba':
+        return get_nba_team_last_games(team_name, last_n_games)
+    return None
+
+
+def get_nba_team_last_games(team_name, last_n_games=10):
+    """
+    Get last N games for an NBA team from ESPN API.
+
+    Returns:
+        dict with avg_scored, avg_allowed, games_analyzed, wins, losses
+    """
+    try:
+        # Get team ID
+        team_id = NBA_TEAM_ID_MAP.get(team_name)
+        if not team_id:
+            return None
+
+        url = f'https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/{team_id}/schedule'
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()
+        data = response.json()
+
+        # Get completed games
+        completed_events = [e for e in data.get('events', [])
+                           if e['competitions'][0]['status']['type']['completed']][:last_n_games]
+
+        if not completed_events:
+            return None
+
+        scores_for = []
+        scores_against = []
+        wins = 0
+        losses = 0
+
+        for event in completed_events:
+            comp = event['competitions'][0]
+
+            # Find home and away teams
+            home = next((c for c in comp['competitors'] if c['homeAway'] == 'home'), None)
+            away = next((c for c in comp['competitors'] if c['homeAway'] == 'away'), None)
+
+            if not home or not away:
+                continue
+
+            # Determine team's score
+            if home['team']['displayName'] == team_name:
+                team_score = int(home['score']['value'])
+                opponent_score = int(away['score']['value'])
+                is_win = home.get('winner', False)
+            elif away['team']['displayName'] == team_name:
+                team_score = int(away['score']['value'])
+                opponent_score = int(home['score']['value'])
+                is_win = away.get('winner', False)
+            else:
+                continue
+
+            scores_for.append(team_score)
+            scores_against.append(opponent_score)
+
+            if is_win:
+                wins += 1
+            else:
+                losses += 1
+
+        return {
+            'avg_scored': round(sum(scores_for) / len(scores_for), 1) if scores_for else 0,
+            'avg_allowed': round(sum(scores_against) / len(scores_against), 1) if scores_against else 0,
+            'games_analyzed': len(completed_events),
+            'wins': wins,
+            'losses': losses,
+            'ot_losses': 0  # NBA doesn't have OT losses
+        }
+
+    except Exception as e:
+        print(f"⚠️ Error fetching NBA team stats for {team_name}: {e}")
+        return None
+
+
 def get_team_stats_from_results(team_name, sport='nhl', last_n_games=10):
     """
     Calculate average goals/points for a team from results_with_scores files.
@@ -251,8 +380,8 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
     html += f"<div class='matchup'>{away_team} @ {home_team}</div>\n"
 
     # Get team stats for prediction
-    away_stats = get_team_stats_from_results(away_team, sport=sport, last_n_games=10)
-    home_stats = get_team_stats_from_results(home_team, sport=sport, last_n_games=10)
+    away_stats = get_team_stats_from_api(away_team, sport=sport, last_n_games=10)
+    home_stats = get_team_stats_from_api(home_team, sport=sport, last_n_games=10)
 
     # Calculate prediction if both teams have stats
     prediction_html = ""
