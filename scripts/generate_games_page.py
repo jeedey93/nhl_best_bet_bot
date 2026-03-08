@@ -66,6 +66,11 @@ def generate_games_page():
     with open(template_path, "r", encoding="utf-8") as f:
         template = f.read()
 
+    # Read navigation HTML
+    nav_path = "docs/nav.html"
+    with open(nav_path, "r", encoding="utf-8") as f:
+        nav_html = f.read()
+
     # Get today's date
     now = datetime.now(ZoneInfo('America/Toronto'))
     today_str = now.strftime("%A, %B %d, %Y").replace(" 0", " ")
@@ -115,7 +120,8 @@ def generate_games_page():
         nba_html = "<div class='no-games'>No NBA games scheduled for today</div>\n"
 
     # Fill template
-    output = template.replace("{{DATE}}", today_str)
+    output = template.replace("{{NAV_HTML}}", nav_html)
+    output = output.replace("{{DATE}}", today_str)
     output = output.replace("{{NHL_GAMES}}", nhl_html)
     output = output.replace("{{NBA_GAMES}}", nba_html)
 
