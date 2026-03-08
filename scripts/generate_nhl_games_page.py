@@ -1,6 +1,6 @@
 import os
 import sys
-from datetime import datetime
+from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -264,15 +264,20 @@ def get_head_to_head_stats(team1_name, team2_name, season='20252026'):
             else:
                 winner_abbrev = away_abbrev
 
-            # Track wins
+            # Track wins and format results with team abbreviations for clarity
             if winner_abbrev == team1_abbrev:
                 team1_wins += 1
-                result = f"W {home_score}-{away_score}" if home_abbrev == team1_abbrev else f"W {away_score}-{home_score}"
+                # Format: Winner abbrev score - Loser abbrev score
+                result = f"{team1_abbrev} {home_score}-{away_score}" if home_abbrev == team1_abbrev else f"{team1_abbrev} {away_score}-{home_score}"
             else:
                 team2_wins += 1
-                result = f"L {home_score}-{away_score}" if home_abbrev == team1_abbrev else f"L {away_score}-{home_score}"
+                result = f"{team2_abbrev} {home_score}-{away_score}" if home_abbrev == team2_abbrev else f"{team2_abbrev} {away_score}-{home_score}"
 
-            last_5_results.append(result)
+            last_5_results.append({
+                'result': result,
+                'winner': winner_abbrev,
+                'team1_abbrev': team1_abbrev
+            })
 
         # Calculate average total goals in H2H
         avg_h2h_total = round(sum(total_goals) / len(total_goals), 1) if total_goals else 0
@@ -295,6 +300,41 @@ def format_time(iso_time):
     dt = datetime.fromisoformat(iso_time.replace('Z', '+00:00'))
     montreal_time = dt.astimezone(ZoneInfo('America/Toronto'))
     return montreal_time.strftime("%I:%M %p")
+
+
+def check_back_to_back(team_name):
+    """
+    Check if a team is playing back-to-back (played yesterday).
+
+    Returns True if team played yesterday, False otherwise.
+    """
+    try:
+        team_abbrev = NHL_TEAM_ABBREV_MAP.get(team_name)
+        if not team_abbrev:
+            return False
+
+        # Get today and yesterday dates in Montreal timezone
+        montreal_tz = ZoneInfo('America/Toronto')
+        today = datetime.now(montreal_tz).date()
+        yesterday = today - timedelta(days=1)
+        yesterday_str = yesterday.isoformat()
+
+        # Get team schedule
+        url = f'https://api-web.nhle.com/v1/club-schedule-season/{team_abbrev}/now'
+        response = requests.get(url, timeout=10)
+        data = response.json()
+
+        # Check if they played yesterday
+        for game in data.get('games', []):
+            game_date = game.get('gameDate')
+            if game_date == yesterday_str and game.get('gameState') in ['FINAL', 'OFF']:
+                return True
+
+        return False
+
+    except Exception as e:
+        print(f"⚠️ Error checking back-to-back for {team_name}: {e}")
+        return False
 
 
 def parse_odds(odds_data, home_team, away_team):
@@ -384,8 +424,12 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
             html += "</div>\n"
             if h2h_stats['last_5_results']:
                 html += "<div class='h2h-results'>\n"
-                for result in h2h_stats['last_5_results']:
-                    result_class = 'h2h-win' if result.startswith('W') else 'h2h-loss'
+                for result_data in h2h_stats['last_5_results']:
+                    result = result_data['result']
+                    winner = result_data['winner']
+                    team1_abbrev = result_data['team1_abbrev']
+                    # Apply green class if team1 won, red if team1 lost
+                    result_class = 'h2h-win' if winner == team1_abbrev else 'h2h-loss'
                     html += f"<span class='h2h-result {result_class}'>{result}</span>\n"
                 html += "</div>\n"
             html += "</div>\n"
@@ -420,27 +464,6 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
             elif combined_avg < total_line - 0.5:
                 over_under_signal = f"<div class='ou-signal under-signal'>📉 Under {total_line}</div>\n"
 
-    # Generate form trend badges (based on last 10 games record)
-    away_form_badge = ""
-    home_form_badge = ""
-    if away_stats:
-        wins = away_stats['wins']
-        total_games = away_stats['games_analyzed']
-        if total_games >= 8:  # Need at least 8 games to judge form
-            if wins >= 7:  # 7+ wins in last 10 = hot
-                away_form_badge = f"<div class='form-badge hot-form'>🔥 {away_team} Hot</div>\n"
-            elif wins <= 3:  # 3 or fewer wins in last 10 = cold
-                away_form_badge = f"<div class='form-badge cold-form'>🧊 {away_team} Cold</div>\n"
-
-    if home_stats:
-        wins = home_stats['wins']
-        total_games = home_stats['games_analyzed']
-        if total_games >= 8:
-            if wins >= 7:
-                home_form_badge = f"<div class='form-badge hot-form'>🔥 {home_team} Hot</div>\n"
-            elif wins <= 3:
-                home_form_badge = f"<div class='form-badge cold-form'>🧊 {home_team} Cold</div>\n"
-
     # Generate H2H totals insight badge
     h2h_totals_badge = ""
     if sport == 'nhl':
@@ -456,18 +479,29 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
                 elif h2h_avg < total_line - 0.5:
                     h2h_totals_badge = f"<div class='h2h-totals-badge low-scoring'>🛡️ H2H Avg: {h2h_avg} goals</div>\n"
 
-    if prediction_html or over_under_signal or away_form_badge or home_form_badge or h2h_totals_badge:
+    # Check for back-to-back games
+    b2b_badge = ""
+    if sport == 'nhl':
+        away_b2b = check_back_to_back(away_team)
+        home_b2b = check_back_to_back(home_team)
+
+        if away_b2b and home_b2b:
+            b2b_badge = f"<div class='b2b-badge both-b2b'>⚠️ Both on Back-to-Back</div>\n"
+        elif away_b2b:
+            b2b_badge = f"<div class='b2b-badge'>⚠️ {away_team} on Back-to-Back</div>\n"
+        elif home_b2b:
+            b2b_badge = f"<div class='b2b-badge'>⚠️ {home_team} on Back-to-Back</div>\n"
+
+    if prediction_html or over_under_signal or h2h_totals_badge or b2b_badge:
         html += "<div class='signals-row'>\n"
         if prediction_html:
             html += prediction_html
         if over_under_signal:
             html += over_under_signal
-        if away_form_badge:
-            html += away_form_badge
-        if home_form_badge:
-            html += home_form_badge
         if h2h_totals_badge:
             html += h2h_totals_badge
+        if b2b_badge:
+            html += b2b_badge
         html += "</div>\n"
 
     # Key Insights Section
