@@ -18,7 +18,7 @@ def get_team_stats_from_results(team_name, sport='nhl', last_n_games=10):
         last_n_games: Number of recent games to analyze
 
     Returns:
-        dict with avg_scored, avg_allowed, games_analyzed
+        dict with avg_scored, avg_allowed, games_analyzed, wins, losses, ot_losses
     """
     results_dir = f"data/results_with_scores/{sport}"
 
@@ -39,6 +39,9 @@ def get_team_stats_from_results(team_name, sport='nhl', last_n_games=10):
 
     scores_for = []
     scores_against = []
+    wins = 0
+    losses = 0
+    ot_losses = 0
 
     # Parse files until we have enough games
     for file in files:
@@ -72,18 +75,39 @@ def get_team_stats_from_results(team_name, sport='nhl', last_n_games=10):
                                 continue
 
                             # Check if this team played
+                            team_score = None
+                            opponent_score = None
+
                             if normalize(away_team) in team_norm or team_norm in normalize(away_team):
                                 try:
-                                    scores_for.append(int(away_score))
-                                    scores_against.append(int(home_score))
+                                    team_score = int(away_score)
+                                    opponent_score = int(home_score)
+                                    scores_for.append(team_score)
+                                    scores_against.append(opponent_score)
                                 except ValueError:
-                                    pass
+                                    continue
                             elif normalize(home_team) in team_norm or team_norm in normalize(home_team):
                                 try:
-                                    scores_for.append(int(home_score))
-                                    scores_against.append(int(away_score))
+                                    team_score = int(home_score)
+                                    opponent_score = int(away_score)
+                                    scores_for.append(team_score)
+                                    scores_against.append(opponent_score)
                                 except ValueError:
-                                    pass
+                                    continue
+
+                            # Determine win/loss/OT loss
+                            if team_score is not None and opponent_score is not None:
+                                if team_score > opponent_score:
+                                    wins += 1
+                                elif team_score < opponent_score:
+                                    # For NHL, check if it's a one-goal loss (could be OT/SO)
+                                    if sport == 'nhl' and abs(team_score - opponent_score) == 1:
+                                        ot_losses += 1
+                                    else:
+                                        losses += 1
+                                # Ties shouldn't happen in modern NHL/NBA but handle edge case
+                                elif team_score == opponent_score:
+                                    ot_losses += 1
 
                             if len(scores_for) >= last_n_games:
                                 break
@@ -100,7 +124,10 @@ def get_team_stats_from_results(team_name, sport='nhl', last_n_games=10):
     return {
         'avg_scored': round(sum(scores_for) / len(scores_for), 1),
         'avg_allowed': round(sum(scores_against) / len(scores_against), 1),
-        'games_analyzed': len(scores_for)
+        'games_analyzed': len(scores_for),
+        'wins': wins,
+        'losses': losses,
+        'ot_losses': ot_losses
     }
 
 
@@ -212,6 +239,15 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
         html += f"<div class='stat-value'>{away_stats['avg_allowed']}</div>\n"
         html += "</div>\n"
 
+        # Record tile
+        html += "<div class='stat-tile record-tile'>\n"
+        html += "<div class='stat-label'>Last 10 Record</div>\n"
+        if sport == 'nhl':
+            html += f"<div class='stat-record'>{away_stats['wins']}-{away_stats['losses']}-{away_stats['ot_losses']}</div>\n"
+        else:
+            html += f"<div class='stat-record'>{away_stats['wins']}-{away_stats['losses']}</div>\n"
+        html += "</div>\n"
+
         html += "</div>\n"
         html += f"<div class='stat-games'>Last {away_stats['games_analyzed']} games</div>\n"
 
@@ -240,6 +276,15 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
         html += "<div class='stat-tile'>\n"
         html += f"<div class='stat-label'>Avg {score_label} Allowed</div>\n"
         html += f"<div class='stat-value'>{home_stats['avg_allowed']}</div>\n"
+        html += "</div>\n"
+
+        # Record tile
+        html += "<div class='stat-tile record-tile'>\n"
+        html += "<div class='stat-label'>Last 10 Record</div>\n"
+        if sport == 'nhl':
+            html += f"<div class='stat-record'>{home_stats['wins']}-{home_stats['losses']}-{home_stats['ot_losses']}</div>\n"
+        else:
+            html += f"<div class='stat-record'>{home_stats['wins']}-{home_stats['losses']}</div>\n"
         html += "</div>\n"
 
         html += "</div>\n"
