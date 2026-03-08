@@ -133,6 +133,7 @@ def get_nba_team_last_games(team_name, last_n_games=10):
         # Track streak (most recent games first in API)
         streak_type = None  # 'W' or 'L'
         streak_count = 0
+        streak_active = True  # Track if we're still counting the streak
 
         for event in completed_events:
             comp = event['competitions'][0]
@@ -164,18 +165,19 @@ def get_nba_team_last_games(team_name, last_n_games=10):
             else:
                 losses += 1
 
-            # Calculate current streak
-            current_result = 'W' if is_win else 'L'
-            if streak_type is None:
-                # First game (most recent)
-                streak_type = current_result
-                streak_count = 1
-            elif current_result == streak_type:
-                # Continue the streak
-                streak_count += 1
-            else:
-                # Streak broken, stop counting
-                break
+            # Calculate current streak (only while active)
+            if streak_active:
+                current_result = 'W' if is_win else 'L'
+                if streak_type is None:
+                    # First game (most recent)
+                    streak_type = current_result
+                    streak_count = 1
+                elif current_result == streak_type:
+                    # Continue the streak
+                    streak_count += 1
+                else:
+                    # Streak broken, stop counting streak but continue loop
+                    streak_active = False
 
         return {
             'avg_scored': round(sum(scores_for) / len(scores_for), 1) if scores_for else 0,
