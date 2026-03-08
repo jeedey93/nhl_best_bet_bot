@@ -6,6 +6,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from data.odds import get_nhl_odds
 from data.starting_goalies import get_starting_goalies
+from scripts.scrape_nhl_absences import scrape_nhl_absences_by_team
 import requests
 
 
@@ -423,7 +424,7 @@ def parse_odds(odds_data, home_team, away_team):
     return None
 
 
-def generate_game_card(away_team, home_team, game_time, game_odds, away_record=None, home_record=None, sport='nhl', away_logo=None, home_logo=None, game_id=None, away_goalie=None, home_goalie=None, away_team_short=None, home_team_short=None):
+def generate_game_card(away_team, home_team, game_time, game_odds, away_record=None, home_record=None, sport='nhl', away_logo=None, home_logo=None, game_id=None, away_goalie=None, home_goalie=None, away_team_short=None, home_team_short=None, away_absences=None, home_absences=None):
     """Generate HTML for a single game card.
 
     Args:
@@ -431,6 +432,8 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
         home_team: Full team name for display (e.g., "Vegas Golden Knights")
         away_team_short: Short team name for API calls (e.g., "Minnesota", "Vegas")
         home_team_short: Short team name for API calls (e.g., "Minnesota", "Vegas")
+        away_absences: List of injured/scratched players for away team
+        home_absences: List of injured/scratched players for home team
     """
     # Use short names for API calls if provided, otherwise use full names
     away_api_name = away_team_short if away_team_short else away_team
@@ -635,6 +638,14 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
         html += "</div>\n"
         html += "</div>\n"  # Close goalie-row
 
+    # Absences section (NHL only)
+    if sport == 'nhl' and away_absences:
+        html += "<div class='absences-section'>\n"
+        html += "<div class='absences-title'>⚕️ Out</div>\n"
+        for player in away_absences[:5]:  # Show max 5 players
+            html += f"<div class='absence-item'>{player}</div>\n"
+        html += "</div>\n"
+
     if away_stats:
         html += f"<div class='stat-games'>Last {away_stats['games_analyzed']} games</div>\n"
 
@@ -713,6 +724,14 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
             html += "<div class='goalie-status unconfirmed'>Unconfirmed</div>\n"
         html += "</div>\n"
         html += "</div>\n"  # Close goalie-row
+
+    # Absences section (NHL only)
+    if sport == 'nhl' and home_absences:
+        html += "<div class='absences-section'>\n"
+        html += "<div class='absences-title'>⚕️ Out</div>\n"
+        for player in home_absences[:5]:  # Show max 5 players
+            html += f"<div class='absence-item'>{player}</div>\n"
+        html += "</div>\n"
 
     if home_stats:
         html += f"<div class='stat-games'>Last {home_stats['games_analyzed']} games</div>\n"
@@ -865,6 +884,9 @@ def generate_nhl_games_page():
         # Get team standings for season records
         nhl_standings = get_nhl_standings()
 
+        # Get player absences (injured/scratched)
+        absences_by_team = scrape_nhl_absences_by_team()
+
         for game in nhl_games:
             away_team_short = game['awayTeam']['placeName']['default']
             home_team_short = game['homeTeam']['placeName']['default']
@@ -885,10 +907,16 @@ def generate_nhl_games_page():
             away_goalie = starting_goalies.get(away_team_short)
             home_goalie = starting_goalies.get(home_team_short)
 
+            # Get player absences (using team nicknames from API)
+            away_nickname = game['awayTeam']['commonName']['default']
+            home_nickname = game['homeTeam']['commonName']['default']
+            away_absences = absences_by_team.get(away_nickname, [])
+            home_absences = absences_by_team.get(home_nickname, [])
+
             # Parse odds for this game (using short names for matching)
             game_odds = parse_odds(nhl_odds_data, home_team_short, away_team_short)
 
-            nhl_html += generate_game_card(away_team, home_team, game_time, game_odds, away_record, home_record, sport='nhl', away_logo=away_logo, home_logo=home_logo, game_id=game_id, away_goalie=away_goalie, home_goalie=home_goalie, away_team_short=away_team_short, home_team_short=home_team_short)
+            nhl_html += generate_game_card(away_team, home_team, game_time, game_odds, away_record, home_record, sport='nhl', away_logo=away_logo, home_logo=home_logo, game_id=game_id, away_goalie=away_goalie, home_goalie=home_goalie, away_team_short=away_team_short, home_team_short=home_team_short, away_absences=away_absences, home_absences=home_absences)
     else:
         nhl_html = "<div class='no-games'>No NHL games scheduled for today</div>\n"
 
