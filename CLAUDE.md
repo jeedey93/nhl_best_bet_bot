@@ -159,13 +159,13 @@ When adding new teams or fixing match issues, update these dictionaries.
 
 Three workflows in `.github/workflows/`:
 
-1. **daily_predictions.yml** - Runs at 7am and 12pm UTC
+1. **daily_predictions.yml** - Runs at 7am and 12pm Montreal time (11:00 and 16:00 UTC during daylight saving)
    - Executes NHL and NBA prediction scripts
    - Compares predictions (12pm only)
    - Generates dual bet of the day (12pm only)
    - Commits to `master` branch
 
-2. **daily_results.yml** - Runs at 6am UTC
+2. **daily_results.yml** - Runs at 6am Montreal time (10:00 UTC during daylight saving)
    - Fetches yesterday's game results
    - Analyzes prediction accuracy
    - Commits to `master` branch
