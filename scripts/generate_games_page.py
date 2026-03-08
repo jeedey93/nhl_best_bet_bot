@@ -187,43 +187,65 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
     html += "<div class='insights-title'>📊 Key Insights</div>\n"
     html += "<div class='insights-grid'>\n"
 
-    # Away Team Stats
-    html += "<div class='team-insights away-team'>\n"
+    # Away Team Section
+    html += "<div class='team-section'>\n"
+    html += f"<div class='team-header away-team'>\n"
     html += f"<div class='team-name'>{away_team}</div>\n"
     if away_record:
         html += f"<div class='team-record'>{away_record}</div>\n"
+    html += "<div class='team-label'>Away Team</div>\n"
+    html += "</div>\n"
 
     # Get team stats from results
     away_stats = get_team_stats_from_results(away_team, sport=sport, last_n_games=10)
     if away_stats:
         score_label = "Goals" if sport == 'nhl' else "Points"
-        html += f"<div class='team-stats'>\n"
-        html += f"<div class='stat-item'>Avg {score_label} Scored: <strong>{away_stats['avg_scored']}</strong></div>\n"
-        html += f"<div class='stat-item'>Avg {score_label} Allowed: <strong>{away_stats['avg_allowed']}</strong></div>\n"
-        html += f"<div class='stat-games'>Last {away_stats['games_analyzed']} games</div>\n"
+        html += "<div class='stats-tiles'>\n"
+
+        html += "<div class='stat-tile'>\n"
+        html += f"<div class='stat-label'>Avg {score_label} Scored</div>\n"
+        html += f"<div class='stat-value'>{away_stats['avg_scored']}</div>\n"
         html += "</div>\n"
 
-    html += "<div class='team-label'>Away Team</div>\n"
-    html += "</div>\n"
+        html += "<div class='stat-tile'>\n"
+        html += f"<div class='stat-label'>Avg {score_label} Allowed</div>\n"
+        html += f"<div class='stat-value'>{away_stats['avg_allowed']}</div>\n"
+        html += "</div>\n"
 
-    # Home Team Stats
-    html += "<div class='team-insights home-team'>\n"
+        html += "</div>\n"
+        html += f"<div class='stat-games'>Last {away_stats['games_analyzed']} games</div>\n"
+
+    html += "</div>\n"  # Close team-section
+
+    # Home Team Section
+    html += "<div class='team-section'>\n"
+    html += f"<div class='team-header home-team'>\n"
     html += f"<div class='team-name'>{home_team}</div>\n"
     if home_record:
         html += f"<div class='team-record'>{home_record}</div>\n"
+    html += "<div class='team-label'>Home Team</div>\n"
+    html += "</div>\n"
 
     # Get team stats from results
     home_stats = get_team_stats_from_results(home_team, sport=sport, last_n_games=10)
     if home_stats:
         score_label = "Goals" if sport == 'nhl' else "Points"
-        html += f"<div class='team-stats'>\n"
-        html += f"<div class='stat-item'>Avg {score_label} Scored: <strong>{home_stats['avg_scored']}</strong></div>\n"
-        html += f"<div class='stat-item'>Avg {score_label} Allowed: <strong>{home_stats['avg_allowed']}</strong></div>\n"
-        html += f"<div class='stat-games'>Last {home_stats['games_analyzed']} games</div>\n"
+        html += "<div class='stats-tiles'>\n"
+
+        html += "<div class='stat-tile'>\n"
+        html += f"<div class='stat-label'>Avg {score_label} Scored</div>\n"
+        html += f"<div class='stat-value'>{home_stats['avg_scored']}</div>\n"
         html += "</div>\n"
 
-    html += "<div class='team-label'>Home Team</div>\n"
-    html += "</div>\n"
+        html += "<div class='stat-tile'>\n"
+        html += f"<div class='stat-label'>Avg {score_label} Allowed</div>\n"
+        html += f"<div class='stat-value'>{home_stats['avg_allowed']}</div>\n"
+        html += "</div>\n"
+
+        html += "</div>\n"
+        html += f"<div class='stat-games'>Last {home_stats['games_analyzed']} games</div>\n"
+
+    html += "</div>\n"  # Close team-section
 
     html += "</div>\n"  # Close insights-grid
     html += "</div>\n"  # Close key-insights

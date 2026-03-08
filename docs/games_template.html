@@ -116,7 +116,12 @@ body {
   grid-template-columns: 1fr 1fr;
   gap: 20px;
 }
-.team-insights {
+.team-section {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+.team-header {
   background: white;
   border-radius: 12px;
   padding: 20px;
@@ -124,7 +129,7 @@ body {
   border: 2px solid #e5e7eb;
   transition: all 0.2s ease;
 }
-.team-insights:hover {
+.team-header:hover {
   transform: translateY(-3px);
   box-shadow: 0 6px 20px rgba(74, 144, 226, 0.15);
   border-color: #4a90e2;
@@ -150,39 +155,53 @@ body {
   background-clip: text;
   margin-bottom: 8px;
 }
-.team-stats {
-  margin: 12px 0;
-  padding: 12px;
-  background: #f8fafc;
-  border-radius: 8px;
-  border: 1px solid #e5e7eb;
-}
-.stat-item {
-  font-size: 0.9em;
-  color: #374151;
-  margin-bottom: 6px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.stat-item strong {
-  font-size: 1.1em;
-  color: #4a90e2;
-  font-weight: 700;
-}
-.stat-games {
-  font-size: 0.75em;
-  color: #9ca3af;
-  text-align: center;
-  margin-top: 8px;
-  font-style: italic;
-}
 .team-label {
   font-size: 0.75em;
   color: #6b7280;
   text-transform: uppercase;
   font-weight: 600;
   letter-spacing: 1px;
+}
+.stats-tiles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.stat-tile {
+  background: white;
+  border-radius: 10px;
+  padding: 16px;
+  text-align: center;
+  border: 2px solid #e5e7eb;
+  transition: all 0.2s ease;
+}
+.stat-tile:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(74, 144, 226, 0.15);
+  border-color: #4a90e2;
+}
+.stat-label {
+  font-size: 0.8em;
+  color: #6b7280;
+  font-weight: 600;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.stat-value {
+  font-size: 2em;
+  font-weight: 800;
+  background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.stat-games {
+  font-size: 0.75em;
+  color: #9ca3af;
+  text-align: center;
+  font-style: italic;
+  margin-top: 8px;
 }
 .odds-section {
   margin-top: 20px;
@@ -261,6 +280,7 @@ body {
   .matchup { font-size: 1.3em; }
   .game-card { padding: 20px; }
   .insights-grid { grid-template-columns: 1fr; }
+  .stats-tiles { grid-template-columns: 1fr; }
   .odds-grid { grid-template-columns: 1fr; }
 }
 </style>
