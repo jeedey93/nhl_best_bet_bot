@@ -175,6 +175,95 @@ def get_nhl_team_last_games(team_name, last_n_games=10):
 
 
 
+def get_head_to_head_stats(team1_name, team2_name, season='20252026'):
+    """
+    Get head-to-head stats between two teams for the current season.
+
+    Returns dict with:
+    - team1_wins: Number of wins for team1
+    - team2_wins: Number of wins for team2
+    - games_played: Total games between teams
+    - last_5_results: List of last 5 game results
+    """
+    try:
+        # Get team abbreviations
+        team1_abbrev = NHL_TEAM_ABBREV_MAP.get(team1_name)
+        team2_abbrev = NHL_TEAM_ABBREV_MAP.get(team2_name)
+
+        if not team1_abbrev or not team2_abbrev:
+            return None
+
+        # Get team1's schedule
+        url = f'https://api-web.nhle.com/v1/club-schedule-season/{team1_abbrev}/now'
+        response = requests.get(url, timeout=10)
+        data = response.json()
+
+        # Find games between these two teams
+        h2h_games = []
+        for game in data.get('games', []):
+            # Only look at completed games
+            if game.get('gameState') not in ['FINAL', 'OFF']:
+                continue
+
+            # Check if this game was against team2
+            home_team = game.get('homeTeam', {})
+            away_team = game.get('awayTeam', {})
+
+            home_abbrev = home_team.get('abbrev')
+            away_abbrev = away_team.get('abbrev')
+
+            # Check if team2 was involved
+            if team2_abbrev in [home_abbrev, away_abbrev]:
+                h2h_games.append(game)
+
+        if not h2h_games:
+            return None
+
+        # Calculate stats
+        team1_wins = 0
+        team2_wins = 0
+        last_5_results = []
+
+        # Sort by date (most recent first)
+        h2h_games.sort(key=lambda x: x.get('gameDate', ''), reverse=True)
+
+        for game in h2h_games[:5]:  # Last 5 games
+            home_team = game.get('homeTeam', {})
+            away_team = game.get('awayTeam', {})
+
+            home_abbrev = home_team.get('abbrev')
+            away_abbrev = away_team.get('abbrev')
+            home_score = home_team.get('score', 0)
+            away_score = away_team.get('score', 0)
+
+            # Determine winner
+            if home_score > away_score:
+                winner_abbrev = home_abbrev
+            else:
+                winner_abbrev = away_abbrev
+
+            # Track wins
+            if winner_abbrev == team1_abbrev:
+                team1_wins += 1
+                result = f"W {home_score}-{away_score}" if home_abbrev == team1_abbrev else f"W {away_score}-{home_score}"
+            else:
+                team2_wins += 1
+                result = f"L {home_score}-{away_score}" if home_abbrev == team1_abbrev else f"L {away_score}-{home_score}"
+
+            last_5_results.append(result)
+
+        return {
+            'team1_wins': team1_wins,
+            'team2_wins': team2_wins,
+            'games_played': len(h2h_games),
+            'last_5_results': last_5_results
+        }
+
+    except Exception as e:
+        print(f"⚠️ Error fetching H2H stats for {team1_name} vs {team2_name}: {e}")
+        return None
+
+
 def format_time(iso_time):
     """Convert ISO time to Montreal time."""
     dt = datetime.fromisoformat(iso_time.replace('Z', '+00:00'))
@@ -255,6 +344,25 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
     html = f"<div class='game-card' id='{anchor_id}'>\n"
     html += f"<div class='game-time'>{game_time}</div>\n"
     html += f"<div class='matchup'>{away_team} vs {home_team}</div>\n"
+
+    # Get head-to-head stats (NHL only)
+    if sport == 'nhl':
+        h2h_stats = get_head_to_head_stats(away_team, home_team)
+        if h2h_stats:
+            html += "<div class='h2h-section'>\n"
+            html += "<div class='h2h-title'>Head-to-Head This Season</div>\n"
+            html += "<div class='h2h-record'>\n"
+            html += f"<span class='h2h-team'>{away_team}</span>\n"
+            html += f"<span class='h2h-score'>{h2h_stats['team1_wins']}-{h2h_stats['team2_wins']}</span>\n"
+            html += f"<span class='h2h-team'>{home_team}</span>\n"
+            html += "</div>\n"
+            if h2h_stats['last_5_results']:
+                html += "<div class='h2h-results'>\n"
+                for result in h2h_stats['last_5_results']:
+                    result_class = 'h2h-win' if result.startswith('W') else 'h2h-loss'
+                    html += f"<span class='h2h-result {result_class}'>{result}</span>\n"
+                html += "</div>\n"
+            html += "</div>\n"
 
     # Get team stats for prediction
     away_stats = get_team_stats_from_api(away_team, sport=sport, last_n_games=10)
