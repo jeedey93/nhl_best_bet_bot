@@ -1560,17 +1560,18 @@ def update_latest_predictions(results_only=False):
 
     # ── Fixed Navigation Bar ──
     content += "<nav style='position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: linear-gradient(135deg, #2c5aa0 0%, #1e3a8a 100%); box-shadow: 0 2px 10px rgba(0,0,0,0.1); backdrop-filter: blur(10px);'>\n"
-    content += "<div style='max-width: 1600px; margin: 0 auto; padding: 12px 20px; display: flex; align-items: center; justify-content: space-between;'>\n"
-    content += "<div style='display: flex; align-items: center; gap: 15px;'>\n"
-    content += "<img src='parieur_discipline_icon_1024.png' alt='Logo' style='width: 35px; height: 35px; border-radius: 50%;' />\n"
-    content += "<span style='color: white; font-weight: 700; font-size: 1.1em;'>Parieur Discipliné</span>\n"
+    content += "<div style='max-width: 1600px; margin: 0 auto; padding: 10px 15px; display: flex; align-items: center; justify-content: space-between;'>\n"
+    content += "<div style='display: flex; align-items: center; gap: 10px;'>\n"
+    content += "<img src='parieur_discipline_icon_1024.png' alt='Logo' style='width: 32px; height: 32px; border-radius: 50%;' />\n"
+    content += "<span style='color: white; font-weight: 700; font-size: 1em;'>Parieur Discipliné</span>\n"
     content += "</div>\n"
-    content += "<div style='display: flex; gap: 5px; flex-wrap: wrap;'>\n"
-    content += "<a href='index.html' style='color: white; text-decoration: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 0.9em; transition: background 0.2s;' onmouseover='this.style.background=\"rgba(255,255,255,0.15)\"' onmouseout='this.style.background=\"transparent\"'>Home</a>\n"
-    content += "<a href='games.html' style='color: white; text-decoration: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 0.9em; transition: background 0.2s;' onmouseover='this.style.background=\"rgba(255,255,255,0.15)\"' onmouseout='this.style.background=\"transparent\"'>Today's Games</a>\n"
+    content += "<div style='display: flex; gap: 8px;'>\n"
+    content += "<a href='index.html' style='color: white; text-decoration: none; padding: 8px 14px; border-radius: 6px; font-weight: 600; font-size: 0.9em; transition: background 0.2s; white-space: nowrap;' onmouseover='this.style.background=\"rgba(255,255,255,0.15)\"' onmouseout='this.style.background=\"transparent\"'>Home</a>\n"
+    content += "<a href='games.html' style='color: white; text-decoration: none; padding: 8px 14px; border-radius: 6px; font-weight: 600; font-size: 0.9em; transition: background 0.2s; white-space: nowrap;' onmouseover='this.style.background=\"rgba(255,255,255,0.15)\"' onmouseout='this.style.background=\"transparent\"'>Games</a>\n"
     content += "</div>\n"
     content += "</div>\n"
     content += "</nav>\n"
+    content += "<style>@media (max-width: 768px) { nav div:first-child span { font-size: 0.9em; } nav div:first-child img { width: 28px; height: 28px; } nav a { padding: 6px 12px; font-size: 0.85em; } }</style>\n"
     content += "<div style='height: 60px;'></div>\n"  # Spacer for fixed nav
 
     # ── Sports Blog CSS ──
