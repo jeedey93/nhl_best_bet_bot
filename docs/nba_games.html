@@ -181,6 +181,83 @@ body {
   line-height: 1.3;
   text-align: center;
 }
+.h2h-section {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-radius: 12px;
+  padding: 15px 20px;
+  margin-bottom: 20px;
+  border: 2px solid #e5e7eb;
+  text-align: center;
+}
+.h2h-title {
+  font-size: 0.85em;
+  font-weight: 700;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+}
+.h2h-record {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 12px;
+}
+.h2h-team {
+  font-size: 0.9em;
+  font-weight: 600;
+  color: #4b5563;
+}
+.h2h-score {
+  font-size: 1.4em;
+  font-weight: 800;
+  background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  padding: 0 10px;
+}
+.h2h-results {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.h2h-result {
+  font-size: 0.8em;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 6px;
+  color: white;
+}
+.h2h-win {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3);
+}
+.h2h-loss {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.3);
+}
+.h2h-totals-badge {
+  display: inline-block;
+  padding: 8px 20px;
+  border-radius: 20px;
+  font-size: 0.95em;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+.high-scoring {
+  background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+  color: white;
+  border: 2px solid #db2777;
+}
+.low-scoring {
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  color: white;
+  border: 2px solid #7c3aed;
+}
 .signals-row {
   display: flex;
   gap: 12px;
@@ -224,6 +301,23 @@ body {
   background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
   color: white;
   border: 2px solid #3b82f6;
+}
+.b2b-badge {
+  display: inline-block;
+  padding: 8px 20px;
+  border-radius: 20px;
+  font-size: 0.95em;
+  font-weight: 700;
+  background: linear-gradient(135deg, #fb923c 0%, #f97316 100%);
+  color: white;
+  border: 2px solid #f97316;
+  box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+.both-b2b {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  border: 2px solid #dc2626;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
 }
 @keyframes pulse-glow {
   0%, 100% {
@@ -574,7 +668,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='mini-matchup'>Boston Celtics @ Cleveland Caval</div>
 </a>
 <a href='#game-eb2b99ecfa9d75e8e25ce5b0d036f373' class='mini-game-tile'>
-<div class='mini-time'>🏀 03:40 PM</div>
+<div class='mini-time'>🏀 03:43 PM</div>
 <div class='mini-teams'>
 <img src='https://cdn.nba.com/logos/nba/1610612752/global/L/logo.svg' class='mini-logo' />
 <span class='mini-at'>@</span>
@@ -665,7 +759,6 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='matchup'>Boston Celtics vs Cleveland Cavaliers</div>
 <div class='signals-row'>
 <div class='prediction-indicator home-favored'>↗ Trending: Cleveland Cavaliers</div>
-<div class='ou-signal over-signal'>📈 Over 210.5</div>
 </div>
 <div class='key-insights'>
 <div class='insights-title'>📊 Key Insights</div>
@@ -674,7 +767,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='team-header away-team'>
 <img src='https://cdn.nba.com/logos/nba/1610612738/global/L/logo.svg' alt='Boston Celtics' class='team-logo' />
 <div class='team-name'>Boston Celtics</div>
-<div class='team-record'>42-21</div>
+<div class='team-record'>43-21</div>
 <div class='team-label'>Away Team</div>
 </div>
 <div class='stats-tiles'>
@@ -697,7 +790,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='team-header home-team'>
 <img src='https://cdn.nba.com/logos/nba/1610612739/global/L/logo.svg' alt='Cleveland Cavaliers' class='team-logo' />
 <div class='team-name'>Cleveland Cavaliers</div>
-<div class='team-record'>39-24</div>
+<div class='team-record'>39-25</div>
 <div class='team-label'>Home Team</div>
 </div>
 <div class='stats-tiles'>
@@ -718,35 +811,13 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 </div>
 </div>
-<div class='odds-section'>
-<div class='odds-toggle'>View Odds ▼</div>
-<div class='odds-content'>
-<div class='odds-grid'>
-<div class='odds-card'>
-<div class='odds-label'>Moneyline</div>
-<div class='odds-value'><span>Boston Celtics</span><span>1.06</span></div>
-<div class='odds-value'><span>Cleveland Caval</span><span>8.5</span></div>
-</div>
-<div class='odds-card'>
-<div class='odds-label'>Total</div>
-<div class='odds-value'><span>Over 210.5</span><span>1.88</span></div>
-<div class='odds-value'><span>Under 210.5</span><span>1.88</span></div>
-</div>
-<div class='odds-card'>
-<div class='odds-label'>Spread</div>
-<div class='odds-value'><span>Boston Celtics -8.5</span><span>2.1</span></div>
-<div class='odds-value'><span>Cleveland Caval +8.5</span><span>1.68</span></div>
-</div>
-</div>
-</div>
-</div>
 </div>
 <div class='game-card' id='game-eb2b99ecfa9d75e8e25ce5b0d036f373'>
-<div class='game-time'>03:40 PM</div>
+<div class='game-time'>03:43 PM</div>
 <div class='matchup'>New York Knicks vs Los Angeles Lakers</div>
 <div class='signals-row'>
 <div class='prediction-indicator away-favored'>↗ Trending: New York Knicks</div>
-<div class='ou-signal over-signal'>📈 Over 226.5</div>
+<div class='ou-signal over-signal'>📈 Over 221.5</div>
 </div>
 <div class='key-insights'>
 <div class='insights-title'>📊 Key Insights</div>
@@ -805,18 +876,18 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='odds-grid'>
 <div class='odds-card'>
 <div class='odds-label'>Moneyline</div>
-<div class='odds-value'><span>New York Knicks</span><span>1.56</span></div>
-<div class='odds-value'><span>Los Angeles Lak</span><span>2.52</span></div>
+<div class='odds-value'><span>New York Knicks</span><span>1.49</span></div>
+<div class='odds-value'><span>Los Angeles Lak</span><span>2.58</span></div>
 </div>
 <div class='odds-card'>
 <div class='odds-label'>Total</div>
-<div class='odds-value'><span>Over 226.5</span><span>1.93</span></div>
-<div class='odds-value'><span>Under 226.5</span><span>1.89</span></div>
+<div class='odds-value'><span>Over 221.5</span><span>1.89</span></div>
+<div class='odds-value'><span>Under 221.5</span><span>1.85</span></div>
 </div>
 <div class='odds-card'>
 <div class='odds-label'>Spread</div>
-<div class='odds-value'><span>New York Knicks -4.5</span><span>1.88</span></div>
-<div class='odds-value'><span>Los Angeles Lak +4.5</span><span>1.94</span></div>
+<div class='odds-value'><span>New York Knicks -5.5</span><span>2.0</span></div>
+<div class='odds-value'><span>Los Angeles Lak +5.5</span><span>1.76</span></div>
 </div>
 </div>
 </div>
@@ -908,7 +979,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='matchup'>Detroit Pistons vs Miami Heat</div>
 <div class='signals-row'>
 <div class='prediction-indicator away-favored'>↗ Trending: Detroit Pistons</div>
-<div class='ou-signal over-signal'>📈 Over 231.5</div>
+<div class='ou-signal over-signal'>📈 Over 230.5</div>
 </div>
 <div class='key-insights'>
 <div class='insights-title'>📊 Key Insights</div>
@@ -967,18 +1038,18 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='odds-grid'>
 <div class='odds-card'>
 <div class='odds-label'>Moneyline</div>
-<div class='odds-value'><span>Detroit Pistons</span><span>1.81</span></div>
-<div class='odds-value'><span>Miami Heat</span><span>2.06</span></div>
+<div class='odds-value'><span>Detroit Pistons</span><span>1.85</span></div>
+<div class='odds-value'><span>Miami Heat</span><span>2.0</span></div>
 </div>
 <div class='odds-card'>
 <div class='odds-label'>Total</div>
-<div class='odds-value'><span>Over 231.5</span><span>1.91</span></div>
-<div class='odds-value'><span>Under 231.5</span><span>1.91</span></div>
+<div class='odds-value'><span>Over 230.5</span><span>1.88</span></div>
+<div class='odds-value'><span>Under 230.5</span><span>1.94</span></div>
 </div>
 <div class='odds-card'>
 <div class='odds-label'>Spread</div>
-<div class='odds-value'><span>Detroit Pistons -1.5</span><span>1.89</span></div>
-<div class='odds-value'><span>Miami Heat +1.5</span><span>1.93</span></div>
+<div class='odds-value'><span>Detroit Pistons -1.5</span><span>1.91</span></div>
+<div class='odds-value'><span>Miami Heat +1.5</span><span>1.91</span></div>
 </div>
 </div>
 </div>
@@ -1129,8 +1200,8 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='odds-grid'>
 <div class='odds-card'>
 <div class='odds-label'>Moneyline</div>
-<div class='odds-value'><span>Houston Rockets</span><span>2.72</span></div>
-<div class='odds-value'><span>San Antonio Spu</span><span>1.49</span></div>
+<div class='odds-value'><span>Houston Rockets</span><span>2.76</span></div>
+<div class='odds-value'><span>San Antonio Spu</span><span>1.48</span></div>
 </div>
 <div class='odds-card'>
 <div class='odds-label'>Total</div>
@@ -1139,8 +1210,8 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 <div class='odds-card'>
 <div class='odds-label'>Spread</div>
-<div class='odds-value'><span>Houston Rockets +5.5</span><span>1.89</span></div>
-<div class='odds-value'><span>San Antonio Spu -5.5</span><span>1.93</span></div>
+<div class='odds-value'><span>Houston Rockets +5.5</span><span>1.91</span></div>
+<div class='odds-value'><span>San Antonio Spu -5.5</span><span>1.91</span></div>
 </div>
 </div>
 </div>
@@ -1382,8 +1453,8 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 <div class='odds-card'>
 <div class='odds-label'>Spread</div>
-<div class='odds-value'><span>Indiana Pacers +8.5</span><span>1.93</span></div>
-<div class='odds-value'><span>Portland Trail  -8.5</span><span>1.89</span></div>
+<div class='odds-value'><span>Indiana Pacers +8.5</span><span>1.94</span></div>
+<div class='odds-value'><span>Portland Trail  -8.5</span><span>1.88</span></div>
 </div>
 </div>
 </div>

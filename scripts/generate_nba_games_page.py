@@ -1,6 +1,6 @@
 import os
 import sys
-from datetime import datetime
+from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -182,6 +182,161 @@ def format_time(iso_time):
     return montreal_time.strftime("%I:%M %p")
 
 
+def check_back_to_back(team_name):
+    """
+    Check if an NBA team is playing back-to-back (played yesterday).
+
+    Returns True if team played yesterday, False otherwise.
+    """
+    try:
+        team_id = NBA_TEAM_ID_MAP.get(team_name)
+        if not team_id:
+            return False
+
+        # Get today and yesterday dates in Montreal timezone
+        montreal_tz = ZoneInfo('America/Toronto')
+        today = datetime.now(montreal_tz).date()
+        yesterday = today - timedelta(days=1)
+        yesterday_str = yesterday.isoformat()
+
+        # Get team schedule from ESPN
+        url = f'https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/{team_id}/schedule'
+        response = requests.get(url, timeout=10)
+        data = response.json()
+
+        # Check if they played yesterday
+        events = data.get('events', [])
+        for event in events:
+            event_date = event.get('date', '')
+            # Extract date from ISO timestamp
+            if event_date:
+                game_date = datetime.fromisoformat(event_date.replace('Z', '+00:00')).astimezone(montreal_tz).date()
+                if game_date == yesterday:
+                    # Check if game is completed
+                    status = event.get('status', {}).get('type', {}).get('completed', False)
+                    if status:
+                        return True
+
+        return False
+
+    except Exception as e:
+        print(f"⚠️ Error checking back-to-back for {team_name}: {e}")
+        return False
+
+
+def get_head_to_head_stats(team1_name, team2_name):
+    """
+    Get head-to-head stats between two NBA teams for the current season.
+
+    Returns dict with:
+    - team1_wins: Number of wins for team1
+    - team2_wins: Number of wins for team2
+    - games_played: Total games between teams
+    - last_5_results: List of last 5 game results
+    - avg_total_points: Average total points in H2H games
+    """
+    try:
+        # Get team IDs
+        team1_id = NBA_TEAM_ID_MAP.get(team1_name)
+        team2_id = NBA_TEAM_ID_MAP.get(team2_name)
+
+        if not team1_id or not team2_id:
+            return None
+
+        # Get team1's schedule
+        url = f'https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/{team1_id}/schedule'
+        response = requests.get(url, timeout=10)
+        data = response.json()
+
+        # Find games between these two teams
+        h2h_games = []
+        for event in data.get('events', []):
+            # Check if game is completed
+            status = event.get('status', {}).get('type', {}).get('completed', False)
+            if not status:
+                continue
+
+            # Check if team2 was involved
+            competition = event.get('competitions', [{}])[0]
+            competitors = competition.get('competitors', [])
+
+            team_ids = [c.get('team', {}).get('id') for c in competitors]
+            if team2_id in team_ids:
+                h2h_games.append(event)
+
+        if not h2h_games:
+            return None
+
+        # Calculate stats
+        team1_wins = 0
+        team2_wins = 0
+        last_5_results = []
+        total_points = []
+
+        # Sort by date (most recent first) - already sorted by API
+        for event in h2h_games[:5]:  # Last 5 games
+            competition = event.get('competitions', [{}])[0]
+            competitors = competition.get('competitors', [])
+
+            home = next((c for c in competitors if c.get('homeAway') == 'home'), {})
+            away = next((c for c in competitors if c.get('homeAway') == 'away'), {})
+
+            home_id = home.get('team', {}).get('id')
+            away_id = away.get('team', {}).get('id')
+            home_score = int(float(home.get('score', {}).get('value', 0)))
+            away_score = int(float(away.get('score', {}).get('value', 0)))
+
+            # Track total points
+            total_points.append(home_score + away_score)
+
+            # Determine winner
+            if home_score > away_score:
+                winner_id = home_id
+            else:
+                winner_id = away_id
+
+            # Get team abbreviations for display
+            home_abbrev = home.get('team', {}).get('abbreviation', 'HOME')
+            away_abbrev = away.get('team', {}).get('abbreviation', 'AWAY')
+
+            # Determine which is team1
+            if team1_id == home_id:
+                team1_abbrev = home_abbrev
+                team2_abbrev = away_abbrev
+            else:
+                team1_abbrev = away_abbrev
+                team2_abbrev = home_abbrev
+
+            # Track wins and format results
+            if winner_id == team1_id:
+                team1_wins += 1
+                result = f"{team1_abbrev} {home_score}-{away_score}" if home_id == team1_id else f"{team1_abbrev} {away_score}-{home_score}"
+            else:
+                team2_wins += 1
+                result = f"{team2_abbrev} {home_score}-{away_score}" if home_id == team2_id else f"{team2_abbrev} {away_score}-{home_score}"
+
+            last_5_results.append({
+                'result': result,
+                'winner': winner_id,
+                'team1_id': team1_id
+            })
+
+        # Calculate average total points in H2H
+        avg_h2h_total = round(sum(total_points) / len(total_points), 1) if total_points else 0
+
+        return {
+            'team1_wins': team1_wins,
+            'team2_wins': team2_wins,
+            'games_played': len(h2h_games),
+            'last_5_results': last_5_results,
+            'avg_total_points': avg_h2h_total
+        }
+
+    except Exception as e:
+        print(f"⚠️ Error fetching H2H stats for {team1_name} vs {team2_name}: {e}")
+        return None
+
+
 def parse_odds(odds_data, home_team, away_team):
     """Parse odds from The Odds API response."""
     # Normalize team names for matching
@@ -256,6 +411,28 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
     html += f"<div class='game-time'>{game_time}</div>\n"
     html += f"<div class='matchup'>{away_team} vs {home_team}</div>\n"
 
+    # Get head-to-head stats
+    h2h_stats = get_head_to_head_stats(away_team, home_team)
+    if h2h_stats:
+        html += "<div class='h2h-section'>\n"
+        html += "<div class='h2h-title'>Season Series</div>\n"
+        html += "<div class='h2h-record'>\n"
+        html += f"<span class='h2h-team'>{away_team}</span>\n"
+        html += f"<span class='h2h-score'>{h2h_stats['team1_wins']}-{h2h_stats['team2_wins']}</span>\n"
+        html += f"<span class='h2h-team'>{home_team}</span>\n"
+        html += "</div>\n"
+        if h2h_stats['last_5_results']:
+            html += "<div class='h2h-results'>\n"
+            for result_data in h2h_stats['last_5_results']:
+                result = result_data['result']
+                winner = result_data['winner']
+                team1_id = result_data['team1_id']
+                # Apply green class if team1 won, red if team1 lost
+                result_class = 'h2h-win' if winner == team1_id else 'h2h-loss'
+                html += f"<span class='h2h-result {result_class}'>{result}</span>\n"
+            html += "</div>\n"
+        html += "</div>\n"
+
     # Get team stats for prediction
     away_stats = get_team_stats_from_api(away_team, sport=sport, last_n_games=10)
     home_stats = get_team_stats_from_api(home_team, sport=sport, last_n_games=10)
@@ -286,12 +463,42 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
             elif combined_avg < total_line - 0.5:
                 over_under_signal = f"<div class='ou-signal under-signal'>📉 Under {total_line}</div>\n"
 
-    if prediction_html or over_under_signal:
+    # Generate H2H totals insight badge
+    h2h_totals_badge = ""
+    if h2h_stats and game_odds and 'totals' in game_odds.get('markets', {}):
+        h2h_avg = h2h_stats.get('avg_total_points', 0)
+        total_line = game_odds['markets']['totals']['point']
+
+        if h2h_avg > 0:
+            # Compare H2H average to betting line
+            if h2h_avg > total_line + 2:  # NBA has higher scores, use 2 point threshold
+                h2h_totals_badge = f"<div class='h2h-totals-badge high-scoring'>⚡ H2H Avg: {h2h_avg} pts</div>\n"
+            elif h2h_avg < total_line - 2:
+                h2h_totals_badge = f"<div class='h2h-totals-badge low-scoring'>🛡️ H2H Avg: {h2h_avg} pts</div>\n"
+
+    # Check for back-to-back games
+    b2b_badge = ""
+    if sport == 'nba':
+        away_b2b = check_back_to_back(away_team)
+        home_b2b = check_back_to_back(home_team)
+
+        if away_b2b and home_b2b:
+            b2b_badge = f"<div class='b2b-badge both-b2b'>⚠️ Both on Back-to-Back</div>\n"
+        elif away_b2b:
+            b2b_badge = f"<div class='b2b-badge'>⚠️ {away_team} on Back-to-Back</div>\n"
+        elif home_b2b:
+            b2b_badge = f"<div class='b2b-badge'>⚠️ {home_team} on Back-to-Back</div>\n"
+
+    if prediction_html or over_under_signal or h2h_totals_badge or b2b_badge:
         html += "<div class='signals-row'>\n"
         if prediction_html:
             html += prediction_html
         if over_under_signal:
             html += over_under_signal
+        if h2h_totals_badge:
+            html += h2h_totals_badge
+        if b2b_badge:
+            html += b2b_badge
         html += "</div>\n"
 
     # Key Insights Section
