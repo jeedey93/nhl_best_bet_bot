@@ -160,16 +160,15 @@ body {
   border-color: #4a90e2;
 }
 .game-time {
-  color: #1e293b;
-  font-size: 1.1em;
-  margin-bottom: 12px;
-  font-weight: 700;
+  color: #6b7280;
+  font-size: 0.95em;
+  margin-bottom: 8px;
+  font-weight: 600;
   display: block;
   text-align: center;
-  background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
-  padding: 10px 20px;
-  border-radius: 25px;
-  border: 2px solid #d1d5db;
+}
+.game-time::before {
+  content: '🕐 ';
 }
 .matchup {
   font-size: 1.8em;
@@ -369,34 +368,96 @@ body {
   box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
 }
 .goalie-tile {
-  border-color: #8b5cf6;
-  background: linear-gradient(135deg, #f5f3ff 0%, #ffffff 100%);
+  border-color: #4a90e2;
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  padding: 15px !important;
 }
 .goalie-tile:hover {
-  border-color: #8b5cf6;
-  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2);
+  border-color: #357abd;
+  box-shadow: 0 6px 20px rgba(74, 144, 226, 0.25);
+  transform: translateY(-2px);
 }
 .goalie-name {
-  font-size: 1.1em;
+  font-size: 1em;
   font-weight: 700;
   color: #1e293b;
   margin-bottom: 6px;
+  text-align: center;
+  background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 .goalie-status {
-  font-size: 0.75em;
-  font-weight: 600;
+  font-size: 0.65em;
+  font-weight: 700;
   text-transform: uppercase;
-  padding: 4px 8px;
-  border-radius: 4px;
-  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 12px;
+  display: block;
+  text-align: center;
+  margin-bottom: 10px;
 }
 .goalie-status.confirmed {
-  background: #d1fae5;
-  color: #065f46;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
 }
 .goalie-status.unconfirmed {
-  background: #fef3c7;
-  color: #92400e;
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+}
+.goalie-stats {
+  margin-top: 10px;
+  padding: 10px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+.goalie-stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.75em;
+  margin-bottom: 5px;
+  padding: 5px 8px;
+  background: #f9fafb;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+.goalie-stat-row:hover {
+  background: #f3f4f6;
+  transform: translateX(3px);
+}
+.goalie-stat-row .stat-name {
+  font-weight: 700;
+  color: #6b7280;
+  font-size: 0.9em;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+.goalie-stat-row .stat-val {
+  font-weight: 800;
+  color: #1e293b;
+  font-size: 1em;
+  background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.goalie-last-5 {
+  font-size: 0.7em;
+  font-weight: 800;
+  color: white;
+  background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+  margin: 10px -10px 8px -10px;
+  padding: 6px;
+  text-align: center;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(74, 144, 226, 0.3);
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
 }
 .stat-games {
   font-size: 0.75em;
@@ -670,6 +731,15 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='stat-label'>Starting Goalie</div>
 <div class='goalie-name'>Filip Gustavsson</div>
 <div class='goalie-status confirmed'>Confirmed</div>
+<div class='goalie-stats'>
+<div class='goalie-stat-row'><span class='stat-name'>Record:</span> <span class='stat-val'>23-10-6</span></div>
+<div class='goalie-stat-row'><span class='stat-name'>GAA:</span> <span class='stat-val'>2.53</span></div>
+<div class='goalie-stat-row'><span class='stat-name'>SV%:</span> <span class='stat-val'>0.912</span></div>
+<div class='goalie-last-5'>Last 5 Starts</div>
+<div class='goalie-stat-row'><span class='stat-val'>4-1</span></div>
+<div class='goalie-stat-row'><span class='stat-val'>2.2 GAA</span></div>
+<div class='goalie-stat-row'><span class='stat-val'>0.931 SV%</span></div>
+</div>
 </div>
 </div>
 <div class='stat-games'>Last 10 games</div>
@@ -700,6 +770,15 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='stat-label'>Starting Goalie</div>
 <div class='goalie-name'>Scott Wedgewood</div>
 <div class='goalie-status confirmed'>Confirmed</div>
+<div class='goalie-stats'>
+<div class='goalie-stat-row'><span class='stat-name'>Record:</span> <span class='stat-val'>23-4-5</span></div>
+<div class='goalie-stat-row'><span class='stat-name'>GAA:</span> <span class='stat-val'>2.2</span></div>
+<div class='goalie-stat-row'><span class='stat-name'>SV%:</span> <span class='stat-val'>0.915</span></div>
+<div class='goalie-last-5'>Last 5 Starts</div>
+<div class='goalie-stat-row'><span class='stat-val'>2-2</span></div>
+<div class='goalie-stat-row'><span class='stat-val'>2.75 GAA</span></div>
+<div class='goalie-stat-row'><span class='stat-val'>0.892 SV%</span></div>
+</div>
 </div>
 </div>
 <div class='stat-games'>Last 10 games</div>
@@ -712,13 +791,13 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='odds-grid'>
 <div class='odds-card'>
 <div class='odds-label'>Moneyline</div>
-<div class='odds-value'><span>Minnesota</span><span>2.24</span></div>
-<div class='odds-value'><span>Colorado</span><span>1.62</span></div>
+<div class='odds-value'><span>Minnesota</span><span>2.3</span></div>
+<div class='odds-value'><span>Colorado</span><span>1.6</span></div>
 </div>
 <div class='odds-card'>
 <div class='odds-label'>Total</div>
-<div class='odds-value'><span>Over 3.5</span><span>1.74</span></div>
-<div class='odds-value'><span>Under 3.5</span><span>2.05</span></div>
+<div class='odds-value'><span>Over 3.5</span><span>2.35</span></div>
+<div class='odds-value'><span>Under 3.5</span><span>1.57</span></div>
 </div>
 </div>
 </div>
@@ -756,6 +835,15 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='stat-label'>Starting Goalie</div>
 <div class='goalie-name'>Joonas Korpisalo</div>
 <div class='goalie-status confirmed'>Confirmed</div>
+<div class='goalie-stats'>
+<div class='goalie-stat-row'><span class='stat-name'>Record:</span> <span class='stat-val'>11-9-2</span></div>
+<div class='goalie-stat-row'><span class='stat-name'>GAA:</span> <span class='stat-val'>3.2</span></div>
+<div class='goalie-stat-row'><span class='stat-name'>SV%:</span> <span class='stat-val'>0.893</span></div>
+<div class='goalie-last-5'>Last 5 Starts</div>
+<div class='goalie-stat-row'><span class='stat-val'>2-3</span></div>
+<div class='goalie-stat-row'><span class='stat-val'>3.6 GAA</span></div>
+<div class='goalie-stat-row'><span class='stat-val'>0.882 SV%</span></div>
+</div>
 </div>
 </div>
 <div class='stat-games'>Last 10 games</div>
@@ -786,6 +874,15 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='stat-label'>Starting Goalie</div>
 <div class='goalie-name'>Arturs Silovs</div>
 <div class='goalie-status confirmed'>Confirmed</div>
+<div class='goalie-stats'>
+<div class='goalie-stat-row'><span class='stat-name'>Record:</span> <span class='stat-val'>13-8-8</span></div>
+<div class='goalie-stat-row'><span class='stat-name'>GAA:</span> <span class='stat-val'>2.8</span></div>
+<div class='goalie-stat-row'><span class='stat-name'>SV%:</span> <span class='stat-val'>0.9</span></div>
+<div class='goalie-last-5'>Last 5 Starts</div>
+<div class='goalie-stat-row'><span class='stat-val'>3-2</span></div>
+<div class='goalie-stat-row'><span class='stat-val'>2.0 GAA</span></div>
+<div class='goalie-stat-row'><span class='stat-val'>0.926 SV%</span></div>
+</div>
 </div>
 </div>
 <div class='stat-games'>Last 10 games</div>
@@ -845,6 +942,15 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='stat-label'>Starting Goalie</div>
 <div class='goalie-name'>Jonas Johansson</div>
 <div class='goalie-status confirmed'>Confirmed</div>
+<div class='goalie-stats'>
+<div class='goalie-stat-row'><span class='stat-name'>Record:</span> <span class='stat-val'>10-8-1</span></div>
+<div class='goalie-stat-row'><span class='stat-name'>GAA:</span> <span class='stat-val'>2.98</span></div>
+<div class='goalie-stat-row'><span class='stat-name'>SV%:</span> <span class='stat-val'>0.89</span></div>
+<div class='goalie-last-5'>Last 5 Starts</div>
+<div class='goalie-stat-row'><span class='stat-val'>2-2</span></div>
+<div class='goalie-stat-row'><span class='stat-val'>3.75 GAA</span></div>
+<div class='goalie-stat-row'><span class='stat-val'>0.854 SV%</span></div>
+</div>
 </div>
 </div>
 <div class='stat-games'>Last 10 games</div>
@@ -875,6 +981,15 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='stat-label'>Starting Goalie</div>
 <div class='goalie-name'>Ukko-Pekka Luukkonen</div>
 <div class='goalie-status confirmed'>Confirmed</div>
+<div class='goalie-stats'>
+<div class='goalie-stat-row'><span class='stat-name'>Record:</span> <span class='stat-val'>14-7-2</span></div>
+<div class='goalie-stat-row'><span class='stat-name'>GAA:</span> <span class='stat-val'>2.55</span></div>
+<div class='goalie-stat-row'><span class='stat-name'>SV%:</span> <span class='stat-val'>0.91</span></div>
+<div class='goalie-last-5'>Last 5 Starts</div>
+<div class='goalie-stat-row'><span class='stat-val'>4-0</span></div>
+<div class='goalie-stat-row'><span class='stat-val'>1.6 GAA</span></div>
+<div class='goalie-stat-row'><span class='stat-val'>0.94 SV%</span></div>
+</div>
 </div>
 </div>
 <div class='stat-games'>Last 10 games</div>
@@ -934,6 +1049,15 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='stat-label'>Starting Goalie</div>
 <div class='goalie-name'>Arvid Soderblom</div>
 <div class='goalie-status confirmed'>Confirmed</div>
+<div class='goalie-stats'>
+<div class='goalie-stat-row'><span class='stat-name'>Record:</span> <span class='stat-val'>6-10-2</span></div>
+<div class='goalie-stat-row'><span class='stat-name'>GAA:</span> <span class='stat-val'>3.69</span></div>
+<div class='goalie-stat-row'><span class='stat-name'>SV%:</span> <span class='stat-val'>0.876</span></div>
+<div class='goalie-last-5'>Last 5 Starts</div>
+<div class='goalie-stat-row'><span class='stat-val'>1-4</span></div>
+<div class='goalie-stat-row'><span class='stat-val'>3.2 GAA</span></div>
+<div class='goalie-stat-row'><span class='stat-val'>0.887 SV%</span></div>
+</div>
 </div>
 </div>
 <div class='stat-games'>Last 10 games</div>
@@ -1024,6 +1148,15 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='stat-label'>Starting Goalie</div>
 <div class='goalie-name'>John Gibson</div>
 <div class='goalie-status confirmed'>Confirmed</div>
+<div class='goalie-stats'>
+<div class='goalie-stat-row'><span class='stat-name'>Record:</span> <span class='stat-val'>23-13-2</span></div>
+<div class='goalie-stat-row'><span class='stat-name'>GAA:</span> <span class='stat-val'>2.56</span></div>
+<div class='goalie-stat-row'><span class='stat-name'>SV%:</span> <span class='stat-val'>0.906</span></div>
+<div class='goalie-last-5'>Last 5 Starts</div>
+<div class='goalie-stat-row'><span class='stat-val'>2-2</span></div>
+<div class='goalie-stat-row'><span class='stat-val'>1.4 GAA</span></div>
+<div class='goalie-stat-row'><span class='stat-val'>0.933 SV%</span></div>
+</div>
 </div>
 </div>
 <div class='stat-games'>Last 10 games</div>
@@ -1054,6 +1187,15 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='stat-label'>Starting Goalie</div>
 <div class='goalie-name'>Jake Allen</div>
 <div class='goalie-status confirmed'>Confirmed</div>
+<div class='goalie-stats'>
+<div class='goalie-stat-row'><span class='stat-name'>Record:</span> <span class='stat-val'>12-15-1</span></div>
+<div class='goalie-stat-row'><span class='stat-name'>GAA:</span> <span class='stat-val'>2.64</span></div>
+<div class='goalie-stat-row'><span class='stat-name'>SV%:</span> <span class='stat-val'>0.907</span></div>
+<div class='goalie-last-5'>Last 5 Starts</div>
+<div class='goalie-stat-row'><span class='stat-val'>1-4</span></div>
+<div class='goalie-stat-row'><span class='stat-val'>2.4 GAA</span></div>
+<div class='goalie-stat-row'><span class='stat-val'>0.904 SV%</span></div>
+</div>
 </div>
 </div>
 <div class='stat-games'>Last 10 games</div>
@@ -1113,6 +1255,15 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='stat-label'>Starting Goalie</div>
 <div class='goalie-name'>Joel Hofer</div>
 <div class='goalie-status confirmed'>Confirmed</div>
+<div class='goalie-stats'>
+<div class='goalie-stat-row'><span class='stat-name'>Record:</span> <span class='stat-val'>0-0-0</span></div>
+<div class='goalie-stat-row'><span class='stat-name'>GAA:</span> <span class='stat-val'>0</span></div>
+<div class='goalie-stat-row'><span class='stat-name'>SV%:</span> <span class='stat-val'>0</span></div>
+<div class='goalie-last-5'>Last 5 Starts</div>
+<div class='goalie-stat-row'><span class='stat-val'>0-0</span></div>
+<div class='goalie-stat-row'><span class='stat-val'>0 GAA</span></div>
+<div class='goalie-stat-row'><span class='stat-val'>0 SV%</span></div>
+</div>
 </div>
 </div>
 <div class='stat-games'>Last 10 games</div>
@@ -1203,6 +1354,15 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='stat-label'>Starting Goalie</div>
 <div class='goalie-name'>Connor Ingram</div>
 <div class='goalie-status confirmed'>Confirmed</div>
+<div class='goalie-stats'>
+<div class='goalie-stat-row'><span class='stat-name'>Record:</span> <span class='stat-val'>8-6-1</span></div>
+<div class='goalie-stat-row'><span class='stat-name'>GAA:</span> <span class='stat-val'>2.83</span></div>
+<div class='goalie-stat-row'><span class='stat-name'>SV%:</span> <span class='stat-val'>0.89</span></div>
+<div class='goalie-last-5'>Last 5 Starts</div>
+<div class='goalie-stat-row'><span class='stat-val'>2-2</span></div>
+<div class='goalie-stat-row'><span class='stat-val'>3.5 GAA</span></div>
+<div class='goalie-stat-row'><span class='stat-val'>0.863 SV%</span></div>
+</div>
 </div>
 </div>
 <div class='stat-games'>Last 10 games</div>
@@ -1233,6 +1393,15 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='stat-label'>Starting Goalie</div>
 <div class='goalie-name'>Adin Hill</div>
 <div class='goalie-status confirmed'>Confirmed</div>
+<div class='goalie-stats'>
+<div class='goalie-stat-row'><span class='stat-name'>Record:</span> <span class='stat-val'>6-4-3</span></div>
+<div class='goalie-stat-row'><span class='stat-name'>GAA:</span> <span class='stat-val'>3.42</span></div>
+<div class='goalie-stat-row'><span class='stat-name'>SV%:</span> <span class='stat-val'>0.86</span></div>
+<div class='goalie-last-5'>Last 5 Starts</div>
+<div class='goalie-stat-row'><span class='stat-val'>3-2</span></div>
+<div class='goalie-stat-row'><span class='stat-val'>3.2 GAA</span></div>
+<div class='goalie-stat-row'><span class='stat-val'>0.869 SV%</span></div>
+</div>
 </div>
 </div>
 <div class='stat-games'>Last 10 games</div>

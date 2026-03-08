@@ -1,6 +1,8 @@
 import requests
 from bs4 import BeautifulSoup
 import os
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 
 # Mapping from NHL.com lineup page team nicknames to NHL API team names
@@ -37,6 +39,111 @@ NHL_TEAM_NICKNAME_MAP = {
     'Capitals': 'Washington',
     'Jets': 'Winnipeg',
 }
+
+
+def get_goalie_stats(goalie_name):
+    """
+    Get goalie statistics from NHL API.
+
+    Returns dict with:
+    - record: Season W-L-OTL
+    - gaa: Season goals against average
+    - sv_pct: Season save percentage
+    - last_5_record: Last 5 starts W-L
+    - last_5_gaa: Last 5 starts GAA
+    - last_5_sv_pct: Last 5 starts SV%
+    """
+    try:
+        # Search for goalie using NHL web API search
+        search_name = goalie_name.replace(' ', '%20')
+        search_url = f'https://search.d3.nhle.com/api/v1/search/player?culture=en-us&limit=5&q={search_name}'
+        response = requests.get(search_url, timeout=5)
+        results = response.json()
+
+        if not results:
+            return None
+
+        # Get first match (usually correct)
+        goalie_id = results[0]['playerId']
+
+        # Get current season
+        current_year = datetime.now(ZoneInfo('America/Toronto')).year
+        current_month = datetime.now(ZoneInfo('America/Toronto')).month
+        # NHL season spans two years, starts in October
+        if current_month >= 10:
+            season = f"{current_year}{current_year+1}"
+        else:
+            season = f"{current_year-1}{current_year}"
+
+        # Get player stats
+        stats_url = f'https://api-web.nhle.com/v1/player/{goalie_id}/landing'
+        response = requests.get(stats_url, timeout=5)
+        data = response.json()
+
+        # Get season stats from featuredStats
+        season_stats = data.get('featuredStats', {}).get('regularSeason', {}).get('subSeason', {})
+
+        if not season_stats:
+            return None
+
+        wins = season_stats.get('wins', 0)
+        losses = season_stats.get('losses', 0)
+        ot_losses = season_stats.get('otLosses', 0)
+        gaa = season_stats.get('goalsAgainstAvg', 0)
+        sv_pct = season_stats.get('savePctg', 0)
+
+        # Get last 5 game logs
+        gamelog_url = f'https://api-web.nhle.com/v1/player/{goalie_id}/game-log/{season}/2'
+        response = requests.get(gamelog_url, timeout=5)
+        gamelog_data = response.json()
+
+        games = gamelog_data.get('gameLog', [])[:5]  # Last 5 games
+
+        last_5_wins = 0
+        last_5_losses = 0
+        last_5_goals_against = []
+        last_5_shots_against = []
+
+        for game in games:
+            # Only count games where goalie started
+            if game.get('gamesStarted', 0) > 0:
+                decision = game.get('decision', '')
+                if decision == 'W':
+                    last_5_wins += 1
+                elif decision in ['L', 'O']:
+                    last_5_losses += 1
+
+                # Calculate GAA and SV% for last 5
+                goals_against = game.get('goalsAgainst', 0)
+                shots_against = game.get('shotsAgainst', 0)
+
+                last_5_goals_against.append(goals_against)
+                last_5_shots_against.append(shots_against)
+
+        # Calculate last 5 averages
+        if last_5_goals_against:
+            last_5_gaa = sum(last_5_goals_against) / len(last_5_goals_against)
+        else:
+            last_5_gaa = 0
+
+        if sum(last_5_shots_against) > 0:
+            total_saves = sum(last_5_shots_against) - sum(last_5_goals_against)
+            last_5_sv_pct = total_saves / sum(last_5_shots_against)
+        else:
+            last_5_sv_pct = 0
+
+        return {
+            'record': f"{wins}-{losses}-{ot_losses}",
+            'gaa': round(gaa, 2),
+            'sv_pct': round(sv_pct, 3),
+            'last_5_record': f"{last_5_wins}-{last_5_losses}",
+            'last_5_gaa': round(last_5_gaa, 2),
+            'last_5_sv_pct': round(last_5_sv_pct, 3)
+        }
+
+    except Exception as e:
+        print(f"⚠️ Error fetching stats for {goalie_name}: {e}")
+        return None
 
 
 def scrape_nhl_starting_goalies():
@@ -139,7 +246,7 @@ def scrape_nhl_starting_goalies():
 
 def get_starting_goalies():
     """
-    Get starting goalies. First tries to scrape from NHL.com lineup projections,
+    Get starting goalies with their stats. First tries to scrape from NHL.com lineup projections,
     then falls back to manual file if scraping fails.
 
     Manual file format (starting_goalies_today.txt):
@@ -153,6 +260,12 @@ def get_starting_goalies():
     goalies = scrape_nhl_starting_goalies()
 
     if goalies:
+        # Fetch stats for each goalie
+        for team, info in goalies.items():
+            goalie_name = info['name']
+            stats = get_goalie_stats(goalie_name)
+            if stats:
+                info.update(stats)
         return goalies
 
     # Fall back to manual file
@@ -176,6 +289,11 @@ def get_starting_goalies():
                             'name': goalie,
                             'status': status
                         }
+
+                        # Fetch stats
+                        stats = get_goalie_stats(goalie)
+                        if stats:
+                            goalies[team].update(stats)
 
             if goalies:
                 print(f"✅ Read {len(goalies)} starting goalies from manual file")
