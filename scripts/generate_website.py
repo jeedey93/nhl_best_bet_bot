@@ -972,14 +972,25 @@ def parse_all_results(sport_key):
 
 def parse_yesterday_results(sport_key):
     """Parse yesterday's results file for a sport and extract summary."""
+    from datetime import datetime, timedelta
+
     results_dir = os.path.join("data", "bot_results", sport_key)
-    results_files = sorted(glob(os.path.join(results_dir, f"{sport_key}_daily_results_*.txt")))
 
-    if not results_files:
-        return None
+    # Calculate yesterday's date
+    yesterday = datetime.now() - timedelta(days=1)
+    yesterday_str = yesterday.strftime("%Y-%m-%d")
 
-    # Get the most recent results file
-    latest_results_file = max(results_files, key=os.path.getctime)
+    # Look for yesterday's specific results file first
+    yesterday_file = os.path.join(results_dir, f"{sport_key}_daily_results_{yesterday_str}.txt")
+
+    if os.path.exists(yesterday_file):
+        latest_results_file = yesterday_file
+    else:
+        # Fallback: Get the most recent results file
+        results_files = sorted(glob(os.path.join(results_dir, f"{sport_key}_daily_results_*.txt")))
+        if not results_files:
+            return None
+        latest_results_file = max(results_files, key=os.path.getctime)
 
     try:
         content = read_file(latest_results_file)
