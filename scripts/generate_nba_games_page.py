@@ -425,6 +425,30 @@ def parse_odds(odds_data, home_team, away_team):
 
 def generate_game_card(away_team, home_team, game_time, game_odds, away_record=None, home_record=None, sport='nhl', away_logo=None, home_logo=None, game_id=None, away_goalie=None, home_goalie=None):
     """Generate HTML for a single game card."""
+
+    # Extract short team names (team name without city)
+    # For example: "Los Angeles Lakers" -> "Lakers"
+    away_team_short = away_team.split()[-1]  # Last word is usually the team name
+    home_team_short = home_team.split()[-1]
+
+    # Handle special cases
+    if away_team == "LA Clippers":
+        away_team_short = "Clippers"
+    elif away_team == "Golden State Warriors":
+        away_team_short = "Warriors"
+    elif away_team == "Oklahoma City Thunder":
+        away_team_short = "Thunder"
+    elif away_team == "Portland Trail Blazers":
+        away_team_short = "Blazers"
+
+    if home_team == "LA Clippers":
+        home_team_short = "Clippers"
+    elif home_team == "Golden State Warriors":
+        home_team_short = "Warriors"
+    elif home_team == "Oklahoma City Thunder":
+        home_team_short = "Thunder"
+    elif home_team == "Portland Trail Blazers":
+        home_team_short = "Blazers"
     # Create anchor ID for navigation
     anchor_id = f"game-{game_id}" if game_id else f"game-{away_team.replace(' ', '-')}-{home_team.replace(' ', '-')}"
 
@@ -469,9 +493,9 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
 
         if abs(away_score - home_score) > 0.5:  # Only show if there's a meaningful difference
             if away_score > home_score:
-                prediction_html = f"<div class='prediction-indicator away-favored'>↗ Trending: {away_team}</div>\n"
+                prediction_html = f"<div class='prediction-indicator away-favored'>↗ Trending: {away_team_short}</div>\n"
             else:
-                prediction_html = f"<div class='prediction-indicator home-favored'>↗ Trending: {home_team}</div>\n"
+                prediction_html = f"<div class='prediction-indicator home-favored'>↗ Trending: {home_team_short}</div>\n"
 
         # Check Over/Under signal
         if game_odds and 'totals' in game_odds.get('markets', {}):
@@ -506,9 +530,9 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
         if away_b2b and home_b2b:
             b2b_badge = f"<div class='b2b-badge both-b2b'>⚠️ Both on Back-to-Back</div>\n"
         elif away_b2b:
-            b2b_badge = f"<div class='b2b-badge'>⚠️ {away_team} on Back-to-Back</div>\n"
+            b2b_badge = f"<div class='b2b-badge'>⚠️ {away_team_short} on Back-to-Back</div>\n"
         elif home_b2b:
-            b2b_badge = f"<div class='b2b-badge'>⚠️ {home_team} on Back-to-Back</div>\n"
+            b2b_badge = f"<div class='b2b-badge'>⚠️ {home_team_short} on Back-to-Back</div>\n"
 
     # Generate streak badges
     streak_badges = ""
@@ -516,17 +540,17 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
         streak_type = away_stats.get('streak_type')
         streak_count = away_stats.get('streak_count')
         if streak_type == 'W':
-            streak_badges += f"<div class='streak-badge win-streak'>🔥 {away_team} {streak_count}W Streak</div>\n"
+            streak_badges += f"<div class='streak-badge win-streak'>🔥 {away_team_short} {streak_count}W Streak</div>\n"
         elif streak_type == 'L':
-            streak_badges += f"<div class='streak-badge lose-streak'>❄️ {away_team} {streak_count}L Streak</div>\n"
+            streak_badges += f"<div class='streak-badge lose-streak'>❄️ {away_team_short} {streak_count}L Streak</div>\n"
 
     if home_stats and home_stats.get('streak_count', 0) >= 3:
         streak_type = home_stats.get('streak_type')
         streak_count = home_stats.get('streak_count')
         if streak_type == 'W':
-            streak_badges += f"<div class='streak-badge win-streak'>🔥 {home_team} {streak_count}W Streak</div>\n"
+            streak_badges += f"<div class='streak-badge win-streak'>🔥 {home_team_short} {streak_count}W Streak</div>\n"
         elif streak_type == 'L':
-            streak_badges += f"<div class='streak-badge lose-streak'>❄️ {home_team} {streak_count}L Streak</div>\n"
+            streak_badges += f"<div class='streak-badge lose-streak'>❄️ {home_team_short} {streak_count}L Streak</div>\n"
 
     if prediction_html or over_under_signal or h2h_totals_badge or b2b_badge or streak_badges:
         html += "<div class='signals-row'>\n"
@@ -852,7 +876,7 @@ def generate_nba_games_page():
     output = output.replace("{{NBA_GAMES}}", nba_html)
 
     # Write to file
-    output_file = "docs/nba_games.html"
+    output_file = "docs/nba.html"
     with open(output_file, "w", encoding="utf-8") as f:
         f.write(output)
 
