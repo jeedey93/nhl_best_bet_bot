@@ -215,6 +215,8 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
 
     # Calculate prediction if both teams have stats
     prediction_html = ""
+    over_under_signal = ""
+
     if away_stats and home_stats:
         # Simple scoring: wins + (avg_scored - avg_allowed)
         away_score = away_stats['wins'] + (away_stats['avg_scored'] - away_stats['avg_allowed'])
@@ -226,8 +228,24 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
             else:
                 prediction_html = f"<div class='prediction-indicator home-favored'>↗ Trending: {home_team}</div>\n"
 
-    if prediction_html:
-        html += prediction_html
+        # Check Over/Under signal
+        if game_odds and 'totals' in game_odds.get('markets', {}):
+            total_line = game_odds['markets']['totals']['point']
+            combined_avg = away_stats['avg_scored'] + home_stats['avg_scored']
+
+            # Need at least 0.5 difference to show signal
+            if combined_avg > total_line + 0.5:
+                over_under_signal = f"<div class='ou-signal over-signal'>📈 Over {total_line}</div>\n"
+            elif combined_avg < total_line - 0.5:
+                over_under_signal = f"<div class='ou-signal under-signal'>📉 Under {total_line}</div>\n"
+
+    if prediction_html or over_under_signal:
+        html += "<div class='signals-row'>\n"
+        if prediction_html:
+            html += prediction_html
+        if over_under_signal:
+            html += over_under_signal
+        html += "</div>\n"
 
     # Key Insights Section
     html += "<div class='key-insights'>\n"
