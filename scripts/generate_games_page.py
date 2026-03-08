@@ -8,6 +8,42 @@ from data.odds import get_nhl_odds, get_nba_odds
 import requests
 
 
+# NBA team logos mapping (using ESPN CDN)
+NBA_TEAM_LOGOS = {
+    'Atlanta Hawks': 'https://cdn.nba.com/logos/nba/1610612737/global/L/logo.svg',
+    'Boston Celtics': 'https://cdn.nba.com/logos/nba/1610612738/global/L/logo.svg',
+    'Brooklyn Nets': 'https://cdn.nba.com/logos/nba/1610612751/global/L/logo.svg',
+    'Charlotte Hornets': 'https://cdn.nba.com/logos/nba/1610612766/global/L/logo.svg',
+    'Chicago Bulls': 'https://cdn.nba.com/logos/nba/1610612741/global/L/logo.svg',
+    'Cleveland Cavaliers': 'https://cdn.nba.com/logos/nba/1610612739/global/L/logo.svg',
+    'Dallas Mavericks': 'https://cdn.nba.com/logos/nba/1610612742/global/L/logo.svg',
+    'Denver Nuggets': 'https://cdn.nba.com/logos/nba/1610612743/global/L/logo.svg',
+    'Detroit Pistons': 'https://cdn.nba.com/logos/nba/1610612765/global/L/logo.svg',
+    'Golden State Warriors': 'https://cdn.nba.com/logos/nba/1610612744/global/L/logo.svg',
+    'Houston Rockets': 'https://cdn.nba.com/logos/nba/1610612745/global/L/logo.svg',
+    'Indiana Pacers': 'https://cdn.nba.com/logos/nba/1610612754/global/L/logo.svg',
+    'LA Clippers': 'https://cdn.nba.com/logos/nba/1610612746/global/L/logo.svg',
+    'Los Angeles Clippers': 'https://cdn.nba.com/logos/nba/1610612746/global/L/logo.svg',
+    'Los Angeles Lakers': 'https://cdn.nba.com/logos/nba/1610612747/global/L/logo.svg',
+    'Memphis Grizzlies': 'https://cdn.nba.com/logos/nba/1610612763/global/L/logo.svg',
+    'Miami Heat': 'https://cdn.nba.com/logos/nba/1610612748/global/L/logo.svg',
+    'Milwaukee Bucks': 'https://cdn.nba.com/logos/nba/1610612749/global/L/logo.svg',
+    'Minnesota Timberwolves': 'https://cdn.nba.com/logos/nba/1610612750/global/L/logo.svg',
+    'New Orleans Pelicans': 'https://cdn.nba.com/logos/nba/1610612740/global/L/logo.svg',
+    'New York Knicks': 'https://cdn.nba.com/logos/nba/1610612752/global/L/logo.svg',
+    'Oklahoma City Thunder': 'https://cdn.nba.com/logos/nba/1610612760/global/L/logo.svg',
+    'Orlando Magic': 'https://cdn.nba.com/logos/nba/1610612753/global/L/logo.svg',
+    'Philadelphia 76ers': 'https://cdn.nba.com/logos/nba/1610612755/global/L/logo.svg',
+    'Phoenix Suns': 'https://cdn.nba.com/logos/nba/1610612756/global/L/logo.svg',
+    'Portland Trail Blazers': 'https://cdn.nba.com/logos/nba/1610612757/global/L/logo.svg',
+    'Sacramento Kings': 'https://cdn.nba.com/logos/nba/1610612758/global/L/logo.svg',
+    'San Antonio Spurs': 'https://cdn.nba.com/logos/nba/1610612759/global/L/logo.svg',
+    'Toronto Raptors': 'https://cdn.nba.com/logos/nba/1610612761/global/L/logo.svg',
+    'Utah Jazz': 'https://cdn.nba.com/logos/nba/1610612762/global/L/logo.svg',
+    'Washington Wizards': 'https://cdn.nba.com/logos/nba/1610612764/global/L/logo.svg',
+}
+
+
 def get_team_stats_from_results(team_name, sport='nhl', last_n_games=10):
     """
     Calculate average goals/points for a team from results_with_scores files.
@@ -203,7 +239,7 @@ def parse_odds(odds_data, home_team, away_team):
     return None
 
 
-def generate_game_card(away_team, home_team, game_time, game_odds, away_record=None, home_record=None, sport='nhl'):
+def generate_game_card(away_team, home_team, game_time, game_odds, away_record=None, home_record=None, sport='nhl', away_logo=None, home_logo=None):
     """Generate HTML for a single game card."""
     html = "<div class='game-card'>\n"
     html += f"<div class='game-time'>🕐 {game_time}</div>\n"
@@ -255,6 +291,8 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
     # Away Team Section
     html += "<div class='team-section'>\n"
     html += f"<div class='team-header away-team'>\n"
+    if away_logo:
+        html += f"<img src='{away_logo}' alt='{away_team}' class='team-logo' />\n"
     html += f"<div class='team-name'>{away_team}</div>\n"
     if away_record:
         html += f"<div class='team-record'>{away_record}</div>\n"
@@ -292,6 +330,8 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
     # Home Team Section
     html += "<div class='team-section'>\n"
     html += f"<div class='team-header home-team'>\n"
+    if home_logo:
+        html += f"<img src='{home_logo}' alt='{home_team}' class='team-logo' />\n"
     html += f"<div class='team-name'>{home_team}</div>\n"
     if home_record:
         html += f"<div class='team-record'>{home_record}</div>\n"
@@ -410,6 +450,10 @@ def generate_games_page():
             home_team = game['homeTeam']['placeName']['default']
             game_time = format_time(game['startTimeUTC'])
 
+            # Extract team logos
+            away_logo = game['awayTeam'].get('logo')
+            home_logo = game['homeTeam'].get('logo')
+
             # Extract team records if available
             away_record = None
             home_record = None
@@ -421,7 +465,7 @@ def generate_games_page():
             # Parse odds for this game
             game_odds = parse_odds(nhl_odds_data, home_team, away_team)
 
-            nhl_html += generate_game_card(away_team, home_team, game_time, game_odds, away_record, home_record, sport='nhl')
+            nhl_html += generate_game_card(away_team, home_team, game_time, game_odds, away_record, home_record, sport='nhl', away_logo=away_logo, home_logo=home_logo)
     else:
         nhl_html = "<div class='no-games'>No NHL games scheduled for today</div>\n"
 
@@ -439,11 +483,15 @@ def generate_games_page():
             home_team = game['home']
             game_time = format_time(game['commence_time'])
 
+            # Get NBA logos from mapping
+            away_logo = NBA_TEAM_LOGOS.get(away_team)
+            home_logo = NBA_TEAM_LOGOS.get(home_team)
+
             # Parse odds for this game
             game_odds = parse_odds(nba_odds_data, home_team, away_team)
 
             # For NBA, we don't have records readily available, pass None
-            nba_html += generate_game_card(away_team, home_team, game_time, game_odds, None, None, sport='nba')
+            nba_html += generate_game_card(away_team, home_team, game_time, game_odds, None, None, sport='nba', away_logo=away_logo, home_logo=home_logo)
     else:
         nba_html = "<div class='no-games'>No NBA games scheduled for today</div>\n"
 
