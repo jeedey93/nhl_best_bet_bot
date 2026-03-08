@@ -140,6 +140,7 @@ def get_goalie_stats(goalie_name):
 
         last_5_wins = 0
         last_5_losses = 0
+        last_5_ot_losses = 0
         last_5_goals_against = []
         last_5_shots_against = []
 
@@ -149,7 +150,9 @@ def get_goalie_stats(goalie_name):
                 decision = game.get('decision', '')
                 if decision == 'W':
                     last_5_wins += 1
-                elif decision in ['L', 'O']:
+                elif decision == 'O':
+                    last_5_ot_losses += 1
+                elif decision == 'L':
                     last_5_losses += 1
 
                 # Calculate GAA and SV% for last 5
@@ -175,7 +178,7 @@ def get_goalie_stats(goalie_name):
             'record': f"{wins}-{losses}-{ot_losses}",
             'gaa': round(gaa, 2),
             'sv_pct': round(sv_pct, 3),
-            'last_5_record': f"{last_5_wins}-{last_5_losses}",
+            'last_5_record': f"{last_5_wins}-{last_5_losses}-{last_5_ot_losses}",
             'last_5_gaa': round(last_5_gaa, 2),
             'last_5_sv_pct': round(last_5_sv_pct, 3)
         }
