@@ -471,11 +471,12 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
     return html
 
 
-def generate_games_page():
-    """Generate today's games page from template."""
+
+def generate_nhl_games_page():
+    """Generate NHL games page from template."""
 
     # Read template
-    template_path = "docs/games_template.html"
+    template_path = "docs/nhl_games_template.html"
     with open(template_path, "r", encoding="utf-8") as f:
         template = f.read()
 
@@ -499,19 +500,14 @@ def generate_games_page():
     except:
         nhl_games = []
 
+    # Get NHL odds
     nhl_odds_data = get_nhl_odds()
 
-    # Import get_nba_games_today dynamically
-    from data.nba_games import get_nba_games_today
-    nba_games = get_nba_games_today()
-    nba_odds_data = get_nba_odds()
-
-    # Generate game scroller
+    # Generate scroller HTML for NHL games only
     scroller_html = "<div class='games-scroller'>\n"
-    scroller_html += "<div class='scroller-title'>Today's Games</div>\n"
+    scroller_html += "<div class='scroller-title'>Quick Navigation</div>\n"
     scroller_html += "<div class='scroller-container'>\n"
 
-    # Add NHL games to scroller
     for game in nhl_games:
         away_team = game['awayTeam']['placeName']['default']
         home_team = game['homeTeam']['placeName']['default']
@@ -525,30 +521,6 @@ def generate_games_page():
 
         scroller_html += f"<a href='#{anchor_id}' class='mini-game-tile'>\n"
         scroller_html += "<div class='mini-time'>🏒 " + game_time + "</div>\n"
-        scroller_html += "<div class='mini-teams'>\n"
-        if away_logo:
-            scroller_html += f"<img src='{away_logo}' class='mini-logo' />\n"
-        scroller_html += f"<span class='mini-at'>@</span>\n"
-        if home_logo:
-            scroller_html += f"<img src='{home_logo}' class='mini-logo' />\n"
-        scroller_html += "</div>\n"
-        scroller_html += f"<div class='mini-matchup'>{away_team[:3].upper()} @ {home_team[:3].upper()}</div>\n"
-        scroller_html += "</a>\n"
-
-    # Add NBA games to scroller
-    for game in nba_games:
-        away_team = game['away']
-        home_team = game['home']
-        away_logo = NBA_TEAM_LOGOS.get(away_team)
-        home_logo = NBA_TEAM_LOGOS.get(home_team)
-        game_time = format_time(game['commence_time'])
-        game_id = game.get('game_id', '')
-
-        # Create anchor link
-        anchor_id = f"game-{game_id}" if game_id else f"game-{away_team.replace(' ', '-')}-{home_team.replace(' ', '-')}"
-
-        scroller_html += f"<a href='#{anchor_id}' class='mini-game-tile'>\n"
-        scroller_html += "<div class='mini-time'>🏀 " + game_time + "</div>\n"
         scroller_html += "<div class='mini-teams'>\n"
         if away_logo:
             scroller_html += f"<img src='{away_logo}' class='mini-logo' />\n"
@@ -598,37 +570,14 @@ def generate_games_page():
     else:
         nhl_html = "<div class='no-games'>No NHL games scheduled for today</div>\n"
 
-    # Generate NBA games
-    nba_html = ""
-
-    if nba_games:
-        for game in nba_games:
-            away_team = game['away']
-            home_team = game['home']
-            game_time = format_time(game['commence_time'])
-            game_id = game.get('game_id', '')
-
-            # Get NBA logos from mapping
-            away_logo = NBA_TEAM_LOGOS.get(away_team)
-            home_logo = NBA_TEAM_LOGOS.get(home_team)
-
-            # Parse odds for this game
-            game_odds = parse_odds(nba_odds_data, home_team, away_team)
-
-            # For NBA, we don't have records readily available, pass None
-            nba_html += generate_game_card(away_team, home_team, game_time, game_odds, None, None, sport='nba', away_logo=away_logo, home_logo=home_logo, game_id=game_id)
-    else:
-        nba_html = "<div class='no-games'>No NBA games scheduled for today</div>\n"
-
     # Fill template
     output = template.replace("{{NAV_HTML}}", nav_html)
     output = output.replace("{{DATE}}", today_str)
     output = output.replace("{{GAMES_SCROLLER}}", scroller_html)
     output = output.replace("{{NHL_GAMES}}", nhl_html)
-    output = output.replace("{{NBA_GAMES}}", nba_html)
 
     # Write to file
-    output_file = "docs/games.html"
+    output_file = "docs/nhl_games.html"
     with open(output_file, "w", encoding="utf-8") as f:
         f.write(output)
 
@@ -636,5 +585,4 @@ def generate_games_page():
 
 
 if __name__ == "__main__":
-    generate_games_page()
-
+    generate_nhl_games_page()
