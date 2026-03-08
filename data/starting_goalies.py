@@ -54,17 +54,56 @@ def get_goalie_stats(goalie_name):
     - last_5_sv_pct: Last 5 starts SV%
     """
     try:
-        # Search for goalie using NHL web API search
-        search_name = goalie_name.replace(' ', '%20')
-        search_url = f'https://search.d3.nhle.com/api/v1/search/player?culture=en-us&limit=5&q={search_name}'
+        # Split name and search by last name (more reliable)
+        name_parts = goalie_name.split()
+        if len(name_parts) < 2:
+            return None
+
+        last_name = name_parts[-1]
+        first_name = name_parts[0]
+
+        # Search for goalie using NHL web API search with last name
+        search_url = f'https://search.d3.nhle.com/api/v1/search/player?culture=en-us&limit=20&q={last_name}'
         response = requests.get(search_url, timeout=5)
         results = response.json()
 
         if not results:
             return None
 
-        # Get first match (usually correct)
-        goalie_id = results[0]['playerId']
+        # Find the goalie with matching first name
+        goalie_id = None
+
+        # First pass: look for active goalie with matching first name
+        for result in results:
+            if (result.get('positionCode') == 'G' and
+                result.get('active', False) and
+                result.get('name', '').startswith(first_name)):
+                goalie_id = result['playerId']
+                break
+
+        # Second pass: look for any goalie with matching first name
+        if not goalie_id:
+            for result in results:
+                if result.get('positionCode') == 'G' and result.get('name', '').startswith(first_name):
+                    goalie_id = result['playerId']
+                    break
+
+        # Third pass: fallback to first active goalie
+        if not goalie_id:
+            for result in results:
+                if result.get('positionCode') == 'G' and result.get('active', False):
+                    goalie_id = result['playerId']
+                    break
+
+        # Fourth pass: fallback to any goalie
+        if not goalie_id:
+            for result in results:
+                if result.get('positionCode') == 'G':
+                    goalie_id = result['playerId']
+                    break
+
+        if not goalie_id:
+            return None
 
         # Get current season
         current_year = datetime.now(ZoneInfo('America/Toronto')).year
