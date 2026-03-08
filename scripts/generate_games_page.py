@@ -303,10 +303,11 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
     html += "<div class='team-label'>Away Team</div>\n"
     html += "</div>\n"
 
-    if away_stats:
-        score_label = "Goals" if sport == 'nhl' else "Points"
-        html += "<div class='stats-tiles'>\n"
+    # Always show stats tiles for consistency (even if empty)
+    score_label = "Goals" if sport == 'nhl' else "Points"
+    html += "<div class='stats-tiles'>\n"
 
+    if away_stats:
         html += "<div class='stat-tile'>\n"
         html += f"<div class='stat-label'>Avg {score_label} Scored</div>\n"
         html += f"<div class='stat-value'>{away_stats['avg_scored']}</div>\n"
@@ -326,20 +327,21 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
             html += f"<div class='stat-record'>{away_stats['wins']}-{away_stats['losses']}</div>\n"
         html += "</div>\n"
 
-        # Goalie tile (NHL only)
-        if sport == 'nhl':
-            html += "<div class='stat-tile goalie-tile'>\n"
-            html += "<div class='stat-label'>Starting Goalie</div>\n"
-            if away_goalie:
-                html += f"<div class='goalie-name'>{away_goalie['name']}</div>\n"
-                status_class = 'confirmed' if 'confirm' in away_goalie['status'].lower() else 'unconfirmed'
-                html += f"<div class='goalie-status {status_class}'>{away_goalie['status']}</div>\n"
-            else:
-                html += "<div class='goalie-name'>TBD</div>\n"
-                html += "<div class='goalie-status unconfirmed'>Unconfirmed</div>\n"
-            html += "</div>\n"
-
+    # Goalie tile (NHL only) - always show, even if no stats available
+    if sport == 'nhl':
+        html += "<div class='stat-tile goalie-tile'>\n"
+        html += "<div class='stat-label'>Starting Goalie</div>\n"
+        if away_goalie:
+            html += f"<div class='goalie-name'>{away_goalie['name']}</div>\n"
+            status_class = 'confirmed' if 'confirm' in away_goalie['status'].lower() else 'unconfirmed'
+            html += f"<div class='goalie-status {status_class}'>{away_goalie['status']}</div>\n"
+        else:
+            html += "<div class='goalie-name'>TBD</div>\n"
+            html += "<div class='goalie-status unconfirmed'>Unconfirmed</div>\n"
         html += "</div>\n"
+
+    html += "</div>\n"
+    if away_stats:
         html += f"<div class='stat-games'>Last {away_stats['games_analyzed']} games</div>\n"
 
     html += "</div>\n"  # Close team-section
@@ -355,10 +357,11 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
     html += "<div class='team-label'>Home Team</div>\n"
     html += "</div>\n"
 
-    if home_stats:
-        score_label = "Goals" if sport == 'nhl' else "Points"
-        html += "<div class='stats-tiles'>\n"
+    # Always show stats tiles for consistency (even if empty)
+    score_label = "Goals" if sport == 'nhl' else "Points"
+    html += "<div class='stats-tiles'>\n"
 
+    if home_stats:
         html += "<div class='stat-tile'>\n"
         html += f"<div class='stat-label'>Avg {score_label} Scored</div>\n"
         html += f"<div class='stat-value'>{home_stats['avg_scored']}</div>\n"
@@ -378,20 +381,21 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
             html += f"<div class='stat-record'>{home_stats['wins']}-{home_stats['losses']}</div>\n"
         html += "</div>\n"
 
-        # Goalie tile (NHL only)
-        if sport == 'nhl':
-            html += "<div class='stat-tile goalie-tile'>\n"
-            html += "<div class='stat-label'>Starting Goalie</div>\n"
-            if home_goalie:
-                html += f"<div class='goalie-name'>{home_goalie['name']}</div>\n"
-                status_class = 'confirmed' if 'confirm' in home_goalie['status'].lower() else 'unconfirmed'
-                html += f"<div class='goalie-status {status_class}'>{home_goalie['status']}</div>\n"
-            else:
-                html += "<div class='goalie-name'>TBD</div>\n"
-                html += "<div class='goalie-status unconfirmed'>Unconfirmed</div>\n"
-            html += "</div>\n"
-
+    # Goalie tile (NHL only) - always show, even if no stats available
+    if sport == 'nhl':
+        html += "<div class='stat-tile goalie-tile'>\n"
+        html += "<div class='stat-label'>Starting Goalie</div>\n"
+        if home_goalie:
+            html += f"<div class='goalie-name'>{home_goalie['name']}</div>\n"
+            status_class = 'confirmed' if 'confirm' in home_goalie['status'].lower() else 'unconfirmed'
+            html += f"<div class='goalie-status {status_class}'>{home_goalie['status']}</div>\n"
+        else:
+            html += "<div class='goalie-name'>TBD</div>\n"
+            html += "<div class='goalie-status unconfirmed'>Unconfirmed</div>\n"
         html += "</div>\n"
+
+    html += "</div>\n"
+    if home_stats:
         html += f"<div class='stat-games'>Last {home_stats['games_analyzed']} games</div>\n"
 
     html += "</div>\n"  # Close team-section
