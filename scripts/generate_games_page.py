@@ -8,6 +8,102 @@ from data.odds import get_nhl_odds, get_nba_odds
 import requests
 
 
+def get_team_stats_from_results(team_name, sport='nhl', last_n_games=10):
+    """
+    Calculate average goals/points for a team from results_with_scores files.
+
+    Args:
+        team_name: Name of the team
+        sport: 'nhl' or 'nba'
+        last_n_games: Number of recent games to analyze
+
+    Returns:
+        dict with avg_scored, avg_allowed, games_analyzed
+    """
+    results_dir = f"data/results_with_scores/{sport}"
+
+    if not os.path.exists(results_dir):
+        return None
+
+    # Get all score files sorted by date (newest first)
+    files = sorted([f for f in os.listdir(results_dir) if f.endswith('.txt')], reverse=True)
+
+    if not files:
+        return None
+
+    # Normalize team name for matching
+    def normalize(name):
+        return name.lower().replace('.', '').replace(' ', '').replace('-', '')
+
+    team_norm = normalize(team_name)
+
+    scores_for = []
+    scores_against = []
+
+    # Parse files until we have enough games
+    for file in files:
+        if len(scores_for) >= last_n_games:
+            break
+
+        file_path = os.path.join(results_dir, file)
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                for line in f:
+                    line = line.strip()
+                    if not line or line.startswith('Date:'):
+                        continue
+
+                    # Parse line format: "Team1 Score1 - Team2 Score2"
+                    if ' - ' in line:
+                        parts = line.split(' - ')
+                        if len(parts) == 2:
+                            # Parse away team and score
+                            away_parts = parts[0].rsplit(' ', 1)
+                            if len(away_parts) == 2:
+                                away_team, away_score = away_parts[0], away_parts[1]
+                            else:
+                                continue
+
+                            # Parse home team and score
+                            home_parts = parts[1].split(' ', 1)
+                            if len(home_parts) == 2:
+                                home_team, home_score = home_parts[0], home_parts[1]
+                            else:
+                                continue
+
+                            # Check if this team played
+                            if normalize(away_team) in team_norm or team_norm in normalize(away_team):
+                                try:
+                                    scores_for.append(int(away_score))
+                                    scores_against.append(int(home_score))
+                                except ValueError:
+                                    pass
+                            elif normalize(home_team) in team_norm or team_norm in normalize(home_team):
+                                try:
+                                    scores_for.append(int(home_score))
+                                    scores_against.append(int(away_score))
+                                except ValueError:
+                                    pass
+
+                            if len(scores_for) >= last_n_games:
+                                break
+        except Exception as e:
+            continue
+
+    if not scores_for:
+        return None
+
+    # Make sure we have matching data
+    if len(scores_for) != len(scores_against):
+        return None
+
+    return {
+        'avg_scored': round(sum(scores_for) / len(scores_for), 1),
+        'avg_allowed': round(sum(scores_against) / len(scores_against), 1),
+        'games_analyzed': len(scores_for)
+    }
+
+
 def format_time(iso_time):
     """Convert ISO time to Montreal time."""
     dt = datetime.fromisoformat(iso_time.replace('Z', '+00:00'))
@@ -80,7 +176,7 @@ def parse_odds(odds_data, home_team, away_team):
     return None
 
 
-def generate_game_card(away_team, home_team, game_time, game_odds, away_record=None, home_record=None):
+def generate_game_card(away_team, home_team, game_time, game_odds, away_record=None, home_record=None, sport='nhl'):
     """Generate HTML for a single game card."""
     html = "<div class='game-card'>\n"
     html += f"<div class='game-time'>🕐 {game_time}</div>\n"
@@ -96,6 +192,17 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
     html += f"<div class='team-name'>{away_team}</div>\n"
     if away_record:
         html += f"<div class='team-record'>{away_record}</div>\n"
+
+    # Get team stats from results
+    away_stats = get_team_stats_from_results(away_team, sport=sport, last_n_games=10)
+    if away_stats:
+        score_label = "Goals" if sport == 'nhl' else "Points"
+        html += f"<div class='team-stats'>\n"
+        html += f"<div class='stat-item'>Avg {score_label} Scored: <strong>{away_stats['avg_scored']}</strong></div>\n"
+        html += f"<div class='stat-item'>Avg {score_label} Allowed: <strong>{away_stats['avg_allowed']}</strong></div>\n"
+        html += f"<div class='stat-games'>Last {away_stats['games_analyzed']} games</div>\n"
+        html += "</div>\n"
+
     html += "<div class='team-label'>Away Team</div>\n"
     html += "</div>\n"
 
@@ -104,6 +211,17 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
     html += f"<div class='team-name'>{home_team}</div>\n"
     if home_record:
         html += f"<div class='team-record'>{home_record}</div>\n"
+
+    # Get team stats from results
+    home_stats = get_team_stats_from_results(home_team, sport=sport, last_n_games=10)
+    if home_stats:
+        score_label = "Goals" if sport == 'nhl' else "Points"
+        html += f"<div class='team-stats'>\n"
+        html += f"<div class='stat-item'>Avg {score_label} Scored: <strong>{home_stats['avg_scored']}</strong></div>\n"
+        html += f"<div class='stat-item'>Avg {score_label} Allowed: <strong>{home_stats['avg_allowed']}</strong></div>\n"
+        html += f"<div class='stat-games'>Last {home_stats['games_analyzed']} games</div>\n"
+        html += "</div>\n"
+
     html += "<div class='team-label'>Home Team</div>\n"
     html += "</div>\n"
 
@@ -202,7 +320,7 @@ def generate_games_page():
             # Parse odds for this game
             game_odds = parse_odds(nhl_odds_data, home_team, away_team)
 
-            nhl_html += generate_game_card(away_team, home_team, game_time, game_odds, away_record, home_record)
+            nhl_html += generate_game_card(away_team, home_team, game_time, game_odds, away_record, home_record, sport='nhl')
     else:
         nhl_html = "<div class='no-games'>No NHL games scheduled for today</div>\n"
 
@@ -224,7 +342,7 @@ def generate_games_page():
             game_odds = parse_odds(nba_odds_data, home_team, away_team)
 
             # For NBA, we don't have records readily available, pass None
-            nba_html += generate_game_card(away_team, home_team, game_time, game_odds, None, None)
+            nba_html += generate_game_card(away_team, home_team, game_time, game_odds, None, None, sport='nba')
     else:
         nba_html = "<div class='no-games'>No NBA games scheduled for today</div>\n"
 
