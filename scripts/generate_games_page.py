@@ -209,6 +209,26 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
     html += f"<div class='game-time'>🕐 {game_time}</div>\n"
     html += f"<div class='matchup'>{away_team} @ {home_team}</div>\n"
 
+    # Get team stats for prediction
+    away_stats = get_team_stats_from_results(away_team, sport=sport, last_n_games=10)
+    home_stats = get_team_stats_from_results(home_team, sport=sport, last_n_games=10)
+
+    # Calculate prediction if both teams have stats
+    prediction_html = ""
+    if away_stats and home_stats:
+        # Simple scoring: wins + (avg_scored - avg_allowed)
+        away_score = away_stats['wins'] + (away_stats['avg_scored'] - away_stats['avg_allowed'])
+        home_score = home_stats['wins'] + (home_stats['avg_scored'] - home_stats['avg_allowed'])
+
+        if abs(away_score - home_score) > 0.5:  # Only show if there's a meaningful difference
+            if away_score > home_score:
+                prediction_html = f"<div class='prediction-indicator away-favored'>↗ Trending: {away_team}</div>\n"
+            else:
+                prediction_html = f"<div class='prediction-indicator home-favored'>↗ Trending: {home_team}</div>\n"
+
+    if prediction_html:
+        html += prediction_html
+
     # Key Insights Section
     html += "<div class='key-insights'>\n"
     html += "<div class='insights-title'>📊 Key Insights</div>\n"
@@ -223,8 +243,6 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
     html += "<div class='team-label'>Away Team</div>\n"
     html += "</div>\n"
 
-    # Get team stats from results
-    away_stats = get_team_stats_from_results(away_team, sport=sport, last_n_games=10)
     if away_stats:
         score_label = "Goals" if sport == 'nhl' else "Points"
         html += "<div class='stats-tiles'>\n"
@@ -262,8 +280,6 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
     html += "<div class='team-label'>Home Team</div>\n"
     html += "</div>\n"
 
-    # Get team stats from results
-    home_stats = get_team_stats_from_results(home_team, sport=sport, last_n_games=10)
     if home_stats:
         score_label = "Goals" if sport == 'nhl' else "Points"
         html += "<div class='stats-tiles'>\n"
