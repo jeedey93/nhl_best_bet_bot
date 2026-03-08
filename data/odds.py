@@ -11,57 +11,65 @@ API_KEY = os.getenv("ODDS_API_KEY")
 
 def get_nhl_odds():
     """Fetch NHL odds using The Odds API."""
-    url = "https://api.the-odds-api.com/v4/sports/icehockey_nhl/odds"
+    try:
+        url = "https://api.the-odds-api.com/v4/sports/icehockey_nhl/odds"
 
-    eastern = pytz.timezone("America/Toronto")
-    now = datetime.now(eastern)
+        eastern = pytz.timezone("America/Toronto")
+        now = datetime.now(eastern)
 
-    start_local = eastern.localize(datetime(now.year, now.month, now.day))
-    end_local = start_local + timedelta(days=1)
+        start_local = eastern.localize(datetime(now.year, now.month, now.day))
+        end_local = start_local + timedelta(days=1)
 
-    # Convert to UTC ISO strings with Z suffix
-    start_utc = start_local.astimezone(pytz.utc).isoformat().replace("+00:00", "Z")
-    end_utc = end_local.astimezone(pytz.utc).isoformat().replace("+00:00", "Z")
+        # Convert to UTC ISO strings with Z suffix
+        start_utc = start_local.astimezone(pytz.utc).isoformat().replace("+00:00", "Z")
+        end_utc = end_local.astimezone(pytz.utc).isoformat().replace("+00:00", "Z")
 
-    params = {
-        "apiKey": API_KEY,
-        "regions": "us",
-        "markets": "h2h,totals",
-        "oddsFormat": "decimal",
-        "dateFormat": "iso",
-        "commenceTimeFrom": start_utc,
-        "commenceTimeTo": end_utc,
-    }
-    response = requests.get(url, params=params, timeout=10)
-    response.raise_for_status()
-    return response.json()
+        params = {
+            "apiKey": API_KEY,
+            "regions": "us",
+            "markets": "h2h,totals",
+            "oddsFormat": "decimal",
+            "dateFormat": "iso",
+            "commenceTimeFrom": start_utc,
+            "commenceTimeTo": end_utc,
+        }
+        response = requests.get(url, params=params, timeout=10)
+        response.raise_for_status()
+        return response.json()
+    except Exception as e:
+        print(f"⚠️ Error fetching NHL odds: {e}")
+        return []
 
 def get_nba_odds():
     """Fetch NBA odds using The Odds API."""
-    url = "https://api.the-odds-api.com/v4/sports/basketball_nba/odds"
+    try:
+        url = "https://api.the-odds-api.com/v4/sports/basketball_nba/odds"
 
-    eastern = pytz.timezone("America/Toronto")
-    now = datetime.now(eastern)
+        eastern = pytz.timezone("America/Toronto")
+        now = datetime.now(eastern)
 
-    start_local = eastern.localize(datetime(now.year, now.month, now.day))
-    end_local = start_local + timedelta(days=1)
+        start_local = eastern.localize(datetime(now.year, now.month, now.day))
+        end_local = start_local + timedelta(days=1)
 
-    # Convert to UTC ISO strings with Z suffix
-    start_utc = start_local.astimezone(pytz.utc).isoformat().replace("+00:00", "Z")
-    end_utc = end_local.astimezone(pytz.utc).isoformat().replace("+00:00", "Z")
+        # Convert to UTC ISO strings with Z suffix
+        start_utc = start_local.astimezone(pytz.utc).isoformat().replace("+00:00", "Z")
+        end_utc = end_local.astimezone(pytz.utc).isoformat().replace("+00:00", "Z")
 
-    params = {
-        "apiKey": API_KEY,
-        "regions": "us",
-        "markets": "h2h,spreads,totals",
-        "oddsFormat": "decimal",
-        "dateFormat": "iso",
-        "commenceTimeFrom": start_utc,
-        "commenceTimeTo": end_utc,
-    }
-    response = requests.get(url, params=params, timeout=10)
-    response.raise_for_status()
-    return response.json()
+        params = {
+            "apiKey": API_KEY,
+            "regions": "us",
+            "markets": "h2h,spreads,totals",
+            "oddsFormat": "decimal",
+            "dateFormat": "iso",
+            "commenceTimeFrom": start_utc,
+            "commenceTimeTo": end_utc,
+        }
+        response = requests.get(url, params=params, timeout=10)
+        response.raise_for_status()
+        return response.json()
+    except Exception as e:
+        print(f"⚠️ Error fetching NBA odds: {e}")
+        return []
 
 NHL_TEAM_NAME_MAP = {
     "anaheim": ["Anaheim Ducks"],
