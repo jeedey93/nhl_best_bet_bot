@@ -428,11 +428,8 @@ def generate_games_page():
     now = datetime.now(ZoneInfo('America/Toronto'))
     today_str = now.strftime("%A, %B %d, %Y").replace(" 0", " ")
 
-    # Generate NHL games
-    nhl_html = ""
-
     # Get NHL games from the official API
-    today = datetime.now(ZoneInfo('America/Toronto')).date().isoformat()
+    today = now.date().isoformat()
     nhl_api_url = f"https://api-web.nhle.com/v1/schedule/{today}"
     try:
         response = requests.get(nhl_api_url, timeout=10)
@@ -443,6 +440,62 @@ def generate_games_page():
         nhl_games = []
 
     nhl_odds_data = get_nhl_odds()
+
+    # Import get_nba_games_today dynamically
+    from data.nba_games import get_nba_games_today
+    nba_games = get_nba_games_today()
+    nba_odds_data = get_nba_odds()
+
+    # Generate game scroller
+    scroller_html = "<div class='games-scroller'>\n"
+    scroller_html += "<div class='scroller-title'>Today's Games</div>\n"
+    scroller_html += "<div class='scroller-container'>\n"
+
+    # Add NHL games to scroller
+    for game in nhl_games:
+        away_team = game['awayTeam']['placeName']['default']
+        home_team = game['homeTeam']['placeName']['default']
+        away_logo = game['awayTeam'].get('logo')
+        home_logo = game['homeTeam'].get('logo')
+        game_time = format_time(game['startTimeUTC'])
+
+        scroller_html += "<div class='mini-game-tile'>\n"
+        scroller_html += "<div class='mini-time'>🏒 " + game_time + "</div>\n"
+        scroller_html += "<div class='mini-teams'>\n"
+        if away_logo:
+            scroller_html += f"<img src='{away_logo}' class='mini-logo' />\n"
+        scroller_html += f"<span class='mini-at'>@</span>\n"
+        if home_logo:
+            scroller_html += f"<img src='{home_logo}' class='mini-logo' />\n"
+        scroller_html += "</div>\n"
+        scroller_html += f"<div class='mini-matchup'>{away_team[:3].upper()} @ {home_team[:3].upper()}</div>\n"
+        scroller_html += "</div>\n"
+
+    # Add NBA games to scroller
+    for game in nba_games:
+        away_team = game['away']
+        home_team = game['home']
+        away_logo = NBA_TEAM_LOGOS.get(away_team)
+        home_logo = NBA_TEAM_LOGOS.get(home_team)
+        game_time = format_time(game['commence_time'])
+
+        scroller_html += "<div class='mini-game-tile'>\n"
+        scroller_html += "<div class='mini-time'>🏀 " + game_time + "</div>\n"
+        scroller_html += "<div class='mini-teams'>\n"
+        if away_logo:
+            scroller_html += f"<img src='{away_logo}' class='mini-logo' />\n"
+        scroller_html += f"<span class='mini-at'>@</span>\n"
+        if home_logo:
+            scroller_html += f"<img src='{home_logo}' class='mini-logo' />\n"
+        scroller_html += "</div>\n"
+        scroller_html += f"<div class='mini-matchup'>{away_team[:15]} @ {home_team[:15]}</div>\n"
+        scroller_html += "</div>\n"
+
+    scroller_html += "</div>\n"  # Close scroller-container
+    scroller_html += "</div>\n"  # Close games-scroller
+
+    # Generate NHL games
+    nhl_html = ""
 
     if nhl_games:
         for game in nhl_games:
@@ -472,11 +525,6 @@ def generate_games_page():
     # Generate NBA games
     nba_html = ""
 
-    # Import get_nba_games_today dynamically
-    from data.nba_games import get_nba_games_today
-    nba_games = get_nba_games_today()
-    nba_odds_data = get_nba_odds()
-
     if nba_games:
         for game in nba_games:
             away_team = game['away']
@@ -498,6 +546,7 @@ def generate_games_page():
     # Fill template
     output = template.replace("{{NAV_HTML}}", nav_html)
     output = output.replace("{{DATE}}", today_str)
+    output = output.replace("{{GAMES_SCROLLER}}", scroller_html)
     output = output.replace("{{NHL_GAMES}}", nhl_html)
     output = output.replace("{{NBA_GAMES}}", nba_html)
 

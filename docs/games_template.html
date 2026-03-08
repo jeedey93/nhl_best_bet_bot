@@ -33,6 +33,88 @@ body {
   font-size: 1.2em;
   font-weight: 500;
 }
+.games-scroller {
+  margin-bottom: 40px;
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+.scroller-title {
+  font-size: 1.3em;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 15px;
+  padding-left: 10px;
+}
+.scroller-container {
+  display: flex;
+  overflow-x: auto;
+  gap: 15px;
+  padding: 10px 5px;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 #f1f5f9;
+}
+.scroller-container::-webkit-scrollbar {
+  height: 8px;
+}
+.scroller-container::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 10px;
+}
+.scroller-container::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+.scroller-container::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+.mini-game-tile {
+  flex: 0 0 auto;
+  width: 180px;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 15px;
+  text-align: center;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+.mini-game-tile:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(74, 144, 226, 0.2);
+  border-color: #4a90e2;
+}
+.mini-time {
+  font-size: 0.8em;
+  color: #6b7280;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+.mini-teams {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.mini-logo {
+  width: 40px;
+  height: 40px;
+}
+.mini-at {
+  font-size: 0.9em;
+  color: #9ca3af;
+  font-weight: 600;
+}
+.mini-matchup {
+  font-size: 0.85em;
+  font-weight: 700;
+  color: #1e293b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .sport-section { margin-bottom: 60px; }
 .sport-title {
   font-size: 2.2em;
@@ -384,6 +466,8 @@ document.addEventListener('DOMContentLoaded', function() {
 <h1>📅 Today's Games</h1>
 <p>{{DATE}}</p>
 </div>
+
+{{GAMES_SCROLLER}}
 
 <!-- NHL Games Section -->
 <div class='sport-section'>
