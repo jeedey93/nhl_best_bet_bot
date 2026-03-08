@@ -472,6 +472,32 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
 
 
 
+def get_nhl_standings():
+    """
+    Fetch current NHL standings to get team records.
+    Returns dict mapping team names to their records (W-L-OTL format).
+    """
+    try:
+        standings_url = 'https://api-web.nhle.com/v1/standings/now'
+        response = requests.get(standings_url, timeout=10)
+        response.raise_for_status()
+        data = response.json()
+
+        standings = {}
+        for team in data.get('standings', []):
+            team_name = team['placeName']['default']
+            wins = team['wins']
+            losses = team['losses']
+            ot_losses = team['otLosses']
+            record = f"{wins}-{losses}-{ot_losses}"
+            standings[team_name] = record
+
+        return standings
+    except Exception as e:
+        print(f"⚠️ Error fetching NHL standings: {e}")
+        return {}
+
+
 def generate_nhl_games_page():
     """Generate NHL games page from template."""
 
@@ -541,6 +567,9 @@ def generate_nhl_games_page():
         # Get starting goalies
         starting_goalies = get_starting_goalies()
 
+        # Get team standings for season records
+        nhl_standings = get_nhl_standings()
+
         for game in nhl_games:
             away_team = game['awayTeam']['placeName']['default']
             home_team = game['homeTeam']['placeName']['default']
@@ -551,13 +580,9 @@ def generate_nhl_games_page():
             away_logo = game['awayTeam'].get('logo')
             home_logo = game['homeTeam'].get('logo')
 
-            # Extract team records if available
-            away_record = None
-            home_record = None
-            if 'awayTeam' in game and 'record' in game['awayTeam']:
-                away_record = game['awayTeam']['record']
-            if 'homeTeam' in game and 'record' in game['homeTeam']:
-                home_record = game['homeTeam']['record']
+            # Get team records from standings
+            away_record = nhl_standings.get(away_team)
+            home_record = nhl_standings.get(home_team)
 
             # Get starting goalies
             away_goalie = starting_goalies.get(away_team)

@@ -473,6 +473,41 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
 
 
 
+def get_nba_standings():
+    """
+    Fetch current NBA standings to get team records.
+    Returns dict mapping team names to their records (W-L format).
+    """
+    try:
+        standings_url = 'https://site.api.espn.com/apis/v2/sports/basketball/nba/standings'
+        response = requests.get(standings_url, timeout=10)
+        response.raise_for_status()
+        data = response.json()
+
+        standings = {}
+        for conference in data.get('children', []):
+            for entry in conference['standings']['entries']:
+                team_name = entry['team']['displayName']
+
+                # Find wins and losses in stats
+                wins = None
+                losses = None
+                for stat in entry['stats']:
+                    if stat['name'] == 'wins':
+                        wins = int(stat['value'])
+                    elif stat['name'] == 'losses':
+                        losses = int(stat['value'])
+
+                if wins is not None and losses is not None:
+                    record = f"{wins}-{losses}"
+                    standings[team_name] = record
+
+        return standings
+    except Exception as e:
+        print(f"⚠️ Error fetching NBA standings: {e}")
+        return {}
+
+
 def generate_nba_games_page():
     """Generate NBA games page from template."""
 
@@ -532,6 +567,9 @@ def generate_nba_games_page():
     nba_html = ""
 
     if nba_games:
+        # Get team standings for season records
+        nba_standings = get_nba_standings()
+
         for game in nba_games:
             away_team = game['away']
             home_team = game['home']
@@ -542,11 +580,14 @@ def generate_nba_games_page():
             away_logo = NBA_TEAM_LOGOS.get(away_team)
             home_logo = NBA_TEAM_LOGOS.get(home_team)
 
+            # Get team records from standings
+            away_record = nba_standings.get(away_team)
+            home_record = nba_standings.get(home_team)
+
             # Parse odds for this game
             game_odds = parse_odds(nba_odds_data, home_team, away_team)
 
-            # For NBA, we don't have records readily available, pass None
-            nba_html += generate_game_card(away_team, home_team, game_time, game_odds, None, None, sport='nba', away_logo=away_logo, home_logo=home_logo, game_id=game_id)
+            nba_html += generate_game_card(away_team, home_team, game_time, game_odds, away_record, home_record, sport='nba', away_logo=away_logo, home_logo=home_logo, game_id=game_id)
     else:
         nba_html = "<div class='no-games'>No NBA games scheduled for today</div>\n"
 
