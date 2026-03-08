@@ -65,12 +65,14 @@ def scrape_nhl_starting_goalies():
                 # Convert nickname to API team name
                 team_name = NHL_TEAM_NICKNAME_MAP.get(team_nickname, team_nickname)
 
-                # Find the goalie section - look for paragraph elements after this header
+                # Find goalies: they come after all the forward/defense lines (which contain "--")
+                # and before "Scratched:" or "Injured:"
                 current = header
-                goalie_names = []
+                found_last_defensive_line = False
+                goalie_candidates = []
 
                 # Search through subsequent elements
-                for _ in range(50):  # Look ahead up to 50 elements
+                for _ in range(60):  # Look ahead up to 60 elements
                     current = current.find_next()
                     if not current:
                         break
@@ -80,34 +82,45 @@ def scrape_nhl_starting_goalies():
                     if "projected lineup" in current_text.lower():
                         break
 
-                    # Look for standalone goalie names (paragraphs with single names)
-                    # Goalies are typically listed after defensive pairs and before scratched/injured
+                    # Look for paragraph elements
                     if current.name == 'p':
                         text = current_text.strip()
-                        # Goalie names are simple: "FirstName LastName" with no special characters
-                        # Skip if it contains special chars like dashes, "at", numbers
-                        if text and ' ' in text and len(text.split()) <= 3:
-                            # Skip lines that look like game info or other metadata
-                            if any(skip in text.lower() for skip in ['at', 'et;', 'p.m.', 'a.m.', '--', 'scratched:', 'injured:']):
-                                continue
-                            # Skip if it starts with a number (time) or has parentheses
-                            if text[0].isdigit() or '(' in text or ')' in text:
-                                continue
-                            # This might be a goalie
-                            goalie_names.append(text)
 
-                    # Stop when we hit scratched/injured section
+                        # Skip empty or very long paragraphs
+                        if not text or len(text) > 100:
+                            continue
+
+                        # Stop when we hit scratched/injured section
+                        if any(marker in text.lower() for marker in ['scratched:', 'injured:']):
+                            break
+
+                        # Check if this line contains "--" (forward or defense line)
+                        if '--' in text:
+                            # This is a forward or defense line, keep going
+                            found_last_defensive_line = True
+                            continue
+
+                        # If we've passed all the lines with "--" and this is a single name
+                        # (no dashes, no special markers), it's likely a goalie
+                        if found_last_defensive_line and '--' not in text:
+                            # Clean up the name (remove special chars)
+                            clean_name = text.replace('\xa0', ' ').replace('Â', '').strip()
+
+                            # Make sure it looks like a name (has space, not too long)
+                            if ' ' in clean_name and len(clean_name.split()) <= 3:
+                                # Skip if it has numbers or looks like metadata
+                                if not any(char.isdigit() for char in clean_name):
+                                    goalie_candidates.append(clean_name)
+
+                    # Stop when we hit scratched/injured tags
                     if current.name in ['strong', 'b']:
                         next_text = current_text.lower()
                         if next_text in ['scratched:', 'injured:']:
                             break
 
-                # The first goalie listed is the starter (last 2 in the list before scratched/injured)
-                # Typically the roster format is: forwards, defense, then 2 goalies
-                if len(goalie_names) >= 2:
-                    # Take the last 2 names found (these are usually the goalies)
-                    potential_goalies = goalie_names[-2:]
-                    starter = potential_goalies[0]  # First of the two goalies is the starter
+                # The first goalie candidate is the starter
+                if goalie_candidates:
+                    starter = goalie_candidates[0]
 
                     goalies[team_name] = {
                         'name': starter,
