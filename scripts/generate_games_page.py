@@ -337,8 +337,11 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
         html += "<div class='stat-record'>-</div>\n"
     html += "</div>\n"
 
-    # Goalie tile (NHL only) - always show
+    html += "</div>\n"  # Close stats-tiles
+
+    # Goalie row (NHL only) - separate row
     if sport == 'nhl':
+        html += "<div class='goalie-row'>\n"
         html += "<div class='stat-tile goalie-tile'>\n"
         html += "<div class='stat-label'>Starting Goalie</div>\n"
         if away_goalie:
@@ -349,8 +352,8 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
             html += "<div class='goalie-name'>TBD</div>\n"
             html += "<div class='goalie-status unconfirmed'>Unconfirmed</div>\n"
         html += "</div>\n"
+        html += "</div>\n"  # Close goalie-row
 
-    html += "</div>\n"
     if away_stats:
         html += f"<div class='stat-games'>Last {away_stats['games_analyzed']} games</div>\n"
 
@@ -401,8 +404,11 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
         html += "<div class='stat-record'>-</div>\n"
     html += "</div>\n"
 
-    # Goalie tile (NHL only) - always show
+    html += "</div>\n"  # Close stats-tiles
+
+    # Goalie row (NHL only) - separate row
     if sport == 'nhl':
+        html += "<div class='goalie-row'>\n"
         html += "<div class='stat-tile goalie-tile'>\n"
         html += "<div class='stat-label'>Starting Goalie</div>\n"
         if home_goalie:
@@ -413,8 +419,8 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
             html += "<div class='goalie-name'>TBD</div>\n"
             html += "<div class='goalie-status unconfirmed'>Unconfirmed</div>\n"
         html += "</div>\n"
+        html += "</div>\n"  # Close goalie-row
 
-    html += "</div>\n"
     if home_stats:
         html += f"<div class='stat-games'>Last {home_stats['games_analyzed']} games</div>\n"
 
