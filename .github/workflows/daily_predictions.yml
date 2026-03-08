@@ -39,10 +39,8 @@ jobs:
             echo "time=12pm" >> $GITHUB_OUTPUT
           fi
       - name: Run NHL daily predictions bot
-        if: steps.run_time.outputs.time == '7am' || steps.run_time.outputs.time == '12pm'
         run: python scripts/generate_nhl_predictions.py
       - name: Run NBA daily predictions bot
-        if: steps.run_time.outputs.time == '7am' || steps.run_time.outputs.time == '12pm'
         run: python scripts/generate_nba_predictions.py
       - name: Compare NBA predictions (12pm)
         if: steps.run_time.outputs.time == '12pm'
@@ -53,28 +51,17 @@ jobs:
       - name: Run Dual Bet of the Day (12pm)
         if: steps.run_time.outputs.time == '12pm'
         run: python scripts/generate_featured_picks.py --run_time 12pm
-      - name: Generate NHL games page (7am)
-        if: steps.run_time.outputs.time == '7am'
+      - name: Generate NHL games page
         run: python scripts/generate_nhl_games_page.py
-      - name: Generate NBA games page (7am)
-        if: steps.run_time.outputs.time == '7am'
-        run: python scripts/generate_nba_games_page.py
-      - name: Generate NHL games page (12pm)
-        if: steps.run_time.outputs.time == '12pm'
-        run: python scripts/generate_nhl_games_page.py
-      - name: Generate NBA games page (12pm)
-        if: steps.run_time.outputs.time == '12pm'
+      - name: Generate NBA games page
         run: python scripts/generate_nba_games_page.py
       - name: Update website with results only (7am)
         if: steps.run_time.outputs.time == '7am'
         run: python scripts/generate_website.py --results-only
       - name: Update website with predictions (12pm)
         if: steps.run_time.outputs.time == '12pm'
-        env:
-          EMAIL_TO: ${{ secrets.EMAIL_TO }}
         run: python scripts/generate_website.py
       - name: Commit predictions
-        if: steps.run_time.outputs.time == '7am' || steps.run_time.outputs.time == '12pm'
         env:
           GH_PAT: ${{ secrets.GH_PAT }}
         run: |
@@ -92,7 +79,6 @@ jobs:
           else
             echo "No changes to commit"
           fi
-          echo "Predictions workflow completed"
       - name: Prepare email body
         if: steps.run_time.outputs.time == '12pm'
         id: prepare_email
