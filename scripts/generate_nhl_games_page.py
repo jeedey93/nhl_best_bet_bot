@@ -179,7 +179,7 @@ def format_time(iso_time):
     """Convert ISO time to Montreal time."""
     dt = datetime.fromisoformat(iso_time.replace('Z', '+00:00'))
     montreal_time = dt.astimezone(ZoneInfo('America/Toronto'))
-    return montreal_time.strftime("%I:%M %p ET")
+    return montreal_time.strftime("%I:%M %p")
 
 
 def parse_odds(odds_data, home_team, away_team):
@@ -253,8 +253,8 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
     anchor_id = f"game-{game_id}" if game_id else f"game-{away_team.replace(' ', '-')}-{home_team.replace(' ', '-')}"
 
     html = f"<div class='game-card' id='{anchor_id}'>\n"
-    html += f"<div class='game-time'>🕐 {game_time}</div>\n"
-    html += f"<div class='matchup'>{away_team} @ {home_team}</div>\n"
+    html += f"<div class='game-time'>{game_time}</div>\n"
+    html += f"<div class='matchup'>{away_team} vs {home_team}</div>\n"
 
     # Get team stats for prediction
     away_stats = get_team_stats_from_api(away_team, sport=sport, last_n_games=10)
@@ -334,7 +334,7 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
 
     # Record tile
     html += "<div class='stat-tile record-tile'>\n"
-    html += "<div class='stat-label'>Last 10 Record</div>\n"
+    html += "<div class='stat-label'>Recent Form</div>\n"
     if away_stats:
         if sport == 'nhl':
             html += f"<div class='stat-record'>{away_stats['wins']}-{away_stats['losses']}-{away_stats['ot_losses']}</div>\n"
@@ -401,7 +401,7 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
 
     # Record tile
     html += "<div class='stat-tile record-tile'>\n"
-    html += "<div class='stat-label'>Last 10 Record</div>\n"
+    html += "<div class='stat-label'>Recent Form</div>\n"
     if home_stats:
         if sport == 'nhl':
             html += f"<div class='stat-record'>{home_stats['wins']}-{home_stats['losses']}-{home_stats['ot_losses']}</div>\n"
