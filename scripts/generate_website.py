@@ -976,15 +976,16 @@ def parse_yesterday_results(sport_key):
 
     results_dir = os.path.join("data", "bot_results", sport_key)
 
-    # Calculate yesterday's date
-    yesterday = datetime.now() - timedelta(days=1)
-    yesterday_str = yesterday.strftime("%Y-%m-%d")
+    # The 6am results workflow creates files with TODAY's date but contains YESTERDAY's games
+    # So we need to look for today's file
+    today = datetime.now()
+    today_str = today.strftime("%Y-%m-%d")
 
-    # Look for yesterday's specific results file first
-    yesterday_file = os.path.join(results_dir, f"{sport_key}_daily_results_{yesterday_str}.txt")
+    # Look for today's results file (which contains yesterday's game results)
+    today_file = os.path.join(results_dir, f"{sport_key}_daily_results_{today_str}.txt")
 
-    if os.path.exists(yesterday_file):
-        latest_results_file = yesterday_file
+    if os.path.exists(today_file):
+        latest_results_file = today_file
     else:
         # Fallback: Get the most recent results file
         results_files = sorted(glob(os.path.join(results_dir, f"{sport_key}_daily_results_*.txt")))
