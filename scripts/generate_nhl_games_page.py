@@ -402,8 +402,19 @@ def parse_odds(odds_data, home_team, away_team):
     return None
 
 
-def generate_game_card(away_team, home_team, game_time, game_odds, away_record=None, home_record=None, sport='nhl', away_logo=None, home_logo=None, game_id=None, away_goalie=None, home_goalie=None):
-    """Generate HTML for a single game card."""
+def generate_game_card(away_team, home_team, game_time, game_odds, away_record=None, home_record=None, sport='nhl', away_logo=None, home_logo=None, game_id=None, away_goalie=None, home_goalie=None, away_team_short=None, home_team_short=None):
+    """Generate HTML for a single game card.
+
+    Args:
+        away_team: Full team name for display (e.g., "Minnesota Wild")
+        home_team: Full team name for display (e.g., "Vegas Golden Knights")
+        away_team_short: Short team name for API calls (e.g., "Minnesota", "Vegas")
+        home_team_short: Short team name for API calls (e.g., "Minnesota", "Vegas")
+    """
+    # Use short names for API calls if provided, otherwise use full names
+    away_api_name = away_team_short if away_team_short else away_team
+    home_api_name = home_team_short if home_team_short else home_team
+
     # Create anchor ID for navigation
     anchor_id = f"game-{game_id}" if game_id else f"game-{away_team.replace(' ', '-')}-{home_team.replace(' ', '-')}"
 
@@ -413,7 +424,7 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
 
     # Get head-to-head stats (NHL only)
     if sport == 'nhl':
-        h2h_stats = get_head_to_head_stats(away_team, home_team)
+        h2h_stats = get_head_to_head_stats(away_api_name, home_api_name)
         if h2h_stats:
             html += "<div class='h2h-section'>\n"
             html += "<div class='h2h-title'>Season Series</div>\n"
@@ -434,9 +445,9 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
                 html += "</div>\n"
             html += "</div>\n"
 
-    # Get team stats for prediction
-    away_stats = get_team_stats_from_api(away_team, sport=sport, last_n_games=10)
-    home_stats = get_team_stats_from_api(home_team, sport=sport, last_n_games=10)
+    # Get team stats for prediction (using short names for API)
+    away_stats = get_team_stats_from_api(away_api_name, sport=sport, last_n_games=10)
+    home_stats = get_team_stats_from_api(home_api_name, sport=sport, last_n_games=10)
 
     # Calculate prediction if both teams have stats
     prediction_html = ""
@@ -467,7 +478,7 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
     # Generate H2H totals insight badge
     h2h_totals_badge = ""
     if sport == 'nhl':
-        h2h_stats = get_head_to_head_stats(away_team, home_team)
+        h2h_stats = get_head_to_head_stats(away_api_name, home_api_name)
         if h2h_stats and game_odds and 'totals' in game_odds.get('markets', {}):
             h2h_avg = h2h_stats.get('avg_total_goals', 0)
             total_line = game_odds['markets']['totals']['point']
@@ -482,8 +493,8 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
     # Check for back-to-back games
     b2b_badge = ""
     if sport == 'nhl':
-        away_b2b = check_back_to_back(away_team)
-        home_b2b = check_back_to_back(home_team)
+        away_b2b = check_back_to_back(away_api_name)
+        home_b2b = check_back_to_back(home_api_name)
 
         if away_b2b and home_b2b:
             b2b_badge = f"<div class='b2b-badge both-b2b'>⚠️ Both on Back-to-Back</div>\n"
@@ -776,8 +787,10 @@ def generate_nhl_games_page():
     scroller_html += "<div class='scroller-container'>\n"
 
     for game in nhl_games:
-        away_team = game['awayTeam']['placeName']['default']
-        home_team = game['homeTeam']['placeName']['default']
+        away_team_short = game['awayTeam']['placeName']['default']
+        home_team_short = game['homeTeam']['placeName']['default']
+        away_team = f"{away_team_short} {game['awayTeam']['commonName']['default']}"
+        home_team = f"{home_team_short} {game['homeTeam']['commonName']['default']}"
         away_logo = game['awayTeam'].get('logo')
         home_logo = game['homeTeam'].get('logo')
         game_time = format_time(game['startTimeUTC'])
@@ -812,8 +825,10 @@ def generate_nhl_games_page():
         nhl_standings = get_nhl_standings()
 
         for game in nhl_games:
-            away_team = game['awayTeam']['placeName']['default']
-            home_team = game['homeTeam']['placeName']['default']
+            away_team_short = game['awayTeam']['placeName']['default']
+            home_team_short = game['homeTeam']['placeName']['default']
+            away_team = f"{away_team_short} {game['awayTeam']['commonName']['default']}"
+            home_team = f"{home_team_short} {game['homeTeam']['commonName']['default']}"
             game_time = format_time(game['startTimeUTC'])
             game_id = game.get('id', '')
 
@@ -821,18 +836,18 @@ def generate_nhl_games_page():
             away_logo = game['awayTeam'].get('logo')
             home_logo = game['homeTeam'].get('logo')
 
-            # Get team records from standings
-            away_record = nhl_standings.get(away_team)
-            home_record = nhl_standings.get(home_team)
+            # Get team records from standings (using short names)
+            away_record = nhl_standings.get(away_team_short)
+            home_record = nhl_standings.get(home_team_short)
 
-            # Get starting goalies
-            away_goalie = starting_goalies.get(away_team)
-            home_goalie = starting_goalies.get(home_team)
+            # Get starting goalies (using short names)
+            away_goalie = starting_goalies.get(away_team_short)
+            home_goalie = starting_goalies.get(home_team_short)
 
-            # Parse odds for this game
-            game_odds = parse_odds(nhl_odds_data, home_team, away_team)
+            # Parse odds for this game (using short names for matching)
+            game_odds = parse_odds(nhl_odds_data, home_team_short, away_team_short)
 
-            nhl_html += generate_game_card(away_team, home_team, game_time, game_odds, away_record, home_record, sport='nhl', away_logo=away_logo, home_logo=home_logo, game_id=game_id, away_goalie=away_goalie, home_goalie=home_goalie)
+            nhl_html += generate_game_card(away_team, home_team, game_time, game_odds, away_record, home_record, sport='nhl', away_logo=away_logo, home_logo=home_logo, game_id=game_id, away_goalie=away_goalie, home_goalie=home_goalie, away_team_short=away_team_short, home_team_short=home_team_short)
     else:
         nhl_html = "<div class='no-games'>No NHL games scheduled for today</div>\n"
 
