@@ -9,7 +9,7 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: #ffffff;
+  background: #f5f7fa;
   color: #1a1a1a;
   min-height: 100vh;
 }
@@ -17,7 +17,7 @@ body {
 .header {
   text-align: center;
   margin-bottom: 50px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
   border-radius: 20px;
   padding: 40px 20px;
   box-shadow: 0 10px 40px rgba(0,0,0,0.1);
@@ -36,7 +36,7 @@ body {
 .sport-section { margin-bottom: 60px; }
 .sport-title {
   font-size: 2.2em;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -46,7 +46,7 @@ body {
   align-items: center;
   gap: 15px;
   font-weight: 700;
-  border-bottom: 3px solid #667eea;
+  border-bottom: 3px solid #4a90e2;
 }
 .game-card {
   background: white;
@@ -66,12 +66,12 @@ body {
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(90deg, #4a90e2 0%, #357abd 100%);
 }
 .game-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 15px 50px rgba(0,0,0,0.15);
-  border-color: #667eea;
+  border-color: #4a90e2;
 }
 .game-time {
   color: #9ca3af;
@@ -86,49 +86,136 @@ body {
 .matchup {
   font-size: 1.6em;
   font-weight: 800;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   margin-bottom: 25px;
   line-height: 1.3;
 }
-.odds-grid {
+.key-insights {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-radius: 15px;
+  padding: 25px;
+  margin-bottom: 20px;
+  border: 2px solid #e5e7eb;
+}
+.insights-title {
+  font-size: 1.2em;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 20px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.insights-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: 1fr 1fr;
   gap: 20px;
 }
-.odds-card {
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+.team-insights {
+  background: white;
   border-radius: 12px;
   padding: 20px;
+  text-align: center;
   border: 2px solid #e5e7eb;
   transition: all 0.2s ease;
 }
-.odds-card:hover {
-  border-color: #667eea;
-  transform: scale(1.02);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+.team-insights:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(74, 144, 226, 0.15);
+  border-color: #4a90e2;
 }
-.odds-label {
-  font-size: 0.8em;
-  color: #6b7280;
-  text-transform: uppercase;
-  font-weight: 700;
-  margin-bottom: 12px;
-  letter-spacing: 1px;
+.away-team {
+  border-left: 4px solid #f59e0b;
 }
-.odds-value {
-  font-size: 1.3em;
+.home-team {
+  border-left: 4px solid #10b981;
+}
+.team-name {
+  font-size: 1.2em;
   font-weight: 700;
   color: #1e293b;
-  margin-bottom: 6px;
+  margin-bottom: 10px;
+}
+.team-record {
+  font-size: 1.4em;
+  font-weight: 800;
+  background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 8px;
+}
+.team-label {
+  font-size: 0.75em;
+  color: #6b7280;
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+.odds-section {
+  margin-top: 20px;
+}
+.odds-toggle {
+  text-align: center;
+  padding: 10px;
+  background: #f3f4f6;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9em;
+  color: #6b7280;
+  font-weight: 600;
+  transition: all 0.2s;
+  user-select: none;
+}
+.odds-toggle:hover {
+  background: #e5e7eb;
+  color: #4a90e2;
+}
+.odds-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+.odds-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 15px;
+  margin-top: 15px;
+}
+.odds-card {
+  background: white;
+  border-radius: 10px;
+  padding: 15px;
+  border: 1px solid #e5e7eb;
+}
+.odds-label {
+  font-size: 0.75em;
+  color: #9ca3af;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-bottom: 10px;
+  letter-spacing: 0.5px;
+}
+.odds-value {
+  font-size: 1em;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 5px;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 .odds-value:last-child {
   margin-bottom: 0;
+}
+.odds-value span:last-child {
+  color: #4a90e2;
+  font-weight: 700;
 }
 .no-games {
   text-align: center;
@@ -146,9 +233,26 @@ body {
   .sport-title { font-size: 1.6em; padding: 15px 20px; }
   .matchup { font-size: 1.3em; }
   .game-card { padding: 20px; }
+  .insights-grid { grid-template-columns: 1fr; }
   .odds-grid { grid-template-columns: 1fr; }
 }
 </style>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.odds-toggle').forEach(toggle => {
+    toggle.addEventListener('click', function() {
+      const content = this.nextElementSibling;
+      if (content.style.maxHeight) {
+        content.style.maxHeight = null;
+        this.innerHTML = 'View Odds ▼';
+      } else {
+        content.style.maxHeight = content.scrollHeight + 'px';
+        this.innerHTML = 'Hide Odds ▲';
+      }
+    });
+  });
+});
+</script>
 </head>
 <body>
 
@@ -180,112 +284,168 @@ body {
 <div class='game-card'>
 <div class='game-time'>🕐 02:00 PM ET</div>
 <div class='matchup'>Minnesota @ Colorado</div>
-<div class='odds-grid'>
-<div class='odds-card'>
-<div class='odds-label'>Moneyline</div>
-<div class='odds-value'>Minnesota: 2.5</div>
-<div class='odds-value'>Colorado: 1.56</div>
+<div class='key-insights'>
+<div class='insights-title'>📊 Key Insights</div>
+<div class='insights-grid'>
+<div class='team-insights away-team'>
+<div class='team-name'>Minnesota</div>
+<div class='team-label'>Away Team</div>
 </div>
-<div class='odds-card'>
-<div class='odds-label'>Total</div>
-<div class='odds-value'>Over 6.5: 1.98</div>
-<div class='odds-value'>Under 6.5: 1.85</div>
+<div class='team-insights home-team'>
+<div class='team-name'>Colorado</div>
+<div class='team-label'>Home Team</div>
+</div>
+</div>
+</div>
+<div class='odds-section'>
+<div class='odds-toggle'>View Odds ▼</div>
+<div class='odds-content'>
+<div class='odds-grid'>
+<div class='odds-card'>\n<div class='odds-label'>Moneyline</div>\n<div class='odds-value'><span>Minnesota</span><span>2.5</span></div>\n<div class='odds-value'><span>Colorado</span><span>1.56</span></div>\n</div>\n<div class='odds-card'>\n<div class='odds-label'>Total</div>\n<div class='odds-value'><span>Over 6.5</span><span>1.98</span></div>\n<div class='odds-value'><span>Under 6.5</span><span>1.85</span></div>\n</div>\n</div>
 </div>
 </div>
 </div>
 <div class='game-card'>
 <div class='game-time'>🕐 04:30 PM ET</div>
 <div class='matchup'>Boston @ Pittsburgh</div>
-<div class='odds-grid'>
-<div class='odds-card'>
-<div class='odds-label'>Moneyline</div>
-<div class='odds-value'>Boston: 2.05</div>
-<div class='odds-value'>Pittsburgh: 1.8</div>
+<div class='key-insights'>
+<div class='insights-title'>📊 Key Insights</div>
+<div class='insights-grid'>
+<div class='team-insights away-team'>
+<div class='team-name'>Boston</div>
+<div class='team-label'>Away Team</div>
 </div>
-<div class='odds-card'>
-<div class='odds-label'>Total</div>
-<div class='odds-value'>Over 6.5: 2.02</div>
-<div class='odds-value'>Under 6.5: 1.82</div>
+<div class='team-insights home-team'>
+<div class='team-name'>Pittsburgh</div>
+<div class='team-label'>Home Team</div>
+</div>
+</div>
+</div>
+<div class='odds-section'>
+<div class='odds-toggle'>View Odds ▼</div>
+<div class='odds-content'>
+<div class='odds-grid'>
+<div class='odds-card'>\n<div class='odds-label'>Moneyline</div>\n<div class='odds-value'><span>Boston</span><span>2.05</span></div>\n<div class='odds-value'><span>Pittsburgh</span><span>1.8</span></div>\n</div>\n<div class='odds-card'>\n<div class='odds-label'>Total</div>\n<div class='odds-value'><span>Over 6.5</span><span>2.02</span></div>\n<div class='odds-value'><span>Under 6.5</span><span>1.82</span></div>\n</div>\n</div>
 </div>
 </div>
 </div>
 <div class='game-card'>
 <div class='game-time'>🕐 06:00 PM ET</div>
 <div class='matchup'>Tampa Bay @ Buffalo</div>
-<div class='odds-grid'>
-<div class='odds-card'>
-<div class='odds-label'>Moneyline</div>
-<div class='odds-value'>Tampa Bay: 1.87</div>
-<div class='odds-value'>Buffalo: 1.95</div>
+<div class='key-insights'>
+<div class='insights-title'>📊 Key Insights</div>
+<div class='insights-grid'>
+<div class='team-insights away-team'>
+<div class='team-name'>Tampa Bay</div>
+<div class='team-label'>Away Team</div>
 </div>
-<div class='odds-card'>
-<div class='odds-label'>Total</div>
-<div class='odds-value'>Over 6.5: 1.95</div>
-<div class='odds-value'>Under 6.5: 1.87</div>
+<div class='team-insights home-team'>
+<div class='team-name'>Buffalo</div>
+<div class='team-label'>Home Team</div>
+</div>
+</div>
+</div>
+<div class='odds-section'>
+<div class='odds-toggle'>View Odds ▼</div>
+<div class='odds-content'>
+<div class='odds-grid'>
+<div class='odds-card'>\n<div class='odds-label'>Moneyline</div>\n<div class='odds-value'><span>Tampa Bay</span><span>1.87</span></div>\n<div class='odds-value'><span>Buffalo</span><span>1.95</span></div>\n</div>\n<div class='odds-card'>\n<div class='odds-label'>Total</div>\n<div class='odds-value'><span>Over 6.5</span><span>1.95</span></div>\n<div class='odds-value'><span>Under 6.5</span><span>1.87</span></div>\n</div>\n</div>
 </div>
 </div>
 </div>
 <div class='game-card'>
 <div class='game-time'>🕐 06:00 PM ET</div>
 <div class='matchup'>Chicago @ Dallas</div>
-<div class='odds-grid'>
-<div class='odds-card'>
-<div class='odds-label'>Moneyline</div>
-<div class='odds-value'>Chicago: 3.2</div>
-<div class='odds-value'>Dallas: 1.37</div>
+<div class='key-insights'>
+<div class='insights-title'>📊 Key Insights</div>
+<div class='insights-grid'>
+<div class='team-insights away-team'>
+<div class='team-name'>Chicago</div>
+<div class='team-label'>Away Team</div>
 </div>
-<div class='odds-card'>
-<div class='odds-label'>Total</div>
-<div class='odds-value'>Over 5.5: 1.74</div>
-<div class='odds-value'>Under 5.5: 2.14</div>
+<div class='team-insights home-team'>
+<div class='team-name'>Dallas</div>
+<div class='team-label'>Home Team</div>
+</div>
+</div>
+</div>
+<div class='odds-section'>
+<div class='odds-toggle'>View Odds ▼</div>
+<div class='odds-content'>
+<div class='odds-grid'>
+<div class='odds-card'>\n<div class='odds-label'>Moneyline</div>\n<div class='odds-value'><span>Chicago</span><span>3.2</span></div>\n<div class='odds-value'><span>Dallas</span><span>1.37</span></div>\n</div>\n<div class='odds-card'>\n<div class='odds-label'>Total</div>\n<div class='odds-value'><span>Over 5.5</span><span>1.74</span></div>\n<div class='odds-value'><span>Under 5.5</span><span>2.14</span></div>\n</div>\n</div>
 </div>
 </div>
 </div>
 <div class='game-card'>
 <div class='game-time'>🕐 07:00 PM ET</div>
 <div class='matchup'>Detroit @ New Jersey</div>
-<div class='odds-grid'>
-<div class='odds-card'>
-<div class='odds-label'>Moneyline</div>
-<div class='odds-value'>Detroit: 1.91</div>
-<div class='odds-value'>New Jersey: 1.91</div>
+<div class='key-insights'>
+<div class='insights-title'>📊 Key Insights</div>
+<div class='insights-grid'>
+<div class='team-insights away-team'>
+<div class='team-name'>Detroit</div>
+<div class='team-label'>Away Team</div>
 </div>
-<div class='odds-card'>
-<div class='odds-label'>Total</div>
-<div class='odds-value'>Over 5.5: 1.87</div>
-<div class='odds-value'>Under 5.5: 1.95</div>
+<div class='team-insights home-team'>
+<div class='team-name'>New Jersey</div>
+<div class='team-label'>Home Team</div>
+</div>
+</div>
+</div>
+<div class='odds-section'>
+<div class='odds-toggle'>View Odds ▼</div>
+<div class='odds-content'>
+<div class='odds-grid'>
+<div class='odds-card'>\n<div class='odds-label'>Moneyline</div>\n<div class='odds-value'><span>Detroit</span><span>1.91</span></div>\n<div class='odds-value'><span>New Jersey</span><span>1.91</span></div>\n</div>\n<div class='odds-card'>\n<div class='odds-label'>Total</div>\n<div class='odds-value'><span>Over 5.5</span><span>1.87</span></div>\n<div class='odds-value'><span>Under 5.5</span><span>1.95</span></div>\n</div>\n</div>
 </div>
 </div>
 </div>
 <div class='game-card'>
 <div class='game-time'>🕐 09:00 PM ET</div>
 <div class='matchup'>St. Louis @ Anaheim</div>
-<div class='odds-grid'>
-<div class='odds-card'>
-<div class='odds-label'>Moneyline</div>
-<div class='odds-value'>St. Louis: 2.45</div>
-<div class='odds-value'>Anaheim: 1.57</div>
+<div class='key-insights'>
+<div class='insights-title'>📊 Key Insights</div>
+<div class='insights-grid'>
+<div class='team-insights away-team'>
+<div class='team-name'>St. Louis</div>
+<div class='team-label'>Away Team</div>
 </div>
-<div class='odds-card'>
-<div class='odds-label'>Total</div>
-<div class='odds-value'>Over 6.5: 1.95</div>
-<div class='odds-value'>Under 6.5: 1.87</div>
+<div class='team-insights home-team'>
+<div class='team-name'>Anaheim</div>
+<div class='team-label'>Home Team</div>
+</div>
+</div>
+</div>
+<div class='odds-section'>
+<div class='odds-toggle'>View Odds ▼</div>
+<div class='odds-content'>
+<div class='odds-grid'>
+<div class='odds-card'>\n<div class='odds-label'>Moneyline</div>\n<div class='odds-value'><span>St. Louis</span><span>2.45</span></div>\n<div class='odds-value'><span>Anaheim</span><span>1.57</span></div>\n</div>\n<div class='odds-card'>\n<div class='odds-label'>Total</div>\n<div class='odds-value'><span>Over 6.5</span><span>1.95</span></div>\n<div class='odds-value'><span>Under 6.5</span><span>1.87</span></div>\n</div>\n</div>
 </div>
 </div>
 </div>
 <div class='game-card'>
 <div class='game-time'>🕐 09:30 PM ET</div>
 <div class='matchup'>Edmonton @ Vegas</div>
-<div class='odds-grid'>
-<div class='odds-card'>
-<div class='odds-label'>Moneyline</div>
-<div class='odds-value'>Edmonton: 1.95</div>
-<div class='odds-value'>Vegas: 1.87</div>
+<div class='key-insights'>
+<div class='insights-title'>📊 Key Insights</div>
+<div class='insights-grid'>
+<div class='team-insights away-team'>
+<div class='team-name'>Edmonton</div>
+<div class='team-label'>Away Team</div>
 </div>
-<div class='odds-card'>
-<div class='odds-label'>Total</div>
-<div class='odds-value'>Over 6.5: 1.7</div>
-<div class='odds-value'>Under 6.5: 2.2</div>
+<div class='team-insights home-team'>
+<div class='team-name'>Vegas</div>
+<div class='team-label'>Home Team</div>
+</div>
+</div>
+</div>
+<div class='odds-section'>
+<div class='odds-toggle'>View Odds ▼</div>
+<div class='odds-content'>
+<div class='odds-grid'>
+<div class='odds-card'>\n<div class='odds-label'>Moneyline</div>\n<div class='odds-value'><span>Edmonton</span><span>1.95</span></div>\n<div class='odds-value'><span>Vegas</span><span>1.87</span></div>\n</div>\n<div class='odds-card'>\n<div class='odds-label'>Total</div>\n<div class='odds-value'><span>Over 6.5</span><span>1.7</span></div>\n<div class='odds-value'><span>Under 6.5</span><span>2.2</span></div>\n</div>\n</div>
 </div>
 </div>
 </div>
@@ -298,210 +458,240 @@ body {
 <div class='game-card'>
 <div class='game-time'>🕐 01:10 PM ET</div>
 <div class='matchup'>Boston Celtics @ Cleveland Cavaliers</div>
+<div class='key-insights'>
+<div class='insights-title'>📊 Key Insights</div>
+<div class='insights-grid'>
+<div class='team-insights away-team'>
+<div class='team-name'>Boston Celtics</div>
+<div class='team-label'>Away Team</div>
+</div>
+<div class='team-insights home-team'>
+<div class='team-name'>Cleveland Cavaliers</div>
+<div class='team-label'>Home Team</div>
+</div>
+</div>
+</div>
+<div class='odds-section'>
+<div class='odds-toggle'>View Odds ▼</div>
+<div class='odds-content'>
 <div class='odds-grid'>
-<div class='odds-card'>
-<div class='odds-label'>Moneyline</div>
-<div class='odds-value'>Boston Celtics: 1.93</div>
-<div class='odds-value'>Cleveland Caval: 1.93</div>
-</div>
-<div class='odds-card'>
-<div class='odds-label'>Total</div>
-<div class='odds-value'>Over 223.5: 1.89</div>
-<div class='odds-value'>Under 223.5: 1.93</div>
-</div>
-<div class='odds-card'>
-<div class='odds-label'>Spread</div>
-<div class='odds-value'>Boston Celtics +1.0: 1.91</div>
-<div class='odds-value'>Cleveland Caval -1.0: 1.91</div>
+<div class='odds-card'>\n<div class='odds-label'>Moneyline</div>\n<div class='odds-value'><span>Boston Celtics</span><span>1.93</span></div>\n<div class='odds-value'><span>Cleveland Caval</span><span>1.93</span></div>\n</div>\n<div class='odds-card'>\n<div class='odds-label'>Total</div>\n<div class='odds-value'><span>Over 223.5</span><span>1.89</span></div>\n<div class='odds-value'><span>Under 223.5</span><span>1.93</span></div>\n</div>\n<div class='odds-card'>\n<div class='odds-label'>Spread</div>\n<div class='odds-value'><span>Boston Celtics +1.0</span><span>1.91</span></div>\n<div class='odds-value'><span>Cleveland Caval -1.0</span><span>1.91</span></div>\n</div>\n</div>
 </div>
 </div>
 </div>
 <div class='game-card'>
 <div class='game-time'>🕐 03:40 PM ET</div>
 <div class='matchup'>New York Knicks @ Los Angeles Lakers</div>
+<div class='key-insights'>
+<div class='insights-title'>📊 Key Insights</div>
+<div class='insights-grid'>
+<div class='team-insights away-team'>
+<div class='team-name'>New York Knicks</div>
+<div class='team-label'>Away Team</div>
+</div>
+<div class='team-insights home-team'>
+<div class='team-name'>Los Angeles Lakers</div>
+<div class='team-label'>Home Team</div>
+</div>
+</div>
+</div>
+<div class='odds-section'>
+<div class='odds-toggle'>View Odds ▼</div>
+<div class='odds-content'>
 <div class='odds-grid'>
-<div class='odds-card'>
-<div class='odds-label'>Moneyline</div>
-<div class='odds-value'>New York Knicks: 1.68</div>
-<div class='odds-value'>Los Angeles Lak: 2.26</div>
-</div>
-<div class='odds-card'>
-<div class='odds-label'>Total</div>
-<div class='odds-value'>Over 228.5: 1.91</div>
-<div class='odds-value'>Under 228.5: 1.91</div>
-</div>
-<div class='odds-card'>
-<div class='odds-label'>Spread</div>
-<div class='odds-value'>New York Knicks -3.0: 1.89</div>
-<div class='odds-value'>Los Angeles Lak +3.0: 1.93</div>
+<div class='odds-card'>\n<div class='odds-label'>Moneyline</div>\n<div class='odds-value'><span>New York Knicks</span><span>1.68</span></div>\n<div class='odds-value'><span>Los Angeles Lak</span><span>2.26</span></div>\n</div>\n<div class='odds-card'>\n<div class='odds-label'>Total</div>\n<div class='odds-value'><span>Over 228.5</span><span>1.91</span></div>\n<div class='odds-value'><span>Under 228.5</span><span>1.91</span></div>\n</div>\n<div class='odds-card'>\n<div class='odds-label'>Spread</div>\n<div class='odds-value'><span>New York Knicks -3.0</span><span>1.89</span></div>\n<div class='odds-value'><span>Los Angeles Lak +3.0</span><span>1.93</span></div>\n</div>\n</div>
 </div>
 </div>
 </div>
 <div class='game-card'>
 <div class='game-time'>🕐 06:10 PM ET</div>
 <div class='matchup'>Dallas Mavericks @ Toronto Raptors</div>
+<div class='key-insights'>
+<div class='insights-title'>📊 Key Insights</div>
+<div class='insights-grid'>
+<div class='team-insights away-team'>
+<div class='team-name'>Dallas Mavericks</div>
+<div class='team-label'>Away Team</div>
+</div>
+<div class='team-insights home-team'>
+<div class='team-name'>Toronto Raptors</div>
+<div class='team-label'>Home Team</div>
+</div>
+</div>
+</div>
+<div class='odds-section'>
+<div class='odds-toggle'>View Odds ▼</div>
+<div class='odds-content'>
 <div class='odds-grid'>
-<div class='odds-card'>
-<div class='odds-label'>Moneyline</div>
-<div class='odds-value'>Dallas Maverick: 4.2</div>
-<div class='odds-value'>Toronto Raptors: 1.25</div>
-</div>
-<div class='odds-card'>
-<div class='odds-label'>Total</div>
-<div class='odds-value'>Over 229.5: 1.91</div>
-<div class='odds-value'>Under 229.5: 1.91</div>
-</div>
-<div class='odds-card'>
-<div class='odds-label'>Spread</div>
-<div class='odds-value'>Dallas Maverick +9.5: 1.91</div>
-<div class='odds-value'>Toronto Raptors -9.5: 1.91</div>
+<div class='odds-card'>\n<div class='odds-label'>Moneyline</div>\n<div class='odds-value'><span>Dallas Maverick</span><span>4.7</span></div>\n<div class='odds-value'><span>Toronto Raptors</span><span>1.21</span></div>\n</div>\n<div class='odds-card'>\n<div class='odds-label'>Total</div>\n<div class='odds-value'><span>Over 229.5</span><span>1.91</span></div>\n<div class='odds-value'><span>Under 229.5</span><span>1.91</span></div>\n</div>\n<div class='odds-card'>\n<div class='odds-label'>Spread</div>\n<div class='odds-value'><span>Dallas Maverick +10.5</span><span>1.91</span></div>\n<div class='odds-value'><span>Toronto Raptors -10.5</span><span>1.91</span></div>\n</div>\n</div>
 </div>
 </div>
 </div>
 <div class='game-card'>
 <div class='game-time'>🕐 06:10 PM ET</div>
 <div class='matchup'>Detroit Pistons @ Miami Heat</div>
+<div class='key-insights'>
+<div class='insights-title'>📊 Key Insights</div>
+<div class='insights-grid'>
+<div class='team-insights away-team'>
+<div class='team-name'>Detroit Pistons</div>
+<div class='team-label'>Away Team</div>
+</div>
+<div class='team-insights home-team'>
+<div class='team-name'>Miami Heat</div>
+<div class='team-label'>Home Team</div>
+</div>
+</div>
+</div>
+<div class='odds-section'>
+<div class='odds-toggle'>View Odds ▼</div>
+<div class='odds-content'>
 <div class='odds-grid'>
-<div class='odds-card'>
-<div class='odds-label'>Moneyline</div>
-<div class='odds-value'>Detroit Pistons: 1.85</div>
-<div class='odds-value'>Miami Heat: 2.0</div>
-</div>
-<div class='odds-card'>
-<div class='odds-label'>Total</div>
-<div class='odds-value'>Over 229.5: 1.88</div>
-<div class='odds-value'>Under 229.5: 1.94</div>
-</div>
-<div class='odds-card'>
-<div class='odds-label'>Spread</div>
-<div class='odds-value'>Detroit Pistons -1.0: 1.89</div>
-<div class='odds-value'>Miami Heat +1.0: 1.93</div>
+<div class='odds-card'>\n<div class='odds-label'>Moneyline</div>\n<div class='odds-value'><span>Detroit Pistons</span><span>1.85</span></div>\n<div class='odds-value'><span>Miami Heat</span><span>2.0</span></div>\n</div>\n<div class='odds-card'>\n<div class='odds-label'>Total</div>\n<div class='odds-value'><span>Over 229.5</span><span>1.88</span></div>\n<div class='odds-value'><span>Under 229.5</span><span>1.94</span></div>\n</div>\n<div class='odds-card'>\n<div class='odds-label'>Spread</div>\n<div class='odds-value'><span>Detroit Pistons -1.0</span><span>1.89</span></div>\n<div class='odds-value'><span>Miami Heat +1.0</span><span>1.93</span></div>\n</div>\n</div>
 </div>
 </div>
 </div>
 <div class='game-card'>
 <div class='game-time'>🕐 07:10 PM ET</div>
 <div class='matchup'>Washington Wizards @ New Orleans Pelicans</div>
+<div class='key-insights'>
+<div class='insights-title'>📊 Key Insights</div>
+<div class='insights-grid'>
+<div class='team-insights away-team'>
+<div class='team-name'>Washington Wizards</div>
+<div class='team-label'>Away Team</div>
+</div>
+<div class='team-insights home-team'>
+<div class='team-name'>New Orleans Pelicans</div>
+<div class='team-label'>Home Team</div>
+</div>
+</div>
+</div>
+<div class='odds-section'>
+<div class='odds-toggle'>View Odds ▼</div>
+<div class='odds-content'>
 <div class='odds-grid'>
-<div class='odds-card'>
-<div class='odds-label'>Moneyline</div>
-<div class='odds-value'>Washington Wiza: 4.5</div>
-<div class='odds-value'>New Orleans Pel: 1.22</div>
-</div>
-<div class='odds-card'>
-<div class='odds-label'>Total</div>
-<div class='odds-value'>Over 244.5: 1.91</div>
-<div class='odds-value'>Under 244.5: 1.91</div>
-</div>
-<div class='odds-card'>
-<div class='odds-label'>Spread</div>
-<div class='odds-value'>Washington Wiza +10.5: 1.91</div>
-<div class='odds-value'>New Orleans Pel -10.5: 1.91</div>
+<div class='odds-card'>\n<div class='odds-label'>Moneyline</div>\n<div class='odds-value'><span>Washington Wiza</span><span>4.5</span></div>\n<div class='odds-value'><span>New Orleans Pel</span><span>1.22</span></div>\n</div>\n<div class='odds-card'>\n<div class='odds-label'>Total</div>\n<div class='odds-value'><span>Over 244.5</span><span>1.91</span></div>\n<div class='odds-value'><span>Under 244.5</span><span>1.91</span></div>\n</div>\n<div class='odds-card'>\n<div class='odds-label'>Spread</div>\n<div class='odds-value'><span>Washington Wiza +10.5</span><span>1.91</span></div>\n<div class='odds-value'><span>New Orleans Pel -10.5</span><span>1.91</span></div>\n</div>\n</div>
 </div>
 </div>
 </div>
 <div class='game-card'>
 <div class='game-time'>🕐 08:10 PM ET</div>
 <div class='matchup'>Houston Rockets @ San Antonio Spurs</div>
+<div class='key-insights'>
+<div class='insights-title'>📊 Key Insights</div>
+<div class='insights-grid'>
+<div class='team-insights away-team'>
+<div class='team-name'>Houston Rockets</div>
+<div class='team-label'>Away Team</div>
+</div>
+<div class='team-insights home-team'>
+<div class='team-name'>San Antonio Spurs</div>
+<div class='team-label'>Home Team</div>
+</div>
+</div>
+</div>
+<div class='odds-section'>
+<div class='odds-toggle'>View Odds ▼</div>
+<div class='odds-content'>
 <div class='odds-grid'>
-<div class='odds-card'>
-<div class='odds-label'>Moneyline</div>
-<div class='odds-value'>Houston Rockets: 2.9</div>
-<div class='odds-value'>San Antonio Spu: 1.43</div>
-</div>
-<div class='odds-card'>
-<div class='odds-label'>Total</div>
-<div class='odds-value'>Over 222.5: 1.91</div>
-<div class='odds-value'>Under 222.5: 1.91</div>
-</div>
-<div class='odds-card'>
-<div class='odds-label'>Spread</div>
-<div class='odds-value'>Houston Rockets +5.5: 1.91</div>
-<div class='odds-value'>San Antonio Spu -5.5: 1.91</div>
+<div class='odds-card'>\n<div class='odds-label'>Moneyline</div>\n<div class='odds-value'><span>Houston Rockets</span><span>2.9</span></div>\n<div class='odds-value'><span>San Antonio Spu</span><span>1.43</span></div>\n</div>\n<div class='odds-card'>\n<div class='odds-label'>Total</div>\n<div class='odds-value'><span>Over 222.5</span><span>1.91</span></div>\n<div class='odds-value'><span>Under 222.5</span><span>1.91</span></div>\n</div>\n<div class='odds-card'>\n<div class='odds-label'>Spread</div>\n<div class='odds-value'><span>Houston Rockets +5.5</span><span>1.91</span></div>\n<div class='odds-value'><span>San Antonio Spu -5.5</span><span>1.91</span></div>\n</div>\n</div>
 </div>
 </div>
 </div>
 <div class='game-card'>
 <div class='game-time'>🕐 08:10 PM ET</div>
 <div class='matchup'>Orlando Magic @ Milwaukee Bucks</div>
+<div class='key-insights'>
+<div class='insights-title'>📊 Key Insights</div>
+<div class='insights-grid'>
+<div class='team-insights away-team'>
+<div class='team-name'>Orlando Magic</div>
+<div class='team-label'>Away Team</div>
+</div>
+<div class='team-insights home-team'>
+<div class='team-name'>Milwaukee Bucks</div>
+<div class='team-label'>Home Team</div>
+</div>
+</div>
+</div>
+<div class='odds-section'>
+<div class='odds-toggle'>View Odds ▼</div>
+<div class='odds-content'>
 <div class='odds-grid'>
-<div class='odds-card'>
-<div class='odds-label'>Moneyline</div>
-<div class='odds-value'>Orlando Magic: 1.62</div>
-<div class='odds-value'>Milwaukee Bucks: 2.36</div>
-</div>
-<div class='odds-card'>
-<div class='odds-label'>Total</div>
-<div class='odds-value'>Over 219.5: 1.91</div>
-<div class='odds-value'>Under 219.5: 1.91</div>
-</div>
-<div class='odds-card'>
-<div class='odds-label'>Spread</div>
-<div class='odds-value'>Orlando Magic -4.0: 1.93</div>
-<div class='odds-value'>Milwaukee Bucks +4.0: 1.89</div>
+<div class='odds-card'>\n<div class='odds-label'>Moneyline</div>\n<div class='odds-value'><span>Orlando Magic</span><span>1.62</span></div>\n<div class='odds-value'><span>Milwaukee Bucks</span><span>2.36</span></div>\n</div>\n<div class='odds-card'>\n<div class='odds-label'>Total</div>\n<div class='odds-value'><span>Over 218.5</span><span>1.91</span></div>\n<div class='odds-value'><span>Under 218.5</span><span>1.91</span></div>\n</div>\n<div class='odds-card'>\n<div class='odds-label'>Spread</div>\n<div class='odds-value'><span>Orlando Magic -4.0</span><span>1.93</span></div>\n<div class='odds-value'><span>Milwaukee Bucks +4.0</span><span>1.89</span></div>\n</div>\n</div>
 </div>
 </div>
 </div>
 <div class='game-card'>
 <div class='game-time'>🕐 09:10 PM ET</div>
 <div class='matchup'>Chicago Bulls @ Sacramento Kings</div>
+<div class='key-insights'>
+<div class='insights-title'>📊 Key Insights</div>
+<div class='insights-grid'>
+<div class='team-insights away-team'>
+<div class='team-name'>Chicago Bulls</div>
+<div class='team-label'>Away Team</div>
+</div>
+<div class='team-insights home-team'>
+<div class='team-name'>Sacramento Kings</div>
+<div class='team-label'>Home Team</div>
+</div>
+</div>
+</div>
+<div class='odds-section'>
+<div class='odds-toggle'>View Odds ▼</div>
+<div class='odds-content'>
 <div class='odds-grid'>
-<div class='odds-card'>
-<div class='odds-label'>Moneyline</div>
-<div class='odds-value'>Chicago Bulls: 1.75</div>
-<div class='odds-value'>Sacramento King: 2.14</div>
-</div>
-<div class='odds-card'>
-<div class='odds-label'>Total</div>
-<div class='odds-value'>Over 234.5: 1.94</div>
-<div class='odds-value'>Under 234.5: 1.88</div>
-</div>
-<div class='odds-card'>
-<div class='odds-label'>Spread</div>
-<div class='odds-value'>Chicago Bulls -2.5: 1.93</div>
-<div class='odds-value'>Sacramento King +2.5: 1.89</div>
+<div class='odds-card'>\n<div class='odds-label'>Moneyline</div>\n<div class='odds-value'><span>Chicago Bulls</span><span>1.75</span></div>\n<div class='odds-value'><span>Sacramento King</span><span>2.14</span></div>\n</div>\n<div class='odds-card'>\n<div class='odds-label'>Total</div>\n<div class='odds-value'><span>Over 234.5</span><span>1.94</span></div>\n<div class='odds-value'><span>Under 234.5</span><span>1.88</span></div>\n</div>\n<div class='odds-card'>\n<div class='odds-label'>Spread</div>\n<div class='odds-value'><span>Chicago Bulls -2.5</span><span>1.93</span></div>\n<div class='odds-value'><span>Sacramento King +2.5</span><span>1.89</span></div>\n</div>\n</div>
 </div>
 </div>
 </div>
 <div class='game-card'>
 <div class='game-time'>🕐 09:10 PM ET</div>
 <div class='matchup'>Indiana Pacers @ Portland Trail Blazers</div>
+<div class='key-insights'>
+<div class='insights-title'>📊 Key Insights</div>
+<div class='insights-grid'>
+<div class='team-insights away-team'>
+<div class='team-name'>Indiana Pacers</div>
+<div class='team-label'>Away Team</div>
+</div>
+<div class='team-insights home-team'>
+<div class='team-name'>Portland Trail Blazers</div>
+<div class='team-label'>Home Team</div>
+</div>
+</div>
+</div>
+<div class='odds-section'>
+<div class='odds-toggle'>View Odds ▼</div>
+<div class='odds-content'>
 <div class='odds-grid'>
-<div class='odds-card'>
-<div class='odds-label'>Moneyline</div>
-<div class='odds-value'>Indiana Pacers: 4.1</div>
-<div class='odds-value'>Portland Trail : 1.26</div>
-</div>
-<div class='odds-card'>
-<div class='odds-label'>Total</div>
-<div class='odds-value'>Over 236.5: 1.91</div>
-<div class='odds-value'>Under 236.5: 1.91</div>
-</div>
-<div class='odds-card'>
-<div class='odds-label'>Spread</div>
-<div class='odds-value'>Indiana Pacers +8.5: 1.93</div>
-<div class='odds-value'>Portland Trail  -8.5: 1.89</div>
+<div class='odds-card'>\n<div class='odds-label'>Moneyline</div>\n<div class='odds-value'><span>Indiana Pacers</span><span>4.1</span></div>\n<div class='odds-value'><span>Portland Trail </span><span>1.26</span></div>\n</div>\n<div class='odds-card'>\n<div class='odds-label'>Total</div>\n<div class='odds-value'><span>Over 236.5</span><span>1.91</span></div>\n<div class='odds-value'><span>Under 236.5</span><span>1.91</span></div>\n</div>\n<div class='odds-card'>\n<div class='odds-label'>Spread</div>\n<div class='odds-value'><span>Indiana Pacers +8.5</span><span>1.93</span></div>\n<div class='odds-value'><span>Portland Trail  -8.5</span><span>1.89</span></div>\n</div>\n</div>
 </div>
 </div>
 </div>
 <div class='game-card'>
 <div class='game-time'>🕐 10:10 PM ET</div>
 <div class='matchup'>Charlotte Hornets @ Phoenix Suns</div>
+<div class='key-insights'>
+<div class='insights-title'>📊 Key Insights</div>
+<div class='insights-grid'>
+<div class='team-insights away-team'>
+<div class='team-name'>Charlotte Hornets</div>
+<div class='team-label'>Away Team</div>
+</div>
+<div class='team-insights home-team'>
+<div class='team-name'>Phoenix Suns</div>
+<div class='team-label'>Home Team</div>
+</div>
+</div>
+</div>
+<div class='odds-section'>
+<div class='odds-toggle'>View Odds ▼</div>
+<div class='odds-content'>
 <div class='odds-grid'>
-<div class='odds-card'>
-<div class='odds-label'>Moneyline</div>
-<div class='odds-value'>Charlotte Horne: 1.56</div>
-<div class='odds-value'>Phoenix Suns: 2.52</div>
-</div>
-<div class='odds-card'>
-<div class='odds-label'>Total</div>
-<div class='odds-value'>Over 218.5: 1.91</div>
-<div class='odds-value'>Under 218.5: 1.91</div>
-</div>
-<div class='odds-card'>
-<div class='odds-label'>Spread</div>
-<div class='odds-value'>Charlotte Horne -4.5: 1.89</div>
-<div class='odds-value'>Phoenix Suns +4.5: 1.93</div>
+<div class='odds-card'>\n<div class='odds-label'>Moneyline</div>\n<div class='odds-value'><span>Charlotte Horne</span><span>1.56</span></div>\n<div class='odds-value'><span>Phoenix Suns</span><span>2.5</span></div>\n</div>\n<div class='odds-card'>\n<div class='odds-label'>Total</div>\n<div class='odds-value'><span>Over 218.5</span><span>1.91</span></div>\n<div class='odds-value'><span>Under 218.5</span><span>1.91</span></div>\n</div>\n<div class='odds-card'>\n<div class='odds-label'>Spread</div>\n<div class='odds-value'><span>Charlotte Horne -4.5</span><span>1.91</span></div>\n<div class='odds-value'><span>Phoenix Suns +4.5</span><span>1.91</span></div>\n</div>\n</div>
 </div>
 </div>
 </div>

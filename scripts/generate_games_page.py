@@ -80,43 +80,73 @@ def parse_odds(odds_data, home_team, away_team):
     return None
 
 
-def generate_game_card(away_team, home_team, game_time, game_odds):
+def generate_game_card(away_team, home_team, game_time, game_odds, away_record=None, home_record=None):
     """Generate HTML for a single game card."""
     html = "<div class='game-card'>\n"
     html += f"<div class='game-time'>🕐 {game_time}</div>\n"
     html += f"<div class='matchup'>{away_team} @ {home_team}</div>\n"
 
+    # Key Insights Section
+    html += "<div class='key-insights'>\n"
+    html += "<div class='insights-title'>📊 Key Insights</div>\n"
+    html += "<div class='insights-grid'>\n"
+
+    # Away Team Stats
+    html += "<div class='team-insights away-team'>\n"
+    html += f"<div class='team-name'>{away_team}</div>\n"
+    if away_record:
+        html += f"<div class='team-record'>{away_record}</div>\n"
+    html += "<div class='team-label'>Away Team</div>\n"
+    html += "</div>\n"
+
+    # Home Team Stats
+    html += "<div class='team-insights home-team'>\n"
+    html += f"<div class='team-name'>{home_team}</div>\n"
+    if home_record:
+        html += f"<div class='team-record'>{home_record}</div>\n"
+    html += "<div class='team-label'>Home Team</div>\n"
+    html += "</div>\n"
+
+    html += "</div>\n"  # Close insights-grid
+    html += "</div>\n"  # Close key-insights
+
+    # Odds Section (smaller, less emphasis)
     if game_odds:
+        html += "<div class='odds-section'>\n"
+        html += "<div class='odds-toggle'>View Odds ▼</div>\n"
+        html += "<div class='odds-content'>\n"
         html += "<div class='odds-grid'>\n"
 
         # Moneyline
         if 'h2h' in game_odds['markets']:
             h2h = game_odds['markets']['h2h']
-            html += "<div class='odds-card'>\n"
-            html += "<div class='odds-label'>Moneyline</div>\n"
-            html += f"<div class='odds-value'>{away_team[:15]}: {h2h['away']}</div>\n"
-            html += f"<div class='odds-value'>{home_team[:15]}: {h2h['home']}</div>\n"
-            html += "</div>\n"
+            html += "<div class='odds-card'>\\n"
+            html += "<div class='odds-label'>Moneyline</div>\\n"
+            html += f"<div class='odds-value'><span>{away_team[:15]}</span><span>{h2h['away']}</span></div>\\n"
+            html += f"<div class='odds-value'><span>{home_team[:15]}</span><span>{h2h['home']}</span></div>\\n"
+            html += "</div>\\n"
 
         # Totals
         if 'totals' in game_odds['markets']:
             totals = game_odds['markets']['totals']
-            html += "<div class='odds-card'>\n"
-            html += "<div class='odds-label'>Total</div>\n"
-            html += f"<div class='odds-value'>Over {totals['point']}: {totals['over']}</div>\n"
-            html += f"<div class='odds-value'>Under {totals['point']}: {totals['under']}</div>\n"
-            html += "</div>\n"
+            html += "<div class='odds-card'>\\n"
+            html += "<div class='odds-label'>Total</div>\\n"
+            html += f"<div class='odds-value'><span>Over {totals['point']}</span><span>{totals['over']}</span></div>\\n"
+            html += f"<div class='odds-value'><span>Under {totals['point']}</span><span>{totals['under']}</span></div>\\n"
+            html += "</div>\\n"
 
         # Spreads
         if 'spreads' in game_odds['markets']:
             spreads = game_odds['markets']['spreads']
-            html += "<div class='odds-card'>\n"
-            html += "<div class='odds-label'>Spread</div>\n"
-            html += f"<div class='odds-value'>{away_team[:15]} {spreads['away_point']:+.1f}: {spreads['away']}</div>\n"
-            html += f"<div class='odds-value'>{home_team[:15]} {spreads['home_point']:+.1f}: {spreads['home']}</div>\n"
-            html += "</div>\n"
+            html += "<div class='odds-card'>\\n"
+            html += "<div class='odds-label'>Spread</div>\\n"
+            html += f"<div class='odds-value'><span>{away_team[:15]} {spreads['away_point']:+.1f}</span><span>{spreads['away']}</span></div>\\n"
+            html += f"<div class='odds-value'><span>{home_team[:15]} {spreads['home_point']:+.1f}</span><span>{spreads['home']}</span></div>\\n"
+            html += "</div>\\n"
 
-        html += "</div>\n"
+        html += "</div>\n"  # Close odds-grid
+        html += "</div>\n"  # Close odds-content
+        html += "</div>\n"  # Close odds-section
 
     html += "</div>\n"
     return html
@@ -161,10 +191,18 @@ def generate_games_page():
             home_team = game['homeTeam']['placeName']['default']
             game_time = format_time(game['startTimeUTC'])
 
+            # Extract team records if available
+            away_record = None
+            home_record = None
+            if 'awayTeam' in game and 'record' in game['awayTeam']:
+                away_record = game['awayTeam']['record']
+            if 'homeTeam' in game and 'record' in game['homeTeam']:
+                home_record = game['homeTeam']['record']
+
             # Parse odds for this game
             game_odds = parse_odds(nhl_odds_data, home_team, away_team)
 
-            nhl_html += generate_game_card(away_team, home_team, game_time, game_odds)
+            nhl_html += generate_game_card(away_team, home_team, game_time, game_odds, away_record, home_record)
     else:
         nhl_html = "<div class='no-games'>No NHL games scheduled for today</div>\n"
 
@@ -185,7 +223,8 @@ def generate_games_page():
             # Parse odds for this game
             game_odds = parse_odds(nba_odds_data, home_team, away_team)
 
-            nba_html += generate_game_card(away_team, home_team, game_time, game_odds)
+            # For NBA, we don't have records readily available, pass None
+            nba_html += generate_game_card(away_team, home_team, game_time, game_odds, None, None)
     else:
         nba_html = "<div class='no-games'>No NBA games scheduled for today</div>\n"
 
