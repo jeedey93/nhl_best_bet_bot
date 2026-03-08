@@ -105,7 +105,35 @@ python nba_results_daily_run.py
 
 ## Daily Automation (GitHub Actions)
 
-- The workflow checks out the repo, sets up Python, installs dependencies from `requirements.txt`, writes `.env` from repo secrets, runs daily scripts, and commits changes (predictions/results/images/LATEST_PREDICTIONS.md).
+The bot runs automatically on a daily schedule via GitHub Actions:
+
+### Daily Schedule (Montreal Time)
+
+**6:00 AM** - Results Analysis (`daily_results.yml`)
+- Fetches yesterday's game results from NHL/NBA APIs
+- Analyzes prediction accuracy
+- Calculates wins, losses, and unit profit/loss
+- Commits results to repository
+
+**7:00 AM** - Morning Predictions (`daily_predictions.yml`)
+- Generates NHL and NBA predictions with early morning odds
+- Updates website with yesterday's results + preliminary picks
+- Commits predictions to repository
+
+**12:00 PM** - Final Predictions (`daily_predictions.yml`)
+- Generates updated NHL and NBA predictions with latest odds
+- Compares 7am vs 12pm predictions to identify line movement
+- Extracts featured picks (Bet of the Day)
+- Updates website with full predictions
+- Sends email notification to subscribers
+- Commits final predictions to repository
+
+### Workflow Details
+
+- All workflows check out the repo, set up Python 3.13, install dependencies from `requirements.txt`
+- API keys are loaded from repository secrets (`GOOGLE_API_KEY`, `ODDS_API_KEY`)
+- Changes are automatically committed and pushed to the `master` branch
+- Website is published via GitHub Pages at [parieurdiscipline.com](https://parieurdiscipline.com)
 
 ## Example Output
 
