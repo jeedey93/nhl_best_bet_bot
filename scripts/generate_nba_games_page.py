@@ -4,8 +4,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from data.odds import get_nhl_odds, get_nba_odds
-from data.starting_goalies import get_starting_goalies
+from data.odds import get_nba_odds
 from data.nba_games import get_nba_games_today
 import requests
 

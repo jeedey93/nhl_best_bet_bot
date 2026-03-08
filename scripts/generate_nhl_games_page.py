@@ -4,7 +4,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from data.odds import get_nhl_odds, get_nba_odds
+from data.odds import get_nhl_odds
 from data.starting_goalies import get_starting_goalies
 import requests
 
@@ -129,7 +129,11 @@ def get_nhl_team_last_games(team_name, last_n_games=10):
         losses = 0
         ot_losses = 0
 
-        for game in completed_games:
+        # Track first 5 and last 5 for form trend
+        first_5_goals = []
+        last_5_goals = []
+
+        for idx, game in enumerate(completed_games):
             away_abbrev = game['awayTeam']['abbrev']
             home_abbrev = game['homeTeam']['abbrev']
             away_score = game['awayTeam'].get('score', 0)
@@ -148,6 +152,12 @@ def get_nhl_team_last_games(team_name, last_n_games=10):
             scores_for.append(team_score)
             scores_against.append(opponent_score)
 
+            # Track goals for form trend (first 5 are oldest, last 5 are newest)
+            if idx < 5:
+                last_5_goals.append(team_score)  # Most recent games come first in API
+            else:
+                first_5_goals.append(team_score)
+
             # Track wins/losses
             if is_win:
                 wins += 1
@@ -160,13 +170,21 @@ def get_nhl_team_last_games(team_name, last_n_games=10):
                 else:
                     losses += 1
 
+        # Calculate form trend
+        form_trend = None
+        if len(completed_games) >= 10:
+            avg_first_5 = sum(first_5_goals) / len(first_5_goals) if first_5_goals else 0
+            avg_last_5 = sum(last_5_goals) / len(last_5_goals) if last_5_goals else 0
+            form_trend = avg_last_5 - avg_first_5  # Positive = improving, negative = declining
+
         return {
             'avg_scored': round(sum(scores_for) / len(scores_for), 1) if scores_for else 0,
             'avg_allowed': round(sum(scores_against) / len(scores_against), 1) if scores_against else 0,
             'games_analyzed': len(completed_games),
             'wins': wins,
             'losses': losses,
-            'ot_losses': ot_losses
+            'ot_losses': ot_losses,
+            'form_trend': round(form_trend, 2) if form_trend is not None else None
         }
 
     except Exception as e:
@@ -223,6 +241,7 @@ def get_head_to_head_stats(team1_name, team2_name, season='20252026'):
         team1_wins = 0
         team2_wins = 0
         last_5_results = []
+        total_goals = []  # Track total goals for H2H average
 
         # Sort by date (most recent first)
         h2h_games.sort(key=lambda x: x.get('gameDate', ''), reverse=True)
@@ -235,6 +254,9 @@ def get_head_to_head_stats(team1_name, team2_name, season='20252026'):
             away_abbrev = away_team.get('abbrev')
             home_score = home_team.get('score', 0)
             away_score = away_team.get('score', 0)
+
+            # Track total goals
+            total_goals.append(home_score + away_score)
 
             # Determine winner
             if home_score > away_score:
@@ -252,11 +274,15 @@ def get_head_to_head_stats(team1_name, team2_name, season='20252026'):
 
             last_5_results.append(result)
 
+        # Calculate average total goals in H2H
+        avg_h2h_total = round(sum(total_goals) / len(total_goals), 1) if total_goals else 0
+
         return {
             'team1_wins': team1_wins,
             'team2_wins': team2_wins,
             'games_played': len(h2h_games),
-            'last_5_results': last_5_results
+            'last_5_results': last_5_results,
+            'avg_total_goals': avg_h2h_total
         }
 
     except Exception as e:
@@ -394,12 +420,54 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
             elif combined_avg < total_line - 0.5:
                 over_under_signal = f"<div class='ou-signal under-signal'>📉 Under {total_line}</div>\n"
 
-    if prediction_html or over_under_signal:
+    # Generate form trend badges (based on last 10 games record)
+    away_form_badge = ""
+    home_form_badge = ""
+    if away_stats:
+        wins = away_stats['wins']
+        total_games = away_stats['games_analyzed']
+        if total_games >= 8:  # Need at least 8 games to judge form
+            if wins >= 7:  # 7+ wins in last 10 = hot
+                away_form_badge = f"<div class='form-badge hot-form'>🔥 {away_team} Hot</div>\n"
+            elif wins <= 3:  # 3 or fewer wins in last 10 = cold
+                away_form_badge = f"<div class='form-badge cold-form'>🧊 {away_team} Cold</div>\n"
+
+    if home_stats:
+        wins = home_stats['wins']
+        total_games = home_stats['games_analyzed']
+        if total_games >= 8:
+            if wins >= 7:
+                home_form_badge = f"<div class='form-badge hot-form'>🔥 {home_team} Hot</div>\n"
+            elif wins <= 3:
+                home_form_badge = f"<div class='form-badge cold-form'>🧊 {home_team} Cold</div>\n"
+
+    # Generate H2H totals insight badge
+    h2h_totals_badge = ""
+    if sport == 'nhl':
+        h2h_stats = get_head_to_head_stats(away_team, home_team)
+        if h2h_stats and game_odds and 'totals' in game_odds.get('markets', {}):
+            h2h_avg = h2h_stats.get('avg_total_goals', 0)
+            total_line = game_odds['markets']['totals']['point']
+
+            if h2h_avg > 0:
+                # Compare H2H average to betting line
+                if h2h_avg > total_line + 0.5:
+                    h2h_totals_badge = f"<div class='h2h-totals-badge high-scoring'>⚡ H2H Avg: {h2h_avg} goals</div>\n"
+                elif h2h_avg < total_line - 0.5:
+                    h2h_totals_badge = f"<div class='h2h-totals-badge low-scoring'>🛡️ H2H Avg: {h2h_avg} goals</div>\n"
+
+    if prediction_html or over_under_signal or away_form_badge or home_form_badge or h2h_totals_badge:
         html += "<div class='signals-row'>\n"
         if prediction_html:
             html += prediction_html
         if over_under_signal:
             html += over_under_signal
+        if away_form_badge:
+            html += away_form_badge
+        if home_form_badge:
+            html += home_form_badge
+        if h2h_totals_badge:
+            html += h2h_totals_badge
         html += "</div>\n"
 
     # Key Insights Section
