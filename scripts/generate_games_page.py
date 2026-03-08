@@ -5,6 +5,7 @@ from zoneinfo import ZoneInfo
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from data.odds import get_nhl_odds, get_nba_odds
+from data.starting_goalies import get_starting_goalies
 import requests
 
 
@@ -239,7 +240,7 @@ def parse_odds(odds_data, home_team, away_team):
     return None
 
 
-def generate_game_card(away_team, home_team, game_time, game_odds, away_record=None, home_record=None, sport='nhl', away_logo=None, home_logo=None, game_id=None):
+def generate_game_card(away_team, home_team, game_time, game_odds, away_record=None, home_record=None, sport='nhl', away_logo=None, home_logo=None, game_id=None, away_goalie=None, home_goalie=None):
     """Generate HTML for a single game card."""
     # Create anchor ID for navigation
     anchor_id = f"game-{game_id}" if game_id else f"game-{away_team.replace(' ', '-')}-{home_team.replace(' ', '-')}"
@@ -325,6 +326,19 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
             html += f"<div class='stat-record'>{away_stats['wins']}-{away_stats['losses']}</div>\n"
         html += "</div>\n"
 
+        # Goalie tile (NHL only)
+        if sport == 'nhl':
+            html += "<div class='stat-tile goalie-tile'>\n"
+            html += "<div class='stat-label'>Starting Goalie</div>\n"
+            if away_goalie:
+                html += f"<div class='goalie-name'>{away_goalie['name']}</div>\n"
+                status_class = 'confirmed' if 'confirm' in away_goalie['status'].lower() else 'unconfirmed'
+                html += f"<div class='goalie-status {status_class}'>{away_goalie['status']}</div>\n"
+            else:
+                html += "<div class='goalie-name'>TBD</div>\n"
+                html += "<div class='goalie-status unconfirmed'>Unconfirmed</div>\n"
+            html += "</div>\n"
+
         html += "</div>\n"
         html += f"<div class='stat-games'>Last {away_stats['games_analyzed']} games</div>\n"
 
@@ -363,6 +377,19 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
         else:
             html += f"<div class='stat-record'>{home_stats['wins']}-{home_stats['losses']}</div>\n"
         html += "</div>\n"
+
+        # Goalie tile (NHL only)
+        if sport == 'nhl':
+            html += "<div class='stat-tile goalie-tile'>\n"
+            html += "<div class='stat-label'>Starting Goalie</div>\n"
+            if home_goalie:
+                html += f"<div class='goalie-name'>{home_goalie['name']}</div>\n"
+                status_class = 'confirmed' if 'confirm' in home_goalie['status'].lower() else 'unconfirmed'
+                html += f"<div class='goalie-status {status_class}'>{home_goalie['status']}</div>\n"
+            else:
+                html += "<div class='goalie-name'>TBD</div>\n"
+                html += "<div class='goalie-status unconfirmed'>Unconfirmed</div>\n"
+            html += "</div>\n"
 
         html += "</div>\n"
         html += f"<div class='stat-games'>Last {home_stats['games_analyzed']} games</div>\n"
@@ -509,6 +536,9 @@ def generate_games_page():
     nhl_html = ""
 
     if nhl_games:
+        # Get starting goalies
+        starting_goalies = get_starting_goalies()
+
         for game in nhl_games:
             away_team = game['awayTeam']['placeName']['default']
             home_team = game['homeTeam']['placeName']['default']
@@ -527,10 +557,14 @@ def generate_games_page():
             if 'homeTeam' in game and 'record' in game['homeTeam']:
                 home_record = game['homeTeam']['record']
 
+            # Get starting goalies
+            away_goalie = starting_goalies.get(away_team)
+            home_goalie = starting_goalies.get(home_team)
+
             # Parse odds for this game
             game_odds = parse_odds(nhl_odds_data, home_team, away_team)
 
-            nhl_html += generate_game_card(away_team, home_team, game_time, game_odds, away_record, home_record, sport='nhl', away_logo=away_logo, home_logo=home_logo, game_id=game_id)
+            nhl_html += generate_game_card(away_team, home_team, game_time, game_odds, away_record, home_record, sport='nhl', away_logo=away_logo, home_logo=home_logo, game_id=game_id, away_goalie=away_goalie, home_goalie=home_goalie)
     else:
         nhl_html = "<div class='no-games'>No NHL games scheduled for today</div>\n"
 
