@@ -53,6 +53,12 @@ jobs:
       - name: Run Dual Bet of the Day (12pm)
         if: steps.run_time.outputs.time == '12pm'
         run: python scripts/generate_featured_picks.py --run_time 12pm
+      - name: Generate games page (7am)
+        if: steps.run_time.outputs.time == '7am'
+        run: python scripts/generate_games_page.py
+      - name: Generate games page (12pm)
+        if: steps.run_time.outputs.time == '12pm'
+        run: python scripts/generate_games_page.py
       - name: Update website with results only (7am)
         if: steps.run_time.outputs.time == '7am'
         env:
