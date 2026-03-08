@@ -120,29 +120,29 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
         # Moneyline
         if 'h2h' in game_odds['markets']:
             h2h = game_odds['markets']['h2h']
-            html += "<div class='odds-card'>\\n"
-            html += "<div class='odds-label'>Moneyline</div>\\n"
-            html += f"<div class='odds-value'><span>{away_team[:15]}</span><span>{h2h['away']}</span></div>\\n"
-            html += f"<div class='odds-value'><span>{home_team[:15]}</span><span>{h2h['home']}</span></div>\\n"
-            html += "</div>\\n"
+            html += "<div class='odds-card'>\n"
+            html += "<div class='odds-label'>Moneyline</div>\n"
+            html += f"<div class='odds-value'><span>{away_team[:15]}</span><span>{h2h['away']}</span></div>\n"
+            html += f"<div class='odds-value'><span>{home_team[:15]}</span><span>{h2h['home']}</span></div>\n"
+            html += "</div>\n"
 
         # Totals
         if 'totals' in game_odds['markets']:
             totals = game_odds['markets']['totals']
-            html += "<div class='odds-card'>\\n"
-            html += "<div class='odds-label'>Total</div>\\n"
-            html += f"<div class='odds-value'><span>Over {totals['point']}</span><span>{totals['over']}</span></div>\\n"
-            html += f"<div class='odds-value'><span>Under {totals['point']}</span><span>{totals['under']}</span></div>\\n"
-            html += "</div>\\n"
+            html += "<div class='odds-card'>\n"
+            html += "<div class='odds-label'>Total</div>\n"
+            html += f"<div class='odds-value'><span>Over {totals['point']}</span><span>{totals['over']}</span></div>\n"
+            html += f"<div class='odds-value'><span>Under {totals['point']}</span><span>{totals['under']}</span></div>\n"
+            html += "</div>\n"
 
         # Spreads
         if 'spreads' in game_odds['markets']:
             spreads = game_odds['markets']['spreads']
-            html += "<div class='odds-card'>\\n"
-            html += "<div class='odds-label'>Spread</div>\\n"
-            html += f"<div class='odds-value'><span>{away_team[:15]} {spreads['away_point']:+.1f}</span><span>{spreads['away']}</span></div>\\n"
-            html += f"<div class='odds-value'><span>{home_team[:15]} {spreads['home_point']:+.1f}</span><span>{spreads['home']}</span></div>\\n"
-            html += "</div>\\n"
+            html += "<div class='odds-card'>\n"
+            html += "<div class='odds-label'>Spread</div>\n"
+            html += f"<div class='odds-value'><span>{away_team[:15]} {spreads['away_point']:+.1f}</span><span>{spreads['away']}</span></div>\n"
+            html += f"<div class='odds-value'><span>{home_team[:15]} {spreads['home_point']:+.1f}</span><span>{spreads['home']}</span></div>\n"
+            html += "</div>\n"
 
         html += "</div>\n"  # Close odds-grid
         html += "</div>\n"  # Close odds-content
