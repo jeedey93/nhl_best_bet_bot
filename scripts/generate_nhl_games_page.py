@@ -554,16 +554,29 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
             away_score = 0.0
             away_valid = False
 
-            if 'sv_pct' in away_goalie and 'gaa' in away_goalie:
+            if 'sv_pct' in away_goalie and 'gaa' in away_goalie and 'record' in away_goalie:
                 # Season stats (40% weight)
                 season_sv_pct = float(away_goalie['sv_pct'])
                 season_gaa = float(away_goalie['gaa'])
+                season_record = away_goalie['record']  # e.g., "15-8-3"
+
+                # Parse season record
+                record_parts = season_record.split('-')
+                if len(record_parts) >= 2:
+                    wins = int(record_parts[0])
+                    losses = int(record_parts[1])
+                    ot_losses = int(record_parts[2]) if len(record_parts) > 2 else 0
+                    total_games = wins + losses + ot_losses
+                    season_win_rate = wins / total_games if total_games > 0 else 0
+                else:
+                    season_win_rate = 0
 
                 # Normalize: SV% is direct (higher is better), GAA inverse (lower is better, normalize to 0-1 scale)
                 # Assume GAA range 1.5-4.0, normalize: (4.0 - GAA) / 2.5
                 season_gaa_normalized = max(0, min(1, (4.0 - season_gaa) / 2.5))
 
-                season_score = (season_sv_pct * 0.5) + (season_gaa_normalized * 0.5)
+                # Weight: 40% SV%, 40% GAA, 20% Win Rate
+                season_score = (season_sv_pct * 0.4) + (season_gaa_normalized * 0.4) + (season_win_rate * 0.2)
                 away_score += season_score * 0.4
                 away_valid = True
 
@@ -578,7 +591,8 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
                 if len(record_parts) >= 2:
                     wins = int(record_parts[0])
                     losses = int(record_parts[1])
-                    total_games = wins + losses + (int(record_parts[2]) if len(record_parts) > 2 else 0)
+                    ot_losses = int(record_parts[2]) if len(record_parts) > 2 else 0
+                    total_games = wins + losses + ot_losses
                     win_rate = wins / total_games if total_games > 0 else 0
                 else:
                     win_rate = 0
@@ -595,13 +609,27 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
             home_score = 0.0
             home_valid = False
 
-            if 'sv_pct' in home_goalie and 'gaa' in home_goalie:
+            if 'sv_pct' in home_goalie and 'gaa' in home_goalie and 'record' in home_goalie:
                 # Season stats (40% weight)
                 season_sv_pct = float(home_goalie['sv_pct'])
                 season_gaa = float(home_goalie['gaa'])
+                season_record = home_goalie['record']
+
+                # Parse season record
+                record_parts = season_record.split('-')
+                if len(record_parts) >= 2:
+                    wins = int(record_parts[0])
+                    losses = int(record_parts[1])
+                    ot_losses = int(record_parts[2]) if len(record_parts) > 2 else 0
+                    total_games = wins + losses + ot_losses
+                    season_win_rate = wins / total_games if total_games > 0 else 0
+                else:
+                    season_win_rate = 0
+
                 season_gaa_normalized = max(0, min(1, (4.0 - season_gaa) / 2.5))
 
-                season_score = (season_sv_pct * 0.5) + (season_gaa_normalized * 0.5)
+                # Weight: 40% SV%, 40% GAA, 20% Win Rate
+                season_score = (season_sv_pct * 0.4) + (season_gaa_normalized * 0.4) + (season_win_rate * 0.2)
                 home_score += season_score * 0.4
                 home_valid = True
 
@@ -616,7 +644,8 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
                 if len(record_parts) >= 2:
                     wins = int(record_parts[0])
                     losses = int(record_parts[1])
-                    total_games = wins + losses + (int(record_parts[2]) if len(record_parts) > 2 else 0)
+                    ot_losses = int(record_parts[2]) if len(record_parts) > 2 else 0
+                    total_games = wins + losses + ot_losses
                     win_rate = wins / total_games if total_games > 0 else 0
                 else:
                     win_rate = 0
