@@ -1025,6 +1025,7 @@ def generate_nhl_games_page(fetch_odds=True):
     # Get today's date
     now = datetime.now(ZoneInfo('America/Toronto'))
     today_str = now.strftime("%A, %B %d, %Y").replace(" 0", " ")
+    last_updated_str = now.strftime("⏱️ Last Updated at %-I:%M %p")
 
     # Get NHL games from the official API
     today = now.date().isoformat()
@@ -1131,6 +1132,7 @@ def generate_nhl_games_page(fetch_odds=True):
     # Fill template
     output = template.replace("{{NAV_HTML}}", nav_html)
     output = output.replace("{{DATE}}", today_str)
+    output = output.replace("{{LAST_UPDATED}}", last_updated_str)
     output = output.replace("{{GAMES_SCROLLER}}", scroller_html)
     output = output.replace("{{NHL_GAMES}}", nhl_html)
 
