@@ -1,10 +1,8 @@
-import os
-import sys
-import re
-from glob import glob
-from datetime import datetime, timedelta
-import json
 import argparse
+import os
+import re
+from datetime import datetime, timedelta
+from glob import glob
 from zoneinfo import ZoneInfo
 
 
@@ -980,7 +978,7 @@ def parse_all_results(sport_key):
 
 def parse_yesterday_results(sport_key):
     """Parse yesterday's results file for a sport and extract summary."""
-    from datetime import datetime, timedelta
+    from datetime import datetime
 
     results_dir = os.path.join("data", "bot_results", sport_key)
 
@@ -1532,7 +1530,8 @@ def update_latest_predictions(results_only=False):
     overall_latest_date = max(latest_dates) if latest_dates else ""
 
     # ── Build the page ──
-    nice_date = format_date_nice(overall_latest_date)
+    from datetime import datetime
+    nice_date = datetime.now().strftime("%A, %B %-d, %Y").replace(" 0", " ")
     content = ""
 
     # ── Add HTML head with title and meta tags ──
