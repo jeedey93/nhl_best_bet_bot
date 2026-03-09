@@ -27,7 +27,7 @@ def get_nhl_odds():
         params = {
             "apiKey": API_KEY,
             "regions": "us",
-            "markets": "h2h,totals",
+            "markets": "h2h,spreads,totals",
             "oddsFormat": "decimal",
             "dateFormat": "iso",
             "commenceTimeFrom": start_utc,
@@ -149,6 +149,7 @@ def match_odds_to_games(games, odds_data, team_name_map):
     Returns a list of dicts with odds and game info for matched games only.
     Logs unmatched games for debugging.
     Handles ambiguous city names like 'New York' by trying all possible teams.
+    Now includes spread data for NHL games.
     """
     def normalize(name):
         if not name:
@@ -157,6 +158,25 @@ def match_odds_to_games(games, odds_data, team_name_map):
         # Remove accents by decomposing and filtering out combining characters
         name = ''.join(c for c in unicodedata.normalize('NFD', name) if unicodedata.category(c) != 'Mn')
         return name.lower().replace('.', '').replace(' ', '').replace('-', '').replace('club', '').replace('hockey', '')
+
+    def _tally_spread(spread_records):
+        # spread_records: list of dicts {point, price}
+        if not spread_records:
+            return None, None
+        # Count points frequency
+        from collections import Counter
+        points = [r["point"] for r in spread_records if r.get("point") is not None]
+        if not points:
+            # fallback first
+            first = spread_records[0]
+            return first.get("point"), first.get("price")
+        most_common_point, _ = Counter(points).most_common(1)[0]
+        # pick best price among records with that point (highest decimal price)
+        candidates = [r for r in spread_records if r.get("point") == most_common_point and r.get("price") is not None]
+        if not candidates:
+            return most_common_point, None
+        best = max(candidates, key=lambda r: r.get("price", 0))
+        return most_common_point, best.get("price")
 
     # Build a reverse map: short_name -> [full_names]
     short_to_full = {}
@@ -196,6 +216,9 @@ def match_odds_to_games(games, odds_data, team_name_map):
             away_team = normalize(odds.get("away_team"))
             if (home_team in home_fulls and away_team in away_fulls):
                 home_odds = away_odds = over_under = None
+                spread_home_records = []
+                spread_away_records = []
+
                 for bm in odds.get("bookmakers", []):
                     for market in bm.get("markets", []):
                         if market["key"] == "h2h":
@@ -208,6 +231,19 @@ def match_odds_to_games(games, odds_data, team_name_map):
                             for outcome in market["outcomes"]:
                                 if outcome["name"].lower() == "over":
                                     over_under = outcome.get("point")
+                        elif market["key"] == "spreads":
+                            for outcome in market["outcomes"]:
+                                name = outcome.get("name", "")
+                                price = outcome.get("price")
+                                point = outcome.get("point")
+                                if normalize(name) == home_team:
+                                    spread_home_records.append({"point": point, "price": price})
+                                elif normalize(name) == away_team:
+                                    spread_away_records.append({"point": point, "price": price})
+
+                spread_home_points, spread_home_price = _tally_spread(spread_home_records)
+                spread_away_points, spread_away_price = _tally_spread(spread_away_records)
+
                 matched.append({
                     **game,
                     "home": odds["home_team"],
@@ -215,6 +251,10 @@ def match_odds_to_games(games, odds_data, team_name_map):
                     "home_odds": home_odds,
                     "away_odds": away_odds,
                     "over_under": over_under,
+                    "spread_home_points": spread_home_points,
+                    "spread_home_price": spread_home_price,
+                    "spread_away_points": spread_away_points,
+                    "spread_away_price": spread_away_price,
                     "bookmakers_odds": odds.get("bookmakers", [])
                 })
                 found = True
