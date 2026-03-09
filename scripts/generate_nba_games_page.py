@@ -726,7 +726,7 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
 
     # Avg Scored tile
     html += "<div class='stat-tile'>\n"
-    html += f"<div class='stat-label'>Avg {score_label} Scored</div>\n"
+    html += f"<div class='stat-label'>Avg {score_label} For</div>\n"
     if home_stats:
         html += f"<div class='stat-value'>{home_stats['avg_scored']:.2f}</div>\n"
     else:
@@ -735,7 +735,7 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
 
     # Avg Allowed tile
     html += "<div class='stat-tile'>\n"
-    html += f"<div class='stat-label'>Avg {score_label} Allowed</div>\n"
+    html += f"<div class='stat-label'>Avg {score_label} Against</div>\n"
     if home_stats:
         html += f"<div class='stat-value'>{home_stats['avg_allowed']:.2f}</div>\n"
     else:
@@ -744,7 +744,7 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
 
     # Avg Totals tile
     html += "<div class='stat-tile'>\n"
-    html += f"<div class='stat-label'>Avg Total {score_label}</div>\n"
+    html += f"<div class='stat-label'>Avg {score_label} Total</div>\n"
     if home_stats:
         avg_total = round(home_stats['avg_scored'] + home_stats['avg_allowed'], 2)
         html += f"<div class='stat-value'>{avg_total:.2f}</div>\n"

@@ -865,7 +865,7 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
 
     # Avg Scored tile
     html += "<div class='stat-tile'>\n"
-    html += f"<div class='stat-label'>Avg {score_label} Scored</div>\n"
+    html += f"<div class='stat-label'>Avg {score_label} For</div>\n"
     if home_stats:
         html += f"<div class='stat-value'>{home_stats['avg_scored']:.2f}</div>\n"
     else:
@@ -874,7 +874,7 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
 
     # Avg Allowed tile
     html += "<div class='stat-tile'>\n"
-    html += f"<div class='stat-label'>Avg {score_label} Allowed</div>\n"
+    html += f"<div class='stat-label'>Avg {score_label} Against</div>\n"
     if home_stats:
         html += f"<div class='stat-value'>{home_stats['avg_allowed']:.2f}</div>\n"
     else:
@@ -883,7 +883,7 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
 
     # Avg Totals tile
     html += "<div class='stat-tile'>\n"
-    html += f"<div class='stat-label'>Avg Total {score_label}</div>\n"
+    html += f"<div class='stat-label'>Avg {score_label} Total</div>\n"
     if home_stats:
         avg_total = round(home_stats['avg_scored'] + home_stats['avg_allowed'], 2)
         html += f"<div class='stat-value'>{avg_total:.2f}</div>\n"
@@ -982,7 +982,7 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
 def get_nhl_standings():
     """
     Fetch current NHL standings to get team records.
-    Returns dict mapping team names to their records (W-L-OTL format).
+    Returns dict mapping team abbreviations to their records (W-L-OTL format).
     """
     try:
         standings_url = 'https://api-web.nhle.com/v1/standings/now'
@@ -993,12 +993,12 @@ def get_nhl_standings():
 
         standings = {}
         for team in data.get('standings', []):
-            team_name = team['placeName']['default']
+            team_abbrev = team['teamAbbrev']['default']
             wins = team['wins']
             losses = team['losses']
             ot_losses = team['otLosses']
             record = f"{wins}-{losses}-{ot_losses}"
-            standings[team_name] = record
+            standings[team_abbrev] = record
 
         return standings
     except Exception as e:
@@ -1105,8 +1105,8 @@ def generate_nhl_games_page(fetch_odds=True):
             home_logo = game['homeTeam'].get('logo')
 
             # Get team records from standings (using abbreviations from API)
-            away_record = nhl_standings.get(away_team_short)
-            home_record = nhl_standings.get(home_team_short)
+            away_record = nhl_standings.get(away_abbrev)
+            home_record = nhl_standings.get(home_abbrev)
 
             # Get starting goalies (using short names)
             away_goalie = starting_goalies.get(away_team_short)
