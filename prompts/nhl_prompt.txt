@@ -51,6 +51,35 @@ IMPORTANT: You also have access to {{RECENT_GAMES}}, which contains the last 7 d
 - Identify teams on long road trips or home stands
 This schedule context is critical for understanding team fatigue and rest advantages, which should significantly impact your probability estimates.
 
+ENHANCED DATA SOURCES (CRITICAL - USE THESE FIRST)
+You now have access to detailed team and goalie statistics that provide the most accurate and current data:
+
+{{TEAM_STATS}} - Last 10 Games Performance Data
+This contains for each team:
+- Recent record (Wins-Losses-OT Losses over last 10 games)
+- Average goals scored per game (last 10 games)
+- Average goals allowed per game (last 10 games)
+Use this data as your PRIMARY source for recent form analysis. This is more reliable than inferring from game results.
+
+{{H2H_STATS}} - Head-to-Head Matchup Data (This Season)
+This contains for each matchup:
+- Season series record between the two teams
+- Total games played between them this season
+- Average total goals in their matchups
+- Last 5 results between these specific teams
+Use this to identify matchup-specific trends and tendencies that may not be reflected in overall team stats.
+
+{{GOALIE_STATS}} - Starting Goalie Information
+This contains for each team's confirmed starting goalie:
+- Goalie name and confirmation status
+- Season record (W-L-OTL)
+- Season Goals Against Average (GAA)
+- Season Save Percentage (SV%)
+- Last 5 starts record (W-L-OTL)
+- Last 5 starts GAA
+- Last 5 starts SV%
+Use this as your PRIMARY source for goalie analysis instead of inferring from team defensive stats.
+
 For each game, follow this systematic analysis:
 
 1. SCHEDULE & FATIGUE ANALYSIS (Use {{RECENT_GAMES}} as primary source)
@@ -67,17 +96,37 @@ For each game, follow this systematic analysis:
    - Road back-to-backs are more fatiguing than home back-to-backs: Add -0.5 additional fatigue for road B2B
    - Each fatigue point of difference (-2 vs +1 = 3 points) should adjust win probability by approximately 2-3%
 
-2. RECENT FORM & MOMENTUM ANALYSIS (Use {{RECENT_RESULTS}} for performance)
-   - Use {{RECENT_RESULTS}} to analyze team performance (wins, losses, scores, margins)
-   - Review last 5 games from {{RECENT_RESULTS}} for each team
+2. RECENT FORM & MOMENTUM ANALYSIS (Use {{TEAM_STATS}} as PRIMARY source)
+   - **PRIMARY DATA SOURCE:** Use {{TEAM_STATS}} for accurate last 10 games performance
+   - Check each team's record from {{TEAM_STATS}} (format: W-L-OTL)
+   - Calculate win percentage: Wins / (Wins + Losses + OT Losses)
+   - Check avg goals scored and allowed from {{TEAM_STATS}}
+   - Use {{RECENT_RESULTS}} as SECONDARY source for additional context on specific game outcomes
    - Identify patterns:
-     * Win/loss streak (3+ games)
-     * Score differential trends (consistently high-scoring or low-scoring)
-     * Opponent quality (strong teams beaten, weak teams lost to)
+     * Win/loss streak (3+ games from record)
+     * Offensive strength: Avg goals scored > 3.2 per game = strong offense
+     * Defensive strength: Avg goals allowed < 2.5 per game = strong defense
+     * Scoring differential: (Avg scored - Avg allowed) indicates overall team quality
    - Form adjustments:
-     * Strong form (4-1 or 5-0 in last 5): +2% to win probability
-     * Poor form (0-5 or 1-4 in last 5): -2% to win probability
-     * Hot streak vs cold streak matchup: Amplify adjustment by 1.5x
+     * Strong form (7+ wins in last 10): +2% to win probability
+     * Poor form (3 or fewer wins in last 10): -2% to win probability
+     * Hot offense (3.5+ goals/game) vs weak defense (3.2+ goals allowed): +3% probability adjustment
+     * Strong defense (2.3 or fewer goals allowed) vs weak offense (2.5 or fewer goals/game): +3% probability adjustment
+
+3. HEAD-TO-HEAD MATCHUP ANALYSIS (Use {{H2H_STATS}})
+   - **CRITICAL:** Check {{H2H_STATS}} for season series data between the two teams
+   - If teams have played 2+ games this season, heavily weight H2H trends:
+     * Dominant series record (3-0, 3-1): Team has solved opponent, +3-4% probability
+     * Close series (2-2, 1-1): Neutral, no adjustment
+     * Recent H2H games show consistent patterns: Apply +2-3% to team that won last 2+ meetings
+   - Average total goals from H2H games:
+     * If H2H avg is 1+ goal different from game total line: Strong signal for over/under
+     * H2H avg > total line + 0.5: Consider Over, +3-4% edge estimate
+     * H2H avg < total line - 0.5: Consider Under, +3-4% edge estimate
+   - Last 5 H2H results reveal scoring patterns:
+     * Consistently low-scoring (5 goals or fewer total): Defensive matchup, favor Under
+     * Consistently high-scoring (7+ goals total): Offensive matchup, favor Over
+   - Weight H2H data MORE than general form when sample size ≥ 3 games this season
 
 3. ABSENCE IMPACT ASSESSMENT (Use {{ABSENCES}} variable)
    - Check {{ABSENCES}} for both teams
@@ -89,13 +138,42 @@ For each game, follow this systematic analysis:
    - If roster data unavailable, skip player-specific analysis
    - Only mention player names if they appear in {{ABSENCES}} variable
 
-4. GOALIE SITUATION (Use {{ABSENCES}} and infer from {{RECENT_RESULTS}})
-   - Check {{ABSENCES}} for goalie status (OUT/DOUBTFUL/QUESTIONABLE)
-   - From {{RECENT_RESULTS}}, infer recent goalie performance:
-     * Team allowing 1-2 goals per game recently → strong goaltending
-     * Team allowing 4+ goals per game recently → weak goaltending
-   - Goalie mismatch (strong vs weak based on recent results): Adjust probability 3-5%
-   - Backup starting (from {{ABSENCES}}): Reduce confidence by one tier
+4. GOALIE MATCHUP ANALYSIS (Use {{GOALIE_STATS}} as PRIMARY source)
+   - **CRITICAL:** Use {{GOALIE_STATS}} as your PRIMARY and MOST RELIABLE source for goalie analysis
+   - For each confirmed starting goalie, analyze:
+
+   A. SEASON PERFORMANCE (Weight: 40%)
+     * Season SV% > .915: Elite goalie, +3-4% probability
+     * Season SV% .905-.915: Above average, +1-2% probability
+     * Season SV% .895-.905: Average, no adjustment
+     * Season SV% < .895: Below average, -2-3% probability
+     * Season GAA < 2.50: Strong performance
+     * Season GAA > 3.00: Weak performance
+
+   B. RECENT FORM - LAST 5 STARTS (Weight: 60% - MORE IMPORTANT)
+     * Last 5 SV% > .920: Hot goalie, +4-5% probability (THIS IS HUGE)
+     * Last 5 SV% .910-.920: Good recent form, +2-3% probability
+     * Last 5 SV% .890-.910: Average, no adjustment
+     * Last 5 SV% < .890: Cold goalie, -3-4% probability
+     * Last 5 GAA < 2.30: Excellent recent performance
+     * Last 5 GAA > 3.20: Poor recent performance
+     * Last 5 record with 3+ wins: Momentum factor, +1-2% probability
+     * Last 5 record with 3+ losses: Struggling, -1-2% probability
+
+   C. GOALIE MATCHUP (Combine A + B for both goalies)
+     * Elite vs Below Average: 6-8% probability shift to elite goalie's team
+     * Hot goalie vs Cold goalie: 7-9% probability shift (recent form matters most!)
+     * Average vs Average: Minimal adjustment, focus on team stats
+     * If one goalie has Last 5 SV% .920+ and opponent has Last 5 SV% < .900: MAJOR EDGE (8-10% shift)
+
+   D. BACKUP STARTING (Check confirmation status)
+     * If goalie status is "Unconfirmed" or backup is starting: Reduce confidence by one tier
+     * Backup with strong recent stats can still be valuable, check Last 5 performance
+
+   - **IMPORTANT:** Goalie matchup is often the SINGLE BIGGEST FACTOR in NHL games
+   - A hot goalie (Last 5 SV% > .920) can steal games even for weaker teams
+   - Weight goalie stats MORE HEAVILY than team defensive stats
+   - Check {{ABSENCES}} for goalie injuries to cross-reference with {{GOALIE_STATS}}
 
 5. MARKET ANALYSIS & ODDS EVALUATION
    - Convert decimal odds to implied probability: Implied % = (1 / decimal odds) × 100
@@ -104,30 +182,66 @@ For each game, follow this systematic analysis:
    - If 3+ books align within 0.03 odds → strong market consensus
 
 6. PROBABILITY ESTIMATION FRAMEWORK (Systematic approach)
-   Start with base probability (50/50 for even matchup), then adjust:
+   Start with base probability (50/50 for even matchup), then adjust using the NEW DATA SOURCES:
 
-   Step A: Adjust for form differential (from {{RECENT_RESULTS}})
-   - Favored team in better form: +2% to +4%
-   - Underdog in better form: -2% from favorite
+   Step A: Adjust for recent form (from {{TEAM_STATS}})
+   - Calculate goal differential from {{TEAM_STATS}}: (Avg Scored - Avg Allowed)
+   - Team with +1.0 or better differential: +3-4% probability
+   - Team with +0.5 to +1.0 differential: +2% probability
+   - Team with negative differential playing team with positive: -3-4% from negative team
 
-   Step B: Adjust for fatigue differential (from {{RECENT_RESULTS}})
+   Step B: Adjust for Head-to-Head trends (from {{H2H_STATS}})
+   - If teams have played 3+ times this season:
+     * Dominant H2H record (3-0, 3-1): +3-4% to dominant team
+     * Won last 2+ meetings: +2-3% to that team
+   - H2H avg total goals vs game line:
+     * H2H avg > line + 0.5: Strong Over signal, +3-4% edge
+     * H2H avg < line - 0.5: Strong Under signal, +3-4% edge
+
+   Step C: Adjust for goalie matchup (from {{GOALIE_STATS}})
+   - Compare Last 5 SV% for both goalies (THIS IS MOST IMPORTANT)
+   - Difference of .030+ in Last 5 SV%: 5-7% probability shift to better goalie's team
+   - Difference of .020-.029 in Last 5 SV%: 3-4% probability shift
+   - Hot goalie (Last 5 SV% > .920) vs average (.900-.910): 4-5% edge
+   - Compare season SV% as secondary factor (weight this 40% vs 60% for Last 5)
+
+   Step D: Adjust for fatigue (from {{RECENT_GAMES}})
    - Each fatigue point difference: 2-3% probability shift
    - Example: Rested team (+1) vs back-to-back team (-2) = 6-9% edge
 
-   Step C: Adjust for absences (from {{ABSENCES}})
+   Step E: Adjust for absences (from {{ABSENCES}})
    - Apply absence impact percentages from section 3 above
 
-   Step D: Adjust for goalie mismatch (from {{ABSENCES}} and {{RECENT_RESULTS}})
-   - Strong vs weak goalie: 3-5% probability shift
+   Step F: Calculate FINAL estimated win probability
+   - Sum all adjustments from steps A-E
+   - **CRITICAL WEIGHTING:** Goalie matchup (Step C) should be weighted MOST HEAVILY
+   - Example calculation:
+     * Base: 50%
+     * Team Stats (offense strong): +3%
+     * H2H (won last 2 meetings): +2%
+     * Goalie (Last 5 SV% .925 vs .895): +6%
+     * Fatigue (rested vs B2B): +6%
+     * No key absences: 0%
+     * TOTAL: 50% + 3% + 2% + 6% + 6% = 67% estimated probability
 
-   Step E: Calculate FINAL estimated win probability
-   - Sum all adjustments from steps A-D
-   - Example: 50% base + 3% form + 6% fatigue + 4% absences = 63% estimated probability
-
-   Step F: Calculate edge
+   Step G: Calculate edge
    - Edge = Estimated Probability - Implied Probability (from odds)
-   - Example: 63% estimated - 54.6% implied = 8.4% edge
+   - Example: 67% estimated - 54.6% implied (1.83 odds) = 12.4% edge
    - Only recommend if edge ≥ 3%
+
+   **TOTALS (OVER/UNDER) ANALYSIS:**
+   When evaluating totals, integrate ALL data sources:
+   - {{TEAM_STATS}}: Sum both teams' avg goals scored (last 10) vs game total line
+     * Combined avg > line + 1.0: Strong Over signal
+     * Combined avg < line - 1.0: Strong Under signal
+   - {{H2H_STATS}}: H2H avg total goals is CRITICAL for totals bets
+     * If H2H sample ≥ 3 games, weight this MORE than general team stats
+     * H2H pattern of high/low scoring overrides general trends
+   - {{GOALIE_STATS}}: Goalie matchup affects totals significantly
+     * Both goalies with Last 5 SV% > .915: Favor Under
+     * Both goalies with Last 5 SV% < .900: Favor Over
+     * Both goalies with Last 5 GAA < 2.50: Favor Under
+     * Both goalies with Last 5 GAA > 3.20: Favor Over
 
 7. CONFIDENCE TIER ASSIGNMENT
    Based on calculated edge:
@@ -194,7 +308,10 @@ Confidence Level: (High / Medium), Units: (1.5u / 1u), Win Probability: <XX>%
 
 DATA TO ANALYZE
 {{RESULTS_TEXT}}
-{{HISTORICAL_RESULTS}}x
+{{TEAM_STATS}}
+{{H2H_STATS}}
+{{GOALIE_STATS}}
+{{HISTORICAL_RESULTS}}
 {{RECENT_RESULTS}}
 {{RECENT_GAMES}}
 {{ABSENCES}}

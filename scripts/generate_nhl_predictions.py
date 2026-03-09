@@ -14,13 +14,207 @@ from datetime import date, timedelta
 from data.odds import NHL_TEAM_NAME_MAP
 import glob
 from scripts.scrape_nhl_absences import scrape_nhl_absences_by_team
+from data.starting_goalies import get_starting_goalies
 import pytz
 from datetime import datetime
+import requests
 
 load_dotenv()
 
 
-def analyze_results(results_text, absences_text, recent_games):
+# Import helper functions from generate_nhl_games_page
+def get_nhl_team_last_games(team_name, last_n_games=10):
+    """
+    Fetch last N games for an NHL team from the NHL API.
+    Returns stats including avg goals scored/allowed, record, etc.
+    """
+    try:
+        # NHL API team abbreviation mapping
+        NHL_TEAM_ABBREV_MAP = {
+            'Anaheim': 'ANA', 'Boston': 'BOS', 'Buffalo': 'BUF', 'Calgary': 'CGY',
+            'Carolina': 'CAR', 'Chicago': 'CHI', 'Colorado': 'COL', 'Columbus': 'CBJ',
+            'Dallas': 'DAL', 'Detroit': 'DET', 'Edmonton': 'EDM', 'Florida': 'FLA',
+            'Los Angeles': 'LAK', 'Minnesota': 'MIN', 'Montréal': 'MTL', 'Nashville': 'NSH',
+            'New Jersey': 'NJD', 'New York': 'NYI', 'Rangers': 'NYR', 'Ottawa': 'OTT',
+            'Philadelphia': 'PHI', 'Pittsburgh': 'PIT', 'San Jose': 'SJS', 'Seattle': 'SEA',
+            'St. Louis': 'STL', 'Tampa Bay': 'TBL', 'Toronto': 'TOR', 'Vancouver': 'VAN',
+            'Vegas': 'VGK', 'Washington': 'WSH', 'Winnipeg': 'WPG', 'Utah': 'UTA'
+        }
+
+        team_abbrev = NHL_TEAM_ABBREV_MAP.get(team_name)
+        if not team_abbrev:
+            return None
+
+        url = f'https://api-web.nhle.com/v1/club-schedule-season/{team_abbrev}/now'
+        response = requests.get(url, timeout=10)
+        data = response.json()
+
+        completed_games = [
+            g for g in data.get('games', [])
+            if g.get('gameState') in ['FINAL', 'OFF']
+        ]
+
+        # Get last N games
+        completed_games.sort(key=lambda x: x.get('gameDate', ''), reverse=True)
+        recent_games = completed_games[:last_n_games]
+
+        if not recent_games:
+            return None
+
+        scores_for = []
+        scores_against = []
+        wins = 0
+        losses = 0
+        ot_losses = 0
+
+        for game in recent_games:
+            home_team = game.get('homeTeam', {})
+            away_team = game.get('awayTeam', {})
+
+            home_abbrev = home_team.get('abbrev')
+            away_abbrev = away_team.get('abbrev')
+            home_score = home_team.get('score', 0)
+            away_score = away_team.get('score', 0)
+
+            if team_abbrev == home_abbrev:
+                scores_for.append(home_score)
+                scores_against.append(away_score)
+                if home_score > away_score:
+                    wins += 1
+                elif game.get('periodDescriptor', {}).get('periodType') in ['OT', 'SO']:
+                    ot_losses += 1
+                else:
+                    losses += 1
+            elif team_abbrev == away_abbrev:
+                scores_for.append(away_score)
+                scores_against.append(home_score)
+                if away_score > home_score:
+                    wins += 1
+                elif game.get('periodDescriptor', {}).get('periodType') in ['OT', 'SO']:
+                    ot_losses += 1
+                else:
+                    losses += 1
+
+        return {
+            'avg_scored': round(sum(scores_for) / len(scores_for), 1) if scores_for else 0,
+            'avg_allowed': round(sum(scores_against) / len(scores_against), 1) if scores_against else 0,
+            'games_analyzed': len(recent_games),
+            'wins': wins,
+            'losses': losses,
+            'ot_losses': ot_losses,
+            'record': f"{wins}-{losses}-{ot_losses}"
+        }
+
+    except Exception as e:
+        print(f"⚠️ Error fetching NHL team stats for {team_name}: {e}")
+        return None
+
+
+def get_head_to_head_stats(team1_name, team2_name, season='20252026'):
+    """
+    Get head-to-head stats between two teams for the current season.
+    """
+    try:
+        NHL_TEAM_ABBREV_MAP = {
+            'Anaheim': 'ANA', 'Boston': 'BOS', 'Buffalo': 'BUF', 'Calgary': 'CGY',
+            'Carolina': 'CAR', 'Chicago': 'CHI', 'Colorado': 'COL', 'Columbus': 'CBJ',
+            'Dallas': 'DAL', 'Detroit': 'DET', 'Edmonton': 'EDM', 'Florida': 'FLA',
+            'Los Angeles': 'LAK', 'Minnesota': 'MIN', 'Montréal': 'MTL', 'Nashville': 'NSH',
+            'New Jersey': 'NJD', 'New York': 'NYI', 'Rangers': 'NYR', 'Ottawa': 'OTT',
+            'Philadelphia': 'PHI', 'Pittsburgh': 'PIT', 'San Jose': 'SJS', 'Seattle': 'SEA',
+            'St. Louis': 'STL', 'Tampa Bay': 'TBL', 'Toronto': 'TOR', 'Vancouver': 'VAN',
+            'Vegas': 'VGK', 'Washington': 'WSH', 'Winnipeg': 'WPG', 'Utah': 'UTA'
+        }
+
+        team1_abbrev = NHL_TEAM_ABBREV_MAP.get(team1_name)
+        team2_abbrev = NHL_TEAM_ABBREV_MAP.get(team2_name)
+
+        if not team1_abbrev or not team2_abbrev:
+            return None
+
+        url = f'https://api-web.nhle.com/v1/club-schedule-season/{team1_abbrev}/now'
+        response = requests.get(url, timeout=10)
+        data = response.json()
+
+        h2h_games = []
+        for game in data.get('games', []):
+            if game.get('gameState') not in ['FINAL', 'OFF']:
+                continue
+
+            home_team = game.get('homeTeam', {})
+            away_team = game.get('awayTeam', {})
+            home_abbrev = home_team.get('abbrev')
+            away_abbrev = away_team.get('abbrev')
+
+            if team2_abbrev in [home_abbrev, away_abbrev]:
+                h2h_games.append(game)
+
+        if not h2h_games:
+            return None
+
+        team1_wins = 0
+        team2_wins = 0
+        last_5_results = []
+        total_goals = []
+
+        h2h_games.sort(key=lambda x: x.get('gameDate', ''), reverse=True)
+
+        for game in h2h_games[:5]:
+            home_team = game.get('homeTeam', {})
+            away_team = game.get('awayTeam', {})
+            home_abbrev = home_team.get('abbrev')
+            away_abbrev = away_team.get('abbrev')
+            home_score = home_team.get('score', 0)
+            away_score = away_team.get('score', 0)
+
+            total_goals.append(home_score + away_score)
+
+            if home_score > away_score:
+                winner_abbrev = home_abbrev
+            else:
+                winner_abbrev = away_abbrev
+
+            if winner_abbrev == team1_abbrev:
+                team1_wins += 1
+                result = f"{team1_abbrev} {home_score}-{away_score}" if home_abbrev == team1_abbrev else f"{team1_abbrev} {away_score}-{home_score}"
+            else:
+                team2_wins += 1
+                result = f"{team2_abbrev} {home_score}-{away_score}" if home_abbrev == team2_abbrev else f"{team2_abbrev} {away_score}-{home_score}"
+
+            last_5_results.append(result)
+
+        avg_total_goals = round(sum(total_goals) / len(total_goals), 1) if total_goals else 0
+
+        for game in h2h_games:
+            home_team = game.get('homeTeam', {})
+            away_team = game.get('awayTeam', {})
+            home_score = home_team.get('score', 0)
+            away_score = away_team.get('score', 0)
+
+            if home_score > away_score:
+                winner_abbrev = home_team.get('abbrev')
+            else:
+                winner_abbrev = away_team.get('abbrev')
+
+            if winner_abbrev == team1_abbrev:
+                team1_wins += 1
+            else:
+                team2_wins += 1
+
+        return {
+            'team1_wins': team1_wins,
+            'team2_wins': team2_wins,
+            'games_played': len(h2h_games),
+            'last_5_results': last_5_results,
+            'avg_total_goals': avg_total_goals
+        }
+
+    except Exception as e:
+        print(f"⚠️ Error fetching H2H stats: {e}")
+        return None
+
+
+def analyze_results(results_text, absences_text, recent_games, team_stats_text, h2h_stats_text, goalie_stats_text):
     api_key = os.environ["GOOGLE_API_KEY"]
     client = genai.Client(api_key=api_key)
 
@@ -57,6 +251,9 @@ def analyze_results(results_text, absences_text, recent_games):
             prompt_text = prompt_text.replace("{{RECENT_RESULTS}}", recent_results)
             prompt_text = prompt_text.replace("{{ABSENCES}}", absences_text)
             prompt_text = prompt_text.replace("{{RECENT_GAMES}}", recent_games)
+            prompt_text = prompt_text.replace("{{TEAM_STATS}}", team_stats_text)
+            prompt_text = prompt_text.replace("{{H2H_STATS}}", h2h_stats_text)
+            prompt_text = prompt_text.replace("{{GOALIE_STATS}}", goalie_stats_text)
     except Exception:
         return "AI analysis skipped: prompt file not found or unreadable."
 
@@ -166,22 +363,116 @@ with open(filename, "w") as f:
         odds_data = get_nhl_odds()
         matched = match_odds_to_games(games, odds_data, NHL_TEAM_NAME_MAP)
 
+        # Get starting goalies
+        starting_goalies = get_starting_goalies()
+
         results_text = ""
+        team_stats_text = ""
+        h2h_stats_text = ""
+        goalie_stats_text = ""
+
         for g in matched:
+            away_team = g['away']
+            home_team = g['home']
+
             line = (
-                f"{g['away']} @ {g['home']}\n"
+                f"{away_team} @ {home_team}\n"
                 f"Home odds: {g['home_odds']}, Away odds: {g['away_odds']}, O/U: {g['over_under']}\n"
                 "------\n"
             )
             f.write(line)
             results_text += line
 
+            # Extract short team names for API calls
+            away_short = away_team.split()[-1] if ' ' in away_team else away_team
+            home_short = home_team.split()[-1] if ' ' in home_team else home_team
+
+            # Special cases
+            if 'Montréal' in away_team or 'Montreal' in away_team:
+                away_short = 'Montréal'
+            if 'Montréal' in home_team or 'Montreal' in home_team:
+                home_short = 'Montréal'
+            if 'Rangers' in away_team:
+                away_short = 'Rangers'
+            if 'Rangers' in home_team:
+                home_short = 'Rangers'
+
+            # Fetch team stats (last 10 games)
+            away_stats = get_nhl_team_last_games(away_short, last_n_games=10)
+            home_stats = get_nhl_team_last_games(home_short, last_n_games=10)
+
+            team_stats_text += f"\n{away_team} (Last 10 Games):\n"
+            if away_stats:
+                team_stats_text += f"  Record: {away_stats['record']}\n"
+                team_stats_text += f"  Avg Goals Scored: {away_stats['avg_scored']}\n"
+                team_stats_text += f"  Avg Goals Allowed: {away_stats['avg_allowed']}\n"
+            else:
+                team_stats_text += "  No stats available\n"
+
+            team_stats_text += f"\n{home_team} (Last 10 Games):\n"
+            if home_stats:
+                team_stats_text += f"  Record: {home_stats['record']}\n"
+                team_stats_text += f"  Avg Goals Scored: {home_stats['avg_scored']}\n"
+                team_stats_text += f"  Avg Goals Allowed: {home_stats['avg_allowed']}\n"
+            else:
+                team_stats_text += "  No stats available\n"
+
+            # Fetch head-to-head stats
+            h2h_stats = get_head_to_head_stats(away_short, home_short)
+            h2h_stats_text += f"\n{away_team} vs {home_team} (Head-to-Head This Season):\n"
+            if h2h_stats:
+                h2h_stats_text += f"  Series: {away_team} {h2h_stats['team1_wins']} - {h2h_stats['team2_wins']} {home_team}\n"
+                h2h_stats_text += f"  Games Played: {h2h_stats['games_played']}\n"
+                h2h_stats_text += f"  Avg Total Goals: {h2h_stats['avg_total_goals']}\n"
+                if h2h_stats['last_5_results']:
+                    h2h_stats_text += f"  Last 5 Results: {', '.join(h2h_stats['last_5_results'])}\n"
+            else:
+                h2h_stats_text += "  No head-to-head games this season\n"
+
+            # Fetch goalie stats
+            away_goalie_info = starting_goalies.get(away_short)
+            home_goalie_info = starting_goalies.get(home_short)
+
+            goalie_stats_text += f"\n{away_team} Starting Goalie:\n"
+            if away_goalie_info:
+                goalie_stats_text += f"  Name: {away_goalie_info['name']} ({away_goalie_info['status']})\n"
+                if 'record' in away_goalie_info:
+                    goalie_stats_text += f"  Season Record: {away_goalie_info['record']}\n"
+                    goalie_stats_text += f"  Season GAA: {away_goalie_info['gaa']}\n"
+                    goalie_stats_text += f"  Season SV%: {away_goalie_info['sv_pct']}\n"
+                    goalie_stats_text += f"  Last 5 Starts: {away_goalie_info['last_5_record']}\n"
+                    goalie_stats_text += f"  Last 5 GAA: {away_goalie_info['last_5_gaa']}\n"
+                    goalie_stats_text += f"  Last 5 SV%: {away_goalie_info['last_5_sv_pct']}\n"
+            else:
+                goalie_stats_text += "  No goalie confirmed\n"
+
+            goalie_stats_text += f"\n{home_team} Starting Goalie:\n"
+            if home_goalie_info:
+                goalie_stats_text += f"  Name: {home_goalie_info['name']} ({home_goalie_info['status']})\n"
+                if 'record' in home_goalie_info:
+                    goalie_stats_text += f"  Season Record: {home_goalie_info['record']}\n"
+                    goalie_stats_text += f"  Season GAA: {home_goalie_info['gaa']}\n"
+                    goalie_stats_text += f"  Season SV%: {home_goalie_info['sv_pct']}\n"
+                    goalie_stats_text += f"  Last 5 Starts: {home_goalie_info['last_5_record']}\n"
+                    goalie_stats_text += f"  Last 5 GAA: {home_goalie_info['last_5_gaa']}\n"
+                    goalie_stats_text += f"  Last 5 SV%: {home_goalie_info['last_5_sv_pct']}\n"
+            else:
+                goalie_stats_text += "  No goalie confirmed\n"
+
+            goalie_stats_text += "\n"
+
         print("NHL Matchups and Odds:")
         print(results_text)
         print(absences_text)
+        print("\nTeam Stats:")
+        print(team_stats_text)
+        print("\nHead-to-Head Stats:")
+        print(h2h_stats_text)
+        print("\nGoalie Stats:")
+        print(goalie_stats_text)
 
         if results_text:
-            summary = analyze_results(results_text, absences_text, recent_games)
+            summary = analyze_results(results_text, absences_text, recent_games, team_stats_text, h2h_stats_text, goalie_stats_text)
             f.write("\nAI Analysis Summary:\n")
             f.write(summary + "\n")
             print("\nAI Analysis Summary:")
