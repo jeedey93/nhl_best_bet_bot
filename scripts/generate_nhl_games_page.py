@@ -111,10 +111,15 @@ def get_nhl_team_last_games(team_name, last_n_games=10):
         dict with avg_scored, avg_allowed, games_analyzed, wins, losses, ot_losses
     """
     try:
-        # Get team abbreviation
-        team_abbrev = NHL_TEAM_ABBREV_MAP.get(team_name)
-        if not team_abbrev:
-            return None
+        # Check if team_name is already an abbreviation (3 letters) or needs lookup
+        if len(team_name) == 3 and team_name.isupper():
+            # Already an abbreviation like 'NYR'
+            team_abbrev = team_name
+        else:
+            # Need to look up abbreviation
+            team_abbrev = NHL_TEAM_ABBREV_MAP.get(team_name)
+            if not team_abbrev:
+                return None
 
         url = f'https://api-web.nhle.com/v1/club-schedule-season/{team_abbrev}/now'
         response = requests.get(url, timeout=10)
@@ -242,9 +247,16 @@ def get_head_to_head_stats(team1_name, team2_name, season='20252026'):
     - last_5_results: List of last 5 game results
     """
     try:
-        # Get team abbreviations
-        team1_abbrev = NHL_TEAM_ABBREV_MAP.get(team1_name)
-        team2_abbrev = NHL_TEAM_ABBREV_MAP.get(team2_name)
+        # Check if team names are already abbreviations or need lookup
+        if len(team1_name) == 3 and team1_name.isupper():
+            team1_abbrev = team1_name
+        else:
+            team1_abbrev = NHL_TEAM_ABBREV_MAP.get(team1_name)
+
+        if len(team2_name) == 3 and team2_name.isupper():
+            team2_abbrev = team2_name
+        else:
+            team2_abbrev = NHL_TEAM_ABBREV_MAP.get(team2_name)
 
         if not team1_abbrev or not team2_abbrev:
             return None
@@ -348,9 +360,13 @@ def check_back_to_back(team_name):
     Returns True if team played yesterday, False otherwise.
     """
     try:
-        team_abbrev = NHL_TEAM_ABBREV_MAP.get(team_name)
-        if not team_abbrev:
-            return False
+        # Check if team_name is already an abbreviation or needs lookup
+        if len(team_name) == 3 and team_name.isupper():
+            team_abbrev = team_name
+        else:
+            team_abbrev = NHL_TEAM_ABBREV_MAP.get(team_name)
+            if not team_abbrev:
+                return False
 
         # Get today and yesterday dates in Montreal timezone
         montreal_tz = ZoneInfo('America/Toronto')
