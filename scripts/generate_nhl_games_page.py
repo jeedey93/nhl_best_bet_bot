@@ -75,6 +75,7 @@ NHL_TEAM_ABBREV_MAP = {
     'St. Louis': 'STL',
     'Tampa Bay': 'TBL',
     'Toronto': 'TOR',
+    'Utah': 'UTA',
     'Vancouver': 'VAN',
     'Vegas': 'VGK',
     'Washington': 'WSH',
