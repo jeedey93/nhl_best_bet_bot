@@ -67,6 +67,7 @@ NHL_TEAM_ABBREV_MAP = {
     'Nashville': 'NSH',
     'New Jersey': 'NJD',
     'New York': 'NYI',  # Islanders
+    'New York Rangers': 'NYR',  # Rangers
     'Ottawa': 'OTT',
     'Philadelphia': 'PHI',
     'Pittsburgh': 'PIT',
@@ -721,7 +722,18 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
                 recent_form = f"{away_stats['wins']}-{away_stats['losses']}-{away_stats['ot_losses']}"
             else:
                 recent_form = f"{away_stats['wins']}-{away_stats['losses']}"
-            html += f"<div class='team-record'>{away_record} ({recent_form})</div>\n"
+
+            # Determine color based on record (green if winning, red if losing)
+            wins = away_stats['wins']
+            losses = away_stats['losses']
+            if wins > losses:
+                form_class = 'positive-form'
+            elif losses > wins:
+                form_class = 'negative-form'
+            else:
+                form_class = 'neutral-form'
+
+            html += f"<div class='team-record'>{away_record} <span class='{form_class}'>({recent_form})</span></div>\n"
         else:
             html += f"<div class='team-record'>{away_record}</div>\n"
     html += "<div class='team-label'>Away Team</div>\n"
@@ -751,7 +763,7 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
 
     # Avg Totals tile
     html += "<div class='stat-tile'>\n"
-    html += f"<div class='stat-label'>Avg Total {score_label}</div>\n"
+    html += f"<div class='stat-label'>Avg {score_label} Total</div>\n"
     if away_stats:
         avg_total = round(away_stats['avg_scored'] + away_stats['avg_allowed'], 2)
         html += f"<div class='stat-value'>{avg_total:.2f}</div>\n"
@@ -814,7 +826,18 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
                 recent_form = f"{home_stats['wins']}-{home_stats['losses']}-{home_stats['ot_losses']}"
             else:
                 recent_form = f"{home_stats['wins']}-{home_stats['losses']}"
-            html += f"<div class='team-record'>{home_record} ({recent_form})</div>\n"
+
+            # Determine color based on record (green if winning, red if losing)
+            wins = home_stats['wins']
+            losses = home_stats['losses']
+            if wins > losses:
+                form_class = 'positive-form'
+            elif losses > wins:
+                form_class = 'negative-form'
+            else:
+                form_class = 'neutral-form'
+
+            html += f"<div class='team-record'>{home_record} <span class='{form_class}'>({recent_form})</span></div>\n"
         else:
             html += f"<div class='team-record'>{home_record}</div>\n"
     html += "<div class='team-label'>Home Team</div>\n"
