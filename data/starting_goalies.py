@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import os
 from datetime import datetime
 from zoneinfo import ZoneInfo
+import json
 
 
 # Mapping from NHL.com lineup page team nicknames to NHL API team names
@@ -42,6 +43,19 @@ NHL_TEAM_NICKNAME_MAP = {
 }
 
 
+# Cache file for goalie stats to handle API failures
+GOALIE_CACHE_FILE = "data/goalie_stats_cache.json"
+
+# Load cache at startup
+GOALIE_STATS_CACHE = {}
+if os.path.exists(GOALIE_CACHE_FILE):
+    try:
+        with open(GOALIE_CACHE_FILE, 'r') as f:
+            GOALIE_STATS_CACHE = json.load(f)
+    except:
+        GOALIE_STATS_CACHE = {}
+
+
 def get_goalie_stats(goalie_name):
     """
     Get goalie statistics from NHL API.
@@ -63,47 +77,77 @@ def get_goalie_stats(goalie_name):
         last_name = name_parts[-1]
         first_name = name_parts[0]
 
-        # Search for goalie using NHL web API search with last name
-        search_url = f'https://search.d3.nhle.com/api/v1/search/player?culture=en-us&limit=20&q={last_name}'
-        response = requests.get(search_url, timeout=5)
-        results = response.json()
-
-        if not results:
-            return None
-
-        # Find the goalie with matching first name
+        # Try multiple search strategies
         goalie_id = None
 
-        # First pass: look for active goalie with matching first name
-        for result in results:
-            if (result.get('positionCode') == 'G' and
-                result.get('active', False) and
-                result.get('name', '').startswith(first_name)):
-                goalie_id = result['playerId']
-                break
+        # Strategy 1: Search by last name only (larger limit)
+        search_url = f'https://search.d3.nhle.com/api/v1/search/player?culture=en-us&limit=50&q={last_name}'
+        try:
+            response = requests.get(search_url, timeout=3)
+            response.raise_for_status()
+            results = response.json()
+        except (requests.Timeout, requests.ConnectionError, requests.HTTPError) as e:
+            print(f"⚠️ API timeout/error searching for {goalie_name}: {e}")
+            results = []
 
-        # Second pass: look for any goalie with matching first name
-        if not goalie_id:
+        if results:
+            # First pass: look for active goalie with exact name match
             for result in results:
-                if result.get('positionCode') == 'G' and result.get('name', '').startswith(first_name):
+                if (result.get('positionCode') == 'G' and
+                    result.get('name', '').lower() == goalie_name.lower()):
                     goalie_id = result['playerId']
                     break
 
-        # Third pass: fallback to first active goalie
-        if not goalie_id:
-            for result in results:
-                if result.get('positionCode') == 'G' and result.get('active', False):
-                    goalie_id = result['playerId']
-                    break
+            # Second pass: look for active goalie with matching first and last name
+            if not goalie_id:
+                for result in results:
+                    if (result.get('positionCode') == 'G' and
+                        result.get('active', False) and
+                        result.get('name', '').split()[-1].lower() == last_name.lower() and
+                        result.get('name', '').split()[0].lower() == first_name.lower()):
+                        goalie_id = result['playerId']
+                        break
 
-        # Fourth pass: fallback to any goalie
+            # Third pass: look for any goalie with matching first name (last name already matched in search)
+            if not goalie_id:
+                for result in results:
+                    if (result.get('positionCode') == 'G' and
+                        result.get('name', '').split()[0].lower() == first_name.lower()):
+                        goalie_id = result['playerId']
+                        break
+
+            # Fourth pass: fallback to first active goalie
+            if not goalie_id:
+                for result in results:
+                    if result.get('positionCode') == 'G' and result.get('active', False):
+                        goalie_id = result['playerId']
+                        break
+
+            # Fifth pass: fallback to any goalie
+            if not goalie_id:
+                for result in results:
+                    if result.get('positionCode') == 'G':
+                        goalie_id = result['playerId']
+                        break
+
+        # Strategy 2: Try searching by full name if first strategy didn't work
         if not goalie_id:
-            for result in results:
-                if result.get('positionCode') == 'G':
-                    goalie_id = result['playerId']
-                    break
+            search_url = f'https://search.d3.nhle.com/api/v1/search/player?culture=en-us&limit=50&q={goalie_name}'
+            try:
+                response = requests.get(search_url, timeout=3)
+                response.raise_for_status()
+                results = response.json()
+
+                if results:
+                    for result in results:
+                        if result.get('positionCode') == 'G' and result.get('active', False):
+                            goalie_id = result['playerId']
+                            break
+            except (requests.Timeout, requests.ConnectionError, requests.HTTPError) as e:
+                print(f"⚠️ API timeout/error in strategy 2 for {goalie_name}: {e}")
 
         if not goalie_id:
+            print(f"⚠️ Could not find {goalie_name} in NHL API")
             return None
 
         # Get current season
@@ -115,15 +159,29 @@ def get_goalie_stats(goalie_name):
         else:
             season = f"{current_year-1}{current_year}"
 
+        # Check cache first
+        if goalie_name in GOALIE_STATS_CACHE:
+            cached_stats = GOALIE_STATS_CACHE[goalie_name]
+            # Validate cache (check if playerId matches)
+            if cached_stats.get('playerId') == goalie_id:
+                print(f"✅ Using cached stats for {goalie_name}")
+                return cached_stats
+
         # Get player stats
         stats_url = f'https://api-web.nhle.com/v1/player/{goalie_id}/landing'
-        response = requests.get(stats_url, timeout=5)
-        data = response.json()
+        try:
+            response = requests.get(stats_url, timeout=3)
+            response.raise_for_status()
+            data = response.json()
+        except (requests.Timeout, requests.ConnectionError, requests.HTTPError) as e:
+            print(f"⚠️ Could not fetch stats for {goalie_name}: {e}")
+            return None
 
         # Get season stats from featuredStats
         season_stats = data.get('featuredStats', {}).get('regularSeason', {}).get('subSeason', {})
 
         if not season_stats:
+            print(f"⚠️ No season stats available for {goalie_name}")
             return None
 
         wins = season_stats.get('wins', 0)
@@ -134,8 +192,13 @@ def get_goalie_stats(goalie_name):
 
         # Get last 5 game logs
         gamelog_url = f'https://api-web.nhle.com/v1/player/{goalie_id}/game-log/{season}/2'
-        response = requests.get(gamelog_url, timeout=5)
-        gamelog_data = response.json()
+        try:
+            response = requests.get(gamelog_url, timeout=3)
+            response.raise_for_status()
+            gamelog_data = response.json()
+        except (requests.Timeout, requests.ConnectionError, requests.HTTPError) as e:
+            print(f"⚠️ Could not fetch game logs for {goalie_name}: {e}")
+            gamelog_data = {}
 
         games = gamelog_data.get('gameLog', [])[:5]  # Last 5 games
 
@@ -175,7 +238,9 @@ def get_goalie_stats(goalie_name):
         else:
             last_5_sv_pct = 0
 
-        return {
+        # Cache the stats
+        cached_stats = {
+            'playerId': goalie_id,
             'record': f"{wins}-{losses}-{ot_losses}",
             'gaa': round(gaa, 2),
             'sv_pct': round(sv_pct, 3),
@@ -183,6 +248,16 @@ def get_goalie_stats(goalie_name):
             'last_5_gaa': round(last_5_gaa, 2),
             'last_5_sv_pct': round(last_5_sv_pct, 3)
         }
+        GOALIE_STATS_CACHE[goalie_name] = cached_stats
+
+        # Save cache to file
+        try:
+            with open(GOALIE_CACHE_FILE, 'w') as f:
+                json.dump(GOALIE_STATS_CACHE, f)
+        except Exception as e:
+            print(f"⚠️ Error saving goalie stats cache: {e}")
+
+        return cached_stats
 
     except Exception as e:
         print(f"⚠️ Error fetching stats for {goalie_name}: {e}")
