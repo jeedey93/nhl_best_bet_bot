@@ -46,7 +46,8 @@ def get_nhl_team_home_away_splits(team_name):
             return None
 
         url = f'https://api-web.nhle.com/v1/club-schedule-season/{team_abbrev}/now'
-        response = requests.get(url, timeout=10)
+        response = requests.get(url, timeout=15)
+        response.raise_for_status()
         data = response.json()
 
         completed_games = [
@@ -121,7 +122,8 @@ def get_nhl_team_last_games(team_name, last_n_games=10):
             return None
 
         url = f'https://api-web.nhle.com/v1/club-schedule-season/{team_abbrev}/now'
-        response = requests.get(url, timeout=10)
+        response = requests.get(url, timeout=15)
+        response.raise_for_status()
         data = response.json()
 
         completed_games = [
@@ -208,7 +210,8 @@ def get_head_to_head_stats(team1_name, team2_name, season='20252026'):
             return None
 
         url = f'https://api-web.nhle.com/v1/club-schedule-season/{team1_abbrev}/now'
-        response = requests.get(url, timeout=10)
+        response = requests.get(url, timeout=15)
+        response.raise_for_status()
         data = response.json()
 
         h2h_games = []
@@ -296,7 +299,7 @@ def get_nhl_standings():
     """
     try:
         standings_url = 'https://api-web.nhle.com/v1/standings/now'
-        response = requests.get(standings_url, timeout=10)
+        response = requests.get(standings_url, timeout=15)
         response.raise_for_status()
         data = response.json()
 
@@ -501,23 +504,46 @@ with open(filename, "w") as f:
             f.write(line)
             results_text += line
 
-            # Extract short team names for API calls
-            away_short = away_team.split()[-1] if ' ' in away_team else away_team
-            home_short = home_team.split()[-1] if ' ' in home_team else home_team
+            # Extract proper team names for API calls
+            # Map full team names to searchable names used in NHL_TEAM_ABBREV_MAP
+            def get_team_name_for_api(full_name):
+                """Convert full team name to name used in NHL API mapping"""
+                if 'Montréal' in full_name or 'Montreal' in full_name:
+                    return 'Montréal'
+                elif 'Islanders' in full_name:
+                    return 'New York'
+                elif 'Rangers' in full_name:
+                    return 'Rangers'
+                elif 'Golden Knights' in full_name:
+                    return 'Vegas'
+                elif 'St.' in full_name and 'Louis' in full_name:
+                    return 'St. Louis'
+                elif 'Los Angeles' in full_name:
+                    return 'Los Angeles'
+                elif 'New Jersey' in full_name:
+                    return 'New Jersey'
+                elif 'San Jose' in full_name:
+                    return 'San Jose'
+                elif 'Tampa Bay' in full_name:
+                    return 'Tampa Bay'
+                elif ' ' in full_name:
+                    # For two-word names, try to find the first part
+                    first_word = full_name.split()[0]
+                    return first_word
+                else:
+                    return full_name
 
-            # Special cases
-            if 'Montréal' in away_team or 'Montreal' in away_team:
-                away_short = 'Montréal'
-            if 'Montréal' in home_team or 'Montreal' in home_team:
-                home_short = 'Montréal'
-            if 'Rangers' in away_team:
-                away_short = 'Rangers'
-            if 'Rangers' in home_team:
-                home_short = 'Rangers'
+            away_short = get_team_name_for_api(away_team)
+            home_short = get_team_name_for_api(home_team)
 
             # Fetch team stats (last 10 games)
             away_stats = get_nhl_team_last_games(away_short, last_n_games=10)
             home_stats = get_nhl_team_last_games(home_short, last_n_games=10)
+
+            if not away_stats:
+                print(f"⚠️  No stats found for {away_team} (searched as: {away_short})")
+            if not home_stats:
+                print(f"⚠️  No stats found for {home_team} (searched as: {home_short})")
 
             team_stats_text += f"\n{away_team} (Last 10 Games):\n"
             if away_stats:
