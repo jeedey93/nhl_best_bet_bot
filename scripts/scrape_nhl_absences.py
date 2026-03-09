@@ -1,5 +1,26 @@
 import requests
 from bs4 import BeautifulSoup
+import re
+
+def clean_player_name(name):
+    """Clean and format player names properly."""
+    # Remove HTML entities and unicode issues
+    name = name.replace('\xa0', '').replace('Â', '').strip()
+
+    # Fix common HTML encoding issues for apostrophes
+    name = name.replace('â', "'")  # â€™ becomes â in some cases
+    name = name.replace('â€™', "'")
+    name = name.replace('&#39;', "'")
+    name = name.replace('&apos;', "'")
+
+    # Handle names without spaces (e.g., "SidneyCrosby" -> "Sidney Crosby")
+    # Look for pattern: lowercase letter followed by uppercase letter
+    name = re.sub(r'([a-z])([A-Z])', r'\1 \2', name)
+
+    # Clean up multiple spaces
+    name = ' '.join(name.split())
+
+    return name
 
 def scrape_nhl_absences_by_team():
     url = "https://www.nhl.com/news/nhl-lineup-projections-2025-26-season"
@@ -30,8 +51,7 @@ def scrape_nhl_absences_by_team():
                         scratched_list = str(next_node).strip()
                         scratched_list = scratched_list.lstrip(":").strip()
                         for player in scratched_list.split(","):
-                            player = player.strip()
-                            player = player.replace('\xa0', '').replace('Â', '').strip()
+                            player = clean_player_name(player)
                             if player and player.lower() != "none":
                                 team_players.append(f"{player} (scratched)")
 
@@ -42,8 +62,7 @@ def scrape_nhl_absences_by_team():
                         injured_list = str(next_node).strip()
                         injured_list = injured_list.lstrip(":").strip()
                         for player in injured_list.split(","):
-                            player = player.strip()
-                            player = player.replace('\xa0', '').replace('Â', '').strip()
+                            player = clean_player_name(player)
                             if player and player.lower() != "none":
                                 team_players.append(player)
 
