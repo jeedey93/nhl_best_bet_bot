@@ -477,7 +477,7 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
     h2h_stats = get_head_to_head_stats(away_team, home_team)
     if h2h_stats:
         html += "<div class='h2h-section'>\n"
-        html += "<div class='h2h-title'>Season Series</div>\n"
+        html += "<div class='h2h-title'>🏆 Season Series</div>\n"
         html += "<div class='h2h-record'>\n"
         html += f"<span class='h2h-team'>{away_team}</span>\n"
         html += f"<span class='h2h-score'>{h2h_stats['team1_wins']}-{h2h_stats['team2_wins']}</span>\n"
