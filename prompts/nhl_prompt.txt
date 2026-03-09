@@ -72,6 +72,19 @@ Use this to identify:
 - Teams that struggle away from home
 - Home/away performance gaps of .150+ win% = major edge indicator
 
+{{STANDINGS}} - Current Season Standings
+This contains for each team:
+- Full season record (W-L-OTL)
+- Total points
+- Points percentage (points / (games played * 2))
+- Games played
+Use this to identify:
+- Playoff contenders (high points %) vs teams out of playoff race
+- Teams fighting for playoffs (extra motivation)
+- Tanking teams at trade deadline (low effort, low motivation)
+- Overall team quality and season performance context
+**IMPORTANT:** Points % is more reliable than raw record because teams play different number of games. A .600+ points % indicates a strong team, <.450 indicates a weak team.
+
 {{H2H_STATS}} - Head-to-Head Matchup Data (This Season)
 This contains for each matchup:
 - Season series record between the two teams
@@ -142,7 +155,25 @@ For each game, follow this systematic analysis:
      * Hot offense (3.5+ goals/game) vs weak defense (3.2+ goals allowed): +3% probability adjustment
      * Strong defense (2.3 or fewer goals allowed) vs weak offense (2.5 or fewer goals/game): +3% probability adjustment
 
-3. HEAD-TO-HEAD MATCHUP ANALYSIS (Use {{H2H_STATS}})
+4. SEASON STANDINGS & MOTIVATION ANALYSIS (Use {{STANDINGS}})
+   - **Check {{STANDINGS}} for overall team quality and motivation factors**
+   - Team Quality Assessment:
+     * Points % .600+: Elite team, consistently strong
+     * Points % .550-.600: Above average, playoff contender
+     * Points % .500-.550: Average team, bubble team
+     * Points % .450-.500: Below average, likely missing playoffs
+     * Points % <.450: Weak team, lottery team
+   - Motivation Factors (Apply after March 1st trade deadline):
+     * Playoff contender vs eliminated team: +2-3% to contender (extra motivation)
+     * Both playoff contenders: No motivation adjustment, both teams trying
+     * Both eliminated: Be cautious, lower confidence, unpredictable effort
+     * Tanking team (very low points %): -2-3% if near trade deadline or end of season
+   - Quality Gap:
+     * Points % difference of .150+ (e.g., .620 vs .470): Significant talent gap, +2-3% to better team
+     * Points % difference of .200+ (e.g., .650 vs .440): Massive talent gap, +4-5% to better team
+   - **Cross-reference with {{TEAM_STATS}}:** If standings show strong team (.600+) but last 10 games are poor (4-6 or worse), weight recent form MORE heavily
+
+5. HEAD-TO-HEAD MATCHUP ANALYSIS (Use {{H2H_STATS}})
    - **CRITICAL:** Check {{H2H_STATS}} for season series data between the two teams
    - If teams have played 2+ games this season, heavily weight H2H trends:
      * Dominant series record (3-0, 3-1): Team has solved opponent, +3-4% probability
@@ -157,22 +188,7 @@ For each game, follow this systematic analysis:
      * Consistently high-scoring (7+ goals total): Offensive matchup, favor Over
    - Weight H2H data MORE than general form when sample size ≥ 3 games this season
 
-3. HEAD-TO-HEAD MATCHUP ANALYSIS (Use {{H2H_STATS}})
-   - **CRITICAL:** Check {{H2H_STATS}} for season series data between the two teams
-   - If teams have played 2+ games this season, heavily weight H2H trends:
-     * Dominant series record (3-0, 3-1): Team has solved opponent, +3-4% probability
-     * Close series (2-2, 1-1): Neutral, no adjustment
-     * Recent H2H games show consistent patterns: Apply +2-3% to team that won last 2+ meetings
-   - Average total goals from H2H games:
-     * If H2H avg is 1+ goal different from game total line: Strong signal for over/under
-     * H2H avg > total line + 0.5: Consider Over, +3-4% edge estimate
-     * H2H avg < total line - 0.5: Consider Under, +3-4% edge estimate
-   - Last 5 H2H results reveal scoring patterns:
-     * Consistently low-scoring (5 goals or fewer total): Defensive matchup, favor Under
-     * Consistently high-scoring (7+ goals total): Offensive matchup, favor Over
-   - Weight H2H data MORE than general form when sample size ≥ 3 games this season
-
-4. ABSENCE IMPACT ASSESSMENT (Use {{ABSENCES}} variable)
+6. ABSENCE IMPACT ASSESSMENT (Use {{ABSENCES}} variable)
    - Check {{ABSENCES}} for both teams
    - Key absence impact on probability (injuries, scratches, suspensions):
      * Starting goalie OUT: -5% to -8% win probability
@@ -182,17 +198,7 @@ For each game, follow this systematic analysis:
    - If roster data unavailable, skip player-specific analysis
    - Only mention player names if they appear in {{ABSENCES}} variable
 
-4. ABSENCE IMPACT ASSESSMENT (Use {{ABSENCES}} variable)
-   - Check {{ABSENCES}} for both teams
-   - Key absence impact on probability (injuries, scratches, suspensions):
-     * Starting goalie OUT: -5% to -8% win probability
-     * 2+ core forwards OUT: -4% to -6% win probability
-     * 1 elite player OUT: -3% to -4% win probability
-     * Top defenseman OUT: -2% to -3% win probability
-   - If roster data unavailable, skip player-specific analysis
-   - Only mention player names if they appear in {{ABSENCES}} variable
-
-5. GOALIE MATCHUP ANALYSIS (Use {{GOALIE_STATS}} as PRIMARY source)
+7. GOALIE MATCHUP ANALYSIS (Use {{GOALIE_STATS}} as PRIMARY source)
    - **CRITICAL:** Use {{GOALIE_STATS}} as your PRIMARY and MOST RELIABLE source for goalie analysis
    - For each confirmed starting goalie, analyze:
 
@@ -229,13 +235,13 @@ For each game, follow this systematic analysis:
    - Weight goalie stats MORE HEAVILY than team defensive stats
    - Check {{ABSENCES}} for goalie injuries to cross-reference with {{GOALIE_STATS}}
 
-6. MARKET ANALYSIS & ODDS EVALUATION
+8. MARKET ANALYSIS & ODDS EVALUATION
    - Convert decimal odds to implied probability: Implied % = (1 / decimal odds) × 100
    - Example: 1.83 odds = 54.6% implied probability
    - Identify if any books offer notably different odds (outliers by 0.05+)
    - If 3+ books align within 0.03 odds → strong market consensus
 
-7. PROBABILITY ESTIMATION FRAMEWORK (Systematic approach)
+9. PROBABILITY ESTIMATION FRAMEWORK (Systematic approach)
    Start with base probability (50/50 for even matchup), then adjust using the NEW DATA SOURCES:
 
    Step A: Adjust for home/away splits (from {{HOME_AWAY_SPLITS}}) - DO THIS FIRST
@@ -312,13 +318,13 @@ For each game, follow this systematic analysis:
      * Both goalies with Last 5 GAA < 2.50: Favor Under
      * Both goalies with Last 5 GAA > 3.20: Favor Over
 
-8. CONFIDENCE TIER ASSIGNMENT
+10. CONFIDENCE TIER ASSIGNMENT
    Based on calculated edge:
    - High Confidence: Edge ≥ 6%
    - Medium Confidence: Edge 4-6%
    - Skip: Edge < 4%
 
-9. STYLE & MATCHUP CONSIDERATIONS (Secondary factors)
+11. STYLE & MATCHUP CONSIDERATIONS (Secondary factors)
    Use these to fine-tune probability estimates (±1-2% max):
    - Home/road splits (infer from {{RECENT_RESULTS}} if games were home/away)
    - Pace matchup (high-scoring recent games suggest pace, from {{RECENT_RESULTS}})
@@ -379,6 +385,7 @@ DATA TO ANALYZE
 {{RESULTS_TEXT}}
 {{TEAM_STATS}}
 {{HOME_AWAY_SPLITS}}
+{{STANDINGS}}
 {{H2H_STATS}}
 {{GOALIE_STATS}}
 {{HISTORICAL_RESULTS}}

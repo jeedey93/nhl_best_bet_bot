@@ -289,7 +289,43 @@ def get_head_to_head_stats(team1_name, team2_name, season='20252026'):
         return None
 
 
-def analyze_results(results_text, absences_text, recent_games, team_stats_text, h2h_stats_text, goalie_stats_text, home_away_splits_text):
+def get_nhl_standings():
+    """
+    Fetch current NHL standings to get team records.
+    Returns dict mapping team names to their records (W-L-OTL format).
+    """
+    try:
+        standings_url = 'https://api-web.nhle.com/v1/standings/now'
+        response = requests.get(standings_url, timeout=10)
+        response.raise_for_status()
+        data = response.json()
+
+        standings = {}
+        for team in data.get('standings', []):
+            team_name = team['placeName']['default']
+            wins = team['wins']
+            losses = team['losses']
+            ot_losses = team['otLosses']
+            points = team['points']
+            games_played = team['gamesPlayed']
+            record = f"{wins}-{losses}-{ot_losses}"
+            standings[team_name] = {
+                'record': record,
+                'wins': wins,
+                'losses': losses,
+                'ot_losses': ot_losses,
+                'points': points,
+                'games_played': games_played,
+                'points_pct': round(points / (games_played * 2), 3) if games_played > 0 else 0
+            }
+
+        return standings
+    except Exception as e:
+        print(f"⚠️ Error fetching NHL standings: {e}")
+        return {}
+
+
+def analyze_results(results_text, absences_text, recent_games, team_stats_text, h2h_stats_text, goalie_stats_text, home_away_splits_text, standings_text):
     api_key = os.environ["GOOGLE_API_KEY"]
     client = genai.Client(api_key=api_key)
 
@@ -330,6 +366,7 @@ def analyze_results(results_text, absences_text, recent_games, team_stats_text, 
             prompt_text = prompt_text.replace("{{H2H_STATS}}", h2h_stats_text)
             prompt_text = prompt_text.replace("{{GOALIE_STATS}}", goalie_stats_text)
             prompt_text = prompt_text.replace("{{HOME_AWAY_SPLITS}}", home_away_splits_text)
+            prompt_text = prompt_text.replace("{{STANDINGS}}", standings_text)
     except Exception:
         return "AI analysis skipped: prompt file not found or unreadable."
 
@@ -442,11 +479,15 @@ with open(filename, "w") as f:
         # Get starting goalies
         starting_goalies = get_starting_goalies()
 
+        # Get NHL standings
+        standings = get_nhl_standings()
+
         results_text = ""
         team_stats_text = ""
         h2h_stats_text = ""
         goalie_stats_text = ""
         home_away_splits_text = ""
+        standings_text = ""
 
         for g in matched:
             away_team = g['away']
@@ -556,6 +597,28 @@ with open(filename, "w") as f:
 
             goalie_stats_text += "\n"
 
+            # Add standings info for both teams
+            away_standing = standings.get(away_short)
+            home_standing = standings.get(home_short)
+
+            standings_text += f"\n{away_team} (Season Standings):\n"
+            if away_standing:
+                standings_text += f"  Record: {away_standing['record']}\n"
+                standings_text += f"  Points: {away_standing['points']}\n"
+                standings_text += f"  Points %: {away_standing['points_pct']:.3f}\n"
+                standings_text += f"  Games Played: {away_standing['games_played']}\n"
+            else:
+                standings_text += "  No standings data\n"
+
+            standings_text += f"\n{home_team} (Season Standings):\n"
+            if home_standing:
+                standings_text += f"  Record: {home_standing['record']}\n"
+                standings_text += f"  Points: {home_standing['points']}\n"
+                standings_text += f"  Points %: {home_standing['points_pct']:.3f}\n"
+                standings_text += f"  Games Played: {home_standing['games_played']}\n"
+            else:
+                standings_text += "  No standings data\n"
+
         print("NHL Matchups and Odds:")
         print(results_text)
         print(absences_text)
@@ -563,13 +626,15 @@ with open(filename, "w") as f:
         print(team_stats_text)
         print("\nHome/Away Splits:")
         print(home_away_splits_text)
+        print("\nStandings:")
+        print(standings_text)
         print("\nHead-to-Head Stats:")
         print(h2h_stats_text)
         print("\nGoalie Stats:")
         print(goalie_stats_text)
 
         if results_text:
-            summary = analyze_results(results_text, absences_text, recent_games, team_stats_text, h2h_stats_text, goalie_stats_text, home_away_splits_text)
+            summary = analyze_results(results_text, absences_text, recent_games, team_stats_text, h2h_stats_text, goalie_stats_text, home_away_splits_text, standings_text)
             f.write("\nAI Analysis Summary:\n")
             f.write(summary + "\n")
             print("\nAI Analysis Summary:")
