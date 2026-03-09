@@ -162,12 +162,12 @@ def get_nba_team_last_games(team_name, last_n_games=10):
             if not home or not away:
                 continue
 
-            # Determine team's score
-            if home['team']['displayName'] == team_name:
+            # Determine team's score by comparing team IDs instead of names
+            if home['team']['id'] == team_id:
                 team_score = int(home['score']['value'])
                 opponent_score = int(away['score']['value'])
                 is_win = home.get('winner', False)
-            elif away['team']['displayName'] == team_name:
+            elif away['team']['id'] == team_id:
                 team_score = int(away['score']['value'])
                 opponent_score = int(home['score']['value'])
                 is_win = away.get('winner', False)
@@ -193,10 +193,10 @@ def get_nba_team_last_games(team_name, last_n_games=10):
             if not home or not away:
                 continue
 
-            # Determine if this was a win
-            if home['team']['displayName'] == team_name:
+            # Determine if this was a win by comparing team IDs
+            if home['team']['id'] == team_id:
                 is_win = home.get('winner', False)
-            elif away['team']['displayName'] == team_name:
+            elif away['team']['id'] == team_id:
                 is_win = away.get('winner', False)
             else:
                 continue
