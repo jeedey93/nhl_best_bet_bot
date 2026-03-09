@@ -23,6 +23,81 @@ load_dotenv()
 
 
 # Import helper functions from generate_nhl_games_page
+def get_nhl_team_home_away_splits(team_name):
+    """
+    Fetch home and away record splits for an NHL team from the NHL API.
+    Returns separate records for home and away games.
+    """
+    try:
+        # NHL API team abbreviation mapping
+        NHL_TEAM_ABBREV_MAP = {
+            'Anaheim': 'ANA', 'Boston': 'BOS', 'Buffalo': 'BUF', 'Calgary': 'CGY',
+            'Carolina': 'CAR', 'Chicago': 'CHI', 'Colorado': 'COL', 'Columbus': 'CBJ',
+            'Dallas': 'DAL', 'Detroit': 'DET', 'Edmonton': 'EDM', 'Florida': 'FLA',
+            'Los Angeles': 'LAK', 'Minnesota': 'MIN', 'Montréal': 'MTL', 'Nashville': 'NSH',
+            'New Jersey': 'NJD', 'New York': 'NYI', 'Rangers': 'NYR', 'Ottawa': 'OTT',
+            'Philadelphia': 'PHI', 'Pittsburgh': 'PIT', 'San Jose': 'SJS', 'Seattle': 'SEA',
+            'St. Louis': 'STL', 'Tampa Bay': 'TBL', 'Toronto': 'TOR', 'Vancouver': 'VAN',
+            'Vegas': 'VGK', 'Washington': 'WSH', 'Winnipeg': 'WPG', 'Utah': 'UTA'
+        }
+
+        team_abbrev = NHL_TEAM_ABBREV_MAP.get(team_name)
+        if not team_abbrev:
+            return None
+
+        url = f'https://api-web.nhle.com/v1/club-schedule-season/{team_abbrev}/now'
+        response = requests.get(url, timeout=10)
+        data = response.json()
+
+        completed_games = [
+            g for g in data.get('games', [])
+            if g.get('gameState') in ['FINAL', 'OFF']
+        ]
+
+        # Track home and away separately
+        home_wins = home_losses = home_ot_losses = 0
+        away_wins = away_losses = away_ot_losses = 0
+
+        for game in completed_games:
+            home_team = game.get('homeTeam', {})
+            away_team = game.get('awayTeam', {})
+
+            home_abbrev = home_team.get('abbrev')
+            away_abbrev = away_team.get('abbrev')
+            home_score = home_team.get('score', 0)
+            away_score = away_team.get('score', 0)
+
+            is_ot_so = game.get('periodDescriptor', {}).get('periodType') in ['OT', 'SO']
+
+            if team_abbrev == home_abbrev:
+                # This team was home
+                if home_score > away_score:
+                    home_wins += 1
+                elif is_ot_so:
+                    home_ot_losses += 1
+                else:
+                    home_losses += 1
+            elif team_abbrev == away_abbrev:
+                # This team was away
+                if away_score > home_score:
+                    away_wins += 1
+                elif is_ot_so:
+                    away_ot_losses += 1
+                else:
+                    away_losses += 1
+
+        return {
+            'home_record': f"{home_wins}-{home_losses}-{home_ot_losses}",
+            'away_record': f"{away_wins}-{away_losses}-{away_ot_losses}",
+            'home_win_pct': round(home_wins / (home_wins + home_losses + home_ot_losses), 3) if (home_wins + home_losses + home_ot_losses) > 0 else 0,
+            'away_win_pct': round(away_wins / (away_wins + away_losses + away_ot_losses), 3) if (away_wins + away_losses + away_ot_losses) > 0 else 0
+        }
+
+    except Exception as e:
+        print(f"⚠️ Error fetching home/away splits for {team_name}: {e}")
+        return None
+
+
 def get_nhl_team_last_games(team_name, last_n_games=10):
     """
     Fetch last N games for an NHL team from the NHL API.
@@ -214,7 +289,7 @@ def get_head_to_head_stats(team1_name, team2_name, season='20252026'):
         return None
 
 
-def analyze_results(results_text, absences_text, recent_games, team_stats_text, h2h_stats_text, goalie_stats_text):
+def analyze_results(results_text, absences_text, recent_games, team_stats_text, h2h_stats_text, goalie_stats_text, home_away_splits_text):
     api_key = os.environ["GOOGLE_API_KEY"]
     client = genai.Client(api_key=api_key)
 
@@ -254,6 +329,7 @@ def analyze_results(results_text, absences_text, recent_games, team_stats_text, 
             prompt_text = prompt_text.replace("{{TEAM_STATS}}", team_stats_text)
             prompt_text = prompt_text.replace("{{H2H_STATS}}", h2h_stats_text)
             prompt_text = prompt_text.replace("{{GOALIE_STATS}}", goalie_stats_text)
+            prompt_text = prompt_text.replace("{{HOME_AWAY_SPLITS}}", home_away_splits_text)
     except Exception:
         return "AI analysis skipped: prompt file not found or unreadable."
 
@@ -370,6 +446,7 @@ with open(filename, "w") as f:
         team_stats_text = ""
         h2h_stats_text = ""
         goalie_stats_text = ""
+        home_away_splits_text = ""
 
         for g in matched:
             away_team = g['away']
@@ -416,6 +493,24 @@ with open(filename, "w") as f:
                 team_stats_text += f"  Avg Goals Allowed: {home_stats['avg_allowed']}\n"
             else:
                 team_stats_text += "  No stats available\n"
+
+            # Fetch home/away splits
+            away_splits = get_nhl_team_home_away_splits(away_short)
+            home_splits = get_nhl_team_home_away_splits(home_short)
+
+            home_away_splits_text += f"\n{away_team} (Home/Away Splits):\n"
+            if away_splits:
+                home_away_splits_text += f"  Home Record: {away_splits['home_record']} (Win %: {away_splits['home_win_pct']:.3f})\n"
+                home_away_splits_text += f"  Away Record: {away_splits['away_record']} (Win %: {away_splits['away_win_pct']:.3f})\n"
+            else:
+                home_away_splits_text += "  No splits available\n"
+
+            home_away_splits_text += f"\n{home_team} (Home/Away Splits):\n"
+            if home_splits:
+                home_away_splits_text += f"  Home Record: {home_splits['home_record']} (Win %: {home_splits['home_win_pct']:.3f})\n"
+                home_away_splits_text += f"  Away Record: {home_splits['away_record']} (Win %: {home_splits['away_win_pct']:.3f})\n"
+            else:
+                home_away_splits_text += "  No splits available\n"
 
             # Fetch head-to-head stats
             h2h_stats = get_head_to_head_stats(away_short, home_short)
@@ -466,13 +561,15 @@ with open(filename, "w") as f:
         print(absences_text)
         print("\nTeam Stats:")
         print(team_stats_text)
+        print("\nHome/Away Splits:")
+        print(home_away_splits_text)
         print("\nHead-to-Head Stats:")
         print(h2h_stats_text)
         print("\nGoalie Stats:")
         print(goalie_stats_text)
 
         if results_text:
-            summary = analyze_results(results_text, absences_text, recent_games, team_stats_text, h2h_stats_text, goalie_stats_text)
+            summary = analyze_results(results_text, absences_text, recent_games, team_stats_text, h2h_stats_text, goalie_stats_text, home_away_splits_text)
             f.write("\nAI Analysis Summary:\n")
             f.write(summary + "\n")
             print("\nAI Analysis Summary:")

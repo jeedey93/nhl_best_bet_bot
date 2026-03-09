@@ -61,6 +61,17 @@ This contains for each team:
 - Average goals allowed per game (last 10 games)
 Use this data as your PRIMARY source for recent form analysis. This is more reliable than inferring from game results.
 
+{{HOME_AWAY_SPLITS}} - Home and Away Record Splits (CRITICAL FOR NHL)
+This contains for each team:
+- Home record (W-L-OTL) and home win percentage
+- Away record (W-L-OTL) and away win percentage
+**IMPORTANCE:** Home ice advantage in NHL is significant (typically 3-5% edge). Some teams have MASSIVE home/away splits (e.g., .700 at home, .400 away). This is one of the MOST IMPORTANT factors in NHL betting.
+Use this to identify:
+- Teams with dominant home records facing weak road teams
+- Strong road teams (rare but valuable)
+- Teams that struggle away from home
+- Home/away performance gaps of .150+ win% = major edge indicator
+
 {{H2H_STATS}} - Head-to-Head Matchup Data (This Season)
 This contains for each matchup:
 - Season series record between the two teams
@@ -82,7 +93,25 @@ Use this as your PRIMARY source for goalie analysis instead of inferring from te
 
 For each game, follow this systematic analysis:
 
-1. SCHEDULE & FATIGUE ANALYSIS (Use {{RECENT_GAMES}} as primary source)
+1. HOME/AWAY PERFORMANCE ANALYSIS (Use {{HOME_AWAY_SPLITS}} - CRITICAL FIRST STEP)
+   - **ALWAYS START HERE:** Check {{HOME_AWAY_SPLITS}} for both teams BEFORE any other analysis
+   - Home team's home record and win percentage
+   - Away team's away record and win percentage
+   - Calculate home/away performance differential:
+     * Home team at home: Strong (.600+), Average (.500-.600), Weak (<.500)
+     * Away team on road: Strong (.550+), Average (.450-.550), Weak (<.450)
+   - **CRITICAL ADJUSTMENTS:**
+     * Strong home team (.650+) vs weak road team (.400 or less): +5-7% to home team
+     * Dominant home team (.700+) vs average/weak road team: +6-8% to home team
+     * Strong road team (.600+) at average home venue: +2-3% to road team
+     * Both teams average at home/away: +2-3% to home team (standard home ice advantage)
+     * Weak home team (.450 or less) vs strong road team (.550+): Minimal home advantage or favor road team
+   - **MASSIVE SPLITS INDICATOR:**
+     * If home team has .200+ better win% at home vs their road record: They rely heavily on home ice, +3-4% extra
+     * If away team has similar home/road splits (.050 or less difference): True road warrior, +2% extra
+   - Home ice advantage in NHL is real but varies by team - use the actual splits, not assumptions
+
+2. SCHEDULE & FATIGUE ANALYSIS (Use {{RECENT_GAMES}} as primary source)
    - PRIMARY: Use {{RECENT_GAMES}} for all schedule and fatigue analysis - this contains ALL games played in the last 7 days
    - SECONDARY: Use {{RECENT_RESULTS}} only for additional context on game outcomes and performance
    - IMPORTANT: {{RECENT_RESULTS}} only contains games where predictions were made, so it may be incomplete. Always use {{RECENT_GAMES}} to determine actual schedule patterns.
@@ -96,7 +125,7 @@ For each game, follow this systematic analysis:
    - Road back-to-backs are more fatiguing than home back-to-backs: Add -0.5 additional fatigue for road B2B
    - Each fatigue point of difference (-2 vs +1 = 3 points) should adjust win probability by approximately 2-3%
 
-2. RECENT FORM & MOMENTUM ANALYSIS (Use {{TEAM_STATS}} as PRIMARY source)
+3. RECENT FORM & MOMENTUM ANALYSIS (Use {{TEAM_STATS}} as PRIMARY source)
    - **PRIMARY DATA SOURCE:** Use {{TEAM_STATS}} for accurate last 10 games performance
    - Check each team's record from {{TEAM_STATS}} (format: W-L-OTL)
    - Calculate win percentage: Wins / (Wins + Losses + OT Losses)
@@ -128,7 +157,22 @@ For each game, follow this systematic analysis:
      * Consistently high-scoring (7+ goals total): Offensive matchup, favor Over
    - Weight H2H data MORE than general form when sample size ≥ 3 games this season
 
-3. ABSENCE IMPACT ASSESSMENT (Use {{ABSENCES}} variable)
+3. HEAD-TO-HEAD MATCHUP ANALYSIS (Use {{H2H_STATS}})
+   - **CRITICAL:** Check {{H2H_STATS}} for season series data between the two teams
+   - If teams have played 2+ games this season, heavily weight H2H trends:
+     * Dominant series record (3-0, 3-1): Team has solved opponent, +3-4% probability
+     * Close series (2-2, 1-1): Neutral, no adjustment
+     * Recent H2H games show consistent patterns: Apply +2-3% to team that won last 2+ meetings
+   - Average total goals from H2H games:
+     * If H2H avg is 1+ goal different from game total line: Strong signal for over/under
+     * H2H avg > total line + 0.5: Consider Over, +3-4% edge estimate
+     * H2H avg < total line - 0.5: Consider Under, +3-4% edge estimate
+   - Last 5 H2H results reveal scoring patterns:
+     * Consistently low-scoring (5 goals or fewer total): Defensive matchup, favor Under
+     * Consistently high-scoring (7+ goals total): Offensive matchup, favor Over
+   - Weight H2H data MORE than general form when sample size ≥ 3 games this season
+
+4. ABSENCE IMPACT ASSESSMENT (Use {{ABSENCES}} variable)
    - Check {{ABSENCES}} for both teams
    - Key absence impact on probability (injuries, scratches, suspensions):
      * Starting goalie OUT: -5% to -8% win probability
@@ -138,7 +182,17 @@ For each game, follow this systematic analysis:
    - If roster data unavailable, skip player-specific analysis
    - Only mention player names if they appear in {{ABSENCES}} variable
 
-4. GOALIE MATCHUP ANALYSIS (Use {{GOALIE_STATS}} as PRIMARY source)
+4. ABSENCE IMPACT ASSESSMENT (Use {{ABSENCES}} variable)
+   - Check {{ABSENCES}} for both teams
+   - Key absence impact on probability (injuries, scratches, suspensions):
+     * Starting goalie OUT: -5% to -8% win probability
+     * 2+ core forwards OUT: -4% to -6% win probability
+     * 1 elite player OUT: -3% to -4% win probability
+     * Top defenseman OUT: -2% to -3% win probability
+   - If roster data unavailable, skip player-specific analysis
+   - Only mention player names if they appear in {{ABSENCES}} variable
+
+5. GOALIE MATCHUP ANALYSIS (Use {{GOALIE_STATS}} as PRIMARY source)
    - **CRITICAL:** Use {{GOALIE_STATS}} as your PRIMARY and MOST RELIABLE source for goalie analysis
    - For each confirmed starting goalie, analyze:
 
@@ -175,22 +229,30 @@ For each game, follow this systematic analysis:
    - Weight goalie stats MORE HEAVILY than team defensive stats
    - Check {{ABSENCES}} for goalie injuries to cross-reference with {{GOALIE_STATS}}
 
-5. MARKET ANALYSIS & ODDS EVALUATION
+6. MARKET ANALYSIS & ODDS EVALUATION
    - Convert decimal odds to implied probability: Implied % = (1 / decimal odds) × 100
    - Example: 1.83 odds = 54.6% implied probability
    - Identify if any books offer notably different odds (outliers by 0.05+)
    - If 3+ books align within 0.03 odds → strong market consensus
 
-6. PROBABILITY ESTIMATION FRAMEWORK (Systematic approach)
+7. PROBABILITY ESTIMATION FRAMEWORK (Systematic approach)
    Start with base probability (50/50 for even matchup), then adjust using the NEW DATA SOURCES:
 
-   Step A: Adjust for recent form (from {{TEAM_STATS}})
+   Step A: Adjust for home/away splits (from {{HOME_AWAY_SPLITS}}) - DO THIS FIRST
+   - Calculate win% differential between home team at home vs away team on road
+   - Strong home team (.650+) at home vs weak road team (.400 or less): +5-7%
+   - Dominant home splits (.700+) vs average road performance: +6-8%
+   - Standard home ice (both teams average): +2-3% to home team
+   - Strong road team (.600+) reduces home advantage: +1-2% only
+   - **CRITICAL:** Home/away splits often trump other factors - weight this heavily
+
+   Step B: Adjust for recent form (from {{TEAM_STATS}})
    - Calculate goal differential from {{TEAM_STATS}}: (Avg Scored - Avg Allowed)
    - Team with +1.0 or better differential: +3-4% probability
    - Team with +0.5 to +1.0 differential: +2% probability
    - Team with negative differential playing team with positive: -3-4% from negative team
 
-   Step B: Adjust for Head-to-Head trends (from {{H2H_STATS}})
+   Step C: Adjust for Head-to-Head trends (from {{H2H_STATS}})
    - If teams have played 3+ times this season:
      * Dominant H2H record (3-0, 3-1): +3-4% to dominant team
      * Won last 2+ meetings: +2-3% to that team
@@ -198,35 +260,42 @@ For each game, follow this systematic analysis:
      * H2H avg > line + 0.5: Strong Over signal, +3-4% edge
      * H2H avg < line - 0.5: Strong Under signal, +3-4% edge
 
-   Step C: Adjust for goalie matchup (from {{GOALIE_STATS}})
+   Step D: Adjust for goalie matchup (from {{GOALIE_STATS}})
    - Compare Last 5 SV% for both goalies (THIS IS MOST IMPORTANT)
    - Difference of .030+ in Last 5 SV%: 5-7% probability shift to better goalie's team
    - Difference of .020-.029 in Last 5 SV%: 3-4% probability shift
    - Hot goalie (Last 5 SV% > .920) vs average (.900-.910): 4-5% edge
    - Compare season SV% as secondary factor (weight this 40% vs 60% for Last 5)
 
-   Step D: Adjust for fatigue (from {{RECENT_GAMES}})
+   Step E: Adjust for fatigue (from {{RECENT_GAMES}})
    - Each fatigue point difference: 2-3% probability shift
    - Example: Rested team (+1) vs back-to-back team (-2) = 6-9% edge
 
-   Step E: Adjust for absences (from {{ABSENCES}})
-   - Apply absence impact percentages from section 3 above
+   Step F: Adjust for absences (from {{ABSENCES}})
+   - Apply absence impact percentages from section 4 above
 
-   Step F: Calculate FINAL estimated win probability
-   - Sum all adjustments from steps A-E
-   - **CRITICAL WEIGHTING:** Goalie matchup (Step C) should be weighted MOST HEAVILY
+   Step G: Calculate FINAL estimated win probability
+   - Sum all adjustments from steps A-F
+   - **CRITICAL WEIGHTING ORDER:**
+     1. Home/Away Splits (Step A) - Weight MOST for teams with extreme splits
+     2. Goalie matchup (Step D) - Weight HEAVILY, especially hot/cold goalies
+     3. Recent form (Step B) - Important but secondary to above
+     4. Fatigue (Step E) - Significant for B2B situations
+     5. H2H trends (Step C) - Important when sample size ≥ 3
+     6. Absences (Step F) - Case by case depending on player importance
    - Example calculation:
      * Base: 50%
-     * Team Stats (offense strong): +3%
-     * H2H (won last 2 meetings): +2%
-     * Goalie (Last 5 SV% .925 vs .895): +6%
-     * Fatigue (rested vs B2B): +6%
+     * Home/Away (strong home .680 vs weak road .380): +6%
+     * Recent form (home team +1.2 differential): +3%
+     * H2H (home won last 2): +2%
+     * Goalie (Last 5 SV% .925 vs .895): +5%
+     * Fatigue (both rested): 0%
      * No key absences: 0%
-     * TOTAL: 50% + 3% + 2% + 6% + 6% = 67% estimated probability
+     * TOTAL: 50% + 6% + 3% + 2% + 5% = 66% estimated probability
 
-   Step G: Calculate edge
+   Step H: Calculate edge
    - Edge = Estimated Probability - Implied Probability (from odds)
-   - Example: 67% estimated - 54.6% implied (1.83 odds) = 12.4% edge
+   - Example: 66% estimated - 54.6% implied (1.83 odds) = 11.4% edge
    - Only recommend if edge ≥ 3%
 
    **TOTALS (OVER/UNDER) ANALYSIS:**
@@ -243,13 +312,13 @@ For each game, follow this systematic analysis:
      * Both goalies with Last 5 GAA < 2.50: Favor Under
      * Both goalies with Last 5 GAA > 3.20: Favor Over
 
-7. CONFIDENCE TIER ASSIGNMENT
+8. CONFIDENCE TIER ASSIGNMENT
    Based on calculated edge:
    - High Confidence: Edge ≥ 6%
    - Medium Confidence: Edge 4-6%
    - Skip: Edge < 4%
 
-8. STYLE & MATCHUP CONSIDERATIONS (Secondary factors)
+9. STYLE & MATCHUP CONSIDERATIONS (Secondary factors)
    Use these to fine-tune probability estimates (±1-2% max):
    - Home/road splits (infer from {{RECENT_RESULTS}} if games were home/away)
    - Pace matchup (high-scoring recent games suggest pace, from {{RECENT_RESULTS}})
@@ -309,6 +378,7 @@ Confidence Level: (High / Medium), Units: (1.5u / 1u), Win Probability: <XX>%
 DATA TO ANALYZE
 {{RESULTS_TEXT}}
 {{TEAM_STATS}}
+{{HOME_AWAY_SPLITS}}
 {{H2H_STATS}}
 {{GOALIE_STATS}}
 {{HISTORICAL_RESULTS}}
