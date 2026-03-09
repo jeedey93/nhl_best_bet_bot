@@ -213,8 +213,8 @@ def get_nhl_team_last_games(team_name, last_n_games=10):
             form_trend = avg_last_5 - avg_first_5  # Positive = improving, negative = declining
 
         return {
-            'avg_scored': round(sum(scores_for) / len(scores_for), 1) if scores_for else 0,
-            'avg_allowed': round(sum(scores_against) / len(scores_against), 1) if scores_against else 0,
+            'avg_scored': round(sum(scores_for) / len(scores_for), 2) if scores_for else 0,
+            'avg_allowed': round(sum(scores_against) / len(scores_against), 2) if scores_against else 0,
             'games_analyzed': len(completed_games),
             'wins': wins,
             'losses': losses,
@@ -741,6 +741,16 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
         html += "<div class='stat-value'>-</div>\n"
     html += "</div>\n"
 
+    # Avg Totals tile
+    html += "<div class='stat-tile'>\n"
+    html += f"<div class='stat-label'>Avg Total {score_label}</div>\n"
+    if away_stats:
+        avg_total = round(away_stats['avg_scored'] + away_stats['avg_allowed'], 2)
+        html += f"<div class='stat-value'>{avg_total}</div>\n"
+    else:
+        html += "<div class='stat-value'>-</div>\n"
+    html += "</div>\n"
+
     # Record tile
     html += "<div class='stat-tile record-tile'>\n"
     html += "<div class='stat-label'>Recent Form</div>\n"
@@ -824,6 +834,16 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
     html += f"<div class='stat-label'>Avg {score_label} Allowed</div>\n"
     if home_stats:
         html += f"<div class='stat-value'>{home_stats['avg_allowed']}</div>\n"
+    else:
+        html += "<div class='stat-value'>-</div>\n"
+    html += "</div>\n"
+
+    # Avg Totals tile
+    html += "<div class='stat-tile'>\n"
+    html += f"<div class='stat-label'>Avg Total {score_label}</div>\n"
+    if home_stats:
+        avg_total = round(home_stats['avg_scored'] + home_stats['avg_allowed'], 2)
+        html += f"<div class='stat-value'>{avg_total}</div>\n"
     else:
         html += "<div class='stat-value'>-</div>\n"
     html += "</div>\n"

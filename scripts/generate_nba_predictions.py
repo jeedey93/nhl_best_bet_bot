@@ -133,8 +133,8 @@ def get_nba_team_last_games(team_name, last_n_games=10):
                 losses += 1
 
         return {
-            'avg_scored': round(sum(scores_for) / len(scores_for), 1) if scores_for else 0,
-            'avg_allowed': round(sum(scores_against) / len(scores_against), 1) if scores_against else 0,
+            'avg_scored': round(sum(scores_for) / len(scores_for), 2) if scores_for else 0,
+            'avg_allowed': round(sum(scores_against) / len(scores_against), 2) if scores_against else 0,
             'games_analyzed': len(completed_events),
             'wins': wins,
             'losses': losses,
