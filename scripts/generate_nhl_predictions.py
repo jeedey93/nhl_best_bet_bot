@@ -18,8 +18,37 @@ from data.starting_goalies import get_starting_goalies
 import pytz
 from datetime import datetime
 import requests
+import time
 
 load_dotenv()
+
+
+# Helper function for API calls with retry logic
+def api_call_with_retry(url, max_retries=3, initial_wait=1):
+    """
+    Make API call with retry logic for rate limiting (429 errors).
+    Implements exponential backoff.
+    """
+    for attempt in range(max_retries):
+        try:
+            response = requests.get(url, timeout=15)
+            response.raise_for_status()
+            return response
+        except requests.exceptions.HTTPError as e:
+            if response.status_code == 429:
+                wait_time = initial_wait * (2 ** attempt)
+                if attempt < max_retries - 1:
+                    print(f"⚠️ Rate limited (429). Waiting {wait_time}s before retry...")
+                    time.sleep(wait_time)
+                else:
+                    print(f"⚠️ Rate limit exceeded after {max_retries} retries")
+                    return None
+            else:
+                raise
+        except Exception as e:
+            print(f"⚠️ API error: {e}")
+            return None
+    return None
 
 
 # Import helper functions from generate_nhl_games_page
@@ -46,8 +75,10 @@ def get_nhl_team_home_away_splits(team_name):
             return None
 
         url = f'https://api-web.nhle.com/v1/club-schedule-season/{team_abbrev}/now'
-        response = requests.get(url, timeout=15)
-        response.raise_for_status()
+        response = api_call_with_retry(url)
+        if not response:
+            return None
+
         data = response.json()
 
         completed_games = [
@@ -122,8 +153,10 @@ def get_nhl_team_last_games(team_name, last_n_games=10):
             return None
 
         url = f'https://api-web.nhle.com/v1/club-schedule-season/{team_abbrev}/now'
-        response = requests.get(url, timeout=15)
-        response.raise_for_status()
+        response = api_call_with_retry(url)
+        if not response:
+            return None
+
         data = response.json()
 
         completed_games = [
@@ -209,9 +242,14 @@ def get_head_to_head_stats(team1_name, team2_name, season='20252026'):
         if not team1_abbrev or not team2_abbrev:
             return None
 
+        # Add delay to avoid rate limiting
+        time.sleep(0.5)
+
         url = f'https://api-web.nhle.com/v1/club-schedule-season/{team1_abbrev}/now'
-        response = requests.get(url, timeout=15)
-        response.raise_for_status()
+        response = api_call_with_retry(url)
+        if not response:
+            return None
+
         data = response.json()
 
         h2h_games = []
@@ -538,7 +576,9 @@ with open(filename, "w") as f:
 
             # Fetch team stats (last 10 games)
             away_stats = get_nhl_team_last_games(away_short, last_n_games=10)
+            time.sleep(0.5)  # Add delay to avoid rate limiting
             home_stats = get_nhl_team_last_games(home_short, last_n_games=10)
+            time.sleep(0.5)  # Add delay to avoid rate limiting
 
             if not away_stats:
                 print(f"⚠️  No stats found for {away_team} (searched as: {away_short})")
