@@ -545,7 +545,103 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
         elif streak_type == 'L':
             streak_badges += f"<div class='streak-badge lose-streak'>❄️ {home_team_short or home_team} {streak_count}L Streak</div>\n"
 
-    if prediction_html or over_under_signal or h2h_totals_badge or b2b_badge or streak_badges:
+    # Generate goalie advantage badge (NHL only)
+    goalie_advantage_badge = ""
+    if sport == 'nhl' and away_goalie and home_goalie:
+        # Check if both goalies have necessary stats
+        try:
+            # Calculate composite goalie score for away goalie
+            away_score = 0.0
+            away_valid = False
+
+            if 'sv_pct' in away_goalie and 'gaa' in away_goalie:
+                # Season stats (40% weight)
+                season_sv_pct = float(away_goalie['sv_pct'])
+                season_gaa = float(away_goalie['gaa'])
+
+                # Normalize: SV% is direct (higher is better), GAA inverse (lower is better, normalize to 0-1 scale)
+                # Assume GAA range 1.5-4.0, normalize: (4.0 - GAA) / 2.5
+                season_gaa_normalized = max(0, min(1, (4.0 - season_gaa) / 2.5))
+
+                season_score = (season_sv_pct * 0.5) + (season_gaa_normalized * 0.5)
+                away_score += season_score * 0.4
+                away_valid = True
+
+            if 'last_5_sv_pct' in away_goalie and 'last_5_gaa' in away_goalie and 'last_5_record' in away_goalie:
+                # Last 5 stats (60% weight - PRIORITY)
+                last_5_sv_pct = float(away_goalie['last_5_sv_pct'])
+                last_5_gaa = float(away_goalie['last_5_gaa'])
+                last_5_record = away_goalie['last_5_record']  # e.g., "3-2-0"
+
+                # Parse record
+                record_parts = last_5_record.split('-')
+                if len(record_parts) >= 2:
+                    wins = int(record_parts[0])
+                    losses = int(record_parts[1])
+                    total_games = wins + losses + (int(record_parts[2]) if len(record_parts) > 2 else 0)
+                    win_rate = wins / total_games if total_games > 0 else 0
+                else:
+                    win_rate = 0
+
+                # Normalize GAA (same as season)
+                last_5_gaa_normalized = max(0, min(1, (4.0 - last_5_gaa) / 2.5))
+
+                # Weight: 40% SV%, 40% GAA, 20% Win Rate
+                last_5_score = (last_5_sv_pct * 0.4) + (last_5_gaa_normalized * 0.4) + (win_rate * 0.2)
+                away_score += last_5_score * 0.6
+                away_valid = True
+
+            # Calculate composite goalie score for home goalie
+            home_score = 0.0
+            home_valid = False
+
+            if 'sv_pct' in home_goalie and 'gaa' in home_goalie:
+                # Season stats (40% weight)
+                season_sv_pct = float(home_goalie['sv_pct'])
+                season_gaa = float(home_goalie['gaa'])
+                season_gaa_normalized = max(0, min(1, (4.0 - season_gaa) / 2.5))
+
+                season_score = (season_sv_pct * 0.5) + (season_gaa_normalized * 0.5)
+                home_score += season_score * 0.4
+                home_valid = True
+
+            if 'last_5_sv_pct' in home_goalie and 'last_5_gaa' in home_goalie and 'last_5_record' in home_goalie:
+                # Last 5 stats (60% weight - PRIORITY)
+                last_5_sv_pct = float(home_goalie['last_5_sv_pct'])
+                last_5_gaa = float(home_goalie['last_5_gaa'])
+                last_5_record = home_goalie['last_5_record']
+
+                # Parse record
+                record_parts = last_5_record.split('-')
+                if len(record_parts) >= 2:
+                    wins = int(record_parts[0])
+                    losses = int(record_parts[1])
+                    total_games = wins + losses + (int(record_parts[2]) if len(record_parts) > 2 else 0)
+                    win_rate = wins / total_games if total_games > 0 else 0
+                else:
+                    win_rate = 0
+
+                last_5_gaa_normalized = max(0, min(1, (4.0 - last_5_gaa) / 2.5))
+                last_5_score = (last_5_sv_pct * 0.4) + (last_5_gaa_normalized * 0.4) + (win_rate * 0.2)
+                home_score += last_5_score * 0.6
+                home_valid = True
+
+            # Compare scores and determine advantage
+            if away_valid and home_valid:
+                score_diff = abs(away_score - home_score)
+
+                # Threshold: 0.03 difference in composite score indicates significant advantage
+                if score_diff >= 0.03:
+                    if away_score > home_score:
+                        goalie_advantage_badge = f"<div class='goalie-advantage-badge away-advantage'>🥅 Goalie Edge: {away_team_short or away_team}</div>\n"
+                    else:
+                        goalie_advantage_badge = f"<div class='goalie-advantage-badge home-advantage'>🥅 Goalie Edge: {home_team_short or home_team}</div>\n"
+
+        except (ValueError, TypeError, IndexError, ZeroDivisionError):
+            # If calculation fails, skip the badge
+            pass
+
+    if prediction_html or over_under_signal or h2h_totals_badge or b2b_badge or streak_badges or goalie_advantage_badge:
         html += "<div class='signals-row'>\n"
         if prediction_html:
             html += prediction_html
@@ -557,6 +653,8 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
             html += b2b_badge
         if streak_badges:
             html += streak_badges
+        if goalie_advantage_badge:
+            html += goalie_advantage_badge
         html += "</div>\n"
 
     # Key Insights Section
