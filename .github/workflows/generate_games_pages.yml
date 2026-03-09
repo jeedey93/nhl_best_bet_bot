@@ -1,0 +1,53 @@
+name: Generate Games Pages
+
+on:
+  schedule:
+    # 5:00 PM Montreal (21:00 UTC standard, 20:00 UTC daylight saving)
+    - cron: '0 21 * * *'
+  workflow_dispatch:
+
+jobs:
+  generate-games-pages:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.13
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Set environment variables
+        run: |
+          echo "ODDS_API_KEY=${{ secrets.ODDS_API_KEY }}" > .env
+          echo "GOOGLE_API_KEY=${{ secrets.GOOGLE_API_KEY }}" >> .env
+
+      - name: Generate NHL games page
+        run: python scripts/generate_nhl_games_page.py
+
+      - name: Generate NBA games page
+        run: python scripts/generate_nba_games_page.py
+
+      - name: Commit generated pages
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
+        run: |
+          set -e
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/nhl.html docs/nba.html
+          if ! git diff --cached --quiet; then
+            git commit -m "Update games pages for $(date -u +%Y-%m-%d)"
+            git push --set-upstream https://$GH_PAT@github.com/${{ github.repository }} HEAD:master
+          else
+            echo "No changes to commit"
+          fi
+
