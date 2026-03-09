@@ -92,9 +92,10 @@ def get_nba_team_last_games(team_name, last_n_games=10):
         response.raise_for_status()
         data = response.json()
 
-        # Get completed games
-        completed_events = [e for e in data.get('events', [])
-                           if e['competitions'][0]['status']['type']['completed']][:last_n_games]
+        # Get completed games (API returns chronologically, so take the last N games)
+        all_completed_events = [e for e in data.get('events', [])
+                           if e['competitions'][0]['status']['type']['completed']]
+        completed_events = all_completed_events[-last_n_games:] if len(all_completed_events) >= last_n_games else all_completed_events
 
         if not completed_events:
             return None

@@ -135,9 +135,10 @@ def get_nba_team_last_games(team_name, last_n_games=10):
 
         data = response.json()
 
-        # Get completed games
-        completed_events = [e for e in data.get('events', [])
-                           if e['competitions'][0]['status']['type']['completed']][:last_n_games]
+        # Get completed games (API returns chronologically, so take the last N games)
+        all_completed_events = [e for e in data.get('events', [])
+                           if e['competitions'][0]['status']['type']['completed']]
+        completed_events = all_completed_events[-last_n_games:] if len(all_completed_events) >= last_n_games else all_completed_events
 
         if not completed_events:
             return None
@@ -147,10 +148,9 @@ def get_nba_team_last_games(team_name, last_n_games=10):
         wins = 0
         losses = 0
 
-        # Track streak (most recent games first in API)
+        # Track streak (need to iterate backwards since most recent is last in the list)
         streak_type = None  # 'W' or 'L'
         streak_count = 0
-        streak_active = True  # Track if we're still counting the streak
 
         for event in completed_events:
             comp = event['competitions'][0]
@@ -182,19 +182,37 @@ def get_nba_team_last_games(team_name, last_n_games=10):
             else:
                 losses += 1
 
-            # Calculate current streak (only while active)
-            if streak_active:
-                current_result = 'W' if is_win else 'L'
-                if streak_type is None:
-                    # First game (most recent)
-                    streak_type = current_result
-                    streak_count = 1
-                elif current_result == streak_type:
-                    # Continue the streak
-                    streak_count += 1
-                else:
-                    # Streak broken, stop counting streak but continue loop
-                    streak_active = False
+        # Calculate streak by iterating backwards from most recent game
+        for event in reversed(completed_events):
+            comp = event['competitions'][0]
+
+            # Find home and away teams
+            home = next((c for c in comp['competitors'] if c['homeAway'] == 'home'), None)
+            away = next((c for c in comp['competitors'] if c['homeAway'] == 'away'), None)
+
+            if not home or not away:
+                continue
+
+            # Determine if this was a win
+            if home['team']['displayName'] == team_name:
+                is_win = home.get('winner', False)
+            elif away['team']['displayName'] == team_name:
+                is_win = away.get('winner', False)
+            else:
+                continue
+
+            current_result = 'W' if is_win else 'L'
+
+            if streak_type is None:
+                # First game (most recent)
+                streak_type = current_result
+                streak_count = 1
+            elif current_result == streak_type:
+                # Continue the streak
+                streak_count += 1
+            else:
+                # Streak broken
+                break
 
         return {
             'avg_scored': round(sum(scores_for) / len(scores_for), 1) if scores_for else 0,
