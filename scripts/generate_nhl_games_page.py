@@ -2,6 +2,7 @@ import os
 import sys
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
+import time
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from data.odds import get_nhl_odds
@@ -117,6 +118,7 @@ def get_nhl_team_last_games(team_name, last_n_games=10):
         response = requests.get(url, timeout=10)
         response.raise_for_status()
         data = response.json()
+        time.sleep(0.6)  # Add delay to avoid 429 rate limits
 
         # Get completed games
         completed_games = [g for g in data.get('games', []) if g.get('gameState') in ['OFF', 'FINAL']][:last_n_games]
@@ -237,6 +239,7 @@ def get_head_to_head_stats(team1_name, team2_name, season='20252026'):
         url = f'https://api-web.nhle.com/v1/club-schedule-season/{team1_abbrev}/now'
         response = requests.get(url, timeout=10)
         data = response.json()
+        time.sleep(0.6)  # Add delay to avoid 429 rate limits
 
         # Find games between these two teams
         h2h_games = []
@@ -345,6 +348,7 @@ def check_back_to_back(team_name):
         url = f'https://api-web.nhle.com/v1/club-schedule-season/{team_abbrev}/now'
         response = requests.get(url, timeout=10)
         data = response.json()
+        time.sleep(0.6)  # Add delay to avoid 429 rate limits
 
         # Check if they played yesterday
         for game in data.get('games', []):
@@ -921,6 +925,7 @@ def get_nhl_standings():
         response = requests.get(standings_url, timeout=10)
         response.raise_for_status()
         data = response.json()
+        time.sleep(0.6)  # Add delay to avoid 429 rate limits
 
         standings = {}
         for team in data.get('standings', []):
@@ -965,6 +970,7 @@ def generate_nhl_games_page(fetch_odds=True):
         response = requests.get(nhl_api_url, timeout=10)
         response.raise_for_status()
         nhl_data = response.json()
+        time.sleep(0.6)  # Add delay to avoid 429 rate limits
         nhl_games = nhl_data.get("gameWeek", [])[0].get("games", []) if nhl_data.get("gameWeek") else []
     except:
         nhl_games = []
