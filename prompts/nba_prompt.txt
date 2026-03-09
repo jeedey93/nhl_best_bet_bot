@@ -34,51 +34,112 @@ You are provided with a variable {{HISTORICAL_RESULTS}} containing the text of a
 - If historical performance shows consistent success (55%+ win rate over 10+ plays OR 3+ consecutive wins), you may maintain or slightly increase confidence.
 - If a play is skipped or confidence is adjusted due to historical results, mention this in the output for that specific play only.
 
+DATA SOURCES AVAILABLE
+The following comprehensive data is provided for your analysis:
+
+{{TEAM_STATS}}
+- Last 10 games performance for each team
+- Average points scored and allowed
+- Recent win/loss record
+- Use this to understand current offensive/defensive strength
+
+{{H2H_STATS}}
+- Head-to-head record between teams for current season
+- Recent matchup results
+- Season series standings
+- Use this to identify matchup-specific trends and advantages
+
+{{HOME_AWAY_SPLITS}}
+- Home record and win percentage for each team
+- Away record and win percentage for each team
+- Use this to quantify home court advantage and road performance
+
+{{STANDINGS}}
+- Current season record (wins-losses)
+- Win percentage and games played
+- Use this to assess team quality and motivation (playoff push vs tanking)
+
+{{RECENT_RESULTS}}
+- Last 5 days of game outcomes with scores
+- Use for recent form and momentum analysis
+
+{{RECENT_GAMES}}
+- Last 7 days of game schedules
+- Use for fatigue, rest days, and back-to-back detection
+
 ANALYSIS FRAMEWORK (MANDATORY INTERNAL PROCESS)
-Use {{RECENT_RESULTS}} as your primary data source for all schedule, fatigue, and recent performance analysis. This variable contains the actual game dates and outcomes for the last 5 days for each team.
+Use the data sources above in a systematic analysis for each game:
 
-IMPORTANT: You also have access to {{RECENT_GAMES}}, which contains the last 7 days of NBA game schedules. Use this variable to:
-- Identify which teams have been playing frequently vs teams with more rest
-- Detect back-to-back games (teams playing on consecutive days)
-- Calculate rest days between games for each team
-- Determine travel schedules and potential fatigue factors (especially West→East coast trips)
-- Identify teams on long road trips or home stands
-This schedule context is critical for understanding team fatigue and rest advantages, which should significantly impact your probability estimates.
+1. HOME/AWAY PERFORMANCE ANALYSIS (DO THIS FIRST)
+   Using {{HOME_AWAY_SPLITS}} data:
+   - Calculate home/away win percentage difference for both teams
+   - Identify if home team has strong home advantage (.600+ home win %)
+   - Identify if away team struggles on the road (.400- away win %)
 
-For each game, follow this systematic analysis:
+   Probability adjustments:
+   - Strong home team (.600+) vs weak road team (.400-): +4-6% to home team
+   - Dominant home team (.650+) vs average road team: +5-7% to home team
+   - Massive home/away split difference (.200+): Additional +3-4%
+   - Similar home/away performance: Minimal adjustment (±1%)
 
-1. SCHEDULE & FATIGUE ANALYSIS (Use {{RECENT_GAMES}} as primary source)
-   - PRIMARY: Use {{RECENT_GAMES}} for all schedule and fatigue analysis - this contains ALL games played in the last 7 days
-   - SECONDARY: Use {{RECENT_RESULTS}} only for additional context on game outcomes and performance
-   - IMPORTANT: {{RECENT_RESULTS}} only contains games where predictions were made, so it may be incomplete. Always use {{RECENT_GAMES}} to determine actual schedule patterns.
-   - Only consider a team on a back-to-back if they played yesterday (day before {{TODAY_DATE}}) - verify using {{RECENT_GAMES}}
-   - Check {{RECENT_GAMES}} dates to calculate rest and fatigue:
-     * Back-to-back: Team played yesterday → -2 fatigue score
-     * 3 in 4 nights: Team played 3 games in last 4 days → -1.5 fatigue score
-     * 4 in 6 nights: Team played 4 games in last 6 days → -1 fatigue score
-     * Cross-country travel: -1 fatigue score (especially West→East)
-     * West→East late-to-early game: Additional -0.5 fatigue
-     * 2+ days rest: Last game was 2+ days ago → +1 fatigue score
-   - Use {{RECENT_GAMES}} to identify home vs away games in the schedule (look for @ symbol: "Team A @ Team B" means Team A is away)
-   - Road back-to-backs are more fatiguing than home back-to-backs: Add -0.5 additional fatigue for road B2B
-   - Road trip length matters: 3+ consecutive away games increases cumulative fatigue
-   - Each fatigue point of difference (-2 vs +1 = 3 points) should adjust win probability by approximately 2-3%
+   This is your PRIMARY adjustment factor - apply it FIRST before other factors.
 
-2. RECENT FORM & MOMENTUM ANALYSIS (Use {{RECENT_RESULTS}} for performance)
-   - Use {{RECENT_RESULTS}} to analyze team performance (wins, losses, scores, margins)
-   - Review last 5 games from {{RECENT_RESULTS}} for each team
+2. RECENT FORM & MOMENTUM ANALYSIS
+   Using {{TEAM_STATS}} (last 10 games) and {{RECENT_RESULTS}}:
+   - Review win/loss record from last 10 games
    - Identify patterns:
      * Win/loss streak (3+ games)
      * Score differential trends (blowouts vs close games)
-     * Opponent quality (strong teams beaten, weak teams lost to)
-     * Tanking indicators (5+ game losing streak, intentionally resting players)
-   - Form adjustments:
-     * Strong form (4-1 or 5-0 in last 5): +2% to win probability
-     * Poor form (0-5 or 1-4 in last 5): -2% to win probability
-     * Tanking team (verified from recent pattern): -3% to -5% win probability
-     * Hot streak vs cold streak matchup: Amplify adjustment by 1.5x
+     * Opponent quality context
+     * Tanking indicators (5+ game losing streak, resting players)
 
-3. INJURY & ROSTER IMPACT (Use available data or skip if unavailable)
+   Form adjustments:
+   - Strong form (7+ wins in last 10): +2% to win probability
+   - Poor form (3 or fewer wins in last 10): -2% to win probability
+   - Tanking team (verified losing streak): -3% to -5% win probability
+   - Hot streak vs cold streak matchup: Amplify adjustment by 1.5x
+
+3. HEAD-TO-HEAD MATCHUP TRENDS
+   Using {{H2H_STATS}}:
+   - Review season series record
+   - Analyze recent game results between these teams
+   - Consider matchup-specific advantages
+
+   H2H adjustments:
+   - Dominant H2H record (3-0 or better): +2-3% to winning team
+   - Recent H2H trend (2+ consecutive wins): +1-2%
+   - Evenly matched H2H: No adjustment
+
+4. SEASON STANDINGS & MOTIVATION ANALYSIS
+   Using {{STANDINGS}} data:
+   - Compare win percentages to assess team quality gap
+   - Identify playoff contenders (.550+ win %) vs eliminated teams (.400- win %)
+   - Assess motivation factors (playoff push, tanking)
+
+   Quality gap adjustments:
+   - Large quality gap (.150+ win % difference): +2-3% to better team
+   - Massive quality gap (.200+ win % difference): +4-5% to better team
+   - Playoff team vs tanking team: Additional +2-3%
+   - Similar quality (.050 or less difference): No adjustment
+
+5. SCHEDULE & FATIGUE ANALYSIS
+   Using {{RECENT_GAMES}} for schedule patterns:
+   - Check if team played yesterday (back-to-back)
+   - Calculate rest days between games
+   - Identify 3-in-4 or 4-in-6 game stretches
+   - Detect cross-country travel (especially West→East)
+
+   Fatigue score calculation:
+   - Back-to-back: -2 fatigue score
+   - 3 in 4 nights: -1.5 fatigue score
+   - 4 in 6 nights: -1 fatigue score
+   - Cross-country travel: -1 fatigue score
+   - 2+ days rest: +1 fatigue score
+   - Road back-to-back: Additional -0.5
+
+   Each fatigue point of difference adjusts win probability by 2-3%
+
+6. INJURY & ROSTER IMPACT (if data provided)
    - If injury data is provided, assess impact:
      * Elite player (top 15 NBA) OUT: -5% to -8% win probability
      * All-Star level player OUT: -4% to -6% win probability
@@ -87,53 +148,53 @@ For each game, follow this systematic analysis:
    - If no injury data provided, skip player-specific analysis
    - Only mention player names if explicitly provided in input data
 
-4. MARKET ANALYSIS & ODDS EVALUATION
+7. MARKET ANALYSIS & ODDS EVALUATION
    - Convert decimal odds to implied probability: Implied % = (1 / decimal odds) × 100
    - Example: 1.91 odds = 52.4% implied probability
    - If multiple books provided, note any outliers (0.05+ difference)
    - If 3+ books align within 0.03 odds → strong market consensus
 
-5. PROBABILITY ESTIMATION FRAMEWORK (Systematic approach)
+8. PROBABILITY ESTIMATION FRAMEWORK (Systematic approach)
    Start with base probability, then adjust step-by-step:
 
-   Step A: Identify home/away advantage
-   - Home team: Start at 54% base probability
-   - Away team: Start at 46% base probability
+   Step A: HOME/AWAY SPLITS (DO THIS FIRST)
+   - Use {{HOME_AWAY_SPLITS}} to calculate home court advantage
+   - Apply adjustments from section 1 above
+   - This is your starting point probability
 
-   Step B: Adjust for form differential (from {{RECENT_RESULTS}})
-   - Favored team in much better form: +3% to +5%
-   - Underdog in better form: -2% to -3% from favorite
+   Step B: Adjust for RECENT FORM
+   - Use {{TEAM_STATS}} and {{RECENT_RESULTS}}
+   - Apply adjustments from section 2 above
 
-   Step C: Adjust for fatigue differential (from {{RECENT_RESULTS}})
-   - Each fatigue point difference: 2-3% probability shift
-   - Example: Rested team (+1) vs back-to-back team (-2) = 6-9% edge
+   Step C: Adjust for H2H TRENDS
+   - Use {{H2H_STATS}}
+   - Apply adjustments from section 3 above
 
-   Step D: Adjust for injuries (if data provided)
-   - Apply injury impact percentages from section 3 above
+   Step D: Adjust for TEAM QUALITY & MOTIVATION
+   - Use {{STANDINGS}}
+   - Apply adjustments from section 4 above
 
-   Step E: Adjust for tanking (from {{RECENT_RESULTS}} patterns)
-   - Team on 5+ game losing streak with no competitive effort: -3% to -5%
+   Step E: Adjust for FATIGUE
+   - Use {{RECENT_GAMES}}
+   - Apply adjustments from section 5 above
 
-   Step F: Calculate FINAL estimated win probability
-   - Sum all adjustments from steps A-E
-   - Example: 54% home + 4% form + 6% fatigue - 3% injuries = 61% estimated probability
+   Step F: Adjust for INJURIES (if data provided)
+   - Apply adjustments from section 6 above
 
-   Step G: Calculate edge
+   Step G: Calculate FINAL estimated win probability
+   - Sum all adjustments from steps A-F
+   - Example: 54% home + 4% form + 2% H2H + 3% quality + 6% fatigue - 3% injuries = 66% estimated probability
+
+   Step H: Calculate edge
    - Edge = Estimated Probability - Implied Probability (from odds)
-   - Example: 61% estimated - 52.4% implied = 8.6% edge
+   - Example: 66% estimated - 52.4% implied = 13.6% edge
    - Only recommend if edge ≥ 3%
 
-6. CONFIDENCE TIER ASSIGNMENT
+9. CONFIDENCE TIER ASSIGNMENT
    Based on calculated edge:
    - High Confidence: Edge ≥ 6%
    - Medium Confidence: Edge 4-6%
    - Skip: Edge < 4%
-
-7. STYLE & MATCHUP CONSIDERATIONS (Secondary factors)
-   Use these to fine-tune probability estimates (±1-2% max):
-   - Pace matchup (high-scoring recent games suggest fast pace, from {{RECENT_RESULTS}})
-   - Teams consistently going over/under totals (pattern in {{RECENT_RESULTS}})
-   - Defensive vs offensive-minded teams (infer from recent scores)
 
 CONFIDENCE TIERS & UNIT SIZING
 - High Confidence: Edge ≥ 6% | 1.5 Units
@@ -150,8 +211,8 @@ For Moneyline: "<TEAM> ML vs <OPPONENT> @ <ODDS>"
 For Spread/Total: "<TEAM> <MARKET> vs <OPPONENT> @ <ODDS>"
 For Over/Under (Totals): <TEAM> vs <OPPONENT> Over <TOTAL> @ <ODDS> or <TEAM> vs <OPPONENT> Under <TOTAL> @ <ODDS>
 Body format (3-4 sentences):
-Sentence 1: Summarize current 2026 rosters, fatigue, and injury status at the team level. Do not mention player names unless they are explicitly provided in the input data. If a team is tanking or on a losing streak, mention this if relevant.
-Sentences 2-4: Provide detailed, user-friendly reasoning that explains the matchup edge, current season form, injury impact, and, if relevant, how bookmakers, expected value (EV), market mechanics, or tanking/losing streak status influence the pick. Include specific context about why this matchup creates value and how the various factors combine to create an edge. Make the explanation clear and accessible for beginner bettors and NBA fans.
+Sentence 1: Summarize home/away performance, recent form, and fatigue status at the team level. Do not mention player names unless they are explicitly provided in the input data.
+Sentences 2-4: Provide detailed, user-friendly reasoning that explains the matchup edge using the data sources (team stats, H2H, splits, standings). Include specific context about why this matchup creates value and how the various factors combine to create an edge. Reference specific statistics from the data sources when possible (e.g., "Team A is 15-5 at home while Team B is 8-12 on the road"). Make the explanation clear and accessible for beginner bettors and NBA fans.
 If a play is skipped, confidence is adjusted, or reasoning is changed due to historical results in {{HISTORICAL_RESULTS}}, explicitly mention this in the output for that play (e.g., "Confidence reduced due to recent poor performance in similar spots" or "Play skipped due to negative historical edge").
 Confidence Level: (High / Medium), Units: (1.5u / 1u), Win Probability: <XX>%
 
@@ -176,12 +237,16 @@ Format exactly:
 <TEAM or MARKET> <MARKET> vs <OPPONENT> @ <ODDS>
 For Over/Under (Totals): <TEAM> vs <OPPONENT> Over <TOTAL> @ <ODDS> or <TEAM> vs <OPPONENT> Under <TOTAL> @ <ODDS>
 Body format (3-4 sentences):
-Sentence 1: Summarize current 2026 rosters, fatigue, and injury status at the team level. Do not mention player names unless they are explicitly provided in the input data.
-Sentences 2-4: Provide detailed, user-friendly reasoning that explains the matchup edge, current season form, injury impact, and, if relevant, how bookmakers, expected value (EV), or market mechanics influence the pick. Include specific context about why this matchup creates value and how the various factors combine to create an edge. If the Bet of the Day is chosen or confidence is adjusted due to historical self-evaluation, explicitly mention this in the output (e.g., "Bet of the Day selected based on strong historical performance in similar matchups"). Make the explanation clear and accessible for beginner bettors and NBA fans.
+Sentence 1: Summarize home/away performance, recent form, and fatigue status at the team level. Do not mention player names unless they are explicitly provided in the input data.
+Sentences 2-4: Provide detailed, user-friendly reasoning that explains the matchup edge using the data sources. Reference specific statistics when possible. If the Bet of the Day is chosen or confidence is adjusted due to historical self-evaluation, explicitly mention this in the output (e.g., "Bet of the Day selected based on strong historical performance in similar matchups"). Make the explanation clear and accessible for beginner bettors and NBA fans.
 Confidence Level: (High / Medium), Units: (1.5u / 1u), Win Probability: <XX>%
 
 DATA TO ANALYZE
 {{RESULTS_TEXT}}
+{{TEAM_STATS}}
+{{H2H_STATS}}
+{{HOME_AWAY_SPLITS}}
+{{STANDINGS}}
 {{HISTORICAL_RESULTS}}
 {{RECENT_RESULTS}}
 {{RECENT_GAMES}}
