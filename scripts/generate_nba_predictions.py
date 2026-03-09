@@ -168,11 +168,12 @@ def get_head_to_head_stats(team1_name, team2_name):
         # Find games between these two teams
         h2h_games = []
         for event in data.get('events', []):
-            status = event.get('status', {}).get('type', {}).get('completed', False)
+            # Check if game is completed (check inside competitions)
+            competition = event.get('competitions', [{}])[0]
+            status = competition.get('status', {}).get('type', {}).get('completed', False)
             if not status:
                 continue
 
-            competition = event.get('competitions', [{}])[0]
             competitors = competition.get('competitors', [])
             team_ids = [c.get('team', {}).get('id') for c in competitors]
 
