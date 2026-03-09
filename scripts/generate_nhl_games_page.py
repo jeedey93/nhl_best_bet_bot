@@ -937,8 +937,12 @@ def get_nhl_standings():
         return {}
 
 
-def generate_nhl_games_page():
-    """Generate NHL games page from template."""
+def generate_nhl_games_page(fetch_odds=True):
+    """Generate NHL games page from template.
+
+    Args:
+        fetch_odds: If False, skip fetching odds data to avoid API rate limits
+    """
 
     # Read template
     template_path = "docs/nhl_games_template.html"
@@ -965,8 +969,8 @@ def generate_nhl_games_page():
     except:
         nhl_games = []
 
-    # Get NHL odds
-    nhl_odds_data = get_nhl_odds()
+    # Get NHL odds (optional)
+    nhl_odds_data = get_nhl_odds() if fetch_odds else []
 
     # Generate scroller HTML for NHL games only
     scroller_html = "<div class='games-scroller'>\n"
@@ -1062,4 +1066,11 @@ def generate_nhl_games_page():
 
 
 if __name__ == "__main__":
-    generate_nhl_games_page()
+    import argparse
+
+    parser = argparse.ArgumentParser(description='Generate NHL games page')
+    parser.add_argument('--no-odds', action='store_true',
+                        help='Skip fetching odds to avoid API rate limits')
+    args = parser.parse_args()
+
+    generate_nhl_games_page(fetch_odds=not args.no_odds)
