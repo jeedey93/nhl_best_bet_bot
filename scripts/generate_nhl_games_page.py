@@ -715,7 +715,15 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
         html += f"<img src='{away_logo}' alt='{away_team}' class='team-logo' />\n"
     html += f"<div class='team-name'>{away_team}</div>\n"
     if away_record:
-        html += f"<div class='team-record'>{away_record}</div>\n"
+        # Add recent form in parentheses if stats available
+        if away_stats:
+            if sport == 'nhl':
+                recent_form = f"{away_stats['wins']}-{away_stats['losses']}-{away_stats['ot_losses']}"
+            else:
+                recent_form = f"{away_stats['wins']}-{away_stats['losses']}"
+            html += f"<div class='team-record'>{away_record} ({recent_form})</div>\n"
+        else:
+            html += f"<div class='team-record'>{away_record}</div>\n"
     html += "<div class='team-label'>Away Team</div>\n"
     html += "</div>\n"
 
@@ -727,7 +735,7 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
     html += "<div class='stat-tile'>\n"
     html += f"<div class='stat-label'>Avg {score_label} Scored</div>\n"
     if away_stats:
-        html += f"<div class='stat-value'>{away_stats['avg_scored']}</div>\n"
+        html += f"<div class='stat-value'>{away_stats['avg_scored']:.2f}</div>\n"
     else:
         html += "<div class='stat-value'>-</div>\n"
     html += "</div>\n"
@@ -736,7 +744,7 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
     html += "<div class='stat-tile'>\n"
     html += f"<div class='stat-label'>Avg {score_label} Allowed</div>\n"
     if away_stats:
-        html += f"<div class='stat-value'>{away_stats['avg_allowed']}</div>\n"
+        html += f"<div class='stat-value'>{away_stats['avg_allowed']:.2f}</div>\n"
     else:
         html += "<div class='stat-value'>-</div>\n"
     html += "</div>\n"
@@ -746,21 +754,9 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
     html += f"<div class='stat-label'>Avg Total {score_label}</div>\n"
     if away_stats:
         avg_total = round(away_stats['avg_scored'] + away_stats['avg_allowed'], 2)
-        html += f"<div class='stat-value'>{avg_total}</div>\n"
+        html += f"<div class='stat-value'>{avg_total:.2f}</div>\n"
     else:
         html += "<div class='stat-value'>-</div>\n"
-    html += "</div>\n"
-
-    # Record tile
-    html += "<div class='stat-tile record-tile'>\n"
-    html += "<div class='stat-label'>Recent Form</div>\n"
-    if away_stats:
-        if sport == 'nhl':
-            html += f"<div class='stat-record'>{away_stats['wins']}-{away_stats['losses']}-{away_stats['ot_losses']}</div>\n"
-        else:
-            html += f"<div class='stat-record'>{away_stats['wins']}-{away_stats['losses']}</div>\n"
-    else:
-        html += "<div class='stat-record'>-</div>\n"
     html += "</div>\n"
 
     html += "</div>\n"  # Close stats-tiles
@@ -779,11 +775,11 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
             if 'record' in away_goalie:
                 html += "<div class='goalie-stats'>\n"
                 html += f"<div class='goalie-stat-row'><span class='stat-name'>Record:</span> <span class='stat-val'>{away_goalie['record']}</span></div>\n"
-                html += f"<div class='goalie-stat-row'><span class='stat-name'>GAA:</span> <span class='stat-val'>{away_goalie['gaa']}</span></div>\n"
+                html += f"<div class='goalie-stat-row'><span class='stat-name'>GAA:</span> <span class='stat-val'>{away_goalie['gaa']:.2f}</span></div>\n"
                 html += f"<div class='goalie-stat-row'><span class='stat-name'>SV%:</span> <span class='stat-val'>{away_goalie['sv_pct']}</span></div>\n"
                 html += "<div class='goalie-last-5'>Last 5 Starts</div>\n"
                 html += f"<div class='goalie-stat-row'><span class='stat-name'>Record:</span> <span class='stat-val'>{away_goalie['last_5_record']}</span></div>\n"
-                html += f"<div class='goalie-stat-row'><span class='stat-name'>GAA:</span> <span class='stat-val'>{away_goalie['last_5_gaa']}</span></div>\n"
+                html += f"<div class='goalie-stat-row'><span class='stat-name'>GAA:</span> <span class='stat-val'>{away_goalie['last_5_gaa']:.2f}</span></div>\n"
                 html += f"<div class='goalie-stat-row'><span class='stat-name'>SV%:</span> <span class='stat-val'>{away_goalie['last_5_sv_pct']}</span></div>\n"
                 html += "</div>\n"
         else:
@@ -812,7 +808,15 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
         html += f"<img src='{home_logo}' alt='{home_team}' class='team-logo' />\n"
     html += f"<div class='team-name'>{home_team}</div>\n"
     if home_record:
-        html += f"<div class='team-record'>{home_record}</div>\n"
+        # Add recent form in parentheses if stats available
+        if home_stats:
+            if sport == 'nhl':
+                recent_form = f"{home_stats['wins']}-{home_stats['losses']}-{home_stats['ot_losses']}"
+            else:
+                recent_form = f"{home_stats['wins']}-{home_stats['losses']}"
+            html += f"<div class='team-record'>{home_record} ({recent_form})</div>\n"
+        else:
+            html += f"<div class='team-record'>{home_record}</div>\n"
     html += "<div class='team-label'>Home Team</div>\n"
     html += "</div>\n"
 
@@ -824,7 +828,7 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
     html += "<div class='stat-tile'>\n"
     html += f"<div class='stat-label'>Avg {score_label} Scored</div>\n"
     if home_stats:
-        html += f"<div class='stat-value'>{home_stats['avg_scored']}</div>\n"
+        html += f"<div class='stat-value'>{home_stats['avg_scored']:.2f}</div>\n"
     else:
         html += "<div class='stat-value'>-</div>\n"
     html += "</div>\n"
@@ -833,7 +837,7 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
     html += "<div class='stat-tile'>\n"
     html += f"<div class='stat-label'>Avg {score_label} Allowed</div>\n"
     if home_stats:
-        html += f"<div class='stat-value'>{home_stats['avg_allowed']}</div>\n"
+        html += f"<div class='stat-value'>{home_stats['avg_allowed']:.2f}</div>\n"
     else:
         html += "<div class='stat-value'>-</div>\n"
     html += "</div>\n"
@@ -843,21 +847,9 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
     html += f"<div class='stat-label'>Avg Total {score_label}</div>\n"
     if home_stats:
         avg_total = round(home_stats['avg_scored'] + home_stats['avg_allowed'], 2)
-        html += f"<div class='stat-value'>{avg_total}</div>\n"
+        html += f"<div class='stat-value'>{avg_total:.2f}</div>\n"
     else:
         html += "<div class='stat-value'>-</div>\n"
-    html += "</div>\n"
-
-    # Record tile
-    html += "<div class='stat-tile record-tile'>\n"
-    html += "<div class='stat-label'>Recent Form</div>\n"
-    if home_stats:
-        if sport == 'nhl':
-            html += f"<div class='stat-record'>{home_stats['wins']}-{home_stats['losses']}-{home_stats['ot_losses']}</div>\n"
-        else:
-            html += f"<div class='stat-record'>{home_stats['wins']}-{home_stats['losses']}</div>\n"
-    else:
-        html += "<div class='stat-record'>-</div>\n"
     html += "</div>\n"
 
     html += "</div>\n"  # Close stats-tiles
@@ -876,11 +868,11 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
             if 'record' in home_goalie:
                 html += "<div class='goalie-stats'>\n"
                 html += f"<div class='goalie-stat-row'><span class='stat-name'>Record:</span> <span class='stat-val'>{home_goalie['record']}</span></div>\n"
-                html += f"<div class='goalie-stat-row'><span class='stat-name'>GAA:</span> <span class='stat-val'>{home_goalie['gaa']}</span></div>\n"
+                html += f"<div class='goalie-stat-row'><span class='stat-name'>GAA:</span> <span class='stat-val'>{home_goalie['gaa']:.2f}</span></div>\n"
                 html += f"<div class='goalie-stat-row'><span class='stat-name'>SV%:</span> <span class='stat-val'>{home_goalie['sv_pct']}</span></div>\n"
                 html += "<div class='goalie-last-5'>Last 5 Starts</div>\n"
                 html += f"<div class='goalie-stat-row'><span class='stat-name'>Record:</span> <span class='stat-val'>{home_goalie['last_5_record']}</span></div>\n"
-                html += f"<div class='goalie-stat-row'><span class='stat-name'>GAA:</span> <span class='stat-val'>{home_goalie['last_5_gaa']}</span></div>\n"
+                html += f"<div class='goalie-stat-row'><span class='stat-name'>GAA:</span> <span class='stat-val'>{home_goalie['last_5_gaa']:.2f}</span></div>\n"
                 html += f"<div class='goalie-stat-row'><span class='stat-name'>SV%:</span> <span class='stat-val'>{home_goalie['last_5_sv_pct']}</span></div>\n"
                 html += "</div>\n"
         else:
