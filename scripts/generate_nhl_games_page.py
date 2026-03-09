@@ -120,8 +120,9 @@ def get_nhl_team_last_games(team_name, last_n_games=10):
         data = response.json()
         time.sleep(0.6)  # Add delay to avoid 429 rate limits
 
-        # Get completed games
-        completed_games = [g for g in data.get('games', []) if g.get('gameState') in ['OFF', 'FINAL']][:last_n_games]
+        # Get completed games (API returns chronologically, so take the last N games)
+        all_completed_games = [g for g in data.get('games', []) if g.get('gameState') in ['OFF', 'FINAL']]
+        completed_games = all_completed_games[-last_n_games:] if len(all_completed_games) >= last_n_games else all_completed_games
 
         if not completed_games:
             return None
@@ -136,10 +137,9 @@ def get_nhl_team_last_games(team_name, last_n_games=10):
         first_5_goals = []
         last_5_goals = []
 
-        # Track streak (most recent games first in API)
+        # Track streak (need to iterate backwards since most recent is last in the list)
         streak_type = None  # 'W' or 'L'
         streak_count = 0
-        streak_active = True  # Track if we're still counting the streak
 
         for idx, game in enumerate(completed_games):
             away_abbrev = game['awayTeam']['abbrev']
@@ -160,11 +160,11 @@ def get_nhl_team_last_games(team_name, last_n_games=10):
             scores_for.append(team_score)
             scores_against.append(opponent_score)
 
-            # Track goals for form trend (first 5 are oldest, last 5 are newest)
+            # Track goals for form trend (first 5 are oldest, last 5 are newest in the 10-game window)
             if idx < 5:
-                last_5_goals.append(team_score)  # Most recent games come first in API
-            else:
                 first_5_goals.append(team_score)
+            else:
+                last_5_goals.append(team_score)
 
             # Track wins/losses
             if is_win:
@@ -178,19 +178,31 @@ def get_nhl_team_last_games(team_name, last_n_games=10):
                 else:
                     losses += 1
 
-            # Calculate current streak (only while active)
-            if streak_active:
-                current_result = 'W' if is_win else 'L'
-                if streak_type is None:
-                    # First game (most recent)
-                    streak_type = current_result
-                    streak_count = 1
-                elif current_result == streak_type:
-                    # Continue the streak
-                    streak_count += 1
-                else:
-                    # Streak broken, stop counting streak but continue loop
-                    streak_active = False
+        # Calculate streak by iterating backwards from most recent game
+        for game in reversed(completed_games):
+            away_abbrev = game['awayTeam']['abbrev']
+            home_abbrev = game['homeTeam']['abbrev']
+            away_score = game['awayTeam'].get('score', 0)
+            home_score = game['homeTeam'].get('score', 0)
+
+            # Determine if this was a win
+            if away_abbrev == team_abbrev:
+                is_win = away_score > home_score
+            else:
+                is_win = home_score > away_score
+
+            current_result = 'W' if is_win else 'L'
+
+            if streak_type is None:
+                # First game (most recent)
+                streak_type = current_result
+                streak_count = 1
+            elif current_result == streak_type:
+                # Continue the streak
+                streak_count += 1
+            else:
+                # Streak broken
+                break
 
         # Calculate form trend
         form_trend = None
