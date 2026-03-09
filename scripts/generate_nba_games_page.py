@@ -2,6 +2,7 @@ import os
 import sys
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
+import time
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from data.odds import get_nba_odds
@@ -114,8 +115,24 @@ def get_nba_team_last_games(team_name, last_n_games=10):
             return None
 
         url = f'https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/{team_id}/schedule'
-        response = requests.get(url, timeout=10)
-        response.raise_for_status()
+
+        # Add retry logic for rate limiting
+        max_retries = 3
+        retry_delay = 1.5  # seconds
+
+        for attempt in range(max_retries):
+            try:
+                response = requests.get(url, timeout=10)
+                response.raise_for_status()
+                break  # Success, exit retry loop
+            except requests.exceptions.HTTPError as e:
+                if response.status_code == 429 and attempt < max_retries - 1:
+                    # Rate limited, wait and retry
+                    time.sleep(retry_delay * (attempt + 1))  # Exponential backoff
+                    continue
+                else:
+                    raise  # Re-raise if not rate limit or final attempt
+
         data = response.json()
 
         # Get completed games
@@ -786,8 +803,12 @@ def get_nba_standings():
         return {}
 
 
-def generate_nba_games_page():
-    """Generate NBA games page from template."""
+def generate_nba_games_page(fetch_odds=True):
+    """Generate NBA games page from template.
+
+    Args:
+        fetch_odds: If False, skip fetching odds data to avoid API rate limits
+    """
 
     # Read template
     template_path = "docs/nba_games_template.html"
@@ -807,8 +828,8 @@ def generate_nba_games_page():
     # Import moved to top
     nba_games = get_nba_games_today()
 
-    # Get NBA odds
-    nba_odds_data = get_nba_odds()
+    # Get NBA odds (optional)
+    nba_odds_data = get_nba_odds() if fetch_odds else []
 
     # Generate scroller HTML for NBA games only
     scroller_html = "<div class='games-scroller'>\n"
@@ -884,4 +905,11 @@ def generate_nba_games_page():
 
 
 if __name__ == "__main__":
-    generate_nba_games_page()
+    import argparse
+
+    parser = argparse.ArgumentParser(description='Generate NBA games page')
+    parser.add_argument('--no-odds', action='store_true',
+                        help='Skip fetching odds to avoid API rate limits')
+    args = parser.parse_args()
+
+    generate_nba_games_page(fetch_odds=not args.no_odds)
