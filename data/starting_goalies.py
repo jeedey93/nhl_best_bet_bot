@@ -38,6 +38,7 @@ NHL_TEAM_NICKNAME_MAP = {
     'Golden Knights': 'Vegas',
     'Capitals': 'Washington',
     'Jets': 'Winnipeg',
+    'Mammoth': 'Utah',
 }
 
 

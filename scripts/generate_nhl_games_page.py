@@ -10,43 +10,6 @@ from data.starting_goalies import get_starting_goalies
 from scripts.scrape_nhl_absences import scrape_nhl_absences_by_team
 import requests
 
-
-# NBA team logos mapping (using ESPN CDN)
-NBA_TEAM_LOGOS = {
-    'Atlanta Hawks': 'https://cdn.nba.com/logos/nba/1610612737/global/L/logo.svg',
-    'Boston Celtics': 'https://cdn.nba.com/logos/nba/1610612738/global/L/logo.svg',
-    'Brooklyn Nets': 'https://cdn.nba.com/logos/nba/1610612751/global/L/logo.svg',
-    'Charlotte Hornets': 'https://cdn.nba.com/logos/nba/1610612766/global/L/logo.svg',
-    'Chicago Bulls': 'https://cdn.nba.com/logos/nba/1610612741/global/L/logo.svg',
-    'Cleveland Cavaliers': 'https://cdn.nba.com/logos/nba/1610612739/global/L/logo.svg',
-    'Dallas Mavericks': 'https://cdn.nba.com/logos/nba/1610612742/global/L/logo.svg',
-    'Denver Nuggets': 'https://cdn.nba.com/logos/nba/1610612743/global/L/logo.svg',
-    'Detroit Pistons': 'https://cdn.nba.com/logos/nba/1610612765/global/L/logo.svg',
-    'Golden State Warriors': 'https://cdn.nba.com/logos/nba/1610612744/global/L/logo.svg',
-    'Houston Rockets': 'https://cdn.nba.com/logos/nba/1610612745/global/L/logo.svg',
-    'Indiana Pacers': 'https://cdn.nba.com/logos/nba/1610612754/global/L/logo.svg',
-    'LA Clippers': 'https://cdn.nba.com/logos/nba/1610612746/global/L/logo.svg',
-    'Los Angeles Clippers': 'https://cdn.nba.com/logos/nba/1610612746/global/L/logo.svg',
-    'Los Angeles Lakers': 'https://cdn.nba.com/logos/nba/1610612747/global/L/logo.svg',
-    'Memphis Grizzlies': 'https://cdn.nba.com/logos/nba/1610612763/global/L/logo.svg',
-    'Miami Heat': 'https://cdn.nba.com/logos/nba/1610612748/global/L/logo.svg',
-    'Milwaukee Bucks': 'https://cdn.nba.com/logos/nba/1610612749/global/L/logo.svg',
-    'Minnesota Timberwolves': 'https://cdn.nba.com/logos/nba/1610612750/global/L/logo.svg',
-    'New Orleans Pelicans': 'https://cdn.nba.com/logos/nba/1610612740/global/L/logo.svg',
-    'New York Knicks': 'https://cdn.nba.com/logos/nba/1610612752/global/L/logo.svg',
-    'Oklahoma City Thunder': 'https://cdn.nba.com/logos/nba/1610612760/global/L/logo.svg',
-    'Orlando Magic': 'https://cdn.nba.com/logos/nba/1610612753/global/L/logo.svg',
-    'Philadelphia 76ers': 'https://cdn.nba.com/logos/nba/1610612755/global/L/logo.svg',
-    'Phoenix Suns': 'https://cdn.nba.com/logos/nba/1610612756/global/L/logo.svg',
-    'Portland Trail Blazers': 'https://cdn.nba.com/logos/nba/1610612757/global/L/logo.svg',
-    'Sacramento Kings': 'https://cdn.nba.com/logos/nba/1610612758/global/L/logo.svg',
-    'San Antonio Spurs': 'https://cdn.nba.com/logos/nba/1610612759/global/L/logo.svg',
-    'Toronto Raptors': 'https://cdn.nba.com/logos/nba/1610612761/global/L/logo.svg',
-    'Utah Jazz': 'https://cdn.nba.com/logos/nba/1610612762/global/L/logo.svg',
-    'Washington Wizards': 'https://cdn.nba.com/logos/nba/1610612764/global/L/logo.svg',
-}
-
-
 # NHL team abbreviation mapping
 NHL_TEAM_ABBREV_MAP = {
     'Anaheim': 'ANA',
@@ -81,6 +44,42 @@ NHL_TEAM_ABBREV_MAP = {
     'Vegas': 'VGK',
     'Washington': 'WSH',
     'Winnipeg': 'WPG',
+}
+
+# Mapping from NHL.com lineup page team nicknames to standardized names
+NHL_TEAM_NICKNAME_MAP = {
+    'Ducks': 'Anaheim',
+    'Bruins': 'Boston',
+    'Sabres': 'Buffalo',
+    'Flames': 'Calgary',
+    'Hurricanes': 'Carolina',
+    'Blackhawks': 'Chicago',
+    'Avalanche': 'Colorado',
+    'Blue Jackets': 'Columbus',
+    'Stars': 'Dallas',
+    'Red Wings': 'Detroit',
+    'Oilers': 'Edmonton',
+    'Panthers': 'Florida',
+    'Kings': 'Los Angeles',
+    'Wild': 'Minnesota',
+    'Canadiens': 'Montréal',
+    'Predators': 'Nashville',
+    'Devils': 'New Jersey',
+    'Islanders': 'New York',
+    'Rangers': 'New York',
+    'Senators': 'Ottawa',
+    'Flyers': 'Philadelphia',
+    'Penguins': 'Pittsburgh',
+    'Sharks': 'San Jose',
+    'Kraken': 'Seattle',
+    'Blues': 'St. Louis',
+    'Lightning': 'Tampa Bay',
+    'Maple Leafs': 'Toronto',
+    'Canucks': 'Vancouver',
+    'Golden Knights': 'Vegas',
+    'Capitals': 'Washington',
+    'Jets': 'Winnipeg',
+    'Mammoth': 'Utah',
 }
 
 
@@ -1108,13 +1107,17 @@ def generate_nhl_games_page(fetch_odds=True):
             away_record = nhl_standings.get(away_abbrev)
             home_record = nhl_standings.get(home_abbrev)
 
-            # Get starting goalies (using short names)
-            away_goalie = starting_goalies.get(away_team_short)
-            home_goalie = starting_goalies.get(home_team_short)
-
-            # Get player absences (using team nicknames from API)
+            # Get player absences and goalies (using team nicknames from API)
             away_nickname = game['awayTeam']['commonName']['default']
             home_nickname = game['homeTeam']['commonName']['default']
+
+            # Convert nickname to standardized name for goalie lookup
+            away_team_standard = NHL_TEAM_NICKNAME_MAP.get(away_nickname, away_nickname)
+            home_team_standard = NHL_TEAM_NICKNAME_MAP.get(home_nickname, home_nickname)
+
+            away_goalie = starting_goalies.get(away_team_standard)
+            home_goalie = starting_goalies.get(home_team_standard)
+
             away_absences = absences_by_team.get(away_nickname, [])
             home_absences = absences_by_team.get(home_nickname, [])
 
