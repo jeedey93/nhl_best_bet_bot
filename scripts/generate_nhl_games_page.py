@@ -353,6 +353,59 @@ def format_time(iso_time):
     return montreal_time.strftime("%I:%M %p")
 
 
+def get_rest_days(team_name):
+    """
+    Get the number of rest days since team's last game.
+
+    Returns the number of days since the last completed game, or None if error.
+    """
+    try:
+        # Check if team_name is already an abbreviation or needs lookup
+        if len(team_name) == 3 and team_name.isupper():
+            team_abbrev = team_name
+        else:
+            team_abbrev = NHL_TEAM_ABBREV_MAP.get(team_name)
+            if not team_abbrev:
+                return None
+
+        # Get today's date in Montreal timezone
+        montreal_tz = ZoneInfo('America/Toronto')
+        today = datetime.now(montreal_tz).date()
+
+        # Get team schedule
+        url = f'https://api-web.nhle.com/v1/club-schedule-season/{team_abbrev}/now'
+        response = requests.get(url, timeout=10)
+        data = response.json()
+        time.sleep(0.6)  # Add delay to avoid 429 rate limits
+
+        # Find the most recent completed game
+        completed_games = [
+            g for g in data.get('games', [])
+            if g.get('gameState') in ['FINAL', 'OFF']
+        ]
+
+        if not completed_games:
+            return None
+
+        # Get the most recent game date
+        last_game = completed_games[-1]
+        last_game_date_str = last_game.get('gameDate')
+        if not last_game_date_str:
+            return None
+
+        # Parse the date and calculate rest days
+        from datetime import date
+        last_game_date = date.fromisoformat(last_game_date_str)
+        # Subtract 1 because if they played yesterday (1 day ago), that's 0 rest days (back-to-back)
+        rest_days = (today - last_game_date).days - 1
+
+        return rest_days
+
+    except Exception as e:
+        print(f"⚠️ Error getting rest days for {team_name}: {e}")
+        return None
+
+
 def check_back_to_back(team_name):
     """
     Check if a team is playing back-to-back (played yesterday).
@@ -458,7 +511,7 @@ def parse_odds(odds_data, home_team, away_team):
     return None
 
 
-def generate_game_card(away_team, home_team, game_time, game_odds, away_record=None, home_record=None, sport='nhl', away_logo=None, home_logo=None, game_id=None, away_goalie=None, home_goalie=None, away_team_short=None, home_team_short=None, away_absences=None, home_absences=None, away_lines=None, home_lines=None):
+def generate_game_card(away_team, home_team, game_time, game_odds, away_record=None, home_record=None, sport='nhl', away_logo=None, home_logo=None, game_id=None, away_goalie=None, home_goalie=None, away_team_short=None, home_team_short=None, away_absences=None, home_absences=None, away_lines=None, home_lines=None, away_special_teams=None, home_special_teams=None, away_rest_days=None, home_rest_days=None):
     """Generate HTML for a single game card.
 
     Args:
@@ -470,6 +523,10 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
         home_absences: List of injured/scratched players for home team
         away_lines: Daily projected lines for away team
         home_lines: Daily projected lines for home team
+        away_special_teams: Dict with pp_pct and pk_pct for away team
+        home_special_teams: Dict with pp_pct and pk_pct for home team
+        away_rest_days: Number of rest days since last game for away team
+        home_rest_days: Number of rest days since last game for home team
     """
     # Use short names for API calls if provided, otherwise use full names
     away_api_name = away_team_short if away_team_short else away_team
@@ -801,6 +858,52 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
 
     html += "</div>\n"  # Close stats-tiles
 
+    # Special teams tiles (NHL only) - separate row
+    if sport == 'nhl':
+        html += "<div class='stats-tiles' style='margin-top: 15px;'>\n"
+
+        # Power Play tile
+        html += "<div class='stat-tile' style='border-color: #f59e0b; background: linear-gradient(135deg, #fef3c7 0%, #ffffff 100%);'>\n"
+        html += "<div class='stat-label'>Power Play %</div>\n"
+        if away_special_teams and 'pp_pct' in away_special_teams:
+            html += f"<div class='stat-value'>{away_special_teams['pp_pct']:.1f}%</div>\n"
+        else:
+            html += "<div class='stat-value'>-</div>\n"
+        html += "</div>\n"
+
+        # Penalty Kill tile
+        html += "<div class='stat-tile' style='border-color: #3b82f6; background: linear-gradient(135deg, #dbeafe 0%, #ffffff 100%);'>\n"
+        html += "<div class='stat-label'>Penalty Kill %</div>\n"
+        if away_special_teams and 'pk_pct' in away_special_teams:
+            html += f"<div class='stat-value'>{away_special_teams['pk_pct']:.1f}%</div>\n"
+        else:
+            html += "<div class='stat-value'>-</div>\n"
+        html += "</div>\n"
+
+        # Rest Days tile
+        html += "<div class='stat-tile' style='border-color: #10b981; background: linear-gradient(135deg, #d1fae5 0%, #ffffff 100%);'>\n"
+        html += "<div class='stat-label'>Rest Days</div>\n"
+        if away_rest_days is not None:
+            # Color-code based on rest days
+            if away_rest_days == 0:
+                rest_color = '#ef4444'  # Red for back-to-back
+                rest_display = 'B2B'
+            elif away_rest_days == 1:
+                rest_color = '#f59e0b'  # Orange for 1 day
+                rest_display = '1'
+            elif away_rest_days >= 3:
+                rest_color = '#10b981'  # Green for well-rested
+                rest_display = f'{away_rest_days}'
+            else:
+                rest_color = '#6b7280'  # Gray for normal
+                rest_display = f'{away_rest_days}'
+            html += f"<div class='stat-value' style='color: {rest_color};'>{rest_display}</div>\n"
+        else:
+            html += "<div class='stat-value'>-</div>\n"
+        html += "</div>\n"
+
+        html += "</div>\n"  # Close special-teams-tiles
+
     # Goalie row (NHL only) - separate row
     if sport == 'nhl':
         html += "<div class='goalie-row'>\n"
@@ -915,6 +1018,52 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
 
     html += "</div>\n"  # Close stats-tiles
 
+    # Special teams tiles (NHL only) - separate row
+    if sport == 'nhl':
+        html += "<div class='stats-tiles' style='margin-top: 15px;'>\n"
+
+        # Power Play tile
+        html += "<div class='stat-tile' style='border-color: #f59e0b; background: linear-gradient(135deg, #fef3c7 0%, #ffffff 100%);'>\n"
+        html += "<div class='stat-label'>Power Play %</div>\n"
+        if home_special_teams and 'pp_pct' in home_special_teams:
+            html += f"<div class='stat-value'>{home_special_teams['pp_pct']:.1f}%</div>\n"
+        else:
+            html += "<div class='stat-value'>-</div>\n"
+        html += "</div>\n"
+
+        # Penalty Kill tile
+        html += "<div class='stat-tile' style='border-color: #3b82f6; background: linear-gradient(135deg, #dbeafe 0%, #ffffff 100%);'>\n"
+        html += "<div class='stat-label'>Penalty Kill %</div>\n"
+        if home_special_teams and 'pk_pct' in home_special_teams:
+            html += f"<div class='stat-value'>{home_special_teams['pk_pct']:.1f}%</div>\n"
+        else:
+            html += "<div class='stat-value'>-</div>\n"
+        html += "</div>\n"
+
+        # Rest Days tile
+        html += "<div class='stat-tile' style='border-color: #10b981; background: linear-gradient(135deg, #d1fae5 0%, #ffffff 100%);'>\n"
+        html += "<div class='stat-label'>Rest Days</div>\n"
+        if home_rest_days is not None:
+            # Color-code based on rest days
+            if home_rest_days == 0:
+                rest_color = '#ef4444'  # Red for back-to-back
+                rest_display = 'B2B'
+            elif home_rest_days == 1:
+                rest_color = '#f59e0b'  # Orange for 1 day
+                rest_display = '1'
+            elif home_rest_days >= 3:
+                rest_color = '#10b981'  # Green for well-rested
+                rest_display = f'{home_rest_days}'
+            else:
+                rest_color = '#6b7280'  # Gray for normal
+                rest_display = f'{home_rest_days}'
+            html += f"<div class='stat-value' style='color: {rest_color};'>{rest_display}</div>\n"
+        else:
+            html += "<div class='stat-value'>-</div>\n"
+        html += "</div>\n"
+
+        html += "</div>\n"  # Close special-teams-tiles
+
     # Goalie row (NHL only) - separate row
     if sport == 'nhl':
         html += "<div class='goalie-row'>\n"
@@ -999,6 +1148,53 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
     html += "</div>\n"
     return html
 
+
+
+def get_nhl_special_teams_stats():
+    """
+    Fetch NHL special teams stats (Power Play % and Penalty Kill %).
+    Returns dict mapping team abbreviations to their PP% and PK%.
+    """
+    try:
+        stats_url = 'https://api.nhle.com/stats/rest/en/team/summary?cayenneExp=seasonId=20252026'
+        response = requests.get(stats_url, timeout=10)
+        response.raise_for_status()
+        data = response.json()
+        time.sleep(0.6)  # Add delay to avoid 429 rate limits
+
+        # Build mapping from team ID to team abbreviation first
+        standings_url = 'https://api-web.nhle.com/v1/standings/now'
+        standings_response = requests.get(standings_url, timeout=10)
+        standings_response.raise_for_status()
+        standings_data = standings_response.json()
+        time.sleep(0.6)
+
+        # Create team_id to abbrev map
+        team_id_to_abbrev = {}
+        for team in standings_data.get('standings', []):
+            # The teamId is not in standings, we'll need to map by name
+            team_name = team['teamName']['default']
+            team_abbrev = team['teamAbbrev']['default']
+            team_id_to_abbrev[team_name] = team_abbrev
+
+        special_teams = {}
+        for team_stat in data.get('data', []):
+            team_name = team_stat.get('teamFullName')
+            pp_pct = team_stat.get('powerPlayPct', 0) * 100  # Convert to percentage
+            pk_pct = team_stat.get('penaltyKillPct', 0) * 100  # Convert to percentage
+
+            # Find team abbreviation
+            team_abbrev = team_id_to_abbrev.get(team_name)
+            if team_abbrev:
+                special_teams[team_abbrev] = {
+                    'pp_pct': round(pp_pct, 1),
+                    'pk_pct': round(pk_pct, 1)
+                }
+
+        return special_teams
+    except Exception as e:
+        print(f"⚠️ Error fetching NHL special teams stats: {e}")
+        return {}
 
 
 def get_nhl_standings():
@@ -1108,6 +1304,9 @@ def generate_nhl_games_page(fetch_odds=True):
         # Get team standings for season records
         nhl_standings = get_nhl_standings()
 
+        # Get special teams stats (Power Play % and Penalty Kill %)
+        special_teams_stats = get_nhl_special_teams_stats()
+
         # Get player absences (injured/scratched)
         absences_by_team = scrape_nhl_absences_by_team()
 
@@ -1134,6 +1333,10 @@ def generate_nhl_games_page(fetch_odds=True):
             away_record = nhl_standings.get(away_abbrev)
             home_record = nhl_standings.get(home_abbrev)
 
+            # Get special teams stats (using abbreviations from API)
+            away_special_teams = special_teams_stats.get(away_abbrev)
+            home_special_teams = special_teams_stats.get(home_abbrev)
+
             # Get player absences and goalies (using team nicknames from API)
             away_nickname = game['awayTeam']['commonName']['default']
             home_nickname = game['homeTeam']['commonName']['default']
@@ -1152,10 +1355,14 @@ def generate_nhl_games_page(fetch_odds=True):
             away_lines = daily_lines_by_team.get(away_nickname)
             home_lines = daily_lines_by_team.get(home_nickname)
 
+            # Get rest days for each team (using abbreviations)
+            away_rest_days = get_rest_days(away_abbrev)
+            home_rest_days = get_rest_days(home_abbrev)
+
             # Parse odds for this game (using short names for matching)
             game_odds = parse_odds(nhl_odds_data, home_team_short, away_team_short)
 
-            nhl_html += generate_game_card(away_team, home_team, game_time, game_odds, away_record, home_record, sport='nhl', away_logo=away_logo, home_logo=home_logo, game_id=game_id, away_goalie=away_goalie, home_goalie=home_goalie, away_team_short=away_abbrev, home_team_short=home_abbrev, away_absences=away_absences, home_absences=home_absences, away_lines=away_lines, home_lines=home_lines)
+            nhl_html += generate_game_card(away_team, home_team, game_time, game_odds, away_record, home_record, sport='nhl', away_logo=away_logo, home_logo=home_logo, game_id=game_id, away_goalie=away_goalie, home_goalie=home_goalie, away_team_short=away_abbrev, home_team_short=home_abbrev, away_absences=away_absences, home_absences=home_absences, away_lines=away_lines, home_lines=home_lines, away_special_teams=away_special_teams, home_special_teams=home_special_teams, away_rest_days=away_rest_days, home_rest_days=home_rest_days)
     else:
         nhl_html = "<div class='no-games'>No NHL games scheduled for today</div>\n"
 
