@@ -554,7 +554,7 @@ with open(filename, "w") as f:
                     return 'Rangers'
                 elif 'Golden Knights' in full_name:
                     return 'Vegas'
-                elif 'St.' in full_name and 'Louis' in full_name:
+                elif ('St.' in full_name or 'St ' in full_name) and 'Louis' in full_name:
                     return 'St. Louis'
                 elif 'Los Angeles' in full_name:
                     return 'Los Angeles'
