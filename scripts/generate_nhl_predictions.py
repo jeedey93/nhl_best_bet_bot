@@ -685,6 +685,7 @@ with open(filename, "w") as f:
             else:
                 standings_text += "  No standings data\n"
 
+        # Print all variables being sent to AI analysis
         print("NHL Matchups and Odds:")
         print(results_text)
         print(absences_text)
@@ -698,6 +699,8 @@ with open(filename, "w") as f:
         print(h2h_stats_text)
         print("\nGoalie Stats:")
         print(goalie_stats_text)
+        print("\nRecent Games:")
+        print(recent_games)
 
         if results_text:
             summary = analyze_results(results_text, absences_text, recent_games, team_stats_text, h2h_stats_text, goalie_stats_text, home_away_splits_text, standings_text)

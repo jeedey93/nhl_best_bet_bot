@@ -554,6 +554,17 @@ with open(filename, "w") as f:
             predictions_text += "\nInjury Notes (user-supplied):\n" + extra_injury_notes + "\n"
 
         if predictions_text:
+
+            # Print all variables being sent to AI analysis
+            print("\n--- SENDING TO AI ANALYSIS ---")
+            print("results_text:\n", predictions_text)
+            print("team_stats_text:\n", team_stats_text)
+            print("h2h_stats_text:\n", h2h_stats_text)
+            print("home_away_splits_text:\n", home_away_splits_text)
+            print("standings_text:\n", standings_text)
+            print("recent_games:\n", recent_games)
+            print("-----------------------------\n")
+
             summary = analyze_results(predictions_text, team_stats_text, h2h_stats_text,
                                      home_away_splits_text, standings_text, recent_games)
             f.write("\nAI Analysis Summary:\n")

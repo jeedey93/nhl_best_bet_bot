@@ -124,10 +124,15 @@ Use the data sources above in a systematic analysis for each game:
 
 5. SCHEDULE & FATIGUE ANALYSIS
    Using {{RECENT_GAMES}} for schedule patterns:
-   - Check if team played yesterday (back-to-back)
-   - Calculate rest days between games
-   - Identify 3-in-4 or 4-in-6 game stretches
-   - Detect cross-country travel (especially West→East)
+   - Parse the schedule blocks in the format:
+     nba_games_YYYY-MM-DD.txt
+     Date: YYYY-MM-DD
+     <list of games>
+     ---
+   - For each team, check if they played on consecutive days by matching their appearance in two consecutive date blocks. Only consider a team as being on a back-to-back if they played on both the previous day and today, as shown in the RECENT_GAMES section. Do not infer back-to-backs from any other data source.
+   - Calculate rest days between games by comparing the dates in the schedule blocks.
+   - Identify 3-in-4 or 4-in-6 game stretches by counting appearances in the last 4 or 6 days, respectively.
+   - Detect cross-country travel (especially West→East) if a team plays in different cities on consecutive days.
 
    Fatigue score calculation:
    - Back-to-back: -2 fatigue score
@@ -175,7 +180,7 @@ Use the data sources above in a systematic analysis for each game:
    - Apply adjustments from section 4 above
 
    Step E: Adjust for FATIGUE
-   - Use {{RECENT_GAMES}}
+   - Use {{RECENT_GAMES}} and parse the schedule blocks as described above. Only consider a team as being on a back-to-back if they played on both the previous day and today, based on the actual dates in the schedule blocks. Do not infer back-to-backs from any other data source.
    - Apply adjustments from section 5 above
 
    Step F: Adjust for INJURIES (if data provided)
