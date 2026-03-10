@@ -886,9 +886,257 @@ body {
   .odds-value { font-size: 0.9em; }
   .no-games { padding: 40px 15px; font-size: 1em; border-radius: 15px; }
 }
+
+/* Daily Lines Styles */
+.team-name-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.daily-lines-btn {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 0.85em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+
+.daily-lines-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.daily-lines-btn:active {
+  transform: translateY(0);
+}
+
+.lines-popover {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  z-index: 1001;
+  max-width: 500px;
+  width: 90%;
+  max-height: 80vh;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.lines-popover.show {
+  opacity: 1;
+}
+
+.lines-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.lines-backdrop.show {
+  opacity: 1;
+}
+
+@keyframes popoverFadeIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -45%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+
+.lines-popover-header {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  color: white;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 16px 16px 0 0;
+}
+
+.lines-popover-header h3 {
+  font-size: 1.3em;
+  font-weight: 700;
+  margin: 0;
+}
+
+.lines-close-btn {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 1.2em;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.lines-close-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+.lines-popover-content {
+  padding: 24px;
+  overflow-y: auto;
+  max-height: calc(80vh - 80px);
+}
+
+.lineup-line {
+  padding: 12px 16px;
+  margin-bottom: 8px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 10px;
+  font-size: 0.95em;
+  font-weight: 500;
+  color: #2c3e50;
+  transition: all 0.2s ease;
+  border-left: 4px solid #3b82f6;
+  text-align: center;
+}
+
+.lineup-line:hover {
+  transform: translateX(4px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.lineup-line.defense-line {
+  border-left-color: #48bb78;
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+}
+
+.lineup-line.goalie-line {
+  border-left-color: #f59e0b;
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+  font-weight: 700;
+  text-align: center;
+}
+
+.lineup-spacer {
+  height: 16px;
+}
+
+@media (max-width: 768px) {
+  .lines-popover {
+    max-width: 95%;
+    max-height: 90vh;
+  }
+
+  .lines-popover-header {
+    padding: 16px;
+  }
+
+  .lines-popover-header h3 {
+    font-size: 1.1em;
+  }
+
+  .lines-popover-content {
+    padding: 16px;
+  }
+
+  .lineup-line {
+    font-size: 0.85em;
+    padding: 10px 12px;
+  }
+}
+
 </style>
 <script>
+// Toggle daily lines popover
+function toggleLines(lineId) {
+  // Check if popover already exists
+  let popover = document.getElementById(lineId);
+  let backdrop = document.getElementById(lineId + '-backdrop');
+
+  if (popover) {
+    // Close existing popover
+    popover.remove();
+    if (backdrop) {
+      backdrop.remove();
+    }
+    document.body.style.overflow = '';
+  }
+}
+
+function openLinesPopover(button) {
+  const lineId = button.dataset.linesId;
+  const teamName = button.dataset.teamName;
+  const linesContent = button.dataset.linesContent;
+
+  // Close any existing popovers first
+  document.querySelectorAll('.lines-popover').forEach(p => p.remove());
+  document.querySelectorAll('[id$="-backdrop"]').forEach(b => b.remove());
+
+  // Create backdrop
+  const backdrop = document.createElement('div');
+  backdrop.id = lineId + '-backdrop';
+  backdrop.className = 'lines-backdrop';
+  backdrop.onclick = function() { toggleLines(lineId); };
+
+  // Create popover
+  const popover = document.createElement('div');
+  popover.id = lineId;
+  popover.className = 'lines-popover';
+
+  popover.innerHTML = `
+    <div class='lines-popover-header'>
+      <h3>Projected Lines - ${teamName}</h3>
+      <button class='lines-close-btn' onclick='toggleLines("${lineId}")'>✕</button>
+    </div>
+    <div class='lines-popover-content'>
+      ${linesContent}
+    </div>
+  `;
+
+  // Append to body
+  document.body.appendChild(backdrop);
+  document.body.appendChild(popover);
+
+  // Prevent body scroll
+  document.body.style.overflow = 'hidden';
+
+  // Trigger animation
+  setTimeout(() => {
+    popover.classList.add('show');
+    backdrop.classList.add('show');
+  }, 10);
+}
+
 document.addEventListener('DOMContentLoaded', function() {
+  // Setup daily lines buttons
+  document.querySelectorAll('.daily-lines-btn').forEach(button => {
+    button.addEventListener('click', function() {
+      openLinesPopover(this);
+    });
+  });
+
+  // Odds toggle functionality
   document.querySelectorAll('.odds-toggle').forEach(toggle => {
     toggle.addEventListener('click', function() {
       const content = this.nextElementSibling;
@@ -900,6 +1148,15 @@ document.addEventListener('DOMContentLoaded', function() {
         this.innerHTML = 'Hide Odds ▲';
       }
     });
+  });
+
+  // Close popover on Escape key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('.lines-popover').forEach(popover => {
+        toggleLines(popover.id);
+      });
+    }
   });
 });
 </script>
