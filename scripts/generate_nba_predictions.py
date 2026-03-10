@@ -248,19 +248,20 @@ def get_nba_team_home_away_splits(team_name):
         away_losses = 0
 
         for event in data.get('events', []):
-            status = event.get('status', {}).get('type', {}).get('completed', False)
+            comp = event.get('competitions', [{}])[0]
+            status = comp.get('status', {}).get('type', {}).get('completed', False)
             if not status:
                 continue
 
-            comp = event['competitions'][0]
             home = next((c for c in comp['competitors'] if c['homeAway'] == 'home'), None)
             away = next((c for c in comp['competitors'] if c['homeAway'] == 'away'), None)
 
             if not home or not away:
                 continue
 
-            is_home_game = home['team']['displayName'] == team_name
-            is_away_game = away['team']['displayName'] == team_name
+            # Compare by team ID instead of name to handle variations
+            is_home_game = home['team']['id'] == team_id
+            is_away_game = away['team']['id'] == team_id
 
             if is_home_game:
                 if home.get('winner', False):
