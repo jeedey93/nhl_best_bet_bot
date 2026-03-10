@@ -164,4 +164,4 @@ This project is for informational and entertainment purposes only. There are no 
 
 ---
 
-For documentation, live predictions, and the daily Bets of the Day, visit the [project website](https://jeedey93.github.io/parieur-discipline-bot/).
+For documentation, live predictions, and the daily Bets of the Day, visit the [project website](https://parieurdiscipline.com/).
