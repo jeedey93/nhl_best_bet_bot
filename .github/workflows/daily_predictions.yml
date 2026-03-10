@@ -11,6 +11,13 @@ on:
 jobs:
   run-dual-predictions:
     runs-on: ubuntu-latest
+    env:
+      EMAIL_TO: ${{ secrets.EMAIL_TO }}
+      EMAIL_USERNAME: ${{ secrets.EMAIL_USERNAME }}
+      EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+      GH_PAT: ${{ secrets.GH_PAT }}
+      ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+      GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -24,10 +31,10 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-      - name: Set environment variables
+      - name: Set environment variables file
         run: |
-          echo "ODDS_API_KEY=${{ secrets.ODDS_API_KEY }}" > .env
-          echo "GOOGLE_API_KEY=${{ secrets.GOOGLE_API_KEY }}" >> .env
+          echo "ODDS_API_KEY=${ODDS_API_KEY}" > .env
+          echo "GOOGLE_API_KEY=${GOOGLE_API_KEY}" >> .env
       - name: Determine run time
         id: run_time
         run: |
@@ -62,8 +69,6 @@ jobs:
         if: steps.run_time.outputs.time == '12pm'
         run: python scripts/generate_website.py
       - name: Commit predictions
-        env:
-          GH_PAT: ${{ secrets.GH_PAT }}
         run: |
           set -e
           git config user.name "github-actions[bot]"
@@ -75,7 +80,7 @@ jobs:
             else
               git commit -m "Add final predictions for $(date -u +%Y-%m-%d)"
             fi
-            git push --set-upstream https://$GH_PAT@github.com/${{ github.repository }} HEAD:master
+            git push --set-upstream https://${GH_PAT}@github.com/${{ github.repository }} HEAD:master
           else
             echo "No changes to commit"
           fi
@@ -233,10 +238,10 @@ jobs:
           server_address: smtp.gmail.com
           server_port: 587
           secure: false
-          username: ${{ secrets.EMAIL_USERNAME }}
-          password: ${{ secrets.EMAIL_PASSWORD }}
+          username: ${{ env.EMAIL_USERNAME }}
+          password: ${{ env.EMAIL_PASSWORD }}
           subject: ${{ steps.prepare_email.outputs.subject }}
           html_body: ${{ steps.prepare_email.outputs.body }}
-          to: ${{ secrets.EMAIL_USERNAME }}
-          bcc: ${{ secrets.EMAIL_TO }}
+          to: ${{ env.EMAIL_USERNAME }}
+          bcc: ${{ env.EMAIL_TO }}
           from: Parieur Discipliné

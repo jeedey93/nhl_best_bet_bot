@@ -6,6 +6,10 @@ on:
 jobs:
   send-email:
     runs-on: ubuntu-latest
+    env:
+      EMAIL_USERNAME: ${{ secrets.EMAIL_USERNAME }}
+      EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+      EMAIL_TO: ${{ secrets.EMAIL_TO }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -164,11 +168,10 @@ jobs:
           server_address: smtp.gmail.com
           server_port: 587
           secure: false
-          username: ${{ secrets.EMAIL_USERNAME }}
-          password: ${{ secrets.EMAIL_PASSWORD }}
+          username: ${{ env.EMAIL_USERNAME }}
+          password: ${{ env.EMAIL_PASSWORD }}
           subject: ${{ steps.prepare_email.outputs.subject }}
           html_body: ${{ steps.prepare_email.outputs.body }}
-          to: ${{ secrets.EMAIL_USERNAME }}
-          bcc: ${{ secrets.EMAIL_TO }}
+          to: ${{ env.EMAIL_USERNAME }}
+          bcc: ${{ env.EMAIL_TO }}
           from: Parieur Discipliné
-
