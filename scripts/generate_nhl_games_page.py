@@ -897,7 +897,7 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
             else:
                 rest_color = '#6b7280'  # Gray for normal
                 rest_display = f'{away_rest_days}'
-            html += f"<div class='stat-value' style='color: {rest_color};'>{rest_display}</div>\n"
+            html += f"<div class='stat-value' style='color: {rest_color} !important; background: none !important; -webkit-text-fill-color: {rest_color} !important;'>{rest_display}</div>\n"
         else:
             html += "<div class='stat-value'>-</div>\n"
         html += "</div>\n"
@@ -1057,7 +1057,7 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
             else:
                 rest_color = '#6b7280'  # Gray for normal
                 rest_display = f'{home_rest_days}'
-            html += f"<div class='stat-value' style='color: {rest_color};'>{rest_display}</div>\n"
+            html += f"<div class='stat-value' style='color: {rest_color} !important; background: none !important; -webkit-text-fill-color: {rest_color} !important;'>{rest_display}</div>\n"
         else:
             html += "<div class='stat-value'>-</div>\n"
         html += "</div>\n"
