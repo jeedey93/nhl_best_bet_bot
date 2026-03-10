@@ -90,9 +90,32 @@ def scrape_nhl_daily_lines():
                         break
 
                 # Look for lines in text format (e.g., "Player1 -- Player2 -- Player3")
-                if '--' in text and text.strip():
-                    # This is a line
-                    players = [clean_player_name(p.strip()) for p in text.split('--')]
+                # Note: NHL.com uses both "--" and "–" (en dash) in their HTML
+                if ('--' in text or '–' in text or '\x80\x93' in text) and text.strip():
+                    # Clean up the text first - handle various dash encodings and apostrophes
+                    cleaned_text = text.replace("'", "")
+                    # Handle UTF-8 encoded en dash (â\x80\x93)
+                    cleaned_text = cleaned_text.replace('\u2013', '--')  # en dash
+                    cleaned_text = cleaned_text.replace('\u2014', '--')  # em dash
+                    cleaned_text = cleaned_text.replace('–', '--')  # another en dash variant
+                    cleaned_text = cleaned_text.replace('—', '--')  # em dash variant
+                    cleaned_text = cleaned_text.replace('â\x80\x93', '--')  # malformed UTF-8 en dash
+                    cleaned_text = cleaned_text.replace('â', '')  # Remove remaining â characters
+                    cleaned_text = cleaned_text.strip()
+
+                    # Skip if the line doesn't look valid (has weird characters or too short)
+                    if len(cleaned_text) < 10:
+                        current_element = current_element.find_next()
+                        continue
+
+                    # Split by double dash and filter
+                    parts = cleaned_text.split('--')
+                    players = []
+                    for part in parts:
+                        # Clean each part and check if it looks like a valid player name
+                        player = clean_player_name(part.strip())
+                        if player and len(player) > 2 and ' ' in player:  # Must have first and last name
+                            players.append(player)
 
                     # Determine if it's forwards (3 players) or defense (2 players)
                     if len(players) == 3:
