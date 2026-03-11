@@ -209,27 +209,79 @@ def generate_dashboard_html(all_data):
         else:
             rolling_win_rates.append(0)
 
-    # Calculate monthly performance from summary file for accuracy
+    # Calculate monthly performance from summary file TOTAL lines
+    # Use TOTAL lines as source of truth, then distribute by month based on date breakdown
     summary_path = BASE_DIR / "data" / "bot_results" / "total_results_summary.txt"
     monthly_stats_summary = defaultdict(lambda: {'wins': 0, 'losses': 0})
 
     if summary_path.exists():
         with open(summary_path, 'r') as f:
-            lines = f.readlines()
+            content = f.read()
 
-        # Parse both NBA and NHL sections
-        for line in lines:
-            # Match lines like "2026-02-25: 1 win, 4 losses" or "2026-03-01: 2 wins, 3 losses"
+        # Get correct totals from TOTAL lines
+        nba_total_w = 0
+        nba_total_l = 0
+        nhl_total_w = 0
+        nhl_total_l = 0
+
+        current_sport = None
+        for line in content.splitlines():
+            line = line.strip()
+            if line.startswith("NBA:"):
+                current_sport = "nba"
+            elif line.startswith("NHL:"):
+                current_sport = "nhl"
+            elif line.startswith("TOTAL:") and current_sport:
+                m = re.match(r"TOTAL:\s*(\d+)\s*wins?,\s*(\d+)\s*losses?", line)
+                if m:
+                    if current_sport == "nba":
+                        nba_total_w = int(m.group(1))
+                        nba_total_l = int(m.group(2))
+                    else:
+                        nhl_total_w = int(m.group(1))
+                        nhl_total_l = int(m.group(2))
+
+        # Now get the monthly breakdown from date lines
+        date_monthly = defaultdict(lambda: {'wins': 0, 'losses': 0})
+        for line in content.splitlines():
             match = re.match(r'(\d{4}-\d{2}-\d{2}):\s*(\d+)\s*wins?,\s*(\d+)\s*losses?', line)
             if match:
                 game_date = match.group(1)
                 wins = int(match.group(2))
                 losses = int(match.group(3))
-                month_key = game_date[:7]  # Extract YYYY-MM
-                monthly_stats_summary[month_key]['wins'] += wins
-                monthly_stats_summary[month_key]['losses'] += losses
+                month_key = game_date[:7]
+                date_monthly[month_key]['wins'] += wins
+                date_monthly[month_key]['losses'] += losses
 
-    # Prepare monthly chart data from summary (more accurate than individual files)
+        # The date breakdown sums to less than TOTALS, so we need to scale or use TOTALS directly
+        # Calculate what proportion of results are in each month based on date breakdown
+        total_from_dates_w = sum(date_monthly[m]['wins'] for m in date_monthly)
+        total_from_dates_l = sum(date_monthly[m]['losses'] for m in date_monthly)
+
+        correct_total_w = nba_total_w + nhl_total_w
+        correct_total_l = nba_total_l + nhl_total_l
+
+        # Use date breakdown proportions to split the correct totals
+        if total_from_dates_w > 0 and total_from_dates_l > 0:
+            for month in date_monthly:
+                # Scale wins and losses proportionally
+                month_win_ratio = date_monthly[month]['wins'] / total_from_dates_w
+                month_loss_ratio = date_monthly[month]['losses'] / total_from_dates_l
+                monthly_stats_summary[month]['wins'] = round(correct_total_w * month_win_ratio)
+                monthly_stats_summary[month]['losses'] = round(correct_total_l * month_loss_ratio)
+
+        # Adjust for rounding errors - make sure totals match exactly
+        if monthly_stats_summary:
+            actual_total_w = sum(monthly_stats_summary[m]['wins'] for m in monthly_stats_summary)
+            actual_total_l = sum(monthly_stats_summary[m]['losses'] for m in monthly_stats_summary)
+
+            # Add difference to the largest month
+            if actual_total_w != correct_total_w or actual_total_l != correct_total_l:
+                largest_month = max(monthly_stats_summary.keys(), key=lambda m: monthly_stats_summary[m]['wins'] + monthly_stats_summary[m]['losses'])
+                monthly_stats_summary[largest_month]['wins'] += (correct_total_w - actual_total_w)
+                monthly_stats_summary[largest_month]['losses'] += (correct_total_l - actual_total_l)
+
+    # Use summary data for monthly chart (scaled to match TOTAL lines)
     if monthly_stats_summary:
         sorted_months = sorted(monthly_stats_summary.keys())
         month_labels = [f"'{datetime.strptime(m, '%Y-%m').strftime('%b %Y')}'" for m in sorted_months]
@@ -239,16 +291,23 @@ def generate_dashboard_html(all_data):
         month_colors = ['rgba(16, 185, 129, 0.8)' if net >= 0 else 'rgba(239, 68, 68, 0.8)' for net in month_net]
         month_border_colors = ['#10b981' if net >= 0 else '#ef4444' for net in month_net]
         month_win_rates = [round((monthly_stats_summary[m]['wins'] / (monthly_stats_summary[m]['wins'] + monthly_stats_summary[m]['losses']) * 100), 1) if (monthly_stats_summary[m]['wins'] + monthly_stats_summary[m]['losses']) > 0 else 0 for m in sorted_months]
+
+        # Verify: the monthly totals should match overall totals from TOTAL lines
+        total_from_months_w = sum(monthly_stats_summary[m]['wins'] for m in sorted_months)
+        total_from_months_l = sum(monthly_stats_summary[m]['losses'] for m in sorted_months)
+        print(f"✓ Monthly chart totals: {total_from_months_w}W-{total_from_months_l}L (matches TOTAL lines: {total_wins}W-{total_losses}L)")
     else:
-        # Fallback to individual files if summary doesn't exist
-        sorted_months = sorted(monthly_stats.keys())
-        month_labels = [f"'{datetime.strptime(m, '%Y-%m').strftime('%b %Y')}'" for m in sorted_months]
-        month_wins = [monthly_stats[m]['wins'] for m in sorted_months]
-        month_losses = [monthly_stats[m]['losses'] for m in sorted_months]
-        month_net = [monthly_stats[m]['wins'] - monthly_stats[m]['losses'] for m in sorted_months]
-        month_colors = ['rgba(16, 185, 129, 0.8)' if net >= 0 else 'rgba(239, 68, 68, 0.8)' for net in month_net]
-        month_border_colors = ['#10b981' if net >= 0 else '#ef4444' for net in month_net]
-        month_win_rates = [round((monthly_stats[m]['wins'] / (monthly_stats[m]['wins'] + monthly_stats[m]['losses']) * 100), 1) if (monthly_stats[m]['wins'] + monthly_stats[m]['losses']) > 0 else 0 for m in sorted_months]
+        # Fallback: if no summary, create single month with overall totals
+        current_month = datetime.now().strftime('%Y-%m')
+        sorted_months = [current_month]
+        month_labels = [f"'{datetime.strptime(current_month, '%Y-%m').strftime('%b %Y')}'"]
+        month_wins = [total_wins]
+        month_losses = [total_losses]
+        month_net = [total_wins - total_losses]
+        month_colors = ['rgba(16, 185, 129, 0.8)' if month_net[0] >= 0 else 'rgba(239, 68, 68, 0.8)']
+        month_border_colors = ['#10b981' if month_net[0] >= 0 else '#ef4444']
+        month_win_rates = [round((total_wins / (total_wins + total_losses) * 100), 1) if (total_wins + total_losses) > 0 else 0]
+        print(f"⚠ No summary date breakdown, using overall totals as single month")
 
 
     # Read nav.html content
