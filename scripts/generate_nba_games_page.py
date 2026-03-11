@@ -828,6 +828,14 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
 
 
 
+def normalize_nba_team_name(team_name):
+    """Normalize NBA team names to match between different APIs."""
+    # Handle LA Clippers vs Los Angeles Clippers
+    if team_name == "Los Angeles Clippers":
+        return "LA Clippers"
+    return team_name
+
+
 def get_ordinal_suffix(n):
     """Return ordinal suffix for a number (1st, 2nd, 3rd, etc.)"""
     if 10 <= n % 100 <= 20:
@@ -969,9 +977,11 @@ def generate_nba_games_page(fetch_odds=True):
             away_logo = NBA_TEAM_LOGOS.get(away_team)
             home_logo = NBA_TEAM_LOGOS.get(home_team)
 
-            # Get team records from standings
-            away_standing = nba_standings.get(away_team, {})
-            home_standing = nba_standings.get(home_team, {})
+            # Get team records from standings (normalize team names for lookup)
+            away_team_normalized = normalize_nba_team_name(away_team)
+            home_team_normalized = normalize_nba_team_name(home_team)
+            away_standing = nba_standings.get(away_team_normalized, {})
+            home_standing = nba_standings.get(home_team_normalized, {})
             away_record = away_standing.get('record') if away_standing else None
             home_record = home_standing.get('record') if home_standing else None
             away_rank = away_standing.get('rank') if away_standing else None
