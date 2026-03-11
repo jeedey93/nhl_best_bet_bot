@@ -4,6 +4,7 @@ import os
 from datetime import datetime
 from zoneinfo import ZoneInfo
 import json
+import pytz
 
 
 # Mapping from NHL.com lineup page team nicknames to NHL API team names
@@ -269,8 +270,18 @@ def scrape_nhl_starting_goalies():
     Scrape starting goalies from NHL lineup projections page.
     The first goalie listed for each team is considered the starter.
 
+    Only scrapes after 2pm Montreal time to ensure lineup information is available.
+
     Returns dict with team names as keys and goalie info as values.
     """
+    # Check if it's after 2pm Montreal time
+    montreal_tz = pytz.timezone('America/Toronto')
+    current_time = datetime.now(montreal_tz)
+
+    if current_time.hour < 14:  # Before 2pm
+        print(f"⚠️ Skipping goalie scraping - before 2pm Montreal time (current: {current_time.strftime('%I:%M %p')})")
+        return {}
+
     url = "https://www.nhl.com/news/nhl-lineup-projections-2025-26-season"
 
     try:

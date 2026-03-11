@@ -1,6 +1,8 @@
 import requests
 from bs4 import BeautifulSoup
 import re
+import pytz
+from datetime import datetime
 
 def clean_player_name(name):
     """Clean and format player names properly."""
@@ -23,6 +25,22 @@ def clean_player_name(name):
     return name
 
 def scrape_nhl_absences_by_team():
+    """
+    Scrape injured and scratched players by team from NHL.com.
+
+    Only scrapes after 2pm Montreal time to ensure lineup information is available.
+
+    Returns:
+        dict: Mapping of team names to lists of absent players
+    """
+    # Check if it's after 2pm Montreal time
+    montreal_tz = pytz.timezone('America/Toronto')
+    current_time = datetime.now(montreal_tz)
+
+    if current_time.hour < 14:  # Before 2pm
+        print(f"⚠️ Skipping absences scraping - before 2pm Montreal time (current: {current_time.strftime('%I:%M %p')})")
+        return {}
+
     url = "https://www.nhl.com/news/nhl-lineup-projections-2025-26-season"
     response = requests.get(url)
     response.raise_for_status()
