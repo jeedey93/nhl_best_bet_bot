@@ -209,6 +209,32 @@ def generate_dashboard_html(all_data):
         else:
             rolling_win_rates.append(0)
 
+    # Calculate monthly performance
+    monthly_stats = defaultdict(lambda: {'wins': 0, 'losses': 0, 'nhl_wins': 0, 'nhl_losses': 0, 'nba_wins': 0, 'nba_losses': 0})
+    for entry in all_data_sorted:
+        # Extract year-month from date (e.g., "2026-03" from "2026-03-01")
+        month_key = entry['date'][:7]
+        monthly_stats[month_key]['wins'] += entry['wins']
+        monthly_stats[month_key]['losses'] += entry['losses']
+        if entry['sport'] == 'NHL':
+            monthly_stats[month_key]['nhl_wins'] += entry['wins']
+            monthly_stats[month_key]['nhl_losses'] += entry['losses']
+        else:
+            monthly_stats[month_key]['nba_wins'] += entry['wins']
+            monthly_stats[month_key]['nba_losses'] += entry['losses']
+
+    # Prepare monthly chart data
+    sorted_months = sorted(monthly_stats.keys())
+    month_labels = [f"'{datetime.strptime(m, '%Y-%m').strftime('%b %Y')}'" for m in sorted_months]
+    month_wins = [monthly_stats[m]['wins'] for m in sorted_months]
+    month_losses = [monthly_stats[m]['losses'] for m in sorted_months]
+    month_win_rates = [round((monthly_stats[m]['wins'] / (monthly_stats[m]['wins'] + monthly_stats[m]['losses']) * 100), 1) if (monthly_stats[m]['wins'] + monthly_stats[m]['losses']) > 0 else 0 for m in sorted_months]
+    month_nhl_wins = [monthly_stats[m]['nhl_wins'] for m in sorted_months]
+    month_nhl_losses = [monthly_stats[m]['nhl_losses'] for m in sorted_months]
+    month_nba_wins = [monthly_stats[m]['nba_wins'] for m in sorted_months]
+    month_nba_losses = [monthly_stats[m]['nba_losses'] for m in sorted_months]
+
+
     # Read nav.html content
     nav_path = BASE_DIR / "docs" / "nav.html"
     nav_html = ""
@@ -627,6 +653,10 @@ body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans
         <div class='chart-title'>Win Rate Rolling Average (7 days)</div>
         <canvas id='rollingAvgChart'></canvas>
       </div>
+      <div class='chart-container'>
+        <div class='chart-title'>Monthly Performance Overview</div>
+        <canvas id='monthlyChart'></canvas>
+      </div>
     </div>
   </div>
 
@@ -661,6 +691,16 @@ const dailyWins = [DAILY_WINS_PLACEHOLDER];
 const dailyLosses = [DAILY_LOSSES_PLACEHOLDER];
 const cumulativeProfit = [CUMULATIVE_PROFIT_PLACEHOLDER];
 const rollingWinRate = [ROLLING_WIN_RATE_PLACEHOLDER];
+
+// Monthly chart data
+const monthLabels = [MONTH_LABELS_PLACEHOLDER];
+const monthWins = [MONTH_WINS_PLACEHOLDER];
+const monthLosses = [MONTH_LOSSES_PLACEHOLDER];
+const monthWinRates = [MONTH_WIN_RATES_PLACEHOLDER];
+const monthNHLWins = [MONTH_NHL_WINS_PLACEHOLDER];
+const monthNHLLosses = [MONTH_NHL_LOSSES_PLACEHOLDER];
+const monthNBAWins = [MONTH_NBA_WINS_PLACEHOLDER];
+const monthNBALosses = [MONTH_NBA_LOSSES_PLACEHOLDER];
 
 // Chart.js default settings
 Chart.defaults.font.family = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
@@ -804,6 +844,63 @@ new Chart(rollingAvgCtx, {
   }
 });
 
+// 4. Monthly Performance Chart
+const monthlyCtx = document.getElementById('monthlyChart').getContext('2d');
+new Chart(monthlyCtx, {{
+  type: 'bar',
+  data: {{
+    labels: monthLabels,
+    datasets: [
+      {{
+        label: 'Wins',
+        data: monthWins,
+        backgroundColor: 'rgba(16, 185, 129, 0.8)',
+        borderColor: '#10b981',
+        borderWidth: 1
+      }},
+      {{
+        label: 'Losses',
+        data: monthLosses,
+        backgroundColor: 'rgba(239, 68, 68, 0.8)',
+        borderColor: '#ef4444',
+        borderWidth: 1
+      }}
+    ]
+  }},
+  options: {{
+    responsive: true,
+    maintainAspectRatio: true,
+    plugins: {{
+      legend: {{
+        display: true,
+        position: 'top'
+      }},
+      tooltip: {{
+        callbacks: {{
+          footer: function(items) {{
+            const index = items[0].dataIndex;
+            const winRate = monthWinRates[index];
+            return 'Win Rate: ' + winRate + '%';
+          }}
+        }}
+      }}
+    }},
+    scales: {{
+      y: {{
+        beginAtZero: true,
+        stacked: false,
+        ticks: {{
+          stepSize: 5
+        }},
+        grid: {{ color: '#e5e7eb' }}
+      }},
+      x: {{
+        grid: {{ display: false }}
+      }}
+    }}
+  }}
+}});
+
 // Add smooth scroll behavior
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
   anchor.addEventListener('click', function (e) {
@@ -824,6 +921,14 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     html = html.replace('DAILY_LOSSES_PLACEHOLDER', ', '.join(map(str, chart_losses)))
     html = html.replace('CUMULATIVE_PROFIT_PLACEHOLDER', ', '.join(map(str, cumulative_profit)))
     html = html.replace('ROLLING_WIN_RATE_PLACEHOLDER', ', '.join(map(str, rolling_win_rates)))
+    html = html.replace('MONTH_LABELS_PLACEHOLDER', ', '.join(month_labels))
+    html = html.replace('MONTH_WINS_PLACEHOLDER', ', '.join(map(str, month_wins)))
+    html = html.replace('MONTH_LOSSES_PLACEHOLDER', ', '.join(map(str, month_losses)))
+    html = html.replace('MONTH_WIN_RATES_PLACEHOLDER', ', '.join(map(str, month_win_rates)))
+    html = html.replace('MONTH_NHL_WINS_PLACEHOLDER', ', '.join(map(str, month_nhl_wins)))
+    html = html.replace('MONTH_NHL_LOSSES_PLACEHOLDER', ', '.join(map(str, month_nhl_losses)))
+    html = html.replace('MONTH_NBA_WINS_PLACEHOLDER', ', '.join(map(str, month_nba_wins)))
+    html = html.replace('MONTH_NBA_LOSSES_PLACEHOLDER', ', '.join(map(str, month_nba_losses)))
     html = html.replace('NHL_WINS_PLACEHOLDER', str(nhl_wins))
     html = html.replace('NHL_LOSSES_PLACEHOLDER', str(nhl_losses))
     html = html.replace('NBA_WINS_PLACEHOLDER', str(nba_wins))

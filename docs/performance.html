@@ -466,6 +466,10 @@ document.addEventListener('click', function(event) {
         <div class='chart-title'>Win Rate Rolling Average (7 days)</div>
         <canvas id='rollingAvgChart'></canvas>
       </div>
+      <div class='chart-container'>
+        <div class='chart-title'>Monthly Performance Overview</div>
+        <canvas id='monthlyChart'></canvas>
+      </div>
     </div>
   </div>
 
@@ -586,6 +590,16 @@ const dailyWins = [8, 3, 0, 5, 4, 5, 3, 6, 5, 5, 4, 3, 5];
 const dailyLosses = [2, 2, 0, 2, 9, 4, 3, 4, 4, 2, 6, 5, 5];
 const cumulativeProfit = [528, 601, 601, 856, 320, 375, 348, 494, 549, 804, 568, 341, 296];
 const rollingWinRate = [56.0, 52.0, 51.9, 54.1, 50.0, 52.5, 51.7];
+
+// Monthly chart data
+const monthLabels = ['Feb 2026', 'Mar 2026'];
+const monthWins = [11, 45];
+const monthLosses = [4, 44];
+const monthWinRates = [73.3, 50.6];
+const monthNHLWins = [6, 18];
+const monthNHLLosses = [4, 26];
+const monthNBAWins = [5, 27];
+const monthNBALosses = [0, 18];
 
 // Chart.js default settings
 Chart.defaults.font.family = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
@@ -728,6 +742,63 @@ new Chart(rollingAvgCtx, {
     }
   }
 });
+
+// 4. Monthly Performance Chart
+const monthlyCtx = document.getElementById('monthlyChart').getContext('2d');
+new Chart(monthlyCtx, {{
+  type: 'bar',
+  data: {{
+    labels: monthLabels,
+    datasets: [
+      {{
+        label: 'Wins',
+        data: monthWins,
+        backgroundColor: 'rgba(16, 185, 129, 0.8)',
+        borderColor: '#10b981',
+        borderWidth: 1
+      }},
+      {{
+        label: 'Losses',
+        data: monthLosses,
+        backgroundColor: 'rgba(239, 68, 68, 0.8)',
+        borderColor: '#ef4444',
+        borderWidth: 1
+      }}
+    ]
+  }},
+  options: {{
+    responsive: true,
+    maintainAspectRatio: true,
+    plugins: {{
+      legend: {{
+        display: true,
+        position: 'top'
+      }},
+      tooltip: {{
+        callbacks: {{
+          footer: function(items) {{
+            const index = items[0].dataIndex;
+            const winRate = monthWinRates[index];
+            return 'Win Rate: ' + winRate + '%';
+          }}
+        }}
+      }}
+    }},
+    scales: {{
+      y: {{
+        beginAtZero: true,
+        stacked: false,
+        ticks: {{
+          stepSize: 5
+        }},
+        grid: {{ color: '#e5e7eb' }}
+      }},
+      x: {{
+        grid: {{ display: false }}
+      }}
+    }}
+  }}
+}});
 
 // Add smooth scroll behavior
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
