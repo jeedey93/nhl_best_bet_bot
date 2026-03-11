@@ -423,7 +423,7 @@ def analyze_results(results_text, absences_text, recent_games, team_stats_text, 
         else:
             raise
 
-# --- New logic for 7am/12pm runs ---
+# --- New logic for 7am/3pm runs ---
 def detect_run_time():
     env_run_time = os.environ.get("NHL_RUN_TIME")
     if env_run_time:
@@ -432,10 +432,10 @@ def detect_run_time():
     tz = pytz.timezone("America/Toronto")
     now = datetime.now(tz)
     hour = now.hour
-    if 6 <= hour < 12:
+    if 6 <= hour < 11:
         return "7am"
-    elif 12 <= hour < 17:
-        return "12pm"
+    elif 14 <= hour < 17:
+        return "3pm"
     else:
         return "7am"  # fallback
 
@@ -446,11 +446,11 @@ daily_runs_folder = os.path.join(predictions_folder, "daily_runs")
 os.makedirs(predictions_folder, exist_ok=True)
 os.makedirs(daily_runs_folder, exist_ok=True)
 
-# Write directly to daily_runs folder for 7am/12pm runs
+# Write directly to daily_runs folder for 7am/3pm runs
 if run_time == "7am":
     filename = os.path.join(daily_runs_folder, f"nhl_daily_predictions_{today_str}_7am.txt")
-elif run_time == "12pm":
-    filename = os.path.join(daily_runs_folder, f"nhl_daily_predictions_{today_str}_12pm.txt")
+elif run_time == "3pm":
+    filename = os.path.join(daily_runs_folder, f"nhl_daily_predictions_{today_str}_3pm.txt")
 else:
     # Fallback goes to main folder
     filename = os.path.join(predictions_folder, f"nhl_daily_predictions_{today_str}.txt")

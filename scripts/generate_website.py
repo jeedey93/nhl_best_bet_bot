@@ -1495,7 +1495,7 @@ def extract_bet_of_day_from_prediction(content, sport_name, sport_emoji):
 
     html += "<div style='margin-top: 15px; padding: 12px; background: #fffbeb; border-left: 4px solid #f59e0b; border-radius: 4px;'>\n"
     html += "<div style='font-size: 0.85em; color: #92400e; font-weight: 600;'>⚠️ Preliminary Pick</div>\n"
-    html += "<div style='font-size: 0.8em; color: #78350f; margin-top: 4px;'>This pick may change after 12pm line movement analysis</div>\n"
+    html += "<div style='font-size: 0.8em; color: #78350f; margin-top: 4px;'>This pick may change after 3pm line movement analysis</div>\n"
     html += "</div>\n"
 
     html += "</div>\n"
@@ -1783,11 +1783,11 @@ def update_latest_predictions(results_only=False):
     if results_only:
         content += "<div style='background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%); color: white; padding: 25px 40px; text-align: center; border-radius: 12px; margin: 30px 0; box-shadow: 0 4px 15px rgba(74,144,226,0.3);'>\n"
         content += "<div style='font-size: 1.4em; font-weight: 700; margin-bottom: 8px;'>🕐 Preliminary Analysis Available</div>\n"
-        content += "<div style='font-size: 1em; opacity: 0.95;'>7am predictions shown below. Final picks with line movement analysis available at <strong>12:00 PM ET</strong></div>\n"
+        content += "<div style='font-size: 1em; opacity: 0.95;'>7am predictions shown below. Final picks with line movement analysis available at <strong>3:00 PM ET</strong></div>\n"
         content += "</div>\n\n"
 
     # ── Featured Picks Section ──
-    # At 7am (results_only), read from daily_runs folder; at 12pm, read from dual_bet_of_the_day
+    # At 7am (results_only), read from daily_runs folder; at 3pm, read from dual_bet_of_the_day
     if results_only:
         # Get today's date for 7am files (not overall_latest_date which might be yesterday)
         from datetime import date as date_module
@@ -1833,7 +1833,7 @@ def update_latest_predictions(results_only=False):
         content += "</div>\n\n"
 
     elif os.path.exists(dual_bet_path):
-        # 12pm version - use dual bet of the day as before
+        # 3pm version - use dual bet of the day as before
         dual_content = read_file(dual_bet_path).strip()
         if dual_content:
             content += "<div id='featured-picks' style='position: relative; margin: 0 -15px;'>\n"

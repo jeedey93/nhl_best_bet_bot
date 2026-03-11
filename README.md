@@ -31,8 +31,8 @@ A Python tool for analyzing NHL and NBA games, matching odds, and generating dis
 
 ## Features
 
-- **Dual-Run System**: NBA predictions run twice daily (7am & 12pm Montreal time) to capture line movement
-- **Line Movement Analysis**: Compares morning vs noon predictions to identify consensus plays and odds changes
+- **Dual-Run System**: NBA predictions run twice daily (7am & 3pm Montreal time) to capture line movement
+- **Line Movement Analysis**: Compares morning vs afternoon predictions to identify consensus plays and odds changes
 - **Multi-Sport Coverage**: Fetches daily NHL and NBA games with comprehensive odds data
 - **Multi-Bookmaker Markets**: Supports moneyline (h2h), totals (over/under), and spreads across multiple bookmakers
 - **AI-Powered Analysis**: Uses Google Gemini 2.5 for probabilistic edge calculation and play selection
@@ -120,9 +120,9 @@ The bot runs automatically on a daily schedule via GitHub Actions:
 - Updates website with yesterday's results + preliminary picks
 - Commits predictions to repository
 
-**12:00 PM** - Final Predictions (`daily_predictions.yml`)
+**3:00 PM** - Final Predictions (`daily_predictions.yml`)
 - Generates updated NHL and NBA predictions with latest odds
-- Compares 7am vs 12pm predictions to identify line movement
+- Compares 7am vs 3pm predictions to identify line movement
 - Extracts featured picks (Bet of the Day)
 - Updates website with full predictions
 - Sends email notification to subscribers

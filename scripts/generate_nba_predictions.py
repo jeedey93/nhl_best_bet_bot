@@ -53,10 +53,10 @@ NBA_TEAM_ID_MAP = {
 }
 
 def get_run_time_suffix():
-    """Determine if this is 7am or 12pm run based on environment variable or current time in Montreal timezone."""
+    """Determine if this is 7am or 3pm run based on environment variable or current time in Montreal timezone."""
     run_time = os.getenv("NBA_RUN_TIME")
     if run_time:
-        return run_time  # Should be "7am" or "12pm"
+        return run_time  # Should be "7am" or "3pm"
 
     # Use Montreal time (America/Toronto)
     tz = pytz.timezone("America/Toronto")
@@ -65,15 +65,15 @@ def get_run_time_suffix():
     # 7am run: 6:00–7:59
     if 6 <= current_hour < 8:
         return "7am"
-    # 12pm run: 11:00–12:59
-    elif 11 <= current_hour < 13:
-        return "12pm"
+    # 3pm run: 14:00–15:59
+    elif 14 <= current_hour < 16:
+        return "3pm"
     else:
         # Default based on which is closer
-        if current_hour < 10:
+        if current_hour < 11:
             return "7am"
         else:
-            return "12pm"
+            return "3pm"
 
 def get_nba_team_last_games(team_name, last_n_games=10):
     """
@@ -391,11 +391,11 @@ os.makedirs(daily_runs_folder, exist_ok=True)
 
 # Determine which run this is
 run_time = get_run_time_suffix()
-# Write directly to daily_runs folder for 7am/12pm runs
+# Write directly to daily_runs folder for 7am/3pm runs
 if run_time == "7am":
     filename = os.path.join(daily_runs_folder, f"nba_daily_predictions_{today_str}_7am.txt")
-elif run_time == "12pm":
-    filename = os.path.join(daily_runs_folder, f"nba_daily_predictions_{today_str}_12pm.txt")
+elif run_time == "3pm":
+    filename = os.path.join(daily_runs_folder, f"nba_daily_predictions_{today_str}_3pm.txt")
 else:
     # Fallback goes to main folder
     filename = os.path.join(predictions_folder, f"nba_daily_predictions_{today_str}_{run_time}.txt")

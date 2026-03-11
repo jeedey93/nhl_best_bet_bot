@@ -12,7 +12,7 @@ def read_prompt_file(prompt_path):
 
 def compare_predictions(morning_file, noon_file, output_file, prompt_path):
     """
-    Compare morning (7am) and noon (12pm) predictions and generate a combined analysis.
+    Compare morning (7am) and afternoon (3pm) predictions and generate a combined analysis.
     """
     api_key = os.environ["GOOGLE_API_KEY"]
     client = genai.Client(api_key=api_key)
@@ -71,7 +71,7 @@ def main():
 
     # Read from daily_runs folder
     morning_file = os.path.join(daily_runs_folder, f"nba_daily_predictions_{today_str}_7am.txt")
-    noon_file = os.path.join(daily_runs_folder, f"nba_daily_predictions_{today_str}_12pm.txt")
+    noon_file = os.path.join(daily_runs_folder, f"nba_daily_predictions_{today_str}_3pm.txt")
     # Write final output to main predictions folder
     output_file = os.path.join(predictions_folder, f"nba_daily_predictions_{today_str}.txt")
 

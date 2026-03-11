@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a sports betting analysis bot for NHL and NBA games. It uses The Odds API to fetch games and odds, then leverages Google Gemini AI to generate disciplined betting predictions. The bot runs twice daily (7am and 12pm Montreal time) via GitHub Actions, compares predictions across time periods to identify line movement opportunities, and publishes results to GitHub Pages.
+This is a sports betting analysis bot for NHL and NBA games. It uses The Odds API to fetch games and odds, then leverages Google Gemini AI to generate disciplined betting predictions. The bot runs twice daily (7am and 3pm Montreal time) via GitHub Actions, compares predictions across time periods to identify line movement opportunities, and publishes results to GitHub Pages.
 
 ## Environment Setup
 
@@ -29,12 +29,12 @@ Required environment variables in `.env`:
 # NHL predictions (uses today's date automatically)
 python scripts/nhl_predictions_daily_run.py
 
-# NBA predictions (detects 7am vs 12pm run based on Montreal time)
+# NBA predictions (detects 7am vs 3pm run based on Montreal time)
 python scripts/nba_predictions_daily_run.py
 
 # Manual override for NBA run time
 NBA_RUN_TIME=7am python scripts/nba_predictions_daily_run.py
-NBA_RUN_TIME=12pm python scripts/nba_predictions_daily_run.py
+NBA_RUN_TIME=3pm python scripts/nba_predictions_daily_run.py
 ```
 
 ### Run Daily Results
@@ -47,9 +47,9 @@ python scripts/nba_results_daily_run.py
 python scripts/total_results_daily_run.py
 ```
 
-### Compare Predictions (12pm only)
+### Compare Predictions (3pm only)
 ```bash
-# Compare 7am vs 12pm predictions to identify line movement
+# Compare 7am vs 3pm predictions to identify line movement
 python scripts/nhl_predictions_compare.py
 python scripts/nba_predictions_compare.py
 ```
@@ -57,7 +57,7 @@ python scripts/nba_predictions_compare.py
 ### Generate Bet of the Day
 ```bash
 # Extract best plays from both sports
-python scripts/dual_bet_of_the_day.py --run_time 12pm
+python scripts/dual_bet_of_the_day.py --run_time 3pm
 ```
 
 ### Update Latest Predictions (for GitHub Pages)
@@ -101,7 +101,7 @@ python test_nba_games.py
    - Saves predictions to `predictions/{sport}/`
 
 5. **Compare Predictions** → `*_compare.py` scripts
-   - Reads both 7am and 12pm predictions
+   - Reads both 7am and 3pm predictions
    - Uses `prompts/compare_prompt.txt` to identify consensus plays
    - Highlights line movement opportunities
    - Generates final unified prediction file
@@ -126,7 +126,7 @@ Prompts use placeholders like `{{RESULTS_TEXT}}`, `{{TODAY_DATE}}`, `{{HISTORICA
 
 NBA predictions run twice daily to capture line movement:
 - **7am Montreal time**: Early odds (overnight markets)
-- **12pm Montreal time**: Updated odds (closer to game time)
+- **3pm Montreal time**: Updated odds (closer to game time)
 
 Scripts detect run time via:
 1. `NBA_RUN_TIME` environment variable (GitHub Actions)
@@ -134,7 +134,7 @@ Scripts detect run time via:
 
 Output files include run time suffix:
 - `nba_daily_predictions_7am_2026-03-04.txt`
-- `nba_daily_predictions_12pm_2026-03-04.txt`
+- `nba_daily_predictions_3pm_2026-03-04.txt`
 - `nba_daily_predictions_2026-03-04.txt` (final comparison result)
 
 ### Team Name Mapping
@@ -159,10 +159,10 @@ When adding new teams or fixing match issues, update these dictionaries.
 
 Three workflows in `.github/workflows/`:
 
-1. **daily_predictions.yml** - Runs at 7am and 12pm Montreal time (11:00 and 16:00 UTC during daylight saving)
+1. **daily_predictions.yml** - Runs at 7am and 3pm Montreal time (11:00 and 19:00 UTC during daylight saving)
    - Executes NHL and NBA prediction scripts
-   - Compares predictions (12pm only)
-   - Generates dual bet of the day (12pm only)
+   - Compares predictions (3pm only)
+   - Generates dual bet of the day (3pm only)
    - Commits to `master` branch
 
 2. **daily_results.yml** - Runs at 6am Montreal time (10:00 UTC during daylight saving)
@@ -183,7 +183,7 @@ predictions/
 │   └── nhl_daily_predictions_YYYY-MM-DD.txt
 └── nba/                           # NBA prediction outputs
     ├── nba_daily_predictions_7am_YYYY-MM-DD.txt
-    ├── nba_daily_predictions_12pm_YYYY-MM-DD.txt
+    ├── nba_daily_predictions_3pm_YYYY-MM-DD.txt
     └── nba_daily_predictions_YYYY-MM-DD.txt  # Final comparison
 
 bot_results/

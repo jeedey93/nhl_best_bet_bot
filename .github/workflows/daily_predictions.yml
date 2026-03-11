@@ -4,8 +4,8 @@ on:
   schedule:
     # 7:00AM Montreal (12:00 UTC standard, 11:00 UTC daylight saving)
     - cron: '0 11 * * *'
-    # 12:00PM Montreal (17:00 UTC standard, 16:00 UTC daylight saving)
-    - cron: '0 16 * * *'
+    # 3:00PM Montreal (20:00 UTC standard, 19:00 UTC daylight saving)
+    - cron: '0 19 * * *'
   workflow_dispatch:
 
 jobs:
@@ -38,26 +38,26 @@ jobs:
       - name: Determine run time
         id: run_time
         run: |
-          # Determine if this is 7am or 12pm run based on current UTC time
+          # Determine if this is 7am or 3pm run based on current UTC time
           HOUR=$(date -u +%H)
           if [ "$HOUR" = "11" ]; then
             echo "time=7am" >> $GITHUB_OUTPUT
           else
-            echo "time=12pm" >> $GITHUB_OUTPUT
+            echo "time=3pm" >> $GITHUB_OUTPUT
           fi
       - name: Run NHL daily predictions bot
         run: python scripts/generate_nhl_predictions.py
       - name: Run NBA daily predictions bot
         run: python scripts/generate_nba_predictions.py
-      - name: Compare NBA predictions (12pm)
-        if: steps.run_time.outputs.time == '12pm'
+      - name: Compare NBA predictions (3pm)
+        if: steps.run_time.outputs.time == '3pm'
         run: python scripts/compare_nba_predictions.py
-      - name: Compare NHL predictions (12pm)
-        if: steps.run_time.outputs.time == '12pm'
+      - name: Compare NHL predictions (3pm)
+        if: steps.run_time.outputs.time == '3pm'
         run: python scripts/compare_nhl_predictions.py
-      - name: Run Dual Bet of the Day (12pm)
-        if: steps.run_time.outputs.time == '12pm'
-        run: python scripts/generate_featured_picks.py --run_time 12pm
+      - name: Run Dual Bet of the Day (3pm)
+        if: steps.run_time.outputs.time == '3pm'
+        run: python scripts/generate_featured_picks.py --run_time 3pm
       - name: Generate NHL games page
         run: python scripts/generate_nhl_games_page.py
       - name: Generate NBA games page
@@ -65,8 +65,8 @@ jobs:
       - name: Update website with results only (7am)
         if: steps.run_time.outputs.time == '7am'
         run: python scripts/generate_website.py --results-only
-      - name: Update website with predictions (12pm)
-        if: steps.run_time.outputs.time == '12pm'
+      - name: Update website with predictions (3pm)
+        if: steps.run_time.outputs.time == '3pm'
         run: python scripts/generate_website.py
       - name: Commit predictions
         run: |
@@ -85,7 +85,7 @@ jobs:
             echo "No changes to commit"
           fi
       - name: Prepare email body
-        if: steps.run_time.outputs.time == '12pm'
+        if: steps.run_time.outputs.time == '3pm'
         id: prepare_email
         run: |
           # Extract picks from dual bet of the day file
@@ -232,7 +232,7 @@ jobs:
           EMAIL_DATE=$(TZ='America/Toronto' date +"%A, %B %d, %Y")
           echo "subject=$EMAIL_DATE - NHL/NBA Daily Picks" >> $GITHUB_OUTPUT
       - name: Send email notification
-        if: steps.run_time.outputs.time == '12pm'
+        if: steps.run_time.outputs.time == '3pm'
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
