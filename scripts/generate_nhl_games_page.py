@@ -511,7 +511,7 @@ def parse_odds(odds_data, home_team, away_team):
     return None
 
 
-def generate_game_card(away_team, home_team, game_time, game_odds, away_record=None, home_record=None, sport='nhl', away_logo=None, home_logo=None, game_id=None, away_goalie=None, home_goalie=None, away_team_short=None, home_team_short=None, away_absences=None, home_absences=None, away_lines=None, home_lines=None, away_special_teams=None, home_special_teams=None, away_rest_days=None, home_rest_days=None):
+def generate_game_card(away_team, home_team, game_time, game_odds, away_record=None, home_record=None, sport='nhl', away_logo=None, home_logo=None, game_id=None, away_goalie=None, home_goalie=None, away_team_short=None, home_team_short=None, away_absences=None, home_absences=None, away_lines=None, home_lines=None, away_special_teams=None, home_special_teams=None, away_rest_days=None, home_rest_days=None, away_rank=None, home_rank=None):
     """Generate HTML for a single game card.
 
     Args:
@@ -790,15 +790,23 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
     if away_logo:
         html += f"<img src='{away_logo}' alt='{away_team}' class='team-logo' />\n"
     html += "<div class='team-name-container'>\n"
-    html += f"<div class='team-name'>{away_team}</div>\n"
+    # Display team name with rank if available
+    away_team_display = away_team
+    if away_rank:
+        away_team_display = f"{away_team} <span class='team-rank'>({get_ordinal_suffix(away_rank)})</span>"
+    html += f"<div class='team-name'>{away_team_display}</div>\n"
     # Add Daily Lines button (NHL only)
-    if sport == 'nhl' and away_lines:
-        lines_html = format_lines_for_display(away_lines)
-        # Create unique ID for this team's lines
-        away_lines_id = f"lines-{game_id}-away" if game_id else f"lines-away-{away_team.replace(' ', '-')}"
-        # Store lines data in a data attribute (escape quotes)
-        lines_html_escaped = lines_html.replace('"', '&quot;').replace("'", '&#39;').replace('\n', '')
-        html += f"<button class='daily-lines-btn' data-lines-id='{away_lines_id}' data-team-name='{away_team}' data-lines-content='{lines_html_escaped}'>📋 Daily Lines</button>\n"
+    if sport == 'nhl':
+        if away_lines:
+            lines_html = format_lines_for_display(away_lines)
+            # Create unique ID for this team's lines
+            away_lines_id = f"lines-{game_id}-away" if game_id else f"lines-away-{away_team.replace(' ', '-')}"
+            # Store lines data in a data attribute (escape quotes)
+            lines_html_escaped = lines_html.replace('"', '&quot;').replace("'", '&#39;').replace('\n', '')
+            html += f"<button class='daily-lines-btn' data-lines-id='{away_lines_id}' data-team-name='{away_team}' data-lines-content='{lines_html_escaped}'>📋 Daily Lines</button>\n"
+        else:
+            # Show disabled button when no lines available
+            html += f"<button class='daily-lines-btn' disabled title='Lines not available yet'>📋 Daily Lines</button>\n"
     html += "</div>\n"  # Close team-name-container
     if away_record:
         # Add recent form in parentheses if stats available
@@ -950,15 +958,23 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
     if home_logo:
         html += f"<img src='{home_logo}' alt='{home_team}' class='team-logo' />\n"
     html += "<div class='team-name-container'>\n"
-    html += f"<div class='team-name'>{home_team}</div>\n"
+    # Display team name with rank if available
+    home_team_display = home_team
+    if home_rank:
+        home_team_display = f"{home_team} <span class='team-rank'>({get_ordinal_suffix(home_rank)})</span>"
+    html += f"<div class='team-name'>{home_team_display}</div>\n"
     # Add Daily Lines button (NHL only)
-    if sport == 'nhl' and home_lines:
-        lines_html = format_lines_for_display(home_lines)
-        # Create unique ID for this team's lines
-        home_lines_id = f"lines-{game_id}-home" if game_id else f"lines-home-{home_team.replace(' ', '-')}"
-        # Store lines data in a data attribute (escape quotes)
-        lines_html_escaped = lines_html.replace('"', '&quot;').replace("'", '&#39;').replace('\n', '')
-        html += f"<button class='daily-lines-btn' data-lines-id='{home_lines_id}' data-team-name='{home_team}' data-lines-content='{lines_html_escaped}'>📋 Daily Lines</button>\n"
+    if sport == 'nhl':
+        if home_lines:
+            lines_html = format_lines_for_display(home_lines)
+            # Create unique ID for this team's lines
+            home_lines_id = f"lines-{game_id}-home" if game_id else f"lines-home-{home_team.replace(' ', '-')}"
+            # Store lines data in a data attribute (escape quotes)
+            lines_html_escaped = lines_html.replace('"', '&quot;').replace("'", '&#39;').replace('\n', '')
+            html += f"<button class='daily-lines-btn' data-lines-id='{home_lines_id}' data-team-name='{home_team}' data-lines-content='{lines_html_escaped}'>📋 Daily Lines</button>\n"
+        else:
+            # Show disabled button when no lines available
+            html += f"<button class='daily-lines-btn' disabled title='Lines not available yet'>📋 Daily Lines</button>\n"
     html += "</div>\n"  # Close team-name-container
     if home_record:
         # Add recent form in parentheses if stats available
@@ -1197,10 +1213,19 @@ def get_nhl_special_teams_stats():
         return {}
 
 
+def get_ordinal_suffix(n):
+    """Return ordinal suffix for a number (1st, 2nd, 3rd, etc.)"""
+    if 10 <= n % 100 <= 20:
+        suffix = 'th'
+    else:
+        suffix = {1: 'st', 2: 'nd', 3: 'rd'}.get(n % 10, 'th')
+    return f"{n}{suffix}"
+
+
 def get_nhl_standings():
     """
-    Fetch current NHL standings to get team records.
-    Returns dict mapping team abbreviations to their records (W-L-OTL format).
+    Fetch current NHL standings to get team records and league ranks.
+    Returns dict mapping team abbreviations to their data (record and league rank).
     """
     try:
         standings_url = 'https://api-web.nhle.com/v1/standings/now'
@@ -1216,7 +1241,11 @@ def get_nhl_standings():
             losses = team['losses']
             ot_losses = team['otLosses']
             record = f"{wins}-{losses}-{ot_losses}"
-            standings[team_abbrev] = record
+            league_rank = team.get('leagueSequence', 0)  # League-wide rank
+            standings[team_abbrev] = {
+                'record': record,
+                'rank': league_rank
+            }
 
         return standings
     except Exception as e:
@@ -1330,8 +1359,12 @@ def generate_nhl_games_page(fetch_odds=True):
             home_logo = game['homeTeam'].get('logo')
 
             # Get team records from standings (using abbreviations from API)
-            away_record = nhl_standings.get(away_abbrev)
-            home_record = nhl_standings.get(home_abbrev)
+            away_standing = nhl_standings.get(away_abbrev, {})
+            home_standing = nhl_standings.get(home_abbrev, {})
+            away_record = away_standing.get('record') if away_standing else None
+            home_record = home_standing.get('record') if home_standing else None
+            away_rank = away_standing.get('rank') if away_standing else None
+            home_rank = home_standing.get('rank') if home_standing else None
 
             # Get special teams stats (using abbreviations from API)
             away_special_teams = special_teams_stats.get(away_abbrev)
@@ -1362,7 +1395,7 @@ def generate_nhl_games_page(fetch_odds=True):
             # Parse odds for this game (using short names for matching)
             game_odds = parse_odds(nhl_odds_data, home_team_short, away_team_short)
 
-            nhl_html += generate_game_card(away_team, home_team, game_time, game_odds, away_record, home_record, sport='nhl', away_logo=away_logo, home_logo=home_logo, game_id=game_id, away_goalie=away_goalie, home_goalie=home_goalie, away_team_short=away_abbrev, home_team_short=home_abbrev, away_absences=away_absences, home_absences=home_absences, away_lines=away_lines, home_lines=home_lines, away_special_teams=away_special_teams, home_special_teams=home_special_teams, away_rest_days=away_rest_days, home_rest_days=home_rest_days)
+            nhl_html += generate_game_card(away_team, home_team, game_time, game_odds, away_record, home_record, sport='nhl', away_logo=away_logo, home_logo=home_logo, game_id=game_id, away_goalie=away_goalie, home_goalie=home_goalie, away_team_short=away_abbrev, home_team_short=home_abbrev, away_absences=away_absences, home_absences=home_absences, away_lines=away_lines, home_lines=home_lines, away_special_teams=away_special_teams, home_special_teams=home_special_teams, away_rest_days=away_rest_days, home_rest_days=home_rest_days, away_rank=away_rank, home_rank=home_rank)
     else:
         nhl_html = "<div class='no-games'>No NHL games scheduled for today</div>\n"
 

@@ -458,7 +458,7 @@ def parse_odds(odds_data, home_team, away_team):
     return None
 
 
-def generate_game_card(away_team, home_team, game_time, game_odds, away_record=None, home_record=None, sport='nhl', away_logo=None, home_logo=None, game_id=None, away_goalie=None, home_goalie=None):
+def generate_game_card(away_team, home_team, game_time, game_odds, away_record=None, home_record=None, sport='nhl', away_logo=None, home_logo=None, game_id=None, away_goalie=None, home_goalie=None, away_rank=None, home_rank=None):
     """Generate HTML for a single game card."""
 
     # Extract short team names (team name without city)
@@ -611,7 +611,11 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
     html += f"<div class='team-header away-team'>\n"
     if away_logo:
         html += f"<img src='{away_logo}' alt='{away_team}' class='team-logo' />\n"
-    html += f"<div class='team-name'>{away_team}</div>\n"
+    # Display team name with rank if available
+    away_team_display = away_team
+    if away_rank:
+        away_team_display = f"{away_team} <span class='team-rank'>({get_ordinal_suffix(away_rank)})</span>"
+    html += f"<div class='team-name'>{away_team_display}</div>\n"
     if away_record:
         # Add recent form in parentheses if stats available
         if away_stats:
@@ -695,7 +699,11 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
     html += f"<div class='team-header home-team'>\n"
     if home_logo:
         html += f"<img src='{home_logo}' alt='{home_team}' class='team-logo' />\n"
-    html += f"<div class='team-name'>{home_team}</div>\n"
+    # Display team name with rank if available
+    home_team_display = home_team
+    if home_rank:
+        home_team_display = f"{home_team} <span class='team-rank'>({get_ordinal_suffix(home_rank)})</span>"
+    html += f"<div class='team-name'>{home_team_display}</div>\n"
     if home_record:
         # Add recent form in parentheses if stats available
         if home_stats:
@@ -820,10 +828,19 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
 
 
 
+def get_ordinal_suffix(n):
+    """Return ordinal suffix for a number (1st, 2nd, 3rd, etc.)"""
+    if 10 <= n % 100 <= 20:
+        suffix = 'th'
+    else:
+        suffix = {1: 'st', 2: 'nd', 3: 'rd'}.get(n % 10, 'th')
+    return f"{n}{suffix}"
+
+
 def get_nba_standings():
     """
-    Fetch current NBA standings to get team records.
-    Returns dict mapping team names to their records (W-L format).
+    Fetch current NBA standings to get team records and league ranks.
+    Returns dict mapping team names to their data (record and league rank).
     """
     try:
         standings_url = 'https://site.api.espn.com/apis/v2/sports/basketball/nba/standings'
@@ -831,23 +848,43 @@ def get_nba_standings():
         response.raise_for_status()
         data = response.json()
 
-        standings = {}
+        # Collect all teams with their win percentage for league-wide ranking
+        all_teams = []
         for conference in data.get('children', []):
             for entry in conference['standings']['entries']:
                 team_name = entry['team']['displayName']
 
-                # Find wins and losses in stats
+                # Find wins, losses, and win percentage in stats
                 wins = None
                 losses = None
+                win_pct = None
                 for stat in entry['stats']:
                     if stat['name'] == 'wins':
                         wins = int(stat['value'])
                     elif stat['name'] == 'losses':
                         losses = int(stat['value'])
+                    elif stat['name'] == 'winPercent':
+                        win_pct = float(stat['value'])
 
                 if wins is not None and losses is not None:
-                    record = f"{wins}-{losses}"
-                    standings[team_name] = record
+                    all_teams.append({
+                        'name': team_name,
+                        'wins': wins,
+                        'losses': losses,
+                        'win_pct': win_pct if win_pct is not None else 0
+                    })
+
+        # Sort teams by win percentage (descending) to get league rank
+        all_teams.sort(key=lambda x: x['win_pct'], reverse=True)
+
+        # Build standings dict with rank
+        standings = {}
+        for rank, team in enumerate(all_teams, start=1):
+            record = f"{team['wins']}-{team['losses']}"
+            standings[team['name']] = {
+                'record': record,
+                'rank': rank
+            }
 
         return standings
     except Exception as e:
@@ -933,13 +970,17 @@ def generate_nba_games_page(fetch_odds=True):
             home_logo = NBA_TEAM_LOGOS.get(home_team)
 
             # Get team records from standings
-            away_record = nba_standings.get(away_team)
-            home_record = nba_standings.get(home_team)
+            away_standing = nba_standings.get(away_team, {})
+            home_standing = nba_standings.get(home_team, {})
+            away_record = away_standing.get('record') if away_standing else None
+            home_record = home_standing.get('record') if home_standing else None
+            away_rank = away_standing.get('rank') if away_standing else None
+            home_rank = home_standing.get('rank') if home_standing else None
 
             # Parse odds for this game
             game_odds = parse_odds(nba_odds_data, home_team, away_team)
 
-            nba_html += generate_game_card(away_team, home_team, game_time, game_odds, away_record, home_record, sport='nba', away_logo=away_logo, home_logo=home_logo, game_id=game_id)
+            nba_html += generate_game_card(away_team, home_team, game_time, game_odds, away_record, home_record, sport='nba', away_logo=away_logo, home_logo=home_logo, game_id=game_id, away_rank=away_rank, home_rank=home_rank)
     else:
         nba_html = "<div class='no-games'>No NBA games scheduled for today</div>\n"
 

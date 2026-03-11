@@ -483,6 +483,12 @@ body {
   color: #1e293b;
   margin-bottom: 10px;
 }
+.team-rank {
+  font-size: 0.8em;
+  font-weight: 600;
+  color: #6b7280;
+  margin-left: 4px;
+}
 .team-record {
   font-size: 1.4em;
   font-weight: 800;
@@ -915,13 +921,20 @@ body {
   box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
 }
 
-.daily-lines-btn:hover {
+.daily-lines-btn:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
 }
 
-.daily-lines-btn:active {
+.daily-lines-btn:active:not(:disabled) {
   transform: translateY(0);
+}
+
+.daily-lines-btn:disabled {
+  background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);
+  cursor: not-allowed;
+  opacity: 0.6;
+  box-shadow: 0 2px 8px rgba(107, 114, 128, 0.2);
 }
 
 .lines-popover {
