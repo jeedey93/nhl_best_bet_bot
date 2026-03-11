@@ -228,11 +228,10 @@ def generate_dashboard_html(all_data):
     month_labels = [f"'{datetime.strptime(m, '%Y-%m').strftime('%b %Y')}'" for m in sorted_months]
     month_wins = [monthly_stats[m]['wins'] for m in sorted_months]
     month_losses = [monthly_stats[m]['losses'] for m in sorted_months]
+    month_net = [monthly_stats[m]['wins'] - monthly_stats[m]['losses'] for m in sorted_months]
+    month_colors = ['rgba(16, 185, 129, 0.8)' if net >= 0 else 'rgba(239, 68, 68, 0.8)' for net in month_net]
+    month_border_colors = ['#10b981' if net >= 0 else '#ef4444' for net in month_net]
     month_win_rates = [round((monthly_stats[m]['wins'] / (monthly_stats[m]['wins'] + monthly_stats[m]['losses']) * 100), 1) if (monthly_stats[m]['wins'] + monthly_stats[m]['losses']) > 0 else 0 for m in sorted_months]
-    month_nhl_wins = [monthly_stats[m]['nhl_wins'] for m in sorted_months]
-    month_nhl_losses = [monthly_stats[m]['nhl_losses'] for m in sorted_months]
-    month_nba_wins = [monthly_stats[m]['nba_wins'] for m in sorted_months]
-    month_nba_losses = [monthly_stats[m]['nba_losses'] for m in sorted_months]
 
 
     # Read nav.html content
@@ -713,11 +712,10 @@ const rollingWinRate = [ROLLING_WIN_RATE_PLACEHOLDER];
 const monthLabels = [MONTH_LABELS_PLACEHOLDER];
 const monthWins = [MONTH_WINS_PLACEHOLDER];
 const monthLosses = [MONTH_LOSSES_PLACEHOLDER];
+const monthNet = [MONTH_NET_PLACEHOLDER];
+const monthColors = [MONTH_COLORS_PLACEHOLDER];
+const monthBorderColors = [MONTH_BORDER_COLORS_PLACEHOLDER];
 const monthWinRates = [MONTH_WIN_RATES_PLACEHOLDER];
-const monthNHLWins = [MONTH_NHL_WINS_PLACEHOLDER];
-const monthNHLLosses = [MONTH_NHL_LOSSES_PLACEHOLDER];
-const monthNBAWins = [MONTH_NBA_WINS_PLACEHOLDER];
-const monthNBALosses = [MONTH_NBA_LOSSES_PLACEHOLDER];
 
 // Chart.js default settings
 Chart.defaults.font.family = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
@@ -949,43 +947,35 @@ new Chart(monthlyCtx, {
   type: 'bar',
   data: {
     labels: monthLabels,
-    datasets: [
-      {
-        label: 'Wins',
-        data: monthWins,
-        backgroundColor: 'rgba(16, 185, 129, 0.8)',
-        borderColor: '#10b981',
-        borderWidth: 1
-      },
-      {
-        label: 'Losses',
-        data: monthLosses,
-        backgroundColor: 'rgba(239, 68, 68, 0.8)',
-        borderColor: '#ef4444',
-        borderWidth: 1
-      }
-    ]
+    datasets: [{
+      label: 'Net Result',
+      data: monthNet,
+      backgroundColor: monthColors,
+      borderColor: monthBorderColors,
+      borderWidth: 1,
+      borderRadius: 4
+    }]
   },
   options: {
     responsive: true,
     maintainAspectRatio: true,
     plugins: {
       legend: {
-        display: true,
-        position: 'top',
-        labels: {
-          padding: isMobile ? 8 : 12,
-          font: {
-            size: isMobile ? 10 : 12
-          }
-        }
+        display: false
       },
       tooltip: {
         callbacks: {
+          label: function(context) {
+            const net = context.parsed.y;
+            const prefix = net >= 0 ? '+' : '';
+            return 'Net: ' + prefix + net;
+          },
           footer: function(items) {
             const index = items[0].dataIndex;
             const winRate = monthWinRates[index];
-            return 'Win Rate: ' + winRate + '%';
+            const wins = monthWins[index];
+            const losses = monthLosses[index];
+            return 'Record: ' + wins + 'W - ' + losses + 'L (' + winRate + '%)';
           }
         }
       }
@@ -993,14 +983,28 @@ new Chart(monthlyCtx, {
     scales: {
       y: {
         beginAtZero: true,
-        stacked: false,
         ticks: {
-          stepSize: 5,
+          callback: function(value) {
+            return value >= 0 ? '+' + value : value;
+          },
           font: {
             size: isMobile ? 9 : 11
           }
         },
-        grid: { color: '#e5e7eb' }
+        grid: {
+          color: function(context) {
+            if (context.tick.value === 0) {
+              return '#6b7280';
+            }
+            return '#e5e7eb';
+          },
+          lineWidth: function(context) {
+            if (context.tick.value === 0) {
+              return 2;
+            }
+            return 1;
+          }
+        }
       },
       x: {
         grid: { display: false },
@@ -1037,11 +1041,10 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     html = html.replace('MONTH_LABELS_PLACEHOLDER', ', '.join(month_labels))
     html = html.replace('MONTH_WINS_PLACEHOLDER', ', '.join(map(str, month_wins)))
     html = html.replace('MONTH_LOSSES_PLACEHOLDER', ', '.join(map(str, month_losses)))
+    html = html.replace('MONTH_NET_PLACEHOLDER', ', '.join(map(str, month_net)))
+    html = html.replace('MONTH_COLORS_PLACEHOLDER', ', '.join(f"'{c}'" for c in month_colors))
+    html = html.replace('MONTH_BORDER_COLORS_PLACEHOLDER', ', '.join(f"'{c}'" for c in month_border_colors))
     html = html.replace('MONTH_WIN_RATES_PLACEHOLDER', ', '.join(map(str, month_win_rates)))
-    html = html.replace('MONTH_NHL_WINS_PLACEHOLDER', ', '.join(map(str, month_nhl_wins)))
-    html = html.replace('MONTH_NHL_LOSSES_PLACEHOLDER', ', '.join(map(str, month_nhl_losses)))
-    html = html.replace('MONTH_NBA_WINS_PLACEHOLDER', ', '.join(map(str, month_nba_wins)))
-    html = html.replace('MONTH_NBA_LOSSES_PLACEHOLDER', ', '.join(map(str, month_nba_losses)))
     html = html.replace('NHL_WINS_PLACEHOLDER', str(nhl_wins))
     html = html.replace('NHL_LOSSES_PLACEHOLDER', str(nhl_losses))
     html = html.replace('NBA_WINS_PLACEHOLDER', str(nba_wins))
