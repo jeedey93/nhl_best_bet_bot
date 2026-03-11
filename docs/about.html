@@ -24,6 +24,22 @@ fetch('nav.html')
   .then(response => response.text())
   .then(data => {
     document.getElementById('nav-placeholder').innerHTML = data;
+
+    // Define toggleMobileMenu function globally
+    window.toggleMobileMenu = function() {
+      const navLinks = document.getElementById('navLinks');
+      navLinks.classList.toggle('active');
+    };
+
+    // Close menu when clicking outside
+    document.addEventListener('click', function(event) {
+      const nav = document.querySelector('nav');
+      const navLinks = document.getElementById('navLinks');
+      if (nav && !nav.contains(event.target) && navLinks && navLinks.classList.contains('active')) {
+        navLinks.classList.remove('active');
+      }
+    });
+
     // Highlight current page
     const aboutLink = document.querySelector('a[href="about.html"]');
     if (aboutLink) {
