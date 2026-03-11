@@ -209,29 +209,46 @@ def generate_dashboard_html(all_data):
         else:
             rolling_win_rates.append(0)
 
-    # Calculate monthly performance
-    monthly_stats = defaultdict(lambda: {'wins': 0, 'losses': 0, 'nhl_wins': 0, 'nhl_losses': 0, 'nba_wins': 0, 'nba_losses': 0})
-    for entry in all_data_sorted:
-        # Extract year-month from date (e.g., "2026-03" from "2026-03-01")
-        month_key = entry['date'][:7]
-        monthly_stats[month_key]['wins'] += entry['wins']
-        monthly_stats[month_key]['losses'] += entry['losses']
-        if entry['sport'] == 'NHL':
-            monthly_stats[month_key]['nhl_wins'] += entry['wins']
-            monthly_stats[month_key]['nhl_losses'] += entry['losses']
-        else:
-            monthly_stats[month_key]['nba_wins'] += entry['wins']
-            monthly_stats[month_key]['nba_losses'] += entry['losses']
+    # Calculate monthly performance from summary file for accuracy
+    summary_path = BASE_DIR / "data" / "bot_results" / "total_results_summary.txt"
+    monthly_stats_summary = defaultdict(lambda: {'wins': 0, 'losses': 0})
 
-    # Prepare monthly chart data
-    sorted_months = sorted(monthly_stats.keys())
-    month_labels = [f"'{datetime.strptime(m, '%Y-%m').strftime('%b %Y')}'" for m in sorted_months]
-    month_wins = [monthly_stats[m]['wins'] for m in sorted_months]
-    month_losses = [monthly_stats[m]['losses'] for m in sorted_months]
-    month_net = [monthly_stats[m]['wins'] - monthly_stats[m]['losses'] for m in sorted_months]
-    month_colors = ['rgba(16, 185, 129, 0.8)' if net >= 0 else 'rgba(239, 68, 68, 0.8)' for net in month_net]
-    month_border_colors = ['#10b981' if net >= 0 else '#ef4444' for net in month_net]
-    month_win_rates = [round((monthly_stats[m]['wins'] / (monthly_stats[m]['wins'] + monthly_stats[m]['losses']) * 100), 1) if (monthly_stats[m]['wins'] + monthly_stats[m]['losses']) > 0 else 0 for m in sorted_months]
+    if summary_path.exists():
+        with open(summary_path, 'r') as f:
+            lines = f.readlines()
+
+        # Parse both NBA and NHL sections
+        for line in lines:
+            # Match lines like "2026-02-25: 1 win, 4 losses" or "2026-03-01: 2 wins, 3 losses"
+            match = re.match(r'(\d{4}-\d{2}-\d{2}):\s*(\d+)\s*wins?,\s*(\d+)\s*losses?', line)
+            if match:
+                game_date = match.group(1)
+                wins = int(match.group(2))
+                losses = int(match.group(3))
+                month_key = game_date[:7]  # Extract YYYY-MM
+                monthly_stats_summary[month_key]['wins'] += wins
+                monthly_stats_summary[month_key]['losses'] += losses
+
+    # Prepare monthly chart data from summary (more accurate than individual files)
+    if monthly_stats_summary:
+        sorted_months = sorted(monthly_stats_summary.keys())
+        month_labels = [f"'{datetime.strptime(m, '%Y-%m').strftime('%b %Y')}'" for m in sorted_months]
+        month_wins = [monthly_stats_summary[m]['wins'] for m in sorted_months]
+        month_losses = [monthly_stats_summary[m]['losses'] for m in sorted_months]
+        month_net = [monthly_stats_summary[m]['wins'] - monthly_stats_summary[m]['losses'] for m in sorted_months]
+        month_colors = ['rgba(16, 185, 129, 0.8)' if net >= 0 else 'rgba(239, 68, 68, 0.8)' for net in month_net]
+        month_border_colors = ['#10b981' if net >= 0 else '#ef4444' for net in month_net]
+        month_win_rates = [round((monthly_stats_summary[m]['wins'] / (monthly_stats_summary[m]['wins'] + monthly_stats_summary[m]['losses']) * 100), 1) if (monthly_stats_summary[m]['wins'] + monthly_stats_summary[m]['losses']) > 0 else 0 for m in sorted_months]
+    else:
+        # Fallback to individual files if summary doesn't exist
+        sorted_months = sorted(monthly_stats.keys())
+        month_labels = [f"'{datetime.strptime(m, '%Y-%m').strftime('%b %Y')}'" for m in sorted_months]
+        month_wins = [monthly_stats[m]['wins'] for m in sorted_months]
+        month_losses = [monthly_stats[m]['losses'] for m in sorted_months]
+        month_net = [monthly_stats[m]['wins'] - monthly_stats[m]['losses'] for m in sorted_months]
+        month_colors = ['rgba(16, 185, 129, 0.8)' if net >= 0 else 'rgba(239, 68, 68, 0.8)' for net in month_net]
+        month_border_colors = ['#10b981' if net >= 0 else '#ef4444' for net in month_net]
+        month_win_rates = [round((monthly_stats[m]['wins'] / (monthly_stats[m]['wins'] + monthly_stats[m]['losses']) * 100), 1) if (monthly_stats[m]['wins'] + monthly_stats[m]['losses']) > 0 else 0 for m in sorted_months]
 
 
     # Read nav.html content
