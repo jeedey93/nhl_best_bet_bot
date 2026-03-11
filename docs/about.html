@@ -18,23 +18,21 @@
 </head>
 <body>
 
-<nav style='position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: linear-gradient(135deg, #2c5aa0 0%, #1e3a8a 100%); box-shadow: 0 2px 10px rgba(0,0,0,0.1); backdrop-filter: blur(10px);'>
-<div style='max-width: 1600px; margin: 0 auto; padding: 10px 15px; display: flex; align-items: center; justify-content: space-between;'>
-<div style='display: flex; align-items: center; gap: 10px;'>
-<img src='parieur_discipline_icon_1024.png' alt='Logo' style='width: 32px; height: 32px; border-radius: 50%;' />
-<span style='color: white; font-weight: 700; font-size: 1em;'>Parieur Discipliné</span>
-</div>
-<div style='display: flex; gap: 8px;'>
-<a href='index.html' style='color: white; text-decoration: none; padding: 8px 14px; border-radius: 6px; font-weight: 600; font-size: 0.9em; transition: background 0.2s; white-space: nowrap;' onmouseover='this.style.background="rgba(255,255,255,0.15)"' onmouseout='this.style.background="transparent"'>Home</a>
-<a href='nhl.html' style='color: white; text-decoration: none; padding: 8px 14px; border-radius: 6px; font-weight: 600; font-size: 0.9em; transition: background 0.2s; white-space: nowrap;' onmouseover='this.style.background="rgba(255,255,255,0.15)"' onmouseout='this.style.background="transparent"'>🏒 NHL</a>
-<a href='nba.html' style='color: white; text-decoration: none; padding: 8px 14px; border-radius: 6px; font-weight: 600; font-size: 0.9em; transition: background 0.2s; white-space: nowrap;' onmouseover='this.style.background="rgba(255,255,255,0.15)"' onmouseout='this.style.background="transparent"'>🏀 NBA</a>
-<a href='performance.html' style='color: white; text-decoration: none; padding: 8px 14px; border-radius: 6px; font-weight: 600; font-size: 0.9em; transition: background 0.2s; white-space: nowrap;' onmouseover='this.style.background="rgba(255,255,255,0.15)"' onmouseout='this.style.background="transparent"'>📊 Performance</a>
-<a href='about.html' style='color: white; text-decoration: none; padding: 8px 14px; border-radius: 6px; font-weight: 600; font-size: 0.9em; transition: background 0.2s; white-space: nowrap; background: rgba(255,255,255,0.15);' onmouseover='this.style.background="rgba(255,255,255,0.25)"' onmouseout='this.style.background="rgba(255,255,255,0.15)"'>About</a>
-</div>
-</div>
-</nav>
-<style>@media (max-width: 768px) { nav div:first-child span { font-size: 0.9em; } nav div:first-child img { width: 28px; height: 28px; } nav a { padding: 6px 12px; font-size: 0.85em; } }</style>
-<div style='height: 60px;'></div>
+<div id='nav-placeholder'></div>
+<script>
+fetch('nav.html')
+  .then(response => response.text())
+  .then(data => {
+    document.getElementById('nav-placeholder').innerHTML = data;
+    // Highlight current page
+    const aboutLink = document.querySelector('a[href="about.html"]');
+    if (aboutLink) {
+      aboutLink.style.background = 'rgba(255,255,255,0.15)';
+      aboutLink.onmouseover = function() { this.style.background = 'rgba(255,255,255,0.25)'; };
+      aboutLink.onmouseout = function() { this.style.background = 'rgba(255,255,255,0.15)'; };
+    }
+  });
+</script>
 
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
