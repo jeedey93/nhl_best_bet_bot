@@ -557,6 +557,23 @@ body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans
     margin-bottom: 20px;
   }}
 
+  .chart-title {{
+    font-size: 1em;
+  }}
+
+  .charts-grid {{
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }}
+
+  .charts-section {{
+    padding: 20px 15px;
+  }}
+
+  .charts-title {{
+    font-size: 1.5em;
+  }}
+
   canvas {{
     max-height: 250px !important;
   }}
@@ -707,6 +724,46 @@ Chart.defaults.font.family = '-apple-system, BlinkMacSystemFont, "Segoe UI", Rob
 Chart.defaults.font.size = 12;
 Chart.defaults.color = '#4b5563';
 
+// Responsive font sizes for mobile
+const isMobile = window.innerWidth <= 768;
+if (isMobile) {
+  Chart.defaults.font.size = 10;
+}
+
+// Common responsive options for mobile
+const responsiveOptions = {
+  responsive: true,
+  maintainAspectRatio: true,
+  plugins: {
+    legend: {
+      labels: {
+        padding: isMobile ? 10 : 15,
+        font: {
+          size: isMobile ? 10 : 12
+        }
+      }
+    }
+  },
+  scales: {
+    x: {
+      ticks: {
+        font: {
+          size: isMobile ? 9 : 11
+        },
+        maxRotation: isMobile ? 45 : 0,
+        minRotation: isMobile ? 45 : 0
+      }
+    },
+    y: {
+      ticks: {
+        font: {
+          size: isMobile ? 9 : 11
+        }
+      }
+    }
+  }
+};
+
 // 1. Win Rate Comparison Chart (NHL vs NBA)
 const winRateCtx = document.getElementById('winRateChart').getContext('2d');
 new Chart(winRateCtx, {
@@ -727,7 +784,9 @@ new Chart(winRateCtx, {
     responsive: true,
     maintainAspectRatio: true,
     plugins: {
-      legend: { display: false },
+      legend: {
+        display: false
+      },
       tooltip: {
         callbacks: {
           label: function(context) {
@@ -743,12 +802,20 @@ new Chart(winRateCtx, {
         ticks: {
           callback: function(value) {
             return value + '%';
+          },
+          font: {
+            size: isMobile ? 9 : 11
           }
         },
         grid: { color: '#e5e7eb' }
       },
       x: {
-        grid: { display: false }
+        grid: { display: false },
+        ticks: {
+          font: {
+            size: isMobile ? 10 : 12
+          }
+        }
       }
     }
   }
@@ -779,16 +846,36 @@ new Chart(dailyTrendCtx, {
     responsive: true,
     maintainAspectRatio: true,
     plugins: {
-      legend: { position: 'bottom' }
+      legend: {
+        position: 'bottom',
+        labels: {
+          padding: isMobile ? 8 : 12,
+          font: {
+            size: isMobile ? 10 : 12
+          }
+        }
+      }
     },
     scales: {
       y: {
         beginAtZero: true,
-        ticks: { stepSize: 1 },
+        ticks: {
+          stepSize: 1,
+          font: {
+            size: isMobile ? 9 : 11
+          }
+        },
         grid: { color: '#e5e7eb' }
       },
       x: {
-        grid: { display: false }
+        grid: { display: false },
+        ticks: {
+          font: {
+            size: isMobile ? 8 : 10
+          },
+          maxRotation: isMobile ? 90 : 45,
+          minRotation: isMobile ? 90 : 45
+        }
       }
     }
   }
@@ -816,7 +903,9 @@ new Chart(rollingAvgCtx, {
     responsive: true,
     maintainAspectRatio: true,
     plugins: {
-      legend: { display: false },
+      legend: {
+        display: false
+      },
       tooltip: {
         callbacks: {
           label: function(context) {
@@ -833,12 +922,22 @@ new Chart(rollingAvgCtx, {
         ticks: {
           callback: function(value) {
             return value + '%';
+          },
+          font: {
+            size: isMobile ? 9 : 11
           }
         },
         grid: { color: '#e5e7eb' }
       },
       x: {
-        grid: { display: false }
+        grid: { display: false },
+        ticks: {
+          font: {
+            size: isMobile ? 8 : 10
+          },
+          maxRotation: isMobile ? 90 : 45,
+          minRotation: isMobile ? 90 : 45
+        }
       }
     }
   }
@@ -846,60 +945,74 @@ new Chart(rollingAvgCtx, {
 
 // 4. Monthly Performance Chart
 const monthlyCtx = document.getElementById('monthlyChart').getContext('2d');
-new Chart(monthlyCtx, {{
+new Chart(monthlyCtx, {
   type: 'bar',
-  data: {{
+  data: {
     labels: monthLabels,
     datasets: [
-      {{
+      {
         label: 'Wins',
         data: monthWins,
         backgroundColor: 'rgba(16, 185, 129, 0.8)',
         borderColor: '#10b981',
         borderWidth: 1
-      }},
-      {{
+      },
+      {
         label: 'Losses',
         data: monthLosses,
         backgroundColor: 'rgba(239, 68, 68, 0.8)',
         borderColor: '#ef4444',
         borderWidth: 1
-      }}
+      }
     ]
-  }},
-  options: {{
+  },
+  options: {
     responsive: true,
     maintainAspectRatio: true,
-    plugins: {{
-      legend: {{
+    plugins: {
+      legend: {
         display: true,
-        position: 'top'
-      }},
-      tooltip: {{
-        callbacks: {{
-          footer: function(items) {{
+        position: 'top',
+        labels: {
+          padding: isMobile ? 8 : 12,
+          font: {
+            size: isMobile ? 10 : 12
+          }
+        }
+      },
+      tooltip: {
+        callbacks: {
+          footer: function(items) {
             const index = items[0].dataIndex;
             const winRate = monthWinRates[index];
             return 'Win Rate: ' + winRate + '%';
-          }}
-        }}
-      }}
-    }},
-    scales: {{
-      y: {{
+          }
+        }
+      }
+    },
+    scales: {
+      y: {
         beginAtZero: true,
         stacked: false,
-        ticks: {{
-          stepSize: 5
-        }},
-        grid: {{ color: '#e5e7eb' }}
-      }},
-      x: {{
-        grid: {{ display: false }}
-      }}
-    }}
-  }}
-}});
+        ticks: {
+          stepSize: 5,
+          font: {
+            size: isMobile ? 9 : 11
+          }
+        },
+        grid: { color: '#e5e7eb' }
+      },
+      x: {
+        grid: { display: false },
+        ticks: {
+          font: {
+            size: isMobile ? 9 : 11
+          }
+        }
+      }
+    }
+  }
+});
 
 // Add smooth scroll behavior
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
