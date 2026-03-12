@@ -54,11 +54,11 @@ body {
 .container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
 .header {
   text-align: center;
-  margin-bottom: 50px;
+  margin: 0 0 50px 0;
   background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
-  border-radius: 20px;
-  padding: 40px 20px;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+  border-radius: 0;
+  padding: 60px 40px;
+  box-shadow: none;
 }
 .header h1 {
   font-size: 3em;
@@ -783,7 +783,7 @@ body {
 }
 @media (max-width: 768px) {
   .container { padding: 20px 10px; }
-  .header { padding: 30px 15px; margin-bottom: 30px; border-radius: 15px; }
+  .header { padding: 30px 15px; margin-bottom: 30px; }
   .header h1 { font-size: 2em; margin-bottom: 10px; }
   .header p { font-size: 1em; }
   .games-scroller { padding: 15px; border-radius: 12px; }
@@ -1183,13 +1183,15 @@ document.addEventListener('DOMContentLoaded', function() {
 <body>
 
 {{NAV_HTML}}
+<div style='height: 60px;'></div>
 
-<div class='container'>
 <div class='header'>
 <h1>🏒 NHL Games Today</h1>
 <p>{{DATE}}</p>
 <p>{{LAST_UPDATED}}</p>
 </div>
+
+<div class='container'>
 
 {{GAMES_SCROLLER}}
 
