@@ -254,19 +254,21 @@ nav > div {
 /* Game Info */
 .game-info {
   display: flex;
-  align-items: center;
-  gap: 10px;
+  align-items: flex-start;
+  gap: 12px;
 }
 .sport-icon {
-  font-size: 1.5em;
+  font-size: 1.8em;
   display: inline-block;
   margin-right: 8px;
-  vertical-align: middle;
+  flex-shrink: 0;
+  margin-top: 4px;
 }
 .teams {
   font-weight: 600;
   font-size: 1.05em;
   color: #1a1a1a;
+  margin-bottom: 10px;
 }
 .game-time {
   font-size: 0.85em;
@@ -277,25 +279,26 @@ nav > div {
 /* Pick Badge */
 .pick-badge {
   display: inline-block;
-  padding: 8px 16px;
+  padding: 6px 14px;
   border-radius: 8px;
   font-weight: 700;
-  font-size: 0.95em;
+  font-size: 0.9em;
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   color: white;
   box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3);
+  margin-bottom: 6px;
 }
 
 /* Bet Type Badge */
 .bet-type {
   display: inline-block;
-  padding: 6px 12px;
-  border-radius: 6px;
-  font-size: 0.85em;
+  padding: 4px 10px;
+  border-radius: 5px;
+  font-size: 0.75em;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.3px;
-  margin-top: 5px;
+  margin-left: 8px;
 }
 .bet-type.moneyline {
   background: #dbeafe;
@@ -313,15 +316,20 @@ nav > div {
 /* Odds */
 .odds {
   font-weight: 700;
-  font-size: 1.1em;
-  color: #1a1a1a;
+  font-size: 1em;
+  color: #374151;
+  background: #f3f4f6;
+  padding: 4px 10px;
+  border-radius: 5px;
+  display: inline-block;
 }
 
 /* Confidence Stars */
 .confidence {
   display: flex;
+  flex-direction: column;
+  gap: 6px;
   align-items: center;
-  gap: 8px;
 }
 .stars {
   color: #f59e0b;
@@ -329,9 +337,23 @@ nav > div {
   letter-spacing: 2px;
 }
 .confidence-label {
-  font-size: 0.8em;
+  font-size: 0.75em;
   color: #6b7280;
   font-weight: 600;
+  text-transform: uppercase;
+}
+.win-probability {
+  font-size: 1.4em;
+  font-weight: 800;
+  color: #10b981;
+  margin-top: 4px;
+}
+.win-prob-label {
+  font-size: 0.7em;
+  color: #6b7280;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 /* Reasoning */
@@ -538,13 +560,17 @@ nav > div {
   }
 
   .confidence {
-    flex-direction: row;
+    flex-direction: column;
     align-items: center;
-    gap: 10px;
+    gap: 6px;
   }
 
   .stars {
-    font-size: 1.2em;
+    font-size: 1.3em;
+  }
+
+  .win-probability {
+    font-size: 1.6em;
   }
 
   .reasoning {
@@ -558,15 +584,19 @@ nav > div {
   }
 
   .pick-badge {
-    font-size: 1em;
+    font-size: 0.95em;
+    margin-top: 10px;
+    display: inline-block;
   }
 
   .bet-type {
-    margin-top: 8px;
+    margin-left: 6px;
+    margin-top: 0;
   }
 
   .odds {
-    font-size: 1.2em;
+    font-size: 1.1em;
+    margin-top: 10px;
   }
 }
 
@@ -654,9 +684,7 @@ document.addEventListener('click', function(event) {
     <table class='picks-table'>
       <thead>
         <tr>
-          <th>Game</th>
-          <th>Pick</th>
-          <th>Odds</th>
+          <th>Game & Pick</th>
           <th>Confidence</th>
           <th>Reasoning</th>
         </tr>
@@ -678,9 +706,7 @@ document.addEventListener('click', function(event) {
     <table class='picks-table'>
       <thead>
         <tr>
-          <th>Game</th>
-          <th>Pick</th>
-          <th>Odds</th>
+          <th>Game & Pick</th>
           <th>Confidence</th>
           <th>Reasoning</th>
         </tr>
@@ -736,6 +762,7 @@ document.getElementById('currentDate').textContent = today.toLocaleDateString('e
 // Auto-generated on 2026-03-12 06:53:04
 // Auto-generated on 2026-03-12 06:54:44
 // Auto-generated on 2026-03-12 06:55:31
+// Auto-generated on 2026-03-12 07:51:13
 const picks = {
   nhl: [
   {
@@ -745,23 +772,21 @@ const picks = {
     betType: 'moneyline',
     confidence: 'High',
     stars: '⭐⭐⭐⭐',
-    reasoning: `😴 **Fatigue Factor**
-Flyers on a home back-to-back, facing a well-rested Capitals squad.
-
-🤕 **Key Injury**
-Flyers hampered by absence of core skater Tyson Foerster.
-
-🥅 **Goalie Mismatch**
-Capitals' Thompson in superb form, Flyers' Ersson struggling significantly.
-
-📈 **Capitals Recent Form**
-Washington shows better recent performance and momentum.
-
-🆚 **H2H Advantage**
-Capitals hold a stronger historical head-to-head record.
-
-💰 **Market Edge**
-Strong angles combine for a clear edge against market pricing.`
+    winProbability: '77.5',
+    reasoning: `😴**Flyers Fatigue Factor**
+Playing a home back-to-back, facing a rested Capitals team.
+🩹**Key Player Out**
+Flyers hampered by Tyson Foerster's absence (arm).
+🥅**Elite Goalie Form**
+Capitals' Thompson is red-hot (0.924 SV%, 2.0 GAA L5).
+📉**Struggling Netminder**
+Flyers' Ersson has poor recent form (0.863 SV%, 3.5 GAA L5).
+📈**Capitals Better Form**
+Washington showing stronger recent team performance.
+⚔️**Head-to-Head Advantage**
+Capitals have a superior record against the Flyers.
+💰**Strong Market Edge**
+Combined factors create a solid betting advantage.`
   },
   {
     game: 'Montréal Canadiens @ Ottawa Senators',
@@ -770,20 +795,17 @@ Strong angles combine for a clear edge against market pricing.`
     betType: 'total',
     confidence: 'Medium',
     stars: '⭐⭐⭐',
-    reasoning: `🔥 **High Scoring Tendencies**
-Both teams show recent history of offensive outbursts.
-
-🏒 **Offensive Outlook**
-Montréal and Ottawa combine for a strong average of goals scored.
-
-🚫 **Leaky Goalies**
-Both starting netminders have been below average recently.
-
-📊 **H2H Over Trend**
-Season series average of 6.8 goals suggests a high-scoring game.
-
-⚠️ **Road B2B Acknowledged**
-Canadiens on a road back-to-back, but other factors favor the Over.`
+    winProbability: '66',
+    reasoning: `🔥**High Scoring Teams**
+Montréal (4.5) and Ottawa (3.5) average high goals.
+📉**Weak Goalie Play**
+Both starting goalies have struggled recently (sub-0.890 SV%).
+⚔️**H2H Goal Fest**
+Season series averages 6.8 goals per game.
+🏒**Offensive Matchup Expected**
+Teams have a history of high-scoring affairs.
+⬆️**Over Bet Value**
+Strong lean towards a high-scoring game despite MTL's B2B.`
   }
   ],
   nba: [
@@ -794,20 +816,19 @@ Canadiens on a road back-to-back, but other factors favor the Over.`
     betType: 'spread',
     confidence: 'High',
     stars: '⭐⭐⭐⭐',
-    reasoning: `🏠 **Home Court Dominance**
-Timberwolves boast a strong home win percentage.
-
-ired **Clippers Road Fatigue**
-Clippers on a road back-to-back with a poor away record.
-
-📈 **Wolves Recent Form**
-Minnesota is 7-3 in their last ten games.
-
-🆚 **H2H Advantage**
-Timberwolves lead the season series 2-1 against Clippers.
-
-🏆 **Quality Gap**
-Minnesota is a stronger playoff team with a better overall win percentage.`
+    winProbability: '63',
+    reasoning: `🏡**Wolves Home Dominance**
+Strong 0.647 home win percentage for Minnesota.
+🛣️**Clippers Road Struggles**
+Poor 0.441 away win percentage for LA.
+ired**Fatigue Favors Wolves**
+Clippers on road back-to-back; Wolves also B2B but at home.
+📈**Minnesota Recent Form**
+Timberwolves boast a strong 7-3 record last 10 games.
+⚔️**H2H Series Lead**
+Minnesota leads season series 2-1 against Clippers.
+⭐**Superior Team Quality**
+Timberwolves are overall a stronger playoff-contending team.`
   },
   {
     game: 'Orlando Magic @ Cleveland Cavaliers',
@@ -816,20 +837,17 @@ Minnesota is a stronger playoff team with a better overall win percentage.`
     betType: 'spread',
     confidence: 'High',
     stars: '⭐⭐⭐⭐',
-    reasoning: `🏡 **Magic Home Edge**
-Orlando has a robust 0.625 home win percentage.
-
-🔥 **Hot Recent Form**
-Magic are in strong form with a 7-3 record in their last 10 games.
-
-🚫 **Cavs H2H Struggles**
-Cavaliers have been dominated 0-2 in season series vs Orlando.
-
-✅ **Well-Rested Teams**
-Fatigue is not a factor for either squad, eliminating a common variable.
-
-💰 **Favorable Spread Play**
-Combination of factors creates a strong lean for the Magic on the spread.`
+    winProbability: '61',
+    reasoning: `🏡**Magic Home Fortress**
+Orlando boasts a robust 0.625 home win percentage.
+🔥**Orlando Strong Form**
+Magic are 7-3 in their last ten games.
+⚔️**Cavs H2H Struggles**
+Cleveland is 0-2 against Orlando this season.
+⚡**No Fatigue Factor**
+Both teams are well-rested for this matchup.
+💰**Favorable Spread Play**
+Magic have a clear advantage to cover.`
   },
   {
     game: 'Houston Rockets vs Denver Nuggets',
@@ -838,20 +856,19 @@ Combination of factors creates a strong lean for the Magic on the spread.`
     betType: 'spread',
     confidence: 'High',
     stars: '⭐⭐⭐⭐',
-    reasoning: `🚀 **Rockets Home Fortress**
+    winProbability: '61',
+    reasoning: `🚀**Rockets Home Power**
 Houston boasts an excellent 0.733 home win percentage.
-
-📉 **Nuggets Poor Form**
-Denver is struggling with a 4-6 record in their last 10 games.
-
-🛡️ **Weak Nuggets Defense**
-Denver shows defensive vulnerabilities recently.
-
-⚠️ **Rockets Fatigue Noted**
-Houston on a back-to-back, but home form and Nuggets' struggles offset.
-
-🥊 **Recent H2H Win**
-Rockets won their most recent matchup against the Nuggets.`
+📉**Nuggets Poor Form**
+Denver is struggling, with a 4-6 record in their last 10.
+🛡️**Denver Defensive Weakness**
+Nuggets showing vulnerability on defense recently.
+ired**Rockets Fatigue Factor**
+Houston is on a back-to-back and 4th game in 6 nights.
+⚔️**Rockets Recent H2H Win**
+Though down 1-2, Houston won their last matchup vs Nuggets.
+✨**Unexpected Betting Edge**
+Rockets home form and Nuggets struggles create an advantage.`
   },
   {
     game: 'Toronto Raptors vs New Orleans Pelicans',
@@ -860,20 +877,19 @@ Rockets won their most recent matchup against the Nuggets.`
     betType: 'spread',
     confidence: 'High',
     stars: '⭐⭐⭐⭐',
-    reasoning: `🛣️ **Raptors Road Prowess**
-Toronto is a strong road team with a 0.613 away win percentage.
-
-🏠 **Pelicans Home Weakness**
-New Orleans is very weak at home with a 0.364 win percentage.
-
-🔥 **Motivation Edge**
-Raptors are pushing for playoffs, Pelicans likely tanking.
-
-📊 **Quality Disparity**
-Significant quality gap favors the Raptors over the Pelicans.
-
-😴 **Raptors B2B Acknowledged**
-Toronto on a road back-to-back, but quality and motivation overcome fatigue.`
+    winProbability: '58',
+    reasoning: `✈️**Raptors Strong Road**
+Toronto holds a 0.613 win percentage away from home.
+🏠**Pelicans Weak Home**
+New Orleans has a poor 0.364 home win percentage.
+ motiva**Motivation Differential**
+Raptors are playoff-bound, Pelicans likely tanking.
+ired**Raptors Road Fatigue**
+Toronto playing a road back-to-back.
+⬆️**Significant Quality Gap**
+Raptors are a much stronger overall team.
+📉**Pelicans Form Not Enough**
+Recent good form won't overcome disparity.`
   },
   {
     game: 'Utah Jazz @ New York Knicks',
@@ -882,17 +898,19 @@ Toronto on a road back-to-back, but quality and motivation overcome fatigue.`
     betType: 'spread',
     confidence: 'High',
     stars: '⭐⭐⭐⭐',
-    reasoning: `😴 **Knicks Extreme Fatigue**
-New York playing a road back-to-back, third game in four nights.
-
-✈️ **Cross-Country Travel**
-Knicks endured significant travel adding to their fatigue.
-
-📈 **Large Spread Value**
-Utah's +14.0 spread provides a buffer despite quality gap.
-
-📉 **Knicks Performance Risk**
-Fatigue likely to diminish Knicks' usual dominant performance.`
+    winProbability: '58',
+    reasoning: `ired**Knicks Extreme Fatigue**
+Road B2B, 3rd game in 4 nights, and cross-country travel.
+✈️**Cross-Country Travel**
+Knicks endured significant travel impacting performance.
+📉**Jazz Poor Overall Form**
+Utah has a weak 2-8 record in their last 10 games.
+⭐**Knicks Superior Team**
+New York is a significantly better team overall.
+➕**Large Spread Buffer**
+The +14.0 spread offers good value for Jazz to cover.
+⚠️**Fatigue Limits Dominance**
+Knicks' substantial fatigue suggests a less dominant showing.`
   }
   ]
 };
@@ -937,25 +955,22 @@ function renderTable(sport, picks) {
 
   tableBody.innerHTML = picks.map(pick => `
     <tr class='${sport}'>
-      <td>
+      <td data-label='Game & Pick'>
         <div class='game-info'>
           <span class='sport-icon'>${sportIcon}</span>
           <div>
             <div class='teams'>${pick.game}</div>
+            <div class='pick-badge'>${pick.pick}</div>
+            <div class='bet-type ${pick.betType}'>${pick.betType}</div>
+            <div class='odds' style='margin-top: 8px;'>${pick.odds}</div>
           </div>
         </div>
-      </td>
-      <td data-label='Pick'>
-        <div class='pick-badge'>${pick.pick}</div>
-        <div class='bet-type ${pick.betType}'>${pick.betType}</div>
-      </td>
-      <td data-label='Odds'>
-        <div class='odds'>${pick.odds}</div>
       </td>
       <td data-label='Confidence'>
         <div class='confidence'>
           <span class='stars'>${pick.stars}</span>
           <span class='confidence-label'>${pick.confidence}</span>
+          ${pick.winProbability ? `<div class='win-probability'>${pick.winProbability}%</div><div class='win-prob-label'>Win Prob</div>` : ''}
         </div>
       </td>
       <td data-label='Reasoning'>
@@ -967,7 +982,9 @@ function renderTable(sport, picks) {
 
 function formatReasoning(reasoning) {
   // Parse reasoning bullet points with emoji and bold titles
-  // Format: 🔥 **Title**\nDescription\n\n
+  // Format can be either:
+  // 1. 🔥 **Title**\nDescription\n\n (old format with space)
+  // 2. 😴**Flyers Fatigue Factor**\nDescription (new format without space)
   const lines = reasoning.split('\n');
   let formatted = '';
   let i = 0;
@@ -975,18 +992,27 @@ function formatReasoning(reasoning) {
   while (i < lines.length) {
     const line = lines[i].trim();
 
-    // Check if line starts with emoji and has bold text
-    const match = line.match(/^([^\s]+)\s+\*\*(.+?)\*\*/);
+    // Check if line starts with emoji and has bold text (with or without space after emoji)
+    const match = line.match(/^([^\s*]+)\s*\*\*(.+?)\*\*/);
     if (match) {
       const emoji = match[1];
       const title = match[2];
 
-      // Get description (next non-empty line)
+      // Get description (next non-empty line or rest of current line after the title)
       let description = '';
-      i++;
-      while (i < lines.length && lines[i].trim() && !lines[i].match(/^([^\s]+)\s+\*\*/)) {
-        description += lines[i].trim() + ' ';
+
+      // Check if description is on same line after the title
+      const restOfLine = line.substring(match[0].length).trim();
+      if (restOfLine) {
+        description = restOfLine;
         i++;
+      } else {
+        // Description is on next line(s)
+        i++;
+        while (i < lines.length && lines[i].trim() && !lines[i].match(/^([^\s*]+)\s*\*\*/)) {
+          description += lines[i].trim() + ' ';
+          i++;
+        }
       }
 
       // Compact inline format: emoji + title: description

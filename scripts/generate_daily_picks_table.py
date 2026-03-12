@@ -266,10 +266,16 @@ def parse_prediction_file(file_path, sport):
         conf_match = re.search(r'Confidence Level:\s*(\w+(?:\s+\w+)?)', section_text, re.IGNORECASE)
         confidence_level = conf_match.group(1).strip() if conf_match else "High"
 
-        # Get reasoning lines
+        # Get reasoning lines and extract win probability
         reasoning_lines = []
+        win_probability = None
         for line in section_text.split('\n'):
             line = line.strip()
+            # Extract win probability
+            if 'Win Probability:' in line:
+                prob_match = re.search(r'Win Probability:\s*([\d.]+)%', line)
+                if prob_match:
+                    win_probability = prob_match.group(1)
             if line and not line.startswith('Confidence Level:') and not line.startswith('This play') and not line.startswith('Line moved') and not line.startswith('Odds remained') and not line.startswith('**Other'):
                 reasoning_lines.append(line)
             if line.startswith('**Other'):
@@ -300,6 +306,7 @@ def parse_prediction_file(file_path, sport):
                     'bet_type': pick_data['bet_type'],
                     'confidence': confidence[1],
                     'stars': confidence[0],
+                    'win_probability': win_probability,
                     'reasoning': reasoning
                 })
 
@@ -325,6 +332,7 @@ def parse_prediction_file(file_path, sport):
 
             reasoning = ""
             confidence_level = "High"
+            win_probability = None
 
             if section_match:
                 section_text = section_match.group(1)
@@ -333,6 +341,11 @@ def parse_prediction_file(file_path, sport):
                 conf_match = re.search(r'Confidence Level:\s*(\w+(?:\s+\w+)?)', section_text, re.IGNORECASE)
                 if conf_match:
                     confidence_level = conf_match.group(1).strip()
+
+                # Extract win probability
+                prob_match = re.search(r'Win Probability:\s*([\d.]+)%', section_text)
+                if prob_match:
+                    win_probability = prob_match.group(1)
 
                 # Extract reasoning (text before metadata lines)
                 reasoning_lines = []
@@ -366,6 +379,7 @@ def parse_prediction_file(file_path, sport):
                         'bet_type': pick_data['bet_type'],
                         'confidence': confidence[1],
                         'stars': confidence[0],
+                        'win_probability': win_probability,
                         'reasoning': reasoning,
                         'time': 'TBD'
                     })
@@ -406,6 +420,7 @@ def generate_javascript_data(nhl_picks, nba_picks):
     def picks_to_js(picks):
         js_picks = []
         for pick in picks:
+            win_prob = pick.get('win_probability', '')
             js_picks.append(f"""  {{
     game: '{pick['game']}',
     pick: '{pick['pick']}',
@@ -413,6 +428,7 @@ def generate_javascript_data(nhl_picks, nba_picks):
     betType: '{pick['bet_type']}',
     confidence: '{pick['confidence']}',
     stars: '{pick['stars']}',
+    winProbability: '{win_prob}',
     reasoning: `{pick['reasoning']}`
   }}""")
         return ',\n'.join(js_picks)
