@@ -408,45 +408,100 @@ nav > div {
   }
 
   .table-container {
-    padding: 15px;
-    overflow-x: auto;
+    padding: 15px 10px;
   }
 
   .section-header {
     flex-direction: column;
     align-items: flex-start;
+    gap: 5px;
   }
   .section-subtitle {
     margin-left: 0;
   }
 
+  /* Card layout for mobile */
   .picks-table {
     display: block;
-    overflow-x: auto;
+    border-spacing: 0;
   }
 
-  .picks-table thead th,
+  .picks-table thead {
+    display: none;
+  }
+
+  .picks-table tbody {
+    display: block;
+  }
+
+  .picks-table tbody tr {
+    display: block;
+    margin-bottom: 20px;
+    border-radius: 12px;
+    border: 2px solid #e5e7eb;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    overflow: hidden;
+  }
+
+  .picks-table tbody tr.nhl {
+    border-left: 5px solid #3b82f6;
+  }
+
+  .picks-table tbody tr.nba {
+    border-left: 5px solid #f59e0b;
+  }
+
+  .picks-table tbody tr:hover {
+    transform: none;
+  }
+
   .picks-table tbody td {
+    display: block;
     padding: 12px 15px;
-    font-size: 0.9em;
+    border: none;
+    border-radius: 0;
+    text-align: left;
   }
 
-  .reasoning {
+  .picks-table tbody td:first-child {
+    border-left: none;
+    background: #f9fafb;
+    padding: 15px;
+  }
+
+  .picks-table tbody td:last-child {
+    border-right: none;
+    border-bottom: none;
+  }
+
+  .picks-table tbody td::before {
+    content: attr(data-label);
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.75em;
+    color: #6b7280;
+    display: block;
+    margin-bottom: 5px;
+    letter-spacing: 0.5px;
+  }
+
+  .picks-table tbody td:first-child::before {
     display: none;
   }
 
   .game-info {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 5px;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
   }
 
   .sport-icon {
-    font-size: 1.2em;
+    font-size: 1.5em;
   }
 
   .teams {
-    font-size: 0.95em;
+    font-size: 1em;
+    font-weight: 700;
   }
 
   .stat-value {
@@ -454,13 +509,31 @@ nav > div {
   }
 
   .confidence {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 5px;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
   }
 
   .stars {
+    font-size: 1.2em;
+  }
+
+  .reasoning {
+    max-width: 100%;
+    font-size: 0.9em;
+    line-height: 1.5;
+  }
+
+  .pick-badge {
     font-size: 1em;
+  }
+
+  .bet-type {
+    margin-top: 8px;
+  }
+
+  .odds {
+    font-size: 1.2em;
   }
 }
 
@@ -745,20 +818,20 @@ function renderTable(sport, picks) {
           </div>
         </div>
       </td>
-      <td>
+      <td data-label='Pick'>
         <div class='pick-badge'>${pick.pick}</div>
         <div class='bet-type ${pick.betType}'>${pick.betType}</div>
       </td>
-      <td>
+      <td data-label='Odds'>
         <div class='odds'>${pick.odds}</div>
       </td>
-      <td>
+      <td data-label='Confidence'>
         <div class='confidence'>
           <span class='stars'>${pick.stars}</span>
           <span class='confidence-label'>${pick.confidence}</span>
         </div>
       </td>
-      <td>
+      <td data-label='Reasoning'>
         <div class='reasoning'>${pick.reasoning}</div>
       </td>
     </tr>
