@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='UTF-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+<title>Today's Picks - AI Betting Predictions | Parieur Discipliné</title>
+<meta name='description' content='View all today\'s NHL and NBA betting picks with AI analysis, odds, and confidence ratings. Updated daily at 7am and 3pm ET.'>
+<link rel='icon' type='image/png' href='parieur_discipline_icon_1024.png'>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: #f5f7fa;
+  color: #1a1a1a;
+  line-height: 1.6;
+}
+
+/* Navigation (shared with other pages) */
+nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: linear-gradient(135deg, #2c5aa0 0%, #1e3a8a 100%);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  backdrop-filter: blur(10px);
+}
+nav > div {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 10px 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.nav-logo img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+}
+.nav-logo span {
+  color: white;
+  font-weight: 700;
+  font-size: 1em;
+}
+#mobileMenuBtn {
+  display: none;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.5em;
+  cursor: pointer;
+  padding: 5px;
+}
+#navLinks {
+  display: flex;
+  gap: 8px;
+}
+#navLinks a {
+  color: white;
+  text-decoration: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.9em;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+#navLinks a:hover {
+  background: rgba(255,255,255,0.15);
+}
+#navLinks a.active {
+  background: rgba(255,255,255,0.25);
+}
+
+/* Content Container */
+.page-content {
+  margin-top: 60px;
+  padding: 20px;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Hero Section */
+.hero {
+  background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+  color: white;
+  padding: 40px 30px;
+  text-align: center;
+  border-radius: 16px;
+  margin-bottom: 40px;
+  box-shadow: 0 4px 20px rgba(74, 144, 226, 0.3);
+}
+.hero h1 {
+  font-size: 2.5em;
+  margin-bottom: 10px;
+  font-weight: 800;
+}
+.hero p {
+  font-size: 1.1em;
+  opacity: 0.95;
+}
+.hero .date {
+  font-size: 0.9em;
+  opacity: 0.85;
+  margin-top: 10px;
+  font-weight: 600;
+}
+
+/* Summary Stats */
+.summary-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-bottom: 40px;
+}
+.stat-card {
+  background: white;
+  border-radius: 12px;
+  padding: 25px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  border-top: 4px solid #4a90e2;
+  transition: transform 0.2s;
+}
+.stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.12);
+}
+.stat-card.nhl {
+  border-top-color: #3b82f6;
+}
+.stat-card.nba {
+  border-top-color: #f59e0b;
+}
+.stat-label {
+  font-size: 0.85em;
+  color: #6b7280;
+  text-transform: uppercase;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.stat-value {
+  font-size: 2.5em;
+  font-weight: 800;
+  color: #1a1a1a;
+}
+
+/* Section Header */
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 3px solid #e5e7eb;
+}
+.section-icon {
+  font-size: 2.5em;
+}
+.section-title {
+  font-size: 2em;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+.section-subtitle {
+  font-size: 0.9em;
+  color: #6b7280;
+  margin-left: auto;
+  font-weight: 600;
+}
+
+/* Table Container */
+.table-container {
+  background: white;
+  border-radius: 16px;
+  padding: 30px;
+  margin-bottom: 40px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+
+/* Picks Table */
+.picks-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 12px;
+}
+
+.picks-table thead th {
+  background: #f9fafb;
+  padding: 15px 20px;
+  text-align: left;
+  font-size: 0.85em;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #6b7280;
+  letter-spacing: 0.5px;
+  border-top: 2px solid #e5e7eb;
+  border-bottom: 2px solid #e5e7eb;
+}
+.picks-table thead th:first-child {
+  border-left: 2px solid #e5e7eb;
+  border-radius: 10px 0 0 10px;
+}
+.picks-table thead th:last-child {
+  border-right: 2px solid #e5e7eb;
+  border-radius: 0 10px 10px 0;
+}
+
+.picks-table tbody tr {
+  background: white;
+  transition: all 0.2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+.picks-table tbody tr:hover {
+  transform: translateX(5px);
+  box-shadow: 0 4px 12px rgba(74, 144, 226, 0.15);
+}
+
+.picks-table tbody td {
+  padding: 18px 20px;
+  border-top: 1px solid #e5e7eb;
+  border-bottom: 1px solid #e5e7eb;
+  background: white;
+}
+.picks-table tbody td:first-child {
+  border-left: 1px solid #e5e7eb;
+  border-radius: 10px 0 0 10px;
+  border-left-width: 4px;
+}
+.picks-table tbody td:last-child {
+  border-right: 1px solid #e5e7eb;
+  border-radius: 0 10px 10px 0;
+}
+
+/* NHL row styling */
+.picks-table tbody tr.nhl td:first-child {
+  border-left-color: #3b82f6;
+}
+/* NBA row styling */
+.picks-table tbody tr.nba td:first-child {
+  border-left-color: #f59e0b;
+}
+
+/* Game Info */
+.game-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.sport-icon {
+  font-size: 1.5em;
+  display: inline-block;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+.teams {
+  font-weight: 600;
+  font-size: 1.05em;
+  color: #1a1a1a;
+}
+.game-time {
+  font-size: 0.85em;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+/* Pick Badge */
+.pick-badge {
+  display: inline-block;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.95em;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3);
+}
+
+/* Bet Type Badge */
+.bet-type {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.85em;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin-top: 5px;
+}
+.bet-type.moneyline {
+  background: #dbeafe;
+  color: #1e40af;
+}
+.bet-type.spread {
+  background: #fef3c7;
+  color: #92400e;
+}
+.bet-type.total {
+  background: #e0e7ff;
+  color: #3730a3;
+}
+
+/* Odds */
+.odds {
+  font-weight: 700;
+  font-size: 1.1em;
+  color: #1a1a1a;
+}
+
+/* Confidence Stars */
+.confidence {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.stars {
+  color: #f59e0b;
+  font-size: 1.2em;
+  letter-spacing: 2px;
+}
+.confidence-label {
+  font-size: 0.8em;
+  color: #6b7280;
+  font-weight: 600;
+}
+
+/* Reasoning */
+.reasoning {
+  font-size: 0.9em;
+  color: #4b5563;
+  line-height: 1.5;
+  max-width: 400px;
+}
+
+/* No games message */
+.no-games {
+  text-align: center;
+  padding: 60px 20px;
+  color: #6b7280;
+}
+.no-games-icon {
+  font-size: 4em;
+  margin-bottom: 20px;
+}
+.no-games h3 {
+  font-size: 1.5em;
+  margin-bottom: 10px;
+  color: #1a1a1a;
+}
+.no-games p {
+  font-size: 1em;
+}
+
+/* Disclaimer */
+.disclaimer {
+  text-align: center;
+  padding: 30px 20px;
+  color: #6b7280;
+  font-size: 0.9em;
+}
+.disclaimer strong {
+  color: #1a1a1a;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  nav .nav-logo span { font-size: 0.9em; }
+  nav .nav-logo img { width: 28px; height: 28px; }
+  #mobileMenuBtn { display: block !important; }
+  #navLinks {
+    display: none !important;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: linear-gradient(135deg, #2c5aa0 0%, #1e3a8a 100%);
+    flex-direction: column;
+    gap: 0;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  }
+  #navLinks.active { display: flex !important; }
+  #navLinks a {
+    padding: 12px 20px;
+    font-size: 0.95em;
+    border-radius: 0;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .page-content {
+    padding: 10px;
+  }
+
+  .hero {
+    padding: 30px 20px;
+  }
+  .hero h1 {
+    font-size: 1.8em;
+  }
+
+  .table-container {
+    padding: 15px;
+    overflow-x: auto;
+  }
+
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .section-subtitle {
+    margin-left: 0;
+  }
+
+  .picks-table {
+    display: block;
+    overflow-x: auto;
+  }
+
+  .picks-table thead th,
+  .picks-table tbody td {
+    padding: 12px 15px;
+    font-size: 0.9em;
+  }
+
+  .reasoning {
+    display: none;
+  }
+
+  .game-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+
+  .sport-icon {
+    font-size: 1.2em;
+  }
+
+  .teams {
+    font-size: 0.95em;
+  }
+
+  .stat-value {
+    font-size: 2em;
+  }
+
+  .confidence {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+
+  .stars {
+    font-size: 1em;
+  }
+}
+
+@media (max-width: 1024px) {
+  .picks-table {
+    font-size: 0.9em;
+  }
+  .reasoning {
+    max-width: 300px;
+    font-size: 0.85em;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav>
+<div>
+<div class='nav-logo'>
+<img src='parieur_discipline_icon_1024.png' alt='Logo' />
+<span>Parieur Discipliné</span>
+</div>
+<button id='mobileMenuBtn' onclick='toggleMobileMenu()'>☰</button>
+<div id='navLinks'>
+<a href='index.html'>Home</a>
+<a href='daily-picks.html' class='active'>🎯 Today</a>
+<a href='nhl.html'>🏒 NHL</a>
+<a href='nba.html'>🏀 NBA</a>
+<a href='performance.html'>📊 Performance</a>
+<a href='about.html'>About</a>
+</div>
+</div>
+</nav>
+
+<script>
+function toggleMobileMenu() {
+  const navLinks = document.getElementById('navLinks');
+  navLinks.classList.toggle('active');
+}
+// Close menu when clicking outside
+document.addEventListener('click', function(event) {
+  const nav = document.querySelector('nav');
+  const menuBtn = document.getElementById('mobileMenuBtn');
+  const navLinks = document.getElementById('navLinks');
+  if (!nav.contains(event.target) && navLinks.classList.contains('active')) {
+    navLinks.classList.remove('active');
+  }
+});
+</script>
+
+<div class='page-content'>
+<div class='container'>
+  <!-- Hero -->
+  <div class='hero'>
+    <h1>🎯 Today's Picks</h1>
+    <p>AI-powered betting predictions for NHL and NBA games</p>
+    <div class='date' id='currentDate'>Loading...</div>
+  </div>
+
+  <!-- Summary Stats -->
+  <div class='summary-stats'>
+    <div class='stat-card'>
+      <div class='stat-label'>Total Picks Today</div>
+      <div class='stat-value' id='totalPicks'>0</div>
+    </div>
+    <div class='stat-card nhl'>
+      <div class='stat-label'>NHL Picks</div>
+      <div class='stat-value' id='nhlPicks'>🏒 0</div>
+    </div>
+    <div class='stat-card nba'>
+      <div class='stat-label'>NBA Picks</div>
+      <div class='stat-value' id='nbaPicks'>🏀 0</div>
+    </div>
+  </div>
+
+  <!-- NHL Picks Section -->
+  <div class='table-container' id='nhlSection' style='display: none;'>
+    <div class='section-header'>
+      <div class='section-icon'>🏒</div>
+      <div class='section-title'>NHL Picks</div>
+      <div class='section-subtitle' id='nhlCount'>0 Games</div>
+    </div>
+
+    <table class='picks-table'>
+      <thead>
+        <tr>
+          <th>Game</th>
+          <th>Pick</th>
+          <th>Odds</th>
+          <th>Confidence</th>
+          <th>Reasoning</th>
+        </tr>
+      </thead>
+      <tbody id='nhlTableBody'>
+        <!-- NHL picks will be inserted here -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- NBA Picks Section -->
+  <div class='table-container' id='nbaSection' style='display: none;'>
+    <div class='section-header'>
+      <div class='section-icon'>🏀</div>
+      <div class='section-title'>NBA Picks</div>
+      <div class='section-subtitle' id='nbaCount'>0 Games</div>
+    </div>
+
+    <table class='picks-table'>
+      <thead>
+        <tr>
+          <th>Game</th>
+          <th>Pick</th>
+          <th>Odds</th>
+          <th>Confidence</th>
+          <th>Reasoning</th>
+        </tr>
+      </thead>
+      <tbody id='nbaTableBody'>
+        <!-- NBA picks will be inserted here -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- No Games Message -->
+  <div class='table-container' id='noGamesMessage'>
+    <div class='no-games'>
+      <div class='no-games-icon'>🔍</div>
+      <h3>No picks available yet</h3>
+      <p>Daily picks are generated at 7:00 AM and 3:00 PM ET</p>
+      <p style='margin-top: 10px;'>Check back soon!</p>
+    </div>
+  </div>
+
+  <!-- Disclaimer -->
+  <div class='disclaimer'>
+    <p><strong>Disclaimer:</strong> These are AI-generated predictions for entertainment purposes only. Always gamble responsibly.</p>
+    <p style='margin-top: 10px;'>Last updated: <span id='lastUpdate'>--</span> • Next update: <span id='nextUpdate'>--</span></p>
+  </div>
+</div>
+</div>
+
+<script>
+// Set current date
+const today = new Date();
+const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+document.getElementById('currentDate').textContent = today.toLocaleDateString('en-US', options);
+
+// TODO: This will be populated by your daily run scripts
+// For now, showing the structure with placeholder data
+// Auto-generated on 2026-03-11 22:56:44
+// Auto-generated on 2026-03-11 22:57:19
+// Auto-generated on 2026-03-11 22:59:48
+// Auto-generated on 2026-03-11 23:00:34
+// Auto-generated on 2026-03-11 23:01:09
+// Auto-generated on 2026-03-11 23:01:41
+// Auto-generated on 2026-03-11 23:02:12
+// Auto-generated on 2026-03-11 23:02:53
+// Auto-generated on 2026-03-11 23:03:39
+// Auto-generated on 2026-03-11 23:04:36
+// Auto-generated on 2026-03-11 23:05:40
+// Auto-generated on 2026-03-11 23:06:17
+// Auto-generated on 2026-03-11 23:06:42
+// Auto-generated on 2026-03-11 23:09:40
+// Auto-generated on 2026-03-11 23:10:26
+// Auto-generated on 2026-03-11 23:11:22
+const picks = {
+  nhl: [
+  {
+    game: 'Washington Capitals @ Philadelphia Flyers',
+    pick: 'Washington Capitals ML',
+    odds: '1.75',
+    betType: 'moneyline',
+    confidence: 'High',
+    stars: '⭐⭐⭐⭐',
+    reasoning: `The Washington Capitals, well-rested, face a fatigued Philadelphia Flyers team on a home back-to-back. Flyers are also hampered by the absence of core skater Tyson Foerster (arm). The Capitals' Logan Thompson is in superb form (0.924 SV% and 2.0 GAA in his last 5 starts), while Flyers' Samuel Ersson has struggled significantly (0.863 SV% and 3.5 GAA in his last 5 starts). This goalie mismatch, combined with fatigue and Washington's better recent form and head-to-head record, creates a strong edge against the market.`
+  },
+  {
+    game: 'Montréal Canadiens @ Ottawa Senators',
+    pick: 'Over 6.5',
+    odds: '1.90',
+    betType: 'total',
+    confidence: 'Medium',
+    stars: '⭐⭐⭐',
+    reasoning: `This Battle of Ontario features two teams with recent high-scoring tendencies and a history of offensive matchups. Montréal (4.5 Avg Goals Scored Last 10) and Ottawa (3.5 Avg Goals Scored Last 10) combine for a strong offensive outlook. Both starting goalies, Jacob Fowler (0.881 SV% in last 5 starts) for Montréal and Linus Ullmark (0.884 SV% in last 5 starts) for Ottawa, have been below average recently, suggesting defensive vulnerabilities. Although the Canadiens are on a road back-to-back, which can sometimes suppress scoring, their historical head-to-head average of 6.8 goals in 5 games this season leans towards a higher-scoring affair, making the Over a valuable play despite recent model struggles on totals.`
+  }
+  ],
+  nba: [
+  {
+    game: 'Minnesota Timberwolves vs Los Angeles Clippers',
+    pick: 'Minnesota Timberwolves +1.5',
+    odds: '1.95',
+    betType: 'spread',
+    confidence: 'High',
+    stars: '⭐⭐⭐⭐',
+    reasoning: `The Minnesota Timberwolves enter this game with strong home form, boasting a 0.647 home win percentage, while the Clippers struggle on the road with a 0.441 away win percentage and are on a road back-to-back. Minnesota also has the edge in recent form with a 7-3 record in their last ten games compared to the Clippers' 6-4, and leads the season series 2-1. Despite both teams being on a back-to-back, the Timberwolves' strong home performance against the Clippers' weaker road record and fatigue creates a clear advantage. The quality gap further favors the Timberwolves who are a stronger playoff team (0.615 win percentage vs 0.500).`
+  },
+  {
+    game: 'Orlando Magic @ Cleveland Cavaliers',
+    pick: 'Orlando Magic +3.5',
+    odds: '1.99',
+    betType: 'spread',
+    confidence: 'High',
+    stars: '⭐⭐⭐⭐',
+    reasoning: `The Orlando Magic have a robust 0.625 home win percentage and are in strong recent form with a 7-3 record over their last 10 games, while the Cleveland Cavaliers, despite a good overall record, have been dominated 0-2 in their season series against Orlando. Both teams are well-rested, eliminating fatigue as a factor. The Magic's home advantage, combined with their recent performance and the Cavaliers' struggles in this specific matchup, creates a favorable spread play.`
+  },
+  {
+    game: 'Houston Rockets vs Denver Nuggets',
+    pick: 'Houston Rockets +7.0',
+    odds: '1.94',
+    betType: 'spread',
+    confidence: 'High',
+    stars: '⭐⭐⭐⭐',
+    reasoning: `The Houston Rockets are an excellent home team with a 0.733 home win percentage, facing a Denver Nuggets team that is currently in poor form (4-6 in their last 10 games) and defensively vulnerable. The Rockets also have a significant fatigue disadvantage, playing a back-to-back and 4-in-6 nights, however, the Nuggets' recent struggles and the Rockets' dominant home performance provide an unexpected edge. Despite the Nuggets holding a 2-1 season series lead, the Rockets won their most recent matchup.`
+  },
+  {
+    game: 'Toronto Raptors vs New Orleans Pelicans',
+    pick: 'Toronto Raptors -2.5',
+    odds: '1.97',
+    betType: 'spread',
+    confidence: 'High',
+    stars: '⭐⭐⭐⭐',
+    reasoning: `The Toronto Raptors are a strong road team with a 0.613 away win percentage and are currently pushing for a playoff spot, facing a New Orleans Pelicans team that is very weak at home with a 0.364 win percentage and is likely tanking (0.318 overall win percentage). Although the Raptors are on a road back-to-back, the significant quality gap and motivation differential against a struggling Pelicans team are major factors. The Pelicans' recent good form is unlikely to overcome the overall disparity in team strength and home/away performance.`
+  },
+  {
+    game: 'Utah Jazz @ New York Knicks',
+    pick: 'Utah Jazz +14.0',
+    odds: '1.93',
+    betType: 'spread',
+    confidence: 'High',
+    stars: '⭐⭐⭐⭐',
+    reasoning: `The Utah Jazz, despite a poor overall record (20-45) and recent form (2-8 in last 10), are facing a New York Knicks team that is playing a road back-to-back, their third game in four nights, and has endured cross-country travel. While the Knicks are a significantly better team (0.621 win percentage) and won their only H2H matchup by a large margin, the substantial fatigue factor for New York could lead to a less dominant performance. The large spread of +14.0 provides a buffer for the Jazz to cover, even if they lose outright.`
+  }
+  ]
+};
+
+// Populate the page
+renderPicks();
+function renderPicks() {
+  const nhlPicks = picks.nhl;
+  const nbaPicks = picks.nba;
+  const totalPicks = nhlPicks.length + nbaPicks.length;
+
+  // Update summary stats
+  document.getElementById('totalPicks').textContent = totalPicks;
+  document.getElementById('nhlPicks').textContent = `🏒 ${nhlPicks.length}`;
+  document.getElementById('nbaPicks').textContent = `🏀 ${nbaPicks.length}`;
+
+  // Show/hide sections
+  if (totalPicks === 0) {
+    document.getElementById('noGamesMessage').style.display = 'block';
+    document.getElementById('nhlSection').style.display = 'none';
+    document.getElementById('nbaSection').style.display = 'none';
+  } else {
+    document.getElementById('noGamesMessage').style.display = 'none';
+
+    if (nhlPicks.length > 0) {
+      document.getElementById('nhlSection').style.display = 'block';
+      document.getElementById('nhlCount').textContent = `${nhlPicks.length} Game${nhlPicks.length !== 1 ? 's' : ''}`;
+      renderTable('nhl', nhlPicks);
+    }
+
+    if (nbaPicks.length > 0) {
+      document.getElementById('nbaSection').style.display = 'block';
+      document.getElementById('nbaCount').textContent = `${nbaPicks.length} Game${nbaPicks.length !== 1 ? 's' : ''}`;
+      renderTable('nba', nbaPicks);
+    }
+  }
+}
+
+function renderTable(sport, picks) {
+  const tableBody = document.getElementById(`${sport}TableBody`);
+  const sportIcon = sport === 'nhl' ? '🏒' : '🏀';
+
+  tableBody.innerHTML = picks.map(pick => `
+    <tr class='${sport}'>
+      <td>
+        <div class='game-info'>
+          <span class='sport-icon'>${sportIcon}</span>
+          <div>
+            <div class='teams'>${pick.game}</div>
+          </div>
+        </div>
+      </td>
+      <td>
+        <div class='pick-badge'>${pick.pick}</div>
+        <div class='bet-type ${pick.betType}'>${pick.betType}</div>
+      </td>
+      <td>
+        <div class='odds'>${pick.odds}</div>
+      </td>
+      <td>
+        <div class='confidence'>
+          <span class='stars'>${pick.stars}</span>
+          <span class='confidence-label'>${pick.confidence}</span>
+        </div>
+      </td>
+      <td>
+        <div class='reasoning'>${pick.reasoning}</div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+// Set update times
+const now = new Date();
+const hour = now.getHours();
+let lastUpdate = '--';
+let nextUpdate = '--';
+
+if (hour >= 7 && hour < 15) {
+  lastUpdate = '7:00 AM ET';
+  nextUpdate = '3:00 PM ET';
+} else if (hour >= 15) {
+  lastUpdate = '3:00 PM ET';
+  nextUpdate = 'Tomorrow 7:00 AM ET';
+} else {
+  lastUpdate = 'Yesterday 3:00 PM ET';
+  nextUpdate = 'Today 7:00 AM ET';
+}
+
+document.getElementById('lastUpdate').textContent = lastUpdate;
+document.getElementById('nextUpdate').textContent = nextUpdate;
+
+// Initial render
+renderPicks();
+</script>
+
+</body>
+</html>
