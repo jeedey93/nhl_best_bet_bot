@@ -90,39 +90,14 @@ jobs:
           else
             echo "No changes to commit"
           fi
-      - name: Prepare email body
+      - name: Generate email body with picks and reasoning (3pm)
+        if: steps.run_time.outputs.time == '3pm'
+        run: python3 scripts/generate_complete_email.py
+      - name: Add yesterday's results banner and finalize email (3pm)
         if: steps.run_time.outputs.time == '3pm'
         id: prepare_email
         run: |
-          # Extract picks from dual bet of the day file
-          DUAL_BET_FILE="data/predictions/dual_bet_of_the_day.txt"
-
-          NHL_PICK="Check website for today's pick"
-          NBA_PICK="Check website for today's pick"
-
-          if [ -f "$DUAL_BET_FILE" ]; then
-            # Extract NHL pick (PICK #1)
-            NHL_LINE=$(grep "PICK #1.*NHL" "$DUAL_BET_FILE" || echo "")
-            if [ -n "$NHL_LINE" ]; then
-              # Extract pick text without odds
-              PICK_WITHOUT_ODDS=$(echo "$NHL_LINE" | sed 's/.*🏒//' | sed 's/@.*$//' | sed 's/^[[:space:]]*//' | sed 's/[[:space:]]*$//')
-              # Extract odds
-              ODDS=$(echo "$NHL_LINE" | sed 's/.*@ \([0-9.]*\).*/\1/')
-              NHL_PICK="${PICK_WITHOUT_ODDS}<br/><span style='font-size: 14px; color: #93c5fd;'>@${ODDS}</span>"
-            fi
-
-            # Extract NBA pick (PICK #2)
-            NBA_LINE=$(grep "PICK #2.*NBA" "$DUAL_BET_FILE" || echo "")
-            if [ -n "$NBA_LINE" ]; then
-              # Extract pick text without odds
-              PICK_WITHOUT_ODDS=$(echo "$NBA_LINE" | sed 's/.*🏀//' | sed 's/@.*$//' | sed 's/^[[:space:]]*//' | sed 's/[[:space:]]*$//')
-              # Extract odds
-              ODDS=$(echo "$NBA_LINE" | sed 's/.*@ \([0-9.]*\).*/\1/')
-              NBA_PICK="${PICK_WITHOUT_ODDS}<br/><span style='font-size: 14px; color: #fed7aa;'>@${ODDS}</span>"
-            fi
-          fi
-
-          # Extract yesterday's results
+          # Extract yesterday's results for the banner
           # Note: Results for yesterday's games are in today's result files
           TODAY=$(TZ='America/Toronto' date +"%Y-%m-%d")
           YESTERDAY=$(TZ='America/Toronto' date -d 'yesterday' +"%Y-%m-%d" 2>/dev/null || TZ='America/Toronto' date -v-1d +"%Y-%m-%d")
@@ -224,17 +199,14 @@ jobs:
             fi
           fi
 
-          # Replace placeholders in email template
-          sed -e "s|\${NHL_PICK}|$NHL_PICK|g" \
-              -e "s|\${NBA_PICK}|$NBA_PICK|g" \
-              -e "s|NEW PREDICTIONS AVAILABLE - DAILY UPDATE|$YESTERDAY_BANNER|g" \
-              .github/workflows/email_body.html > /tmp/email_body.html
+          # Replace the yesterday banner placeholder
+          sed "s|NEW PREDICTIONS AVAILABLE - DAILY UPDATE|$YESTERDAY_BANNER|g" /tmp/email_body.html > /tmp/email_body_final.html
 
           echo "body<<EOF" >> $GITHUB_OUTPUT
-          cat /tmp/email_body.html >> $GITHUB_OUTPUT
+          cat /tmp/email_body_final.html >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
-          # Generate email subject with day and date in Montreal timezone
+          # Generate email subject
           EMAIL_DATE=$(TZ='America/Toronto' date +"%A, %B %d, %Y")
           echo "subject=$EMAIL_DATE - NHL/NBA Daily Picks" >> $GITHUB_OUTPUT
       - name: Send email notification
