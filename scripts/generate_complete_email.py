@@ -179,31 +179,28 @@ def generate_reasoning_html(pick_data):
                 description = parts[2].strip() if len(parts) > 2 else ""
 
                 bullets_html += f"""
-                                    <table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom: 12px;">
+                                    <table border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto 16px auto; width: 100%; max-width: 450px;">
                                       <tr>
-                                        <td width="28" valign="top" style="padding-top: 2px;">
-                                          <span style="font-size: 18px; line-height: 1;">{emoji}</span>
-                                        </td>
-                                        <td valign="top">
-                                          <p style="margin: 0 0 3px 0; color: #ffffff; font-size: 13px; font-weight: bold; font-family: Arial, sans-serif; line-height: 1.3;">{title}</p>
-                                          <p style="margin: 0; color: rgba(255,255,255,0.8); font-size: 12px; font-family: Arial, sans-serif; line-height: 1.5;">{description}</p>
+                                        <td align="center" style="padding: 0 15px;">
+                                          <p style="margin: 0 0 6px 0; color: #ffffff; font-size: 13px; font-weight: bold; font-family: Arial, sans-serif; line-height: 1.3; text-align: center;"><span style="font-size: 20px; vertical-align: middle; margin-right: 6px;">{emoji}</span>{title}</p>
+                                          <p style="margin: 0; color: rgba(255,255,255,0.85); font-size: 12px; font-family: Arial, sans-serif; line-height: 1.5; text-align: center;">{description}</p>
                                         </td>
                                       </tr>
                                     </table>"""
         else:
-            # Regular description line
+            # Regular description line (should be rare with current format)
             if line:
                 bullets_html += f"""
-                                    <p style="margin: 0 0 8px 0; padding-left: 28px; color: rgba(255,255,255,0.8); font-size: 12px; font-family: Arial, sans-serif; line-height: 1.5;">{line}</p>"""
+                                    <p style="margin: 0 auto 12px auto; width: 100%; max-width: 450px; padding: 0 15px; color: rgba(255,255,255,0.85); font-size: 12px; font-family: Arial, sans-serif; line-height: 1.5; text-align: center; box-sizing: border-box;">{line}</p>"""
 
     # Add win probability if available
     prob_html = ""
     if win_prob:
         prob_html = f"""
-                                <table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom: 15px; padding: 10px; background-color: rgba(255,255,255,0.1); border-radius: 8px;">
+                                <table border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto 15px auto; width: 100%; max-width: 450px; padding: 12px; background-color: rgba(255,255,255,0.1); border-radius: 8px; box-sizing: border-box;">
                                   <tr>
                                     <td align="center">
-                                      <p style="margin: 0; color: #ffffff; font-size: 12px; font-weight: bold; font-family: Arial, sans-serif;">📊 Win Probability: <span style="font-size: 16px;">{win_prob}%</span></p>
+                                      <p style="margin: 0; color: #ffffff; font-size: 12px; font-weight: bold; font-family: Arial, sans-serif; text-align: center;">📊 Win Probability: <span style="font-size: 16px;">{win_prob}%</span></p>
                                     </td>
                                   </tr>
                                 </table>"""
@@ -211,11 +208,11 @@ def generate_reasoning_html(pick_data):
     html = f"""
                           <table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-top: 18px; padding-top: 18px; border-top: 2px solid rgba(255,255,255,0.15);">
                             <tr>
-                              <td>
+                              <td align="center">
                                 {prob_html}
                                 <table border="0" cellpadding="0" cellspacing="0" width="100%">
                                   <tr>
-                                    <td>
+                                    <td align="center">
                                       <p style="margin: 0 0 12px 0; color: rgba(255,255,255,0.7); font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; font-family: Arial, sans-serif;">WHY THIS BET</p>
                                       {bullets_html}
                                     </td>
