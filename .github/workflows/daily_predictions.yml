@@ -58,6 +58,9 @@ jobs:
       - name: Run Dual Bet of the Day (3pm)
         if: steps.run_time.outputs.time == '3pm'
         run: python scripts/generate_featured_picks.py --run_time 3pm
+      - name: Generate daily picks table (3pm)
+        if: steps.run_time.outputs.time == '3pm'
+        run: python3 scripts/generate_daily_picks_table.py
       - name: Generate NHL games page
         run: python scripts/generate_nhl_games_page.py
       - name: Generate NBA games page
