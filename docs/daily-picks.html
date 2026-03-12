@@ -361,7 +361,7 @@ nav > div {
   font-size: 0.85em;
   color: #4b5563;
   line-height: 1.6;
-  max-width: 400px;
+  max-width: 500px;
 }
 /* Style each reasoning point as bullet list */
 .reasoning-point {
@@ -708,9 +708,10 @@ document.addEventListener('click', function(event) {
     <table class='picks-table'>
       <thead>
         <tr>
-          <th>Game & Pick</th>
+          <th>Game</th>
+          <th>Pick & Odds</th>
           <th>Confidence</th>
-          <th>Reasoning</th>
+          <th>Key Reasoning</th>
         </tr>
       </thead>
       <tbody id='nhlTableBody'>
@@ -730,9 +731,10 @@ document.addEventListener('click', function(event) {
     <table class='picks-table'>
       <thead>
         <tr>
-          <th>Game & Pick</th>
+          <th>Game</th>
+          <th>Pick & Odds</th>
           <th>Confidence</th>
-          <th>Reasoning</th>
+          <th>Key Reasoning</th>
         </tr>
       </thead>
       <tbody id='nbaTableBody'>
@@ -1089,16 +1091,18 @@ function renderTable(sport, picks) {
 
   tableBody.innerHTML = picks.map(pick => `
     <tr class='${sport}'>
-      <td data-label='Game & Pick'>
+      <td data-label='Game'>
         <div class='game-info'>
           <span class='sport-icon'>${sportIcon}</span>
           <div>
             <div class='teams'>${pick.game}</div>
-            <div class='pick-badge'>${pick.pick}</div>
-            <div class='bet-type ${pick.betType}'>${pick.betType}</div>
-            <div class='odds' style='margin-top: 8px;'>${pick.odds}</div>
           </div>
         </div>
+      </td>
+      <td data-label='Pick & Odds'>
+        <div class='pick-badge'>${pick.pick}</div>
+        <div class='bet-type ${pick.betType}'>${pick.betType}</div>
+        <div class='odds' style='margin-top: 8px;'>${pick.odds}</div>
       </td>
       <td data-label='Confidence'>
         <div class='confidence'>
@@ -1107,7 +1111,7 @@ function renderTable(sport, picks) {
           ${pick.winProbability ? `<div class='win-probability'>${pick.winProbability}%</div><div class='win-prob-label'>Win Prob</div>` : ''}
         </div>
       </td>
-      <td data-label='Reasoning'>
+      <td data-label='Key Reasoning'>
         <div class='reasoning'>${formatReasoning(pick.reasoning)}</div>
       </td>
     </tr>
