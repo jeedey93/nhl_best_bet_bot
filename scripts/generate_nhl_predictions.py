@@ -334,12 +334,49 @@ def get_nhl_standings():
     """
     Fetch current NHL standings to get team records.
     Returns dict mapping team names to their records (W-L-OTL format).
+    Keys use odds API format (e.g., "New York Rangers") for easy lookup.
     """
     try:
         standings_url = 'https://api-web.nhle.com/v1/standings/now'
         response = requests.get(standings_url, timeout=15)
         response.raise_for_status()
         data = response.json()
+
+        # Mapping from standings API names to odds API names (full team names with nicknames)
+        STANDINGS_TO_ODDS_MAP = {
+            'Anaheim': 'Anaheim Ducks',
+            'Boston': 'Boston Bruins',
+            'Buffalo': 'Buffalo Sabres',
+            'Calgary': 'Calgary Flames',
+            'Carolina': 'Carolina Hurricanes',
+            'Chicago': 'Chicago Blackhawks',
+            'Colorado': 'Colorado Avalanche',
+            'Columbus': 'Columbus Blue Jackets',
+            'Dallas': 'Dallas Stars',
+            'Detroit': 'Detroit Red Wings',
+            'Edmonton': 'Edmonton Oilers',
+            'Florida': 'Florida Panthers',
+            'Los Angeles': 'Los Angeles Kings',
+            'Minnesota': 'Minnesota Wild',
+            'Montréal': 'Montreal Canadiens',
+            'NY Islanders': 'New York Islanders',
+            'NY Rangers': 'New York Rangers',
+            'Nashville': 'Nashville Predators',
+            'New Jersey': 'New Jersey Devils',
+            'Ottawa': 'Ottawa Senators',
+            'Philadelphia': 'Philadelphia Flyers',
+            'Pittsburgh': 'Pittsburgh Penguins',
+            'San Jose': 'San Jose Sharks',
+            'Seattle': 'Seattle Kraken',
+            'St. Louis': 'St Louis Blues',
+            'Tampa Bay': 'Tampa Bay Lightning',
+            'Toronto': 'Toronto Maple Leafs',
+            'Utah': 'Utah Mammoth',
+            'Vancouver': 'Vancouver Canucks',
+            'Vegas': 'Vegas Golden Knights',
+            'Washington': 'Washington Capitals',
+            'Winnipeg': 'Winnipeg Jets'
+        }
 
         standings = {}
         for team in data.get('standings', []):
@@ -350,7 +387,11 @@ def get_nhl_standings():
             points = team['points']
             games_played = team['gamesPlayed']
             record = f"{wins}-{losses}-{ot_losses}"
-            standings[team_name] = {
+
+            # Map to odds API format if needed
+            mapped_name = STANDINGS_TO_ODDS_MAP.get(team_name, team_name)
+
+            standings[mapped_name] = {
                 'record': record,
                 'wins': wins,
                 'losses': losses,
@@ -664,8 +705,9 @@ with open(filename, "w") as f:
             goalie_stats_text += "\n"
 
             # Add standings info for both teams
-            away_standing = standings.get(away_short)
-            home_standing = standings.get(home_short)
+            # Standings uses full team names like "NY Rangers", not short names like "Rangers"
+            away_standing = standings.get(away_team)
+            home_standing = standings.get(home_team)
 
             standings_text += f"\n{away_team} (Season Standings):\n"
             if away_standing:
