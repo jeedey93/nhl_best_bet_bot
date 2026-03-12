@@ -358,39 +358,43 @@ nav > div {
 
 /* Reasoning */
 .reasoning {
-  font-size: 0.8em;
+  font-size: 0.85em;
   color: #4b5563;
-  line-height: 1.4;
-  max-width: 380px;
+  line-height: 1.6;
+  max-width: 400px;
 }
-/* Style each reasoning point - compact inline format */
+/* Style each reasoning point as bullet list */
 .reasoning-point {
   display: flex;
-  align-items: baseline;
-  gap: 6px;
-  margin-bottom: 4px;
-  line-height: 1.5;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 10px;
+  padding-left: 4px;
+  line-height: 1.6;
 }
 .reasoning-point:last-child {
   margin-bottom: 0;
 }
 .reasoning-emoji {
-  font-size: 1em;
+  font-size: 1.2em;
   flex-shrink: 0;
+  margin-top: 2px;
 }
 .reasoning-content {
   flex: 1;
-  display: inline;
+  display: block;
 }
 .reasoning-title {
   font-weight: 700;
   color: #1f2937;
-  display: inline;
-  margin-right: 4px;
+  display: block;
+  margin-bottom: 3px;
+  font-size: 0.95em;
 }
 .reasoning-text {
   color: #6b7280;
-  display: inline;
+  display: block;
+  font-size: 0.95em;
 }
 
 /* No games message */
@@ -575,12 +579,28 @@ nav > div {
 
   .reasoning {
     max-width: 100%;
-    font-size: 0.8em;
-    line-height: 1.4;
+    font-size: 0.85em;
+    line-height: 1.6;
+    padding: 0;
   }
 
   .reasoning-point {
-    margin-bottom: 6px;
+    margin-bottom: 12px;
+    padding-left: 0;
+  }
+
+  .reasoning-emoji {
+    font-size: 1.3em;
+    margin-top: 1px;
+  }
+
+  .reasoning-title {
+    font-size: 1em;
+    margin-bottom: 4px;
+  }
+
+  .reasoning-text {
+    font-size: 0.95em;
   }
 
   .pick-badge {
@@ -1096,9 +1116,7 @@ function renderTable(sport, picks) {
 
 function formatReasoning(reasoning) {
   // Parse reasoning bullet points with emoji and bold titles
-  // Format can be either:
-  // 1. 🔥 **Title**\nDescription\n\n (old format with space)
-  // 2. 😴**Flyers Fatigue Factor**\nDescription (new format without space)
+  // Format: 🔥 Title\nDescription\n\n or 🔥Title\nDescription
   const lines = reasoning.split('\n');
   let formatted = '';
   let i = 0;
@@ -1106,35 +1124,36 @@ function formatReasoning(reasoning) {
   while (i < lines.length) {
     const line = lines[i].trim();
 
-    // Check if line starts with emoji and has bold text (with or without space after emoji)
-    const match = line.match(/^([^\s*]+)\s*\*\*(.+?)\*\*/);
-    if (match) {
+    // Check if line starts with emoji (and optionally bold text)
+    // Match patterns like: 🔥Title, 🔥**Title**, 🔥 Title, 🔥 **Title**
+    const match = line.match(/^([^\s*\w]+)\s*\*{0,2}(.+?)\*{0,2}$/);
+    if (match && match[1].length <= 2) { // Emoji check
       const emoji = match[1];
       const title = match[2];
 
-      // Get description (next non-empty line or rest of current line after the title)
+      // Get description (next non-empty line)
       let description = '';
-
-      // Check if description is on same line after the title
-      const restOfLine = line.substring(match[0].length).trim();
-      if (restOfLine) {
-        description = restOfLine;
-        i++;
-      } else {
-        // Description is on next line(s)
-        i++;
-        while (i < lines.length && lines[i].trim() && !lines[i].match(/^([^\s*]+)\s*\*\*/)) {
-          description += lines[i].trim() + ' ';
+      i++;
+      while (i < lines.length) {
+        const nextLine = lines[i].trim();
+        if (!nextLine) {
           i++;
+          break; // Empty line = end of this point
         }
+        // Stop if we hit another emoji bullet point
+        if (nextLine.match(/^([^\s*\w]+)\s*\*{0,2}/)) {
+          break;
+        }
+        description += nextLine + ' ';
+        i++;
       }
 
-      // Compact inline format: emoji + title: description
+      // Format as separate title and description lines
       formatted += `
         <div class='reasoning-point'>
           <span class='reasoning-emoji'>${emoji}</span>
           <div class='reasoning-content'>
-            <span class='reasoning-title'>${title}:</span>
+            <span class='reasoning-title'>${title}</span>
             <span class='reasoning-text'>${description.trim()}</span>
           </div>
         </div>
