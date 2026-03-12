@@ -50,6 +50,7 @@ fetch('nav.html')
   });
 </script>
 
+<div style='height: 60px;'></div>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body {
@@ -61,17 +62,29 @@ body {
 .container {
   max-width: 1600px;
   margin: 0 auto;
-  padding: 40px 20px;
+  padding: 0 20px 40px 20px;
 }
 .hero {
   background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
   color: white;
   padding: 60px 40px;
   text-align: center;
-  border-radius: 16px;
-  margin-bottom: 40px;
-  box-shadow: 0 10px 40px rgba(74,144,226,0.3);
+  border-radius: 0;
+  margin: 0 0 40px 0;
+  box-shadow: none;
+  position: relative;
 }
+.hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,%3Csvg width="60" height="60" xmlns="http://www.w3.org/2000/svg"%3E%3Cpath d="M0 0h60v60H0z" fill="none"/%3E%3Cpath d="M30 0l30 30-30 30L0 30z" fill="%23ffffff" fill-opacity=".03"/%3E%3C/svg%3E');
+  opacity: 0.3;
+}
+.hero > * { position: relative; z-index: 1; }
 .hero-logo {
   width: 120px;
   height: 120px;
@@ -222,6 +235,10 @@ body {
   font-size: 1.1em;
 }
 @media (max-width: 768px) {
+  .hero {
+    margin: 0 0 30px 0;
+    padding: 40px 20px;
+  }
   .hero h1 { font-size: 2em; }
   .hero p { font-size: 1.1em; }
   .hero { padding: 40px 20px; }
@@ -232,12 +249,13 @@ body {
 }
 </style>
 
+<div class='hero'>
+  <img src='parieur_discipline_icon_1024.png' alt='Parieur Discipliné' class='hero-logo'>
+  <h1>About Parieur Discipliné</h1>
+  <p>AI-Powered Sports Betting Analysis</p>
+</div>
+
 <div class='container'>
-  <div class='hero'>
-    <img src='parieur_discipline_icon_1024.png' alt='Parieur Discipliné' class='hero-logo'>
-    <h1>About Parieur Discipliné</h1>
-    <p>AI-Powered Sports Betting Analysis</p>
-  </div>
 
   <div class='content-section'>
     <h2>🎯 What We Do</h2>

@@ -82,28 +82,42 @@ nav > div {
 /* Content Container */
 .page-content {
   margin-top: 60px;
-  padding: 20px;
+  padding: 0;
 }
 
 .container {
   max-width: 1600px;
   margin: 0 auto;
+  padding: 0 20px 20px 20px;
 }
 
 /* Hero Section */
 .hero {
   background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
   color: white;
-  padding: 40px 30px;
+  padding: 50px 40px;
   text-align: center;
-  border-radius: 16px;
+  border-radius: 0;
   margin-bottom: 40px;
-  box-shadow: 0 4px 20px rgba(74, 144, 226, 0.3);
+  box-shadow: none;
+  position: relative;
 }
+.hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,%3Csvg width="60" height="60" xmlns="http://www.w3.org/2000/svg"%3E%3Cpath d="M0 0h60v60H0z" fill="none"/%3E%3Cpath d="M30 0l30 30-30 30L0 30z" fill="%23ffffff" fill-opacity=".03"/%3E%3C/svg%3E');
+  opacity: 0.3;
+}
+.hero > * { position: relative; z-index: 1; }
 .hero h1 {
   font-size: 2.5em;
   margin-bottom: 10px;
   font-weight: 800;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.2);
 }
 .hero p {
   font-size: 1.1em;
@@ -452,11 +466,16 @@ nav > div {
   }
 
   .page-content {
-    padding: 10px;
+    padding: 0;
+  }
+
+  .container {
+    padding: 0 10px 10px 10px;
   }
 
   .hero {
-    padding: 30px 20px;
+    padding: 40px 20px;
+    border-radius: 0;
   }
   .hero h1 {
     font-size: 1.8em;
@@ -669,7 +688,6 @@ document.addEventListener('click', function(event) {
 </script>
 
 <div class='page-content'>
-<div class='container'>
   <!-- Hero -->
   <div class='hero'>
     <h1>🎯 Today's Picks</h1>
@@ -680,6 +698,8 @@ document.addEventListener('click', function(event) {
       <div style='font-size: 1.1em; font-weight: 700; margin-top: 4px;'>3:00 PM</div>
     </div>
   </div>
+
+<div class='container'>
 
   <!-- Summary Stats -->
   <div class='summary-stats'>

@@ -46,23 +46,98 @@ body {
   color: #1a1a1a;
   min-height: 100vh;
 }
-.container { max-width: 1600px; margin: 0 auto; padding: 40px 20px; }
+.container { max-width: 1600px; margin: 0 auto; padding: 0 20px 40px 20px; }
+
+/* Navigation */
+nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: linear-gradient(135deg, #2c5aa0 0%, #1e3a8a 100%);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  backdrop-filter: blur(10px);
+}
+nav > div {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 10px 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.nav-logo img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+}
+.nav-logo span {
+  color: white;
+  font-weight: 700;
+  font-size: 1em;
+}
+#mobileMenuBtn {
+  display: none;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.5em;
+  cursor: pointer;
+  padding: 5px;
+}
+#navLinks {
+  display: flex;
+  gap: 8px;
+}
+#navLinks a {
+  color: white;
+  text-decoration: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.9em;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+#navLinks a:hover {
+  background: rgba(255,255,255,0.15);
+}
+body { padding-top: 60px; }
 .header {
   text-align: center;
-  margin-bottom: 50px;
+  margin: 0 0 50px 0;
   background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
-  border-radius: 20px;
-  padding: 40px 20px;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+  border-radius: 0;
+  padding: 60px 40px;
+  box-shadow: none;
+  position: relative;
 }
+.header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,%3Csvg width="60" height="60" xmlns="http://www.w3.org/2000/svg"%3E%3Cpath d="M0 0h60v60H0z" fill="none"/%3E%3Cpath d="M30 0l30 30-30 30L0 30z" fill="%23ffffff" fill-opacity=".03"/%3E%3C/svg%3E');
+  opacity: 0.3;
+}
+.header > * { position: relative; z-index: 1; }
 .header h1 {
   font-size: 3em;
   color: white;
   margin-bottom: 15px;
   font-weight: 800;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.2);
 }
 .header p {
-  color: rgba(255,255,255,0.9);
+  color: rgba(255,255,255,0.95);
   font-size: 1.2em;
   font-weight: 500;
 }
@@ -652,8 +727,29 @@ body {
   border: 2px solid #e5e7eb;
 }
 @media (max-width: 768px) {
-  .container { padding: 20px 10px; }
-  .header { padding: 30px 15px; margin-bottom: 30px; border-radius: 15px; }
+  nav .nav-logo span { font-size: 0.9em; }
+  nav .nav-logo img { width: 28px; height: 28px; }
+  #mobileMenuBtn { display: block !important; }
+  #navLinks {
+    display: none !important;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: linear-gradient(135deg, #2c5aa0 0%, #1e3a8a 100%);
+    flex-direction: column;
+    gap: 0;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  }
+  #navLinks.active { display: flex !important; }
+  #navLinks a {
+    padding: 12px 20px;
+    font-size: 0.95em;
+    border-radius: 0;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+  .container { padding: 0 10px 20px 10px; }
+  .header { margin: 0 0 30px 0; padding: 40px 20px; border-radius: 0; }
   .header h1 { font-size: 2em; margin-bottom: 10px; }
   .header p { font-size: 1em; }
   .games-scroller { padding: 15px; border-radius: 12px; }
@@ -779,6 +875,41 @@ document.addEventListener('DOMContentLoaded', function() {
 </head>
 <body>
 
+<!-- Navigation -->
+<nav>
+<div>
+<div class='nav-logo'>
+<img src='parieur_discipline_icon_1024.png' alt='Logo' />
+<span>Parieur Discipliné</span>
+</div>
+<button id='mobileMenuBtn' onclick='toggleMobileMenu()'>☰</button>
+<div id='navLinks'>
+<a href='index.html'>Home</a>
+<a href='daily-picks.html'>🎯 Today</a>
+<a href='nhl.html'>🏒 NHL</a>
+<a href='nba.html' style='background: rgba(255,255,255,0.15);'>🏀 NBA</a>
+<a href='performance.html'>📊 Performance</a>
+<a href='about.html'>About</a>
+</div>
+</div>
+</nav>
+
+<script>
+function toggleMobileMenu() {
+  const navLinks = document.getElementById('navLinks');
+  navLinks.classList.toggle('active');
+}
+document.addEventListener('click', function(event) {
+  const nav = document.querySelector('nav');
+  const navLinks = document.getElementById('navLinks');
+  if (!nav.contains(event.target) && navLinks.classList.contains('active')) {
+    navLinks.classList.remove('active');
+  }
+});
+</script>
+
+
+
 <nav style='position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: linear-gradient(135deg, #2c5aa0 0%, #1e3a8a 100%); box-shadow: 0 2px 10px rgba(0,0,0,0.1); backdrop-filter: blur(10px);'>
 <div style='max-width: 1600px; margin: 0 auto; padding: 10px 15px; display: flex; align-items: center; justify-content: space-between;'>
 <div style='display: flex; align-items: center; gap: 10px;'>
@@ -840,12 +971,13 @@ document.addEventListener('click', function(event) {
 <div style='height: 60px;'></div>
 
 
-<div class='container'>
 <div class='header'>
 <h1>🏀 NBA Games Today</h1>
 <p>Thursday, March 12, 2026</p>
 <p>⏱️ Last Updated at 3:50 PM</p>
 </div>
+
+<div class='container'>
 
 <div class='games-scroller'>
 <div class='scroller-title'>Quick Navigation</div>
