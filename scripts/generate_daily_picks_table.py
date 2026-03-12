@@ -2,12 +2,17 @@
 """
 Generate daily picks table for the Today's Picks page.
 Parses NHL and NBA prediction files and creates JavaScript data for daily-picks.html
+Also summarizes reasonings using Gemini in one batch call.
 """
 
 import os
 import re
 from datetime import datetime
 from pathlib import Path
+from google import genai
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 def parse_decimal_odds(decimal_odds):
@@ -467,6 +472,114 @@ def update_html_with_data(html_path, js_data):
     return True
 
 
+def load_summarize_prompt():
+    """Load the summarize bullet points prompt."""
+    prompt_file = Path(__file__).parent.parent / 'prompts' / 'summarize_bullet_points_prompt.txt'
+    with open(prompt_file, 'r', encoding='utf-8') as f:
+        return f.read()
+
+
+def summarize_reasonings_batch(reasonings_dict):
+    """
+    Send all reasonings to Gemini in one call and get back summarized versions.
+
+    Args:
+        reasonings_dict: Dict with keys like "nhl_0", "nba_1" mapping to reasoning text
+
+    Returns:
+        Dict with same keys mapping to summarized bullet points
+    """
+    if not reasonings_dict:
+        return {}
+
+    # Configure Gemini
+    api_key = os.getenv('GOOGLE_API_KEY')
+    if not api_key:
+        print("⚠️  Warning: GOOGLE_API_KEY not found, skipping reasoning summarization")
+        return {}
+
+    try:
+        client = genai.Client(api_key=api_key)
+
+        # Build the batch prompt
+        base_prompt = load_summarize_prompt()
+
+        # Create a batch request with all reasonings
+        batch_request = "I have multiple NHL/NBA betting analyses to convert to bullet points. Please process each one and return them with the same identifiers.\n\n"
+
+        for key, reasoning in reasonings_dict.items():
+            batch_request += f"=== {key} ===\n{reasoning}\n\n"
+
+        batch_request += "\n\nPlease return the summarized bullet points for each analysis using the EXACT same identifier (e.g., === nhl_0 ===) followed by the bullet points, then a blank line before the next one."
+
+        # Combine base prompt with batch request
+        full_prompt = f"{base_prompt}\n\n{batch_request}"
+
+        print(f"📝 Summarizing {len(reasonings_dict)} reasonings with Gemini...")
+        response = client.models.generate_content(
+            model="models/gemini-2.5-flash",
+            contents=full_prompt,
+        )
+        response_text = response.text
+
+        # Parse the response back into individual summaries
+        summaries = {}
+        current_key = None
+        current_lines = []
+
+        for line in response_text.split('\n'):
+            # Check if this is a new section identifier
+            if line.strip().startswith('===') and line.strip().endswith('==='):
+                # Save previous section if exists
+                if current_key and current_lines:
+                    summaries[current_key] = '\n'.join(current_lines).strip()
+
+                # Extract the key
+                current_key = line.strip().replace('===', '').strip()
+                current_lines = []
+            else:
+                if current_key is not None:
+                    current_lines.append(line)
+
+        # Save the last section
+        if current_key and current_lines:
+            summaries[current_key] = '\n'.join(current_lines).strip()
+
+        print(f"✅ Received {len(summaries)} summaries from Gemini")
+        return summaries
+
+    except Exception as e:
+        print(f"⚠️  Error summarizing reasonings: {e}")
+        return {}
+
+
+def apply_summaries_to_picks(nhl_picks, nba_picks, summaries):
+    """
+    Apply summarized reasonings to the picks.
+
+    Args:
+        nhl_picks: List of NHL pick dictionaries
+        nba_picks: List of NBA pick dictionaries
+        summaries: Dict of summarized reasonings with keys like "nhl_0", "nba_1"
+
+    Returns:
+        Tuple of (updated_nhl_picks, updated_nba_picks)
+    """
+    # Update NHL picks
+    for i, pick in enumerate(nhl_picks):
+        key = f"nhl_{i}"
+        if key in summaries:
+            pick['reasoning'] = summaries[key]
+
+    # Update NBA picks
+    for i, pick in enumerate(nba_picks):
+        key = f"nba_{i}"
+        if key in summaries:
+            pick['reasoning'] = summaries[key]
+
+    return nhl_picks, nba_picks
+
+
 def main():
     """Main function to generate daily picks table."""
     print("Generating daily picks table...")
@@ -491,6 +604,21 @@ def main():
         print(f"Extracted {len(nba_picks)} NBA picks")
     else:
         print("No NBA prediction file found for today")
+
+    # Gather all reasonings for summarization
+    reasonings_dict = {}
+    for i, pick in enumerate(nhl_picks):
+        reasonings_dict[f"nhl_{i}"] = pick['reasoning']
+    for i, pick in enumerate(nba_picks):
+        reasonings_dict[f"nba_{i}"] = pick['reasoning']
+
+    # Summarize all reasonings in one Gemini call
+    if reasonings_dict:
+        summaries = summarize_reasonings_batch(reasonings_dict)
+        if summaries:
+            nhl_picks, nba_picks = apply_summaries_to_picks(nhl_picks, nba_picks, summaries)
+    else:
+        print("ℹ️  No picks found to summarize")
 
     # Generate JavaScript data
     js_data = generate_javascript_data(nhl_picks, nba_picks)
