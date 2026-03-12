@@ -49,6 +49,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
   border-left: 4px solid #4a90e2;
   transition: transform 0.2s;
+  text-align: center;
 }
 .stat-card:hover {
   transform: translateY(-3px);
@@ -224,7 +225,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 }
 .charts-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 30px;
   margin-bottom: 30px;
 }
@@ -308,29 +309,32 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   }
 
   .chart-container {
-    padding: 15px;
+    padding: 15px 10px;
     margin-bottom: 20px;
   }
 
   .chart-title {
-    font-size: 1em;
+    font-size: 0.9em;
+    margin-bottom: 10px;
   }
 
   .charts-grid {
     grid-template-columns: 1fr;
-    gap: 15px;
+    gap: 20px;
   }
 
   .charts-section {
-    padding: 20px 15px;
+    padding: 20px 10px;
   }
 
   .charts-title {
-    font-size: 1.5em;
+    font-size: 1.3em;
+    margin-bottom: 20px;
   }
 
   canvas {
-    max-height: 250px !important;
+    max-height: 280px !important;
+    width: 100% !important;
   }
 }
 </style>
@@ -625,20 +629,22 @@ Chart.defaults.color = '#4b5563';
 // Responsive font sizes for mobile
 const isMobile = window.innerWidth <= 768;
 if (isMobile) {
-  Chart.defaults.font.size = 10;
+  Chart.defaults.font.size = 9;
 }
 
 // Common responsive options for mobile
 const responsiveOptions = {
   responsive: true,
   maintainAspectRatio: true,
+  aspectRatio: isMobile ? 1.2 : 2,
   plugins: {
     legend: {
       labels: {
-        padding: isMobile ? 10 : 15,
+        padding: isMobile ? 8 : 15,
         font: {
-          size: isMobile ? 10 : 12
-        }
+          size: isMobile ? 9 : 12
+        },
+        boxWidth: isMobile ? 30 : 40
       }
     }
   },
@@ -646,16 +652,18 @@ const responsiveOptions = {
     x: {
       ticks: {
         font: {
-          size: isMobile ? 9 : 11
+          size: isMobile ? 8 : 11
         },
         maxRotation: isMobile ? 45 : 0,
-        minRotation: isMobile ? 45 : 0
+        minRotation: isMobile ? 45 : 0,
+        autoSkip: true,
+        maxTicksLimit: isMobile ? 8 : 15
       }
     },
     y: {
       ticks: {
         font: {
-          size: isMobile ? 9 : 11
+          size: isMobile ? 8 : 11
         }
       }
     }
@@ -681,6 +689,7 @@ new Chart(winRateCtx, {
   options: {
     responsive: true,
     maintainAspectRatio: true,
+    aspectRatio: isMobile ? 1.2 : 2,
     plugins: {
       legend: {
         display: false
@@ -702,7 +711,7 @@ new Chart(winRateCtx, {
             return value + '%';
           },
           font: {
-            size: isMobile ? 9 : 11
+            size: isMobile ? 8 : 11
           }
         },
         grid: { color: '#e5e7eb' }
@@ -711,7 +720,7 @@ new Chart(winRateCtx, {
         grid: { display: false },
         ticks: {
           font: {
-            size: isMobile ? 10 : 12
+            size: isMobile ? 9 : 12
           }
         }
       }
@@ -743,14 +752,16 @@ new Chart(dailyTrendCtx, {
   options: {
     responsive: true,
     maintainAspectRatio: true,
+    aspectRatio: isMobile ? 1 : 1.8,
     plugins: {
       legend: {
         position: 'bottom',
         labels: {
-          padding: isMobile ? 8 : 12,
+          padding: isMobile ? 6 : 12,
           font: {
-            size: isMobile ? 10 : 12
-          }
+            size: isMobile ? 9 : 12
+          },
+          boxWidth: isMobile ? 30 : 40
         }
       }
     },
@@ -760,7 +771,7 @@ new Chart(dailyTrendCtx, {
         ticks: {
           stepSize: 1,
           font: {
-            size: isMobile ? 9 : 11
+            size: isMobile ? 8 : 11
           }
         },
         grid: { color: '#e5e7eb' }
@@ -769,10 +780,12 @@ new Chart(dailyTrendCtx, {
         grid: { display: false },
         ticks: {
           font: {
-            size: isMobile ? 8 : 10
+            size: isMobile ? 7 : 10
           },
           maxRotation: isMobile ? 90 : 45,
-          minRotation: isMobile ? 90 : 45
+          minRotation: isMobile ? 90 : 45,
+          autoSkip: true,
+          maxTicksLimit: isMobile ? 10 : 13
         }
       }
     }
@@ -800,6 +813,7 @@ new Chart(rollingAvgCtx, {
   options: {
     responsive: true,
     maintainAspectRatio: true,
+    aspectRatio: isMobile ? 1 : 1.8,
     plugins: {
       legend: {
         display: false
@@ -822,7 +836,7 @@ new Chart(rollingAvgCtx, {
             return value + '%';
           },
           font: {
-            size: isMobile ? 9 : 11
+            size: isMobile ? 8 : 11
           }
         },
         grid: { color: '#e5e7eb' }
@@ -831,10 +845,12 @@ new Chart(rollingAvgCtx, {
         grid: { display: false },
         ticks: {
           font: {
-            size: isMobile ? 8 : 10
+            size: isMobile ? 7 : 10
           },
           maxRotation: isMobile ? 90 : 45,
-          minRotation: isMobile ? 90 : 45
+          minRotation: isMobile ? 90 : 45,
+          autoSkip: true,
+          maxTicksLimit: isMobile ? 6 : 7
         }
       }
     }
@@ -859,6 +875,7 @@ new Chart(monthlyCtx, {
   options: {
     responsive: true,
     maintainAspectRatio: true,
+    aspectRatio: isMobile ? 1.2 : 2,
     plugins: {
       legend: {
         display: false
@@ -888,7 +905,7 @@ new Chart(monthlyCtx, {
             return value >= 0 ? '+' + value : value;
           },
           font: {
-            size: isMobile ? 9 : 11
+            size: isMobile ? 8 : 11
           }
         },
         grid: {
