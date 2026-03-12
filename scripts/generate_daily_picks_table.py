@@ -598,43 +598,56 @@ def apply_summaries_to_picks(nhl_picks, nba_picks, summaries):
 
 def main():
     """Main function to generate daily picks table."""
-    print("Generating daily picks table...")
+    import argparse
 
-    # Get latest prediction files
-    nhl_file = get_latest_prediction_file('nhl')
-    nba_file = get_latest_prediction_file('nba')
+    parser = argparse.ArgumentParser(description='Generate daily picks table')
+    parser.add_argument('--results-only', action='store_true',
+                       help='Generate empty picks page with "come back at 3pm" message')
+    args = parser.parse_args()
 
-    nhl_picks = []
-    nba_picks = []
-
-    if nhl_file:
-        print(f"Found NHL predictions: {nhl_file}")
-        nhl_picks = parse_prediction_file(nhl_file, 'nhl')
-        print(f"Extracted {len(nhl_picks)} NHL picks")
+    if args.results_only:
+        print("Generating daily picks page with 'come back at 3pm' message...")
+        # Generate empty picks
+        nhl_picks = []
+        nba_picks = []
     else:
-        print("No NHL prediction file found for today")
+        print("Generating daily picks table...")
 
-    if nba_file:
-        print(f"Found NBA predictions: {nba_file}")
-        nba_picks = parse_prediction_file(nba_file, 'nba')
-        print(f"Extracted {len(nba_picks)} NBA picks")
-    else:
-        print("No NBA prediction file found for today")
+        # Get latest prediction files
+        nhl_file = get_latest_prediction_file('nhl')
+        nba_file = get_latest_prediction_file('nba')
 
-    # Gather all reasonings for summarization
-    reasonings_dict = {}
-    for i, pick in enumerate(nhl_picks):
-        reasonings_dict[f"nhl_{i}"] = pick['reasoning']
-    for i, pick in enumerate(nba_picks):
-        reasonings_dict[f"nba_{i}"] = pick['reasoning']
+        nhl_picks = []
+        nba_picks = []
 
-    # Summarize all reasonings in one Gemini call
-    if reasonings_dict:
-        summaries = summarize_reasonings_batch(reasonings_dict)
-        if summaries:
-            nhl_picks, nba_picks = apply_summaries_to_picks(nhl_picks, nba_picks, summaries)
-    else:
-        print("ℹ️  No picks found to summarize")
+        if nhl_file:
+            print(f"Found NHL predictions: {nhl_file}")
+            nhl_picks = parse_prediction_file(nhl_file, 'nhl')
+            print(f"Extracted {len(nhl_picks)} NHL picks")
+        else:
+            print("No NHL prediction file found for today")
+
+        if nba_file:
+            print(f"Found NBA predictions: {nba_file}")
+            nba_picks = parse_prediction_file(nba_file, 'nba')
+            print(f"Extracted {len(nba_picks)} NBA picks")
+        else:
+            print("No NBA prediction file found for today")
+
+        # Gather all reasonings for summarization
+        reasonings_dict = {}
+        for i, pick in enumerate(nhl_picks):
+            reasonings_dict[f"nhl_{i}"] = pick['reasoning']
+        for i, pick in enumerate(nba_picks):
+            reasonings_dict[f"nba_{i}"] = pick['reasoning']
+
+        # Summarize all reasonings in one Gemini call
+        if reasonings_dict:
+            summaries = summarize_reasonings_batch(reasonings_dict)
+            if summaries:
+                nhl_picks, nba_picks = apply_summaries_to_picks(nhl_picks, nba_picks, summaries)
+        else:
+            print("ℹ️  No picks found to summarize")
 
     # Generate JavaScript data
     js_data = generate_javascript_data(nhl_picks, nba_picks)
@@ -642,8 +655,11 @@ def main():
     # Update HTML file
     html_path = 'docs/daily-picks.html'
     if update_html_with_data(html_path, js_data):
-        print(f"✅ Successfully updated {html_path}")
-        print(f"Total picks: {len(nhl_picks) + len(nba_picks)} (NHL: {len(nhl_picks)}, NBA: {len(nba_picks)})")
+        if args.results_only:
+            print(f"✅ Successfully updated {html_path} with 'come back at 3pm' message")
+        else:
+            print(f"✅ Successfully updated {html_path}")
+            print(f"Total picks: {len(nhl_picks) + len(nba_picks)} (NHL: {len(nhl_picks)}, NBA: {len(nba_picks)})")
     else:
         print("❌ Failed to update HTML file")
 
