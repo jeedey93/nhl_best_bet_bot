@@ -207,6 +207,93 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   border-radius: 6px;
 }
 
+/* Bet Type Performance */
+.bet-type-section {
+  background: white;
+  border-radius: 12px;
+  padding: 30px;
+  margin-bottom: 30px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+.bet-type-title {
+  font-size: 2em;
+  font-weight: 700;
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #e5e7eb;
+}
+.bet-type-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+.bet-type-card {
+  background: linear-gradient(135deg, #f9fafb 0%, #ffffff 100%);
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 20px;
+  transition: all 0.3s ease;
+}
+.bet-type-card:hover {
+  border-color: #4a90e2;
+  box-shadow: 0 4px 12px rgba(74, 144, 226, 0.15);
+  transform: translateY(-3px);
+}
+.bet-type-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 15px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #e5e7eb;
+}
+.bet-type-name {
+  font-size: 1.3em;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+.bet-type-icon {
+  font-size: 1.8em;
+}
+.bet-type-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.bet-type-stat {
+  text-align: center;
+  padding: 10px;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+.bet-type-stat-label {
+  font-size: 0.85em;
+  color: #6b7280;
+  font-weight: 600;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.bet-type-stat-value {
+  font-size: 1.3em;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+.bet-type-stat-value.positive {
+  color: #10b981;
+}
+.bet-type-stat-value.negative {
+  color: #ef4444;
+}
+.bet-type-winrate {
+  grid-column: 1 / -1;
+  margin-top: 8px;
+}
+.bet-type-winrate .bet-type-stat-value {
+  font-size: 1.8em;
+}
+
 /* Charts */
 .charts-section {
   background: white;
@@ -463,6 +550,80 @@ document.addEventListener('click', function(event) {
         <div class='mini-stat-label'>Record</div>
         <div class='mini-stat-value'>38-35</div>
       </div>
+    </div>
+  </div>
+
+  <!-- Bet Type Performance -->
+  <div class='bet-type-section'>
+    <div class='bet-type-title'>🎯 Bet Type Performance</div>
+    <div class='bet-type-grid'>
+
+      <!-- Moneyline -->
+      <div class='bet-type-card'>
+        <div class='bet-type-header'>
+          <div class='bet-type-name'>Moneyline</div>
+          <div class='bet-type-icon'>💰</div>
+        </div>
+        <div class='bet-type-stats'>
+          <div class='bet-type-stat'>
+            <div class='bet-type-stat-label'>Wins</div>
+            <div class='bet-type-stat-value positive'>24</div>
+          </div>
+          <div class='bet-type-stat'>
+            <div class='bet-type-stat-label'>Losses</div>
+            <div class='bet-type-stat-value negative'>28</div>
+          </div>
+          <div class='bet-type-stat bet-type-winrate'>
+            <div class='bet-type-stat-label'>Win Rate</div>
+            <div class='bet-type-stat-value'>46.2%</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Spread -->
+      <div class='bet-type-card'>
+        <div class='bet-type-header'>
+          <div class='bet-type-name'>Spread</div>
+          <div class='bet-type-icon'>📊</div>
+        </div>
+        <div class='bet-type-stats'>
+          <div class='bet-type-stat'>
+            <div class='bet-type-stat-label'>Wins</div>
+            <div class='bet-type-stat-value positive'>22</div>
+          </div>
+          <div class='bet-type-stat'>
+            <div class='bet-type-stat-label'>Losses</div>
+            <div class='bet-type-stat-value negative'>19</div>
+          </div>
+          <div class='bet-type-stat bet-type-winrate'>
+            <div class='bet-type-stat-label'>Win Rate</div>
+            <div class='bet-type-stat-value positive'>53.7%</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Totals (Over/Under) -->
+      <div class='bet-type-card'>
+        <div class='bet-type-header'>
+          <div class='bet-type-name'>Totals (O/U)</div>
+          <div class='bet-type-icon'>🎲</div>
+        </div>
+        <div class='bet-type-stats'>
+          <div class='bet-type-stat'>
+            <div class='bet-type-stat-label'>Wins</div>
+            <div class='bet-type-stat-value positive'>22</div>
+          </div>
+          <div class='bet-type-stat'>
+            <div class='bet-type-stat-label'>Losses</div>
+            <div class='bet-type-stat-value negative'>23</div>
+          </div>
+          <div class='bet-type-stat bet-type-winrate'>
+            <div class='bet-type-stat-label'>Win Rate</div>
+            <div class='bet-type-stat-value'>48.9%</div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 
