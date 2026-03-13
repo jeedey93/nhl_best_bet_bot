@@ -1779,12 +1779,6 @@ def update_latest_predictions(preliminary=False):
     # ── Content wrapper starts here ──
     content += "<div class='content-wrapper'>\n\n"
 
-    # ── Navigation Tabs ──
-    content += "<div class='nav-tabs'>\n"
-    content += "<a href='#featured-picks' class='nav-tab'>🔥 Featured Picks</a>\n"
-    content += "<a href='#yesterday-results' class='nav-tab'>📋 Yesterday's Results</a>\n"
-    content += "</div>\n\n"
-
     # ── Featured Picks Section ──
     # Check preliminary flag to determine which picks to show
     show_preliminary = preliminary
