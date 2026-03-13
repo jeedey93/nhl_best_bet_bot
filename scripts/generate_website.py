@@ -1780,16 +1780,32 @@ def update_latest_predictions(preliminary=False):
     featured_content = ""
 
     if preliminary:
-        # Show 7am preliminary picks
-        nhl_7am_path = os.path.join(predictions_dir, "nhl", f"nhl_daily_predictions_7am_{overall_latest_date}.txt")
-        nba_7am_path = os.path.join(predictions_dir, "nba", f"nba_daily_predictions_7am_{overall_latest_date}.txt")
+        # Show 7am preliminary picks from daily_runs folder - use TODAY's date
+        from datetime import date as date_module
+        today_str = date_module.today().isoformat()
 
+        nhl_7am_path = os.path.join(predictions_dir, "nhl", "daily_runs", f"nhl_daily_predictions_{today_str}_7am.txt")
+        nba_7am_path = os.path.join(predictions_dir, "nba", "daily_runs", f"nba_daily_predictions_{today_str}_7am.txt")
+
+        # Extract bet of the day from each 7am file and show as featured picks
+        featured_picks = []
         if os.path.exists(nhl_7am_path):
             nhl_7am_content = read_file(nhl_7am_path).strip()
-            featured_content += build_sport_section(nhl_7am_content, "nhl", "NHL", "🏒", records["nhl"])
+            nhl_pick = extract_bet_of_day_from_prediction(nhl_7am_content, "NHL", "🏒")
+            if nhl_pick:
+                featured_picks.append(nhl_pick)
+
         if os.path.exists(nba_7am_path):
             nba_7am_content = read_file(nba_7am_path).strip()
-            featured_content += build_sport_section(nba_7am_content, "nba", "NBA", "🏀", records["nba"])
+            nba_pick = extract_bet_of_day_from_prediction(nba_7am_content, "NBA", "🏀")
+            if nba_pick:
+                featured_picks.append(nba_pick)
+
+        if featured_picks:
+            featured_content = "<div class='featured-grid'>\n"
+            for pick in featured_picks:
+                featured_content += pick
+            featured_content += "</div>\n"
     else:
         # Show 3pm final featured picks from dual bet file
         if os.path.exists(dual_bet_path):
