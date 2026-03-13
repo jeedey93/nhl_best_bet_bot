@@ -1489,6 +1489,9 @@ def extract_bet_of_day_from_prediction(content, sport_name, sport_emoji):
 
     # Format as a card
     html = "<div class='pick-card'>\n"
+
+    # Card content container (will grow to fill space)
+    html += "<div style='flex-grow: 1;'>\n"
     html += f"<div class='pick-badge {sport_badge_class}'>{sport_emoji} {sport_name}</div>\n"
     html += f"<div class='pick-title'>{bet_line}</div>\n"
 
@@ -1498,7 +1501,10 @@ def extract_bet_of_day_from_prediction(content, sport_name, sport_emoji):
     if description:
         html += f"<div class='pick-description'>{description}</div>\n"
 
-    html += "<div style='margin-top: 15px; padding: 12px; background: #fffbeb; border-left: 4px solid #f59e0b; border-radius: 4px;'>\n"
+    html += "</div>\n"  # Close content container
+
+    # Warning box (pushed to bottom with margin-top: auto)
+    html += "<div style='margin-top: auto; padding: 12px; background: #fffbeb; border-left: 4px solid #f59e0b; border-radius: 4px;'>\n"
     html += "<div style='font-size: 0.85em; color: #92400e; font-weight: 600;'>⚠️ Preliminary Pick</div>\n"
     html += "<div style='font-size: 0.8em; color: #78350f; margin-top: 4px;'>This pick may change after 3pm line movement analysis</div>\n"
     html += "</div>\n"
@@ -1601,7 +1607,7 @@ def update_latest_predictions(preliminary=False):
     content += ".section-title { font-size: 2.2em; font-weight: 800; color: #111827; display: flex; align-items: center; gap: 12px; }\n"
     content += ".section-subtitle { font-size: 0.95em; color: #6b7280; margin-top: 8px; font-weight: 400; }\n"
     content += ".featured-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 40px; margin: 35px 0; }\n"
-    content += ".pick-card { background: white; border-radius: 16px; padding: 28px; border: 2px solid #e5e7eb; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); transition: all 0.3s ease; position: relative; }\n"
+    content += ".pick-card { background: white; border-radius: 16px; padding: 28px; border: 2px solid #e5e7eb; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); transition: all 0.3s ease; position: relative; display: flex; flex-direction: column; }\n"
     content += ".pick-card:hover { transform: translateY(-4px); box-shadow: 0 12px 35px rgba(37, 99, 235, 0.15); border-color: #3b82f6; }\n"
     content += ".pick-badge { display: block; text-align: center; padding: 10px 20px; border-radius: 25px; font-size: 0.85em; font-weight: 800; text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 18px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15); animation: pulse 2s ease-in-out infinite; }\n"
     content += "@keyframes pulse { 0%, 100% { transform: scale(1); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15); } 50% { transform: scale(1.05); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25); } }\n"
