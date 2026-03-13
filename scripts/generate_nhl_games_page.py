@@ -918,24 +918,37 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
         html += "<div class='stat-tile goalie-tile'>\n"
         html += "<div class='stat-label'>Starting Goalie</div>\n"
         if away_goalie:
-            html += f"<div class='goalie-name'>{away_goalie['name']}</div>\n"
             status_class = 'confirmed' if 'confirm' in away_goalie['status'].lower() else 'unconfirmed'
-            html += f"<div class='goalie-status {status_class}'>{away_goalie['status']}</div>\n"
 
             # Display goalie stats if available
             if 'record' in away_goalie:
-                html += "<div class='goalie-stats'>\n"
-                html += f"<div class='goalie-stat-row'><span class='stat-name'>Record:</span> <span class='stat-val'>{away_goalie['record']}</span></div>\n"
-                html += f"<div class='goalie-stat-row'><span class='stat-name'>GAA:</span> <span class='stat-val'>{away_goalie['gaa']:.2f}</span></div>\n"
-                html += f"<div class='goalie-stat-row'><span class='stat-name'>SV%:</span> <span class='stat-val'>{away_goalie['sv_pct']}</span></div>\n"
-                html += "<div class='goalie-last-5'>Last 5 Starts</div>\n"
-                html += f"<div class='goalie-stat-row'><span class='stat-name'>Record:</span> <span class='stat-val'>{away_goalie['last_5_record']}</span></div>\n"
-                html += f"<div class='goalie-stat-row'><span class='stat-name'>GAA:</span> <span class='stat-val'>{away_goalie['last_5_gaa']:.2f}</span></div>\n"
-                html += f"<div class='goalie-stat-row'><span class='stat-name'>SV%:</span> <span class='stat-val'>{away_goalie['last_5_sv_pct']}</span></div>\n"
+                html += f"<div class='goalie-header'>\n"
+                html += f"<div class='goalie-name'>{away_goalie['name']}</div>\n"
+                html += f"<div class='goalie-status {status_class}'>{away_goalie['status']}</div>\n"
+                html += "</div>\n"
+                html += "<div class='goalie-stats-compact'>\n"
+                html += "<div class='season-stats'>\n"
+                html += f"<div class='stat-item'><span class='stat-label'>Record</span><span class='stat-value'>{away_goalie['record']}</span></div>\n"
+                html += f"<div class='stat-item'><span class='stat-label'>GAA</span><span class='stat-value'>{away_goalie['gaa']:.2f}</span></div>\n"
+                html += f"<div class='stat-item'><span class='stat-label'>SV%</span><span class='stat-value'>{away_goalie['sv_pct']:.3f}</span></div>\n"
+                html += "</div>\n"
+                html += "<div class='last5-divider'>Last 5 Starts</div>\n"
+                html += "<div class='last5-stats'>\n"
+                html += f"<div class='stat-compact'>{away_goalie['last_5_record']}</div>\n"
+                html += f"<div class='stat-compact'>{away_goalie['last_5_gaa']:.2f} GAA</div>\n"
+                html += f"<div class='stat-compact'>{away_goalie['last_5_sv_pct']:.3f} SV%</div>\n"
+                html += "</div>\n"
+                html += "</div>\n"
+            else:
+                html += f"<div class='goalie-header'>\n"
+                html += f"<div class='goalie-name'>{away_goalie['name']}</div>\n"
+                html += f"<div class='goalie-status {status_class}'>{away_goalie['status']}</div>\n"
                 html += "</div>\n"
         else:
+            html += "<div class='goalie-header'>\n"
             html += "<div class='goalie-name'>TBD</div>\n"
             html += "<div class='goalie-status unconfirmed'>Unconfirmed</div>\n"
+            html += "</div>\n"
         html += "</div>\n"
         html += "</div>\n"  # Close goalie-row
 
@@ -1086,24 +1099,37 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
         html += "<div class='stat-tile goalie-tile'>\n"
         html += "<div class='stat-label'>Starting Goalie</div>\n"
         if home_goalie:
-            html += f"<div class='goalie-name'>{home_goalie['name']}</div>\n"
             status_class = 'confirmed' if 'confirm' in home_goalie['status'].lower() else 'unconfirmed'
-            html += f"<div class='goalie-status {status_class}'>{home_goalie['status']}</div>\n"
 
             # Display goalie stats if available
             if 'record' in home_goalie:
-                html += "<div class='goalie-stats'>\n"
-                html += f"<div class='goalie-stat-row'><span class='stat-name'>Record:</span> <span class='stat-val'>{home_goalie['record']}</span></div>\n"
-                html += f"<div class='goalie-stat-row'><span class='stat-name'>GAA:</span> <span class='stat-val'>{home_goalie['gaa']:.2f}</span></div>\n"
-                html += f"<div class='goalie-stat-row'><span class='stat-name'>SV%:</span> <span class='stat-val'>{home_goalie['sv_pct']}</span></div>\n"
-                html += "<div class='goalie-last-5'>Last 5 Starts</div>\n"
-                html += f"<div class='goalie-stat-row'><span class='stat-name'>Record:</span> <span class='stat-val'>{home_goalie['last_5_record']}</span></div>\n"
-                html += f"<div class='goalie-stat-row'><span class='stat-name'>GAA:</span> <span class='stat-val'>{home_goalie['last_5_gaa']:.2f}</span></div>\n"
-                html += f"<div class='goalie-stat-row'><span class='stat-name'>SV%:</span> <span class='stat-val'>{home_goalie['last_5_sv_pct']}</span></div>\n"
+                html += f"<div class='goalie-header'>\n"
+                html += f"<div class='goalie-name'>{home_goalie['name']}</div>\n"
+                html += f"<div class='goalie-status {status_class}'>{home_goalie['status']}</div>\n"
+                html += "</div>\n"
+                html += "<div class='goalie-stats-compact'>\n"
+                html += "<div class='season-stats'>\n"
+                html += f"<div class='stat-item'><span class='stat-label'>Record</span><span class='stat-value'>{home_goalie['record']}</span></div>\n"
+                html += f"<div class='stat-item'><span class='stat-label'>GAA</span><span class='stat-value'>{home_goalie['gaa']:.2f}</span></div>\n"
+                html += f"<div class='stat-item'><span class='stat-label'>SV%</span><span class='stat-value'>{home_goalie['sv_pct']:.3f}</span></div>\n"
+                html += "</div>\n"
+                html += "<div class='last5-divider'>Last 5 Starts</div>\n"
+                html += "<div class='last5-stats'>\n"
+                html += f"<div class='stat-compact'>{home_goalie['last_5_record']}</div>\n"
+                html += f"<div class='stat-compact'>{home_goalie['last_5_gaa']:.2f} GAA</div>\n"
+                html += f"<div class='stat-compact'>{home_goalie['last_5_sv_pct']:.3f} SV%</div>\n"
+                html += "</div>\n"
+                html += "</div>\n"
+            else:
+                html += f"<div class='goalie-header'>\n"
+                html += f"<div class='goalie-name'>{home_goalie['name']}</div>\n"
+                html += f"<div class='goalie-status {status_class}'>{home_goalie['status']}</div>\n"
                 html += "</div>\n"
         else:
+            html += "<div class='goalie-header'>\n"
             html += "<div class='goalie-name'>TBD</div>\n"
             html += "<div class='goalie-status unconfirmed'>Unconfirmed</div>\n"
+            html += "</div>\n"
         html += "</div>\n"
         html += "</div>\n"  # Close goalie-row
 

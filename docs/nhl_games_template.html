@@ -587,96 +587,134 @@ body {
   box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
 }
 .goalie-tile {
-  border-color: #4a90e2;
-  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-  padding: 15px !important;
+  border: 2px solid #e5e7eb;
+  background: white;
+  padding: 0 !important;
+  overflow: hidden;
 }
 .goalie-tile:hover {
-  border-color: #357abd;
-  box-shadow: 0 6px 20px rgba(74, 144, 226, 0.25);
-  transform: translateY(-2px);
+  border-color: #818cf8;
+  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.15);
+  transform: translateY(-3px);
+}
+.goalie-header {
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  padding: 16px 12px 12px 12px;
+  text-align: center;
+  border-bottom: 3px solid #3b82f6;
 }
 .goalie-name {
-  font-size: 1em;
-  font-weight: 700;
+  font-size: 1.1em;
+  font-weight: 800;
   color: #1e293b;
-  margin-bottom: 6px;
-  text-align: center;
-  background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  margin-bottom: 8px;
+  letter-spacing: 0.3px;
 }
 .goalie-status {
+  font-size: 0.7em;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  border-radius: 12px;
+  display: inline-block;
+  letter-spacing: 0.5px;
+}
+.goalie-status.confirmed {
+  background: #d1fae5;
+  color: #065f46;
+  border: 1.5px solid #10b981;
+}
+.goalie-status.unconfirmed {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1.5px solid #f59e0b;
+}
+.goalie-stats-compact {
+  padding: 14px 12px 12px 12px;
+  background: #fafafa;
+}
+.season-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 4px;
+  background: white;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  border: 2px solid #e5e7eb;
+}
+.stat-item:hover {
+  border-color: #818cf8;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.1);
+}
+.stat-item .stat-label {
+  font-size: 0.65em;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.stat-item .stat-value {
+  font-size: 1.2em;
+  font-weight: 800;
+  color: #1e293b;
+  line-height: 1;
+}
+.last5-divider {
   font-size: 0.65em;
   font-weight: 700;
   text-transform: uppercase;
-  padding: 3px 10px;
-  border-radius: 12px;
-  display: block;
   text-align: center;
-  margin-bottom: 10px;
+  color: #6366f1;
+  padding: 8px 0 10px 0;
+  letter-spacing: 1px;
+  position: relative;
 }
-.goalie-status.confirmed {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  color: white;
-  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+.last5-divider::before,
+.last5-divider::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 28%;
+  height: 2px;
+  background: #e5e7eb;
 }
-.goalie-status.unconfirmed {
-  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-  color: white;
-  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+.last5-divider::before {
+  left: 4%;
 }
-.goalie-stats {
-  margin-top: 10px;
-  padding: 10px;
+.last5-divider::after {
+  right: 4%;
+}
+.last5-stats {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  gap: 6px;
+}
+.stat-compact {
+  font-size: 0.8em;
+  font-weight: 700;
+  color: #1e293b;
+  padding: 7px 10px;
   background: white;
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-}
-.goalie-stat-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.75em;
-  margin-bottom: 5px;
-  padding: 5px 8px;
-  background: #f9fafb;
-  border-radius: 6px;
-  transition: all 0.2s ease;
-}
-.goalie-stat-row:hover {
-  background: #f3f4f6;
-  transform: translateX(3px);
-}
-.goalie-stat-row .stat-name {
-  font-weight: 700;
-  color: #6b7280;
-  font-size: 0.9em;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-}
-.goalie-stat-row .stat-val {
-  font-weight: 800;
-  color: #1e293b;
-  font-size: 1em;
-  background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-.goalie-last-5 {
-  font-size: 0.7em;
-  font-weight: 800;
-  color: white;
-  background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
-  margin: 10px -10px 8px -10px;
-  padding: 6px;
   text-align: center;
-  border-radius: 6px;
-  box-shadow: 0 2px 8px rgba(74, 144, 226, 0.3);
-  letter-spacing: 0.3px;
-  text-transform: uppercase;
+  flex: 1;
+  transition: all 0.2s ease;
+  border: 2px solid #e5e7eb;
+}
+.stat-compact:hover {
+  border-color: #6366f1;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
 }
 .stat-games {
   font-size: 0.75em;
@@ -884,8 +922,17 @@ body {
   .stat-label { font-size: 0.75em; margin-bottom: 6px; }
   .stat-value { font-size: 1.6em; }
   .stat-record { font-size: 1.3em; }
-  .goalie-name { font-size: 0.95em; margin-bottom: 5px; }
-  .goalie-status { font-size: 0.7em; padding: 3px 6px; }
+  .goalie-header { padding: 12px 10px 10px 10px; }
+  .goalie-name { font-size: 1em; margin-bottom: 6px; }
+  .goalie-status { font-size: 0.65em; padding: 3px 10px; }
+  .goalie-stats-compact { padding: 12px 10px 10px 10px; }
+  .season-stats { gap: 6px; margin-bottom: 10px; }
+  .stat-item { padding: 6px 2px; }
+  .stat-label { font-size: 0.6em; }
+  .stat-value { font-size: 1em; }
+  .last5-divider { font-size: 0.6em; padding: 6px 0 8px 0; }
+  .last5-stats { gap: 4px; }
+  .stat-compact { font-size: 0.7em; padding: 5px 6px; }
   .stat-games { font-size: 0.7em; margin-top: 6px; }
   .absences-section { margin-top: 10px; padding: 8px; }
   .absences-title { font-size: 0.7em; margin-bottom: 5px; }
