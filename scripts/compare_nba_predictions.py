@@ -84,6 +84,12 @@ def main():
         print(f"⚠️  Noon predictions file not found: {noon_file}")
         return
 
+    # Check if output file already exists - skip if it does
+    if os.path.exists(output_file):
+        print(f"⚠️  Combined predictions file already exists: {output_file}")
+        print("Skipping comparison to avoid overwriting existing file.")
+        return
+
     print(f"Comparing NBA predictions from {today_str}...")
     print(f"Morning file: {morning_file}")
     print(f"Noon file: {noon_file}")
