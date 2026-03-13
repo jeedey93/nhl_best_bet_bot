@@ -307,7 +307,8 @@ def parse_prediction_file(file_path, sport):
                     'confidence': confidence[1],
                     'stars': confidence[0],
                     'win_probability': win_probability,
-                    'reasoning': reasoning
+                    'reasoning': reasoning,
+                    'is_bet_of_day': True
                 })
 
     # Find Other Recommended Plays (works for both formats)
@@ -381,7 +382,8 @@ def parse_prediction_file(file_path, sport):
                         'stars': confidence[0],
                         'win_probability': win_probability,
                         'reasoning': reasoning,
-                        'time': 'TBD'
+                        'time': 'TBD',
+                        'is_bet_of_day': False
                     })
 
     return picks
@@ -421,6 +423,7 @@ def generate_javascript_data(nhl_picks, nba_picks):
         js_picks = []
         for pick in picks:
             win_prob = pick.get('win_probability', '')
+            is_bet_of_day = 'true' if pick.get('is_bet_of_day', False) else 'false'
             js_picks.append(f"""  {{
     game: '{pick['game']}',
     pick: '{pick['pick']}',
@@ -429,7 +432,8 @@ def generate_javascript_data(nhl_picks, nba_picks):
     confidence: '{pick['confidence']}',
     stars: '{pick['stars']}',
     winProbability: '{win_prob}',
-    reasoning: `{pick['reasoning']}`
+    reasoning: `{pick['reasoning']}`,
+    isBetOfDay: {is_bet_of_day}
   }}""")
         return ',\n'.join(js_picks)
 

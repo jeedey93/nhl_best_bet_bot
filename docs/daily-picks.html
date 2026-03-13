@@ -265,6 +265,36 @@ nav > div {
   border-left-color: #f59e0b;
 }
 
+/* Bet of the Day row styling */
+.picks-table tbody tr.bet-of-day {
+  background: linear-gradient(90deg, #fffbeb 0%, #ffffff 50%, #fffbeb 100%);
+  border: 2px solid #fbbf24;
+  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
+}
+.picks-table tbody tr.bet-of-day td:first-child {
+  border-left-width: 6px;
+  border-left-color: #f59e0b;
+}
+.picks-table tbody tr.bet-of-day:hover {
+  box-shadow: 0 6px 20px rgba(251, 191, 36, 0.4);
+  transform: translateY(-2px);
+}
+
+/* Bet of the Day Badge */
+.botd-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  color: #78350f;
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 0.75em;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 6px;
+  box-shadow: 0 2px 8px rgba(251, 191, 36, 0.4);
+}
+
 /* Game Info */
 .game-info {
   display: flex;
@@ -867,7 +897,8 @@ Both Jarry (0.812 SV%) and Oettinger (0.878 SV%) in poor form.
 Averaging 9.0 total goals in head-to-head matchups this season.
 
 📈Market Confidence Boost
-Odds moving favorably, Win Probability increased to 69%, Bet of the Day.`
+Odds moving favorably, Win Probability increased to 69%, Bet of the Day.`,
+    isBetOfDay: true
   },
   {
     game: 'Philadelphia Flyers @ Minnesota Wild',
@@ -893,7 +924,8 @@ Minnesota's Jesper Wallstedt also performing well.
 Only 3.0 average goals in their single matchup this season.
 
 💰Market Under Value
-Bookmakers might have set the line too high.`
+Bookmakers might have set the line too high.`,
+    isBetOfDay: false
   },
   {
     game: 'Calgary Flames @ New Jersey Devils',
@@ -919,7 +951,8 @@ Jacob Markstrom in good form (0.911 SV%, 2.2 GAA).
 Calgary missing elite forward, further stifling offense.
 
 🤝Underlying Edge Strong
-Combined factors create a significant edge for the Under.`
+Combined factors create a significant edge for the Under.`,
+    isBetOfDay: false
   },
   {
     game: 'Nashville Predators @ Vancouver Canucks',
@@ -945,7 +978,8 @@ Nikita Tolopilo (0.891 SV% last 5) is also struggling as replacement.
 Canucks' defensive and goalie issues point to a high-scoring game.
 
 📰New Info Boost
-Play added at noon based on Demko's confirmed absence.`
+Play added at noon based on Demko's confirmed absence.`,
+    isBetOfDay: false
   },
   {
     game: 'Chicago Blackhawks @ Utah Mammoth',
@@ -999,7 +1033,8 @@ Facing a challenging schedule.
 This spread offers substantial value for San Antonio.
 
 📈Bet of the Day
-Reinforced by favorable spread movement and increased win probability.`
+Reinforced by favorable spread movement and increased win probability.`,
+    isBetOfDay: true
   },
   {
     game: 'Oklahoma City Thunder vs Boston Celtics',
@@ -1022,7 +1057,8 @@ More rested than the Celtics.
 Opponent is facing a rested Thunder squad.
 
 💪Strong Home Edge
-Thunder's home advantage creates a strong edge.`
+Thunder's home advantage creates a strong edge.`,
+    isBetOfDay: false
   },
   {
     game: 'Phoenix Suns vs Indiana Pacers',
@@ -1045,7 +1081,8 @@ Dismal 0.152 away win rate.
 Already won their only matchup by 35 points.
 
 💰Spread Fully Warranted
-Large spread is justified against a much weaker opponent.`
+Large spread is justified against a much weaker opponent.`,
+    isBetOfDay: false
   },
   {
     game: 'Los Angeles Lakers vs Chicago Bulls',
@@ -1071,7 +1108,8 @@ Poor 0.355 away win record.
 Won their only matchup by exactly 11 points.
 
 💪Quality Mismatch
-Facing an opponent of significantly lower quality.`
+Facing an opponent of significantly lower quality.`,
+    isBetOfDay: false
   },
   {
     game: 'Memphis Grizzlies vs Dallas Mavericks',
@@ -1094,7 +1132,8 @@ Struggle significantly on the road (0.219 away win %).
 Direct historical success against Dallas.
 
 💯Confidence Maintained
-Confidence in this play is sustained and slightly increased.`
+Confidence in this play is sustained and slightly increased.`,
+    isBetOfDay: false
   }
   ]
 };
@@ -1138,12 +1177,13 @@ function renderTable(sport, picks) {
   const sportIcon = sport === 'nhl' ? '🏒' : '🏀';
 
   tableBody.innerHTML = picks.map(pick => `
-    <tr class='${sport}'>
+    <tr class='${sport} ${pick.isBetOfDay ? 'bet-of-day' : ''}'>
       <td data-label='Game'>
         <div class='game-info'>
           <span class='sport-icon'>${sportIcon}</span>
           <div>
             <div class='teams'>${pick.game}</div>
+            ${pick.isBetOfDay ? `<div class='botd-badge'>🏆 BET OF THE DAY</div>` : ''}
           </div>
         </div>
       </td>
