@@ -1905,6 +1905,15 @@ def update_latest_predictions(preliminary=False):
     content += "<script defer src='/_vercel/insights/script.js'></script>\n"
     content += "<script defer src='/_vercel/speed-insights/script.js'></script>\n\n"
 
+    # Add feature request CTA block before closing body
+    content += "<div style='max-width: 1600px; margin: 60px auto 40px; padding: 0 20px;'>\n"
+    content += "  <div style='background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%); border-radius: 16px; padding: 50px 40px; text-align: center; box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3);'>\n"
+    content += "    <h2 style='color: white; font-size: 2em; font-weight: 800; margin-bottom: 15px;'>💡 Have a Feature Request?</h2>\n"
+    content += "    <p style='color: rgba(255,255,255,0.95); font-size: 1.2em; margin-bottom: 30px;'>We'd love to hear your ideas to improve Parieur Discipliné!</p>\n"
+    content += "    <a href='contact.html' style='display: inline-block; background: white; color: #4a90e2; padding: 15px 40px; border-radius: 30px; text-decoration: none; font-weight: 800; font-size: 1.1em; box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: all 0.3s; text-transform: uppercase; letter-spacing: 1px;' onmouseover='this.style.transform=\"scale(1.05)\"; this.style.boxShadow=\"0 6px 25px rgba(0,0,0,0.3)\";' onmouseout='this.style.transform=\"scale(1)\"; this.style.boxShadow=\"0 4px 15px rgba(0,0,0,0.2)\";'>Submit Feature Request</a>\n"
+    content += "  </div>\n"
+    content += "</div>\n\n"
+
     # Close HTML tags
     content += "</body>\n"
     content += "</html>\n\n"
