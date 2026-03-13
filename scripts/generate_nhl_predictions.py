@@ -673,8 +673,9 @@ with open(filename, "w") as f:
                 h2h_stats_text += "  No head-to-head games this season\n"
 
             # Fetch goalie stats
-            away_goalie_info = starting_goalies.get(away_short)
-            home_goalie_info = starting_goalies.get(home_short)
+            # Use full team name from odds API (away_team, home_team) to match starting_goalies keys
+            away_goalie_info = starting_goalies.get(away_team)
+            home_goalie_info = starting_goalies.get(home_team)
 
             goalie_stats_text += f"\n{away_team} Starting Goalie:\n"
             if away_goalie_info:
