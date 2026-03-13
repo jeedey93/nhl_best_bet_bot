@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='UTF-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+<title>Feature Request - Parieur Discipliné</title>
+<meta name='description' content='Submit a feature request for Parieur Discipliné - Help us improve our AI-powered sports betting analysis platform.'>
+<link rel='icon' type='image/png' href='parieur_discipline_icon_1024.png'>
+<link rel='apple-touch-icon' href='parieur_discipline_icon_1024.png'>
+<link rel='shortcut icon' href='parieur_discipline_icon_1024.png'>
+</head>
+<body>
+
+<div id='nav-placeholder'></div>
+<script>
+fetch('nav.html')
+  .then(response => response.text())
+  .then(data => {
+    document.getElementById('nav-placeholder').innerHTML = data;
+
+    // Define toggleMobileMenu function globally
+    window.toggleMobileMenu = function() {
+      const navLinks = document.getElementById('navLinks');
+      navLinks.classList.toggle('active');
+    };
+
+    // Close menu when clicking outside
+    document.addEventListener('click', function(event) {
+      const nav = document.querySelector('nav');
+      const navLinks = document.getElementById('navLinks');
+      if (nav && !nav.contains(event.target) && navLinks && navLinks.classList.contains('active')) {
+        navLinks.classList.remove('active');
+      }
+    });
+
+    // Highlight current page
+    const contactLink = document.querySelector('a[href="contact.html"]');
+    if (contactLink) {
+      contactLink.style.background = 'rgba(255,255,255,0.15)';
+      contactLink.onmouseover = function() { this.style.background = 'rgba(255,255,255,0.25)'; };
+      contactLink.onmouseout = function() { this.style.background = 'rgba(255,255,255,0.15)'; };
+    }
+  });
+</script>
+
+<div style='height: 60px;'></div>
+
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  line-height: 1.6;
+  color: #1a1a1a;
+  background: #f5f7fa;
+}
+.hero {
+  background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+  color: white;
+  padding: 60px 40px;
+  text-align: center;
+  margin: 0 0 40px 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  position: relative;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,%3Csvg width="60" height="60" xmlns="http://www.w3.org/2000/svg"%3E%3Cpath d="M0 0h60v60H0z" fill="none"/%3E%3Cpath d="M30 0l30 30-30 30L0 30z" fill="%23ffffff" fill-opacity=".03"/%3E%3C/svg%3E');
+  opacity: 0.3;
+}
+.hero > * { position: relative; z-index: 1; }
+.hero h1 {
+  font-size: 2.5em;
+  font-weight: 800;
+  margin-bottom: 10px;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+.hero p {
+  font-size: 1.2em;
+  opacity: 0.95;
+  font-weight: 500;
+}
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 20px 40px 20px;
+}
+.form-card {
+  background: white;
+  border-radius: 12px;
+  padding: 40px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+.form-group {
+  margin-bottom: 25px;
+}
+label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #1e3a8a;
+  font-size: 0.95em;
+}
+input, textarea {
+  width: 100%;
+  padding: 12px 15px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 1em;
+  font-family: inherit;
+  transition: border-color 0.2s;
+}
+input:focus, textarea:focus {
+  outline: none;
+  border-color: #4a90e2;
+}
+textarea {
+  min-height: 180px;
+  resize: vertical;
+}
+.submit-btn {
+  width: 100%;
+  padding: 15px;
+  background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1em;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
+}
+.submit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(74, 144, 226, 0.4);
+}
+.submit-btn:active {
+  transform: translateY(0);
+}
+.success-message {
+  display: none;
+  background: #10b981;
+  color: white;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  text-align: center;
+  font-weight: 600;
+}
+.error-message {
+  display: none;
+  background: #ef4444;
+  color: white;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  text-align: center;
+  font-weight: 600;
+}
+@media (max-width: 768px) {
+  .hero h1 { font-size: 2em; }
+  .hero p { font-size: 1em; }
+  .form-card { padding: 30px 20px; }
+}
+</style>
+</head>
+<body>
+
+<div class='hero'>
+  <h1>💡 Feature Request</h1>
+  <p>We'd love to hear your ideas!</p>
+</div>
+
+<div class='container'>
+  <div class='form-card'>
+    <div class='success-message' id='successMessage'>
+      ✓ Thank you! Your request has been sent successfully.
+    </div>
+    <div class='error-message' id='errorMessage'>
+      ✗ Oops! Something went wrong. Please try again.
+    </div>
+    <form id='contactForm' action='https://formspree.io/f/xeerkyyn' method='POST'>
+      <div class='form-group'>
+        <label for='name'>Your Name</label>
+        <input type='text' id='name' name='name' required placeholder='Enter your name'>
+      </div>
+      <div class='form-group'>
+        <label for='email'>Your Email</label>
+        <input type='email' id='email' name='email' required placeholder='your.email@example.com'>
+      </div>
+      <div class='form-group'>
+        <label for='message'>Feature Request</label>
+        <textarea id='message' name='message' required placeholder='Describe the feature you would like to see...'></textarea>
+      </div>
+      <button type='submit' class='submit-btn'>Send Request</button>
+    </form>
+  </div>
+</div>
+
+    <script>
+        const form = document.getElementById('contactForm');
+        const successMessage = document.getElementById('successMessage');
+        const errorMessage = document.getElementById('errorMessage');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData(form);
+
+            try {
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    successMessage.style.display = 'block';
+                    errorMessage.style.display = 'none';
+                    form.reset();
+                    setTimeout(() => {
+                        successMessage.style.display = 'none';
+                    }, 5000);
+                } else {
+                    throw new Error('Form submission failed');
+                }
+            } catch (error) {
+                errorMessage.style.display = 'block';
+                successMessage.style.display = 'none';
+                setTimeout(() => {
+                    errorMessage.style.display = 'none';
+                }, 5000);
+            }
+        });
+    </script>
+</body>
+</html>
