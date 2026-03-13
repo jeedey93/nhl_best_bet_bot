@@ -1842,13 +1842,24 @@ def update_latest_predictions(preliminary=False):
 
         content += featured_content
 
-        # Add CTA button to Today's page
+        # Add CTA button to Today's page (different text for 7am vs 3pm)
         content += "<!-- CTA Button to Today's Page -->\n"
         content += "<div style='text-align: center; margin-top: 30px;'>\n"
-        content += "<a href='daily-picks.html' style='display: inline-block; padding: 16px 40px; background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%); color: white; text-decoration: none; border-radius: 12px; font-weight: 700; font-size: 1.1em; box-shadow: 0 4px 15px rgba(74, 144, 226, 0.4); transition: all 0.3s ease; border: 2px solid transparent;' onmouseover='this.style.transform=\"translateY(-2px)\"; this.style.boxShadow=\"0 6px 20px rgba(74, 144, 226, 0.5)\";' onmouseout='this.style.transform=\"translateY(0)\"; this.style.boxShadow=\"0 4px 15px rgba(74, 144, 226, 0.4)\";'>\n"
-        content += "🎯 View All Today's Picks →\n"
-        content += "</a>\n"
-        content += "<p style='margin-top: 12px; color: #6b7280; font-size: 0.95em;'>See all NHL and NBA predictions with detailed analysis</p>\n"
+
+        if show_preliminary:
+            # 7am: Inform users that full picks come at 3pm
+            content += "<div style='padding: 20px; background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border-radius: 12px; border: 2px solid #60a5fa; max-width: 600px; margin: 0 auto;'>\n"
+            content += "<div style='font-size: 1.2em; font-weight: 700; color: #1e3a8a; margin-bottom: 8px;'>⏰ Full Picks Coming Soon</div>\n"
+            content += "<div style='font-size: 1em; color: #1e40af; margin-bottom: 15px;'>Complete picks table with all games and detailed analysis will be available at <strong>3:00 PM ET</strong></div>\n"
+            content += "<div style='font-size: 0.9em; color: #3b82f6;'>Above are today's featured bets to get you started</div>\n"
+            content += "</div>\n"
+        else:
+            # 3pm: Regular CTA to view all picks
+            content += "<a href='daily-picks.html' style='display: inline-block; padding: 16px 40px; background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%); color: white; text-decoration: none; border-radius: 12px; font-weight: 700; font-size: 1.1em; box-shadow: 0 4px 15px rgba(74, 144, 226, 0.4); transition: all 0.3s ease; border: 2px solid transparent;' onmouseover='this.style.transform=\"translateY(-2px)\"; this.style.boxShadow=\"0 6px 20px rgba(74, 144, 226, 0.5)\";' onmouseout='this.style.transform=\"translateY(0)\"; this.style.boxShadow=\"0 4px 15px rgba(74, 144, 226, 0.4)\";'>\n"
+            content += "🎯 View All Today's Picks →\n"
+            content += "</a>\n"
+            content += "<p style='margin-top: 12px; color: #6b7280; font-size: 0.95em;'>See all NHL and NBA predictions with detailed analysis</p>\n"
+
         content += "</div>\n\n"
 
         content += "</div>\n"
