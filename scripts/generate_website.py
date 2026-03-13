@@ -1,9 +1,14 @@
 import argparse
 import os
 import re
+import sys
 from datetime import datetime, timedelta
 from glob import glob
 from zoneinfo import ZoneInfo
+
+# Add the scripts directory to path to import calculate_bet_of_the_day_stats
+sys.path.insert(0, os.path.dirname(__file__))
+from calculate_bet_of_the_day_stats import calculate_botd_stats
 
 
 def get_latest_file(folder, prefix, ext="txt"):
@@ -1828,16 +1833,46 @@ def update_latest_predictions(preliminary=False):
             content += "</div>\n"
 
         content += "<style>@keyframes shine { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.1); } } @media (max-width: 768px) { #featured-picks { margin: 0 -10px; } .premium-banner { border-radius: 8px 8px 0 0; padding: 6px; } .premium-banner div { font-size: 0.75em; letter-spacing: 1px; } .section-title { font-size: 1.4em !important; line-height: 1.2; } .section-subtitle { font-size: 0.9em !important; } }</style>\n"
-        content += "<div class='premium-content' style='background: linear-gradient(180deg, #fffbeb 0%, #ffffff 100%); padding: 30px; border-radius: 0 0 16px 16px; box-shadow: 0 10px 40px rgba(245, 158, 11, 0.15); border: 3px solid #fbbf24; border-top: none;'>\n"
+        content += "<div class='premium-content' style='background: linear-gradient(180deg, #fffbeb 0%, #ffffff 100%); padding: 25px 30px 30px 30px; border-radius: 0 0 16px 16px; box-shadow: 0 10px 40px rgba(245, 158, 11, 0.15); border: 3px solid #fbbf24; border-top: none;'>\n"
         content += "<style>@media (max-width: 768px) { .premium-content { padding: 15px; border-radius: 0 0 8px 8px; border-width: 2px; } }</style>\n"
 
         # Add section header for both preliminary and final picks
-        content += "<div class='section-header' style='margin-bottom: 25px; text-align: center;'>\n"
-        content += "<div class='section-title' style='font-size: 2em; background: linear-gradient(135deg, #f59e0b 0%, #dc2626 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 10px; display: block !important; text-align: center !important; justify-content: center;'>🔥 Featured Picks of the Day</div>\n"
+        content += "<div class='section-header' style='margin-bottom: 20px; text-align: center;'>\n"
+        content += "<div class='section-title' style='font-size: 2em; background: linear-gradient(135deg, #f59e0b 0%, #dc2626 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 8px; display: block !important; text-align: center !important; justify-content: center;'>🔥 Featured Picks of the Day</div>\n"
         if show_preliminary:
-            content += "<div class='section-subtitle' style='font-size: 1.05em; color: #78350f; font-weight: 600;'>Early morning selections - Final picks with line movement analysis at 3pm</div>\n"
+            content += "<div class='section-subtitle' style='font-size: 1.05em; color: #78350f; font-weight: 600; margin-bottom: 12px;'>Early morning selections - Final picks with line movement analysis at 3pm</div>\n"
         else:
-            content += "<div class='section-subtitle' style='font-size: 1.05em; color: #78350f; font-weight: 600;'>Our top AI-selected plays with the highest edge</div>\n"
+            content += "<div class='section-subtitle' style='font-size: 1.05em; color: #78350f; font-weight: 600; margin-bottom: 12px;'>Our top AI-selected plays with the highest edge</div>\n"
+
+        # Add Bet of the Day stats in a prominent position below subtitle (for both 7am and 3pm)
+        try:
+            import io
+            import contextlib
+            f = io.StringIO()
+            with contextlib.redirect_stdout(f):
+                botd_data = calculate_botd_stats()
+
+            botd_wins = botd_data['combined']['wins']
+            botd_losses = botd_data['combined']['losses']
+            botd_wr_value = botd_data['combined']['win_rate']
+
+            # Format with appropriate color and styling
+            if botd_wr_value >= 50:
+                stats_color = "#15803d"  # Green
+                bg_color = "#f0fdf4"  # Light green bg
+                border_color = "#86efac"
+            else:
+                stats_color = "#b91c1c"  # Red
+                bg_color = "#fef2f2"  # Light red bg
+                border_color = "#fecaca"
+
+            content += f"<div style='margin-top: 0px; padding: 10px 18px; background: {bg_color}; border: 2px solid {border_color}; border-radius: 8px; display: inline-block;'>\n"
+            content += f"<div style='color: {stats_color}; font-weight: 700; font-size: 1em;'>📊 Track Record: <span style='font-size: 1.15em;'>{botd_wins}-{botd_losses}</span> ({botd_wr_value:.1f}%)</div>\n"
+            content += "</div>\n"
+        except Exception as e:
+            # Silently skip if stats can't be calculated
+            pass
+
         content += "</div>\n"
 
         content += featured_content
