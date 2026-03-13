@@ -68,10 +68,10 @@ jobs:
         run: python scripts/generate_nhl_games_page.py
       - name: Generate NBA games page
         run: python scripts/generate_nba_games_page.py
-      - name: Update website with results only (7am)
+      - name: Update website with preliminary picks (7am)
         if: steps.run_time.outputs.time == '7am'
-        run: python scripts/generate_website.py --results-only
-      - name: Update website with predictions (3pm)
+        run: python scripts/generate_website.py --preliminary
+      - name: Update website with final picks (3pm)
         if: steps.run_time.outputs.time == '3pm'
         run: python scripts/generate_website.py
       - name: Commit predictions

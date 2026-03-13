@@ -1502,7 +1502,7 @@ def extract_bet_of_day_from_prediction(content, sport_name, sport_emoji):
     return html
 
 
-def update_latest_predictions(results_only=False):
+def update_latest_predictions(preliminary=False):
     predictions_dir = "data/predictions"
     sports_config = [
         {"key": "nhl", "name": "NHL", "emoji": "🏒"},
@@ -1770,87 +1770,71 @@ def update_latest_predictions(results_only=False):
 
     # ── Navigation Tabs ──
     content += "<div class='nav-tabs'>\n"
-    if results_only:
-        content += "<a href='#featured-picks' class='nav-tab'>🔥 Featured Picks (Potential)</a>\n"
-    else:
-        content += "<a href='#featured-picks' class='nav-tab'>🔥 Featured Picks</a>\n"
-        content += "<a href='#nhl-predictions' class='nav-tab'>🏒 NHL Predictions</a>\n"
-        content += "<a href='#nba-predictions' class='nav-tab'>🏀 NBA Predictions</a>\n"
+    content += "<a href='#featured-picks' class='nav-tab'>🔥 Featured Picks</a>\n"
     content += "<a href='#yesterday-results' class='nav-tab'>📋 Yesterday's Results</a>\n"
     content += "</div>\n\n"
 
-    # ── Add "Predictions coming soon" message for results-only mode ──
-    if results_only:
-        content += "<div style='background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%); color: white; padding: 25px 40px; text-align: center; border-radius: 12px; margin: 30px 0; box-shadow: 0 4px 15px rgba(74,144,226,0.3);'>\n"
-        content += "<div style='font-size: 1.4em; font-weight: 700; margin-bottom: 8px;'>🕐 Preliminary Analysis Available</div>\n"
-        content += "<div style='font-size: 1em; opacity: 0.95;'>7am predictions shown below. Final picks with line movement analysis available at <strong>3:00 PM ET</strong></div>\n"
-        content += "</div>\n\n"
-
     # ── Featured Picks Section ──
-    # At 7am (results_only), read from daily_runs folder; at 3pm, read from dual_bet_of_the_day
-    if results_only:
-        # Get today's date for 7am files (not overall_latest_date which might be yesterday)
-        from datetime import date as date_module
-        today_str = date_module.today().isoformat()
-        nhl_7am_file = os.path.join(predictions_dir, "nhl", "daily_runs", f"nhl_daily_predictions_{today_str}_7am.txt")
-        nba_7am_file = os.path.join(predictions_dir, "nba", "daily_runs", f"nba_daily_predictions_{today_str}_7am.txt")
+    # Check preliminary flag to determine which picks to show
+    show_preliminary = preliminary
+    featured_content = ""
 
+    if preliminary:
+        # Show 7am preliminary picks
+        nhl_7am_path = os.path.join(predictions_dir, "nhl", f"nhl_daily_predictions_7am_{overall_latest_date}.txt")
+        nba_7am_path = os.path.join(predictions_dir, "nba", f"nba_daily_predictions_7am_{overall_latest_date}.txt")
+
+        if os.path.exists(nhl_7am_path):
+            nhl_7am_content = read_file(nhl_7am_path).strip()
+            featured_content += build_sport_section(nhl_7am_content, "nhl", "NHL", "🏒", records["nhl"])
+        if os.path.exists(nba_7am_path):
+            nba_7am_content = read_file(nba_7am_path).strip()
+            featured_content += build_sport_section(nba_7am_content, "nba", "NBA", "🏀", records["nba"])
+    else:
+        # Show 3pm final featured picks from dual bet file
+        if os.path.exists(dual_bet_path):
+            dual_content = read_file(dual_bet_path).strip()
+            if dual_content:
+                featured_content = format_dual_bet(dual_content)
+
+    if featured_content:
         content += "<div id='featured-picks' style='position: relative; margin: 0 -15px;'>\n"
-        # Add eye-catching banner
-        content += "<div class='premium-banner' style='background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #fbbf24 100%); padding: 8px; text-align: center; border-radius: 12px 12px 0 0; margin-bottom: -5px; box-shadow: 0 4px 20px rgba(245, 158, 11, 0.5); animation: shine 3s ease-in-out infinite;'>\n"
-        content += "<div style='color: #78350f; font-weight: 900; font-size: 0.9em; letter-spacing: 2px; text-transform: uppercase; text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);'>⭐ Featured Picks of the Day (Preliminary) ⭐</div>\n"
-        content += "</div>\n"
-        content += "<style>@keyframes shine { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.1); } } @media (max-width: 768px) { #featured-picks { margin: 0 -10px; } .premium-banner { border-radius: 8px 8px 0 0; padding: 6px; } .premium-banner div { font-size: 0.75em; letter-spacing: 1px; } .section-title { font-size: 1.4em !important; line-height: 1.2; } .section-subtitle { font-size: 0.9em !important; } }</style>\n"
-        content += "<div class='premium-content' style='background: linear-gradient(180deg, #fffbeb 0%, #ffffff 100%); padding: 30px; border-radius: 0 0 16px 16px; box-shadow: 0 10px 40px rgba(245, 158, 11, 0.15); border: 3px solid #fbbf24; border-top: none;'>\n"
-        content += "<style>@media (max-width: 768px) { .premium-content { padding: 15px; border-radius: 0 0 8px 8px; border-width: 2px; } }</style>\n"
-        content += "<div class='section-header' style='margin-bottom: 25px; text-align: center;'>\n"
-        content += "<div class='section-subtitle' style='font-size: 1.05em; color: #78350f; font-weight: 600;'>7am predictions - Final picks with line movement analysis available at 12:00 PM ET</div>\n"
-        content += "</div>\n"
 
-        # Extract bet of the day from each sport's 7am file
-        featured_picks = []
-        if os.path.exists(nhl_7am_file):
-            nhl_content = read_file(nhl_7am_file)
-            nhl_pick = extract_bet_of_day_from_prediction(nhl_content, "NHL", "🏒")
-            if nhl_pick:
-                featured_picks.append(nhl_pick)
-
-        if os.path.exists(nba_7am_file):
-            nba_content = read_file(nba_7am_file)
-            nba_pick = extract_bet_of_day_from_prediction(nba_content, "NBA", "🏀")
-            if nba_pick:
-                featured_picks.append(nba_pick)
-
-        if featured_picks:
-            content += "<div class='featured-grid'>\n"
-            for pick in featured_picks:
-                content += pick
+        if show_preliminary:
+            # Preliminary picks banner (7am)
+            content += "<div class='premium-banner' style='background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 50%, #60a5fa 100%); padding: 8px; text-align: center; border-radius: 12px 12px 0 0; margin-bottom: -5px; box-shadow: 0 4px 20px rgba(59, 130, 246, 0.5); animation: shine 3s ease-in-out infinite;'>\n"
+            content += "<div style='color: #1e3a8a; font-weight: 900; font-size: 0.9em; letter-spacing: 2px; text-transform: uppercase; text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);'>⏰ Preliminary Picks (7am) - Final Picks Coming at 3pm ⏰</div>\n"
             content += "</div>\n"
         else:
-            content += "<p style='color: #6b7280; font-style: italic;'>No featured picks available yet.</p>\n"
-
-        content += "</div>\n"
-        content += "</div>\n\n"
-
-    elif os.path.exists(dual_bet_path):
-        # 3pm version - use dual bet of the day as before
-        dual_content = read_file(dual_bet_path).strip()
-        if dual_content:
-            content += "<div id='featured-picks' style='position: relative; margin: 0 -15px;'>\n"
-            # Add eye-catching banner
+            # Final picks banner (3pm)
             content += "<div class='premium-banner' style='background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #fbbf24 100%); padding: 8px; text-align: center; border-radius: 12px 12px 0 0; margin-bottom: -5px; box-shadow: 0 4px 20px rgba(245, 158, 11, 0.5); animation: shine 3s ease-in-out infinite;'>\n"
             content += "<div style='color: #78350f; font-weight: 900; font-size: 0.9em; letter-spacing: 2px; text-transform: uppercase; text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);'>⭐ Today's Premium Selections ⭐</div>\n"
             content += "</div>\n"
-            content += "<style>@keyframes shine { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.1); } } @media (max-width: 768px) { #featured-picks { margin: 0 -10px; } .premium-banner { border-radius: 8px 8px 0 0; padding: 6px; } .premium-banner div { font-size: 0.75em; letter-spacing: 1px; } .section-title { font-size: 1.4em !important; line-height: 1.2; } .section-subtitle { font-size: 0.9em !important; } }</style>\n"
-            content += "<div class='premium-content' style='background: linear-gradient(180deg, #fffbeb 0%, #ffffff 100%); padding: 30px; border-radius: 0 0 16px 16px; box-shadow: 0 10px 40px rgba(245, 158, 11, 0.15); border: 3px solid #fbbf24; border-top: none;'>\n"
-            content += "<style>@media (max-width: 768px) { .premium-content { padding: 15px; border-radius: 0 0 8px 8px; border-width: 2px; } }</style>\n"
+
+        content += "<style>@keyframes shine { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.1); } } @media (max-width: 768px) { #featured-picks { margin: 0 -10px; } .premium-banner { border-radius: 8px 8px 0 0; padding: 6px; } .premium-banner div { font-size: 0.75em; letter-spacing: 1px; } .section-title { font-size: 1.4em !important; line-height: 1.2; } .section-subtitle { font-size: 0.9em !important; } }</style>\n"
+        content += "<div class='premium-content' style='background: linear-gradient(180deg, #fffbeb 0%, #ffffff 100%); padding: 30px; border-radius: 0 0 16px 16px; box-shadow: 0 10px 40px rgba(245, 158, 11, 0.15); border: 3px solid #fbbf24; border-top: none;'>\n"
+        content += "<style>@media (max-width: 768px) { .premium-content { padding: 15px; border-radius: 0 0 8px 8px; border-width: 2px; } }</style>\n"
+
+        if not show_preliminary:
             content += "<div class='section-header' style='margin-bottom: 25px; text-align: center;'>\n"
             content += "<div class='section-title' style='font-size: 2em; background: linear-gradient(135deg, #f59e0b 0%, #dc2626 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 10px; display: block !important; text-align: center !important; justify-content: center;'>🔥 Featured Picks of the Day</div>\n"
             content += "<div class='section-subtitle' style='font-size: 1.05em; color: #78350f; font-weight: 600;'>Our top AI-selected plays with the highest edge</div>\n"
             content += "</div>\n"
-            content += format_dual_bet(dual_content)
-            content += "</div>\n"
-            content += "</div>\n\n"
+
+        content += featured_content
+
+        # Add CTA button to Today's page
+        content += "<!-- CTA Button to Today's Page -->\n"
+        content += "<div style='text-align: center; margin-top: 30px;'>\n"
+        content += "<a href='daily-picks.html' style='display: inline-block; padding: 16px 40px; background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%); color: white; text-decoration: none; border-radius: 12px; font-weight: 700; font-size: 1.1em; box-shadow: 0 4px 15px rgba(74, 144, 226, 0.4); transition: all 0.3s ease; border: 2px solid transparent;' onmouseover='this.style.transform=\"translateY(-2px)\"; this.style.boxShadow=\"0 6px 20px rgba(74, 144, 226, 0.5)\";' onmouseout='this.style.transform=\"translateY(0)\"; this.style.boxShadow=\"0 4px 15px rgba(74, 144, 226, 0.4)\";'>\n"
+        content += "🎯 View All Today's Picks →\n"
+        content += "</a>\n"
+        content += "<p style='margin-top: 12px; color: #6b7280; font-size: 0.95em;'>See all NHL and NBA predictions with detailed analysis</p>\n"
+        content += "</div>\n\n"
+
+        content += "</div>\n"
+        content += "</div>\n\n"
+
 
     # ── Yesterday's Results ──
     content += "<div id='yesterday-results'>\n"
@@ -1868,28 +1852,6 @@ def update_latest_predictions(results_only=False):
     stats_banner = format_compact_stats_banner(nhl_yesterday, nba_yesterday, nba_record, nhl_record)
     content += stats_banner
     content += "</div>\n\n"
-
-    # ── Sport sections ──
-    if not results_only:
-        for cfg in sports_config:
-            sport = cfg["key"]
-            name = cfg["name"]
-            emoji = cfg["emoji"]
-
-            content += f"<div id='{sport}-predictions'>\n"
-            content += "<div class='section-header'>\n"
-            content += f"<div class='section-title'>{emoji} {name} Predictions</div>\n"
-            content += f"<div class='section-subtitle'>Today's {name} picks with full analysis</div>\n"
-            content += "</div>\n\n"
-
-            latest_file = sport_files.get(sport)
-            if latest_file:
-                raw = read_file(latest_file)
-                content += build_sport_section(raw, sport, name, emoji, records[sport])
-            else:
-                content += f"<p style='color: #6b7280; font-style: italic;'>No {name} predictions available today.</p>\n\n"
-
-            content += "</div>\n\n"
 
     # ── Close content wrapper ──
     content += "</div>\n\n"
@@ -2006,8 +1968,8 @@ def build_chart_data_for_last_30_days():
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Update latest predictions website')
-    parser.add_argument('--results-only', action='store_true',
-                        help='Only show stats and yesterday results, skip predictions')
+    parser.add_argument('--preliminary', action='store_true',
+                        help='Show preliminary 7am picks instead of final 3pm picks')
     args = parser.parse_args()
 
-    update_latest_predictions(results_only=args.results_only)
+    update_latest_predictions(preliminary=args.preliminary)
