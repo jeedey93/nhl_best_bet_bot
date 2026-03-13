@@ -9,68 +9,7 @@
 <script src='https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js'></script>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f7fa; color: #1a1a1a; line-height: 1.6; padding-top: 60px; }
-
-/* Navigation */
-nav {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 1000;
-  background: linear-gradient(135deg, #2c5aa0 0%, #1e3a8a 100%);
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-  backdrop-filter: blur(10px);
-}
-nav > div {
-  max-width: 1600px;
-  margin: 0 auto;
-  padding: 10px 15px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-.nav-logo {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.nav-logo img {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-}
-.nav-logo span {
-  color: white;
-  font-weight: 700;
-  font-size: 1em;
-}
-#mobileMenuBtn {
-  display: none;
-  background: none;
-  border: none;
-  color: white;
-  font-size: 1.5em;
-  cursor: pointer;
-  padding: 5px;
-}
-#navLinks {
-  display: flex;
-  gap: 8px;
-}
-#navLinks a {
-  color: white;
-  text-decoration: none;
-  padding: 8px 14px;
-  border-radius: 6px;
-  font-weight: 600;
-  font-size: 0.9em;
-  transition: background 0.2s;
-  white-space: nowrap;
-}
-#navLinks a:hover {
-  background: rgba(255,255,255,0.15);
-}
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f7fa; color: #1a1a1a; line-height: 1.6; }
 
 /* Hero Section */
 .hero {
@@ -78,35 +17,22 @@ nav > div {
   color: white;
   padding: 60px 20px;
   text-align: center;
-  position: relative;
 }
-.hero::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: url('data:image/svg+xml,%3Csvg width="60" height="60" xmlns="http://www.w3.org/2000/svg"%3E%3Cpath d="M0 0h60v60H0z" fill="none"/%3E%3Cpath d="M30 0l30 30-30 30L0 30z" fill="%23ffffff" fill-opacity=".03"/%3E%3C/svg%3E');
-  opacity: 0.3;
-}
-.hero > * { position: relative; z-index: 1; }
 .hero h1 {
   font-size: 3em;
   margin-bottom: 15px;
   font-weight: 800;
-  text-shadow: 0 2px 10px rgba(0,0,0,0.2);
 }
 .hero p {
   font-size: 1.2em;
-  opacity: 0.95;
+  opacity: 0.9;
   max-width: 600px;
   margin: 0 auto;
 }
 
 /* Stats Grid */
 .container {
-  max-width: 1600px;
+  max-width: 1400px;
   margin: 0 auto;
   padding: 40px 20px;
 }
@@ -318,27 +244,6 @@ nav > div {
 
 /* Responsive */
 @media (max-width: 768px) {
-  nav .nav-logo span { font-size: 0.9em; }
-  nav .nav-logo img { width: 28px; height: 28px; }
-  #mobileMenuBtn { display: block !important; }
-  #navLinks {
-    display: none !important;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    background: linear-gradient(135deg, #2c5aa0 0%, #1e3a8a 100%);
-    flex-direction: column;
-    gap: 0;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-  }
-  #navLinks.active { display: flex !important; }
-  #navLinks a {
-    padding: 12px 20px;
-    font-size: 0.95em;
-    border-radius: 0;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-  }
   .hero { padding: 40px 20px; }
   .hero h1 { font-size: 1.8em; }
   .hero p { font-size: 1em; }
@@ -491,6 +396,8 @@ document.addEventListener('click', function(event) {
   }
 });
 </script>
+<div style='height: 60px;'></div>
+
 
 <!-- Hero -->
 <div class='hero'>
@@ -503,12 +410,12 @@ document.addEventListener('click', function(event) {
   <div class='stats-grid'>
     <div class='stat-card positive'>
       <div class='stat-label'>Overall Win Rate</div>
-      <div class='stat-value'>48.4%</div>
-      <div class='stat-subtext'>62W - 66L</div>
+      <div class='stat-value'>49.3%</div>
+      <div class='stat-subtext'>68W - 70L</div>
     </div>
     <div class='stat-card'>
       <div class='stat-label'>Total Picks</div>
-      <div class='stat-value'>128</div>
+      <div class='stat-value'>138</div>
       <div class='stat-subtext'>NHL + NBA Combined</div>
     </div>
     <div class='stat-card'>
@@ -518,8 +425,8 @@ document.addEventListener('click', function(event) {
     </div>
     <div class='stat-card'>
       <div class='stat-label'>Current Streak</div>
-      <div class='stat-value'>3 ❄️</div>
-      <div class='stat-subtext'>Losing days</div>
+      <div class='stat-value'>1 🔥</div>
+      <div class='stat-subtext'>Winning days</div>
     </div>
   </div>
 
@@ -532,11 +439,11 @@ document.addEventListener('click', function(event) {
     <div class='sport-stats'>
       <div class='mini-stat'>
         <div class='mini-stat-label'>Win Rate</div>
-        <div class='mini-stat-value'>43.3%</div>
+        <div class='mini-stat-value'>46.2%</div>
       </div>
       <div class='mini-stat'>
         <div class='mini-stat-label'>Record</div>
-        <div class='mini-stat-value'>26-34</div>
+        <div class='mini-stat-value'>30-35</div>
       </div>
     </div>
   </div>
@@ -550,11 +457,11 @@ document.addEventListener('click', function(event) {
     <div class='sport-stats'>
       <div class='mini-stat'>
         <div class='mini-stat-label'>Win Rate</div>
-        <div class='mini-stat-value'>52.9%</div>
+        <div class='mini-stat-value'>52.1%</div>
       </div>
       <div class='mini-stat'>
         <div class='mini-stat-label'>Record</div>
-        <div class='mini-stat-value'>36-32</div>
+        <div class='mini-stat-value'>38-35</div>
       </div>
     </div>
   </div>
@@ -587,6 +494,14 @@ document.addEventListener('click', function(event) {
   <!-- Daily Timeline -->
   <div class='timeline'>
     <div class='timeline-title'>📅 Daily Results Timeline</div>
+    <div class='timeline-item win-day'>
+      <div class='timeline-date'>2026-03-12</div>
+      <div class='timeline-record'>
+        <span class='timeline-wins'>6W</span>
+        <span class='timeline-losses'>4L</span>
+        <span class='timeline-sports'>NBA + NHL</span>
+      </div>
+    </div>
     <div class='timeline-item loss-day'>
       <div class='timeline-date'>2026-03-11</div>
       <div class='timeline-record'>
@@ -704,20 +619,20 @@ document.addEventListener('click', function(event) {
 
 <script>
 // Prepare chart data
-const dates = ['2026-02-26', '2026-02-27', '2026-02-28', '2026-03-01', '2026-03-02', '2026-03-03', '2026-03-04', '2026-03-05', '2026-03-06', '2026-03-07', '2026-03-08', '2026-03-09', '2026-03-10', '2026-03-11'];
-const dailyWins = [8, 3, 0, 5, 4, 5, 3, 6, 5, 5, 4, 3, 5, 1];
-const dailyLosses = [2, 2, 0, 2, 9, 4, 3, 4, 4, 2, 6, 5, 5, 6];
-const cumulativeProfit = [528, 601, 601, 856, 320, 375, 348, 494, 549, 804, 568, 341, 296, -213];
-const rollingWinRate = [56.0, 52.0, 51.9, 54.1, 50.0, 52.5, 51.7, 47.5];
+const dates = ['2026-02-26', '2026-02-27', '2026-02-28', '2026-03-01', '2026-03-02', '2026-03-03', '2026-03-04', '2026-03-05', '2026-03-06', '2026-03-07', '2026-03-08', '2026-03-09', '2026-03-10', '2026-03-11', '2026-03-12'];
+const dailyWins = [8, 3, 0, 5, 4, 5, 3, 6, 5, 5, 4, 3, 5, 1, 6];
+const dailyLosses = [2, 2, 0, 2, 9, 4, 3, 4, 4, 2, 6, 5, 5, 6, 4];
+const cumulativeProfit = [528, 601, 601, 856, 320, 375, 348, 494, 549, 804, 568, 341, 296, -213, -67];
+const rollingWinRate = [56.0, 52.0, 51.9, 54.1, 50.0, 52.5, 51.7, 47.5, 47.5];
 
 // Monthly chart data
 const monthLabels = ['Feb 2026', 'Mar 2026'];
-const monthWins = [22, 40];
-const monthLosses = [18, 48];
-const monthNet = [4, -8];
+const monthWins = [23, 45];
+const monthLosses = [18, 52];
+const monthNet = [5, -7];
 const monthColors = ['rgba(16, 185, 129, 0.8)', 'rgba(239, 68, 68, 0.8)'];
 const monthBorderColors = ['#10b981', '#ef4444'];
-const monthWinRates = [55.0, 45.5];
+const monthWinRates = [56.1, 46.4];
 
 // Chart.js default settings
 Chart.defaults.font.family = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
@@ -773,7 +688,7 @@ new Chart(winRateCtx, {
     datasets: [
       {
         label: 'Win Rate',
-        data: [43.3, 52.9],
+        data: [46.2, 52.1],
         backgroundColor: ['#3b82f6', '#f59e0b'],
         borderRadius: 8,
         barThickness: 80
