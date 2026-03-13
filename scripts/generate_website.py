@@ -1817,9 +1817,9 @@ def update_latest_predictions(preliminary=False):
         content += "<div id='featured-picks' style='position: relative; margin: 0 -15px;'>\n"
 
         if show_preliminary:
-            # Preliminary picks banner (7am)
-            content += "<div class='premium-banner' style='background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 50%, #60a5fa 100%); padding: 8px; text-align: center; border-radius: 12px 12px 0 0; margin-bottom: -5px; box-shadow: 0 4px 20px rgba(59, 130, 246, 0.5); animation: shine 3s ease-in-out infinite;'>\n"
-            content += "<div style='color: #1e3a8a; font-weight: 900; font-size: 0.9em; letter-spacing: 2px; text-transform: uppercase; text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);'>⏰ Preliminary Picks (7am) - Final Picks Coming at 3pm ⏰</div>\n"
+            # Preliminary picks banner (7am) - gold like final picks
+            content += "<div class='premium-banner' style='background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #fbbf24 100%); padding: 8px; text-align: center; border-radius: 12px 12px 0 0; margin-bottom: -5px; box-shadow: 0 4px 20px rgba(245, 158, 11, 0.5); animation: shine 3s ease-in-out infinite;'>\n"
+            content += "<div style='color: #78350f; font-weight: 900; font-size: 0.9em; letter-spacing: 2px; text-transform: uppercase; text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);'>⏰ Preliminary Picks (7am) - Final Picks Coming at 3pm ⏰</div>\n"
             content += "</div>\n"
         else:
             # Final picks banner (3pm)
@@ -1831,11 +1831,14 @@ def update_latest_predictions(preliminary=False):
         content += "<div class='premium-content' style='background: linear-gradient(180deg, #fffbeb 0%, #ffffff 100%); padding: 30px; border-radius: 0 0 16px 16px; box-shadow: 0 10px 40px rgba(245, 158, 11, 0.15); border: 3px solid #fbbf24; border-top: none;'>\n"
         content += "<style>@media (max-width: 768px) { .premium-content { padding: 15px; border-radius: 0 0 8px 8px; border-width: 2px; } }</style>\n"
 
-        if not show_preliminary:
-            content += "<div class='section-header' style='margin-bottom: 25px; text-align: center;'>\n"
-            content += "<div class='section-title' style='font-size: 2em; background: linear-gradient(135deg, #f59e0b 0%, #dc2626 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 10px; display: block !important; text-align: center !important; justify-content: center;'>🔥 Featured Picks of the Day</div>\n"
+        # Add section header for both preliminary and final picks
+        content += "<div class='section-header' style='margin-bottom: 25px; text-align: center;'>\n"
+        content += "<div class='section-title' style='font-size: 2em; background: linear-gradient(135deg, #f59e0b 0%, #dc2626 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 10px; display: block !important; text-align: center !important; justify-content: center;'>🔥 Featured Picks of the Day</div>\n"
+        if show_preliminary:
+            content += "<div class='section-subtitle' style='font-size: 1.05em; color: #78350f; font-weight: 600;'>Early morning selections - Final picks with line movement analysis at 3pm</div>\n"
+        else:
             content += "<div class='section-subtitle' style='font-size: 1.05em; color: #78350f; font-weight: 600;'>Our top AI-selected plays with the highest edge</div>\n"
-            content += "</div>\n"
+        content += "</div>\n"
 
         content += featured_content
 
