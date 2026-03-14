@@ -475,7 +475,7 @@ document.addEventListener('DOMContentLoaded', function() {{
     </div>
     <h1>{team_name}</h1>
     <div class='last-updated'>⏱️ {lineup_data['last_updated']}</div>
-    <a href='../index.html' class='back-link'>← Back to All Teams</a>
+    <a href='/nhl/teams/index.html' class='back-link'>← Back to All Teams</a>
   </div>
 
   <div class='lineup-container'>
