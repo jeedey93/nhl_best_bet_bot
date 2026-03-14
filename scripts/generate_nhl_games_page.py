@@ -1397,6 +1397,20 @@ def generate_nhl_games_page(fetch_odds=True):
     with open(nav_path, "r", encoding="utf-8") as f:
         nav_html = f.read()
 
+    # Adjust navigation paths for subdirectory (nhl/games/)
+    # Replace root-relative paths with ../../ prefix
+    import re
+    nav_html = re.sub(r"href='parieur_discipline_icon_1024\.png'", r"href='../../parieur_discipline_icon_1024.png'", nav_html)
+    nav_html = re.sub(r"src='parieur_discipline_icon_1024\.png'", r"src='../../parieur_discipline_icon_1024.png'", nav_html)
+    nav_html = re.sub(r"href='index\.html'", r"href='../../index.html'", nav_html)
+    nav_html = re.sub(r"href='daily-picks\.html'", r"href='../../daily-picks.html'", nav_html)
+    nav_html = re.sub(r"href='nba\.html'", r"href='../../nba.html'", nav_html)
+    nav_html = re.sub(r"href='performance\.html'", r"href='../../performance.html'", nav_html)
+    nav_html = re.sub(r"href='about\.html'", r"href='../../about.html'", nav_html)
+    # Adjust dropdown links for subdirectory context
+    nav_html = re.sub(r"href='nhl/games/index\.html'", r"href='index.html'", nav_html)
+    nav_html = re.sub(r"href='nhl/teams/index\.html'", r"href='../teams/index.html'", nav_html)
+
     # Get today's date
     now = datetime.now(ZoneInfo('America/Toronto'))
     today_str = now.strftime("%A, %B %d, %Y").replace(" 0", " ")
