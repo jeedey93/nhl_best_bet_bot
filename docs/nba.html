@@ -52,7 +52,7 @@ body {
   margin: 0 0 50px 0;
   background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
   border-radius: 0;
-  padding: 110px 40px 60px 40px;
+  padding: 60px 40px;
   box-shadow: none;
 }
 .header h1 {
@@ -653,7 +653,7 @@ body {
 }
 @media (max-width: 768px) {
   .container { padding: 20px 10px; }
-  .header { padding: 100px 15px 30px 15px; margin-bottom: 30px; }
+  .header { padding: 30px 15px; margin-bottom: 30px; }
   .header h1 { font-size: 2em; margin-bottom: 10px; }
   .header p { font-size: 1em; }
   .games-scroller { padding: 15px; border-radius: 12px; }
@@ -818,7 +818,7 @@ document.addEventListener('DOMContentLoaded', function() {
   transform: translateY(0) !important;
 }
 @media (max-width: 768px) {
-  nav div:first-child span { font-size: 0.9em; }
+  nav div:first-child span { font-size: 0.85em; }
   nav div:first-child img { width: 28px; height: 28px; }
   #mobileMenuBtn { display: block !important; }
   #navLinks {
@@ -832,11 +832,13 @@ document.addEventListener('DOMContentLoaded', function() {
     gap: 0;
     box-shadow: 0 4px 10px rgba(0,0,0,0.2);
     align-items: stretch;
+    max-height: calc(100vh - 52px);
+    overflow-y: auto;
   }
   #navLinks.active { display: flex !important; }
   #navLinks a {
-    padding: 12px 20px;
-    font-size: 0.95em;
+    padding: 14px 20px;
+    font-size: 1em;
     border-radius: 0;
     border-bottom: 1px solid rgba(255,255,255,0.1);
   }
@@ -845,7 +847,7 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   .nav-dropdown-toggle {
     width: 100%;
-    padding: 12px 20px !important;
+    padding: 14px 20px !important;
     border-bottom: 1px solid rgba(255,255,255,0.1) !important;
     border-radius: 0 !important;
     justify-content: space-between !important;
@@ -870,10 +872,14 @@ document.addEventListener('DOMContentLoaded', function() {
   .nav-dropdown-menu a {
     color: white !important;
     border-bottom: 1px solid rgba(255,255,255,0.05) !important;
-    padding-left: 40px !important;
+    padding: 12px 20px 12px 40px !important;
+    font-size: 0.95em !important;
   }
   .nav-dropdown-menu a:hover {
     background: rgba(255,255,255,0.1) !important;
+  }
+  .nav-dropdown-menu a:last-child {
+    border-bottom: none !important;
   }
 }
 </style>
@@ -922,12 +928,12 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-<div style='height: 60px;'></div>
+<div style='height: 88px;'></div>
 
 <div class='header'>
 <h1>🏀 NBA Games Today</h1>
 <p>Saturday, March 14, 2026</p>
-<p>⏱️ Last Updated at 7:33 AM</p>
+<p>⏱️ Last Updated at 3:36 PM</p>
 </div>
 
 <div class='container'>
@@ -945,7 +951,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='mini-matchup'>Brooklyn Nets @ Philadelphia 76</div>
 </a>
 <a href='#game-67fd3c76881fc3018d06f51684b04db5' class='mini-game-tile'>
-<div class='mini-time'>🏀 03:10 PM</div>
+<div class='mini-time'>🏀 03:11 PM</div>
 <div class='mini-teams'>
 <img src='https://cdn.nba.com/logos/nba/1610612749/global/L/logo.svg' class='mini-logo' />
 <span class='mini-at'>@</span>
@@ -971,15 +977,6 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 <div class='mini-matchup'>Washington Wiza @ Boston Celtics</div>
 </a>
-<a href='#game-5b7467a257447a40f885525e863992a5' class='mini-game-tile'>
-<div class='mini-time'>🏀 06:40 PM</div>
-<div class='mini-teams'>
-<img src='https://cdn.nba.com/logos/nba/1610612743/global/L/logo.svg' class='mini-logo' />
-<span class='mini-at'>@</span>
-<img src='https://cdn.nba.com/logos/nba/1610612747/global/L/logo.svg' class='mini-logo' />
-</div>
-<div class='mini-matchup'>Denver Nuggets @ Los Angeles Lak</div>
-</a>
 <a href='#game-b356eed95fac84c751e3a07a9b013bdb' class='mini-game-tile'>
 <div class='mini-time'>🏀 08:10 PM</div>
 <div class='mini-teams'>
@@ -988,6 +985,15 @@ document.addEventListener('DOMContentLoaded', function() {
 <img src='https://cdn.nba.com/logos/nba/1610612748/global/L/logo.svg' class='mini-logo' />
 </div>
 <div class='mini-matchup'>Orlando Magic @ Miami Heat</div>
+</a>
+<a href='#game-5b7467a257447a40f885525e863992a5' class='mini-game-tile'>
+<div class='mini-time'>🏀 08:40 PM</div>
+<div class='mini-teams'>
+<img src='https://cdn.nba.com/logos/nba/1610612743/global/L/logo.svg' class='mini-logo' />
+<span class='mini-at'>@</span>
+<img src='https://cdn.nba.com/logos/nba/1610612747/global/L/logo.svg' class='mini-logo' />
+</div>
+<div class='mini-matchup'>Denver Nuggets @ Los Angeles Lak</div>
 </a>
 <a href='#game-fd3cb91e05ed15d6fa70f51f1d305f3b' class='mini-game-tile'>
 <div class='mini-time'>🏀 10:40 PM</div>
@@ -1011,19 +1017,21 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='h2h-title'>🏆 Season Series</div>
 <div class='h2h-record'>
 <span class='h2h-team'>Brooklyn Nets</span>
-<span class='h2h-score'>1-2</span>
+<span class='h2h-score'>1-3</span>
 <span class='h2h-team'>Philadelphia 76ers</span>
 </div>
 <div class='h2h-results'>
 <span class='h2h-result h2h-loss'>PHI 129-105</span>
 <span class='h2h-result h2h-loss'>PHI 115-103</span>
 <span class='h2h-result h2h-win'>BKN 114-106</span>
+<span class='h2h-result h2h-loss'>PHI 104-97</span>
 </div>
 </div>
 <div class='signals-row'>
 <div class='prediction-indicator home-favored'>↗ Trending: 76ers</div>
-<div class='ou-signal over-signal'>📈 Over 217.5</div>
-<div class='h2h-totals-badge high-scoring'>⚡ H2H Avg: 224.0 pts</div>
+<div class='ou-signal over-signal'>📈 Over 216.0</div>
+<div class='h2h-totals-badge high-scoring'>⚡ H2H Avg: 218.2 pts</div>
+<div class='streak-badge lose-streak'>❄️ Nets 3L Streak</div>
 </div>
 <div class='key-insights'>
 <div class='insights-title'>📊 Key Insights</div>
@@ -1032,21 +1040,21 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='team-header away-team'>
 <img src='https://cdn.nba.com/logos/nba/1610612751/global/L/logo.svg' alt='Brooklyn Nets' class='team-logo' />
 <div class='team-name'>Brooklyn Nets <span class='team-rank'>(27th)</span></div>
-<div class='team-record'>17-49 <span class='negative-form'>(2-8)</span></div>
+<div class='team-record'>17-50 <span class='negative-form'>(2-8)</span></div>
 <div class='team-label'>Away Team</div>
 </div>
 <div class='stats-tiles'>
 <div class='stat-tile'>
 <div class='stat-label'>Avg Points For</div>
-<div class='stat-value'>107.50</div>
+<div class='stat-value'>105.80</div>
 </div>
 <div class='stat-tile'>
 <div class='stat-label'>Avg Points Against</div>
-<div class='stat-value'>121.90</div>
+<div class='stat-value'>120.00</div>
 </div>
 <div class='stat-tile'>
 <div class='stat-label'>Avg Points Total</div>
-<div class='stat-value'>229.40</div>
+<div class='stat-value'>225.80</div>
 </div>
 </div>
 <div class='stat-games'>Last 10 games</div>
@@ -1054,22 +1062,22 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='team-section'>
 <div class='team-header home-team'>
 <img src='https://cdn.nba.com/logos/nba/1610612755/global/L/logo.svg' alt='Philadelphia 76ers' class='team-logo' />
-<div class='team-name'>Philadelphia 76ers <span class='team-rank'>(16th)</span></div>
-<div class='team-record'>35-31 <span class='neutral-form'>(5-5)</span></div>
+<div class='team-name'>Philadelphia 76ers <span class='team-rank'>(15th)</span></div>
+<div class='team-record'>36-31 <span class='neutral-form'>(5-5)</span></div>
 <div class='team-label'>Home Team</div>
 </div>
 <div class='stats-tiles'>
 <div class='stat-tile'>
 <div class='stat-label'>Avg Points For</div>
-<div class='stat-value'>115.40</div>
+<div class='stat-value'>112.30</div>
 </div>
 <div class='stat-tile'>
 <div class='stat-label'>Avg Points Against</div>
-<div class='stat-value'>118.60</div>
+<div class='stat-value'>117.50</div>
 </div>
 <div class='stat-tile'>
 <div class='stat-label'>Avg Points Total</div>
-<div class='stat-value'>234.00</div>
+<div class='stat-value'>229.80</div>
 </div>
 </div>
 <div class='stat-games'>Last 10 games</div>
@@ -1082,25 +1090,25 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='odds-grid'>
 <div class='odds-card'>
 <div class='odds-label'>Moneyline</div>
-<div class='odds-value'><span>Brooklyn Nets</span><span>4.10</span></div>
-<div class='odds-value'><span>Philadelphia 76ers</span><span>1.26</span></div>
+<div class='odds-value'><span>Brooklyn Nets</span><span>3.80</span></div>
+<div class='odds-value'><span>Philadelphia 76ers</span><span>1.28</span></div>
 </div>
 <div class='odds-card'>
 <div class='odds-label'>Total</div>
-<div class='odds-value'><span>Over 217.5</span><span>1.91</span></div>
-<div class='odds-value'><span>Under 217.5</span><span>1.91</span></div>
+<div class='odds-value'><span>Over 216.0</span><span>1.91</span></div>
+<div class='odds-value'><span>Under 216.0</span><span>1.91</span></div>
 </div>
 <div class='odds-card'>
 <div class='odds-label'>Spread</div>
-<div class='odds-value'><span>Brooklyn Nets +9.0</span><span>1.88</span></div>
-<div class='odds-value'><span>Philadelphia 76ers -9.0</span><span>1.94</span></div>
+<div class='odds-value'><span>Brooklyn Nets +6.5</span><span>1.96</span></div>
+<div class='odds-value'><span>Philadelphia 76ers -6.5</span><span>1.78</span></div>
 </div>
 </div>
 </div>
 </div>
 </div>
 <div class='game-card' id='game-67fd3c76881fc3018d06f51684b04db5'>
-<div class='game-time'>03:10 PM</div>
+<div class='game-time'>03:11 PM</div>
 <div class='matchup'>Milwaukee Bucks vs Atlanta Hawks</div>
 <div class='h2h-section'>
 <div class='h2h-title'>🏆 Season Series</div>
@@ -1116,8 +1124,7 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 <div class='signals-row'>
 <div class='prediction-indicator home-favored'>↗ Trending: Hawks</div>
-<div class='ou-signal under-signal'>📉 Under 230.5</div>
-<div class='h2h-totals-badge high-scoring'>⚡ H2H Avg: 233.0 pts</div>
+<div class='ou-signal under-signal'>📉 Under 232.5</div>
 <div class='streak-badge lose-streak'>❄️ Bucks 3L Streak</div>
 <div class='streak-badge win-streak'>🔥 Hawks 8W Streak</div>
 </div>
@@ -1150,7 +1157,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='team-section'>
 <div class='team-header home-team'>
 <img src='https://cdn.nba.com/logos/nba/1610612737/global/L/logo.svg' alt='Atlanta Hawks' class='team-logo' />
-<div class='team-name'>Atlanta Hawks <span class='team-rank'>(15th)</span></div>
+<div class='team-name'>Atlanta Hawks <span class='team-rank'>(16th)</span></div>
 <div class='team-record'>35-31 <span class='positive-form'>(9-1)</span></div>
 <div class='team-label'>Home Team</div>
 </div>
@@ -1178,18 +1185,18 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='odds-grid'>
 <div class='odds-card'>
 <div class='odds-label'>Moneyline</div>
-<div class='odds-value'><span>Milwaukee Bucks</span><span>3.30</span></div>
-<div class='odds-value'><span>Atlanta Hawks</span><span>1.36</span></div>
+<div class='odds-value'><span>Milwaukee Bucks</span><span>5.20</span></div>
+<div class='odds-value'><span>Atlanta Hawks</span><span>1.15</span></div>
 </div>
 <div class='odds-card'>
 <div class='odds-label'>Total</div>
-<div class='odds-value'><span>Over 230.5</span><span>1.94</span></div>
-<div class='odds-value'><span>Under 230.5</span><span>1.88</span></div>
+<div class='odds-value'><span>Over 232.5</span><span>1.96</span></div>
+<div class='odds-value'><span>Under 232.5</span><span>1.78</span></div>
 </div>
 <div class='odds-card'>
 <div class='odds-label'>Spread</div>
-<div class='odds-value'><span>Milwaukee Bucks +8.0</span><span>1.91</span></div>
-<div class='odds-value'><span>Atlanta Hawks -8.0</span><span>1.91</span></div>
+<div class='odds-value'><span>Milwaukee Bucks +10.5</span><span>2.00</span></div>
+<div class='odds-value'><span>Atlanta Hawks -10.5</span><span>1.76</span></div>
 </div>
 </div>
 </div>
@@ -1211,7 +1218,7 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 <div class='signals-row'>
 <div class='prediction-indicator away-favored'>↗ Trending: Hornets</div>
-<div class='ou-signal over-signal'>📈 Over 228.5</div>
+<div class='ou-signal over-signal'>📈 Over 232.5</div>
 <div class='h2h-totals-badge low-scoring'>🛡️ H2H Avg: 217.0 pts</div>
 </div>
 <div class='key-insights'>
@@ -1271,18 +1278,18 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='odds-grid'>
 <div class='odds-card'>
 <div class='odds-label'>Moneyline</div>
-<div class='odds-value'><span>Charlotte Hornets</span><span>2.90</span></div>
+<div class='odds-value'><span>Charlotte Hornets</span><span>2.94</span></div>
 <div class='odds-value'><span>San Antonio Spurs</span><span>1.43</span></div>
 </div>
 <div class='odds-card'>
 <div class='odds-label'>Total</div>
-<div class='odds-value'><span>Over 228.5</span><span>1.93</span></div>
-<div class='odds-value'><span>Under 228.5</span><span>1.89</span></div>
+<div class='odds-value'><span>Over 232.5</span><span>1.94</span></div>
+<div class='odds-value'><span>Under 232.5</span><span>1.88</span></div>
 </div>
 <div class='odds-card'>
 <div class='odds-label'>Spread</div>
-<div class='odds-value'><span>Charlotte Hornets +5.5</span><span>1.94</span></div>
-<div class='odds-value'><span>San Antonio Spurs -5.5</span><span>1.88</span></div>
+<div class='odds-value'><span>Charlotte Hornets +6.0</span><span>1.94</span></div>
+<div class='odds-value'><span>San Antonio Spurs -6.0</span><span>1.88</span></div>
 </div>
 </div>
 </div>
@@ -1305,7 +1312,7 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 <div class='signals-row'>
 <div class='prediction-indicator home-favored'>↗ Trending: Celtics</div>
-<div class='ou-signal under-signal'>📉 Under 229.5</div>
+<div class='ou-signal under-signal'>📉 Under 233.5</div>
 <div class='h2h-totals-badge high-scoring'>⚡ H2H Avg: 245.0 pts</div>
 <div class='streak-badge lose-streak'>❄️ Wizards 10L Streak</div>
 </div>
@@ -1366,25 +1373,123 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='odds-grid'>
 <div class='odds-card'>
 <div class='odds-label'>Moneyline</div>
-<div class='odds-value'><span>Washington Wizards</span><span>12.00</span></div>
-<div class='odds-value'><span>Boston Celtics</span><span>1.05</span></div>
+<div class='odds-value'><span>Washington Wizards</span><span>16.00</span></div>
+<div class='odds-value'><span>Boston Celtics</span><span>1.02</span></div>
 </div>
 <div class='odds-card'>
 <div class='odds-label'>Total</div>
-<div class='odds-value'><span>Over 229.5</span><span>1.91</span></div>
-<div class='odds-value'><span>Under 229.5</span><span>1.91</span></div>
+<div class='odds-value'><span>Over 233.5</span><span>1.91</span></div>
+<div class='odds-value'><span>Under 233.5</span><span>1.91</span></div>
 </div>
 <div class='odds-card'>
 <div class='odds-label'>Spread</div>
-<div class='odds-value'><span>Washington Wizards +19.5</span><span>1.94</span></div>
-<div class='odds-value'><span>Boston Celtics -19.5</span><span>1.88</span></div>
+<div class='odds-value'><span>Washington Wizards +20.5</span><span>1.91</span></div>
+<div class='odds-value'><span>Boston Celtics -20.5</span><span>1.91</span></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class='game-card' id='game-b356eed95fac84c751e3a07a9b013bdb'>
+<div class='game-time'>08:10 PM</div>
+<div class='matchup'>Orlando Magic vs Miami Heat</div>
+<div class='h2h-section'>
+<div class='h2h-title'>🏆 Season Series</div>
+<div class='h2h-record'>
+<span class='h2h-team'>Orlando Magic</span>
+<span class='h2h-score'>4-0</span>
+<span class='h2h-team'>Miami Heat</span>
+</div>
+<div class='h2h-results'>
+<span class='h2h-result h2h-win'>ORL 125-121</span>
+<span class='h2h-result h2h-win'>ORL 106-105</span>
+<span class='h2h-result h2h-win'>ORL 117-108</span>
+<span class='h2h-result h2h-win'>ORL 133-124</span>
+</div>
+</div>
+<div class='signals-row'>
+<div class='prediction-indicator home-favored'>↗ Trending: Heat</div>
+<div class='ou-signal over-signal'>📈 Over 237.5</div>
+<div class='h2h-totals-badge low-scoring'>🛡️ H2H Avg: 234.8 pts</div>
+<div class='streak-badge win-streak'>🔥 Magic 6W Streak</div>
+<div class='streak-badge win-streak'>🔥 Heat 7W Streak</div>
+</div>
+<div class='key-insights'>
+<div class='insights-title'>📊 Key Insights</div>
+<div class='insights-grid'>
+<div class='team-section'>
+<div class='team-header away-team'>
+<img src='https://cdn.nba.com/logos/nba/1610612753/global/L/logo.svg' alt='Orlando Magic' class='team-logo' />
+<div class='team-name'>Orlando Magic <span class='team-rank'>(12th)</span></div>
+<div class='team-record'>37-28 <span class='positive-form'>(8-2)</span></div>
+<div class='team-label'>Away Team</div>
+</div>
+<div class='stats-tiles'>
+<div class='stat-tile'>
+<div class='stat-label'>Avg Points For</div>
+<div class='stat-value'>117.50</div>
+</div>
+<div class='stat-tile'>
+<div class='stat-label'>Avg Points Against</div>
+<div class='stat-value'>109.60</div>
+</div>
+<div class='stat-tile'>
+<div class='stat-label'>Avg Points Total</div>
+<div class='stat-value'>227.10</div>
+</div>
+</div>
+<div class='stat-games'>Last 10 games</div>
+</div>
+<div class='team-section'>
+<div class='team-header home-team'>
+<img src='https://cdn.nba.com/logos/nba/1610612748/global/L/logo.svg' alt='Miami Heat' class='team-logo' />
+<div class='team-name'>Miami Heat <span class='team-rank'>(13th)</span></div>
+<div class='team-record'>38-29 <span class='positive-form'>(8-2)</span></div>
+<div class='team-label'>Home Team</div>
+</div>
+<div class='stats-tiles'>
+<div class='stat-tile'>
+<div class='stat-label'>Avg Points For</div>
+<div class='stat-value'>124.60</div>
+</div>
+<div class='stat-tile'>
+<div class='stat-label'>Avg Points Against</div>
+<div class='stat-value'>114.90</div>
+</div>
+<div class='stat-tile'>
+<div class='stat-label'>Avg Points Total</div>
+<div class='stat-value'>239.50</div>
+</div>
+</div>
+<div class='stat-games'>Last 10 games</div>
+</div>
+</div>
+</div>
+<div class='odds-section'>
+<div class='odds-toggle'>View Odds ▼</div>
+<div class='odds-content'>
+<div class='odds-grid'>
+<div class='odds-card'>
+<div class='odds-label'>Moneyline</div>
+<div class='odds-value'><span>Orlando Magic</span><span>2.52</span></div>
+<div class='odds-value'><span>Miami Heat</span><span>1.56</span></div>
+</div>
+<div class='odds-card'>
+<div class='odds-label'>Total</div>
+<div class='odds-value'><span>Over 237.5</span><span>1.94</span></div>
+<div class='odds-value'><span>Under 237.5</span><span>1.88</span></div>
+</div>
+<div class='odds-card'>
+<div class='odds-label'>Spread</div>
+<div class='odds-value'><span>Orlando Magic +4.5</span><span>1.91</span></div>
+<div class='odds-value'><span>Miami Heat -4.5</span><span>1.91</span></div>
 </div>
 </div>
 </div>
 </div>
 </div>
 <div class='game-card' id='game-5b7467a257447a40f885525e863992a5'>
-<div class='game-time'>06:40 PM</div>
+<div class='game-time'>08:40 PM</div>
 <div class='matchup'>Denver Nuggets vs Los Angeles Lakers</div>
 <div class='h2h-section'>
 <div class='h2h-title'>🏆 Season Series</div>
@@ -1461,115 +1566,18 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='odds-grid'>
 <div class='odds-card'>
 <div class='odds-label'>Moneyline</div>
-<div class='odds-value'><span>Denver Nuggets</span><span>1.70</span></div>
-<div class='odds-value'><span>Los Angeles Lakers</span><span>2.20</span></div>
+<div class='odds-value'><span>Denver Nuggets</span><span>1.68</span></div>
+<div class='odds-value'><span>Los Angeles Lakers</span><span>2.26</span></div>
 </div>
 <div class='odds-card'>
 <div class='odds-label'>Total</div>
-<div class='odds-value'><span>Over 244.5</span><span>1.91</span></div>
-<div class='odds-value'><span>Under 244.5</span><span>1.91</span></div>
+<div class='odds-value'><span>Over 244.5</span><span>1.88</span></div>
+<div class='odds-value'><span>Under 244.5</span><span>1.94</span></div>
 </div>
 <div class='odds-card'>
 <div class='odds-label'>Spread</div>
-<div class='odds-value'><span>Denver Nuggets -2.5</span><span>1.91</span></div>
-<div class='odds-value'><span>Los Angeles Lakers +2.5</span><span>1.91</span></div>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div class='game-card' id='game-b356eed95fac84c751e3a07a9b013bdb'>
-<div class='game-time'>08:10 PM</div>
-<div class='matchup'>Orlando Magic vs Miami Heat</div>
-<div class='h2h-section'>
-<div class='h2h-title'>🏆 Season Series</div>
-<div class='h2h-record'>
-<span class='h2h-team'>Orlando Magic</span>
-<span class='h2h-score'>4-0</span>
-<span class='h2h-team'>Miami Heat</span>
-</div>
-<div class='h2h-results'>
-<span class='h2h-result h2h-win'>ORL 125-121</span>
-<span class='h2h-result h2h-win'>ORL 106-105</span>
-<span class='h2h-result h2h-win'>ORL 117-108</span>
-<span class='h2h-result h2h-win'>ORL 133-124</span>
-</div>
-</div>
-<div class='signals-row'>
-<div class='prediction-indicator home-favored'>↗ Trending: Heat</div>
-<div class='ou-signal over-signal'>📈 Over 235.5</div>
-<div class='streak-badge win-streak'>🔥 Magic 6W Streak</div>
-<div class='streak-badge win-streak'>🔥 Heat 7W Streak</div>
-</div>
-<div class='key-insights'>
-<div class='insights-title'>📊 Key Insights</div>
-<div class='insights-grid'>
-<div class='team-section'>
-<div class='team-header away-team'>
-<img src='https://cdn.nba.com/logos/nba/1610612753/global/L/logo.svg' alt='Orlando Magic' class='team-logo' />
-<div class='team-name'>Orlando Magic <span class='team-rank'>(12th)</span></div>
-<div class='team-record'>37-28 <span class='positive-form'>(8-2)</span></div>
-<div class='team-label'>Away Team</div>
-</div>
-<div class='stats-tiles'>
-<div class='stat-tile'>
-<div class='stat-label'>Avg Points For</div>
-<div class='stat-value'>117.50</div>
-</div>
-<div class='stat-tile'>
-<div class='stat-label'>Avg Points Against</div>
-<div class='stat-value'>109.60</div>
-</div>
-<div class='stat-tile'>
-<div class='stat-label'>Avg Points Total</div>
-<div class='stat-value'>227.10</div>
-</div>
-</div>
-<div class='stat-games'>Last 10 games</div>
-</div>
-<div class='team-section'>
-<div class='team-header home-team'>
-<img src='https://cdn.nba.com/logos/nba/1610612748/global/L/logo.svg' alt='Miami Heat' class='team-logo' />
-<div class='team-name'>Miami Heat <span class='team-rank'>(13th)</span></div>
-<div class='team-record'>38-29 <span class='positive-form'>(8-2)</span></div>
-<div class='team-label'>Home Team</div>
-</div>
-<div class='stats-tiles'>
-<div class='stat-tile'>
-<div class='stat-label'>Avg Points For</div>
-<div class='stat-value'>124.60</div>
-</div>
-<div class='stat-tile'>
-<div class='stat-label'>Avg Points Against</div>
-<div class='stat-value'>114.90</div>
-</div>
-<div class='stat-tile'>
-<div class='stat-label'>Avg Points Total</div>
-<div class='stat-value'>239.50</div>
-</div>
-</div>
-<div class='stat-games'>Last 10 games</div>
-</div>
-</div>
-</div>
-<div class='odds-section'>
-<div class='odds-toggle'>View Odds ▼</div>
-<div class='odds-content'>
-<div class='odds-grid'>
-<div class='odds-card'>
-<div class='odds-label'>Moneyline</div>
-<div class='odds-value'><span>Orlando Magic</span><span>2.40</span></div>
-<div class='odds-value'><span>Miami Heat</span><span>1.60</span></div>
-</div>
-<div class='odds-card'>
-<div class='odds-label'>Total</div>
-<div class='odds-value'><span>Over 235.5</span><span>1.91</span></div>
-<div class='odds-value'><span>Under 235.5</span><span>1.91</span></div>
-</div>
-<div class='odds-card'>
-<div class='odds-label'>Spread</div>
-<div class='odds-value'><span>Orlando Magic +3.5</span><span>1.93</span></div>
-<div class='odds-value'><span>Miami Heat -3.5</span><span>1.89</span></div>
+<div class='odds-value'><span>Denver Nuggets -3.0</span><span>1.91</span></div>
+<div class='odds-value'><span>Los Angeles Lakers +3.0</span><span>1.91</span></div>
 </div>
 </div>
 </div>
@@ -1592,7 +1600,7 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 <div class='signals-row'>
 <div class='prediction-indicator home-favored'>↗ Trending: Clippers</div>
-<div class='ou-signal over-signal'>📈 Over 229.5</div>
+<div class='ou-signal over-signal'>📈 Over 231.5</div>
 <div class='h2h-totals-badge low-scoring'>🛡️ H2H Avg: 223.0 pts</div>
 <div class='streak-badge win-streak'>🔥 Clippers 4W Streak</div>
 </div>
@@ -1658,13 +1666,13 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 <div class='odds-card'>
 <div class='odds-label'>Total</div>
-<div class='odds-value'><span>Over 229.5</span><span>1.91</span></div>
-<div class='odds-value'><span>Under 229.5</span><span>1.91</span></div>
+<div class='odds-value'><span>Over 231.5</span><span>1.88</span></div>
+<div class='odds-value'><span>Under 231.5</span><span>1.94</span></div>
 </div>
 <div class='odds-card'>
 <div class='odds-label'>Spread</div>
-<div class='odds-value'><span>Sacramento Kings +13.5</span><span>1.93</span></div>
-<div class='odds-value'><span>Los Angeles Clippers -13.5</span><span>1.89</span></div>
+<div class='odds-value'><span>Sacramento Kings +13.5</span><span>1.94</span></div>
+<div class='odds-value'><span>Los Angeles Clippers -13.5</span><span>1.88</span></div>
 </div>
 </div>
 </div>
