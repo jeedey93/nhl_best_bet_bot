@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='UTF-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+<title>NHL Teams - Lineups & Stats | Parieur Discipliné</title>
+<meta name='description' content='Browse all 32 NHL teams. View current lineups, starting goalies, injuries, and team statistics.'>
+<meta name='keywords' content='NHL teams, NHL lineups, NHL rosters, hockey teams, NHL stats'>
+<meta name='author' content='Parieur Discipliné'>
+<meta name='robots' content='index, follow'>
+<link rel='canonical' href='https://parieurdiscipline.com/nhl/teams'>
+
+<!-- Favicon -->
+<link rel='icon' type='image/png' href='parieur_discipline_icon_1024.png'>
+
+<!-- Open Graph / Facebook -->
+<meta property='og:type' content='website'>
+<meta property='og:url' content='https://parieurdiscipline.com/nhl/teams'>
+<meta property='og:title' content='NHL Teams - Lineups & Stats'>
+<meta property='og:description' content='Browse all 32 NHL teams. View current lineups, starting goalies, injuries, and team statistics.'>
+<meta property='og:image' content='https://parieurdiscipline.com/parieur_discipline_icon_1024.png'>
+<meta property='og:site_name' content='Parieur Discipliné'>
+
+<!-- Twitter -->
+<meta property='twitter:card' content='summary_large_image'>
+<meta property='twitter:url' content='https://parieurdiscipline.com/nhl/teams'>
+<meta property='twitter:title' content='NHL Teams - Lineups & Stats'>
+<meta property='twitter:description' content='Browse all 32 NHL teams. View current lineups, starting goalies, injuries, and team statistics.'>
+<meta property='twitter:image' content='https://parieurdiscipline.com/parieur_discipline_icon_1024.png'>
+
+<!-- Mobile Theme -->
+<meta name='theme-color' content='#2c5aa0'>
+
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: #f5f7fa;
+  color: #1a1a1a;
+  min-height: 100vh;
+}
+.container { max-width: 1600px; margin: 0 auto; padding: 40px 20px; }
+.header {
+  text-align: center;
+  margin: 0 0 50px 0;
+  background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+  border-radius: 0;
+  padding: 60px 40px;
+  box-shadow: none;
+}
+.header h1 {
+  font-size: 3em;
+  color: white;
+  margin-bottom: 15px;
+  font-weight: 800;
+}
+.header p {
+  color: rgba(255,255,255,0.9);
+  font-size: 1.2em;
+  font-weight: 500;
+}
+
+/* Conference Sections */
+.conference-section {
+  margin-bottom: 60px;
+}
+.conference-title {
+  font-size: 2.2em;
+  background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 20px;
+  padding: 20px 30px;
+  font-weight: 700;
+  border-bottom: 3px solid #4a90e2;
+}
+
+/* Division Sections */
+.division-section {
+  margin-bottom: 40px;
+}
+.division-title {
+  font-size: 1.5em;
+  color: #1e293b;
+  margin-bottom: 25px;
+  padding-left: 10px;
+  font-weight: 700;
+  border-left: 4px solid #4a90e2;
+}
+
+/* Team Grid */
+.teams-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 25px;
+  margin-bottom: 30px;
+}
+
+/* Team Card */
+.team-card {
+  background: white;
+  border-radius: 16px;
+  padding: 30px 20px;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 2px solid #e5e7eb;
+  position: relative;
+  overflow: hidden;
+}
+.team-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #4a90e2 0%, #357abd 100%);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+.team-card:hover::before {
+  transform: scaleX(1);
+}
+.team-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 30px rgba(74, 144, 226, 0.25);
+  border-color: #4a90e2;
+}
+
+.team-logo {
+  width: 120px;
+  height: 120px;
+  margin-bottom: 20px;
+  transition: transform 0.3s ease;
+}
+.team-card:hover .team-logo {
+  transform: scale(1.1);
+}
+
+.team-name {
+  font-size: 1.3em;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 8px;
+}
+
+.team-record {
+  font-size: 1.1em;
+  font-weight: 600;
+  color: #4a90e2;
+  margin-bottom: 10px;
+}
+
+.team-info {
+  font-size: 0.85em;
+  color: #6b7280;
+  margin-top: 10px;
+}
+
+.coming-soon {
+  display: inline-block;
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  color: #92400e;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.75em;
+  font-weight: 700;
+  margin-top: 10px;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .container { padding: 20px 10px; }
+  .header { padding: 30px 15px; margin-bottom: 30px; }
+  .header h1 { font-size: 2em; margin-bottom: 10px; }
+  .header p { font-size: 1em; }
+  .conference-title { font-size: 1.6em; padding: 15px 20px; }
+  .division-title { font-size: 1.2em; margin-bottom: 20px; }
+  .teams-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 15px;
+  }
+  .team-card { padding: 20px 15px; }
+  .team-logo { width: 90px; height: 90px; margin-bottom: 15px; }
+  .team-name { font-size: 1.1em; }
+  .team-record { font-size: 0.95em; }
+}
+</style>
+</head>
+<body>
+
+<nav style='position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: linear-gradient(135deg, #2c5aa0 0%, #1e3a8a 100%); box-shadow: 0 2px 10px rgba(0,0,0,0.1); backdrop-filter: blur(10px);'>
+<div style='max-width: 1600px; margin: 0 auto; padding: 10px 15px; display: flex; align-items: center; justify-content: space-between;'>
+<div style='display: flex; align-items: center; gap: 10px;'>
+<img src='parieur_discipline_icon_1024.png' alt='Logo' style='width: 32px; height: 32px; border-radius: 50%;' />
+<span style='color: white; font-weight: 700; font-size: 1em;'>Parieur Discipliné</span>
+</div>
+<button id='mobileMenuBtn' style='display: none; background: none; border: none; color: white; font-size: 1.5em; cursor: pointer; padding: 5px;' onclick='toggleMobileMenu()'>☰</button>
+<div id='navLinks'>
+<a href='index.html' style='color: white; text-decoration: none; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 0.9em; transition: background 0.2s; white-space: nowrap;' onmouseover='this.style.background="rgba(255,255,255,0.15)"' onmouseout='this.style.background="transparent"'>Home</a>
+<a href='daily-picks.html' style='color: white; text-decoration: none; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 0.9em; transition: background 0.2s; white-space: nowrap;' onmouseover='this.style.background="rgba(255,255,255,0.15)"' onmouseout='this.style.background="transparent"'>🎯 Today</a>
+<div class='nav-dropdown' style='position: relative;'>
+  <a href='#' class='nav-dropdown-toggle' style='color: white; text-decoration: none; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 0.9em; transition: background 0.2s; white-space: nowrap; display: flex; align-items: center; gap: 4px;' onmouseover='this.style.background="rgba(255,255,255,0.15)"' onmouseout='this.style.background="transparent"'>🏒 NHL <span style='font-size: 0.7em;'>▼</span></a>
+  <div class='nav-dropdown-menu' style='position: absolute; top: 100%; left: 0; background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); min-width: 180px; opacity: 0; visibility: hidden; transform: translateY(-10px); transition: all 0.2s ease; margin-top: 5px; z-index: 1100;'>
+    <a href='nhl.html' style='display: block; color: #1e293b; text-decoration: none; padding: 10px 16px; font-weight: 600; font-size: 0.9em; transition: background 0.2s; border-bottom: 1px solid #e5e7eb;' onmouseover='this.style.background="#f1f5f9"' onmouseout='this.style.background="white"'>📅 Today's Games</a>
+    <a href='nhl/teams/index.html' style='display: block; color: #1e293b; text-decoration: none; padding: 10px 16px; font-weight: 600; font-size: 0.9em; transition: background 0.2s;' onmouseover='this.style.background="#f1f5f9"' onmouseout='this.style.background="white"'>🏒 All Teams</a>
+  </div>
+</div>
+<a href='nba.html' style='color: white; text-decoration: none; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 0.9em; transition: background 0.2s; white-space: nowrap;' onmouseover='this.style.background="rgba(255,255,255,0.15)"' onmouseout='this.style.background="transparent"'>🏀 NBA</a>
+<a href='performance.html' style='color: white; text-decoration: none; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 0.9em; transition: background 0.2s; white-space: nowrap;' onmouseover='this.style.background="rgba(255,255,255,0.15)"' onmouseout='this.style.background="transparent"'>📊 Performance</a>
+<a href='about.html' style='color: white; text-decoration: none; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 0.9em; transition: background 0.2s; white-space: nowrap;' onmouseover='this.style.background="rgba(255,255,255,0.15)"' onmouseout='this.style.background="transparent"'>ℹ️ About</a>
+</div>
+</div>
+</nav>
+<div style='position: fixed; top: 52px; left: 0; right: 0; z-index: 999; background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); padding: 8px 20px; text-align: center; box-shadow: 0 2px 8px rgba(251, 191, 36, 0.3);'>
+<span style='color: #78350f; font-weight: 600; font-size: 0.85em; letter-spacing: 0.3px;'>🎯 Our AI is learning and improving every day to bring you better predictions</span>
+</div>
+<style>
+#navLinks { display: flex; gap: 8px; align-items: center; }
+.nav-dropdown:hover .nav-dropdown-menu {
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: translateY(0) !important;
+}
+.nav-dropdown-menu.show {
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: translateY(0) !important;
+}
+@media (max-width: 768px) {
+  nav div:first-child span { font-size: 0.9em; }
+  nav div:first-child img { width: 28px; height: 28px; }
+  #mobileMenuBtn { display: block !important; }
+  #navLinks {
+    display: none !important;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: linear-gradient(135deg, #2c5aa0 0%, #1e3a8a 100%);
+    flex-direction: column;
+    gap: 0;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    align-items: stretch;
+  }
+  #navLinks.active { display: flex !important; }
+  #navLinks a {
+    padding: 12px 20px;
+    font-size: 0.95em;
+    border-radius: 0;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+  .nav-dropdown {
+    width: 100%;
+  }
+  .nav-dropdown-toggle {
+    width: 100%;
+    padding: 12px 20px !important;
+    border-bottom: 1px solid rgba(255,255,255,0.1) !important;
+    border-radius: 0 !important;
+    justify-content: space-between !important;
+  }
+  .nav-dropdown-menu {
+    position: static !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    max-height: 0;
+    overflow: hidden;
+    transform: none !important;
+    box-shadow: none !important;
+    background: rgba(255,255,255,0.1) !important;
+    margin: 0 !important;
+    transition: max-height 0.3s ease, opacity 0.2s ease !important;
+  }
+  .nav-dropdown.mobile-open .nav-dropdown-menu {
+    opacity: 1 !important;
+    visibility: visible !important;
+    max-height: 200px;
+  }
+  .nav-dropdown-menu a {
+    color: white !important;
+    border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+    padding-left: 40px !important;
+  }
+  .nav-dropdown-menu a:hover {
+    background: rgba(255,255,255,0.1) !important;
+  }
+}
+</style>
+<script>
+function toggleMobileMenu() {
+  const navLinks = document.getElementById('navLinks');
+  navLinks.classList.toggle('active');
+}
+// Close menu when clicking outside
+document.addEventListener('click', function(event) {
+  const nav = document.querySelector('nav');
+  const menuBtn = document.getElementById('mobileMenuBtn');
+  const navLinks = document.getElementById('navLinks');
+  const dropdown = document.querySelector('.nav-dropdown');
+  const dropdownMenu = document.querySelector('.nav-dropdown-menu');
+
+  // Close mobile menu when clicking outside
+  if (!nav.contains(event.target) && navLinks.classList.contains('active')) {
+    navLinks.classList.remove('active');
+  }
+
+  // Close dropdown when clicking outside
+  if (dropdown && !dropdown.contains(event.target) && dropdownMenu) {
+    dropdownMenu.classList.remove('show');
+  }
+});
+// Handle dropdown toggle
+document.addEventListener('DOMContentLoaded', function() {
+  const dropdownToggle = document.querySelector('.nav-dropdown-toggle');
+  const dropdown = document.querySelector('.nav-dropdown');
+  const dropdownMenu = document.querySelector('.nav-dropdown-menu');
+
+  if (dropdownToggle && dropdownMenu) {
+    dropdownToggle.addEventListener('click', function(e) {
+      e.preventDefault();
+
+      // On mobile, toggle the mobile-open class
+      if (window.innerWidth <= 768) {
+        dropdown.classList.toggle('mobile-open');
+      } else {
+        // On desktop, toggle the show class
+        dropdownMenu.classList.toggle('show');
+      }
+    });
+  }
+});
+</script>
+
+<!-- Navigation will be inserted here -->
+<div style='height: 88px;'></div>
+
+<div class='header'>
+<h1>🏒 NHL Teams</h1>
+<p>Browse All 32 Teams</p>
+<p style='font-size: 0.9em; margin-top: 10px;'>Click on any team to view detailed lineups, stats, and injury reports</p>
+</div>
+
+<div class='container'>
+
+<!-- Eastern Conference -->
+<div class='conference-section'>
+  <div class='conference-title'>Eastern Conference</div>
+
+  <!-- Atlantic Division -->
+  <div class='division-section'>
+    <div class='division-title'>Atlantic Division</div>
+    <div class='teams-grid'>
+
+      <a href='#' class='team-card' data-team='bruins'>
+        <img src='https://assets.nhle.com/logos/nhl/svg/BOS_light.svg' alt='Boston Bruins' class='team-logo'>
+        <div class='team-name'>Boston Bruins</div>
+        <div class='team-record'>Record TBD</div>
+        <div class='coming-soon'>Coming Soon</div>
+      </a>
+
+      <a href='#' class='team-card' data-team='sabres'>
+        <img src='https://assets.nhle.com/logos/nhl/svg/BUF_light.svg' alt='Buffalo Sabres' class='team-logo'>
+        <div class='team-name'>Buffalo Sabres</div>
+        <div class='team-record'>Record TBD</div>
+        <div class='coming-soon'>Coming Soon</div>
+      </a>
+
+      <a href='#' class='team-card' data-team='red-wings'>
+        <img src='https://assets.nhle.com/logos/nhl/svg/DET_light.svg' alt='Detroit Red Wings' class='team-logo'>
+        <div class='team-name'>Detroit Red Wings</div>
+        <div class='team-record'>Record TBD</div>
+        <div class='coming-soon'>Coming Soon</div>
+      </a>
+
+      <a href='#' class='team-card' data-team='panthers'>
+        <img src='https://assets.nhle.com/logos/nhl/svg/FLA_light.svg' alt='Florida Panthers' class='team-logo'>
+        <div class='team-name'>Florida Panthers</div>
+        <div class='team-record'>Record TBD</div>
+        <div class='coming-soon'>Coming Soon</div>
+      </a>
+
+      <a href='#' class='team-card' data-team='canadiens'>
+        <img src='https://assets.nhle.com/logos/nhl/svg/MTL_light.svg' alt='Montréal Canadiens' class='team-logo'>
+        <div class='team-name'>Montréal Canadiens</div>
+        <div class='team-record'>Record TBD</div>
+        <div class='coming-soon'>Coming Soon</div>
+      </a>
+
+      <a href='#' class='team-card' data-team='senators'>
+        <img src='https://assets.nhle.com/logos/nhl/svg/OTT_light.svg' alt='Ottawa Senators' class='team-logo'>
+        <div class='team-name'>Ottawa Senators</div>
+        <div class='team-record'>Record TBD</div>
+        <div class='coming-soon'>Coming Soon</div>
+      </a>
+
+      <a href='#' class='team-card' data-team='lightning'>
+        <img src='https://assets.nhle.com/logos/nhl/svg/TBL_light.svg' alt='Tampa Bay Lightning' class='team-logo'>
+        <div class='team-name'>Tampa Bay Lightning</div>
+        <div class='team-record'>Record TBD</div>
+        <div class='coming-soon'>Coming Soon</div>
+      </a>
+
+      <a href='#' class='team-card' data-team='maple-leafs'>
+        <img src='https://assets.nhle.com/logos/nhl/svg/TOR_light.svg' alt='Toronto Maple Leafs' class='team-logo'>
+        <div class='team-name'>Toronto Maple Leafs</div>
+        <div class='team-record'>Record TBD</div>
+        <div class='coming-soon'>Coming Soon</div>
+      </a>
+
+    </div>
+  </div>
+
+  <!-- Metropolitan Division -->
+  <div class='division-section'>
+    <div class='division-title'>Metropolitan Division</div>
+    <div class='teams-grid'>
+
+      <a href='#' class='team-card' data-team='hurricanes'>
+        <img src='https://assets.nhle.com/logos/nhl/svg/CAR_light.svg' alt='Carolina Hurricanes' class='team-logo'>
+        <div class='team-name'>Carolina Hurricanes</div>
+        <div class='team-record'>Record TBD</div>
+        <div class='coming-soon'>Coming Soon</div>
+      </a>
+
+      <a href='#' class='team-card' data-team='blue-jackets'>
+        <img src='https://assets.nhle.com/logos/nhl/svg/CBJ_light.svg' alt='Columbus Blue Jackets' class='team-logo'>
+        <div class='team-name'>Columbus Blue Jackets</div>
+        <div class='team-record'>Record TBD</div>
+        <div class='coming-soon'>Coming Soon</div>
+      </a>
+
+      <a href='#' class='team-card' data-team='devils'>
+        <img src='https://assets.nhle.com/logos/nhl/svg/NJD_light.svg' alt='New Jersey Devils' class='team-logo'>
+        <div class='team-name'>New Jersey Devils</div>
+        <div class='team-record'>Record TBD</div>
+        <div class='coming-soon'>Coming Soon</div>
+      </a>
+
+      <a href='#' class='team-card' data-team='islanders'>
+        <img src='https://assets.nhle.com/logos/nhl/svg/NYI_light.svg' alt='New York Islanders' class='team-logo'>
+        <div class='team-name'>New York Islanders</div>
+        <div class='team-record'>Record TBD</div>
+        <div class='coming-soon'>Coming Soon</div>
+      </a>
+
+      <a href='#' class='team-card' data-team='rangers'>
+        <img src='https://assets.nhle.com/logos/nhl/svg/NYR_light.svg' alt='New York Rangers' class='team-logo'>
+        <div class='team-name'>New York Rangers</div>
+        <div class='team-record'>Record TBD</div>
+        <div class='coming-soon'>Coming Soon</div>
+      </a>
+
+      <a href='#' class='team-card' data-team='flyers'>
+        <img src='https://assets.nhle.com/logos/nhl/svg/PHI_light.svg' alt='Philadelphia Flyers' class='team-logo'>
+        <div class='team-name'>Philadelphia Flyers</div>
+        <div class='team-record'>Record TBD</div>
+        <div class='coming-soon'>Coming Soon</div>
+      </a>
+
+      <a href='#' class='team-card' data-team='penguins'>
+        <img src='https://assets.nhle.com/logos/nhl/svg/PIT_light.svg' alt='Pittsburgh Penguins' class='team-logo'>
+        <div class='team-name'>Pittsburgh Penguins</div>
+        <div class='team-record'>Record TBD</div>
+        <div class='coming-soon'>Coming Soon</div>
+      </a>
+
+      <a href='#' class='team-card' data-team='capitals'>
+        <img src='https://assets.nhle.com/logos/nhl/svg/WSH_light.svg' alt='Washington Capitals' class='team-logo'>
+        <div class='team-name'>Washington Capitals</div>
+        <div class='team-record'>Record TBD</div>
+        <div class='coming-soon'>Coming Soon</div>
+      </a>
+
+    </div>
+  </div>
+</div>
+
+<!-- Western Conference -->
+<div class='conference-section'>
+  <div class='conference-title'>Western Conference</div>
+
+  <!-- Central Division -->
+  <div class='division-section'>
+    <div class='division-title'>Central Division</div>
+    <div class='teams-grid'>
+
+      <a href='#' class='team-card' data-team='blackhawks'>
+        <img src='https://assets.nhle.com/logos/nhl/svg/CHI_light.svg' alt='Chicago Blackhawks' class='team-logo'>
+        <div class='team-name'>Chicago Blackhawks</div>
+        <div class='team-record'>Record TBD</div>
+        <div class='coming-soon'>Coming Soon</div>
+      </a>
+
+      <a href='#' class='team-card' data-team='avalanche'>
+        <img src='https://assets.nhle.com/logos/nhl/svg/COL_light.svg' alt='Colorado Avalanche' class='team-logo'>
+        <div class='team-name'>Colorado Avalanche</div>
+        <div class='team-record'>Record TBD</div>
+        <div class='coming-soon'>Coming Soon</div>
+      </a>
+
+      <a href='#' class='team-card' data-team='stars'>
+        <img src='https://assets.nhle.com/logos/nhl/svg/DAL_light.svg' alt='Dallas Stars' class='team-logo'>
+        <div class='team-name'>Dallas Stars</div>
+        <div class='team-record'>Record TBD</div>
+        <div class='coming-soon'>Coming Soon</div>
+      </a>
+
+      <a href='#' class='team-card' data-team='wild'>
+        <img src='https://assets.nhle.com/logos/nhl/svg/MIN_light.svg' alt='Minnesota Wild' class='team-logo'>
+        <div class='team-name'>Minnesota Wild</div>
+        <div class='team-record'>Record TBD</div>
+        <div class='coming-soon'>Coming Soon</div>
+      </a>
+
+      <a href='#' class='team-card' data-team='predators'>
+        <img src='https://assets.nhle.com/logos/nhl/svg/NSH_light.svg' alt='Nashville Predators' class='team-logo'>
+        <div class='team-name'>Nashville Predators</div>
+        <div class='team-record'>Record TBD</div>
+        <div class='coming-soon'>Coming Soon</div>
+      </a>
+
+      <a href='#' class='team-card' data-team='blues'>
+        <img src='https://assets.nhle.com/logos/nhl/svg/STL_light.svg' alt='St. Louis Blues' class='team-logo'>
+        <div class='team-name'>St. Louis Blues</div>
+        <div class='team-record'>Record TBD</div>
+        <div class='coming-soon'>Coming Soon</div>
+      </a>
+
+      <a href='#' class='team-card' data-team='utah'>
+        <img src='https://assets.nhle.com/logos/nhl/svg/UTA_light.svg' alt='Utah Hockey Club' class='team-logo'>
+        <div class='team-name'>Utah Hockey Club</div>
+        <div class='team-record'>Record TBD</div>
+        <div class='coming-soon'>Coming Soon</div>
+      </a>
+
+      <a href='#' class='team-card' data-team='jets'>
+        <img src='https://assets.nhle.com/logos/nhl/svg/WPG_light.svg' alt='Winnipeg Jets' class='team-logo'>
+        <div class='team-name'>Winnipeg Jets</div>
+        <div class='team-record'>Record TBD</div>
+        <div class='coming-soon'>Coming Soon</div>
+      </a>
+
+    </div>
+  </div>
+
+  <!-- Pacific Division -->
+  <div class='division-section'>
+    <div class='division-title'>Pacific Division</div>
+    <div class='teams-grid'>
+
+      <a href='#' class='team-card' data-team='ducks'>
+        <img src='https://assets.nhle.com/logos/nhl/svg/ANA_light.svg' alt='Anaheim Ducks' class='team-logo'>
+        <div class='team-name'>Anaheim Ducks</div>
+        <div class='team-record'>Record TBD</div>
+        <div class='coming-soon'>Coming Soon</div>
+      </a>
+
+      <a href='#' class='team-card' data-team='flames'>
+        <img src='https://assets.nhle.com/logos/nhl/svg/CGY_light.svg' alt='Calgary Flames' class='team-logo'>
+        <div class='team-name'>Calgary Flames</div>
+        <div class='team-record'>Record TBD</div>
+        <div class='coming-soon'>Coming Soon</div>
+      </a>
+
+      <a href='#' class='team-card' data-team='oilers'>
+        <img src='https://assets.nhle.com/logos/nhl/svg/EDM_light.svg' alt='Edmonton Oilers' class='team-logo'>
+        <div class='team-name'>Edmonton Oilers</div>
+        <div class='team-record'>Record TBD</div>
+        <div class='coming-soon'>Coming Soon</div>
+      </a>
+
+      <a href='#' class='team-card' data-team='kings'>
+        <img src='https://assets.nhle.com/logos/nhl/svg/LAK_light.svg' alt='Los Angeles Kings' class='team-logo'>
+        <div class='team-name'>Los Angeles Kings</div>
+        <div class='team-record'>Record TBD</div>
+        <div class='coming-soon'>Coming Soon</div>
+      </a>
+
+      <a href='#' class='team-card' data-team='sharks'>
+        <img src='https://assets.nhle.com/logos/nhl/svg/SJS_light.svg' alt='San Jose Sharks' class='team-logo'>
+        <div class='team-name'>San Jose Sharks</div>
+        <div class='team-record'>Record TBD</div>
+        <div class='coming-soon'>Coming Soon</div>
+      </a>
+
+      <a href='#' class='team-card' data-team='kraken'>
+        <img src='https://assets.nhle.com/logos/nhl/svg/SEA_light.svg' alt='Seattle Kraken' class='team-logo'>
+        <div class='team-name'>Seattle Kraken</div>
+        <div class='team-record'>Record TBD</div>
+        <div class='coming-soon'>Coming Soon</div>
+      </a>
+
+      <a href='#' class='team-card' data-team='canucks'>
+        <img src='https://assets.nhle.com/logos/nhl/svg/VAN_light.svg' alt='Vancouver Canucks' class='team-logo'>
+        <div class='team-name'>Vancouver Canucks</div>
+        <div class='team-record'>Record TBD</div>
+        <div class='coming-soon'>Coming Soon</div>
+      </a>
+
+      <a href='#' class='team-card' data-team='golden-knights'>
+        <img src='https://assets.nhle.com/logos/nhl/svg/VGK_light.svg' alt='Vegas Golden Knights' class='team-logo'>
+        <div class='team-name'>Vegas Golden Knights</div>
+        <div class='team-record'>Record TBD</div>
+        <div class='coming-soon'>Coming Soon</div>
+      </a>
+
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+// Handle team card clicks
+document.addEventListener('DOMContentLoaded', function() {
+  const teamCards = document.querySelectorAll('.team-card');
+
+  teamCards.forEach(card => {
+    card.addEventListener('click', function(e) {
+      e.preventDefault();
+      const teamSlug = this.dataset.team;
+
+      // For now, show a message that the team page is coming soon
+      // In the future, this will navigate to individual team pages
+      alert(`Team page for ${this.querySelector('.team-name').textContent} is coming soon!`);
+
+      // Future implementation:
+      // window.location.href = `/nhl/teams/${teamSlug}.html`;
+    });
+  });
+});
+</script>
+
+</body>
+</html>

@@ -8,7 +8,13 @@
 <div id='navLinks'>
 <a href='index.html' style='color: white; text-decoration: none; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 0.9em; transition: background 0.2s; white-space: nowrap;' onmouseover='this.style.background="rgba(255,255,255,0.15)"' onmouseout='this.style.background="transparent"'>Home</a>
 <a href='daily-picks.html' style='color: white; text-decoration: none; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 0.9em; transition: background 0.2s; white-space: nowrap;' onmouseover='this.style.background="rgba(255,255,255,0.15)"' onmouseout='this.style.background="transparent"'>🎯 Today</a>
-<a href='nhl.html' style='color: white; text-decoration: none; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 0.9em; transition: background 0.2s; white-space: nowrap;' onmouseover='this.style.background="rgba(255,255,255,0.15)"' onmouseout='this.style.background="transparent"'>🏒 NHL</a>
+<div class='nav-dropdown' style='position: relative;'>
+  <a href='#' class='nav-dropdown-toggle' style='color: white; text-decoration: none; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 0.9em; transition: background 0.2s; white-space: nowrap; display: flex; align-items: center; gap: 4px;' onmouseover='this.style.background="rgba(255,255,255,0.15)"' onmouseout='this.style.background="transparent"'>🏒 NHL <span style='font-size: 0.7em;'>▼</span></a>
+  <div class='nav-dropdown-menu' style='position: absolute; top: 100%; left: 0; background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); min-width: 180px; opacity: 0; visibility: hidden; transform: translateY(-10px); transition: all 0.2s ease; margin-top: 5px; z-index: 1100;'>
+    <a href='nhl.html' style='display: block; color: #1e293b; text-decoration: none; padding: 10px 16px; font-weight: 600; font-size: 0.9em; transition: background 0.2s; border-bottom: 1px solid #e5e7eb;' onmouseover='this.style.background="#f1f5f9"' onmouseout='this.style.background="white"'>📅 Today's Games</a>
+    <a href='nhl/teams/index.html' style='display: block; color: #1e293b; text-decoration: none; padding: 10px 16px; font-weight: 600; font-size: 0.9em; transition: background 0.2s;' onmouseover='this.style.background="#f1f5f9"' onmouseout='this.style.background="white"'>🏒 All Teams</a>
+  </div>
+</div>
 <a href='nba.html' style='color: white; text-decoration: none; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 0.9em; transition: background 0.2s; white-space: nowrap;' onmouseover='this.style.background="rgba(255,255,255,0.15)"' onmouseout='this.style.background="transparent"'>🏀 NBA</a>
 <a href='performance.html' style='color: white; text-decoration: none; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 0.9em; transition: background 0.2s; white-space: nowrap;' onmouseover='this.style.background="rgba(255,255,255,0.15)"' onmouseout='this.style.background="transparent"'>📊 Performance</a>
 <a href='about.html' style='color: white; text-decoration: none; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 0.9em; transition: background 0.2s; white-space: nowrap;' onmouseover='this.style.background="rgba(255,255,255,0.15)"' onmouseout='this.style.background="transparent"'>ℹ️ About</a>
@@ -19,7 +25,17 @@
 <span style='color: #78350f; font-weight: 600; font-size: 0.85em; letter-spacing: 0.3px;'>🎯 Our AI is learning and improving every day to bring you better predictions</span>
 </div>
 <style>
-#navLinks { display: flex; gap: 8px; }
+#navLinks { display: flex; gap: 8px; align-items: center; }
+.nav-dropdown:hover .nav-dropdown-menu {
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: translateY(0) !important;
+}
+.nav-dropdown-menu.show {
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: translateY(0) !important;
+}
 @media (max-width: 768px) {
   nav div:first-child span { font-size: 0.9em; }
   nav div:first-child img { width: 28px; height: 28px; }
@@ -34,6 +50,7 @@
     flex-direction: column;
     gap: 0;
     box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    align-items: stretch;
   }
   #navLinks.active { display: flex !important; }
   #navLinks a {
@@ -41,6 +58,41 @@
     font-size: 0.95em;
     border-radius: 0;
     border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+  .nav-dropdown {
+    width: 100%;
+  }
+  .nav-dropdown-toggle {
+    width: 100%;
+    padding: 12px 20px !important;
+    border-bottom: 1px solid rgba(255,255,255,0.1) !important;
+    border-radius: 0 !important;
+    justify-content: space-between !important;
+  }
+  .nav-dropdown-menu {
+    position: static !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    max-height: 0;
+    overflow: hidden;
+    transform: none !important;
+    box-shadow: none !important;
+    background: rgba(255,255,255,0.1) !important;
+    margin: 0 !important;
+    transition: max-height 0.3s ease, opacity 0.2s ease !important;
+  }
+  .nav-dropdown.mobile-open .nav-dropdown-menu {
+    opacity: 1 !important;
+    visibility: visible !important;
+    max-height: 200px;
+  }
+  .nav-dropdown-menu a {
+    color: white !important;
+    border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+    padding-left: 40px !important;
+  }
+  .nav-dropdown-menu a:hover {
+    background: rgba(255,255,255,0.1) !important;
   }
 }
 </style>
@@ -54,8 +106,37 @@ document.addEventListener('click', function(event) {
   const nav = document.querySelector('nav');
   const menuBtn = document.getElementById('mobileMenuBtn');
   const navLinks = document.getElementById('navLinks');
+  const dropdown = document.querySelector('.nav-dropdown');
+  const dropdownMenu = document.querySelector('.nav-dropdown-menu');
+
+  // Close mobile menu when clicking outside
   if (!nav.contains(event.target) && navLinks.classList.contains('active')) {
     navLinks.classList.remove('active');
+  }
+
+  // Close dropdown when clicking outside
+  if (dropdown && !dropdown.contains(event.target) && dropdownMenu) {
+    dropdownMenu.classList.remove('show');
+  }
+});
+// Handle dropdown toggle
+document.addEventListener('DOMContentLoaded', function() {
+  const dropdownToggle = document.querySelector('.nav-dropdown-toggle');
+  const dropdown = document.querySelector('.nav-dropdown');
+  const dropdownMenu = document.querySelector('.nav-dropdown-menu');
+
+  if (dropdownToggle && dropdownMenu) {
+    dropdownToggle.addEventListener('click', function(e) {
+      e.preventDefault();
+
+      // On mobile, toggle the mobile-open class
+      if (window.innerWidth <= 768) {
+        dropdown.classList.toggle('mobile-open');
+      } else {
+        // On desktop, toggle the show class
+        dropdownMenu.classList.toggle('show');
+      }
+    });
   }
 });
 </script>
