@@ -18,9 +18,20 @@ body {
   line-height: 1.6;
 }
 .container {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
   padding: 100px 20px 40px 20px;
+}
+.lineup-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+.lineup-column {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 .team-header {
   background: linear-gradient(135deg, #2c5aa0 0%, #1e3a8a 100%);
@@ -46,9 +57,10 @@ body {
   object-fit: contain;
 }
 .team-header h1 {
-  font-size: 2.5em;
+  font-size: 3.5em;
   font-weight: 800;
   margin-bottom: 10px;
+  letter-spacing: -1px;
 }
 .last-updated {
   font-size: 0.9em;
@@ -71,61 +83,52 @@ body {
 .section {
   background: white;
   border-radius: 12px;
-  padding: 25px;
-  margin-bottom: 25px;
+  padding: 20px;
   box-shadow: 0 2px 10px rgba(0,0,0,0.05);
 }
 .section-title {
-  font-size: 1.5em;
+  font-size: 1.4em;
   color: #2563eb;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
   padding-bottom: 10px;
   border-bottom: 2px solid #e5e7eb;
   display: flex;
   align-items: center;
-  gap: 10px;
-}
-.lines-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 15px;
+  gap: 8px;
 }
 .line-card {
-  background: linear-gradient(135deg, #f9fafb 0%, #ffffff 100%);
-  border-radius: 10px;
-  padding: 15px;
-  border: 2px solid #e5e7eb;
-  transition: all 0.3s;
-}
-.line-card:hover {
-  border-color: #3b82f6;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+  background: #f9fafb;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 12px;
+  border-left: 3px solid #3b82f6;
 }
 .line-number {
   display: inline-block;
   background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
   color: white;
   font-weight: 800;
-  font-size: 0.85em;
-  padding: 4px 12px;
+  font-size: 0.8em;
+  padding: 3px 10px;
   border-radius: 20px;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
   letter-spacing: 0.5px;
 }
 .players {
   display: flex;
-  flex-direction: column;
   gap: 8px;
 }
 .player {
+  flex: 1;
   background: white;
-  padding: 8px 12px;
+  padding: 6px 12px;
   border-radius: 6px;
   font-weight: 500;
   font-size: 0.9em;
   color: #374151;
   border-left: 3px solid #3b82f6;
   box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  text-align: center;
 }
 .goalie-name {
   background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
@@ -143,7 +146,7 @@ body {
   border-radius: 6px;
   margin-bottom: 6px;
   font-weight: 600;
-  font-size: 0.9em;
+  font-size: 0.85em;
 }
 .injured-player {
   background: #fee2e2;
@@ -159,11 +162,19 @@ body {
   .container {
     padding: 80px 15px 30px 15px;
   }
+  .lineup-container {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+  .lineup-column {
+    gap: 15px;
+  }
   .team-header {
     padding: 30px 20px;
   }
   .team-header h1 {
-    font-size: 1.8em;
+    font-size: 2.2em;
+    letter-spacing: -0.5px;
   }
   .team-logo {
     width: 90px;
@@ -174,9 +185,6 @@ body {
   }
   .section-title {
     font-size: 1.3em;
-  }
-  .lines-grid {
-    grid-template-columns: 1fr;
   }
 }
 </style>
@@ -201,9 +209,10 @@ body {
     <a href='../index.html' class='back-link'>← Back to All Teams</a>
   </div>
 
-  <div class='section'>
-    <div class='section-title'>🏒 Forward Lines</div>
-<div class='lines-grid'>
+  <div class='lineup-container'>
+    <div class='lineup-column'>
+      <div class='section'>
+        <div class='section-title'>🏒 Forward Lines</div>
   <div class='line-card'>
     <div class='line-number'>L1</div>
     <div class='players'>
@@ -236,13 +245,20 @@ body {
       <div class='player'>Josh Anderson</div>
     </div>
   </div>
-</div>
 
-  </div>
+      </div>
 
-  <div class='section'>
-    <div class='section-title'>🛡️ Defense Pairs</div>
-<div class='lines-grid'>
+      <div class='section'>
+        <div class='section-title'>🥅 Goalies</div>
+  <div class='goalie-name'>Jakub Dobes</div>
+  <div class='goalie-name'>Samuel Montembeault</div>
+
+      </div>
+    </div>
+
+    <div class='lineup-column'>
+      <div class='section'>
+        <div class='section-title'>🛡️ Defense Pairs</div>
   <div class='line-card'>
     <div class='line-number'>D1</div>
     <div class='players'>
@@ -264,24 +280,18 @@ body {
       <div class='player'>Alexandre Carrier</div>
     </div>
   </div>
-</div>
 
-  </div>
+      </div>
 
-  <div class='section'>
-    <div class='section-title'>🥅 Goalies</div>
-  <div class='goalie-name'>Jakub Dobes</div>
-  <div class='goalie-name'>Samuel Montembeault</div>
-
-  </div>
-
-  <div class='section'>
-    <div class='section-title'>⚠️ Scratched / Injured</div>
+      <div class='section'>
+        <div class='section-title'>⚠️ Scratched / Injured</div>
   <div class='scratched-player'>⊘ Arber Xhekaj (scratched)</div>
   <div class='scratched-player'>⊘ Joe Veleno (scratched)</div>
   <div class='scratched-player'>⊘ Brendan Gallagher (scratched)</div>
   <div class='injured-player'>🚑 Patrik Laine (lower body) (injured)</div>
 
+      </div>
+    </div>
   </div>
 </div>
 
