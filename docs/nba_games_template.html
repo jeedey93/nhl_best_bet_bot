@@ -652,7 +652,8 @@ body {
   border: 2px solid #e5e7eb;
 }
 @media (max-width: 768px) {
-  .container { padding: 20px 10px; }
+  body { overflow-x: hidden; }
+  .container { padding: 20px 10px; max-width: 100%; overflow-x: hidden; }
   .header { padding: 30px 15px; margin-bottom: 30px; }
   .header h1 { font-size: 2em; margin-bottom: 10px; }
   .header p { font-size: 1em; }
@@ -669,7 +670,13 @@ body {
     word-wrap: break-word;
     line-height: 1.4;
   }
-  .game-card { padding: 20px 15px; margin-bottom: 20px; border-radius: 15px; }
+  .game-card {
+    padding: 20px 15px;
+    margin-bottom: 20px;
+    border-radius: 15px;
+    overflow-x: hidden;
+    max-width: 100%;
+  }
   .game-time { font-size: 0.85em; padding: 5px 12px; }
   .h2h-section {
     padding: 12px 10px;
@@ -734,23 +741,64 @@ body {
     text-align: center;
     width: 100%;
   }
-  .key-insights { padding: 20px 15px; border-radius: 12px; }
+  .key-insights {
+    padding: 20px 15px;
+    border-radius: 12px;
+    overflow-x: hidden;
+    max-width: 100%;
+  }
   .insights-title { font-size: 1.1em; margin-bottom: 15px; }
-  .insights-grid { grid-template-columns: 1fr; gap: 15px; }
-  .team-header { padding: 15px; }
+  .insights-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+    max-width: 100%;
+  }
+  .team-section {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+  .team-header {
+    padding: 15px;
+    max-width: 100%;
+  }
   .team-logo { width: 60px; height: 60px; margin-bottom: 12px; }
-  .team-name { font-size: 1.1em; margin-bottom: 8px; }
+  .team-name {
+    font-size: 1.1em;
+    margin-bottom: 8px;
+    word-wrap: break-word;
+  }
   .team-record { font-size: 1.2em; margin-bottom: 6px; }
-  .stats-tiles { grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
-  .goalie-row { margin-top: 10px; }
-  .goalie-row .stat-tile { max-width: 100%; }
-  .stat-tile { padding: 14px; }
-  .stat-label { font-size: 0.75em; margin-bottom: 6px; }
-  .stat-value { font-size: 1.6em; }
-  .stat-record { font-size: 1.3em; }
-  .goalie-name { font-size: 0.95em; margin-bottom: 5px; }
-  .goalie-status { font-size: 0.7em; padding: 3px 6px; }
-  .stat-games { font-size: 0.7em; margin-top: 6px; }
+  .stats-tiles {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    max-width: 100%;
+  }
+  .goalie-row {
+    margin-top: 10px;
+    grid-column: 1 / -1;
+  }
+  .goalie-row .stat-tile {
+    max-width: 100%;
+    width: 100%;
+  }
+  .stat-tile {
+    padding: 12px 8px;
+    min-width: 0;
+  }
+  .stat-label {
+    font-size: 0.7em;
+    margin-bottom: 6px;
+    word-break: break-word;
+  }
+  .stat-value { font-size: 1.4em; }
+  .stat-record { font-size: 1.1em; }
+  .goalie-name {
+    font-size: 0.85em;
+    margin-bottom: 5px;
+    word-wrap: break-word;
+  }
+  .goalie-status { font-size: 0.65em; padding: 3px 6px; }
+  .stat-games { font-size: 0.65em; margin-top: 6px; }
   .odds-section { margin-top: 15px; }
   .odds-toggle { font-size: 0.85em; padding: 8px; }
   .odds-grid { grid-template-columns: 1fr; gap: 12px; margin-top: 12px; }
