@@ -91,29 +91,31 @@ def generate_team_page(team_file_name, team_name, team_abbrev, lineup_data):
 
     logo_url = f"https://assets.nhle.com/logos/nhl/svg/{team_abbrev}_light.svg"
 
-    # Build forward lines HTML
-    forward_html = ""
+    # Build forward lines HTML - more compact grid layout
+    forward_html = "<div class='lines-grid'>\n"
     for i, line in enumerate(lineup_data['forward_lines'], 1):
         players = [p.strip() for p in line.split('—')]
-        forward_html += f"<div class='line-group'>\n"
-        forward_html += f"  <div class='line-label'>Line {i}</div>\n"
-        forward_html += f"  <div class='player-list'>\n"
+        forward_html += f"  <div class='line-card'>\n"
+        forward_html += f"    <div class='line-number'>L{i}</div>\n"
+        forward_html += f"    <div class='players'>\n"
         for player in players:
-            forward_html += f"    <span class='player-name'>{player}</span>\n"
+            forward_html += f"      <div class='player'>{player}</div>\n"
+        forward_html += f"    </div>\n"
         forward_html += f"  </div>\n"
-        forward_html += f"</div>\n"
+    forward_html += "</div>\n"
 
-    # Build defense pairs HTML
-    defense_html = ""
+    # Build defense pairs HTML - more compact grid layout
+    defense_html = "<div class='lines-grid'>\n"
     for i, pair in enumerate(lineup_data['defense_pairs'], 1):
         players = [p.strip() for p in pair.split('—')]
-        defense_html += f"<div class='line-group'>\n"
-        defense_html += f"  <div class='line-label'>Pair {i}</div>\n"
-        defense_html += f"  <div class='player-list'>\n"
+        defense_html += f"  <div class='line-card'>\n"
+        defense_html += f"    <div class='line-number'>D{i}</div>\n"
+        defense_html += f"    <div class='players'>\n"
         for player in players:
-            defense_html += f"    <span class='player-name'>{player}</span>\n"
+            defense_html += f"      <div class='player'>{player}</div>\n"
+        defense_html += f"    </div>\n"
         defense_html += f"  </div>\n"
-        defense_html += f"</div>\n"
+    defense_html += "</div>\n"
 
     # Build goalies HTML
     goalies_html = ""
@@ -201,74 +203,89 @@ body {{
 .section {{
   background: white;
   border-radius: 12px;
-  padding: 30px;
-  margin-bottom: 30px;
+  padding: 25px;
+  margin-bottom: 25px;
   box-shadow: 0 2px 10px rgba(0,0,0,0.05);
 }}
 .section-title {{
-  font-size: 1.8em;
+  font-size: 1.5em;
   color: #2563eb;
-  margin-bottom: 25px;
-  padding-bottom: 15px;
-  border-bottom: 3px solid #e5e7eb;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #e5e7eb;
   display: flex;
   align-items: center;
   gap: 10px;
 }}
-.line-group {{
-  margin-bottom: 20px;
-  padding: 15px;
-  background: #f9fafb;
-  border-radius: 8px;
-  border-left: 4px solid #3b82f6;
+.lines-grid {{
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 15px;
 }}
-.line-label {{
-  font-weight: 700;
-  color: #1e40af;
-  font-size: 0.9em;
-  margin-bottom: 10px;
-  text-transform: uppercase;
+.line-card {{
+  background: linear-gradient(135deg, #f9fafb 0%, #ffffff 100%);
+  border-radius: 10px;
+  padding: 15px;
+  border: 2px solid #e5e7eb;
+  transition: all 0.3s;
+}}
+.line-card:hover {{
+  border-color: #3b82f6;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+}}
+.line-number {{
+  display: inline-block;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  font-weight: 800;
+  font-size: 0.85em;
+  padding: 4px 12px;
+  border-radius: 20px;
+  margin-bottom: 12px;
   letter-spacing: 0.5px;
 }}
-.player-list {{
+.players {{
   display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
+  flex-direction: column;
+  gap: 8px;
 }}
-.player-name {{
+.player {{
   background: white;
-  padding: 8px 16px;
-  border-radius: 20px;
-  font-weight: 600;
-  font-size: 0.95em;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 0.9em;
   color: #374151;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  border-left: 3px solid #3b82f6;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }}
 .goalie-name {{
   background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
   color: #78350f;
-  padding: 12px 20px;
+  padding: 10px 16px;
   border-radius: 8px;
   font-weight: 700;
-  font-size: 1.1em;
-  margin-bottom: 10px;
+  font-size: 1em;
+  margin-bottom: 8px;
   box-shadow: 0 2px 8px rgba(251, 191, 36, 0.3);
+  text-align: center;
 }}
 .injured-player, .scratched-player {{
-  padding: 10px 15px;
+  padding: 8px 12px;
   border-radius: 6px;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   font-weight: 600;
+  font-size: 0.9em;
 }}
 .injured-player {{
   background: #fee2e2;
   color: #991b1b;
-  border-left: 4px solid #dc2626;
+  border-left: 3px solid #dc2626;
 }}
 .scratched-player {{
   background: #f3f4f6;
   color: #6b7280;
-  border-left: 4px solid #9ca3af;
+  border-left: 3px solid #9ca3af;
 }}
 @media (max-width: 768px) {{
   .container {{
@@ -288,14 +305,10 @@ body {{
     padding: 20px;
   }}
   .section-title {{
-    font-size: 1.4em;
+    font-size: 1.3em;
   }}
-  .player-list {{
-    flex-direction: column;
-  }}
-  .player-name {{
-    width: 100%;
-    text-align: center;
+  .lines-grid {{
+    grid-template-columns: 1fr;
   }}
 }}
 </style>

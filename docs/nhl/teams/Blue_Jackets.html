@@ -71,74 +71,89 @@ body {
 .section {
   background: white;
   border-radius: 12px;
-  padding: 30px;
-  margin-bottom: 30px;
+  padding: 25px;
+  margin-bottom: 25px;
   box-shadow: 0 2px 10px rgba(0,0,0,0.05);
 }
 .section-title {
-  font-size: 1.8em;
+  font-size: 1.5em;
   color: #2563eb;
-  margin-bottom: 25px;
-  padding-bottom: 15px;
-  border-bottom: 3px solid #e5e7eb;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #e5e7eb;
   display: flex;
   align-items: center;
   gap: 10px;
 }
-.line-group {
-  margin-bottom: 20px;
-  padding: 15px;
-  background: #f9fafb;
-  border-radius: 8px;
-  border-left: 4px solid #3b82f6;
+.lines-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 15px;
 }
-.line-label {
-  font-weight: 700;
-  color: #1e40af;
-  font-size: 0.9em;
-  margin-bottom: 10px;
-  text-transform: uppercase;
+.line-card {
+  background: linear-gradient(135deg, #f9fafb 0%, #ffffff 100%);
+  border-radius: 10px;
+  padding: 15px;
+  border: 2px solid #e5e7eb;
+  transition: all 0.3s;
+}
+.line-card:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+}
+.line-number {
+  display: inline-block;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  font-weight: 800;
+  font-size: 0.85em;
+  padding: 4px 12px;
+  border-radius: 20px;
+  margin-bottom: 12px;
   letter-spacing: 0.5px;
 }
-.player-list {
+.players {
   display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
+  flex-direction: column;
+  gap: 8px;
 }
-.player-name {
+.player {
   background: white;
-  padding: 8px 16px;
-  border-radius: 20px;
-  font-weight: 600;
-  font-size: 0.95em;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 0.9em;
   color: #374151;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  border-left: 3px solid #3b82f6;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
 .goalie-name {
   background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
   color: #78350f;
-  padding: 12px 20px;
+  padding: 10px 16px;
   border-radius: 8px;
   font-weight: 700;
-  font-size: 1.1em;
-  margin-bottom: 10px;
+  font-size: 1em;
+  margin-bottom: 8px;
   box-shadow: 0 2px 8px rgba(251, 191, 36, 0.3);
+  text-align: center;
 }
 .injured-player, .scratched-player {
-  padding: 10px 15px;
+  padding: 8px 12px;
   border-radius: 6px;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   font-weight: 600;
+  font-size: 0.9em;
 }
 .injured-player {
   background: #fee2e2;
   color: #991b1b;
-  border-left: 4px solid #dc2626;
+  border-left: 3px solid #dc2626;
 }
 .scratched-player {
   background: #f3f4f6;
   color: #6b7280;
-  border-left: 4px solid #9ca3af;
+  border-left: 3px solid #9ca3af;
 }
 @media (max-width: 768px) {
   .container {
@@ -158,14 +173,10 @@ body {
     padding: 20px;
   }
   .section-title {
-    font-size: 1.4em;
+    font-size: 1.3em;
   }
-  .player-list {
-    flex-direction: column;
-  }
-  .player-name {
-    width: 100%;
-    text-align: center;
+  .lines-grid {
+    grid-template-columns: 1fr;
   }
 }
 </style>
@@ -192,36 +203,38 @@ body {
 
   <div class='section'>
     <div class='section-title'>🏒 Forward Lines</div>
-<div class='line-group'>
-  <div class='line-label'>Line 1</div>
-  <div class='player-list'>
-    <span class='player-name'>Cole Sillinger</span>
-    <span class='player-name'>Adam Fantilli</span>
-    <span class='player-name'>Kirill Marchenko</span>
+<div class='lines-grid'>
+  <div class='line-card'>
+    <div class='line-number'>L1</div>
+    <div class='players'>
+      <div class='player'>Cole Sillinger</div>
+      <div class='player'>Adam Fantilli</div>
+      <div class='player'>Kirill Marchenko</div>
+    </div>
   </div>
-</div>
-<div class='line-group'>
-  <div class='line-label'>Line 2</div>
-  <div class='player-list'>
-    <span class='player-name'>Kent Johnson</span>
-    <span class='player-name'>Sean Monahan</span>
-    <span class='player-name'>Conor Garland</span>
+  <div class='line-card'>
+    <div class='line-number'>L2</div>
+    <div class='players'>
+      <div class='player'>Kent Johnson</div>
+      <div class='player'>Sean Monahan</div>
+      <div class='player'>Conor Garland</div>
+    </div>
   </div>
-</div>
-<div class='line-group'>
-  <div class='line-label'>Line 3</div>
-  <div class='player-list'>
-    <span class='player-name'>Mason Marchment</span>
-    <span class='player-name'>Charlie Coyle</span>
-    <span class='player-name'>Mathieu Olivier</span>
+  <div class='line-card'>
+    <div class='line-number'>L3</div>
+    <div class='players'>
+      <div class='player'>Mason Marchment</div>
+      <div class='player'>Charlie Coyle</div>
+      <div class='player'>Mathieu Olivier</div>
+    </div>
   </div>
-</div>
-<div class='line-group'>
-  <div class='line-label'>Line 4</div>
-  <div class='player-list'>
-    <span class='player-name'>Isac Lundestrom</span>
-    <span class='player-name'>Boone Jenner</span>
-    <span class='player-name'>Danton Heinen</span>
+  <div class='line-card'>
+    <div class='line-number'>L4</div>
+    <div class='players'>
+      <div class='player'>Isac Lundestrom</div>
+      <div class='player'>Boone Jenner</div>
+      <div class='player'>Danton Heinen</div>
+    </div>
   </div>
 </div>
 
@@ -229,25 +242,27 @@ body {
 
   <div class='section'>
     <div class='section-title'>🛡️ Defense Pairs</div>
-<div class='line-group'>
-  <div class='line-label'>Pair 1</div>
-  <div class='player-list'>
-    <span class='player-name'>Zach Werenski</span>
-    <span class='player-name'>Dante Fabbro</span>
+<div class='lines-grid'>
+  <div class='line-card'>
+    <div class='line-number'>D1</div>
+    <div class='players'>
+      <div class='player'>Zach Werenski</div>
+      <div class='player'>Dante Fabbro</div>
+    </div>
   </div>
-</div>
-<div class='line-group'>
-  <div class='line-label'>Pair 2</div>
-  <div class='player-list'>
-    <span class='player-name'>Ivan Provorov</span>
-    <span class='player-name'>Denton Mateychuk</span>
+  <div class='line-card'>
+    <div class='line-number'>D2</div>
+    <div class='players'>
+      <div class='player'>Ivan Provorov</div>
+      <div class='player'>Denton Mateychuk</div>
+    </div>
   </div>
-</div>
-<div class='line-group'>
-  <div class='line-label'>Pair 3</div>
-  <div class='player-list'>
-    <span class='player-name'>Damon Severson</span>
-    <span class='player-name'>Jake Christiansen</span>
+  <div class='line-card'>
+    <div class='line-number'>D3</div>
+    <div class='players'>
+      <div class='player'>Damon Severson</div>
+      <div class='player'>Jake Christiansen</div>
+    </div>
   </div>
 </div>
 
