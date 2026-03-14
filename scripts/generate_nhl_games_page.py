@@ -1407,9 +1407,9 @@ def generate_nhl_games_page(fetch_odds=True):
     nav_html = re.sub(r"href='nba\.html'", r"href='../../nba.html'", nav_html)
     nav_html = re.sub(r"href='performance\.html'", r"href='../../performance.html'", nav_html)
     nav_html = re.sub(r"href='about\.html'", r"href='../../about.html'", nav_html)
-    # Adjust dropdown links for subdirectory context
-    nav_html = re.sub(r"href='nhl/games/index\.html'", r"href='index.html'", nav_html)
-    nav_html = re.sub(r"href='nhl/teams/index\.html'", r"href='../teams/index.html'", nav_html)
+    # Use absolute paths for NHL dropdown links (works from any subdirectory)
+    nav_html = re.sub(r"href='nhl/games/index\.html'", r"href='/nhl/games/index.html'", nav_html)
+    nav_html = re.sub(r"href='nhl/teams/index\.html'", r"href='/nhl/teams/index.html'", nav_html)
 
     # Get today's date
     now = datetime.now(ZoneInfo('America/Toronto'))
