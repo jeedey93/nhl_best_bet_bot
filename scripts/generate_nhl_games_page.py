@@ -235,6 +235,86 @@ def get_nhl_team_last_games(team_name, last_n_games=10):
         return None
 
 
+def get_nhl_team_season_stats(team_name):
+    """
+    Get full season stats for an NHL team from the API (all completed games).
+
+    Returns:
+        dict with avg_scored, avg_allowed, games_analyzed, wins, losses, ot_losses
+    """
+    try:
+        # Check if team_name is already an abbreviation (3 letters) or needs lookup
+        if len(team_name) == 3 and team_name.isupper():
+            # Already an abbreviation like 'NYR'
+            team_abbrev = team_name
+        else:
+            # Need to look up abbreviation
+            team_abbrev = NHL_TEAM_ABBREV_MAP.get(team_name)
+            if not team_abbrev:
+                return None
+
+        url = f'https://api-web.nhle.com/v1/club-schedule-season/{team_abbrev}/now'
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()
+        data = response.json()
+        time.sleep(0.6)  # Add delay to avoid 429 rate limits
+
+        # Get all completed games for the season
+        completed_games = [g for g in data.get('games', []) if g.get('gameState') in ['OFF', 'FINAL']]
+
+        if not completed_games:
+            return None
+
+        scores_for = []
+        scores_against = []
+        wins = 0
+        losses = 0
+        ot_losses = 0
+
+        for game in completed_games:
+            away_abbrev = game['awayTeam']['abbrev']
+            home_abbrev = game['homeTeam']['abbrev']
+            away_score = game['awayTeam'].get('score', 0)
+            home_score = game['homeTeam'].get('score', 0)
+
+            # Determine team's score and result
+            if away_abbrev == team_abbrev:
+                team_score = away_score
+                opponent_score = home_score
+                is_win = away_score > home_score
+            else:
+                team_score = home_score
+                opponent_score = away_score
+                is_win = home_score > away_score
+
+            scores_for.append(team_score)
+            scores_against.append(opponent_score)
+
+            # Track wins/losses
+            if is_win:
+                wins += 1
+            else:
+                # Check if it was an OT/SO loss
+                game_outcome = game.get('gameOutcome', {})
+                last_period = game_outcome.get('lastPeriodType', 'REG')
+                if last_period in ['OT', 'SO']:
+                    ot_losses += 1
+                else:
+                    losses += 1
+
+        return {
+            'avg_scored': round(sum(scores_for) / len(scores_for), 2) if scores_for else 0,
+            'avg_allowed': round(sum(scores_against) / len(scores_against), 2) if scores_against else 0,
+            'games_analyzed': len(completed_games),
+            'wins': wins,
+            'losses': losses,
+            'ot_losses': ot_losses
+        }
+
+    except Exception as e:
+        print(f"⚠️ Error fetching NHL season stats for {team_name}: {e}")
+        return None
+
 
 def get_head_to_head_stats(team1_name, team2_name, season='20252026'):
     """
@@ -566,6 +646,13 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
     away_stats = get_team_stats_from_api(away_api_name, sport=sport, last_n_games=10)
     home_stats = get_team_stats_from_api(home_api_name, sport=sport, last_n_games=10)
 
+    # Get season stats for display (NHL only)
+    away_season_stats = None
+    home_season_stats = None
+    if sport == 'nhl':
+        away_season_stats = get_nhl_team_season_stats(away_api_name)
+        home_season_stats = get_nhl_team_season_stats(home_api_name)
+
     # Calculate prediction if both teams have stats
     prediction_html = ""
     over_under_signal = ""
@@ -841,6 +928,8 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
     html += f"<div class='stat-label'>Avg {score_label} For</div>\n"
     if away_stats:
         html += f"<div class='stat-value'>{away_stats['avg_scored']:.2f}</div>\n"
+        if away_season_stats:
+            html += f"<div style='font-size: 0.75em; color: #4b5563; margin-top: 6px; font-weight: 600;'><span style='color: #3b82f6;'>Last 10</span> | <span style='color: #10b981;'>Season: {away_season_stats['avg_scored']:.2f}</span></div>\n"
     else:
         html += "<div class='stat-value'>-</div>\n"
     html += "</div>\n"
@@ -850,6 +939,8 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
     html += f"<div class='stat-label'>Avg {score_label} Against</div>\n"
     if away_stats:
         html += f"<div class='stat-value'>{away_stats['avg_allowed']:.2f}</div>\n"
+        if away_season_stats:
+            html += f"<div style='font-size: 0.75em; color: #4b5563; margin-top: 6px; font-weight: 600;'><span style='color: #3b82f6;'>Last 10</span> | <span style='color: #10b981;'>Season: {away_season_stats['avg_allowed']:.2f}</span></div>\n"
     else:
         html += "<div class='stat-value'>-</div>\n"
     html += "</div>\n"
@@ -860,6 +951,9 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
     if away_stats:
         avg_total = round(away_stats['avg_scored'] + away_stats['avg_allowed'], 2)
         html += f"<div class='stat-value'>{avg_total:.2f}</div>\n"
+        if away_season_stats:
+            season_total = round(away_season_stats['avg_scored'] + away_season_stats['avg_allowed'], 2)
+            html += f"<div style='font-size: 0.75em; color: #4b5563; margin-top: 6px; font-weight: 600;'><span style='color: #3b82f6;'>Last 10</span> | <span style='color: #10b981;'>Season: {season_total:.2f}</span></div>\n"
     else:
         html += "<div class='stat-value'>-</div>\n"
     html += "</div>\n"
@@ -1022,6 +1116,8 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
     html += f"<div class='stat-label'>Avg {score_label} For</div>\n"
     if home_stats:
         html += f"<div class='stat-value'>{home_stats['avg_scored']:.2f}</div>\n"
+        if home_season_stats:
+            html += f"<div style='font-size: 0.75em; color: #4b5563; margin-top: 6px; font-weight: 600;'><span style='color: #3b82f6;'>Last 10</span> | <span style='color: #10b981;'>Season: {home_season_stats['avg_scored']:.2f}</span></div>\n"
     else:
         html += "<div class='stat-value'>-</div>\n"
     html += "</div>\n"
@@ -1031,6 +1127,8 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
     html += f"<div class='stat-label'>Avg {score_label} Against</div>\n"
     if home_stats:
         html += f"<div class='stat-value'>{home_stats['avg_allowed']:.2f}</div>\n"
+        if home_season_stats:
+            html += f"<div style='font-size: 0.75em; color: #4b5563; margin-top: 6px; font-weight: 600;'><span style='color: #3b82f6;'>Last 10</span> | <span style='color: #10b981;'>Season: {home_season_stats['avg_allowed']:.2f}</span></div>\n"
     else:
         html += "<div class='stat-value'>-</div>\n"
     html += "</div>\n"
@@ -1041,6 +1139,9 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
     if home_stats:
         avg_total = round(home_stats['avg_scored'] + home_stats['avg_allowed'], 2)
         html += f"<div class='stat-value'>{avg_total:.2f}</div>\n"
+        if home_season_stats:
+            season_total = round(home_season_stats['avg_scored'] + home_season_stats['avg_allowed'], 2)
+            html += f"<div style='font-size: 0.75em; color: #4b5563; margin-top: 6px; font-weight: 600;'><span style='color: #3b82f6;'>Last 10</span> | <span style='color: #10b981;'>Season: {season_total:.2f}</span></div>\n"
     else:
         html += "<div class='stat-value'>-</div>\n"
     html += "</div>\n"
