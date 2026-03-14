@@ -165,9 +165,24 @@ body {
   .lineup-container {
     grid-template-columns: 1fr;
     gap: 15px;
+    display: flex;
+    flex-direction: column;
   }
   .lineup-column {
     gap: 15px;
+    display: contents;
+  }
+  .lineup-column:first-child .section:first-child {
+    order: 1;  /* Forwards first */
+  }
+  .lineup-column:last-child .section:first-child {
+    order: 2;  /* Defense second */
+  }
+  .lineup-column:first-child .section:last-child {
+    order: 3;  /* Goalies third */
+  }
+  .lineup-column:last-child .section:last-child {
+    order: 4;  /* Scratched/Injured fourth */
   }
   .team-header {
     padding: 30px 20px;
