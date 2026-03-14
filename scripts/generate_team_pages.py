@@ -697,7 +697,7 @@ def generate_teams_index(all_standings):
 <link rel='canonical' href='https://parieurdiscipline.com/nhl/teams'>
 
 <!-- Favicon -->
-<link rel='icon' type='image/png' href='parieur_discipline_icon_1024.png'>
+<link rel='icon' type='image/png' href='../../parieur_discipline_icon_1024.png'>
 
 <!-- Open Graph / Facebook -->
 <meta property='og:type' content='website'>
