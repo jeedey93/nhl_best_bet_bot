@@ -652,7 +652,8 @@ body {
   border: 2px solid #e5e7eb;
 }
 @media (max-width: 768px) {
-  .container { padding: 20px 10px; }
+  body { overflow-x: hidden; }
+  .container { padding: 20px 10px; max-width: 100%; overflow-x: hidden; }
   .header { padding: 30px 15px; margin-bottom: 30px; }
   .header h1 { font-size: 2em; margin-bottom: 10px; }
   .header p { font-size: 1em; }
@@ -669,7 +670,13 @@ body {
     word-wrap: break-word;
     line-height: 1.4;
   }
-  .game-card { padding: 20px 15px; margin-bottom: 20px; border-radius: 15px; }
+  .game-card {
+    padding: 20px 15px;
+    margin-bottom: 20px;
+    border-radius: 15px;
+    overflow-x: hidden;
+    max-width: 100%;
+  }
   .game-time { font-size: 0.85em; padding: 5px 12px; }
   .h2h-section {
     padding: 12px 10px;
@@ -734,23 +741,64 @@ body {
     text-align: center;
     width: 100%;
   }
-  .key-insights { padding: 20px 15px; border-radius: 12px; }
+  .key-insights {
+    padding: 20px 15px;
+    border-radius: 12px;
+    overflow-x: hidden;
+    max-width: 100%;
+  }
   .insights-title { font-size: 1.1em; margin-bottom: 15px; }
-  .insights-grid { grid-template-columns: 1fr; gap: 15px; }
-  .team-header { padding: 15px; }
+  .insights-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+    max-width: 100%;
+  }
+  .team-section {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+  .team-header {
+    padding: 15px;
+    max-width: 100%;
+  }
   .team-logo { width: 60px; height: 60px; margin-bottom: 12px; }
-  .team-name { font-size: 1.1em; margin-bottom: 8px; }
+  .team-name {
+    font-size: 1.1em;
+    margin-bottom: 8px;
+    word-wrap: break-word;
+  }
   .team-record { font-size: 1.2em; margin-bottom: 6px; }
-  .stats-tiles { grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
-  .goalie-row { margin-top: 10px; }
-  .goalie-row .stat-tile { max-width: 100%; }
-  .stat-tile { padding: 14px; }
-  .stat-label { font-size: 0.75em; margin-bottom: 6px; }
-  .stat-value { font-size: 1.6em; }
-  .stat-record { font-size: 1.3em; }
-  .goalie-name { font-size: 0.95em; margin-bottom: 5px; }
-  .goalie-status { font-size: 0.7em; padding: 3px 6px; }
-  .stat-games { font-size: 0.7em; margin-top: 6px; }
+  .stats-tiles {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    max-width: 100%;
+  }
+  .goalie-row {
+    margin-top: 10px;
+    grid-column: 1 / -1;
+  }
+  .goalie-row .stat-tile {
+    max-width: 100%;
+    width: 100%;
+  }
+  .stat-tile {
+    padding: 12px 8px;
+    min-width: 0;
+  }
+  .stat-label {
+    font-size: 0.7em;
+    margin-bottom: 6px;
+    word-break: break-word;
+  }
+  .stat-value { font-size: 1.4em; }
+  .stat-record { font-size: 1.1em; }
+  .goalie-name {
+    font-size: 0.85em;
+    margin-bottom: 5px;
+    word-wrap: break-word;
+  }
+  .goalie-status { font-size: 0.65em; padding: 3px 6px; }
+  .stat-games { font-size: 0.65em; margin-top: 6px; }
   .odds-section { margin-top: 15px; }
   .odds-toggle { font-size: 0.85em; padding: 8px; }
   .odds-grid { grid-template-columns: 1fr; gap: 12px; margin-top: 12px; }
@@ -933,7 +981,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='header'>
 <h1>🏀 NBA Games Today</h1>
 <p>Saturday, March 14, 2026</p>
-<p>⏱️ Last Updated at 3:36 PM</p>
+<p>⏱️ Last Updated at 6:42 PM</p>
 </div>
 
 <div class='container'>
@@ -960,7 +1008,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='mini-matchup'>Milwaukee Bucks @ Atlanta Hawks</div>
 </a>
 <a href='#game-385c8f2c3153a39f3b1864e324132599' class='mini-game-tile'>
-<div class='mini-time'>🏀 03:40 PM</div>
+<div class='mini-time'>🏀 03:42 PM</div>
 <div class='mini-teams'>
 <img src='https://cdn.nba.com/logos/nba/1610612766/global/L/logo.svg' class='mini-logo' />
 <span class='mini-at'>@</span>
@@ -969,7 +1017,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='mini-matchup'>Charlotte Horne @ San Antonio Spu</div>
 </a>
 <a href='#game-99121dd3b759ee039a7172119402defe' class='mini-game-tile'>
-<div class='mini-time'>🏀 06:10 PM</div>
+<div class='mini-time'>🏀 06:11 PM</div>
 <div class='mini-teams'>
 <img src='https://cdn.nba.com/logos/nba/1610612764/global/L/logo.svg' class='mini-logo' />
 <span class='mini-at'>@</span>
@@ -1029,8 +1077,6 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 <div class='signals-row'>
 <div class='prediction-indicator home-favored'>↗ Trending: 76ers</div>
-<div class='ou-signal over-signal'>📈 Over 216.0</div>
-<div class='h2h-totals-badge high-scoring'>⚡ H2H Avg: 218.2 pts</div>
 <div class='streak-badge lose-streak'>❄️ Nets 3L Streak</div>
 </div>
 <div class='key-insights'>
@@ -1062,7 +1108,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='team-section'>
 <div class='team-header home-team'>
 <img src='https://cdn.nba.com/logos/nba/1610612755/global/L/logo.svg' alt='Philadelphia 76ers' class='team-logo' />
-<div class='team-name'>Philadelphia 76ers <span class='team-rank'>(15th)</span></div>
+<div class='team-name'>Philadelphia 76ers <span class='team-rank'>(16th)</span></div>
 <div class='team-record'>36-31 <span class='neutral-form'>(5-5)</span></div>
 <div class='team-label'>Home Team</div>
 </div>
@@ -1084,28 +1130,6 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 </div>
 </div>
-<div class='odds-section'>
-<div class='odds-toggle'>View Odds ▼</div>
-<div class='odds-content'>
-<div class='odds-grid'>
-<div class='odds-card'>
-<div class='odds-label'>Moneyline</div>
-<div class='odds-value'><span>Brooklyn Nets</span><span>3.80</span></div>
-<div class='odds-value'><span>Philadelphia 76ers</span><span>1.28</span></div>
-</div>
-<div class='odds-card'>
-<div class='odds-label'>Total</div>
-<div class='odds-value'><span>Over 216.0</span><span>1.91</span></div>
-<div class='odds-value'><span>Under 216.0</span><span>1.91</span></div>
-</div>
-<div class='odds-card'>
-<div class='odds-label'>Spread</div>
-<div class='odds-value'><span>Brooklyn Nets +6.5</span><span>1.96</span></div>
-<div class='odds-value'><span>Philadelphia 76ers -6.5</span><span>1.78</span></div>
-</div>
-</div>
-</div>
-</div>
 </div>
 <div class='game-card' id='game-67fd3c76881fc3018d06f51684b04db5'>
 <div class='game-time'>03:11 PM</div>
@@ -1114,19 +1138,19 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='h2h-title'>🏆 Season Series</div>
 <div class='h2h-record'>
 <span class='h2h-team'>Milwaukee Bucks</span>
-<span class='h2h-score'>1-1</span>
+<span class='h2h-score'>1-2</span>
 <span class='h2h-team'>Atlanta Hawks</span>
 </div>
 <div class='h2h-results'>
 <span class='h2h-result h2h-win'>MIL 112-110</span>
 <span class='h2h-result h2h-loss'>ATL 131-113</span>
+<span class='h2h-result h2h-loss'>ATL 122-99</span>
 </div>
 </div>
 <div class='signals-row'>
 <div class='prediction-indicator home-favored'>↗ Trending: Hawks</div>
-<div class='ou-signal under-signal'>📉 Under 232.5</div>
-<div class='streak-badge lose-streak'>❄️ Bucks 3L Streak</div>
-<div class='streak-badge win-streak'>🔥 Hawks 8W Streak</div>
+<div class='streak-badge lose-streak'>❄️ Bucks 4L Streak</div>
+<div class='streak-badge win-streak'>🔥 Hawks 9W Streak</div>
 </div>
 <div class='key-insights'>
 <div class='insights-title'>📊 Key Insights</div>
@@ -1135,21 +1159,21 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='team-header away-team'>
 <img src='https://cdn.nba.com/logos/nba/1610612749/global/L/logo.svg' alt='Milwaukee Bucks' class='team-logo' />
 <div class='team-name'>Milwaukee Bucks <span class='team-rank'>(21st)</span></div>
-<div class='team-record'>27-38 <span class='negative-form'>(3-7)</span></div>
+<div class='team-record'>27-39 <span class='negative-form'>(2-8)</span></div>
 <div class='team-label'>Away Team</div>
 </div>
 <div class='stats-tiles'>
 <div class='stat-tile'>
 <div class='stat-label'>Avg Points For</div>
-<div class='stat-value'>105.80</div>
+<div class='stat-value'>102.90</div>
 </div>
 <div class='stat-tile'>
 <div class='stat-label'>Avg Points Against</div>
-<div class='stat-value'>118.90</div>
+<div class='stat-value'>119.40</div>
 </div>
 <div class='stat-tile'>
 <div class='stat-label'>Avg Points Total</div>
-<div class='stat-value'>224.70</div>
+<div class='stat-value'>222.30</div>
 </div>
 </div>
 <div class='stat-games'>Last 10 games</div>
@@ -1157,69 +1181,43 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='team-section'>
 <div class='team-header home-team'>
 <img src='https://cdn.nba.com/logos/nba/1610612737/global/L/logo.svg' alt='Atlanta Hawks' class='team-logo' />
-<div class='team-name'>Atlanta Hawks <span class='team-rank'>(16th)</span></div>
-<div class='team-record'>35-31 <span class='positive-form'>(9-1)</span></div>
+<div class='team-name'>Atlanta Hawks <span class='team-rank'>(15th)</span></div>
+<div class='team-record'>36-31 <span class='positive-form'>(9-1)</span></div>
 <div class='team-label'>Home Team</div>
 </div>
 <div class='stats-tiles'>
 <div class='stat-tile'>
 <div class='stat-label'>Avg Points For</div>
-<div class='stat-value'>119.70</div>
+<div class='stat-value'>120.20</div>
 </div>
 <div class='stat-tile'>
 <div class='stat-label'>Avg Points Against</div>
-<div class='stat-value'>107.20</div>
+<div class='stat-value'>106.40</div>
 </div>
 <div class='stat-tile'>
 <div class='stat-label'>Avg Points Total</div>
-<div class='stat-value'>226.90</div>
+<div class='stat-value'>226.60</div>
 </div>
 </div>
 <div class='stat-games'>Last 10 games</div>
 </div>
 </div>
 </div>
-<div class='odds-section'>
-<div class='odds-toggle'>View Odds ▼</div>
-<div class='odds-content'>
-<div class='odds-grid'>
-<div class='odds-card'>
-<div class='odds-label'>Moneyline</div>
-<div class='odds-value'><span>Milwaukee Bucks</span><span>5.20</span></div>
-<div class='odds-value'><span>Atlanta Hawks</span><span>1.15</span></div>
-</div>
-<div class='odds-card'>
-<div class='odds-label'>Total</div>
-<div class='odds-value'><span>Over 232.5</span><span>1.96</span></div>
-<div class='odds-value'><span>Under 232.5</span><span>1.78</span></div>
-</div>
-<div class='odds-card'>
-<div class='odds-label'>Spread</div>
-<div class='odds-value'><span>Milwaukee Bucks +10.5</span><span>2.00</span></div>
-<div class='odds-value'><span>Atlanta Hawks -10.5</span><span>1.76</span></div>
-</div>
-</div>
-</div>
-</div>
 </div>
 <div class='game-card' id='game-385c8f2c3153a39f3b1864e324132599'>
-<div class='game-time'>03:40 PM</div>
+<div class='game-time'>03:42 PM</div>
 <div class='matchup'>Charlotte Hornets vs San Antonio Spurs</div>
 <div class='h2h-section'>
 <div class='h2h-title'>🏆 Season Series</div>
 <div class='h2h-record'>
 <span class='h2h-team'>Charlotte Hornets</span>
-<span class='h2h-score'>1-0</span>
+<span class='h2h-score'>1-1</span>
 <span class='h2h-team'>San Antonio Spurs</span>
 </div>
 <div class='h2h-results'>
 <span class='h2h-result h2h-win'>CHA 111-106</span>
+<span class='h2h-result h2h-loss'>SA 115-102</span>
 </div>
-</div>
-<div class='signals-row'>
-<div class='prediction-indicator away-favored'>↗ Trending: Hornets</div>
-<div class='ou-signal over-signal'>📈 Over 232.5</div>
-<div class='h2h-totals-badge low-scoring'>🛡️ H2H Avg: 217.0 pts</div>
 </div>
 <div class='key-insights'>
 <div class='insights-title'>📊 Key Insights</div>
@@ -1228,21 +1226,21 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='team-header away-team'>
 <img src='https://cdn.nba.com/logos/nba/1610612766/global/L/logo.svg' alt='Charlotte Hornets' class='team-logo' />
 <div class='team-name'>Charlotte Hornets <span class='team-rank'>(18th)</span></div>
-<div class='team-record'>34-33 <span class='positive-form'>(8-2)</span></div>
+<div class='team-record'>34-34 <span class='positive-form'>(7-3)</span></div>
 <div class='team-label'>Away Team</div>
 </div>
 <div class='stats-tiles'>
 <div class='stat-tile'>
 <div class='stat-label'>Avg Points For</div>
-<div class='stat-value'>117.60</div>
+<div class='stat-value'>114.90</div>
 </div>
 <div class='stat-tile'>
 <div class='stat-label'>Avg Points Against</div>
-<div class='stat-value'>104.10</div>
+<div class='stat-value'>104.40</div>
 </div>
 <div class='stat-tile'>
 <div class='stat-label'>Avg Points Total</div>
-<div class='stat-value'>221.70</div>
+<div class='stat-value'>219.30</div>
 </div>
 </div>
 <div class='stat-games'>Last 10 games</div>
@@ -1250,18 +1248,18 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='team-section'>
 <div class='team-header home-team'>
 <img src='https://cdn.nba.com/logos/nba/1610612759/global/L/logo.svg' alt='San Antonio Spurs' class='team-logo' />
-<div class='team-name'>San Antonio Spurs <span class='team-rank'>(3rd)</span></div>
-<div class='team-record'>48-18 <span class='positive-form'>(8-2)</span></div>
+<div class='team-name'>San Antonio Spurs <span class='team-rank'>(2nd)</span></div>
+<div class='team-record'>49-18 <span class='positive-form'>(8-2)</span></div>
 <div class='team-label'>Home Team</div>
 </div>
 <div class='stats-tiles'>
 <div class='stat-tile'>
 <div class='stat-label'>Avg Points For</div>
-<div class='stat-value'>120.80</div>
+<div class='stat-value'>120.90</div>
 </div>
 <div class='stat-tile'>
 <div class='stat-label'>Avg Points Against</div>
-<div class='stat-value'>111.50</div>
+<div class='stat-value'>111.40</div>
 </div>
 <div class='stat-tile'>
 <div class='stat-label'>Avg Points Total</div>
@@ -1272,31 +1270,9 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 </div>
 </div>
-<div class='odds-section'>
-<div class='odds-toggle'>View Odds ▼</div>
-<div class='odds-content'>
-<div class='odds-grid'>
-<div class='odds-card'>
-<div class='odds-label'>Moneyline</div>
-<div class='odds-value'><span>Charlotte Hornets</span><span>2.94</span></div>
-<div class='odds-value'><span>San Antonio Spurs</span><span>1.43</span></div>
-</div>
-<div class='odds-card'>
-<div class='odds-label'>Total</div>
-<div class='odds-value'><span>Over 232.5</span><span>1.94</span></div>
-<div class='odds-value'><span>Under 232.5</span><span>1.88</span></div>
-</div>
-<div class='odds-card'>
-<div class='odds-label'>Spread</div>
-<div class='odds-value'><span>Charlotte Hornets +6.0</span><span>1.94</span></div>
-<div class='odds-value'><span>San Antonio Spurs -6.0</span><span>1.88</span></div>
-</div>
-</div>
-</div>
-</div>
 </div>
 <div class='game-card' id='game-99121dd3b759ee039a7172119402defe'>
-<div class='game-time'>06:10 PM</div>
+<div class='game-time'>06:11 PM</div>
 <div class='matchup'>Washington Wizards vs Boston Celtics</div>
 <div class='h2h-section'>
 <div class='h2h-title'>🏆 Season Series</div>
@@ -1312,7 +1288,7 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 <div class='signals-row'>
 <div class='prediction-indicator home-favored'>↗ Trending: Celtics</div>
-<div class='ou-signal under-signal'>📉 Under 233.5</div>
+<div class='ou-signal under-signal'>📉 Under 228.5</div>
 <div class='h2h-totals-badge high-scoring'>⚡ H2H Avg: 245.0 pts</div>
 <div class='streak-badge lose-streak'>❄️ Wizards 10L Streak</div>
 </div>
@@ -1373,18 +1349,18 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='odds-grid'>
 <div class='odds-card'>
 <div class='odds-label'>Moneyline</div>
-<div class='odds-value'><span>Washington Wizards</span><span>16.00</span></div>
-<div class='odds-value'><span>Boston Celtics</span><span>1.02</span></div>
+<div class='odds-value'><span>Washington Wizards</span><span>18.00</span></div>
+<div class='odds-value'><span>Boston Celtics</span><span>1.01</span></div>
 </div>
 <div class='odds-card'>
 <div class='odds-label'>Total</div>
-<div class='odds-value'><span>Over 233.5</span><span>1.91</span></div>
-<div class='odds-value'><span>Under 233.5</span><span>1.91</span></div>
+<div class='odds-value'><span>Over 228.5</span><span>1.85</span></div>
+<div class='odds-value'><span>Under 228.5</span><span>1.89</span></div>
 </div>
 <div class='odds-card'>
 <div class='odds-label'>Spread</div>
-<div class='odds-value'><span>Washington Wizards +20.5</span><span>1.91</span></div>
-<div class='odds-value'><span>Boston Celtics -20.5</span><span>1.91</span></div>
+<div class='odds-value'><span>Washington Wizards +22.5</span><span>1.82</span></div>
+<div class='odds-value'><span>Boston Celtics -22.5</span><span>1.93</span></div>
 </div>
 </div>
 </div>
@@ -1566,8 +1542,8 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='odds-grid'>
 <div class='odds-card'>
 <div class='odds-label'>Moneyline</div>
-<div class='odds-value'><span>Denver Nuggets</span><span>1.68</span></div>
-<div class='odds-value'><span>Los Angeles Lakers</span><span>2.26</span></div>
+<div class='odds-value'><span>Denver Nuggets</span><span>1.72</span></div>
+<div class='odds-value'><span>Los Angeles Lakers</span><span>2.18</span></div>
 </div>
 <div class='odds-card'>
 <div class='odds-label'>Total</div>
@@ -1576,8 +1552,8 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 <div class='odds-card'>
 <div class='odds-label'>Spread</div>
-<div class='odds-value'><span>Denver Nuggets -3.0</span><span>1.91</span></div>
-<div class='odds-value'><span>Los Angeles Lakers +3.0</span><span>1.91</span></div>
+<div class='odds-value'><span>Denver Nuggets -2.5</span><span>1.91</span></div>
+<div class='odds-value'><span>Los Angeles Lakers +2.5</span><span>1.91</span></div>
 </div>
 </div>
 </div>
@@ -1600,7 +1576,7 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 <div class='signals-row'>
 <div class='prediction-indicator home-favored'>↗ Trending: Clippers</div>
-<div class='ou-signal over-signal'>📈 Over 231.5</div>
+<div class='ou-signal over-signal'>📈 Over 232.5</div>
 <div class='h2h-totals-badge low-scoring'>🛡️ H2H Avg: 223.0 pts</div>
 <div class='streak-badge win-streak'>🔥 Clippers 4W Streak</div>
 </div>
@@ -1666,8 +1642,8 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 <div class='odds-card'>
 <div class='odds-label'>Total</div>
-<div class='odds-value'><span>Over 231.5</span><span>1.88</span></div>
-<div class='odds-value'><span>Under 231.5</span><span>1.94</span></div>
+<div class='odds-value'><span>Over 232.5</span><span>1.88</span></div>
+<div class='odds-value'><span>Under 232.5</span><span>1.94</span></div>
 </div>
 <div class='odds-card'>
 <div class='odds-label'>Spread</div>
