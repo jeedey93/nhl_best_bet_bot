@@ -598,6 +598,458 @@ document.addEventListener('DOMContentLoaded', function() {{
 
     return html
 
+
+def generate_teams_index(all_standings):
+    """Generate the teams index page with standings."""
+
+    # Define team structure by conference and division
+    # Format: (file_name, full_name, abbrev, has_lineup)
+    teams_structure = {
+        'Western Conference': {
+            'Central Division': [
+                ('Avalanche', 'Colorado Avalanche', 'COL', True),
+                ('Stars', 'Dallas Stars', 'DAL', False),
+                ('Jets', 'Winnipeg Jets', 'WPG', True),
+                ('Wild', 'Minnesota Wild', 'MIN', True),
+                ('Predators', 'Nashville Predators', 'NSH', False),
+                ('Blues', 'St. Louis Blues', 'STL', False),
+                ('Blackhawks', 'Chicago Blackhawks', 'CHI', False),
+                ('Utah_Hockey_Club', 'Utah Hockey Club', 'UTA', False),
+            ],
+            'Pacific Division': [
+                ('Golden_Knights', 'Vegas Golden Knights', 'VGK', False),
+                ('Oilers', 'Edmonton Oilers', 'EDM', False),
+                ('Kings', 'Los Angeles Kings', 'LAK', True),
+                ('Flames', 'Calgary Flames', 'CGY', True),
+                ('Canucks', 'Vancouver Canucks', 'VAN', False),
+                ('Kraken', 'Seattle Kraken', 'SEA', False),
+                ('Ducks', 'Anaheim Ducks', 'ANA', True),
+                ('Sharks', 'San Jose Sharks', 'SJS', True),
+            ]
+        },
+        'Eastern Conference': {
+            'Atlantic Division': [
+                ('Bruins', 'Boston Bruins', 'BOS', True),
+                ('Sabres', 'Buffalo Sabres', 'BUF', True),
+                ('Red_Wings', 'Detroit Red Wings', 'DET', False),
+                ('Panthers', 'Florida Panthers', 'FLA', False),
+                ('Canadiens', 'Montréal Canadiens', 'MTL', True),
+                ('Senators', 'Ottawa Senators', 'OTT', True),
+                ('Lightning', 'Tampa Bay Lightning', 'TBL', True),
+                ('Maple_Leafs', 'Toronto Maple Leafs', 'TOR', True),
+            ],
+            'Metropolitan Division': [
+                ('Hurricanes', 'Carolina Hurricanes', 'CAR', True),
+                ('Blue_Jackets', 'Columbus Blue Jackets', 'CBJ', True),
+                ('Devils', 'New Jersey Devils', 'NJD', True),
+                ('Islanders', 'New York Islanders', 'NYI', True),
+                ('Rangers', 'New York Rangers', 'NYR', True),
+                ('Flyers', 'Philadelphia Flyers', 'PHI', True),
+                ('Penguins', 'Pittsburgh Penguins', 'PIT', False),
+                ('Capitals', 'Washington Capitals', 'WSH', True),
+            ]
+        }
+    }
+
+    # Build conference HTML
+    conferences_html = ""
+    for conference, divisions in teams_structure.items():
+        conferences_html += f"<div class='conference-section'>\n"
+        conferences_html += f"  <div class='conference-title'>{conference}</div>\n\n"
+
+        for division, teams in divisions.items():
+            conferences_html += f"  <div class='division-section'>\n"
+            conferences_html += f"    <div class='division-title'>{division}</div>\n"
+            conferences_html += f"    <div class='teams-grid'>\n\n"
+
+            for file_name, full_name, abbrev, has_lineup in teams:
+                # Get standings for this team
+                team_standings = all_standings.get(abbrev, {})
+                record = team_standings.get('record', 'N/A')
+
+                # Add "Coming Soon" badge if no lineup file
+                coming_soon_badge = "" if has_lineup else "\n        <div class='coming-soon'>Coming Soon</div>"
+
+                conferences_html += f"""      <a href='/nhl/teams/{file_name}.html' class='team-card' data-team='{file_name.lower()}'>
+        <img src='https://assets.nhle.com/logos/nhl/svg/{abbrev}_light.svg' alt='{full_name}' class='team-logo'>
+        <div class='team-name'>{full_name}</div>
+        <div class='team-record'>{record}</div>{coming_soon_badge}
+      </a>
+
+"""
+
+            conferences_html += f"    </div>\n"
+            conferences_html += f"  </div>\n\n"
+
+        conferences_html += f"</div>\n\n"
+
+    # Full HTML template
+    html = f"""<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='UTF-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+<title>NHL Teams - Lineups & Stats | Parieur Discipliné</title>
+<meta name='description' content='Browse all 32 NHL teams. View current lineups, starting goalies, injuries, and team statistics.'>
+<meta name='keywords' content='NHL teams, NHL lineups, NHL rosters, hockey teams, NHL stats'>
+<meta name='author' content='Parieur Discipliné'>
+<meta name='robots' content='index, follow'>
+<link rel='canonical' href='https://parieurdiscipline.com/nhl/teams'>
+
+<!-- Favicon -->
+<link rel='icon' type='image/png' href='parieur_discipline_icon_1024.png'>
+
+<!-- Open Graph / Facebook -->
+<meta property='og:type' content='website'>
+<meta property='og:url' content='https://parieurdiscipline.com/nhl/teams'>
+<meta property='og:title' content='NHL Teams - Lineups & Stats'>
+<meta property='og:description' content='Browse all 32 NHL teams. View current lineups, starting goalies, injuries, and team statistics.'>
+<meta property='og:image' content='https://parieurdiscipline.com/parieur_discipline_icon_1024.png'>
+<meta property='og:site_name' content='Parieur Discipliné'>
+
+<!-- Twitter -->
+<meta property='twitter:card' content='summary_large_image'>
+<meta property='twitter:url' content='https://parieurdiscipline.com/nhl/teams'>
+<meta property='twitter:title' content='NHL Teams - Lineups & Stats'>
+<meta property='twitter:description' content='Browse all 32 NHL teams. View current lineups, starting goalies, injuries, and team statistics.'>
+<meta property='twitter:image' content='https://parieurdiscipline.com/parieur_discipline_icon_1024.png'>
+
+<!-- Mobile Theme -->
+<meta name='theme-color' content='#2c5aa0'>
+
+<style>
+* {{ margin: 0; padding: 0; box-sizing: border-box; }}
+body {{
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: #f5f7fa;
+  color: #1a1a1a;
+  min-height: 100vh;
+}}
+.container {{ max-width: 1600px; margin: 0 auto; padding: 40px 20px; }}
+.header {{
+  text-align: center;
+  margin: 0 0 50px 0;
+  background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+  border-radius: 0;
+  padding: 60px 40px;
+  box-shadow: none;
+}}
+.header h1 {{
+  font-size: 3em;
+  color: white;
+  margin-bottom: 15px;
+  font-weight: 800;
+}}
+.header p {{
+  color: rgba(255,255,255,0.9);
+  font-size: 1.2em;
+  font-weight: 500;
+}}
+
+/* Conference Sections */
+.conference-section {{
+  margin-bottom: 60px;
+}}
+.conference-title {{
+  font-size: 2.2em;
+  background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 20px;
+  padding: 20px 30px;
+  font-weight: 700;
+  border-bottom: 3px solid #4a90e2;
+}}
+
+/* Division Sections */
+.division-section {{
+  margin-bottom: 40px;
+}}
+.division-title {{
+  font-size: 1.5em;
+  color: #1e293b;
+  margin-bottom: 25px;
+  padding-left: 10px;
+  font-weight: 700;
+  border-left: 4px solid #4a90e2;
+}}
+
+/* Team Grid */
+.teams-grid {{
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 25px;
+  margin-bottom: 30px;
+}}
+
+/* Team Card */
+.team-card {{
+  background: white;
+  border-radius: 16px;
+  padding: 30px 20px;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 2px solid #e5e7eb;
+  position: relative;
+  overflow: hidden;
+}}
+.team-card::before {{
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #4a90e2 0%, #357abd 100%);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}}
+.team-card:hover::before {{
+  transform: scaleX(1);
+}}
+.team-card:hover {{
+  transform: translateY(-8px);
+  box-shadow: 0 12px 30px rgba(74, 144, 226, 0.25);
+  border-color: #4a90e2;
+}}
+
+.team-logo {{
+  width: 120px;
+  height: 120px;
+  margin-bottom: 20px;
+  transition: transform 0.3s ease;
+}}
+.team-card:hover .team-logo {{
+  transform: scale(1.1);
+}}
+
+.team-name {{
+  font-size: 1.3em;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 8px;
+}}
+
+.team-record {{
+  font-size: 1.1em;
+  font-weight: 600;
+  color: #4a90e2;
+  margin-bottom: 10px;
+}}
+
+.team-info {{
+  font-size: 0.85em;
+  color: #6b7280;
+  margin-top: 10px;
+}}
+
+.coming-soon {{
+  display: inline-block;
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  color: #92400e;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.75em;
+  font-weight: 700;
+  margin-top: 10px;
+}}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {{
+  .container {{ padding: 20px 10px; }}
+  .header {{ padding: 30px 15px; margin-bottom: 30px; }}
+  .header h1 {{ font-size: 2em; margin-bottom: 10px; }}
+  .header p {{ font-size: 1em; }}
+  .conference-title {{ font-size: 1.6em; padding: 15px 20px; }}
+  .division-title {{ font-size: 1.2em; margin-bottom: 20px; }}
+  .teams-grid {{
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 15px;
+  }}
+  .team-card {{ padding: 20px 15px; }}
+  .team-logo {{ width: 90px; height: 90px; margin-bottom: 15px; }}
+  .team-name {{ font-size: 1.1em; }}
+  .team-record {{ font-size: 0.95em; }}
+}}
+</style>
+</head>
+<body>
+
+<nav style='position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: linear-gradient(135deg, #2c5aa0 0%, #1e3a8a 100%); box-shadow: 0 2px 10px rgba(0,0,0,0.1); backdrop-filter: blur(10px);'>
+<div style='max-width: 1600px; margin: 0 auto; padding: 10px 15px; display: flex; align-items: center; justify-content: space-between;'>
+<div style='display: flex; align-items: center; gap: 10px;'>
+<img src='../../parieur_discipline_icon_1024.png' alt='Logo' style='width: 32px; height: 32px; border-radius: 50%;' />
+<span style='color: white; font-weight: 700; font-size: 1em;'>Parieur Discipliné</span>
+</div>
+<button id='mobileMenuBtn' style='display: none; background: none; border: none; color: white; font-size: 1.5em; cursor: pointer; padding: 5px;' onclick='toggleMobileMenu()'>☰</button>
+<div id='navLinks'>
+<a href='../../index.html' style='color: white; text-decoration: none; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 0.9em; transition: background 0.2s; white-space: nowrap;' onmouseover='this.style.background="rgba(255,255,255,0.15)"' onmouseout='this.style.background="transparent"'>Home</a>
+<a href='../../daily-picks.html' style='color: white; text-decoration: none; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 0.9em; transition: background 0.2s; white-space: nowrap;' onmouseover='this.style.background="rgba(255,255,255,0.15)"' onmouseout='this.style.background="transparent"'>🎯 Today</a>
+<div class='nav-dropdown' style='position: relative;'>
+  <a href='#' class='nav-dropdown-toggle' style='color: white; text-decoration: none; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 0.9em; transition: background 0.2s; white-space: nowrap; display: flex; align-items: center; gap: 4px;' onmouseover='this.style.background="rgba(255,255,255,0.15)"' onmouseout='this.style.background="transparent"'>🏒 NHL <span style='font-size: 0.7em;'>▼</span></a>
+  <div class='nav-dropdown-menu' style='position: absolute; top: 100%; left: 0; background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); min-width: 180px; opacity: 0; visibility: hidden; transform: translateY(-10px); transition: all 0.2s ease; margin-top: 5px; z-index: 1100;'>
+    <a href='/nhl/games/index.html' style='display: block; color: #1e293b; text-decoration: none; padding: 10px 16px; font-weight: 600; font-size: 0.9em; transition: background 0.2s; border-bottom: 1px solid #e5e7eb;' onmouseover='this.style.background="#f1f5f9"' onmouseout='this.style.background="white"'>📅 Today's Games</a>
+    <a href='/nhl/teams/index.html' style='display: block; color: #1e293b; text-decoration: none; padding: 10px 16px; font-weight: 600; font-size: 0.9em; transition: background 0.2s;' onmouseover='this.style.background="#f1f5f9"' onmouseout='this.style.background="white"'>🏒 All Teams</a>
+  </div>
+</div>
+<a href='../../nba.html' style='color: white; text-decoration: none; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 0.9em; transition: background 0.2s; white-space: nowrap;' onmouseover='this.style.background="rgba(255,255,255,0.15)"' onmouseout='this.style.background="transparent"'>🏀 NBA</a>
+<a href='../../performance.html' style='color: white; text-decoration: none; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 0.9em; transition: background 0.2s; white-space: nowrap;' onmouseover='this.style.background="rgba(255,255,255,0.15)"' onmouseout='this.style.background="transparent"'>📊 Performance</a>
+<a href='../../about.html' style='color: white; text-decoration: none; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 0.9em; transition: background 0.2s; white-space: nowrap;' onmouseover='this.style.background="rgba(255,255,255,0.15)"' onmouseout='this.style.background="transparent"'>ℹ️ About</a>
+</div>
+</div>
+</nav>
+<div style='position: fixed; top: 52px; left: 0; right: 0; z-index: 999; background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); padding: 8px 20px; text-align: center; box-shadow: 0 2px 8px rgba(251, 191, 36, 0.3);'>
+<span style='color: #78350f; font-weight: 600; font-size: 0.85em; letter-spacing: 0.3px;'>🎯 Our AI is learning and improving every day to bring you better predictions</span>
+</div>
+<style>
+#navLinks {{ display: flex; gap: 8px; align-items: center; }}
+.nav-dropdown:hover .nav-dropdown-menu {{
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: translateY(0) !important;
+}}
+.nav-dropdown-menu.show {{
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: translateY(0) !important;
+}}
+@media (max-width: 768px) {{
+  nav div:first-child span {{ font-size: 0.85em; }}
+  nav div:first-child img {{ width: 28px; height: 28px; }}
+  #mobileMenuBtn {{ display: block !important; }}
+  #navLinks {{
+    display: none !important;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: linear-gradient(135deg, #2c5aa0 0%, #1e3a8a 100%);
+    flex-direction: column;
+    gap: 0;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    align-items: stretch;
+    max-height: calc(100vh - 52px);
+    overflow-y: auto;
+  }}
+  #navLinks.active {{ display: flex !important; }}
+  #navLinks a {{
+    padding: 14px 20px;
+    font-size: 1em;
+    border-radius: 0;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }}
+  .nav-dropdown {{
+    width: 100%;
+  }}
+  .nav-dropdown-toggle {{
+    width: 100%;
+    padding: 14px 20px !important;
+    border-bottom: 1px solid rgba(255,255,255,0.1) !important;
+    border-radius: 0 !important;
+    justify-content: space-between !important;
+  }}
+  .nav-dropdown-menu {{
+    position: static !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    max-height: 0;
+    overflow: hidden;
+    transform: none !important;
+    box-shadow: none !important;
+    background: rgba(255,255,255,0.1) !important;
+    margin: 0 !important;
+    transition: max-height 0.3s ease, opacity 0.2s ease !important;
+  }}
+  .nav-dropdown.mobile-open .nav-dropdown-menu {{
+    opacity: 1 !important;
+    visibility: visible !important;
+    max-height: 200px;
+  }}
+  .nav-dropdown-menu a {{
+    color: white !important;
+    border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+    padding: 12px 20px 12px 40px !important;
+    font-size: 0.95em !important;
+  }}
+  .nav-dropdown-menu a:hover {{
+    background: rgba(255,255,255,0.1) !important;
+  }}
+  .nav-dropdown-menu a:last-child {{
+    border-bottom: none !important;
+  }}
+}}
+</style>
+<script>
+function toggleMobileMenu() {{
+  const navLinks = document.getElementById('navLinks');
+  navLinks.classList.toggle('active');
+}}
+// Close menu when clicking outside
+document.addEventListener('click', function(event) {{
+  const nav = document.querySelector('nav');
+  const menuBtn = document.getElementById('mobileMenuBtn');
+  const navLinks = document.getElementById('navLinks');
+  const dropdown = document.querySelector('.nav-dropdown');
+  const dropdownMenu = document.querySelector('.nav-dropdown-menu');
+
+  // Close mobile menu when clicking outside
+  if (!nav.contains(event.target) && navLinks.classList.contains('active')) {{
+    navLinks.classList.remove('active');
+  }}
+
+  // Close dropdown when clicking outside
+  if (dropdown && !dropdown.contains(event.target) && dropdownMenu) {{
+    dropdownMenu.classList.remove('show');
+  }}
+}});
+// Handle dropdown toggle
+document.addEventListener('DOMContentLoaded', function() {{
+  const dropdownToggle = document.querySelector('.nav-dropdown-toggle');
+  const dropdown = document.querySelector('.nav-dropdown');
+  const dropdownMenu = document.querySelector('.nav-dropdown-menu');
+
+  if (dropdownToggle && dropdownMenu) {{
+    dropdownToggle.addEventListener('click', function(e) {{
+      e.preventDefault();
+
+      // On mobile, toggle the mobile-open class
+      if (window.innerWidth <= 768) {{
+        dropdown.classList.toggle('mobile-open');
+      }} else {{
+        // On desktop, toggle the show class
+        dropdownMenu.classList.toggle('show');
+      }}
+    }});
+  }}
+}});
+</script>
+
+<div class='container' style='padding-top: 140px;'>
+  <div class='header'>
+    <h1>🏒 NHL Teams</h1>
+    <p>Browse all 32 NHL teams. Click any team to view their current lineup, starting goalies, injuries, and more.</p>
+  </div>
+
+{conferences_html}
+</div>
+
+<script defer src='/_vercel/insights/script.js'></script>
+<script defer src='/_vercel/speed-insights/script.js'></script>
+
+</body>
+</html>
+"""
+    return html
+
+
 def main():
     # Create team pages directory
     teams_dir = "docs/nhl/teams"
@@ -641,6 +1093,14 @@ def main():
             f.write(html)
 
         print(f"Generated: {output_path}")
+
+    # Generate teams index page
+    print("\nGenerating teams index page...")
+    index_html = generate_teams_index(all_standings)
+    index_path = os.path.join(teams_dir, "index.html")
+    with open(index_path, 'w', encoding='utf-8') as f:
+        f.write(index_html)
+    print(f"Generated: {index_path}")
 
     print(f"\n✅ Team pages generated successfully!")
 
