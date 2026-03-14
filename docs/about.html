@@ -35,10 +35,38 @@ fetch('nav.html')
     document.addEventListener('click', function(event) {
       const nav = document.querySelector('nav');
       const navLinks = document.getElementById('navLinks');
+      const dropdown = document.querySelector('.nav-dropdown');
+      const dropdownMenu = document.querySelector('.nav-dropdown-menu');
+
+      // Close mobile menu when clicking outside
       if (nav && !nav.contains(event.target) && navLinks && navLinks.classList.contains('active')) {
         navLinks.classList.remove('active');
       }
+
+      // Close dropdown when clicking outside
+      if (dropdown && !dropdown.contains(event.target) && dropdownMenu) {
+        dropdownMenu.classList.remove('show');
+      }
     });
+
+    // Handle dropdown toggle
+    const dropdownToggle = document.querySelector('.nav-dropdown-toggle');
+    const dropdown = document.querySelector('.nav-dropdown');
+    const dropdownMenu = document.querySelector('.nav-dropdown-menu');
+
+    if (dropdownToggle && dropdownMenu) {
+      dropdownToggle.addEventListener('click', function(e) {
+        e.preventDefault();
+
+        // On mobile, toggle the mobile-open class
+        if (window.innerWidth <= 768) {
+          dropdown.classList.toggle('mobile-open');
+        } else {
+          // On desktop, toggle the show class
+          dropdownMenu.classList.toggle('show');
+        }
+      });
+    }
 
     // Highlight current page
     const aboutLink = document.querySelector('a[href="about.html"]');
