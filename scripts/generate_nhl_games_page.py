@@ -1534,7 +1534,7 @@ def generate_nhl_games_page(fetch_odds=True):
     output = output.replace("{{NHL_GAMES}}", nhl_html)
 
     # Write to file
-    output_file = "docs/nhl.html"
+    output_file = "docs/nhl/games/index.html"
     with open(output_file, "w", encoding="utf-8") as f:
         f.write(output)
 
