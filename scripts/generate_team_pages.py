@@ -1,6 +1,11 @@
 import os
 import re
+import sys
 from datetime import datetime
+
+# Add parent directory to path to import standings_cache
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from data.standings_cache import get_team_data_by_abbrev
 
 # Map team file names to full team names and abbreviations
 TEAM_INFO = {
@@ -86,10 +91,25 @@ def parse_lineup_file(file_path):
 
     return data
 
-def generate_team_page(team_file_name, team_name, team_abbrev, lineup_data):
+def generate_team_page(team_file_name, team_name, team_abbrev, lineup_data, standings_data=None):
     """Generate HTML page for a team."""
 
     logo_url = f"https://assets.nhle.com/logos/nhl/svg/{team_abbrev}_light.svg"
+
+    # Build standings display if available
+    standings_html = ""
+    if standings_data:
+        record = standings_data.get('record', 'N/A')
+        points = standings_data.get('points', 0)
+        league_rank = standings_data.get('league_rank', '—')
+        standings_html = f"""
+    <div class='standings-badge'>
+      <div class='standings-record'>{record}</div>
+      <div class='standings-details'>
+        <span>{points} PTS</span>
+        <span>#{league_rank} NHL</span>
+      </div>
+    </div>"""
 
     # Build forward lines HTML - more compact grid layout
     forward_html = ""
@@ -191,6 +211,33 @@ body {{
   font-weight: 800;
   margin-bottom: 10px;
   letter-spacing: -1px;
+}}
+.standings-badge {{
+  background: rgba(255,255,255,0.15);
+  border-radius: 12px;
+  padding: 12px 20px;
+  margin: 15px auto 0;
+  display: inline-block;
+  backdrop-filter: blur(10px);
+}}
+.standings-record {{
+  font-size: 1.8em;
+  font-weight: 800;
+  color: white;
+  margin-bottom: 5px;
+}}
+.standings-details {{
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  font-size: 0.95em;
+  color: rgba(255,255,255,0.9);
+  font-weight: 600;
+}}
+.standings-details span {{
+  padding: 3px 8px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 6px;
 }}
 .last-updated {{
   font-size: 0.9em;
@@ -510,6 +557,7 @@ document.addEventListener('DOMContentLoaded', function() {{
       <img src='{logo_url}' alt='{team_name}' onerror='this.style.display="none"'>
     </div>
     <h1>{team_name}</h1>
+{standings_html}
     <div class='last-updated'>⏱️ {lineup_data['last_updated']}</div>
     <a href='/nhl/teams/index.html' class='back-link'>← Back to All Teams</a>
   </div>
@@ -557,6 +605,12 @@ def main():
 
     data_dir = "data/teams"
 
+    # Fetch NHL standings once (cached, so this is fast)
+    print("Fetching NHL standings...")
+    from data.standings_cache import get_nhl_standings
+    all_standings = get_nhl_standings()
+    print(f"Loaded standings for {len(all_standings)} teams")
+
     # Generate page for each team
     for team_file_name, info in TEAM_INFO.items():
         file_path = os.path.join(data_dir, f"{team_file_name}.txt")
@@ -570,11 +624,15 @@ def main():
             print(f"Skipping {team_file_name} - could not parse lineup file")
             continue
 
+        # Get standings for this team
+        standings_data = get_team_data_by_abbrev(info['abbrev'], sport='nhl')
+
         html = generate_team_page(
             team_file_name,
             info['name'],
             info['abbrev'],
-            lineup_data
+            lineup_data,
+            standings_data
         )
 
         # Save to file
