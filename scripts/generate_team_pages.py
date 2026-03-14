@@ -178,13 +178,13 @@ body {{
   margin: 0 auto 20px;
   background: white;
   border-radius: 50%;
-  padding: 15px;
+  overflow: hidden;
   box-shadow: 0 4px 15px rgba(0,0,0,0.2);
 }}
 .team-logo img {{
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
 }}
 .team-header h1 {{
   font-size: 3.5em;
