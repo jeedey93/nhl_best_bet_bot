@@ -344,8 +344,13 @@ body {{
     gap: 4px;
   }}
   .player {{
+    flex: 1;
     padding: 6px 8px;
     font-size: 0.8em;
+  }}
+  .goalie-name {{
+    font-size: 0.9em;
+    padding: 8px 12px;
   }}
 }}
 </style>
