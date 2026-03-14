@@ -354,9 +354,12 @@ def scrape_nhl_starting_goalies():
                         if next_text in ['scratched:', 'injured:']:
                             break
 
-                # The first goalie candidate is the starter
+                # The goalies are typically the LAST 2 names in the candidates list
+                # (scratched defensemen may appear first)
                 if goalie_candidates:
-                    starter = goalie_candidates[0]
+                    # Take last 2 names as goalies, first one is starter
+                    actual_goalies = goalie_candidates[-2:] if len(goalie_candidates) >= 2 else goalie_candidates
+                    starter = actual_goalies[0]
 
                     goalies[team_name] = {
                         'name': starter,
