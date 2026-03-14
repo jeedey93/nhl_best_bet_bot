@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import re
 import pytz
 from datetime import datetime
+import os
 
 def clean_player_name(name):
     """Clean and format player names properly."""
@@ -28,11 +29,82 @@ def clean_player_name(name):
 
     return name
 
-def scrape_nhl_daily_lines():
+def save_team_lineup_to_file(team_name, team_lines, absences=None):
     """
-    Scrape projected lineups for all teams from NHL.com.
+    Save team lineup data to a text file in data/teams/
+
+    Args:
+        team_name: Name of the team
+        team_lines: Dict with forward_lines, defense_pairs, and goalies
+        absences: Optional list of injured/scratched players
+    """
+    # Create data/teams directory if it doesn't exist
+    teams_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'teams')
+    os.makedirs(teams_dir, exist_ok=True)
+
+    # Sanitize team name for filename (remove special characters, replace spaces with underscores)
+    safe_team_name = re.sub(r'[^\w\s-]', '', team_name).strip().replace(' ', '_')
+    file_path = os.path.join(teams_dir, f"{safe_team_name}.txt")
+
+    # Get current timestamp
+    montreal_tz = pytz.timezone('America/Toronto')
+    current_time = datetime.now(montreal_tz)
+    timestamp = current_time.strftime('%Y-%m-%d %I:%M %p ET')
+
+    # Build the content
+    content = f"{'='*60}\n"
+    content += f"{team_name.upper()} - LINEUP\n"
+    content += f"Last Updated: {timestamp}\n"
+    content += f"{'='*60}\n\n"
+
+    # Forward Lines
+    if team_lines.get('forward_lines'):
+        content += "FORWARD LINES:\n"
+        content += "-" * 40 + "\n"
+        for i, line in enumerate(team_lines['forward_lines'], 1):
+            content += f"Line {i}: {' — '.join(line)}\n"
+        content += "\n"
+
+    # Defense Pairs
+    if team_lines.get('defense_pairs'):
+        content += "DEFENSE PAIRS:\n"
+        content += "-" * 40 + "\n"
+        for i, pair in enumerate(team_lines['defense_pairs'], 1):
+            content += f"Pair {i}: {' — '.join(pair)}\n"
+        content += "\n"
+
+    # Goalies
+    if team_lines.get('goalies'):
+        content += "GOALIES:\n"
+        content += "-" * 40 + "\n"
+        for goalie in team_lines['goalies']:
+            content += f"  {goalie}\n"
+        content += "\n"
+
+    # Absences (scratched/injured)
+    if absences:
+        content += "SCRATCHED / INJURED:\n"
+        content += "-" * 40 + "\n"
+        for player in absences:
+            content += f"  {player}\n"
+        content += "\n"
+
+    content += f"{'='*60}\n"
+
+    # Write to file
+    with open(file_path, 'w', encoding='utf-8') as f:
+        f.write(content)
+
+    print(f"✅ Saved lineup for {team_name} to {file_path}")
+
+def scrape_nhl_daily_lines(save_to_files=True):
+    """
+    Scrape projected lineups and absences for all teams from NHL.com.
 
     Only scrapes after 2pm Montreal time to ensure lineup information is available.
+
+    Args:
+        save_to_files: If True, save lineup data to individual team files in data/teams/
 
     Returns:
         dict: Mapping of team names to their projected lines structure
@@ -48,7 +120,8 @@ def scrape_nhl_daily_lines():
                           ['Player3', 'Player4'],  # Pair 2
                           ...
                       ],
-                      'goalies': ['Goalie1', 'Goalie2']
+                      'goalies': ['Goalie1', 'Goalie2'],
+                      'absences': ['Player (scratched)', 'Player (injured)', ...]
                   }
               }
     """
@@ -78,6 +151,7 @@ def scrape_nhl_daily_lines():
             forward_lines = []
             defense_pairs = []
             goalies = []
+            absences = []
 
             # Track current position in parsing
             current_section = None
@@ -97,9 +171,27 @@ def scrape_nhl_daily_lines():
                     if "projected lineup" in next_header and team_name.lower() not in next_header:
                         break
 
-                    # Check for section markers (Scratched/Injured means we're done with lines)
-                    if next_header in ["scratched:", "injured:"]:
-                        break
+                    # Check for scratched players
+                    if next_header == "scratched:":
+                        next_node = current_element.next_sibling
+                        if next_node:
+                            scratched_list = str(next_node).strip()
+                            scratched_list = scratched_list.lstrip(":").strip()
+                            for player in scratched_list.split(","):
+                                player = clean_player_name(player)
+                                if player and player.lower() != "none":
+                                    absences.append(f"{player} (scratched)")
+
+                    # Check for injured players
+                    elif next_header == "injured:":
+                        next_node = current_element.next_sibling
+                        if next_node:
+                            injured_list = str(next_node).strip()
+                            injured_list = injured_list.lstrip(":").strip()
+                            for player in injured_list.split(","):
+                                player = clean_player_name(player)
+                                if player and player.lower() != "none":
+                                    absences.append(f"{player} (injured)")
 
                 # Look for lines in text format (e.g., "Player1 -- Player2 -- Player3")
                 # Note: NHL.com uses both "--" and "–" (en dash) in their HTML
@@ -153,8 +245,13 @@ def scrape_nhl_daily_lines():
                 lines_by_team[team_name] = {
                     'forward_lines': forward_lines,
                     'defense_pairs': defense_pairs,
-                    'goalies': goalies
+                    'goalies': goalies,
+                    'absences': absences
                 }
+
+                # Save to file if requested
+                if save_to_files:
+                    save_team_lineup_to_file(team_name, lines_by_team[team_name], absences)
 
     return lines_by_team
 
@@ -193,8 +290,8 @@ def format_lines_for_display(team_lines):
     return html
 
 if __name__ == "__main__":
-    lines = scrape_nhl_daily_lines()
-    print("NHL Daily Lines by Team:")
+    lines = scrape_nhl_daily_lines(save_to_files=True)
+    print("\nNHL Daily Lines by Team:")
     for team, team_lines in lines.items():
         print(f"\n{team}:")
         print("Forward Lines:")
@@ -206,3 +303,7 @@ if __name__ == "__main__":
         print("Goalies:")
         for goalie in team_lines['goalies']:
             print(f"  {goalie}")
+        if team_lines.get('absences'):
+            print("Scratched/Injured:")
+            for player in team_lines['absences']:
+                print(f"  {player}")

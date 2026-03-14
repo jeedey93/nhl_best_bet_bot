@@ -196,13 +196,27 @@ data/
 ├── nhl_games.py                   # NHL schedule API wrapper
 ├── nba_games.py                   # NBA schedule API wrapper
 ├── odds.py                        # The Odds API wrapper
-└── polymarket_odds.py             # Alternative odds source
+├── polymarket_odds.py             # Alternative odds source
+└── teams/                         # Team lineup files (auto-generated)
+    ├── Team_Name.txt              # Individual team lineup files
+    └── README.md                  # Documentation
 
 prompts/                           # AI prompt templates
 
 docs/                              # GitHub Pages site
 └── index.md                       # Generated daily from predictions
 ```
+
+## Team Lineup Files
+
+Scraped lineup data is automatically saved to `data/teams/` when lineups are fetched (after 2pm Montreal time). Each team gets its own file containing:
+
+- **Forward Lines**: All 4 forward line combinations
+- **Defense Pairs**: All 3 defense pairings
+- **Goalies**: Starting and backup goalies
+- **Scratched/Injured**: Players who are out
+
+Files are timestamped and regenerated daily. See `data/teams/README.md` for format details.
 
 ## Important Notes
 
