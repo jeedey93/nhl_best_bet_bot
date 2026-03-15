@@ -14,13 +14,11 @@ const GITHUB_REPO = 'parieur-discipline-bot';
  * Get GitHub token (with trimming)
  */
 function getGitHubToken() {
-  // Try new variable name first, fallback to old one
-  const token = process.env.GITHUB_TOKEN || process.env.GITHUB_PAT;
+  const token = process.env.GITHUB_TOKEN;
   if (!token) {
     throw new Error('GITHUB_TOKEN environment variable is not set');
   }
   return token.trim();
-  
 }
 
 /**
@@ -205,7 +203,7 @@ module.exports = async (req, res) => {
 
   try {
     // Debug: Check if token is loaded
-    if (!process.env.GITHUB_TOKEN && !process.env.GITHUB_PAT) {
+    if (!process.env.GITHUB_TOKEN) {
       return res.status(500).json({
         success: false,
         error: 'GITHUB_TOKEN environment variable is not set in Vercel',
@@ -214,7 +212,7 @@ module.exports = async (req, res) => {
     }
 
     // Debug: Check token format
-    const token = (process.env.GITHUB_TOKEN || process.env.GITHUB_PAT).trim();
+    const token = process.env.GITHUB_TOKEN.trim();
     const tokenLength = token.length;
     const tokenStart = token.substring(0, 7);
 
@@ -223,8 +221,7 @@ module.exports = async (req, res) => {
       return res.status(200).json({
         tokenLength,
         tokenStart,
-        tokenEnd: token.substring(token.length - 4),
-        usingVariable: process.env.GITHUB_TOKEN ? 'GITHUB_TOKEN' : 'GITHUB_PAT'
+        tokenEnd: token.substring(token.length - 4)
       });
     }
 
