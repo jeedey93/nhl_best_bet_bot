@@ -99,8 +99,6 @@ vs 58.8% implied (1.70 odds)
 
 ## Backup Files Created
 
-
-
 - `nhl_prompt_old.txt` - Previous version before replacement
 - `nba_prompt_old.txt` - Previous version before replacement
 
