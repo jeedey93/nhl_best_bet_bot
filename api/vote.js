@@ -14,7 +14,10 @@ const GITHUB_REPO = 'parieur-discipline-bot';
  */
 function getGitHubToken() {
   const token = process.env.GITHUB_PAT;
-  return token ? token.trim() : null;
+  if (!token) {
+    throw new Error('GITHUB_PAT environment variable is not set');
+  }
+  return token.trim();
 }
 
 /**
@@ -34,12 +37,7 @@ function hashIP(ip) {
  * Get or create voting issue for today
  */
 async function getOrCreateVotingIssue(date) {
-  // Check if token is available
   const GITHUB_TOKEN = getGitHubToken();
-  if (!GITHUB_TOKEN) {
-    throw new Error('GITHUB_PAT environment variable is not set');
-  }
-
   const issueTitle = `Votes: ${date}`;
 
   // Search for existing issue
@@ -93,6 +91,7 @@ async function getOrCreateVotingIssue(date) {
  */
 async function getVotes(date) {
   try {
+    const GITHUB_TOKEN = getGitHubToken();
     const issueNumber = await getOrCreateVotingIssue(date);
 
     // Fetch all comments on the issue
@@ -147,6 +146,7 @@ async function getVotes(date) {
  */
 async function castVote(date, pickId, ipHash) {
   try {
+    const GITHUB_TOKEN = getGitHubToken();
     const issueNumber = await getOrCreateVotingIssue(date);
 
     // Check if user already voted for this pick
