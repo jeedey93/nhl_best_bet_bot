@@ -216,16 +216,18 @@ module.exports = async (req, res) => {
     }
 
     // Debug: Check if token is loaded
-    if (!process.env.GH_API_TOKEN && !process.env.GITHUB_TOKEN && !process.env.GITHUB_PAT) {
+    const token = process.env.GH_API_TOKEN || process.env.GITHUB_TOKEN || process.env.GITHUB_PAT;
+
+    if (!token) {
       return res.status(500).json({
         success: false,
-        error: 'GITHUB_TOKEN environment variable is not set in Vercel',
+        error: 'GitHub token environment variable is not set in Vercel',
         debug: 'Token is undefined or empty'
       });
     }
 
     // Debug: Check token format
-    const token = process.env.GITHUB_TOKEN.trim();
+    const trimmedToken = token.trim();
     const tokenLength = token.length;
     const tokenStart = token.substring(0, 7);
 
