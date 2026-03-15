@@ -21,6 +21,36 @@ pip install -r requirements.txt
 Required environment variables in `.env`:
 - `GOOGLE_API_KEY` - Google Gemini API key
 - `ODDS_API_KEY` - The Odds API key
+- `GITHUB_PAT` - GitHub Personal Access Token (for voting system)
+
+## Voting System
+
+The site includes a voting system on the daily picks page where visitors can vote for their favorite picks (1 vote per person per pick).
+
+**Setup:** See [VOTING_SETUP.md](VOTING_SETUP.md) for complete instructions.
+
+**How it works:**
+- Uses GitHub Issues API as database (free, no extra services)
+- Vercel Edge Function at `/api/vote.js` handles vote storage/retrieval
+- IP address hashing ensures 1 vote per person
+- LocalStorage tracks user's votes client-side
+- Vote data stored in daily GitHub Issues titled "Votes: YYYY-MM-DD"
+
+**Files:**
+- `api/vote.js` - Serverless voting API (Vercel Edge Function)
+- `docs/daily-picks.html` - Includes voting UI and JavaScript
+- `vercel.json` - Configures Edge Function runtime
+
+**Testing:**
+```bash
+# Get votes for today
+curl https://parieurdiscipline.com/api/vote?date=2026-03-15
+
+# Cast a vote (requires valid IP)
+curl -X POST https://parieurdiscipline.com/api/vote?date=2026-03-15 \
+  -H "Content-Type: application/json" \
+  -d '{"pickId": "nhl-pick-0"}'
+```
 
 ## Key Commands
 

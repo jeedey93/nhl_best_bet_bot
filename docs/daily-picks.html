@@ -488,6 +488,56 @@ nav > div {
   color: #1a1a1a;
 }
 
+/* Voting Styles */
+.vote-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.vote-button {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 18px;
+  font-size: 1.4em;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.vote-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+}
+.vote-button:disabled {
+  background: #e5e7eb;
+  color: #9ca3af;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+.vote-count {
+  font-size: 0.9em;
+  color: #6b7280;
+  font-weight: 600;
+}
+.vote-count-number {
+  font-size: 1.4em;
+  font-weight: 800;
+  color: #3b82f6;
+}
+.voted-label {
+  font-size: 0.75em;
+  color: #10b981;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   nav .nav-logo span { font-size: 0.9em; }
@@ -696,6 +746,25 @@ nav > div {
     margin: 0;
     min-width: auto;
   }
+
+  .vote-container {
+    flex-direction: row;
+    gap: 10px;
+    justify-content: center;
+  }
+
+  .vote-button {
+    font-size: 1.2em;
+    padding: 8px 14px;
+  }
+
+  .vote-count {
+    text-align: left;
+  }
+
+  .vote-count-number {
+    font-size: 1.2em;
+  }
 }
 
 @media (max-width: 1024px) {
@@ -900,6 +969,7 @@ document.addEventListener('DOMContentLoaded', function() {
           <th>Pick & Odds</th>
           <th>Confidence</th>
           <th>Key Reasoning</th>
+          <th>Votes</th>
         </tr>
       </thead>
       <tbody id='nhlTableBody'>
@@ -923,6 +993,7 @@ document.addEventListener('DOMContentLoaded', function() {
           <th>Pick & Odds</th>
           <th>Confidence</th>
           <th>Key Reasoning</th>
+          <th>Votes</th>
         </tr>
       </thead>
       <tbody id='nbaTableBody'>
@@ -1047,8 +1118,10 @@ function renderTable(sport, picks) {
   const tableBody = document.getElementById(`${sport}TableBody`);
   const sportIcon = sport === 'nhl' ? '🏒' : '🏀';
 
-  tableBody.innerHTML = picks.map(pick => `
-    <tr class='${sport} ${pick.isBetOfDay ? 'bet-of-day' : ''}'>
+  tableBody.innerHTML = picks.map((pick, index) => {
+    const pickId = `${sport}-pick-${index}`;
+    return `
+    <tr class='${sport} ${pick.isBetOfDay ? 'bet-of-day' : ''}' data-pick-id='${pickId}'>
       <td data-label='Game'>
         <div class='game-info'>
           <span class='sport-icon'>${sportIcon}</span>
@@ -1075,8 +1148,24 @@ function renderTable(sport, picks) {
       <td data-label='Key Reasoning'>
         <div class='reasoning'>${formatReasoning(pick.reasoning)}</div>
       </td>
+      <td data-label='Votes'>
+        <div class='vote-container'>
+          <button class='vote-button' onclick='handleVote("${pickId}")' id='vote-btn-${pickId}'>
+            👍
+          </button>
+          <div class='vote-count'>
+            <div class='vote-count-number' id='vote-count-${pickId}'>0</div>
+            <div style='font-size: 0.75em;'>votes</div>
+          </div>
+          <div class='voted-label' id='voted-label-${pickId}' style='display: none;'>✓ Voted</div>
+        </div>
+      </td>
     </tr>
-  `).join('');
+  `;
+  }).join('');
+
+  // Load vote counts after rendering
+  loadVoteCounts();
 }
 
 function formatReasoning(reasoning) {
@@ -1153,6 +1242,171 @@ document.getElementById('nextUpdate').textContent = nextUpdate;
 
 // Initial render
 renderPicks();
+
+// ===== VOTING SYSTEM =====
+
+const VOTE_API_URL = '/api/vote'; // Vercel Edge Function endpoint
+const VOTED_STORAGE_KEY = 'voted_picks'; // LocalStorage key for tracking user's votes
+
+/**
+ * Load vote counts from API
+ */
+async function loadVoteCounts() {
+  try {
+    const date = new Date().toISOString().split('T')[0];
+    const response = await fetch(`${VOTE_API_URL}?date=${date}`);
+    const data = await response.json();
+
+    if (data.success && data.votes) {
+      // Update vote counts in UI
+      Object.keys(data.votes).forEach(pickId => {
+        const countElement = document.getElementById(`vote-count-${pickId}`);
+        if (countElement) {
+          countElement.textContent = data.votes[pickId] || 0;
+        }
+      });
+    }
+
+    // Check which picks user has already voted for
+    const votedPicks = getVotedPicks();
+    votedPicks.forEach(pickId => {
+      markAsVoted(pickId);
+    });
+  } catch (error) {
+    console.error('Failed to load vote counts:', error);
+  }
+}
+
+/**
+ * Handle vote button click
+ */
+async function handleVote(pickId) {
+  const button = document.getElementById(`vote-btn-${pickId}`);
+  const countElement = document.getElementById(`vote-count-${pickId}`);
+
+  // Check if already voted
+  if (hasVoted(pickId)) {
+    alert('You have already voted for this pick!');
+    return;
+  }
+
+  // Disable button while processing
+  button.disabled = true;
+  button.textContent = '⏳';
+
+  try {
+    const date = new Date().toISOString().split('T')[0];
+    const response = await fetch(`${VOTE_API_URL}?date=${date}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ pickId }),
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      // Update vote count
+      if (data.votes && data.votes[pickId]) {
+        countElement.textContent = data.votes[pickId];
+      } else {
+        // Fallback: increment current count
+        const currentCount = parseInt(countElement.textContent) || 0;
+        countElement.textContent = currentCount + 1;
+      }
+
+      // Mark as voted
+      saveVote(pickId);
+      markAsVoted(pickId);
+
+      // Show success feedback
+      button.textContent = '✓';
+      setTimeout(() => {
+        button.textContent = '👍';
+      }, 1500);
+    } else {
+      // Error
+      alert(data.error || 'Failed to vote. Please try again.');
+      button.disabled = false;
+      button.textContent = '👍';
+    }
+  } catch (error) {
+    console.error('Vote error:', error);
+    alert('Failed to vote. Please check your connection and try again.');
+    button.disabled = false;
+    button.textContent = '👍';
+  }
+}
+
+/**
+ * Get voted picks from localStorage
+ */
+function getVotedPicks() {
+  const date = new Date().toISOString().split('T')[0];
+  const stored = localStorage.getItem(`${VOTED_STORAGE_KEY}_${date}`);
+  return stored ? JSON.parse(stored) : [];
+}
+
+/**
+ * Save vote to localStorage
+ */
+function saveVote(pickId) {
+  const date = new Date().toISOString().split('T')[0];
+  const votedPicks = getVotedPicks();
+  if (!votedPicks.includes(pickId)) {
+    votedPicks.push(pickId);
+    localStorage.setItem(`${VOTED_STORAGE_KEY}_${date}`, JSON.stringify(votedPicks));
+  }
+}
+
+/**
+ * Check if user has voted for a pick
+ */
+function hasVoted(pickId) {
+  return getVotedPicks().includes(pickId);
+}
+
+/**
+ * Mark pick as voted in UI
+ */
+function markAsVoted(pickId) {
+  const button = document.getElementById(`vote-btn-${pickId}`);
+  const votedLabel = document.getElementById(`voted-label-${pickId}`);
+
+  if (button) {
+    button.disabled = true;
+    button.textContent = '✓';
+  }
+
+  if (votedLabel) {
+    votedLabel.style.display = 'block';
+  }
+}
+
+// Clean up old localStorage entries (older than 7 days)
+function cleanupOldVotes() {
+  const today = new Date();
+  const keys = Object.keys(localStorage);
+  keys.forEach(key => {
+    if (key.startsWith(VOTED_STORAGE_KEY)) {
+      const dateStr = key.replace(`${VOTED_STORAGE_KEY}_`, '');
+      try {
+        const voteDate = new Date(dateStr);
+        const daysDiff = (today - voteDate) / (1000 * 60 * 60 * 24);
+        if (daysDiff > 7) {
+          localStorage.removeItem(key);
+        }
+      } catch (e) {
+        // Invalid date, remove
+        localStorage.removeItem(key);
+      }
+    }
+  });
+}
+
+// Run cleanup on page load
+cleanupOldVotes();
 </script>
 
 </body>

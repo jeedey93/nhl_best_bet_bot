@@ -1,0 +1,27 @@
+name: Auto-label Voting Issues
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  label-votes:
+    runs-on: ubuntu-latest
+    if: startsWith(github.event.issue.title, 'Votes:')
+
+    permissions:
+      issues: write
+
+    steps:
+      - name: Add labels to voting issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: ['votes', 'automated']
+            });
+
+            console.log(`Added labels to voting issue #${context.issue.number}`);
