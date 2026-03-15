@@ -663,15 +663,34 @@ def generate_teams_index(all_standings):
             conferences_html += f"    <div class='division-title'>{division}</div>\n"
             conferences_html += f"    <div class='teams-grid'>\n\n"
 
+            # Sort teams by standings (points descending, then by wins)
+            teams_with_standings = []
             for file_name, full_name, abbrev, has_lineup in teams:
-                # Get standings for this team
                 team_standings = all_standings.get(abbrev, {})
+                points = team_standings.get('points', 0)
+                wins = team_standings.get('wins', 0)
+                league_rank = team_standings.get('league_rank', 99)
+                teams_with_standings.append((file_name, full_name, abbrev, has_lineup, team_standings, points, wins, league_rank))
+
+            # Sort by league_rank (ascending) which is the official standings position
+            teams_with_standings.sort(key=lambda x: x[7])  # Sort by league_rank
+
+            # Helper function to format ordinal numbers (1st, 2nd, 3rd, etc.)
+            def ordinal(n):
+                if 10 <= n % 100 <= 20:
+                    suffix = 'th'
+                else:
+                    suffix = {1: 'st', 2: 'nd', 3: 'rd'}.get(n % 10, 'th')
+                return f"{n}{suffix}"
+
+            for file_name, full_name, abbrev, has_lineup, team_standings, points, wins, league_rank in teams_with_standings:
                 record = team_standings.get('record', 'N/A')
+                position_text = ordinal(league_rank)
 
                 conferences_html += f"""      <a href='/nhl/teams/{file_name}.html' class='team-card' data-team='{file_name.lower()}'>
         <img src='https://assets.nhle.com/logos/nhl/svg/{abbrev}_light.svg' alt='{full_name}' class='team-logo'>
         <div class='team-name'>{full_name}</div>
-        <div class='team-record'>{record}</div>
+        <div class='team-record'>{record} ({position_text})</div>
       </a>
 
 """
