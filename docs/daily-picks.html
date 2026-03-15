@@ -1205,6 +1205,9 @@ function renderPicks() {
       renderTable('nba', nbaPicks);
     }
   }
+
+  // Load vote counts after ALL tables are rendered
+  loadVoteCounts();
 }
 
 function renderTable(sport, picks) {
@@ -1257,8 +1260,7 @@ function renderTable(sport, picks) {
   `;
   }).join('');
 
-  // Load vote counts after rendering
-  loadVoteCounts();
+  // Don't load vote counts here - will be loaded once after all rendering
 }
 
 function formatReasoning(reasoning) {
