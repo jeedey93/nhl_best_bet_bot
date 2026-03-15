@@ -1371,6 +1371,29 @@ async function loadVoteCounts() {
 }
 
 /**
+ * Refresh all vote counts (called after voting to get latest counts)
+ */
+async function refreshAllVoteCounts() {
+  try {
+    const date = new Date().toISOString().split('T')[0];
+    const response = await fetch(`${VOTE_API_URL}?date=${date}`);
+    const data = await response.json();
+
+    if (data.success && data.votes) {
+      // Update ALL vote counts in UI
+      Object.keys(data.votes).forEach(pickId => {
+        const countElement = document.getElementById(`vote-count-${pickId}`);
+        if (countElement) {
+          countElement.textContent = data.votes[pickId] || 0;
+        }
+      });
+    }
+  } catch (error) {
+    console.error('Failed to refresh vote counts:', error);
+  }
+}
+
+/**
  * Handle vote button click
  */
 async function handleVote(pickId) {
@@ -1400,14 +1423,8 @@ async function handleVote(pickId) {
     const data = await response.json();
 
     if (data.success) {
-      // Update vote count
-      if (data.votes && data.votes[pickId]) {
-        countElement.textContent = data.votes[pickId];
-      } else {
-        // Fallback: increment current count
-        const currentCount = parseInt(countElement.textContent) || 0;
-        countElement.textContent = currentCount + 1;
-      }
+      // Refresh ALL vote counts from server (gets latest counts for all picks)
+      await refreshAllVoteCounts();
 
       // Mark as voted
       saveVote(pickId);
