@@ -39,8 +39,10 @@ jobs:
         id: run_time
         run: |
           # Determine if this is 7am or 3pm run based on current UTC time
+          # 6am-1pm Montreal = 10:00-17:00 UTC (accounting for DST variations)
+          # Anything outside this range is considered 3pm run
           HOUR=$(date -u +%H)
-          if [ "$HOUR" = "11" ]; then
+          if [ "$HOUR" -ge 10 ] && [ "$HOUR" -le 17 ]; then
             echo "time=7am" >> $GITHUB_OUTPUT
           else
             echo "time=3pm" >> $GITHUB_OUTPUT

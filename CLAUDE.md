@@ -139,8 +139,10 @@ NBA predictions run twice daily to capture line movement:
 - **3pm Montreal time**: Updated odds (closer to game time)
 
 Scripts detect run time via:
-1. `NBA_RUN_TIME` environment variable (GitHub Actions)
-2. Current Montreal timezone hour (local development)
+1. `NBA_RUN_TIME` or `NHL_RUN_TIME` environment variable (GitHub Actions)
+2. Current Montreal timezone hour (local development):
+   - **6am-12pm** → considered 7am run (versatile window for scheduling variations)
+   - **1pm-5:59am** → considered 3pm run
 
 Output files include run time suffix:
 - `nba_daily_predictions_7am_2026-03-04.txt`

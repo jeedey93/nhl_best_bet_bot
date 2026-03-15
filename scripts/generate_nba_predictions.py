@@ -62,18 +62,14 @@ def get_run_time_suffix():
     tz = pytz.timezone("America/Toronto")
     now = datetime.now(tz)
     current_hour = now.hour
-    # 7am run: 6:00–7:59
-    if 6 <= current_hour < 8:
+
+    # 7am run: 6:00am–12:59pm (6-12 inclusive)
+    # More versatile window to account for any scheduling variations
+    if 6 <= current_hour <= 12:
         return "7am"
-    # 3pm run: 14:00–15:59
-    elif 14 <= current_hour < 16:
-        return "3pm"
     else:
-        # Default based on which is closer
-        if current_hour < 11:
-            return "7am"
-        else:
-            return "3pm"
+        # Everything else is 3pm run
+        return "3pm"
 
 def get_nba_team_last_games(team_name, last_n_games=10):
     """

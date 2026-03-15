@@ -470,15 +470,16 @@ def detect_run_time():
     if env_run_time:
         return env_run_time.lower()
     # Default: auto-detect based on Montreal time
+    # 7am run: 6:00am–12:59pm (6-12 inclusive)
+    # More versatile window to account for any scheduling variations
     tz = pytz.timezone("America/Toronto")
     now = datetime.now(tz)
     hour = now.hour
-    if 6 <= hour < 11:
+    if 6 <= hour <= 12:
         return "7am"
-    elif 14 <= hour < 17:
-        return "3pm"
     else:
-        return "7am"  # fallback
+        # Everything else is 3pm run
+        return "3pm"
 
 run_time = detect_run_time()
 today_str = date.today().isoformat()
