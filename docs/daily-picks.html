@@ -1352,10 +1352,14 @@ async function loadVoteCounts() {
     const response = await fetch(`${VOTE_API_URL}?date=${date}`);
     const data = await response.json();
 
+    console.log('Loading votes for date:', date);
+    console.log('Vote data received:', data);
+
     if (data.success && data.votes) {
       // Update vote counts in UI
       Object.keys(data.votes).forEach(pickId => {
         const countElement = document.getElementById(`vote-count-${pickId}`);
+        console.log(`Updating ${pickId}:`, data.votes[pickId], 'Element found:', !!countElement);
         if (countElement) {
           countElement.textContent = data.votes[pickId] || 0;
         }
