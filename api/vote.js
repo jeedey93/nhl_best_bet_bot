@@ -27,6 +27,11 @@ function hashIP(ip) {
  * Get or create voting issue for today
  */
 async function getOrCreateVotingIssue(date) {
+  // Check if token is available
+  if (!GITHUB_TOKEN) {
+    throw new Error('GITHUB_PAT environment variable is not set');
+  }
+
   const issueTitle = `Votes: ${date}`;
 
   // Search for existing issue
@@ -40,7 +45,8 @@ async function getOrCreateVotingIssue(date) {
   });
 
   if (!searchResponse.ok) {
-    throw new Error(`Failed to search issues: ${searchResponse.statusText}`);
+    const errorText = await searchResponse.text();
+    throw new Error(`Failed to search issues: ${searchResponse.statusText} - ${errorText}`);
   }
 
   const searchData = await searchResponse.json();
