@@ -1335,12 +1335,10 @@ if (hour >= 7 && hour < 15) {
 document.getElementById('lastUpdate').textContent = lastUpdate;
 document.getElementById('nextUpdate').textContent = nextUpdate;
 
-// Initial render
-renderPicks();
-
 // ===== VOTING SYSTEM =====
+// Define voting system constants and functions BEFORE rendering
 
-const VOTE_API_URL = '/api/vote'; // Vercel Edge Function endpoint
+const VOTE_API_URL = '/api/vote'; // Vercel Serverless Function endpoint
 const VOTED_STORAGE_KEY = 'voted_picks'; // LocalStorage key for tracking user's votes
 
 /**
@@ -1523,6 +1521,12 @@ function cleanupOldVotes() {
 
 // Run cleanup on page load
 cleanupOldVotes();
+
+// ===== END VOTING SYSTEM =====
+
+// Initial render (now voting functions are defined)
+renderPicks();
+
 </script>
 
 </body>
