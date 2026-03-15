@@ -203,6 +203,18 @@ module.exports = async (req, res) => {
   }
 
   try {
+    // Temporary debug endpoint - check FIRST before error checking
+    if (req.query.debug === 'token') {
+      return res.status(200).json({
+        hasGITHUB_TOKEN: !!process.env.GITHUB_TOKEN,
+        hasGITHUB_PAT: !!process.env.GITHUB_PAT,
+        hasREFRESH: !!process.env.REFRESH,
+        allEnvKeys: Object.keys(process.env).filter(k => k.includes('GITHUB') || k.includes('REFRESH')),
+        NODE_ENV: process.env.NODE_ENV,
+        VERCEL: process.env.VERCEL
+      });
+    }
+
     // Debug: Check if token is loaded
     if (!process.env.GITHUB_TOKEN) {
       return res.status(500).json({
@@ -216,16 +228,6 @@ module.exports = async (req, res) => {
     const token = process.env.GITHUB_TOKEN.trim();
     const tokenLength = token.length;
     const tokenStart = token.substring(0, 7);
-
-    // Temporary debug endpoint
-    if (req.query.debug === 'token') {
-      return res.status(200).json({
-        hasGITHUB_TOKEN: !!process.env.GITHUB_TOKEN,
-        hasGITHUB_PAT: !!process.env.GITHUB_PAT,
-        hasREFRESH: !!process.env.REFRESH,
-        allEnvKeys: Object.keys(process.env).filter(k => k.includes('GITHUB') || k.includes('REFRESH'))
-      });
-    }
 
     const { date = new Date().toISOString().split('T')[0] } = req.query;
 
