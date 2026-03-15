@@ -15,7 +15,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .hero {
   background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
   color: white;
-  padding: 110px 20px 60px 20px;
+  padding: 60px 20px;
   text-align: center;
 }
 .hero h1 {
@@ -244,7 +244,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 
 /* Responsive */
 @media (max-width: 768px) {
-  .hero { padding: 100px 20px 40px 20px; }
+  .hero { padding: 40px 20px; }
   .hero h1 { font-size: 1.8em; }
   .hero p { font-size: 1em; }
 
@@ -377,7 +377,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   transform: translateY(0) !important;
 }
 @media (max-width: 768px) {
-  nav div:first-child span { font-size: 0.9em; }
+  nav div:first-child span { font-size: 0.85em; }
   nav div:first-child img { width: 28px; height: 28px; }
   #mobileMenuBtn { display: block !important; }
   #navLinks {
@@ -391,11 +391,13 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     gap: 0;
     box-shadow: 0 4px 10px rgba(0,0,0,0.2);
     align-items: stretch;
+    max-height: calc(100vh - 52px);
+    overflow-y: auto;
   }
   #navLinks.active { display: flex !important; }
   #navLinks a {
-    padding: 12px 20px;
-    font-size: 0.95em;
+    padding: 14px 20px;
+    font-size: 1em;
     border-radius: 0;
     border-bottom: 1px solid rgba(255,255,255,0.1);
   }
@@ -404,7 +406,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   }
   .nav-dropdown-toggle {
     width: 100%;
-    padding: 12px 20px !important;
+    padding: 14px 20px !important;
     border-bottom: 1px solid rgba(255,255,255,0.1) !important;
     border-radius: 0 !important;
     justify-content: space-between !important;
@@ -429,10 +431,14 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   .nav-dropdown-menu a {
     color: white !important;
     border-bottom: 1px solid rgba(255,255,255,0.05) !important;
-    padding-left: 40px !important;
+    padding: 12px 20px 12px 40px !important;
+    font-size: 0.95em !important;
   }
   .nav-dropdown-menu a:hover {
     background: rgba(255,255,255,0.1) !important;
+  }
+  .nav-dropdown-menu a:last-child {
+    border-bottom: none !important;
   }
 }
 </style>
@@ -481,6 +487,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
+
 <!-- Hero -->
 <div class='hero'>
   <h1>📊 Performance Dashboard</h1>
@@ -492,12 +499,12 @@ document.addEventListener('DOMContentLoaded', function() {
   <div class='stats-grid'>
     <div class='stat-card positive'>
       <div class='stat-label'>Overall Win Rate</div>
-      <div class='stat-value'>48.3%</div>
-      <div class='stat-subtext'>70W - 75L</div>
+      <div class='stat-value'>47.7%</div>
+      <div class='stat-subtext'>73W - 80L</div>
     </div>
     <div class='stat-card'>
       <div class='stat-label'>Total Picks</div>
-      <div class='stat-value'>145</div>
+      <div class='stat-value'>153</div>
       <div class='stat-subtext'>NHL + NBA Combined</div>
     </div>
     <div class='stat-card'>
@@ -507,7 +514,7 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
     <div class='stat-card'>
       <div class='stat-label'>Current Streak</div>
-      <div class='stat-value'>1 ❄️</div>
+      <div class='stat-value'>2 ❄️</div>
       <div class='stat-subtext'>Losing days</div>
     </div>
   </div>
@@ -521,11 +528,11 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class='sport-stats'>
       <div class='mini-stat'>
         <div class='mini-stat-label'>Win Rate</div>
-        <div class='mini-stat-value'>45.6%</div>
+        <div class='mini-stat-value'>44.4%</div>
       </div>
       <div class='mini-stat'>
         <div class='mini-stat-label'>Record</div>
-        <div class='mini-stat-value'>31-37</div>
+        <div class='mini-stat-value'>32-40</div>
       </div>
     </div>
   </div>
@@ -543,7 +550,7 @@ document.addEventListener('DOMContentLoaded', function() {
       </div>
       <div class='mini-stat'>
         <div class='mini-stat-label'>Record</div>
-        <div class='mini-stat-value'>39-38</div>
+        <div class='mini-stat-value'>41-40</div>
       </div>
     </div>
   </div>
@@ -576,6 +583,14 @@ document.addEventListener('DOMContentLoaded', function() {
   <!-- Daily Timeline -->
   <div class='timeline'>
     <div class='timeline-title'>📅 Daily Results Timeline</div>
+    <div class='timeline-item loss-day'>
+      <div class='timeline-date'>2026-03-14</div>
+      <div class='timeline-record'>
+        <span class='timeline-wins'>3W</span>
+        <span class='timeline-losses'>5L</span>
+        <span class='timeline-sports'>NBA + NHL</span>
+      </div>
+    </div>
     <div class='timeline-item loss-day'>
       <div class='timeline-date'>2026-03-13</div>
       <div class='timeline-record'>
@@ -709,20 +724,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <script>
 // Prepare chart data
-const dates = ['2026-02-26', '2026-02-27', '2026-02-28', '2026-03-01', '2026-03-02', '2026-03-03', '2026-03-04', '2026-03-05', '2026-03-06', '2026-03-07', '2026-03-08', '2026-03-09', '2026-03-10', '2026-03-11', '2026-03-12', '2026-03-13'];
-const dailyWins = [8, 3, 0, 5, 4, 5, 3, 6, 5, 5, 4, 3, 5, 1, 6, 2];
-const dailyLosses = [2, 2, 0, 2, 9, 4, 3, 4, 4, 2, 6, 5, 5, 6, 4, 5];
-const cumulativeProfit = [528, 601, 601, 856, 320, 375, 348, 494, 549, 804, 568, 341, 296, -213, -67, -385];
-const rollingWinRate = [56.0, 52.0, 51.9, 54.1, 50.0, 52.5, 51.7, 47.5, 47.5, 44.1];
+const dates = ['2026-02-26', '2026-02-27', '2026-02-28', '2026-03-01', '2026-03-02', '2026-03-03', '2026-03-04', '2026-03-05', '2026-03-06', '2026-03-07', '2026-03-08', '2026-03-09', '2026-03-10', '2026-03-11', '2026-03-12', '2026-03-13', '2026-03-14'];
+const dailyWins = [8, 3, 0, 5, 4, 5, 3, 6, 5, 5, 4, 3, 5, 1, 6, 2, 3];
+const dailyLosses = [2, 2, 0, 2, 9, 4, 3, 4, 4, 2, 6, 5, 5, 6, 4, 5, 5];
+const cumulativeProfit = [528, 601, 601, 856, 320, 375, 348, 494, 549, 804, 568, 341, 296, -213, -67, -385, -612];
+const rollingWinRate = [56.0, 52.0, 51.9, 54.1, 50.0, 52.5, 51.7, 47.5, 47.5, 44.1, 40.0];
 
 // Monthly chart data
 const monthLabels = ['Feb 2026', 'Mar 2026'];
-const monthWins = [22, 48];
-const monthLosses = [18, 57];
-const monthNet = [4, -9];
+const monthWins = [22, 51];
+const monthLosses = [18, 62];
+const monthNet = [4, -11];
 const monthColors = ['rgba(16, 185, 129, 0.8)', 'rgba(239, 68, 68, 0.8)'];
 const monthBorderColors = ['#10b981', '#ef4444'];
-const monthWinRates = [55.0, 45.7];
+const monthWinRates = [55.0, 45.1];
 
 // Chart.js default settings
 Chart.defaults.font.family = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
@@ -778,7 +793,7 @@ new Chart(winRateCtx, {
     datasets: [
       {
         label: 'Win Rate',
-        data: [45.6, 50.6],
+        data: [44.4, 50.6],
         backgroundColor: ['#3b82f6', '#f59e0b'],
         borderRadius: 8,
         barThickness: 80
