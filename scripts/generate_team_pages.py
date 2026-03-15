@@ -667,13 +667,10 @@ def generate_teams_index(all_standings):
                 team_standings = all_standings.get(abbrev, {})
                 record = team_standings.get('record', 'N/A')
 
-                # Add "Coming Soon" badge if no lineup file
-                coming_soon_badge = "" if has_lineup else "\n        <div class='coming-soon'>Coming Soon</div>"
-
                 conferences_html += f"""      <a href='/nhl/teams/{file_name}.html' class='team-card' data-team='{file_name.lower()}'>
         <img src='https://assets.nhle.com/logos/nhl/svg/{abbrev}_light.svg' alt='{full_name}' class='team-logo'>
         <div class='team-name'>{full_name}</div>
-        <div class='team-record'>{record}</div>{coming_soon_badge}
+        <div class='team-record'>{record}</div>
       </a>
 
 """
@@ -848,17 +845,6 @@ body {{
 .team-info {{
   font-size: 0.85em;
   color: #6b7280;
-  margin-top: 10px;
-}}
-
-.coming-soon {{
-  display: inline-block;
-  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-  color: #92400e;
-  padding: 6px 14px;
-  border-radius: 20px;
-  font-size: 0.75em;
-  font-weight: 700;
   margin-top: 10px;
 }}
 
