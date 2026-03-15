@@ -3,7 +3,7 @@
  * Uses GitHub Issues API to store votes
  * Tracks by IP address to prevent duplicate votes
  *
- * Deployment: Vercel Edge Function or Cloudflare Worker
+ * Deployment: Vercel Serverless Function
  */
 
 const GITHUB_OWNER = 'jeedey93';
@@ -14,12 +14,11 @@ const GITHUB_TOKEN = process.env.GITHUB_PAT; // Set in Vercel environment variab
  * Hash IP address for privacy
  */
 function hashIP(ip) {
-  // Simple hash (use crypto.subtle.digest in production for better security)
   let hash = 0;
   for (let i = 0; i < ip.length; i++) {
     const char = ip.charCodeAt(i);
     hash = ((hash << 5) - hash) + char;
-    hash = hash & hash; // Convert to 32-bit integer
+    hash = hash & hash;
   }
   return Math.abs(hash).toString(36);
 }
@@ -116,7 +115,6 @@ async function getVotes(date) {
         }
       } catch (e) {
         // Ignore malformed comments
-        console.error('Failed to parse comment:', e);
       }
     });
 
@@ -172,47 +170,39 @@ async function castVote(date, pickId, ipHash) {
 }
 
 /**
- * Main handler
+ * Vercel Serverless Function handler
  */
-export default async function handler(req) {
+module.exports = async (req, res) => {
   // Enable CORS
-  const corsHeaders = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
-  };
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return res.status(200).end();
   }
 
   try {
-    const url = new URL(req.url);
-    const date = url.searchParams.get('date') || new Date().toISOString().split('T')[0];
+    const { date = new Date().toISOString().split('T')[0] } = req.query;
 
     // GET: Fetch vote counts
     if (req.method === 'GET') {
       const { votes } = await getVotes(date);
-      return new Response(JSON.stringify({ success: true, votes }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+      return res.status(200).json({ success: true, votes });
     }
 
     // POST: Cast a vote
     if (req.method === 'POST') {
-      const body = await req.json();
-      const { pickId } = body;
+      const { pickId } = req.body;
 
       if (!pickId) {
-        return new Response(JSON.stringify({ success: false, error: 'Missing pickId' }), {
-          status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
+        return res.status(400).json({ success: false, error: 'Missing pickId' });
       }
 
       // Get IP address from request
-      const ip = req.headers.get('x-forwarded-for')?.split(',')[0] ||
-                 req.headers.get('x-real-ip') ||
+      const ip = req.headers['x-forwarded-for']?.split(',')[0] ||
+                 req.headers['x-real-ip'] ||
+                 req.connection.remoteAddress ||
                  'unknown';
       const ipHash = hashIP(ip);
 
@@ -221,27 +211,16 @@ export default async function handler(req) {
       if (result.success) {
         // Return updated vote counts
         const { votes } = await getVotes(date);
-        return new Response(JSON.stringify({ success: true, votes }), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
+        return res.status(200).json({ success: true, votes });
       } else {
-        return new Response(JSON.stringify(result), {
-          status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
+        return res.status(400).json(result);
       }
     }
 
-    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
-      status: 405,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    return res.status(405).json({ error: 'Method not allowed' });
 
   } catch (error) {
     console.error('Error in vote handler:', error);
-    return new Response(JSON.stringify({ success: false, error: error.message }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    return res.status(500).json({ success: false, error: error.message });
   }
-}
+};
