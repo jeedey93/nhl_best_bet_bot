@@ -14,9 +14,9 @@ const GITHUB_REPO = 'parieur-discipline-bot';
  * Get GitHub token (with trimming)
  */
 function getGitHubToken() {
-  const token = process.env.GITHUB_TOKEN;
+  const token = process.env.GH_API_TOKEN || process.env.GITHUB_TOKEN || process.env.GITHUB_PAT;
   if (!token) {
-    throw new Error('GITHUB_TOKEN environment variable is not set');
+    throw new Error('GitHub token environment variable is not set');
   }
   return token.trim();
 }
@@ -205,17 +205,18 @@ module.exports = async (req, res) => {
     // Temporary debug endpoint - check FIRST before error checking
     if (req.query.debug === 'token') {
       return res.status(200).json({
+        hasGH_API_TOKEN: !!process.env.GH_API_TOKEN,
         hasGITHUB_TOKEN: !!process.env.GITHUB_TOKEN,
         hasGITHUB_PAT: !!process.env.GITHUB_PAT,
         hasREFRESH: !!process.env.REFRESH,
-        allEnvKeys: Object.keys(process.env).filter(k => k.includes('GITHUB') || k.includes('REFRESH')),
+        allEnvKeys: Object.keys(process.env).filter(k => k.includes('GITHUB') || k.includes('REFRESH') || k.includes('GH_')),
         NODE_ENV: process.env.NODE_ENV,
         VERCEL: process.env.VERCEL
       });
     }
 
     // Debug: Check if token is loaded
-    if (!process.env.GITHUB_TOKEN) {
+    if (!process.env.GH_API_TOKEN && !process.env.GITHUB_TOKEN && !process.env.GITHUB_PAT) {
       return res.status(500).json({
         success: false,
         error: 'GITHUB_TOKEN environment variable is not set in Vercel',
