@@ -202,34 +202,15 @@ module.exports = async (req, res) => {
   }
 
   try {
-    // Temporary debug endpoint - check FIRST before error checking
-    if (req.query.debug === 'token') {
-      return res.status(200).json({
-        hasGH_API_TOKEN: !!process.env.GH_API_TOKEN,
-        hasGITHUB_TOKEN: !!process.env.GITHUB_TOKEN,
-        hasGITHUB_PAT: !!process.env.GITHUB_PAT,
-        hasREFRESH: !!process.env.REFRESH,
-        allEnvKeys: Object.keys(process.env).filter(k => k.includes('GITHUB') || k.includes('REFRESH') || k.includes('GH_')),
-        NODE_ENV: process.env.NODE_ENV,
-        VERCEL: process.env.VERCEL
-      });
-    }
-
-    // Debug: Check if token is loaded
+    // Get GitHub token
     const token = process.env.GH_API_TOKEN || process.env.GITHUB_TOKEN || process.env.GITHUB_PAT;
 
     if (!token) {
       return res.status(500).json({
         success: false,
-        error: 'GitHub token environment variable is not set in Vercel',
-        debug: 'Token is undefined or empty'
+        error: 'GitHub token environment variable is not set'
       });
     }
-
-    // Debug: Check token format
-    const trimmedToken = token.trim();
-    const tokenLength = token.length;
-    const tokenStart = token.substring(0, 7);
 
     const { date = new Date().toISOString().split('T')[0] } = req.query;
 

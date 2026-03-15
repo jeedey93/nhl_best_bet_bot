@@ -4,7 +4,7 @@
 
 This voting system allows visitors to vote on individual betting picks on your daily picks page. It uses:
 - **GitHub Issues API** as a database (free, no extra services)
-- **Vercel Edge Functions** for the voting API
+- **Vercel Serverless Functions** for the voting API
 - **IP address hashing** to ensure 1 vote per person per pick
 - **LocalStorage** for client-side vote tracking
 
@@ -12,11 +12,7 @@ This voting system allows visitors to vote on individual betting picks on your d
 
 ### 1. Update GitHub Configuration
 
-Edit `api/vote.js` and replace the placeholder with your GitHub username:
-
-```javascript
-const GITHUB_OWNER = 'YOUR_USERNAME'; // Replace with your actual GitHub username
-```
+The code is already configured with your GitHub username (`jeedey93`).
 
 ### 2. Create GitHub Personal Access Token
 
@@ -24,35 +20,44 @@ const GITHUB_OWNER = 'YOUR_USERNAME'; // Replace with your actual GitHub usernam
 2. Click "Generate new token (classic)"
 3. Name it: `Voting System API`
 4. Select scopes:
-   - ✅ `repo` (Full control of private repositories)
-   - ✅ `public_repo` (if your repo is public, this is enough)
+   - ✅ `repo` (Full control of repositories)
 5. Generate token and copy it (you won't see it again!)
 
 ### 3. Configure Vercel Environment Variable
 
-If deploying to Vercel:
-1. Go to your Vercel project dashboard
+In Vercel Dashboard:
+1. Go to your project settings
 2. Navigate to Settings → Environment Variables
 3. Add new variable:
-   - **Name**: `GITHUB_PAT`
+   - **Name**: `GH_API_TOKEN`
    - **Value**: [paste your GitHub token]
-   - **Environments**: Production, Preview, Development
+   - **Environments**: Production only (check only Production ✅)
+4. Save
 
-### 4. Deploy to Vercel
+**Important:** Use `GH_API_TOKEN` as the variable name. The code also supports `GITHUB_TOKEN` or `GITHUB_PAT` as fallbacks.
 
-The voting system is already configured in `vercel.json`. When you push to GitHub, Vercel will automatically deploy the Edge Function at `/api/vote`.
+### 4. Deploy
+
+The voting system is already deployed. When you push to GitHub, Vercel automatically deploys.
 
 ### 5. Test the Voting System
 
-1. Visit your daily picks page: `https://parieurdiscipline.com/daily-picks.html`
-2. Click the 👍 button on any pick
-3. Verify:
-   - Button shows ✓ after voting
-   - Vote count increments
-   - Button becomes disabled
-   - "✓ Voted" label appears
-4. Refresh the page - your vote should persist
-5. Try voting again - should see "You have already voted for this pick!"
+Visit your daily picks page: `https://parieurdiscipline.com/daily-picks.html`
+
+Test voting:
+1. Click the 👍 button on any pick
+2. Verify button shows ✓ and becomes disabled
+3. Vote count should increment
+4. Try voting again - should see "You have already voted"
+
+## Environment Variable Notes
+
+Due to Vercel caching issues, the final setup uses `GH_API_TOKEN`:
+- Primary: `GH_API_TOKEN` (recommended)
+- Fallback: `GITHUB_TOKEN`
+- Fallback: `GITHUB_PAT`
+
+The code checks for these in order and uses the first one found.
 
 ## How It Works
 
