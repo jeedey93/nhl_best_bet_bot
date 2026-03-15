@@ -14,9 +14,10 @@ const GITHUB_REPO = 'parieur-discipline-bot';
  * Get GitHub token (with trimming)
  */
 function getGitHubToken() {
-  const token = process.env.GITHUB_PAT;
+  // Try new variable name first, fallback to old one
+  const token = process.env.GITHUB_TOKEN || process.env.GITHUB_PAT;
   if (!token) {
-    throw new Error('GITHUB_PAT environment variable is not set');
+    throw new Error('GITHUB_TOKEN environment variable is not set');
   }
   return token.trim();
 }
@@ -203,18 +204,18 @@ module.exports = async (req, res) => {
 
   try {
     // Debug: Check if token is loaded
-    if (!process.env.GITHUB_PAT) {
+    if (!process.env.GITHUB_TOKEN && !process.env.GITHUB_PAT) {
       return res.status(500).json({
         success: false,
-        error: 'GITHUB_PAT environment variable is not set in Vercel',
+        error: 'GITHUB_TOKEN environment variable is not set in Vercel',
         debug: 'Token is undefined or empty'
       });
     }
 
     // Debug: Check token format
-    const token = process.env.GITHUB_PAT.trim(); // Remove any whitespace
+    const token = (process.env.GITHUB_TOKEN || process.env.GITHUB_PAT).trim();
     const tokenLength = token.length;
-    const tokenStart = token.substring(0, 7); // e.g., "ghp_" or "github_pat_"
+    const tokenStart = token.substring(0, 7);
 
     // Temporary debug endpoint
     if (req.query.debug === 'token') {
@@ -222,7 +223,7 @@ module.exports = async (req, res) => {
         tokenLength,
         tokenStart,
         tokenEnd: token.substring(token.length - 4),
-        envVarExists: !!process.env.GITHUB_PAT
+        usingVariable: process.env.GITHUB_TOKEN ? 'GITHUB_TOKEN' : 'GITHUB_PAT'
       });
     }
 
