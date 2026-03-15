@@ -19,7 +19,6 @@ function getGitHubToken() {
     throw new Error('GITHUB_TOKEN environment variable is not set');
   }
   return token.trim();
-  
 }
 
 /**
