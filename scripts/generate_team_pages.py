@@ -166,6 +166,7 @@ body {{
   background: #f5f7fa;
   color: #1a1a1a;
   line-height: 1.6;
+  padding-top: 88px;
 }}
 .container {{
   max-width: 1400px;
@@ -721,6 +722,7 @@ body {{
   background: #f5f7fa;
   color: #1a1a1a;
   min-height: 100vh;
+  padding-top: 88px;
 }}
 .container {{ max-width: 1600px; margin: 0 auto; padding: 40px 20px; }}
 .header {{

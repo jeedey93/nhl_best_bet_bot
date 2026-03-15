@@ -1582,7 +1582,7 @@ def update_latest_predictions(preliminary=False):
     # ── Sports Blog CSS ──
     content += "<style>\n"
     content += "* { margin: 0; padding: 0; box-sizing: border-box; }\n"
-    content += "body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #1a1a1a; background: #f5f7fa; }\n"
+    content += "body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #1a1a1a; background: #f5f7fa; padding-top: 88px; }\n"
     content += ".main-content { max-width: 100% !important; padding: 0 !important; }\n"
     content += ".blog-container { width: 100%; margin: 0; background: white; }\n"
     content += ".hero-section { background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%); color: white; padding: 50px 40px; text-align: center; position: relative; overflow: hidden; }\n"
