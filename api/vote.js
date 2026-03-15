@@ -193,6 +193,20 @@ module.exports = async (req, res) => {
   }
 
   try {
+    // Debug: Check if token is loaded
+    if (!process.env.GITHUB_PAT) {
+      return res.status(500).json({
+        success: false,
+        error: 'GITHUB_PAT environment variable is not set in Vercel',
+        debug: 'Token is undefined or empty'
+      });
+    }
+
+    // Debug: Check token format (show first/last 4 chars only for security)
+    const tokenPreview = process.env.GITHUB_PAT
+      ? `${process.env.GITHUB_PAT.substring(0, 4)}...${process.env.GITHUB_PAT.substring(process.env.GITHUB_PAT.length - 4)}`
+      : 'undefined';
+
     const { date = new Date().toISOString().split('T')[0] } = req.query;
 
     // GET: Fetch vote counts
