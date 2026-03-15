@@ -508,6 +508,8 @@ nav > div {
   display: flex;
   align-items: center;
   gap: 6px;
+  min-width: 60px;
+  justify-content: center;
 }
 .vote-button:hover:not(:disabled) {
   transform: translateY(-2px);
@@ -524,11 +526,13 @@ nav > div {
   font-size: 0.9em;
   color: #6b7280;
   font-weight: 600;
+  text-align: center;
 }
 .vote-count-number {
   font-size: 1.4em;
   font-weight: 800;
   color: #3b82f6;
+  display: block;
 }
 .voted-label {
   font-size: 0.75em;
@@ -536,6 +540,7 @@ nav > div {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  text-align: center;
 }
 
 /* Responsive */
@@ -754,8 +759,10 @@ nav > div {
   }
 
   .vote-button {
-    font-size: 1.2em;
-    padding: 8px 14px;
+    font-size: 2em;
+    padding: 14px 20px;
+    min-width: 70px;
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
   }
 
   .vote-count {
@@ -763,7 +770,18 @@ nav > div {
   }
 
   .vote-count-number {
-    font-size: 1.2em;
+    font-size: 1.6em;
+  }
+
+  .voted-label {
+    font-size: 0.8em;
+  }
+
+  /* Make vote column full width on mobile */
+  .picks-table tbody td:last-child {
+    border-top: 3px solid #3b82f6;
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    padding: 20px 15px;
   }
 }
 
