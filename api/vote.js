@@ -162,7 +162,7 @@ async function castVote(date, pickId, ipHash) {
     const response = await fetch(commentsUrl, {
       method: 'POST',
       headers: {
-        'Authorization`: `token ${GITHUB_TOKEN}`,
+        'Authorization': `token ${GITHUB_TOKEN}`,
         'Accept': 'application/vnd.github.v3+json',
         'Content-Type': 'application/json',
         'User-Agent': 'Parieur-Discipline-Bot',
