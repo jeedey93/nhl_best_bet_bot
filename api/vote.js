@@ -216,11 +216,15 @@ module.exports = async (req, res) => {
     const tokenLength = token.length;
     const tokenStart = token.substring(0, 7); // e.g., "ghp_" or "github_pat_"
 
-    console.log('Token debug:', {
-      length: tokenLength,
-      starts_with: tokenStart,
-      has_whitespace: token !== process.env.GITHUB_PAT
-    });
+    // Temporary debug endpoint
+    if (req.query.debug === 'token') {
+      return res.status(200).json({
+        tokenLength,
+        tokenStart,
+        tokenEnd: token.substring(token.length - 4),
+        envVarExists: !!process.env.GITHUB_PAT
+      });
+    }
 
     const { date = new Date().toISOString().split('T')[0] } = req.query;
 
