@@ -8,7 +8,14 @@
 
 const GITHUB_OWNER = 'jeedey93';
 const GITHUB_REPO = 'parieur-discipline-bot';
-const GITHUB_TOKEN = process.env.GITHUB_PAT; // Set in Vercel environment variables
+
+/**
+ * Get GitHub token (with trimming)
+ */
+function getGitHubToken() {
+  const token = process.env.GITHUB_PAT;
+  return token ? token.trim() : null;
+}
 
 /**
  * Hash IP address for privacy
@@ -28,6 +35,7 @@ function hashIP(ip) {
  */
 async function getOrCreateVotingIssue(date) {
   // Check if token is available
+  const GITHUB_TOKEN = getGitHubToken();
   if (!GITHUB_TOKEN) {
     throw new Error('GITHUB_PAT environment variable is not set');
   }
@@ -202,10 +210,16 @@ module.exports = async (req, res) => {
       });
     }
 
-    // Debug: Check token format (show first/last 4 chars only for security)
-    const tokenPreview = process.env.GITHUB_PAT
-      ? `${process.env.GITHUB_PAT.substring(0, 4)}...${process.env.GITHUB_PAT.substring(process.env.GITHUB_PAT.length - 4)}`
-      : 'undefined';
+    // Debug: Check token format
+    const token = process.env.GITHUB_PAT.trim(); // Remove any whitespace
+    const tokenLength = token.length;
+    const tokenStart = token.substring(0, 7); // e.g., "ghp_" or "github_pat_"
+
+    console.log('Token debug:', {
+      length: tokenLength,
+      starts_with: tokenStart,
+      has_whitespace: token !== process.env.GITHUB_PAT
+    });
 
     const { date = new Date().toISOString().split('T')[0] } = req.query;
 
