@@ -220,9 +220,10 @@ module.exports = async (req, res) => {
     // Temporary debug endpoint
     if (req.query.debug === 'token') {
       return res.status(200).json({
-        tokenLength,
-        tokenStart,
-        tokenEnd: token.substring(token.length - 4)
+        hasGITHUB_TOKEN: !!process.env.GITHUB_TOKEN,
+        hasGITHUB_PAT: !!process.env.GITHUB_PAT,
+        hasREFRESH: !!process.env.REFRESH,
+        allEnvKeys: Object.keys(process.env).filter(k => k.includes('GITHUB') || k.includes('REFRESH'))
       });
     }
 
