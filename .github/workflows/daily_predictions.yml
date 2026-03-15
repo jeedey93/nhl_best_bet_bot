@@ -45,6 +45,9 @@ jobs:
           else
             echo "time=3pm" >> $GITHUB_OUTPUT
           fi
+      - name: Clean up old cache files (7am)
+        if: steps.run_time.outputs.time == '7am'
+        run: python scripts/cleanup_cache.py
       - name: Run NHL daily predictions bot
         run: python scripts/generate_nhl_predictions.py
       - name: Run NBA daily predictions bot

@@ -74,6 +74,15 @@ python test_nba_odds.py
 python test_nba_games.py
 ```
 
+### Cache Management
+```bash
+# Clean up old cache files (keeps last 2 days)
+python scripts/cleanup_cache.py
+
+# Force refresh odds (bypass cache)
+python -c "from data.odds import get_nhl_odds; get_nhl_odds(force_refresh=True)"
+```
+
 ## Architecture
 
 ### Data Flow
@@ -86,6 +95,7 @@ python test_nba_games.py
    - Queries The Odds API for moneyline (h2h), totals (O/U), and spreads
    - Filters to current day using Montreal timezone (America/Toronto)
    - Maps team names between official APIs and odds providers
+   - **Uses file-based caching** (see Caching System below) to minimize API calls
 
 3. **Match Odds to Games** → `data/odds.py`
    - Uses fuzzy team name mapping (`NHL_TEAM_NAME_MAP`, `NBA_TEAM_NAME_MAP`)
@@ -155,6 +165,45 @@ NBA_TEAM_NAME_MAP = {
 
 When adding new teams or fixing match issues, update these dictionaries.
 
+### Caching System
+
+The bot uses file-based caching to minimize API calls and reduce costs:
+
+#### Odds Cache (`data/odds_cache.py`)
+- **Purpose**: Cache odds data from The Odds API (which has usage limits/costs)
+- **Location**: `data/cache/{sport}_odds_{date}.json`
+- **TTL**: 2 hours (balances freshness with dual-run efficiency)
+- **Behavior**:
+  - 7am run: Usually fetches fresh odds (no cache from previous day)
+  - 3pm run: May use 7am cache if still valid (< 2 hours old), saving API calls
+  - Cache keys include date to prevent stale cross-day data
+- **Usage**:
+  ```python
+  from data.odds import get_nhl_odds, get_nba_odds
+
+  odds = get_nhl_odds()  # Uses cache if available
+  odds = get_nhl_odds(force_refresh=True)  # Bypass cache
+  ```
+- **Maintenance**: Old cache files automatically cleaned up by `scripts/cleanup_cache.py` (runs daily at 7am)
+
+#### Standings Cache (`data/standings_cache.py`)
+- **Purpose**: Cache team standings (less volatile than odds)
+- **Location**: `data/cache/{sport}_standings.json`
+- **TTL**: 4 hours (standings change less frequently)
+- **Usage**:
+  ```python
+  from data.standings_cache import get_nhl_standings, get_nba_standings
+
+  standings = get_nhl_standings()  # Uses cache if available
+  standings = get_nhl_standings(force_refresh=True)  # Bypass cache
+  ```
+
+Both caching systems follow the same pattern:
+1. Check if cache file exists and is within TTL
+2. Return cached data if valid
+3. Otherwise, fetch from API and save to cache
+4. Old cache files (> 2 days) cleaned up automatically
+
 ### GitHub Actions Automation
 
 Three workflows in `.github/workflows/`:
@@ -195,8 +244,15 @@ bot_results/
 data/
 ├── nhl_games.py                   # NHL schedule API wrapper
 ├── nba_games.py                   # NBA schedule API wrapper
-├── odds.py                        # The Odds API wrapper
+├── odds.py                        # The Odds API wrapper (with caching)
+├── odds_cache.py                  # Odds caching system
+├── standings_cache.py             # Standings caching system
 ├── polymarket_odds.py             # Alternative odds source
+├── cache/                         # Cache directory
+│   ├── nhl_odds_YYYY-MM-DD.json   # NHL odds cache (2hr TTL)
+│   ├── nba_odds_YYYY-MM-DD.json   # NBA odds cache (2hr TTL)
+│   ├── nhl_standings.json         # NHL standings cache (4hr TTL)
+│   └── nba_standings.json         # NBA standings cache (4hr TTL)
 └── teams/                         # Team lineup files (auto-generated)
     ├── Team_Name.txt              # Individual team lineup files
     └── README.md                  # Documentation
@@ -221,7 +277,9 @@ Files are timestamped and regenerated daily. See `data/teams/README.md` for form
 ## Important Notes
 
 - **Timezone**: All scripts use Montreal time (America/Toronto, UTC-5/4) for determining "today"
-- **API Rate Limits**: The Odds API has usage limits; avoid running test scripts excessively
+- **API Rate Limits**: The Odds API has usage limits; caching system reduces redundant calls
+- **Caching**: Odds are cached for 2 hours, standings for 4 hours; use `force_refresh=True` to bypass
+- **Cache Cleanup**: Old cache files (>2 days) are automatically cleaned at 7am daily via GitHub Actions
 - **Historical Context**: AI analysis includes last 10 days of results for pattern recognition
 - **Team Name Consistency**: Always verify team name mappings when adding new sports or leagues
 - **Commit Messages**: GitHub Actions uses format "Add daily [dual] predictions for YYYY-MM-DD"

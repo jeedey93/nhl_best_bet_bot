@@ -3,14 +3,30 @@ import os
 from dotenv import load_dotenv
 from datetime import datetime, timedelta
 import pytz
+from data.odds_cache import get_cached_odds, save_odds_to_cache
 
 # Load your .env file
 load_dotenv()
 
 API_KEY = os.getenv("ODDS_API_KEY")
 
-def get_nhl_odds():
-    """Fetch NHL odds using The Odds API."""
+def get_nhl_odds(force_refresh=False):
+    """
+    Fetch NHL odds using The Odds API with caching.
+
+    Args:
+        force_refresh: If True, bypass cache and fetch fresh data
+
+    Returns:
+        List of odds data from The Odds API
+    """
+    # Try to get from cache first
+    if not force_refresh:
+        cached_data = get_cached_odds('nhl')
+        if cached_data is not None:
+            return cached_data
+
+    # Cache miss or force refresh - fetch from API
     try:
         url = "https://api.the-odds-api.com/v4/sports/icehockey_nhl/odds"
 
@@ -35,13 +51,33 @@ def get_nhl_odds():
         }
         response = requests.get(url, params=params, timeout=10)
         response.raise_for_status()
-        return response.json()
+        odds_data = response.json()
+
+        # Save to cache
+        save_odds_to_cache('nhl', odds_data)
+
+        return odds_data
     except Exception as e:
         print(f"⚠️ Error fetching NHL odds: {e}")
         return []
 
-def get_nba_odds():
-    """Fetch NBA odds using The Odds API."""
+def get_nba_odds(force_refresh=False):
+    """
+    Fetch NBA odds using The Odds API with caching.
+
+    Args:
+        force_refresh: If True, bypass cache and fetch fresh data
+
+    Returns:
+        List of odds data from The Odds API
+    """
+    # Try to get from cache first
+    if not force_refresh:
+        cached_data = get_cached_odds('nba')
+        if cached_data is not None:
+            return cached_data
+
+    # Cache miss or force refresh - fetch from API
     try:
         url = "https://api.the-odds-api.com/v4/sports/basketball_nba/odds"
 
@@ -66,7 +102,12 @@ def get_nba_odds():
         }
         response = requests.get(url, params=params, timeout=10)
         response.raise_for_status()
-        return response.json()
+        odds_data = response.json()
+
+        # Save to cache
+        save_odds_to_cache('nba', odds_data)
+
+        return odds_data
     except Exception as e:
         print(f"⚠️ Error fetching NBA odds: {e}")
         return []
