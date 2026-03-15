@@ -171,7 +171,7 @@ body {{
 .container {{
   max-width: 1400px;
   margin: 0 auto;
-  padding: 100px 20px 40px 20px;
+  padding: 20px 20px 40px 20px;
 }}
 .lineup-container {{
   display: grid;
@@ -338,7 +338,7 @@ body {{
 }}
 @media (max-width: 768px) {{
   .container {{
-    padding: 80px 15px 30px 15px;
+    padding: 15px 15px 30px 15px;
   }}
   .lineup-container {{
     grid-template-columns: 1fr;
