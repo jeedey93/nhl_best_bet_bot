@@ -4,6 +4,7 @@
  * Tracks by IP address to prevent duplicate votes
  *
  * Deployment: Vercel Serverless Function
+ * Updated: 2026-03-15
  */
 
 const GITHUB_OWNER = 'jeedey93';
