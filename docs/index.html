@@ -466,13 +466,13 @@ fetch('data/changelog.json')
 <script defer src='/_vercel/speed-insights/script.js'></script>
 
 <!-- What's New Section -->
-<div style='max-width: 1600px; margin: 60px auto 40px; padding: 0 20px;'>
+<div id='whats-new-section' style='max-width: 1600px; margin: 60px auto 40px; padding: 0 20px;'>
   <div style='background: white; border-radius: 16px; padding: 40px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); border: 1px solid #e5e7eb;'>
     <div style='text-align: center; margin-bottom: 30px;'>
       <h2 style='font-size: 2em; font-weight: 800; color: #111827; margin-bottom: 8px;'>🎉 What's New</h2>
       <p style='color: #6b7280; font-size: 1.05em;'>Latest updates and improvements to the platform</p>
     </div>
-    <table style='width: 100%; border-collapse: collapse;'>
+    <table id='changelog-table' style='width: 100%; border-collapse: collapse;'>
       <thead>
         <tr style='border-bottom: 2px solid #e5e7eb;'>
           <th style='text-align: left; padding: 12px 15px; font-weight: 700; color: #374151; font-size: 0.95em;'>Date</th>
@@ -485,6 +485,59 @@ fetch('data/changelog.json')
     </table>
   </div>
 </div>
+<style>
+@media (max-width: 768px) {
+  #whats-new-section {
+    margin: 40px auto 30px;
+    padding: 0 15px;
+  }
+  #whats-new-section > div {
+    padding: 25px 20px;
+    border-radius: 12px;
+  }
+  #whats-new-section h2 {
+    font-size: 1.5em !important;
+  }
+  #whats-new-section p {
+    font-size: 0.9em !important;
+  }
+  #changelog-table {
+    display: block;
+  }
+  #changelog-table thead {
+    display: none;
+  }
+  #changelog-table tbody {
+    display: block;
+  }
+  #changelog-table tr {
+    display: block;
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #f9fafb;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+  }
+  #changelog-table td {
+    display: block;
+    padding: 0 !important;
+    text-align: left !important;
+  }
+  #changelog-table td:first-child {
+    font-size: 0.8em !important;
+    color: #4a90e2 !important;
+    font-weight: 700 !important;
+    margin-bottom: 8px;
+    padding-bottom: 8px !important;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  #changelog-table td:last-child {
+    font-size: 0.9em !important;
+    line-height: 1.6 !important;
+    padding-top: 8px !important;
+  }
+}
+</style>
 
 <div style='max-width: 1600px; margin: 60px auto 40px; padding: 0 20px;'>
   <div style='background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%); border-radius: 16px; padding: 50px 40px; text-align: center; box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3);'>
