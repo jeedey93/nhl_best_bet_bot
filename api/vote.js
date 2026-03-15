@@ -46,7 +46,7 @@ async function getOrCreateVotingIssue(date) {
   const searchUrl = `https://api.github.com/search/issues?q=repo:${GITHUB_OWNER}/${GITHUB_REPO}+is:issue+in:title+"${issueTitle}"`;
   const searchResponse = await fetch(searchUrl, {
     headers: {
-      'Authorization': `Bearer ${GITHUB_TOKEN}`,
+      'Authorization': `token ${GITHUB_TOKEN}`,
       'Accept': 'application/vnd.github.v3+json',
       'User-Agent': 'Parieur-Discipline-Bot',
     },
@@ -68,7 +68,7 @@ async function getOrCreateVotingIssue(date) {
   const createResponse = await fetch(createUrl, {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${GITHUB_TOKEN}`,
+      'Authorization': `token ${GITHUB_TOKEN}`,
       'Accept': 'application/vnd.github.v3+json',
       'Content-Type': 'application/json',
       'User-Agent': 'Parieur-Discipline-Bot',
@@ -99,7 +99,7 @@ async function getVotes(date) {
     const commentsUrl = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/issues/${issueNumber}/comments`;
     const response = await fetch(commentsUrl, {
       headers: {
-        'Authorization': `Bearer ${GITHUB_TOKEN}`,
+        'Authorization': `token ${GITHUB_TOKEN}`,
         'Accept': 'application/vnd.github.v3+json',
         'User-Agent': 'Parieur-Discipline-Bot',
       },
@@ -162,7 +162,7 @@ async function castVote(date, pickId, ipHash) {
     const response = await fetch(commentsUrl, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${GITHUB_TOKEN}`,
+        'Authorization`: `token ${GITHUB_TOKEN}`,
         'Accept': 'application/vnd.github.v3+json',
         'Content-Type': 'application/json',
         'User-Agent': 'Parieur-Discipline-Bot',
