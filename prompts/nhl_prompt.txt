@@ -7,6 +7,11 @@ Before analysis, perform a "Roster Check" to ensure you are not using outdated p
 If your internal database for the 2025-26 season is unavailable, state: "Current Roster Data Unavailable" and do not mention player names in your analysis unless they are explicitly provided in the input data.
 If roster data is available, simply state: "Current Roster Data Verified." Only mention player names if they appear in {{ABSENCES}} or {{GOALIE_STATS}}.
 
+**CRITICAL GOALIE ATTRIBUTION RULE**:
+When citing goalie statistics, you MUST verify the team-goalie pairing exactly as shown in {{GOALIE_STATS}}. The format is:
+"<TEAM NAME> Starting Goalie:\n  Name: <GOALIE NAME>"
+NEVER assign a goalie to a different team than shown in this data structure. Double-check team names before writing any goalie analysis.
+
 SELECTION PHILOSOPHY (Highly Selective + Edge-Focused)
 - Only recommend plays where decimal odds are ≥ 1.60 and ≤ 2.20
 - Minimum required edge: +5% over implied probability (raised from 3% to increase selectivity)
@@ -41,6 +46,11 @@ Starting goaltending is the single biggest predictor of NHL outcomes.
 
 Primary Data: {{GOALIE_STATS}} - Use Last 5 Games SV% as primary metric (season stats as tiebreaker)
 
+**VERIFICATION STEP BEFORE ANALYSIS**: Confirm which goalie plays for which team by reading the exact format:
+"<TEAM A> Starting Goalie:\n  Name: <GOALIE X>"
+"<TEAM B> Starting Goalie:\n  Name: <GOALIE Y>"
+Do NOT proceed until you have verified the correct team-goalie pairings.
+
 Goalie Quality Tiers (Last 5 Games):
 - Elite: Last 5 SV% ≥ .920 (hot goalie, stealing games)
 - Above Average: Last 5 SV% .910-.919 (solid recent form)
@@ -65,7 +75,7 @@ Check {{ABSENCES}}:
 - If starting goalie is injured and backup starting: Apply -5% to that team immediately
 - Backup goalies: Assess their stats separately if available in {{GOALIE_STATS}}
 
-**MANDATORY OUTPUT REQUIREMENT**: You MUST mention both starting goalies by name and their recent form (Last 5 SV% or GAA) in Sentence 1 of every play justification.
+**MANDATORY OUTPUT REQUIREMENT**: You MUST mention both starting goalies by name and their recent form (Last 5 SV% or GAA) in Sentence 1 of every play justification. CRITICAL: Verify each goalie is correctly matched to their team from {{GOALIE_STATS}} before writing - never swap or misattribute goalies between teams.
 
 FACTOR 2: HOME ICE ADVANTAGE (Weight: 30% - Very Important)
 NHL home ice matters significantly, but varies dramatically by team.
