@@ -762,6 +762,7 @@ def parse_this_week_results(sport_key):
 
     # Get current date and calculate Monday of this week
     today = datetime.now()
+    today_str = today.strftime("%Y-%m-%d")
     # weekday() returns 0=Monday, 6=Sunday
     days_since_monday = today.weekday()
     monday_this_week = today - timedelta(days=days_since_monday)
@@ -782,7 +783,9 @@ def parse_this_week_results(sport_key):
         file_date = date_match.group(1)
 
         # Only include files from Monday onwards this week
-        if file_date < monday_date:
+        # NOTE: The 6am results workflow creates files with TODAY's date but contains YESTERDAY's games
+        # So we need to exclude today's file (which has yesterday's results)
+        if file_date < monday_date or file_date >= today_str:
             continue
 
         try:
