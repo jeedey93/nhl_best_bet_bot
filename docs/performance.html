@@ -198,6 +198,28 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   background: #fef2f2;
   border-radius: 6px;
 }
+.timeline-net {
+  font-weight: 800;
+  font-size: 1.1em;
+  padding: 4px 12px;
+  border-radius: 6px;
+  margin: 0 4px;
+}
+.net-positive {
+  color: white;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+}
+.net-negative {
+  color: white;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
+}
+.net-even {
+  color: #6b7280;
+  background: #f3f4f6;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
 .timeline-sports {
   font-size: 0.9em;
   color: #6b7280;
@@ -305,6 +327,11 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 
   .timeline-wins, .timeline-losses {
     font-size: 0.95em;
+  }
+
+  .timeline-net {
+    font-size: 1em;
+    padding: 4px 10px;
   }
 
   .chart-container {
@@ -588,6 +615,7 @@ document.addEventListener('DOMContentLoaded', function() {
       <div class='timeline-record'>
         <span class='timeline-wins'>2W</span>
         <span class='timeline-losses'>2L</span>
+        <span class='timeline-net net-even'>0</span>
         <span class='timeline-sports'>NBA + NHL</span>
       </div>
     </div>
@@ -596,6 +624,7 @@ document.addEventListener('DOMContentLoaded', function() {
       <div class='timeline-record'>
         <span class='timeline-wins'>4W</span>
         <span class='timeline-losses'>5L</span>
+        <span class='timeline-net net-negative'>-1</span>
         <span class='timeline-sports'>NBA + NHL</span>
       </div>
     </div>
@@ -604,6 +633,7 @@ document.addEventListener('DOMContentLoaded', function() {
       <div class='timeline-record'>
         <span class='timeline-wins'>2W</span>
         <span class='timeline-losses'>5L</span>
+        <span class='timeline-net net-negative'>-3</span>
         <span class='timeline-sports'>NBA + NHL</span>
       </div>
     </div>
@@ -612,6 +642,7 @@ document.addEventListener('DOMContentLoaded', function() {
       <div class='timeline-record'>
         <span class='timeline-wins'>6W</span>
         <span class='timeline-losses'>4L</span>
+        <span class='timeline-net net-positive'>+2</span>
         <span class='timeline-sports'>NBA + NHL</span>
       </div>
     </div>
@@ -620,6 +651,7 @@ document.addEventListener('DOMContentLoaded', function() {
       <div class='timeline-record'>
         <span class='timeline-wins'>1W</span>
         <span class='timeline-losses'>6L</span>
+        <span class='timeline-net net-negative'>-5</span>
         <span class='timeline-sports'>NBA + NHL</span>
       </div>
     </div>
@@ -628,6 +660,7 @@ document.addEventListener('DOMContentLoaded', function() {
       <div class='timeline-record'>
         <span class='timeline-wins'>5W</span>
         <span class='timeline-losses'>5L</span>
+        <span class='timeline-net net-even'>0</span>
         <span class='timeline-sports'>NBA + NHL</span>
       </div>
     </div>
@@ -636,6 +669,7 @@ document.addEventListener('DOMContentLoaded', function() {
       <div class='timeline-record'>
         <span class='timeline-wins'>3W</span>
         <span class='timeline-losses'>5L</span>
+        <span class='timeline-net net-negative'>-2</span>
         <span class='timeline-sports'>NBA + NHL</span>
       </div>
     </div>
@@ -644,6 +678,7 @@ document.addEventListener('DOMContentLoaded', function() {
       <div class='timeline-record'>
         <span class='timeline-wins'>4W</span>
         <span class='timeline-losses'>6L</span>
+        <span class='timeline-net net-negative'>-2</span>
         <span class='timeline-sports'>NBA + NHL</span>
       </div>
     </div>
@@ -652,6 +687,7 @@ document.addEventListener('DOMContentLoaded', function() {
       <div class='timeline-record'>
         <span class='timeline-wins'>5W</span>
         <span class='timeline-losses'>2L</span>
+        <span class='timeline-net net-positive'>+3</span>
         <span class='timeline-sports'>NBA + NHL</span>
       </div>
     </div>
@@ -660,6 +696,7 @@ document.addEventListener('DOMContentLoaded', function() {
       <div class='timeline-record'>
         <span class='timeline-wins'>5W</span>
         <span class='timeline-losses'>4L</span>
+        <span class='timeline-net net-positive'>+1</span>
         <span class='timeline-sports'>NBA + NHL</span>
       </div>
     </div>
@@ -668,6 +705,7 @@ document.addEventListener('DOMContentLoaded', function() {
       <div class='timeline-record'>
         <span class='timeline-wins'>6W</span>
         <span class='timeline-losses'>4L</span>
+        <span class='timeline-net net-positive'>+2</span>
         <span class='timeline-sports'>NBA + NHL</span>
       </div>
     </div>
@@ -676,6 +714,7 @@ document.addEventListener('DOMContentLoaded', function() {
       <div class='timeline-record'>
         <span class='timeline-wins'>3W</span>
         <span class='timeline-losses'>3L</span>
+        <span class='timeline-net net-even'>0</span>
         <span class='timeline-sports'>NBA + NHL</span>
       </div>
     </div>
@@ -684,6 +723,7 @@ document.addEventListener('DOMContentLoaded', function() {
       <div class='timeline-record'>
         <span class='timeline-wins'>5W</span>
         <span class='timeline-losses'>4L</span>
+        <span class='timeline-net net-positive'>+1</span>
         <span class='timeline-sports'>NBA + NHL</span>
       </div>
     </div>
@@ -692,6 +732,7 @@ document.addEventListener('DOMContentLoaded', function() {
       <div class='timeline-record'>
         <span class='timeline-wins'>4W</span>
         <span class='timeline-losses'>9L</span>
+        <span class='timeline-net net-negative'>-5</span>
         <span class='timeline-sports'>NBA + NHL</span>
       </div>
     </div>
@@ -700,6 +741,7 @@ document.addEventListener('DOMContentLoaded', function() {
       <div class='timeline-record'>
         <span class='timeline-wins'>5W</span>
         <span class='timeline-losses'>2L</span>
+        <span class='timeline-net net-positive'>+3</span>
         <span class='timeline-sports'>NBA + NHL</span>
       </div>
     </div>
@@ -708,6 +750,7 @@ document.addEventListener('DOMContentLoaded', function() {
       <div class='timeline-record'>
         <span class='timeline-wins'>0W</span>
         <span class='timeline-losses'>0L</span>
+        <span class='timeline-net net-even'>0</span>
         <span class='timeline-sports'>NBA + NHL</span>
       </div>
     </div>
@@ -716,6 +759,7 @@ document.addEventListener('DOMContentLoaded', function() {
       <div class='timeline-record'>
         <span class='timeline-wins'>3W</span>
         <span class='timeline-losses'>2L</span>
+        <span class='timeline-net net-positive'>+1</span>
         <span class='timeline-sports'>NHL</span>
       </div>
     </div>
@@ -724,6 +768,7 @@ document.addEventListener('DOMContentLoaded', function() {
       <div class='timeline-record'>
         <span class='timeline-wins'>8W</span>
         <span class='timeline-losses'>2L</span>
+        <span class='timeline-net net-positive'>+6</span>
         <span class='timeline-sports'>NBA + NHL</span>
       </div>
     </div>

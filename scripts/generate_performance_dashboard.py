@@ -522,6 +522,28 @@ body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans
   background: #fef2f2;
   border-radius: 6px;
 }}
+.timeline-net {{
+  font-weight: 800;
+  font-size: 1.1em;
+  padding: 4px 12px;
+  border-radius: 6px;
+  margin: 0 4px;
+}}
+.net-positive {{
+  color: white;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+}}
+.net-negative {{
+  color: white;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
+}}
+.net-even {{
+  color: #6b7280;
+  background: #f3f4f6;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}}
 .timeline-sports {{
   font-size: 0.9em;
   color: #6b7280;
@@ -629,6 +651,11 @@ body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans
 
   .timeline-wins, .timeline-losses {{
     font-size: 0.95em;
+  }}
+
+  .timeline-net {{
+    font-size: 1em;
+    padding: 4px 10px;
   }}
 
   .chart-container {{
@@ -764,14 +791,24 @@ body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans
     # Add timeline items (reverse chronological)
     for date in sorted(daily_stats.keys(), reverse=True):
         day = daily_stats[date]
+        net_result = day['wins'] - day['losses']
         day_class = 'win-day' if day['wins'] > day['losses'] else ('loss-day' if day['losses'] > day['wins'] else '')
         sports_text = ' + '.join(sorted(day['sports']))
+
+        # Format net result with + or - sign
+        if net_result > 0:
+            net_display = f"<span class='timeline-net net-positive'>+{net_result}</span>"
+        elif net_result < 0:
+            net_display = f"<span class='timeline-net net-negative'>{net_result}</span>"
+        else:
+            net_display = f"<span class='timeline-net net-even'>0</span>"
 
         html += f"""    <div class='timeline-item {day_class}'>
       <div class='timeline-date'>{date}</div>
       <div class='timeline-record'>
         <span class='timeline-wins'>{day['wins']}W</span>
         <span class='timeline-losses'>{day['losses']}L</span>
+        {net_display}
         <span class='timeline-sports'>{sports_text}</span>
       </div>
     </div>
