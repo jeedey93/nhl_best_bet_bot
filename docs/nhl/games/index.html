@@ -498,6 +498,82 @@ body {
   background-clip: text;
   margin-bottom: 8px;
 }
+.last-5-games {
+  font-size: 0.85em;
+  color: #6b7280;
+  margin-bottom: 10px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.last-5-games::after {
+  content: '→ Most Recent';
+  font-size: 0.8em;
+  color: #94a3b8;
+  font-weight: 500;
+  font-style: italic;
+}
+.last-5-results {
+  display: inline-flex;
+  gap: 4px;
+}
+.game-result {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 24px;
+  padding: 0 6px;
+  border-radius: 4px;
+  font-size: 0.75em;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.game-result:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2) !important;
+}
+.game-result-win {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+}
+.game-result-loss {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
+}
+.game-result-otl {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: white;
+  box-shadow: 0 2px 4px rgba(245, 158, 11, 0.3);
+}
+.game-result-sol {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: white;
+  box-shadow: 0 2px 4px rgba(245, 158, 11, 0.3);
+}
+.game-result:first-child {
+  opacity: 0.5;
+}
+.game-result:nth-child(2) {
+  opacity: 0.65;
+}
+.game-result:nth-child(3) {
+  opacity: 0.8;
+}
+.game-result:nth-child(4) {
+  opacity: 0.9;
+}
+.game-result:last-child {
+  opacity: 1;
+  transform: scale(1.15);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3) !important;
+}
 .positive-form {
   color: #10b981 !important;
   font-weight: 700;
@@ -915,6 +991,20 @@ body {
   .team-logo { width: 60px; height: 60px; margin-bottom: 12px; }
   .team-name { font-size: 1.1em; margin-bottom: 8px; }
   .team-record { font-size: 1.2em; margin-bottom: 6px; }
+  .last-5-games {
+    font-size: 0.75em;
+    flex-wrap: wrap;
+  }
+  .last-5-games::after {
+    content: '→';
+    font-size: 1em;
+    margin-left: 4px;
+  }
+  .game-result {
+    min-width: 28px;
+    height: 22px;
+    font-size: 0.7em;
+  }
   .stats-tiles { grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
   .goalie-row { margin-top: 10px; }
   .goalie-row .stat-tile { max-width: 100%; }
@@ -1383,7 +1473,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='header'>
 <h1>🏒 NHL Games Today</h1>
 <p>Monday, March 16, 2026</p>
-<p>⏱️ Last Updated at 7:54 AM</p>
+<p>⏱️ Last Updated at 11:36 AM</p>
 </div>
 
 <div class='container'>
@@ -1458,8 +1548,6 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 <div class='signals-row'>
 <div class='prediction-indicator home-favored'>↗ Trending: DET</div>
-<div class='ou-signal under-signal'>📉 Under 6.0</div>
-<div class='h2h-totals-badge high-scoring'>⚡ H2H Avg: 7.0 goals</div>
 <div class='streak-badge lose-streak'>❄️ DET 3L Streak</div>
 </div>
 <div class='key-insights'>
@@ -1473,6 +1561,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <button class='daily-lines-btn' disabled title='Lines not available yet'>📋 Daily Lines</button>
 </div>
 <div class='team-record'>26-33-7 <span class='negative-form'>(3-6-1)</span></div>
+<div class='last-5-games'>Last 5 Games: <span class='last-5-results'><span class='game-result game-result-win'>W</span><span class='game-result game-result-loss'>L</span><span class='game-result game-result-loss'>L</span><span class='game-result game-result-win'>W</span><span class='game-result game-result-loss'>L</span></span></div>
 <div class='team-label'>Away Team</div>
 </div>
 <div class='stats-tiles'>
@@ -1525,6 +1614,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <button class='daily-lines-btn' disabled title='Lines not available yet'>📋 Daily Lines</button>
 </div>
 <div class='team-record'>36-23-8 <span class='negative-form'>(3-5-2)</span></div>
+<div class='last-5-games'>Last 5 Games: <span class='last-5-results'><span class='game-result game-result-loss'>L</span><span class='game-result game-result-win'>W</span><span class='game-result game-result-loss'>L</span><span class='game-result game-result-loss'>L</span><span class='game-result game-result-otl'>OTL</span></span></div>
 <div class='team-label'>Home Team</div>
 </div>
 <div class='stats-tiles'>
@@ -1571,28 +1661,6 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 </div>
 </div>
-<div class='odds-section'>
-<div class='odds-toggle'>View Odds ▼</div>
-<div class='odds-content'>
-<div class='odds-grid'>
-<div class='odds-card'>
-<div class='odds-label'>Moneyline</div>
-<div class='odds-value'><span>Calgary Flames</span><span>2.60</span></div>
-<div class='odds-value'><span>Detroit Red Wings</span><span>1.51</span></div>
-</div>
-<div class='odds-card'>
-<div class='odds-label'>Total</div>
-<div class='odds-value'><span>Over 6.0</span><span>1.94</span></div>
-<div class='odds-value'><span>Under 6.0</span><span>1.83</span></div>
-</div>
-<div class='odds-card'>
-<div class='odds-label'>Spread</div>
-<div class='odds-value'><span>Calgary Flames +1.5</span><span>1.61</span></div>
-<div class='odds-value'><span>Detroit Red Wings -1.5</span><span>2.28</span></div>
-</div>
-</div>
-</div>
-</div>
 </div>
 <div class='game-card' id='game-2025021064'>
 <div class='game-time'>07:00 PM</div>
@@ -1608,9 +1676,6 @@ document.addEventListener('DOMContentLoaded', function() {
 <span class='h2h-result h2h-win'>BOS 4-1</span>
 </div>
 </div>
-<div class='signals-row'>
-<div class='h2h-totals-badge low-scoring'>🛡️ H2H Avg: 5.0 goals</div>
-</div>
 <div class='key-insights'>
 <div class='insights-title'>📊 Key Insights</div>
 <div class='insights-grid'>
@@ -1622,6 +1687,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <button class='daily-lines-btn' disabled title='Lines not available yet'>📋 Daily Lines</button>
 </div>
 <div class='team-record'>37-23-6 <span class='positive-form'>(5-3-2)</span></div>
+<div class='last-5-games'>Last 5 Games: <span class='last-5-results'><span class='game-result game-result-win'>W</span><span class='game-result game-result-otl'>OTL</span><span class='game-result game-result-win'>W</span><span class='game-result game-result-loss'>L</span><span class='game-result game-result-win'>W</span></span></div>
 <div class='team-label'>Away Team</div>
 </div>
 <div class='stats-tiles'>
@@ -1674,6 +1740,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <button class='daily-lines-btn' disabled title='Lines not available yet'>📋 Daily Lines</button>
 </div>
 <div class='team-record'>33-31-2 <span class='neutral-form'>(5-5-0)</span></div>
+<div class='last-5-games'>Last 5 Games: <span class='last-5-results'><span class='game-result game-result-win'>W</span><span class='game-result game-result-win'>W</span><span class='game-result game-result-loss'>L</span><span class='game-result game-result-loss'>L</span><span class='game-result game-result-win'>W</span></span></div>
 <div class='team-label'>Home Team</div>
 </div>
 <div class='stats-tiles'>
@@ -1720,28 +1787,6 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 </div>
 </div>
-<div class='odds-section'>
-<div class='odds-toggle'>View Odds ▼</div>
-<div class='odds-content'>
-<div class='odds-grid'>
-<div class='odds-card'>
-<div class='odds-label'>Moneyline</div>
-<div class='odds-value'><span>Boston Bruins</span><span>2.07</span></div>
-<div class='odds-value'><span>New Jersey Devils</span><span>1.78</span></div>
-</div>
-<div class='odds-card'>
-<div class='odds-label'>Total</div>
-<div class='odds-value'><span>Over 6.0</span><span>1.95</span></div>
-<div class='odds-value'><span>Under 6.0</span><span>1.82</span></div>
-</div>
-<div class='odds-card'>
-<div class='odds-label'>Spread</div>
-<div class='odds-value'><span>Boston Bruins +1.5</span><span>1.41</span></div>
-<div class='odds-value'><span>New Jersey Devils -1.5</span><span>2.88</span></div>
-</div>
-</div>
-</div>
-</div>
 </div>
 <div class='game-card' id='game-2025021065'>
 <div class='game-time'>07:00 PM</div>
@@ -1759,8 +1804,6 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 <div class='signals-row'>
 <div class='prediction-indicator home-favored'>↗ Trending: NYR</div>
-<div class='ou-signal over-signal'>📈 Over 5.5</div>
-<div class='h2h-totals-badge high-scoring'>⚡ H2H Avg: 7.0 goals</div>
 <div class='streak-badge win-streak'>🔥 NYR 4W Streak</div>
 </div>
 <div class='key-insights'>
@@ -1774,6 +1817,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <button class='daily-lines-btn' disabled title='Lines not available yet'>📋 Daily Lines</button>
 </div>
 <div class='team-record'>27-24-15 <span class='negative-form'>(4-5-1)</span></div>
+<div class='last-5-games'>Last 5 Games: <span class='last-5-results'><span class='game-result game-result-loss'>L</span><span class='game-result game-result-win'>W</span><span class='game-result game-result-otl'>OTL</span><span class='game-result game-result-win'>W</span><span class='game-result game-result-loss'>L</span></span></div>
 <div class='team-label'>Away Team</div>
 </div>
 <div class='stats-tiles'>
@@ -1826,6 +1870,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <button class='daily-lines-btn' disabled title='Lines not available yet'>📋 Daily Lines</button>
 </div>
 <div class='team-record'>28-30-8 <span class='positive-form'>(6-2-2)</span></div>
+<div class='last-5-games'>Last 5 Games: <span class='last-5-results'><span class='game-result game-result-loss'>L</span><span class='game-result game-result-win'>W</span><span class='game-result game-result-win'>W</span><span class='game-result game-result-win'>W</span><span class='game-result game-result-win'>W</span></span></div>
 <div class='team-label'>Home Team</div>
 </div>
 <div class='stats-tiles'>
@@ -1872,28 +1917,6 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 </div>
 </div>
-<div class='odds-section'>
-<div class='odds-toggle'>View Odds ▼</div>
-<div class='odds-content'>
-<div class='odds-grid'>
-<div class='odds-card'>
-<div class='odds-label'>Moneyline</div>
-<div class='odds-value'><span>Los Angeles Kings</span><span>1.83</span></div>
-<div class='odds-value'><span>New York Rangers</span><span>1.97</span></div>
-</div>
-<div class='odds-card'>
-<div class='odds-label'>Total</div>
-<div class='odds-value'><span>Over 5.5</span><span>1.80</span></div>
-<div class='odds-value'><span>Under 5.5</span><span>2.00</span></div>
-</div>
-<div class='odds-card'>
-<div class='odds-label'>Spread</div>
-<div class='odds-value'><span>Los Angeles Kings -1.5</span><span>3.00</span></div>
-<div class='odds-value'><span>New York Rangers +1.5</span><span>1.38</span></div>
-</div>
-</div>
-</div>
-</div>
 </div>
 <div class='game-card' id='game-2025021066'>
 <div class='game-time'>08:00 PM</div>
@@ -1913,8 +1936,6 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 <div class='signals-row'>
 <div class='prediction-indicator home-favored'>↗ Trending: DAL</div>
-<div class='ou-signal over-signal'>📈 Over 6.0</div>
-<div class='h2h-totals-badge low-scoring'>🛡️ H2H Avg: 5.0 goals</div>
 <div class='streak-badge lose-streak'>❄️ UTA 4L Streak</div>
 <div class='streak-badge win-streak'>🔥 DAL 4W Streak</div>
 </div>
@@ -1929,6 +1950,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <button class='daily-lines-btn' disabled title='Lines not available yet'>📋 Daily Lines</button>
 </div>
 <div class='team-record'>34-27-6 <span class='neutral-form'>(4-4-2)</span></div>
+<div class='last-5-games'>Last 5 Games: <span class='last-5-results'><span class='game-result game-result-win'>W</span><span class='game-result game-result-otl'>OTL</span><span class='game-result game-result-loss'>L</span><span class='game-result game-result-otl'>OTL</span><span class='game-result game-result-loss'>L</span></span></div>
 <div class='team-label'>Away Team</div>
 </div>
 <div class='stats-tiles'>
@@ -1981,6 +2003,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <button class='daily-lines-btn' disabled title='Lines not available yet'>📋 Daily Lines</button>
 </div>
 <div class='team-record'>42-14-10 <span class='positive-form'>(9-0-1)</span></div>
+<div class='last-5-games'>Last 5 Games: <span class='last-5-results'><span class='game-result game-result-sol'>SOL</span><span class='game-result game-result-win'>W</span><span class='game-result game-result-win'>W</span><span class='game-result game-result-win'>W</span><span class='game-result game-result-win'>W</span></span></div>
 <div class='team-label'>Home Team</div>
 </div>
 <div class='stats-tiles'>
@@ -2027,28 +2050,6 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 </div>
 </div>
-<div class='odds-section'>
-<div class='odds-toggle'>View Odds ▼</div>
-<div class='odds-content'>
-<div class='odds-grid'>
-<div class='odds-card'>
-<div class='odds-label'>Moneyline</div>
-<div class='odds-value'><span>Utah Mammoth</span><span>2.40</span></div>
-<div class='odds-value'><span>Dallas Stars</span><span>1.57</span></div>
-</div>
-<div class='odds-card'>
-<div class='odds-label'>Total</div>
-<div class='odds-value'><span>Over 6.0</span><span>1.96</span></div>
-<div class='odds-value'><span>Under 6.0</span><span>1.81</span></div>
-</div>
-<div class='odds-card'>
-<div class='odds-label'>Spread</div>
-<div class='odds-value'><span>Utah Mammoth +1.5</span><span>1.55</span></div>
-<div class='odds-value'><span>Dallas Stars -1.5</span><span>2.43</span></div>
-</div>
-</div>
-</div>
-</div>
 </div>
 <div class='game-card' id='game-2025021067'>
 <div class='game-time'>09:30 PM</div>
@@ -2067,6 +2068,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <button class='daily-lines-btn' disabled title='Lines not available yet'>📋 Daily Lines</button>
 </div>
 <div class='team-record'>33-18-15 <span class='positive-form'>(4-3-3)</span></div>
+<div class='last-5-games'>Last 5 Games: <span class='last-5-results'><span class='game-result game-result-sol'>SOL</span><span class='game-result game-result-win'>W</span><span class='game-result game-result-sol'>SOL</span><span class='game-result game-result-loss'>L</span><span class='game-result game-result-win'>W</span></span></div>
 <div class='team-label'>Away Team</div>
 </div>
 <div class='stats-tiles'>
@@ -2119,6 +2121,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <button class='daily-lines-btn' disabled title='Lines not available yet'>📋 Daily Lines</button>
 </div>
 <div class='team-record'>44-12-9 <span class='positive-form'>(7-3-0)</span></div>
+<div class='last-5-games'>Last 5 Games: <span class='last-5-results'><span class='game-result game-result-win'>W</span><span class='game-result game-result-win'>W</span><span class='game-result game-result-loss'>L</span><span class='game-result game-result-win'>W</span><span class='game-result game-result-loss'>L</span></span></div>
 <div class='team-label'>Home Team</div>
 </div>
 <div class='stats-tiles'>
@@ -2162,28 +2165,6 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 </div>
 <div class='stat-games'>Last 10 games</div>
-</div>
-</div>
-</div>
-<div class='odds-section'>
-<div class='odds-toggle'>View Odds ▼</div>
-<div class='odds-content'>
-<div class='odds-grid'>
-<div class='odds-card'>
-<div class='odds-label'>Moneyline</div>
-<div class='odds-value'><span>Pittsburgh Penguins</span><span>2.95</span></div>
-<div class='odds-value'><span>Colorado Avalanche</span><span>1.41</span></div>
-</div>
-<div class='odds-card'>
-<div class='odds-label'>Total</div>
-<div class='odds-value'><span>Over 6.5</span><span>1.83</span></div>
-<div class='odds-value'><span>Under 6.5</span><span>1.93</span></div>
-</div>
-<div class='odds-card'>
-<div class='odds-label'>Spread</div>
-<div class='odds-value'><span>Pittsburgh Penguins +1.5</span><span>1.76</span></div>
-<div class='odds-value'><span>Colorado Avalanche -1.5</span><span>2.04</span></div>
-</div>
 </div>
 </div>
 </div>

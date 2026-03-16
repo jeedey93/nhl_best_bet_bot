@@ -235,6 +235,100 @@ def get_nhl_team_last_games(team_name, last_n_games=10):
         return None
 
 
+def get_nhl_last_5_games_results(team_name):
+    """
+    Get the last 5 game results for an NHL team in format like "W-W-L-OT-W".
+
+    Args:
+        team_name: Name of the team or abbreviation
+
+    Returns:
+        String in format "W-W-L-OT-W" or None if data unavailable
+    """
+    try:
+        # Check if team_name is already an abbreviation (3 letters) or needs lookup
+        if len(team_name) == 3 and team_name.isupper():
+            team_abbrev = team_name
+        else:
+            team_abbrev = NHL_TEAM_ABBREV_MAP.get(team_name)
+            if not team_abbrev:
+                return None
+
+        url = f'https://api-web.nhle.com/v1/club-schedule-season/{team_abbrev}/now'
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()
+        data = response.json()
+        time.sleep(0.6)  # Add delay to avoid 429 rate limits
+
+        # Get last 5 completed games
+        all_completed_games = [g for g in data.get('games', []) if g.get('gameState') in ['OFF', 'FINAL']]
+        last_5_games = all_completed_games[-5:] if len(all_completed_games) >= 5 else all_completed_games
+
+        if not last_5_games:
+            return None
+
+        results = []
+        for game in last_5_games:
+            away_abbrev = game['awayTeam']['abbrev']
+            home_abbrev = game['homeTeam']['abbrev']
+            away_score = game['awayTeam'].get('score', 0)
+            home_score = game['homeTeam'].get('score', 0)
+
+            # Determine if team won
+            if away_abbrev == team_abbrev:
+                is_win = away_score > home_score
+            else:
+                is_win = home_score > away_score
+
+            if is_win:
+                results.append('W')
+            else:
+                # Check if it was an OT/SO loss
+                game_outcome = game.get('gameOutcome', {})
+                last_period = game_outcome.get('lastPeriodType', 'REG')
+                if last_period == 'OT':
+                    results.append('OTL')
+                elif last_period == 'SO':
+                    results.append('SOL')
+                else:
+                    results.append('L')
+
+        return '-'.join(results) if results else None
+
+    except Exception as e:
+        print(f"⚠️ Error fetching last 5 games for {team_name}: {e}")
+        return None
+
+
+def format_last_5_games_html(results_string):
+    """
+    Convert results string like "W-L-L-OTL-W" into styled HTML elements.
+
+    Args:
+        results_string: String like "W-L-L-OTL-W" (oldest to newest)
+
+    Returns:
+        HTML string with individual styled game result elements
+    """
+    if not results_string:
+        return ""
+
+    results = results_string.split('-')
+    html_parts = []
+
+    for result in results:
+        if result == 'W':
+            html_parts.append("<span class='game-result game-result-win'>W</span>")
+        elif result == 'L':
+            html_parts.append("<span class='game-result game-result-loss'>L</span>")
+        elif result == 'OTL':
+            html_parts.append("<span class='game-result game-result-otl'>OTL</span>")
+        elif result == 'SOL':
+            html_parts.append("<span class='game-result game-result-sol'>SOL</span>")
+
+    return ''.join(html_parts)
+
+
 def get_nhl_team_season_stats(team_name):
     """
     Get full season stats for an NHL team from the API (all completed games).
@@ -916,6 +1010,14 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
             html += f"<div class='team-record'>{away_record} <span class='{form_class}'>({recent_form})</span></div>\n"
         else:
             html += f"<div class='team-record'>{away_record}</div>\n"
+
+        # Add last 5 games display for NHL
+        if sport == 'nhl':
+            away_last_5 = get_nhl_last_5_games_results(away_api_name)
+            if away_last_5:
+                away_last_5_html = format_last_5_games_html(away_last_5)
+                html += f"<div class='last-5-games'>Last 5 Games: <span class='last-5-results'>{away_last_5_html}</span></div>\n"
+
     html += "<div class='team-label'>Away Team</div>\n"
     html += "</div>\n"
 
@@ -1104,6 +1206,14 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
             html += f"<div class='team-record'>{home_record} <span class='{form_class}'>({recent_form})</span></div>\n"
         else:
             html += f"<div class='team-record'>{home_record}</div>\n"
+
+        # Add last 5 games display for NHL
+        if sport == 'nhl':
+            home_last_5 = get_nhl_last_5_games_results(home_api_name)
+            if home_last_5:
+                home_last_5_html = format_last_5_games_html(home_last_5)
+                html += f"<div class='last-5-games'>Last 5 Games: <span class='last-5-results'>{home_last_5_html}</span></div>\n"
+
     html += "<div class='team-label'>Home Team</div>\n"
     html += "</div>\n"
 
