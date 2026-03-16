@@ -188,6 +188,10 @@ def generate_dashboard_html(all_data):
     chart_wins = [daily_stats[d]['wins'] for d in sorted_dates]
     chart_losses = [daily_stats[d]['losses'] for d in sorted_dates]
 
+    # Calculate daily net results (wins - losses) for single bar chart
+    daily_net = [daily_stats[d]['wins'] - daily_stats[d]['losses'] for d in sorted_dates]
+    daily_colors = ['#10b981' if net > 0 else '#ef4444' if net < 0 else '#94a3b8' for net in daily_net]
+
     # Calculate cumulative profit
     cumulative_profit = []
     running_profit = 0
@@ -781,6 +785,8 @@ body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans
 const dates = [DATES_PLACEHOLDER];
 const dailyWins = [DAILY_WINS_PLACEHOLDER];
 const dailyLosses = [DAILY_LOSSES_PLACEHOLDER];
+const dailyNet = [DAILY_NET_PLACEHOLDER];
+const dailyColors = [DAILY_COLORS_PLACEHOLDER];
 const cumulativeProfit = [CUMULATIVE_PROFIT_PLACEHOLDER];
 const rollingWinRate = [ROLLING_WIN_RATE_PLACEHOLDER];
 
@@ -903,16 +909,11 @@ new Chart(dailyTrendCtx, {
     labels: dates,
     datasets: [
       {
-        label: 'Wins',
-        data: dailyWins,
-        backgroundColor: '#10b981',
-        borderRadius: 4
-      },
-      {
-        label: 'Losses',
-        data: dailyLosses,
-        backgroundColor: '#ef4444',
-        borderRadius: 4
+        label: 'Net Result (W-L)',
+        data: dailyNet,
+        backgroundColor: dailyColors,
+        borderRadius: 4,
+        borderWidth: 0
       }
     ]
   },
@@ -926,6 +927,39 @@ new Chart(dailyTrendCtx, {
           padding: isMobile ? 8 : 12,
           font: {
             size: isMobile ? 10 : 12
+          },
+          generateLabels: function(chart) {
+            return [
+              {
+                text: 'Net Win',
+                fillStyle: '#10b981',
+                strokeStyle: '#10b981',
+                lineWidth: 0
+              },
+              {
+                text: 'Net Loss',
+                fillStyle: '#ef4444',
+                strokeStyle: '#ef4444',
+                lineWidth: 0
+              }
+            ];
+          }
+        }
+      },
+      tooltip: {
+        callbacks: {
+          label: function(context) {
+            const value = context.parsed.y;
+            const dateIndex = context.dataIndex;
+            const wins = dailyWins[dateIndex];
+            const losses = dailyLosses[dateIndex];
+            if (value > 0) {
+              return `Net: +${value} (${wins}W - ${losses}L)`;
+            } else if (value < 0) {
+              return `Net: ${value} (${wins}W - ${losses}L)`;
+            } else {
+              return `Net: 0 (${wins}W - ${losses}L)`;
+            }
           }
         }
       }
@@ -937,9 +971,26 @@ new Chart(dailyTrendCtx, {
           stepSize: 1,
           font: {
             size: isMobile ? 9 : 11
+          },
+          callback: function(value) {
+            if (value > 0) return '+' + value;
+            return value;
           }
         },
-        grid: { color: '#e5e7eb' }
+        grid: {
+          color: function(context) {
+            if (context.tick.value === 0) {
+              return '#9ca3af';
+            }
+            return '#e5e7eb';
+          },
+          lineWidth: function(context) {
+            if (context.tick.value === 0) {
+              return 2;
+            }
+            return 1;
+          }
+        }
       },
       x: {
         grid: { display: false },
@@ -1112,6 +1163,8 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     html = html.replace('DATES_PLACEHOLDER', ', '.join(chart_dates))
     html = html.replace('DAILY_WINS_PLACEHOLDER', ', '.join(map(str, chart_wins)))
     html = html.replace('DAILY_LOSSES_PLACEHOLDER', ', '.join(map(str, chart_losses)))
+    html = html.replace('DAILY_NET_PLACEHOLDER', ', '.join(map(str, daily_net)))
+    html = html.replace('DAILY_COLORS_PLACEHOLDER', ', '.join(f"'{c}'" for c in daily_colors))
     html = html.replace('CUMULATIVE_PROFIT_PLACEHOLDER', ', '.join(map(str, cumulative_profit)))
     html = html.replace('ROLLING_WIN_RATE_PLACEHOLDER', ', '.join(map(str, rolling_win_rates)))
     html = html.replace('MONTH_LABELS_PLACEHOLDER', ', '.join(month_labels))
