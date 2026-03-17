@@ -768,6 +768,10 @@ def parse_this_week_results(sport_key):
     monday_this_week = today - timedelta(days=days_since_monday)
     monday_date = monday_this_week.strftime("%Y-%m-%d")
 
+    # Special case: If today is Monday, we also want to include today's file
+    # because it contains yesterday's (Sunday's) results from the week that just ended
+    is_monday = days_since_monday == 0
+
     total_wins = 0
     total_losses = 0
     total_units_won = 0
@@ -782,11 +786,22 @@ def parse_this_week_results(sport_key):
 
         file_date = date_match.group(1)
 
-        # Only include files from Monday onwards this week
+        # Only include files from this week
         # NOTE: The 6am results workflow creates files with TODAY's date but contains YESTERDAY's games
-        # So we need to exclude today's file (which has yesterday's results)
-        if file_date < monday_date or file_date >= today_str:
-            continue
+        # So for "this week" (Mon-Sun games), we need files from Tuesday onwards (Tue-Mon files)
+        #
+        # Normal days: Include files where monday_date < file_date <= today
+        # Monday: Also include today's file (which has last Sunday's results), so we show the complete week
+        if is_monday:
+            # On Monday: Include files from last Tuesday through today (has last week's Mon-Sun results)
+            last_monday = monday_this_week - timedelta(days=7)
+            last_monday_str = last_monday.strftime("%Y-%m-%d")
+            if file_date <= last_monday_str or file_date > today_str:
+                continue
+        else:
+            # Other days: Include files from this Tuesday onwards
+            if file_date <= monday_date or file_date > today_str:
+                continue
 
         try:
             content = read_file(file_path)
