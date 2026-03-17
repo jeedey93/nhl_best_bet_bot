@@ -345,15 +345,6 @@ body {
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
 }
 
-.remove-btn {
-  border-color: rgba(255, 71, 87, 0.6);
-}
-
-.remove-btn:hover {
-  background: rgba(255, 71, 87, 0.3);
-  border-color: rgba(255, 71, 87, 0.8);
-}
-
 .message {
   background: rgba(255, 255, 255, 0.2);
   border-radius: 12px;
@@ -684,7 +675,6 @@ body {
 
       <div class="action-buttons" id="actionButtons">
         <button class="action-btn" id="changeBtn">Change Vote</button>
-        <button class="action-btn remove-btn" id="removeBtn">Remove Vote</button>
       </div>
     </div>
   </div>
@@ -831,7 +821,6 @@ function setupVoteButtons() {
   const submitBtn = document.getElementById('submitBtn');
   const submitSection = document.getElementById('submitSection');
   const changeBtn = document.getElementById('changeBtn');
-  const removeBtn = document.getElementById('removeBtn');
   const actionButtons = document.getElementById('actionButtons');
 
   options.forEach(option => {
@@ -881,12 +870,6 @@ function setupVoteButtons() {
     // Show submit section, hide action buttons
     submitSection.classList.remove('active');
     actionButtons.classList.remove('active');
-  });
-
-  // Remove vote button
-  removeBtn.addEventListener('click', async () => {
-    if (!submittedVote) return;
-    await removeVote(submittedVote);
   });
 
   // Load user's previous vote from localStorage
