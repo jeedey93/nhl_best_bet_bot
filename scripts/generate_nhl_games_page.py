@@ -1348,7 +1348,7 @@ def generate_game_card(away_team, home_team, game_time, game_odds, away_record=N
     if sport == 'nhl' and home_absences:
         html += "<div class='absences-section'>\n"
         html += "<div class='absences-title'>⚕️ Out</div>\n"
-        for player in home_absences[:5]:  # Show max 5 players
+        for player in home_absences:
             html += f"<div class='absence-item'>{player}</div>\n"
         html += "</div>\n"
 
