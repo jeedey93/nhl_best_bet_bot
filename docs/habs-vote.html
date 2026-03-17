@@ -728,11 +728,23 @@ async function fetchOddsData(game) {
   }
 
   try {
-    // Fetch from The Odds API via our proxy (to avoid CORS and caching issues)
+    // For localhost, skip odds fetch (or you can add a local mock)
+    const isLocalhost = window.location.hostname === 'localhost';
+
+    if (isLocalhost) {
+      // Mock data for local testing
+      oddsData = { totals: 6.5 };
+      updateOULabels();
+      console.log('Using mock odds data for localhost');
+      return;
+    }
+
+    // Fetch from The Odds API via our proxy
     const response = await fetch('https://parieurdiscipline.com/api/nhl-odds');
 
     if (!response.ok) {
       console.error('Failed to fetch odds');
+      updateOULabels(); // Show "not available"
       return;
     }
 
@@ -752,9 +764,13 @@ async function fetchOddsData(game) {
       sessionStorage.setItem(cacheKey, JSON.stringify(oddsData));
       console.log('Fetched and cached odds data');
       updateOULabels();
+    } else {
+      console.log('No odds found for Canadiens game');
+      updateOULabels(); // Show "not available"
     }
   } catch (error) {
     console.error('Error fetching odds:', error);
+    updateOULabels(); // Show "not available"
   }
 }
 
