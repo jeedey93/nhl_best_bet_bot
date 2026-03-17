@@ -527,11 +527,11 @@ body {
         <div class="category-header">
           <div class="category-icon">🏆</div>
           <div class="category-title">Game Result</div>
-          <div class="category-subtitle">Who will win tonight?</div>
+          <div class="category-subtitle" id="resultSubtitle">Who will win tonight?</div>
         </div>
         <div class="vote-grid">
           <div class="vote-option" data-vote="win">
-            <div class="option-label">WIN</div>
+            <div class="option-label" id="winLabel">HABS WIN</div>
             <div class="option-stats">
               <div class="option-percentage" id="pct-win">0%</div>
               <div class="option-count" id="count-win">0 votes</div>
@@ -541,7 +541,7 @@ body {
             </div>
           </div>
           <div class="vote-option" data-vote="loss">
-            <div class="option-label">LOSS</div>
+            <div class="option-label" id="lossLabel">HABS LOSS</div>
             <div class="option-stats">
               <div class="option-percentage" id="pct-loss">0%</div>
               <div class="option-count" id="count-loss">0 votes</div>
@@ -712,6 +712,14 @@ function displayGameInfo(game) {
   document.getElementById('awayLogo').alt = game.away;
   document.getElementById('homeLogo').src = game.homeLogo;
   document.getElementById('homeLogo').alt = game.home;
+
+  // Update Win/Loss labels based on opponent
+  const opponent = game.homeAbbrev === 'MTL' ? game.awayAbbrev : game.homeAbbrev;
+  const opponentFull = game.homeAbbrev === 'MTL' ? game.away : game.home;
+
+  document.getElementById('winLabel').textContent = `HABS WIN`;
+  document.getElementById('lossLabel').textContent = `${opponent} WIN`;
+  document.getElementById('resultSubtitle').textContent = `Canadiens vs ${opponentFull}`;
 
   const gameTime = new Date(game.startTime);
   const options = {
