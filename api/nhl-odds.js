@@ -1,12 +1,12 @@
 /**
  * Serverless proxy for NHL odds (The Odds API)
- * Caches odds for 2 hours to minimize API calls
+ * Caches odds for 12 hours to minimize API calls
  *
  * Deployment: Vercel Serverless Function
  */
 
 const ODDS_API_KEY = process.env.ODDS_API_KEY;
-const CACHE_DURATION = 2 * 60 * 60 * 1000; // 2 hours in milliseconds
+const CACHE_DURATION = 12 * 60 * 60 * 1000; // 12 hours in milliseconds
 
 // In-memory cache (resets on cold start, but that's fine for serverless)
 let cachedOdds = null;
