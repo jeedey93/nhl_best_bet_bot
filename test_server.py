@@ -23,7 +23,7 @@ class VotingRequestHandler(SimpleHTTPRequestHandler):
         """Handle CORS preflight"""
         self.send_response(200)
         self.send_header('Access-Control-Allow-Origin', '*')
-        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS')
         self.send_header('Access-Control-Allow-Headers', 'Content-Type')
         self.end_headers()
 
@@ -127,6 +127,51 @@ class VotingRequestHandler(SimpleHTTPRequestHandler):
             }
             self.wfile.write(json.dumps(response).encode())
             print(f"✓ Vote recorded: {pick_id} (Total: {votes_db[date][pick_id]})")
+            return
+
+        self.send_response(404)
+        self.end_headers()
+
+    def do_DELETE(self):
+        """Handle DELETE requests"""
+        parsed_path = urlparse(self.path)
+
+        # Mock voting API - remove vote
+        if parsed_path.path == '/api/vote':
+            query_params = parse_qs(parsed_path.query)
+            date = query_params.get('date', [datetime.now().strftime('%Y-%m-%d')])[0]
+
+            # Read request body
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            data = json.loads(post_data.decode())
+
+            pick_id = data.get('pickId')
+
+            if not pick_id:
+                self.send_response(400)
+                self.send_header('Content-Type', 'application/json')
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.end_headers()
+                response = {'success': False, 'error': 'Missing pickId'}
+                self.wfile.write(json.dumps(response).encode())
+                return
+
+            # Remove vote (simplified - just decrement)
+            if date in votes_db and pick_id in votes_db[date]:
+                votes_db[date][pick_id] = max(0, votes_db[date][pick_id] - 1)
+
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+
+            response = {
+                'success': True,
+                'votes': votes_db.get(date, {})
+            }
+            self.wfile.write(json.dumps(response).encode())
+            print(f"✓ Vote removed: {pick_id} (Total: {votes_db.get(date, {}).get(pick_id, 0)})")
             return
 
         self.send_response(404)

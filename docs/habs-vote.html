@@ -8,102 +8,128 @@
 <link rel='icon' type='image/png' href='parieur_discipline_icon_1024.png'>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   background: linear-gradient(135deg, #192168 0%, #AF1E2D 100%);
   color: #fff;
   min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   padding: 20px;
 }
 
 .container {
-  max-width: 600px;
+  max-width: 800px;
   width: 100%;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border-radius: 20px;
-  padding: 40px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  margin: 0 auto;
 }
 
-.logo {
+.header {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 40px;
+  animation: fadeInDown 0.8s ease;
 }
 
-.logo h1 {
-  font-size: 2.5em;
+.header h1 {
+  font-size: 3em;
   font-weight: 900;
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-}
-
-.logo .subtitle {
-  font-size: 1.1em;
-  opacity: 0.9;
-  margin-top: 5px;
-}
-
-.game-info {
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 15px;
-  padding: 20px;
-  text-align: center;
-  margin-bottom: 30px;
-}
-
-.game-info .team-logos {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 20px;
-  margin-bottom: 15px;
-}
-
-.game-info .team-logo {
-  width: 80px;
-  height: 80px;
-  object-fit: contain;
-}
-
-.game-info .vs {
-  font-size: 1.5em;
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.8);
-}
-
-.game-info .matchup {
-  font-size: 1.5em;
-  font-weight: 700;
+  text-shadow: 3px 3px 6px rgba(0,0,0,0.4);
   margin-bottom: 10px;
+  letter-spacing: 2px;
 }
 
-.game-info .time {
-  font-size: 1.1em;
-  opacity: 0.9;
+.header .subtitle {
+  font-size: 1.3em;
+  opacity: 0.95;
+  font-weight: 300;
+  letter-spacing: 1px;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  border-radius: 24px;
+  padding: 40px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  animation: fadeInUp 0.8s ease;
 }
 
 .loading {
   text-align: center;
-  font-size: 1.3em;
-  padding: 40px;
+  font-size: 1.5em;
+  padding: 60px;
+  animation: pulse 1.5s ease-in-out infinite;
 }
 
 .no-game {
   text-align: center;
-  padding: 40px;
+  padding: 60px 40px;
 }
 
 .no-game h2 {
-  font-size: 1.8em;
-  margin-bottom: 15px;
+  font-size: 2.2em;
+  margin-bottom: 20px;
+  font-weight: 700;
 }
 
 .no-game p {
-  font-size: 1.1em;
+  font-size: 1.2em;
   opacity: 0.9;
+  line-height: 1.8;
+}
+
+.game-header {
+  text-align: center;
+  margin-bottom: 40px;
+  padding-bottom: 30px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.team-matchup {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 30px;
+  margin-bottom: 20px;
+}
+
+.team {
+  text-align: center;
+  flex: 1;
+  max-width: 200px;
+}
+
+.team-logo {
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+  margin-bottom: 15px;
+  transition: transform 0.3s ease;
+}
+
+.team-logo:hover {
+  transform: scale(1.1);
+}
+
+.team-name {
+  font-size: 1.3em;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.vs-divider {
+  font-size: 2em;
+  font-weight: 900;
+  color: #FFD700;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.game-time {
+  font-size: 1.2em;
+  opacity: 0.9;
+  font-weight: 500;
 }
 
 .voting-section {
@@ -112,231 +138,352 @@ body {
 
 .voting-section.active {
   display: block;
+  animation: fadeIn 0.6s ease;
 }
 
 .vote-category {
-  margin-bottom: 30px;
+  margin-bottom: 40px;
 }
 
-.vote-category h2 {
-  font-size: 1.3em;
-  margin-bottom: 15px;
+.category-header {
   text-align: center;
-  font-weight: 600;
+  margin-bottom: 25px;
 }
 
-.vote-buttons {
+.category-icon {
+  font-size: 2.5em;
+  margin-bottom: 10px;
+}
+
+.category-title {
+  font-size: 1.8em;
+  font-weight: 700;
+  margin-bottom: 5px;
+}
+
+.category-subtitle {
+  font-size: 1em;
+  opacity: 0.8;
+  font-weight: 400;
+}
+
+.vote-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 15px;
+  gap: 20px;
 }
 
-.vote-btn {
-  background: rgba(255, 255, 255, 0.2);
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  color: white;
-  padding: 15px;
-  border-radius: 12px;
-  font-size: 1.1em;
-  font-weight: 700;
+.vote-option {
+  background: rgba(255, 255, 255, 0.15);
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 16px;
+  padding: 25px;
   cursor: pointer;
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  text-align: center;
 }
 
-.vote-btn:hover {
-  background: rgba(255, 255, 255, 0.3);
+.vote-option:hover {
+  background: rgba(255, 255, 255, 0.25);
   border-color: rgba(255, 255, 255, 0.5);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
 }
 
-.vote-btn.selected {
+.vote-option.selected {
   background: rgba(255, 215, 0, 0.3);
   border-color: #FFD700;
-  border-width: 3px;
+  border-width: 4px;
+  box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4);
 }
 
-.vote-btn.selected::before {
+.vote-option.selected::before {
   content: '✓';
   position: absolute;
-  top: 5px;
-  right: 10px;
-  font-size: 1.5em;
+  top: 10px;
+  right: 15px;
+  font-size: 2em;
   color: #FFD700;
   font-weight: 900;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
 }
 
-.vote-btn.submitted {
+.vote-option.submitted {
   background: rgba(46, 213, 115, 0.3);
   border-color: #2ed573;
-  border-width: 3px;
+  border-width: 4px;
   cursor: default;
+  box-shadow: 0 8px 25px rgba(46, 213, 115, 0.4);
 }
 
-.vote-btn.submitted::after {
-  content: 'Your Vote';
+.vote-option.submitted::after {
+  content: 'YOUR VOTE';
   position: absolute;
-  top: 5px;
-  right: 10px;
-  font-size: 0.75em;
+  top: 10px;
+  right: 15px;
+  font-size: 0.7em;
   color: #2ed573;
-  font-weight: 600;
+  font-weight: 800;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 4px 8px;
+  border-radius: 6px;
+  color: #192168;
 }
 
-.vote-label {
-  font-size: 1.3em;
-  margin-bottom: 8px;
-}
-
-.vote-stats {
-  width: 100%;
-  margin-top: 8px;
-}
-
-.vote-percentage {
+.option-label {
   font-size: 1.8em;
   font-weight: 900;
+  margin-bottom: 15px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.option-stats {
+  margin-top: 15px;
+}
+
+.option-percentage {
+  font-size: 2.5em;
+  font-weight: 900;
   color: #FFD700;
-  margin-bottom: 3px;
+  margin-bottom: 5px;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
 }
 
-.vote-count {
-  font-size: 0.85em;
+.option-count {
+  font-size: 0.95em;
   opacity: 0.85;
-  font-weight: 400;
+  font-weight: 500;
 }
 
-.vote-bar-container {
+.progress-bar {
   width: 100%;
-  height: 8px;
+  height: 10px;
   background: rgba(0, 0, 0, 0.3);
-  border-radius: 4px;
-  margin-top: 8px;
+  border-radius: 5px;
+  margin-top: 15px;
   overflow: hidden;
 }
 
-.vote-bar {
+.progress-fill {
   height: 100%;
   background: linear-gradient(90deg, #FFD700, #FFA500);
-  transition: width 0.6s ease;
-  border-radius: 4px;
-}
-
-.message {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 10px;
-  padding: 15px;
-  margin-top: 20px;
-  text-align: center;
-  font-size: 1.1em;
-}
-
-.message.success {
-  background: rgba(46, 213, 115, 0.3);
-  border: 2px solid rgba(46, 213, 115, 0.5);
-}
-
-.message.error {
-  background: rgba(255, 71, 87, 0.3);
-  border: 2px solid rgba(255, 71, 87, 0.5);
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 5px;
 }
 
 .submit-section {
-  margin-top: 30px;
+  margin-top: 40px;
   text-align: center;
+  display: none;
+}
+
+.submit-section.active {
+  display: block;
+  animation: fadeIn 0.5s ease;
 }
 
 .submit-btn {
   background: linear-gradient(135deg, #FFD700, #FFA500);
   border: none;
   color: #192168;
-  padding: 18px 50px;
-  border-radius: 12px;
-  font-size: 1.3em;
+  padding: 20px 60px;
+  border-radius: 16px;
+  font-size: 1.5em;
   font-weight: 900;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+  box-shadow: 0 6px 20px rgba(255, 215, 0, 0.5);
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 2px;
 }
 
 .submit-btn:hover:not(:disabled) {
   transform: translateY(-3px);
-  box-shadow: 0 6px 20px rgba(255, 215, 0, 0.6);
+  box-shadow: 0 10px 30px rgba(255, 215, 0, 0.7);
+}
+
+.submit-btn:active:not(:disabled) {
+  transform: translateY(-1px);
 }
 
 .submit-btn:disabled {
-  opacity: 0.5;
+  opacity: 0.6;
   cursor: not-allowed;
+  transform: none;
 }
 
 .action-buttons {
-  display: flex;
-  gap: 15px;
+  display: none;
+  gap: 20px;
   justify-content: center;
-  margin-top: 20px;
+  margin-top: 40px;
 }
 
-.change-btn, .remove-btn {
+.action-buttons.active {
+  display: flex;
+  animation: fadeIn 0.5s ease;
+}
+
+.action-btn {
   background: rgba(255, 255, 255, 0.2);
   border: 2px solid rgba(255, 255, 255, 0.4);
   color: white;
-  padding: 12px 30px;
-  border-radius: 10px;
-  font-size: 1em;
-  font-weight: 600;
+  padding: 15px 35px;
+  border-radius: 12px;
+  font-size: 1.1em;
+  font-weight: 700;
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
-.change-btn:hover, .remove-btn:hover {
+.action-btn:hover {
   background: rgba(255, 255, 255, 0.3);
   transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
 }
 
 .remove-btn {
-  border-color: rgba(255, 71, 87, 0.5);
+  border-color: rgba(255, 71, 87, 0.6);
 }
 
 .remove-btn:hover {
   background: rgba(255, 71, 87, 0.3);
-  border-color: rgba(255, 71, 87, 0.7);
+  border-color: rgba(255, 71, 87, 0.8);
+}
+
+.message {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 18px;
+  margin-top: 25px;
+  text-align: center;
+  font-size: 1.15em;
+  font-weight: 600;
+  display: none;
+}
+
+.message.active {
+  display: block;
+  animation: slideIn 0.4s ease;
+}
+
+.message.success {
+  background: rgba(46, 213, 115, 0.3);
+  border: 2px solid rgba(46, 213, 115, 0.6);
+}
+
+.message.error {
+  background: rgba(255, 71, 87, 0.3);
+  border: 2px solid rgba(255, 71, 87, 0.6);
 }
 
 .footer {
   text-align: center;
-  margin-top: 30px;
-  font-size: 0.9em;
+  margin-top: 50px;
+  font-size: 0.95em;
   opacity: 0.7;
 }
 
 .footer a {
   color: white;
-  text-decoration: underline;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+  transition: opacity 0.3s ease;
 }
 
+.footer a:hover {
+  opacity: 1;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+/* Mobile responsiveness */
 @media (max-width: 600px) {
-  .container {
+  .header h1 {
+    font-size: 2.2em;
+  }
+
+  .card {
     padding: 25px;
   }
 
-  .logo h1 {
-    font-size: 2em;
+  .team-logo {
+    width: 70px;
+    height: 70px;
   }
 
-  .game-info .matchup {
+  .team-name {
+    font-size: 1em;
+  }
+
+  .vs-divider {
+    font-size: 1.5em;
+  }
+
+  .option-label {
     font-size: 1.4em;
   }
 
-  .vote-btn {
-    padding: 15px;
-    font-size: 1.1em;
+  .option-percentage {
+    font-size: 2em;
+  }
+
+  .submit-btn {
+    padding: 16px 40px;
+    font-size: 1.2em;
+  }
+
+  .vote-grid {
+    gap: 15px;
+  }
+
+  .vote-option {
+    padding: 20px;
   }
 }
 </style>
@@ -344,93 +491,108 @@ body {
 <body>
 
 <div class="container">
-  <div class="logo">
+  <div class="header">
     <h1>🏒 GO HABS GO! 🏒</h1>
-    <div class="subtitle">Vote for tonight's game</div>
+    <div class="subtitle">Cast Your Vote for Tonight's Game</div>
   </div>
 
-  <div id="loading" class="loading">
-    <div>⏳ Loading today's game...</div>
-  </div>
-
-  <div id="noGame" class="no-game" style="display: none;">
-    <h2>😔 No Game Tonight</h2>
-    <p>The Montreal Canadiens are not playing today.</p>
-    <p style="margin-top: 15px; font-size: 0.95em;">Come back on game day to cast your vote!</p>
-  </div>
-
-  <div id="gameInfo" class="game-info" style="display: none;">
-    <div class="team-logos">
-      <img class="team-logo" id="awayLogo" alt="Away Team">
-      <div class="vs">VS</div>
-      <img class="team-logo" id="homeLogo" alt="Home Team">
+  <div class="card">
+    <div id="loading" class="loading">
+      <div>⏳ Loading today's game...</div>
     </div>
-    <div class="matchup" id="matchup"></div>
-    <div class="time" id="gameTime"></div>
-  </div>
 
-  <div id="votingSection" class="voting-section">
-    <div class="vote-category">
-      <h2>🏆 Game Result</h2>
-      <div class="vote-buttons">
-        <button class="vote-btn" data-vote="win" data-category="result">
-          <div class="vote-label">WIN</div>
-          <div class="vote-stats">
-            <div class="vote-percentage" id="pct-win">0%</div>
-            <div class="vote-count" id="count-win">0 votes</div>
-            <div class="vote-bar-container">
-              <div class="vote-bar" id="bar-win" style="width: 0%"></div>
-            </div>
-          </div>
-        </button>
-        <button class="vote-btn" data-vote="loss" data-category="result">
-          <div class="vote-label">LOSS</div>
-          <div class="vote-stats">
-            <div class="vote-percentage" id="pct-loss">0%</div>
-            <div class="vote-count" id="count-loss">0 votes</div>
-            <div class="vote-bar-container">
-              <div class="vote-bar" id="bar-loss" style="width: 0%"></div>
-            </div>
-          </div>
-        </button>
+    <div id="noGame" class="no-game" style="display: none;">
+      <h2>😔 No Game Tonight</h2>
+      <p>The Montreal Canadiens are not playing today.</p>
+      <p style="margin-top: 15px; font-size: 0.95em;">Come back on game day to cast your vote!</p>
+    </div>
+
+    <div id="gameHeader" class="game-header" style="display: none;">
+      <div class="team-matchup">
+        <div class="team">
+          <img class="team-logo" id="awayLogo" alt="Away Team">
+          <div class="team-name" id="awayName"></div>
+        </div>
+        <div class="vs-divider">VS</div>
+        <div class="team">
+          <img class="team-logo" id="homeLogo" alt="Home Team">
+          <div class="team-name" id="homeName"></div>
+        </div>
       </div>
+      <div class="game-time" id="gameTime"></div>
     </div>
 
-    <div class="vote-category">
-      <h2>🎯 Total Goals</h2>
-      <div class="vote-buttons">
-        <button class="vote-btn" data-vote="over" data-category="total">
-          <div class="vote-label">OVER</div>
-          <div class="vote-stats">
-            <div class="vote-percentage" id="pct-over">0%</div>
-            <div class="vote-count" id="count-over">0 votes</div>
-            <div class="vote-bar-container">
-              <div class="vote-bar" id="bar-over" style="width: 0%"></div>
+    <div id="votingSection" class="voting-section">
+      <div class="vote-category">
+        <div class="category-header">
+          <div class="category-icon">🏆</div>
+          <div class="category-title">Game Result</div>
+          <div class="category-subtitle">Who will win tonight?</div>
+        </div>
+        <div class="vote-grid">
+          <div class="vote-option" data-vote="win">
+            <div class="option-label">WIN</div>
+            <div class="option-stats">
+              <div class="option-percentage" id="pct-win">0%</div>
+              <div class="option-count" id="count-win">0 votes</div>
+              <div class="progress-bar">
+                <div class="progress-fill" id="bar-win" style="width: 0%"></div>
+              </div>
             </div>
           </div>
-        </button>
-        <button class="vote-btn" data-vote="under" data-category="total">
-          <div class="vote-label">UNDER</div>
-          <div class="vote-stats">
-            <div class="vote-percentage" id="pct-under">0%</div>
-            <div class="vote-count" id="count-under">0 votes</div>
-            <div class="vote-bar-container">
-              <div class="vote-bar" id="bar-under" style="width: 0%"></div>
+          <div class="vote-option" data-vote="loss">
+            <div class="option-label">LOSS</div>
+            <div class="option-stats">
+              <div class="option-percentage" id="pct-loss">0%</div>
+              <div class="option-count" id="count-loss">0 votes</div>
+              <div class="progress-bar">
+                <div class="progress-fill" id="bar-loss" style="width: 0%"></div>
+              </div>
             </div>
           </div>
-        </button>
+        </div>
       </div>
-    </div>
 
-    <div id="message" class="message" style="display: none;"></div>
+      <div class="vote-category">
+        <div class="category-header">
+          <div class="category-icon">🎯</div>
+          <div class="category-title">Total Goals</div>
+          <div class="category-subtitle" id="ouSubtitle">Over or Under?</div>
+        </div>
+        <div class="vote-grid">
+          <div class="vote-option" data-vote="over">
+            <div class="option-label" id="overLabel">OVER</div>
+            <div class="option-stats">
+              <div class="option-percentage" id="pct-over">0%</div>
+              <div class="option-count" id="count-over">0 votes</div>
+              <div class="progress-bar">
+                <div class="progress-fill" id="bar-over" style="width: 0%"></div>
+              </div>
+            </div>
+          </div>
+          <div class="vote-option" data-vote="under">
+            <div class="option-label" id="underLabel">UNDER</div>
+            <div class="option-stats">
+              <div class="option-percentage" id="pct-under">0%</div>
+              <div class="option-count" id="count-under">0 votes</div>
+              <div class="progress-bar">
+                <div class="progress-fill" id="bar-under" style="width: 0%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-    <div class="submit-section" id="submitSection" style="display: none;">
-      <button class="submit-btn" id="submitBtn">Submit Vote</button>
-    </div>
+      <div id="message" class="message"></div>
 
-    <div class="action-buttons" id="actionButtons" style="display: none;">
-      <button class="change-btn" id="changeBtn">Change Vote</button>
-      <button class="remove-btn" id="removeBtn">Remove Vote</button>
+      <div class="submit-section" id="submitSection">
+        <button class="submit-btn" id="submitBtn">Submit Vote</button>
+      </div>
+
+      <div class="action-buttons" id="actionButtons">
+        <button class="action-btn" id="changeBtn">Change Vote</button>
+        <button class="action-btn remove-btn" id="removeBtn">Remove Vote</button>
+      </div>
     </div>
   </div>
 
@@ -448,6 +610,7 @@ let currentDate = '';
 let gameData = null;
 let selectedVote = null;
 let submittedVote = null;
+let oddsData = null; // Cache odds data
 
 // Initialize
 async function init() {
@@ -466,12 +629,15 @@ async function init() {
   gameData = game;
   displayGameInfo(game);
 
+  // Fetch odds for O/U line (cache it)
+  await fetchOddsData(game);
+
   // Load vote counts
   await loadVotes();
 
   // Show voting section
   document.getElementById('loading').style.display = 'none';
-  document.getElementById('gameInfo').style.display = 'block';
+  document.getElementById('gameHeader').style.display = 'block';
   document.getElementById('votingSection').classList.add('active');
 
   // Setup vote buttons
@@ -538,10 +704,65 @@ async function checkHabsGame() {
   }
 }
 
+// Fetch odds data from The Odds API (cached)
+async function fetchOddsData(game) {
+  // Check if already cached in sessionStorage
+  const cacheKey = `odds-${currentDate}`;
+  const cached = sessionStorage.getItem(cacheKey);
+
+  if (cached) {
+    console.log('Using cached odds data');
+    oddsData = JSON.parse(cached);
+    updateOULabels();
+    return;
+  }
+
+  try {
+    // Fetch from The Odds API via our proxy (to avoid CORS and caching issues)
+    const response = await fetch('https://parieurdiscipline.com/api/nhl-odds');
+
+    if (!response.ok) {
+      console.error('Failed to fetch odds');
+      return;
+    }
+
+    const data = await response.json();
+
+    // Find the game matching our teams
+    const habsGame = data.find(g => {
+      const home = (g.home_team || '').toLowerCase();
+      const away = (g.away_team || '').toLowerCase();
+      return home.includes('canadien') || home.includes('montreal') ||
+             away.includes('canadien') || away.includes('montreal');
+    });
+
+    if (habsGame && habsGame.totals) {
+      oddsData = habsGame;
+      // Cache it in sessionStorage for this session
+      sessionStorage.setItem(cacheKey, JSON.stringify(oddsData));
+      console.log('Fetched and cached odds data');
+      updateOULabels();
+    }
+  } catch (error) {
+    console.error('Error fetching odds:', error);
+  }
+}
+
+// Update Over/Under labels with the actual line
+function updateOULabels() {
+  if (!oddsData || !oddsData.totals) return;
+
+  const ouLine = oddsData.totals;
+  document.getElementById('ouSubtitle').textContent = `Over or Under ${ouLine} goals?`;
+  document.getElementById('overLabel').textContent = `OVER ${ouLine}`;
+  document.getElementById('underLabel').textContent = `UNDER ${ouLine}`;
+}
+
 // Display game info
 function displayGameInfo(game) {
-  const matchup = `${game.away} @ ${game.home}`;
-  document.getElementById('matchup').textContent = matchup;
+  // Set team names
+  document.getElementById('awayName').textContent = game.awayAbbrev;
+  document.getElementById('homeName').textContent = game.homeAbbrev;
 
   // Set team logos
   document.getElementById('awayLogo').src = game.awayLogo;
@@ -551,6 +772,7 @@ function displayGameInfo(game) {
 
   const gameTime = new Date(game.startTime);
   const options = {
+    weekday: 'long',
     hour: 'numeric',
     minute: '2-digit',
     timeZoneName: 'short'
@@ -561,16 +783,16 @@ function displayGameInfo(game) {
 
 // Setup vote button handlers
 function setupVoteButtons() {
-  const buttons = document.querySelectorAll('.vote-btn');
+  const options = document.querySelectorAll('.vote-option');
   const submitBtn = document.getElementById('submitBtn');
   const submitSection = document.getElementById('submitSection');
   const changeBtn = document.getElementById('changeBtn');
   const removeBtn = document.getElementById('removeBtn');
   const actionButtons = document.getElementById('actionButtons');
 
-  buttons.forEach(button => {
-    button.addEventListener('click', () => {
-      const vote = button.dataset.vote;
+  options.forEach(option => {
+    option.addEventListener('click', () => {
+      const vote = option.dataset.vote;
 
       // If vote is already submitted, don't allow re-selection
       if (submittedVote) return;
@@ -578,17 +800,17 @@ function setupVoteButtons() {
       // Toggle selection
       if (selectedVote === vote) {
         // Deselect
-        button.classList.remove('selected');
+        option.classList.remove('selected');
         selectedVote = null;
-        submitSection.style.display = 'none';
+        submitSection.classList.remove('active');
       } else {
         // Remove previous selection
-        buttons.forEach(b => b.classList.remove('selected'));
+        options.forEach(o => o.classList.remove('selected'));
 
         // Select new option
-        button.classList.add('selected');
+        option.classList.add('selected');
         selectedVote = vote;
-        submitSection.style.display = 'block';
+        submitSection.classList.add('active');
       }
     });
   });
@@ -605,13 +827,13 @@ function setupVoteButtons() {
   // Change vote button
   changeBtn.addEventListener('click', () => {
     // Clear submitted state
-    buttons.forEach(b => b.classList.remove('submitted'));
+    options.forEach(o => o.classList.remove('submitted'));
     submittedVote = null;
     selectedVote = null;
 
     // Show submit section, hide action buttons
-    submitSection.style.display = 'none';
-    actionButtons.style.display = 'none';
+    submitSection.classList.remove('active');
+    actionButtons.classList.remove('active');
   });
 
   // Remove vote button
@@ -693,10 +915,10 @@ async function submitVote(option) {
     if (data.success) {
       // Mark as submitted
       submittedVote = option;
-      const button = document.querySelector(`[data-vote="${option}"]`);
-      if (button) {
-        button.classList.remove('selected');
-        button.classList.add('submitted');
+      const optionEl = document.querySelector(`[data-vote="${option}"]`);
+      if (optionEl) {
+        optionEl.classList.remove('selected');
+        optionEl.classList.add('submitted');
       }
 
       // Save to localStorage
@@ -706,8 +928,8 @@ async function submitVote(option) {
       updateVoteDisplay(data.votes || {});
 
       // Show action buttons, hide submit
-      document.getElementById('submitSection').style.display = 'none';
-      document.getElementById('actionButtons').style.display = 'flex';
+      document.getElementById('submitSection').classList.remove('active');
+      document.getElementById('actionButtons').classList.add('active');
 
       showMessage('Vote submitted! 🎉', 'success');
     } else {
@@ -734,9 +956,9 @@ async function removeVote(option) {
 
     if (data.success) {
       // Clear submitted state
-      const button = document.querySelector(`[data-vote="${option}"]`);
-      if (button) {
-        button.classList.remove('submitted');
+      const optionEl = document.querySelector(`[data-vote="${option}"]`);
+      if (optionEl) {
+        optionEl.classList.remove('submitted');
       }
 
       submittedVote = null;
@@ -749,7 +971,7 @@ async function removeVote(option) {
       updateVoteDisplay(data.votes || {});
 
       // Hide action buttons
-      document.getElementById('actionButtons').style.display = 'none';
+      document.getElementById('actionButtons').classList.remove('active');
 
       showMessage('Vote removed 🗑️', 'success');
     } else {
@@ -776,13 +998,13 @@ function loadUserVote() {
     if (!stored) return;
 
     submittedVote = stored;
-    const button = document.querySelector(`[data-vote="${stored}"]`);
-    if (button) {
-      button.classList.add('submitted');
+    const optionEl = document.querySelector(`[data-vote="${stored}"]`);
+    if (optionEl) {
+      optionEl.classList.add('submitted');
     }
 
     // Show action buttons
-    document.getElementById('actionButtons').style.display = 'flex';
+    document.getElementById('actionButtons').classList.add('active');
   } catch (e) {
     console.error('Error loading user vote:', e);
   }
@@ -798,11 +1020,10 @@ function removeUserVote() {
 function showMessage(text, type) {
   const messageEl = document.getElementById('message');
   messageEl.textContent = text;
-  messageEl.className = `message ${type}`;
-  messageEl.style.display = 'block';
+  messageEl.className = `message ${type} active`;
 
   setTimeout(() => {
-    messageEl.style.display = 'none';
+    messageEl.classList.remove('active');
   }, 4000);
 }
 
