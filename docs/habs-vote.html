@@ -904,19 +904,18 @@ async function loadVotes() {
 function updateVoteDisplay(votes) {
   const options = ['win', 'loss', 'over', 'under'];
 
-  // Calculate totals for each category
-  const resultTotal = (votes['habs-win'] || 0) + (votes['habs-loss'] || 0);
-  const totalTotal = (votes['habs-over'] || 0) + (votes['habs-under'] || 0);
+  // Calculate total across ALL 4 options
+  const grandTotal = (votes['habs-win'] || 0) +
+                     (votes['habs-loss'] || 0) +
+                     (votes['habs-over'] || 0) +
+                     (votes['habs-under'] || 0);
 
   options.forEach(option => {
     const pickId = `habs-${option}`;
     const count = votes[pickId] || 0;
 
-    // Determine which total to use
-    const categoryTotal = (option === 'win' || option === 'loss') ? resultTotal : totalTotal;
-
-    // Calculate percentage
-    const percentage = categoryTotal > 0 ? Math.round((count / categoryTotal) * 100) : 0;
+    // Calculate percentage out of all 4 options
+    const percentage = grandTotal > 0 ? Math.round((count / grandTotal) * 100) : 0;
 
     // Update elements
     const countEl = document.getElementById(`count-${option}`);
