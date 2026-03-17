@@ -167,6 +167,15 @@ body {
   font-weight: 400;
 }
 
+.ou-line {
+  font-size: 1.4em;
+  font-weight: 800;
+  color: #FFD700;
+  margin-top: 8px;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+  letter-spacing: 1px;
+}
+
 .vote-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -557,11 +566,12 @@ body {
         <div class="category-header">
           <div class="category-icon">🎯</div>
           <div class="category-title">Total Goals</div>
-          <div class="category-subtitle" id="ouSubtitle">Over or Under?</div>
+          <div class="category-subtitle">Over or Under?</div>
+          <div class="ou-line" id="ouLine">Loading...</div>
         </div>
         <div class="vote-grid">
           <div class="vote-option" data-vote="over">
-            <div class="option-label" id="overLabel">OVER</div>
+            <div class="option-label">OVER</div>
             <div class="option-stats">
               <div class="option-percentage" id="pct-over">0%</div>
               <div class="option-count" id="count-over">0 votes</div>
@@ -571,7 +581,7 @@ body {
             </div>
           </div>
           <div class="vote-option" data-vote="under">
-            <div class="option-label" id="underLabel">UNDER</div>
+            <div class="option-label">UNDER</div>
             <div class="option-stats">
               <div class="option-percentage" id="pct-under">0%</div>
               <div class="option-count" id="count-under">0 votes</div>
@@ -750,12 +760,13 @@ async function fetchOddsData(game) {
 
 // Update Over/Under labels with the actual line
 function updateOULabels() {
-  if (!oddsData || !oddsData.totals) return;
+  if (!oddsData || !oddsData.totals) {
+    document.getElementById('ouLine').textContent = 'Line not available';
+    return;
+  }
 
   const ouLine = oddsData.totals;
-  document.getElementById('ouSubtitle').textContent = `Over or Under ${ouLine} goals?`;
-  document.getElementById('overLabel').textContent = `OVER ${ouLine}`;
-  document.getElementById('underLabel').textContent = `UNDER ${ouLine}`;
+  document.getElementById('ouLine').textContent = `Over/Under ${ouLine}`;
 }
 
 // Display game info
