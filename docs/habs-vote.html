@@ -167,15 +167,6 @@ body {
   font-weight: 400;
 }
 
-.ou-line {
-  font-size: 1.4em;
-  font-weight: 800;
-  color: #FFD700;
-  margin-top: 8px;
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-  letter-spacing: 1px;
-}
-
 .vote-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -567,7 +558,6 @@ body {
           <div class="category-icon">🎯</div>
           <div class="category-title">Total Goals</div>
           <div class="category-subtitle">Over or Under?</div>
-          <div class="ou-line" id="ouLine">Loading...</div>
         </div>
         <div class="vote-grid">
           <div class="vote-option" data-vote="over">
@@ -639,9 +629,6 @@ async function init() {
   gameData = game;
   displayGameInfo(game);
 
-  // Fetch odds for O/U line (cache it)
-  await fetchOddsData(game);
-
   // Load vote counts
   await loadVotes();
 
@@ -712,77 +699,6 @@ async function checkHabsGame() {
     console.error('Error fetching game:', error);
     return null;
   }
-}
-
-// Fetch odds data from The Odds API (cached)
-async function fetchOddsData(game) {
-  // Check if already cached in sessionStorage
-  const cacheKey = `odds-${currentDate}`;
-  const cached = sessionStorage.getItem(cacheKey);
-
-  if (cached) {
-    console.log('Using cached odds data');
-    oddsData = JSON.parse(cached);
-    updateOULabels();
-    return;
-  }
-
-  try {
-    // For localhost, skip odds fetch (or you can add a local mock)
-    const isLocalhost = window.location.hostname === 'localhost';
-
-    if (isLocalhost) {
-      // Mock data for local testing - use tonight's actual line
-      oddsData = { totals: 6.0 };
-      updateOULabels();
-      console.log('Using mock odds data for localhost (O/U 6.0)');
-      return;
-    }
-
-    // Fetch from The Odds API via our proxy
-    const response = await fetch('https://parieurdiscipline.com/api/nhl-odds');
-
-    if (!response.ok) {
-      console.error('Failed to fetch odds');
-      updateOULabels(); // Show "not available"
-      return;
-    }
-
-    const data = await response.json();
-
-    // Find the game matching our teams
-    const habsGame = data.find(g => {
-      const home = (g.home_team || '').toLowerCase();
-      const away = (g.away_team || '').toLowerCase();
-      return home.includes('canadien') || home.includes('montreal') ||
-             away.includes('canadien') || away.includes('montreal');
-    });
-
-    if (habsGame && habsGame.totals) {
-      oddsData = habsGame;
-      // Cache it in sessionStorage for this session
-      sessionStorage.setItem(cacheKey, JSON.stringify(oddsData));
-      console.log('Fetched and cached odds data');
-      updateOULabels();
-    } else {
-      console.log('No odds found for Canadiens game');
-      updateOULabels(); // Show "not available"
-    }
-  } catch (error) {
-    console.error('Error fetching odds:', error);
-    updateOULabels(); // Show "not available"
-  }
-}
-
-// Update Over/Under labels with the actual line
-function updateOULabels() {
-  if (!oddsData || !oddsData.totals) {
-    document.getElementById('ouLine').textContent = 'Line not available';
-    return;
-  }
-
-  const ouLine = oddsData.totals;
-  document.getElementById('ouLine').textContent = `Over/Under ${ouLine}`;
 }
 
 // Display game info
