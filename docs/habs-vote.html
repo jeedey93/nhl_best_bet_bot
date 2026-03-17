@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='UTF-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+<title>Vote: Montreal Canadiens | Parieur Discipliné</title>
+<meta name='description' content='Vote on tonight\'s Montreal Canadiens game outcome'>
+<link rel='icon' type='image/png' href='parieur_discipline_icon_1024.png'>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: linear-gradient(135deg, #192168 0%, #AF1E2D 100%);
+  color: #fff;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.container {
+  max-width: 600px;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.logo {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.logo h1 {
+  font-size: 2.5em;
+  font-weight: 900;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.logo .subtitle {
+  font-size: 1.1em;
+  opacity: 0.9;
+  margin-top: 5px;
+}
+
+.game-info {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 15px;
+  padding: 20px;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.game-info .matchup {
+  font-size: 1.8em;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.game-info .time {
+  font-size: 1.1em;
+  opacity: 0.9;
+}
+
+.loading {
+  text-align: center;
+  font-size: 1.3em;
+  padding: 40px;
+}
+
+.no-game {
+  text-align: center;
+  padding: 40px;
+}
+
+.no-game h2 {
+  font-size: 1.8em;
+  margin-bottom: 15px;
+}
+
+.no-game p {
+  font-size: 1.1em;
+  opacity: 0.9;
+}
+
+.voting-section {
+  display: none;
+}
+
+.voting-section.active {
+  display: block;
+}
+
+.vote-category {
+  margin-bottom: 30px;
+}
+
+.vote-category h2 {
+  font-size: 1.3em;
+  margin-bottom: 15px;
+  text-align: center;
+  font-weight: 600;
+}
+
+.vote-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.vote-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 15px;
+  border-radius: 12px;
+  font-size: 1.1em;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.vote-btn:hover:not(.voted) {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.vote-btn.voted {
+  background: rgba(255, 255, 255, 0.35);
+  border-color: #FFD700;
+  border-width: 3px;
+  cursor: default;
+}
+
+.vote-btn.voted::after {
+  content: '✓ Your Vote';
+  position: absolute;
+  top: 5px;
+  right: 10px;
+  font-size: 0.8em;
+  color: #FFD700;
+  font-weight: 600;
+}
+
+.vote-label {
+  font-size: 1.3em;
+  margin-bottom: 8px;
+}
+
+.vote-stats {
+  width: 100%;
+  margin-top: 8px;
+}
+
+.vote-percentage {
+  font-size: 1.8em;
+  font-weight: 900;
+  color: #FFD700;
+  margin-bottom: 3px;
+}
+
+.vote-count {
+  font-size: 0.85em;
+  opacity: 0.85;
+  font-weight: 400;
+}
+
+.vote-bar-container {
+  width: 100%;
+  height: 8px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+  margin-top: 8px;
+  overflow: hidden;
+}
+
+.vote-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #FFD700, #FFA500);
+  transition: width 0.6s ease;
+  border-radius: 4px;
+}
+
+.message {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  padding: 15px;
+  margin-top: 20px;
+  text-align: center;
+  font-size: 1.1em;
+}
+
+.message.success {
+  background: rgba(46, 213, 115, 0.3);
+  border: 2px solid rgba(46, 213, 115, 0.5);
+}
+
+.message.error {
+  background: rgba(255, 71, 87, 0.3);
+  border: 2px solid rgba(255, 71, 87, 0.5);
+}
+
+.footer {
+  text-align: center;
+  margin-top: 30px;
+  font-size: 0.9em;
+  opacity: 0.7;
+}
+
+.footer a {
+  color: white;
+  text-decoration: underline;
+}
+
+@media (max-width: 600px) {
+  .container {
+    padding: 25px;
+  }
+
+  .logo h1 {
+    font-size: 2em;
+  }
+
+  .game-info .matchup {
+    font-size: 1.4em;
+  }
+
+  .vote-btn {
+    padding: 15px;
+    font-size: 1.1em;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="logo">
+    <h1>🏒 GO HABS GO! 🏒</h1>
+    <div class="subtitle">Vote for tonight's game</div>
+  </div>
+
+  <div id="loading" class="loading">
+    <div>⏳ Loading today's game...</div>
+  </div>
+
+  <div id="noGame" class="no-game" style="display: none;">
+    <h2>😔 No Game Tonight</h2>
+    <p>The Montreal Canadiens are not playing today.</p>
+    <p style="margin-top: 15px; font-size: 0.95em;">Come back on game day to cast your vote!</p>
+  </div>
+
+  <div id="gameInfo" class="game-info" style="display: none;">
+    <div class="matchup" id="matchup"></div>
+    <div class="time" id="gameTime"></div>
+  </div>
+
+  <div id="votingSection" class="voting-section">
+    <div class="vote-category">
+      <h2>🏆 Game Result</h2>
+      <div class="vote-buttons">
+        <button class="vote-btn" data-vote="win" data-category="result">
+          <div class="vote-label">WIN</div>
+          <div class="vote-stats">
+            <div class="vote-percentage" id="pct-win">0%</div>
+            <div class="vote-count" id="count-win">0 votes</div>
+            <div class="vote-bar-container">
+              <div class="vote-bar" id="bar-win" style="width: 0%"></div>
+            </div>
+          </div>
+        </button>
+        <button class="vote-btn" data-vote="loss" data-category="result">
+          <div class="vote-label">LOSS</div>
+          <div class="vote-stats">
+            <div class="vote-percentage" id="pct-loss">0%</div>
+            <div class="vote-count" id="count-loss">0 votes</div>
+            <div class="vote-bar-container">
+              <div class="vote-bar" id="bar-loss" style="width: 0%"></div>
+            </div>
+          </div>
+        </button>
+      </div>
+    </div>
+
+    <div class="vote-category">
+      <h2>🎯 Total Goals</h2>
+      <div class="vote-buttons">
+        <button class="vote-btn" data-vote="over" data-category="total">
+          <div class="vote-label">OVER</div>
+          <div class="vote-stats">
+            <div class="vote-percentage" id="pct-over">0%</div>
+            <div class="vote-count" id="count-over">0 votes</div>
+            <div class="vote-bar-container">
+              <div class="vote-bar" id="bar-over" style="width: 0%"></div>
+            </div>
+          </div>
+        </button>
+        <button class="vote-btn" data-vote="under" data-category="total">
+          <div class="vote-label">UNDER</div>
+          <div class="vote-stats">
+            <div class="vote-percentage" id="pct-under">0%</div>
+            <div class="vote-count" id="count-under">0 votes</div>
+            <div class="vote-bar-container">
+              <div class="vote-bar" id="bar-under" style="width: 0%"></div>
+            </div>
+          </div>
+        </button>
+      </div>
+    </div>
+
+    <div id="message" class="message" style="display: none;"></div>
+  </div>
+
+  <div class="footer">
+    Powered by <a href="https://parieurdiscipline.com">Parieur Discipliné</a>
+  </div>
+</div>
+
+<script>
+const API_BASE = window.location.hostname === 'localhost'
+  ? 'http://localhost:3000/api/vote'
+  : 'https://parieurdiscipline.com/api/vote';
+
+let currentDate = '';
+let gameData = null;
+
+// Initialize
+async function init() {
+  currentDate = new Date().toISOString().split('T')[0];
+
+  // Check if Canadiens are playing today
+  const game = await checkHabsGame();
+
+  if (!game) {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('noGame').style.display = 'block';
+    return;
+  }
+
+  // Show game info
+  gameData = game;
+  displayGameInfo(game);
+
+  // Load vote counts
+  await loadVotes();
+
+  // Show voting section
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('gameInfo').style.display = 'block';
+  document.getElementById('votingSection').classList.add('active');
+
+  // Setup vote buttons
+  setupVoteButtons();
+}
+
+// Check if Canadiens are playing today
+async function checkHabsGame() {
+  try {
+    const today = new Date().toISOString().split('T')[0];
+
+    // Use proxy for localhost to avoid CORS issues
+    const isLocalhost = window.location.hostname === 'localhost';
+    const url = isLocalhost
+      ? `http://localhost:8000/nhl/schedule?date=${today}`
+      : `https://api-web.nhle.com/v1/schedule/${today}`;
+
+    console.log('Fetching schedule for:', today);
+    console.log('URL:', url);
+
+    const response = await fetch(url);
+    if (!response.ok) {
+      console.error('API response not OK:', response.status);
+      return null;
+    }
+
+    const data = await response.json();
+    console.log('API response:', data);
+
+    const games = data.gameWeek?.[0]?.games || [];
+    console.log('Found games:', games.length);
+
+    // Look for Canadiens game (home or away)
+    for (const game of games) {
+      const awayTeam = game.awayTeam?.placeName?.default || '';
+      const homeTeam = game.homeTeam?.placeName?.default || '';
+      const awayAbbrev = game.awayTeam?.abbrev || '';
+      const homeAbbrev = game.homeTeam?.abbrev || '';
+
+      console.log(`Checking game: ${awayAbbrev} @ ${homeAbbrev} (${awayTeam} @ ${homeTeam})`);
+
+      if (awayTeam.includes('Montréal') || homeTeam.includes('Montréal') ||
+          awayTeam.includes('Montreal') || homeTeam.includes('Montreal') ||
+          awayAbbrev === 'MTL' || homeAbbrev === 'MTL') {
+
+        console.log('✓ CANADIENS GAME FOUND!');
+        return {
+          away: awayTeam,
+          home: homeTeam,
+          awayAbbrev: awayAbbrev,
+          homeAbbrev: homeAbbrev,
+          startTime: game.startTimeUTC
+        };
+      }
+    }
+
+    console.log('No Canadiens game found');
+    return null;
+  } catch (error) {
+    console.error('Error fetching game:', error);
+    return null;
+  }
+}
+
+// Display game info
+function displayGameInfo(game) {
+  const matchup = `${game.away} @ ${game.home}`;
+  document.getElementById('matchup').textContent = matchup;
+
+  const gameTime = new Date(game.startTime);
+  const options = {
+    hour: 'numeric',
+    minute: '2-digit',
+    timeZoneName: 'short'
+  };
+  const timeStr = gameTime.toLocaleString('en-US', options);
+  document.getElementById('gameTime').textContent = timeStr;
+}
+
+// Setup vote button handlers
+function setupVoteButtons() {
+  const buttons = document.querySelectorAll('.vote-btn');
+
+  buttons.forEach(button => {
+    button.addEventListener('click', async () => {
+      const vote = button.dataset.vote;
+      const category = button.dataset.category;
+      await castVote(category, vote, button);
+    });
+  });
+
+  // Load user's previous votes from localStorage
+  loadUserVotes();
+}
+
+// Load vote counts from API
+async function loadVotes() {
+  try {
+    const response = await fetch(`${API_BASE}?date=${currentDate}`);
+    if (!response.ok) return;
+
+    const data = await response.json();
+    const votes = data.votes || {};
+
+    // Update vote counts and percentages
+    updateVoteDisplay(votes);
+  } catch (error) {
+    console.error('Error loading votes:', error);
+  }
+}
+
+// Update vote display with percentages
+function updateVoteDisplay(votes) {
+  const options = ['win', 'loss', 'over', 'under'];
+
+  // Calculate totals for each category
+  const resultTotal = (votes['habs-win'] || 0) + (votes['habs-loss'] || 0);
+  const totalTotal = (votes['habs-over'] || 0) + (votes['habs-under'] || 0);
+
+  options.forEach(option => {
+    const pickId = `habs-${option}`;
+    const count = votes[pickId] || 0;
+
+    // Determine which total to use
+    const categoryTotal = (option === 'win' || option === 'loss') ? resultTotal : totalTotal;
+
+    // Calculate percentage
+    const percentage = categoryTotal > 0 ? Math.round((count / categoryTotal) * 100) : 0;
+
+    // Update elements
+    const countEl = document.getElementById(`count-${option}`);
+    const pctEl = document.getElementById(`pct-${option}`);
+    const barEl = document.getElementById(`bar-${option}`);
+
+    if (countEl) {
+      countEl.textContent = `${count} vote${count !== 1 ? 's' : ''}`;
+    }
+
+    if (pctEl) {
+      pctEl.textContent = `${percentage}%`;
+    }
+
+    if (barEl) {
+      barEl.style.width = `${percentage}%`;
+    }
+  });
+}
+
+// Cast a vote
+async function castVote(category, option, button) {
+  const pickId = `habs-${option}`;
+
+  try {
+    const response = await fetch(`${API_BASE}?date=${currentDate}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pickId })
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      // Mark button as voted
+      button.classList.add('voted');
+
+      // Save to localStorage
+      saveUserVote(category, option);
+
+      // Update all vote displays with percentages
+      updateVoteDisplay(data.votes || {});
+
+      showMessage('Vote recorded! 🎉', 'success');
+    } else {
+      showMessage(data.error || 'Failed to record vote', 'error');
+    }
+  } catch (error) {
+    console.error('Error casting vote:', error);
+    showMessage('Failed to record vote. Please try again.', 'error');
+  }
+}
+
+// Save user's vote to localStorage
+function saveUserVote(category, option) {
+  const key = `habs-votes-${currentDate}`;
+  let userVotes = {};
+
+  try {
+    const stored = localStorage.getItem(key);
+    if (stored) userVotes = JSON.parse(stored);
+  } catch (e) {}
+
+  userVotes[category] = option;
+  localStorage.setItem(key, JSON.stringify(userVotes));
+}
+
+// Load user's previous votes
+function loadUserVotes() {
+  const key = `habs-votes-${currentDate}`;
+
+  try {
+    const stored = localStorage.getItem(key);
+    if (!stored) return;
+
+    const userVotes = JSON.parse(stored);
+
+    Object.entries(userVotes).forEach(([category, option]) => {
+      const button = document.querySelector(`[data-category="${category}"][data-vote="${option}"]`);
+      if (button) button.classList.add('voted');
+    });
+  } catch (e) {
+    console.error('Error loading user votes:', e);
+  }
+}
+
+// Show message
+function showMessage(text, type) {
+  const messageEl = document.getElementById('message');
+  messageEl.textContent = text;
+  messageEl.className = `message ${type}`;
+  messageEl.style.display = 'block';
+
+  setTimeout(() => {
+    messageEl.style.display = 'none';
+  }, 4000);
+}
+
+// Start the app
+init();
+</script>
+
+</body>
+</html>
