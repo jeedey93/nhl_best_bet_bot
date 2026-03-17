@@ -368,11 +368,11 @@ async function checkHabsGame() {
   try {
     const today = new Date().toISOString().split('T')[0];
 
-    // Use proxy for localhost to avoid CORS issues
+    // Use appropriate API endpoint based on environment
     const isLocalhost = window.location.hostname === 'localhost';
     const url = isLocalhost
       ? `http://localhost:8000/nhl/schedule?date=${today}`
-      : `https://api-web.nhle.com/v1/schedule/${today}`;
+      : `https://parieurdiscipline.com/api/nhl-schedule?date=${today}`;
 
     console.log('Fetching schedule for:', today);
     console.log('URL:', url);
