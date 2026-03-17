@@ -189,12 +189,71 @@ async function castVote(date, pickId, ipHash) {
 }
 
 /**
+ * Remove a vote
+ */
+async function removeVote(date, pickId, ipHash) {
+  try {
+    const GITHUB_TOKEN = getGitHubToken();
+    const issueNumber = await getOrCreateVotingIssue(date);
+
+    // Fetch all comments
+    const commentsUrl = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/issues/${issueNumber}/comments`;
+    const response = await fetch(commentsUrl, {
+      headers: {
+        'Authorization': `token ${GITHUB_TOKEN}`,
+        'Accept': 'application/vnd.github.v3+json',
+        'User-Agent': 'Parieur-Discipline-Bot',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch comments: ${response.statusText}`);
+    }
+
+    const comments = await response.json();
+
+    // Find and delete the user's vote comment
+    for (const comment of comments) {
+      try {
+        const voteData = JSON.parse(comment.body);
+        if (voteData.pickId === pickId && voteData.ipHash === ipHash) {
+          // Delete this comment
+          const deleteUrl = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/issues/comments/${comment.id}`;
+          const deleteResponse = await fetch(deleteUrl, {
+            method: 'DELETE',
+            headers: {
+              'Authorization': `token ${GITHUB_TOKEN}`,
+              'Accept': 'application/vnd.github.v3+json',
+              'User-Agent': 'Parieur-Discipline-Bot',
+            },
+          });
+
+          if (!deleteResponse.ok) {
+            throw new Error(`Failed to delete comment: ${deleteResponse.statusText}`);
+          }
+
+          return { success: true };
+        }
+      } catch (e) {
+        // Ignore malformed comments
+        continue;
+      }
+    }
+
+    return { success: false, error: 'Vote not found' };
+  } catch (error) {
+    console.error('Error removing vote:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
  * Vercel Serverless Function handler
  */
 module.exports = async (req, res) => {
   // Enable CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   if (req.method === 'OPTIONS') {
@@ -214,6 +273,13 @@ module.exports = async (req, res) => {
 
     const { date = new Date().toISOString().split('T')[0] } = req.query;
 
+    // Get IP address from request
+    const ip = req.headers['x-forwarded-for']?.split(',')[0] ||
+               req.headers['x-real-ip'] ||
+               req.connection.remoteAddress ||
+               'unknown';
+    const ipHash = hashIP(ip);
+
     // GET: Fetch vote counts
     if (req.method === 'GET') {
       const { votes } = await getVotes(date);
@@ -228,14 +294,26 @@ module.exports = async (req, res) => {
         return res.status(400).json({ success: false, error: 'Missing pickId' });
       }
 
-      // Get IP address from request
-      const ip = req.headers['x-forwarded-for']?.split(',')[0] ||
-                 req.headers['x-real-ip'] ||
-                 req.connection.remoteAddress ||
-                 'unknown';
-      const ipHash = hashIP(ip);
-
       const result = await castVote(date, pickId, ipHash);
+
+      if (result.success) {
+        // Return updated vote counts
+        const { votes } = await getVotes(date);
+        return res.status(200).json({ success: true, votes });
+      } else {
+        return res.status(400).json(result);
+      }
+    }
+
+    // DELETE: Remove a vote
+    if (req.method === 'DELETE') {
+      const { pickId } = req.body;
+
+      if (!pickId) {
+        return res.status(400).json({ success: false, error: 'Missing pickId' });
+      }
+
+      const result = await removeVote(date, pickId, ipHash);
 
       if (result.success) {
         // Return updated vote counts

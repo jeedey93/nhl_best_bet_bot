@@ -54,8 +54,28 @@ body {
   margin-bottom: 30px;
 }
 
+.game-info .team-logos {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  margin-bottom: 15px;
+}
+
+.game-info .team-logo {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+}
+
+.game-info .vs {
+  font-size: 1.5em;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.8);
+}
+
 .game-info .matchup {
-  font-size: 1.8em;
+  font-size: 1.5em;
   font-weight: 700;
   margin-bottom: 10px;
 }
@@ -128,27 +148,43 @@ body {
   align-items: center;
 }
 
-.vote-btn:hover:not(.voted) {
+.vote-btn:hover {
   background: rgba(255, 255, 255, 0.3);
   border-color: rgba(255, 255, 255, 0.5);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-.vote-btn.voted {
-  background: rgba(255, 255, 255, 0.35);
+.vote-btn.selected {
+  background: rgba(255, 215, 0, 0.3);
   border-color: #FFD700;
+  border-width: 3px;
+}
+
+.vote-btn.selected::before {
+  content: '✓';
+  position: absolute;
+  top: 5px;
+  right: 10px;
+  font-size: 1.5em;
+  color: #FFD700;
+  font-weight: 900;
+}
+
+.vote-btn.submitted {
+  background: rgba(46, 213, 115, 0.3);
+  border-color: #2ed573;
   border-width: 3px;
   cursor: default;
 }
 
-.vote-btn.voted::after {
-  content: '✓ Your Vote';
+.vote-btn.submitted::after {
+  content: 'Your Vote';
   position: absolute;
   top: 5px;
   right: 10px;
-  font-size: 0.8em;
-  color: #FFD700;
+  font-size: 0.75em;
+  color: #2ed573;
   font-weight: 600;
 }
 
@@ -210,6 +246,69 @@ body {
   border: 2px solid rgba(255, 71, 87, 0.5);
 }
 
+.submit-section {
+  margin-top: 30px;
+  text-align: center;
+}
+
+.submit-btn {
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  border: none;
+  color: #192168;
+  padding: 18px 50px;
+  border-radius: 12px;
+  font-size: 1.3em;
+  font-weight: 900;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.submit-btn:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(255, 215, 0, 0.6);
+}
+
+.submit-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.change-btn, .remove-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  color: white;
+  padding: 12px 30px;
+  border-radius: 10px;
+  font-size: 1em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.change-btn:hover, .remove-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+.remove-btn {
+  border-color: rgba(255, 71, 87, 0.5);
+}
+
+.remove-btn:hover {
+  background: rgba(255, 71, 87, 0.3);
+  border-color: rgba(255, 71, 87, 0.7);
+}
+
 .footer {
   text-align: center;
   margin-top: 30px;
@@ -261,6 +360,11 @@ body {
   </div>
 
   <div id="gameInfo" class="game-info" style="display: none;">
+    <div class="team-logos">
+      <img class="team-logo" id="awayLogo" alt="Away Team">
+      <div class="vs">VS</div>
+      <img class="team-logo" id="homeLogo" alt="Home Team">
+    </div>
     <div class="matchup" id="matchup"></div>
     <div class="time" id="gameTime"></div>
   </div>
@@ -319,6 +423,15 @@ body {
     </div>
 
     <div id="message" class="message" style="display: none;"></div>
+
+    <div class="submit-section" id="submitSection" style="display: none;">
+      <button class="submit-btn" id="submitBtn">Submit Vote</button>
+    </div>
+
+    <div class="action-buttons" id="actionButtons" style="display: none;">
+      <button class="change-btn" id="changeBtn">Change Vote</button>
+      <button class="remove-btn" id="removeBtn">Remove Vote</button>
+    </div>
   </div>
 
   <div class="footer">
@@ -333,6 +446,8 @@ const API_BASE = window.location.hostname === 'localhost'
 
 let currentDate = '';
 let gameData = null;
+let selectedVote = null;
+let submittedVote = null;
 
 // Initialize
 async function init() {
@@ -408,6 +523,8 @@ async function checkHabsGame() {
           home: homeTeam,
           awayAbbrev: awayAbbrev,
           homeAbbrev: homeAbbrev,
+          awayLogo: game.awayTeam?.logo || `https://assets.nhle.com/logos/nhl/svg/${awayAbbrev}_light.svg`,
+          homeLogo: game.homeTeam?.logo || `https://assets.nhle.com/logos/nhl/svg/${homeAbbrev}_light.svg`,
           startTime: game.startTimeUTC
         };
       }
@@ -426,6 +543,12 @@ function displayGameInfo(game) {
   const matchup = `${game.away} @ ${game.home}`;
   document.getElementById('matchup').textContent = matchup;
 
+  // Set team logos
+  document.getElementById('awayLogo').src = game.awayLogo;
+  document.getElementById('awayLogo').alt = game.away;
+  document.getElementById('homeLogo').src = game.homeLogo;
+  document.getElementById('homeLogo').alt = game.home;
+
   const gameTime = new Date(game.startTime);
   const options = {
     hour: 'numeric',
@@ -439,17 +562,66 @@ function displayGameInfo(game) {
 // Setup vote button handlers
 function setupVoteButtons() {
   const buttons = document.querySelectorAll('.vote-btn');
+  const submitBtn = document.getElementById('submitBtn');
+  const submitSection = document.getElementById('submitSection');
+  const changeBtn = document.getElementById('changeBtn');
+  const removeBtn = document.getElementById('removeBtn');
+  const actionButtons = document.getElementById('actionButtons');
 
   buttons.forEach(button => {
-    button.addEventListener('click', async () => {
+    button.addEventListener('click', () => {
       const vote = button.dataset.vote;
-      const category = button.dataset.category;
-      await castVote(category, vote, button);
+
+      // If vote is already submitted, don't allow re-selection
+      if (submittedVote) return;
+
+      // Toggle selection
+      if (selectedVote === vote) {
+        // Deselect
+        button.classList.remove('selected');
+        selectedVote = null;
+        submitSection.style.display = 'none';
+      } else {
+        // Remove previous selection
+        buttons.forEach(b => b.classList.remove('selected'));
+
+        // Select new option
+        button.classList.add('selected');
+        selectedVote = vote;
+        submitSection.style.display = 'block';
+      }
     });
   });
 
-  // Load user's previous votes from localStorage
-  loadUserVotes();
+  // Submit button handler
+  submitBtn.addEventListener('click', async () => {
+    if (!selectedVote) return;
+
+    submitBtn.disabled = true;
+    await submitVote(selectedVote);
+    submitBtn.disabled = false;
+  });
+
+  // Change vote button
+  changeBtn.addEventListener('click', () => {
+    // Clear submitted state
+    buttons.forEach(b => b.classList.remove('submitted'));
+    submittedVote = null;
+    selectedVote = null;
+
+    // Show submit section, hide action buttons
+    submitSection.style.display = 'none';
+    actionButtons.style.display = 'none';
+  });
+
+  // Remove vote button
+  removeBtn.addEventListener('click', async () => {
+    if (!submittedVote) return;
+    await removeVote(submittedVote);
+  });
+
+  // Load user's previous vote from localStorage
+  loadUserVote();
 }
 
 // Load vote counts from API
@@ -505,8 +677,8 @@ function updateVoteDisplay(votes) {
   });
 }
 
-// Cast a vote
-async function castVote(category, option, button) {
+// Submit a vote
+async function submitVote(option) {
   const pickId = `habs-${option}`;
 
   try {
@@ -519,56 +691,107 @@ async function castVote(category, option, button) {
     const data = await response.json();
 
     if (data.success) {
-      // Mark button as voted
-      button.classList.add('voted');
+      // Mark as submitted
+      submittedVote = option;
+      const button = document.querySelector(`[data-vote="${option}"]`);
+      if (button) {
+        button.classList.remove('selected');
+        button.classList.add('submitted');
+      }
 
       // Save to localStorage
-      saveUserVote(category, option);
+      saveUserVote(option);
 
-      // Update all vote displays with percentages
+      // Update display
       updateVoteDisplay(data.votes || {});
 
-      showMessage('Vote recorded! 🎉', 'success');
+      // Show action buttons, hide submit
+      document.getElementById('submitSection').style.display = 'none';
+      document.getElementById('actionButtons').style.display = 'flex';
+
+      showMessage('Vote submitted! 🎉', 'success');
     } else {
-      showMessage(data.error || 'Failed to record vote', 'error');
+      showMessage(data.error || 'Failed to submit vote', 'error');
     }
   } catch (error) {
-    console.error('Error casting vote:', error);
-    showMessage('Failed to record vote. Please try again.', 'error');
+    console.error('Error submitting vote:', error);
+    showMessage('Failed to submit vote. Please try again.', 'error');
+  }
+}
+
+// Remove a vote
+async function removeVote(option) {
+  const pickId = `habs-${option}`;
+
+  try {
+    const response = await fetch(`${API_BASE}?date=${currentDate}`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pickId })
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      // Clear submitted state
+      const button = document.querySelector(`[data-vote="${option}"]`);
+      if (button) {
+        button.classList.remove('submitted');
+      }
+
+      submittedVote = null;
+      selectedVote = null;
+
+      // Remove from localStorage
+      removeUserVote();
+
+      // Update display
+      updateVoteDisplay(data.votes || {});
+
+      // Hide action buttons
+      document.getElementById('actionButtons').style.display = 'none';
+
+      showMessage('Vote removed 🗑️', 'success');
+    } else {
+      showMessage(data.error || 'Failed to remove vote', 'error');
+    }
+  } catch (error) {
+    console.error('Error removing vote:', error);
+    showMessage('Failed to remove vote. Please try again.', 'error');
   }
 }
 
 // Save user's vote to localStorage
-function saveUserVote(category, option) {
-  const key = `habs-votes-${currentDate}`;
-  let userVotes = {};
-
-  try {
-    const stored = localStorage.getItem(key);
-    if (stored) userVotes = JSON.parse(stored);
-  } catch (e) {}
-
-  userVotes[category] = option;
-  localStorage.setItem(key, JSON.stringify(userVotes));
+function saveUserVote(option) {
+  const key = `habs-vote-${currentDate}`;
+  localStorage.setItem(key, option);
 }
 
-// Load user's previous votes
-function loadUserVotes() {
-  const key = `habs-votes-${currentDate}`;
+// Load user's previous vote
+function loadUserVote() {
+  const key = `habs-vote-${currentDate}`;
 
   try {
     const stored = localStorage.getItem(key);
     if (!stored) return;
 
-    const userVotes = JSON.parse(stored);
+    submittedVote = stored;
+    const button = document.querySelector(`[data-vote="${stored}"]`);
+    if (button) {
+      button.classList.add('submitted');
+    }
 
-    Object.entries(userVotes).forEach(([category, option]) => {
-      const button = document.querySelector(`[data-category="${category}"][data-vote="${option}"]`);
-      if (button) button.classList.add('voted');
-    });
+    // Show action buttons
+    document.getElementById('actionButtons').style.display = 'flex';
   } catch (e) {
-    console.error('Error loading user votes:', e);
+    console.error('Error loading user vote:', e);
   }
+}
+
+// Remove user vote from localStorage
+function removeUserVote() {
+  const key = `habs-vote-${currentDate}`;
+  localStorage.removeItem(key);
 }
 
 // Show message
