@@ -675,8 +675,12 @@ with open(filename, "w") as f:
 
             # Fetch goalie stats
             # Use full team name from odds API (away_team, home_team) to match starting_goalies keys
-            away_goalie_info = starting_goalies.get(away_team)
-            home_goalie_info = starting_goalies.get(home_team)
+            # Normalize Montréal to Montreal (accent issue)
+            away_team_normalized = away_team.replace('Montréal', 'Montreal')
+            home_team_normalized = home_team.replace('Montréal', 'Montreal')
+
+            away_goalie_info = starting_goalies.get(away_team_normalized)
+            home_goalie_info = starting_goalies.get(home_team_normalized)
 
             goalie_stats_text += f"\n{away_team} Starting Goalie:\n"
             if away_goalie_info:
