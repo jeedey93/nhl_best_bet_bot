@@ -835,6 +835,12 @@ function setupVoteButtons() {
       // If vote is already submitted, don't allow re-selection
       if (submittedVote) return;
 
+      // Only allow selecting if nothing is selected yet, or clicking the same option to deselect
+      if (selectedVote && selectedVote !== vote) {
+        showMessage('You can only vote for one option. Deselect your current choice first.', 'error');
+        return;
+      }
+
       // Toggle selection
       if (selectedVote === vote) {
         // Deselect
@@ -842,10 +848,7 @@ function setupVoteButtons() {
         selectedVote = null;
         submitSection.classList.remove('active');
       } else {
-        // Remove previous selection
-        options.forEach(o => o.classList.remove('selected'));
-
-        // Select new option
+        // Select this option
         option.classList.add('selected');
         selectedVote = vote;
         submitSection.classList.add('active');
