@@ -6,6 +6,7 @@
 <title>Today's Picks - AI Betting Predictions | Parieur Discipliné</title>
 <meta name='description' content='View all today\'s NHL and NBA betting picks with AI analysis, odds, and confidence ratings. Updated daily at 7am and 3pm ET.'>
 <link rel='icon' type='image/png' href='parieur_discipline_icon_1024.png'>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body {
@@ -488,7 +489,13 @@ nav > div {
   color: #1a1a1a;
 }
 
-/* Voting Styles */
+/* Voting & Share Styles */
+.vote-share-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
 .vote-container {
   display: flex;
   flex-direction: column;
@@ -541,6 +548,34 @@ nav > div {
   text-transform: uppercase;
   letter-spacing: 0.5px;
   text-align: center;
+}
+.share-button {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 18px;
+  font-size: 1em;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 60px;
+  justify-content: center;
+  font-weight: 600;
+}
+.share-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+}
+.share-button:disabled {
+  background: #e5e7eb;
+  color: #9ca3af;
+  cursor: not-allowed;
+  box-shadow: none;
 }
 
 /* Responsive */
@@ -720,6 +755,11 @@ nav > div {
   }
   .vote-count {
     font-size: 0.75em;
+  }
+  .share-button {
+    padding: 6px 12px;
+    font-size: 0.85em;
+    min-width: 60px;
   }
 
   /* Compact BOTD badge */
@@ -928,11 +968,23 @@ nav > div {
     font-size: 0.8em;
   }
 
+  .share-button {
+    font-size: 1.8em;
+    padding: 14px 20px;
+    min-width: 70px;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+  }
+
   /* Make vote column full width on mobile */
   .picks-table tbody td:last-child {
     border-top: 3px solid #3b82f6;
     background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
     padding: 20px 15px;
+  }
+
+  .vote-share-container {
+    flex-direction: row;
+    gap: 10px;
   }
 }
 
@@ -1138,7 +1190,7 @@ document.addEventListener('DOMContentLoaded', function() {
           <th>Pick & Odds</th>
           <th>Confidence</th>
           <th>Key Reasoning</th>
-          <th>Votes</th>
+          <th>Votes & Share</th>
         </tr>
       </thead>
       <tbody id='nhlTableBody'>
@@ -1162,7 +1214,7 @@ document.addEventListener('DOMContentLoaded', function() {
           <th>Pick & Odds</th>
           <th>Confidence</th>
           <th>Key Reasoning</th>
-          <th>Votes</th>
+          <th>Votes & Share</th>
         </tr>
       </thead>
       <tbody id='nbaTableBody'>
@@ -1352,16 +1404,21 @@ function renderTable(sport, picks) {
       <td data-label='Key Reasoning'>
         <div class='reasoning'>${formatReasoning(pick.reasoning)}</div>
       </td>
-      <td data-label='Votes'>
-        <div class='vote-container'>
-          <button class='vote-button' onclick='handleVote("${pickId}")' id='vote-btn-${pickId}'>
-            👍
-          </button>
-          <div class='vote-count'>
-            <div class='vote-count-number' id='vote-count-${pickId}'>0</div>
-            <div style='font-size: 0.75em;'>votes</div>
+      <td data-label='Votes & Share'>
+        <div class='vote-share-container'>
+          <div class='vote-container'>
+            <button class='vote-button' onclick='handleVote("${pickId}")' id='vote-btn-${pickId}'>
+              👍
+            </button>
+            <div class='vote-count'>
+              <div class='vote-count-number' id='vote-count-${pickId}'>0</div>
+              <div style='font-size: 0.75em;'>votes</div>
+            </div>
+            <div class='voted-label' id='voted-label-${pickId}' style='display: none;'>✓ Voted</div>
           </div>
-          <div class='voted-label' id='voted-label-${pickId}' style='display: none;'>✓ Voted</div>
+          <button class='share-button' onclick='handleShare("${pickId}", "${sport}")' id='share-btn-${pickId}'>
+            📤 Share
+          </button>
         </div>
       </td>
     </tr>
@@ -1631,6 +1688,136 @@ function cleanupOldVotes() {
 cleanupOldVotes();
 
 // ===== END VOTING SYSTEM =====
+
+// ===== SHARING SYSTEM =====
+
+/**
+ * Handle share button click
+ * Uses native Web Share API on mobile, falls back to screenshot download on desktop
+ */
+async function handleShare(pickId, sport) {
+  const button = document.getElementById(`share-btn-${pickId}`);
+  const row = document.querySelector(`tr[data-pick-id="${pickId}"]`);
+
+  if (!row) return;
+
+  // Disable button while processing
+  button.disabled = true;
+  button.innerHTML = '⏳ Sharing...';
+
+  try {
+    // Get pick data
+    const pickData = getPickData(pickId, sport);
+
+    // Generate share text
+    const shareText = `🎯 ${pickData.sport.toUpperCase()} Pick of the Day\n\n` +
+                     `${pickData.game}\n` +
+                     `✅ ${pickData.pick} ${pickData.odds}\n` +
+                     `⭐ Confidence: ${pickData.confidence}\n` +
+                     `🎲 Win Probability: ${pickData.winProbability}%\n\n` +
+                     `via Parieur Discipliné\n` +
+                     `https://parieurdiscipline.com`;
+
+    // Try native Web Share API first (works best on mobile)
+    if (navigator.share && navigator.canShare) {
+      try {
+        // Generate screenshot as blob
+        const canvas = await html2canvas(row, {
+          backgroundColor: '#ffffff',
+          scale: 2,
+          logging: false,
+          useCORS: true
+        });
+
+        const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+        const file = new File([blob], `${pickId}.png`, { type: 'image/png' });
+
+        // Check if we can share with file
+        const shareData = {
+          text: shareText,
+          files: [file]
+        };
+
+        if (navigator.canShare(shareData)) {
+          await navigator.share(shareData);
+          button.innerHTML = '✓ Shared';
+        } else {
+          // Share text only if files not supported
+          await navigator.share({ text: shareText });
+          button.innerHTML = '✓ Shared';
+        }
+
+        setTimeout(() => {
+          button.innerHTML = '📤 Share';
+          button.disabled = false;
+        }, 2000);
+
+        return;
+      } catch (err) {
+        if (err.name === 'AbortError') {
+          // User cancelled share
+          button.innerHTML = '📤 Share';
+          button.disabled = false;
+          return;
+        }
+        // Fall through to screenshot download
+        console.log('Native share failed, falling back to download:', err);
+      }
+    }
+
+    // Fallback: Generate and download screenshot
+    const canvas = await html2canvas(row, {
+      backgroundColor: '#ffffff',
+      scale: 2,
+      logging: false,
+      useCORS: true
+    });
+
+    // Convert to blob and download
+    canvas.toBlob((blob) => {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `parieur-discipline-${pickId}.png`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      button.innerHTML = '✓ Downloaded';
+      setTimeout(() => {
+        button.innerHTML = '📤 Share';
+        button.disabled = false;
+      }, 2000);
+    }, 'image/png');
+
+  } catch (error) {
+    console.error('Share error:', error);
+    alert('Failed to share. Please try again.');
+    button.innerHTML = '📤 Share';
+    button.disabled = false;
+  }
+}
+
+/**
+ * Get pick data from the picks object
+ */
+function getPickData(pickId, sport) {
+  const sportPicks = picks[sport];
+  const index = parseInt(pickId.split('-').pop());
+  const pick = sportPicks[index];
+
+  return {
+    sport: sport,
+    game: pick.game,
+    pick: pick.pick,
+    odds: pick.odds,
+    confidence: pick.confidence,
+    winProbability: pick.winProbability || 'N/A'
+  };
+}
+
+// ===== END SHARING SYSTEM =====
 
 // Initial render (now voting functions are defined)
 renderPicks();
