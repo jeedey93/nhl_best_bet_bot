@@ -1915,31 +1915,54 @@ async function handleShare(pickId, sport) {
   button.innerHTML = '⏳ Sharing...';
 
   try {
-    // Get pick data
-    const pickData = getPickData(pickId, sport);
+    // Clone the row to manipulate it without affecting the page
+    const clonedRow = row.cloneNode(true);
 
-    // Generate share text
-    const shareText = `🎯 ${pickData.sport.toUpperCase()} Pick of the Day\n\n` +
-                     `${pickData.game}\n` +
-                     `✅ ${pickData.pick} ${pickData.odds}\n` +
-                     `⭐ Confidence: ${pickData.confidence}\n` +
-                     `🎲 Win Probability: ${pickData.winProbability}%\n\n` +
-                     `via Parieur Discipliné\n` +
-                     `https://parieurdiscipline.com`;
+    // Remove the last column (votes & share)
+    const lastCell = clonedRow.querySelector('td:last-child');
+    if (lastCell) {
+      lastCell.remove();
+    }
+
+    // Create a temporary container for clean screenshot
+    const container = document.createElement('div');
+    container.style.position = 'absolute';
+    container.style.left = '-9999px';
+    container.style.background = 'white';
+    container.style.padding = '20px';
+    container.style.borderRadius = '12px';
+    document.body.appendChild(container);
+
+    // Create a table wrapper for proper styling
+    const table = document.createElement('table');
+    table.className = 'picks-table';
+    table.style.width = 'auto';
+    table.style.borderCollapse = 'separate';
+    table.style.borderSpacing = '0';
+    const tbody = document.createElement('tbody');
+    tbody.appendChild(clonedRow);
+    table.appendChild(tbody);
+    container.appendChild(table);
+
+    // Simple share text with just the website
+    const shareText = `🎯 Parieur Discipliné\nhttps://parieurdiscipline.com`;
 
     // Try native Web Share API first (works best on mobile)
     if (navigator.share && navigator.canShare) {
       try {
         // Generate screenshot as blob
-        const canvas = await html2canvas(row, {
+        const canvas = await html2canvas(container, {
           backgroundColor: '#ffffff',
           scale: 2,
           logging: false,
           useCORS: true
         });
 
+        // Clean up temporary container
+        document.body.removeChild(container);
+
         const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
-        const file = new File([blob], `${pickId}.png`, { type: 'image/png' });
+        const file = new File([blob], `parieur-discipline-pick.png`, { type: 'image/png' });
 
         // Check if we can share with file
         const shareData = {
@@ -1965,6 +1988,7 @@ async function handleShare(pickId, sport) {
       } catch (err) {
         if (err.name === 'AbortError') {
           // User cancelled share
+          document.body.removeChild(container);
           button.innerHTML = '📤 Share';
           button.disabled = false;
           return;
@@ -1975,12 +1999,15 @@ async function handleShare(pickId, sport) {
     }
 
     // Fallback: Generate and download screenshot
-    const canvas = await html2canvas(row, {
+    const canvas = await html2canvas(container, {
       backgroundColor: '#ffffff',
       scale: 2,
       logging: false,
       useCORS: true
     });
+
+    // Clean up temporary container
+    document.body.removeChild(container);
 
     // Convert to blob and download
     canvas.toBlob((blob) => {
