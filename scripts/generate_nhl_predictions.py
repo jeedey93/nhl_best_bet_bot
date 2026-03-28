@@ -711,9 +711,25 @@ with open(filename, "w") as f:
             goalie_stats_text += "\n"
 
             # Add standings info for both teams
-            # Standings uses full team names like "NY Rangers", not short names like "Rangers"
-            away_standing = standings.get(away_team)
-            home_standing = standings.get(home_team)
+            # Standings uses team abbreviations as keys (e.g., 'MTL', 'BOS')
+            # Map short team names to abbreviations
+            NHL_TEAM_ABBREV_MAP = {
+                'Anaheim': 'ANA', 'Boston': 'BOS', 'Buffalo': 'BUF', 'Calgary': 'CGY',
+                'Carolina': 'CAR', 'Chicago': 'CHI', 'Colorado': 'COL', 'Columbus': 'CBJ',
+                'Dallas': 'DAL', 'Detroit': 'DET', 'Edmonton': 'EDM', 'Florida': 'FLA',
+                'Los Angeles': 'LAK', 'Minnesota': 'MIN', 'Montréal': 'MTL', 'Montreal': 'MTL',
+                'Nashville': 'NSH', 'New Jersey': 'NJD', 'New York': 'NYI', 'Rangers': 'NYR',
+                'Ottawa': 'OTT', 'Philadelphia': 'PHI', 'Pittsburgh': 'PIT', 'San Jose': 'SJS',
+                'Seattle': 'SEA', 'St. Louis': 'STL', 'Tampa Bay': 'TBL', 'Toronto': 'TOR',
+                'Vancouver': 'VAN', 'Vegas': 'VGK', 'Washington': 'WSH', 'Winnipeg': 'WPG',
+                'Utah': 'UTA'
+            }
+
+            away_abbrev = NHL_TEAM_ABBREV_MAP.get(away_short)
+            home_abbrev = NHL_TEAM_ABBREV_MAP.get(home_short)
+
+            away_standing = standings.get(away_abbrev) if away_abbrev else None
+            home_standing = standings.get(home_abbrev) if home_abbrev else None
 
             standings_text += f"\n{away_team} (Season Standings):\n"
             if away_standing:
