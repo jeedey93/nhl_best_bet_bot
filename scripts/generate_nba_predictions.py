@@ -324,6 +324,7 @@ def get_nba_standings():
         return {}
 
 def analyze_results(results_text, team_stats_text, h2h_stats_text, home_away_splits_text, standings_text, recent_games):
+    import time
     api_key = os.environ["GOOGLE_API_KEY"]
     client = genai.Client(api_key=api_key)
 
@@ -367,17 +368,33 @@ def analyze_results(results_text, team_stats_text, h2h_stats_text, home_away_spl
         # If prompt file is missing or unreadable, skip AI analysis
         return "AI analysis skipped: prompt file not found or unreadable."
 
-    try:
-        response = client.models.generate_content(
-            model="models/gemini-2.5-flash",
-            contents=prompt_text,
-        )
-        return response.text.strip()
-    except genai.errors.ClientError as e:
-        if "RESOURCE_EXHAUSTED" in str(e) or "quota" in str(e):
-            return "AI analysis skipped: Gemini API quota exceeded."
-        else:
-            raise
+    # Retry logic for 503 errors with exponential backoff
+    max_retries = 3
+    base_wait = 300  # 5 minutes in seconds
+
+    for attempt in range(max_retries):
+        try:
+            response = client.models.generate_content(
+                model="models/gemini-2.5-flash",
+                contents=prompt_text,
+            )
+            return response.text.strip()
+        except genai.errors.ServerError as e:
+            if "503" in str(e) or "UNAVAILABLE" in str(e):
+                if attempt < max_retries - 1:
+                    wait_time = base_wait * (attempt + 1)  # 5min, 10min, 15min
+                    print(f"⚠️ Gemini API 503 error (high demand). Retrying in {wait_time//60} minutes... (Attempt {attempt + 1}/{max_retries})")
+                    time.sleep(wait_time)
+                else:
+                    print(f"⚠️ Gemini API still unavailable after {max_retries} retries")
+                    return "AI analysis skipped: Gemini API unavailable after multiple retries (503 high demand)."
+            else:
+                raise
+        except genai.errors.ClientError as e:
+            if "RESOURCE_EXHAUSTED" in str(e) or "quota" in str(e):
+                return "AI analysis skipped: Gemini API quota exceeded."
+            else:
+                raise
 
 today_str = date.today().isoformat()
 predictions_folder = os.path.join("data", "predictions", "nba")
