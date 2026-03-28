@@ -163,10 +163,15 @@ def get_goalie_stats(goalie_name):
         # Check cache first
         if goalie_name in GOALIE_STATS_CACHE:
             cached_stats = GOALIE_STATS_CACHE[goalie_name]
-            # Validate cache (check if playerId matches)
-            if cached_stats.get('playerId') == goalie_id:
-                print(f"✅ Using cached stats for {goalie_name}")
+            # Validate cache (check if playerId matches and cache is not stale)
+            cached_timestamp = cached_stats.get('cached_at', 0)
+            cache_age_hours = (datetime.now(ZoneInfo('America/Toronto')).timestamp() - cached_timestamp) / 3600
+
+            if cached_stats.get('playerId') == goalie_id and cache_age_hours < 24:
+                print(f"✅ Using cached stats for {goalie_name} (cache age: {cache_age_hours:.1f}h)")
                 return cached_stats
+            elif cache_age_hours >= 24:
+                print(f"⚠️ Cache expired for {goalie_name} (age: {cache_age_hours:.1f}h), refreshing...")
 
         # Get player stats
         stats_url = f'https://api-web.nhle.com/v1/player/{goalie_id}/landing'
@@ -239,9 +244,10 @@ def get_goalie_stats(goalie_name):
         else:
             last_5_sv_pct = 0
 
-        # Cache the stats
+        # Cache the stats with timestamp
         cached_stats = {
             'playerId': goalie_id,
+            'cached_at': datetime.now(ZoneInfo('America/Toronto')).timestamp(),
             'record': f"{wins}-{losses}-{ot_losses}",
             'gaa': round(gaa, 2),
             'sv_pct': round(sv_pct, 3),
