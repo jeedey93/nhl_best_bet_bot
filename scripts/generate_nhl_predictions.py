@@ -575,8 +575,11 @@ with open(filename, "w") as f:
         odds_data = get_nhl_odds()
         matched = match_odds_to_games(games, odds_data, NHL_TEAM_NAME_MAP)
 
-        # Get starting goalies
-        starting_goalies = get_starting_goalies()
+        # Get starting goalies (only for 3pm run)
+        if run_time == "3pm":
+            starting_goalies = get_starting_goalies()
+        else:
+            starting_goalies = {}
 
         # Get NHL standings
         standings = get_nhl_standings()
@@ -689,42 +692,43 @@ with open(filename, "w") as f:
             else:
                 h2h_stats_text += "  No head-to-head games this season\n"
 
-            # Fetch goalie stats
-            # Use full team name from odds API (away_team, home_team) to match starting_goalies keys
-            # Normalize Montréal to Montreal (accent issue)
-            away_team_normalized = away_team.replace('Montréal', 'Montreal')
-            home_team_normalized = home_team.replace('Montréal', 'Montreal')
+            # Fetch goalie stats (only for 3pm run)
+            if run_time == "3pm":
+                # Use full team name from odds API (away_team, home_team) to match starting_goalies keys
+                # Normalize Montréal to Montreal (accent issue)
+                away_team_normalized = away_team.replace('Montréal', 'Montreal')
+                home_team_normalized = home_team.replace('Montréal', 'Montreal')
 
-            away_goalie_info = starting_goalies.get(away_team_normalized)
-            home_goalie_info = starting_goalies.get(home_team_normalized)
+                away_goalie_info = starting_goalies.get(away_team_normalized)
+                home_goalie_info = starting_goalies.get(home_team_normalized)
 
-            goalie_stats_text += f"\n{away_team} Starting Goalie:\n"
-            if away_goalie_info:
-                goalie_stats_text += f"  Name: {away_goalie_info['name']} ({away_goalie_info['status']})\n"
-                if 'record' in away_goalie_info:
-                    goalie_stats_text += f"  Season Record: {away_goalie_info['record']}\n"
-                    goalie_stats_text += f"  Season GAA: {away_goalie_info['gaa']}\n"
-                    goalie_stats_text += f"  Season SV%: {away_goalie_info['sv_pct']}\n"
-                    goalie_stats_text += f"  Last 5 Starts: {away_goalie_info['last_5_record']}\n"
-                    goalie_stats_text += f"  Last 5 GAA: {away_goalie_info['last_5_gaa']}\n"
-                    goalie_stats_text += f"  Last 5 SV%: {away_goalie_info['last_5_sv_pct']}\n"
-            else:
-                goalie_stats_text += "  No goalie confirmed\n"
+                goalie_stats_text += f"\n{away_team} Starting Goalie:\n"
+                if away_goalie_info:
+                    goalie_stats_text += f"  Name: {away_goalie_info['name']} ({away_goalie_info['status']})\n"
+                    if 'record' in away_goalie_info:
+                        goalie_stats_text += f"  Season Record: {away_goalie_info['record']}\n"
+                        goalie_stats_text += f"  Season GAA: {away_goalie_info['gaa']}\n"
+                        goalie_stats_text += f"  Season SV%: {away_goalie_info['sv_pct']}\n"
+                        goalie_stats_text += f"  Last 5 Starts: {away_goalie_info['last_5_record']}\n"
+                        goalie_stats_text += f"  Last 5 GAA: {away_goalie_info['last_5_gaa']}\n"
+                        goalie_stats_text += f"  Last 5 SV%: {away_goalie_info['last_5_sv_pct']}\n"
+                else:
+                    goalie_stats_text += "  No goalie confirmed\n"
 
-            goalie_stats_text += f"\n{home_team} Starting Goalie:\n"
-            if home_goalie_info:
-                goalie_stats_text += f"  Name: {home_goalie_info['name']} ({home_goalie_info['status']})\n"
-                if 'record' in home_goalie_info:
-                    goalie_stats_text += f"  Season Record: {home_goalie_info['record']}\n"
-                    goalie_stats_text += f"  Season GAA: {home_goalie_info['gaa']}\n"
-                    goalie_stats_text += f"  Season SV%: {home_goalie_info['sv_pct']}\n"
-                    goalie_stats_text += f"  Last 5 Starts: {home_goalie_info['last_5_record']}\n"
-                    goalie_stats_text += f"  Last 5 GAA: {home_goalie_info['last_5_gaa']}\n"
-                    goalie_stats_text += f"  Last 5 SV%: {home_goalie_info['last_5_sv_pct']}\n"
-            else:
-                goalie_stats_text += "  No goalie confirmed\n"
+                goalie_stats_text += f"\n{home_team} Starting Goalie:\n"
+                if home_goalie_info:
+                    goalie_stats_text += f"  Name: {home_goalie_info['name']} ({home_goalie_info['status']})\n"
+                    if 'record' in home_goalie_info:
+                        goalie_stats_text += f"  Season Record: {home_goalie_info['record']}\n"
+                        goalie_stats_text += f"  Season GAA: {home_goalie_info['gaa']}\n"
+                        goalie_stats_text += f"  Season SV%: {home_goalie_info['sv_pct']}\n"
+                        goalie_stats_text += f"  Last 5 Starts: {home_goalie_info['last_5_record']}\n"
+                        goalie_stats_text += f"  Last 5 GAA: {home_goalie_info['last_5_gaa']}\n"
+                        goalie_stats_text += f"  Last 5 SV%: {home_goalie_info['last_5_sv_pct']}\n"
+                else:
+                    goalie_stats_text += "  No goalie confirmed\n"
 
-            goalie_stats_text += "\n"
+                goalie_stats_text += "\n"
 
             # Add standings info for both teams
             # Standings dict is keyed by full team names (e.g., 'Montreal Canadiens', 'Boston Bruins')
@@ -766,8 +770,9 @@ with open(filename, "w") as f:
         print(standings_text)
         print("\nHead-to-Head Stats:")
         print(h2h_stats_text)
-        print("\nGoalie Stats:")
-        print(goalie_stats_text)
+        if run_time == "3pm":
+            print("\nGoalie Stats:")
+            print(goalie_stats_text)
         print("\nRecent Games:")
         print(recent_games)
 
