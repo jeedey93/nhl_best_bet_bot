@@ -23,6 +23,11 @@ jobs:
         with:
           python-version: '3.x'
 
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
       - name: Generate email body with picks and reasoning
         run: |
           python3 scripts/generate_complete_email.py
@@ -118,6 +123,29 @@ jobs:
           EMAIL_DATE=$(TZ='America/Toronto' date +"%A, %B %d, %Y")
           echo "subject=$EMAIL_DATE - NHL/NBA Daily Picks" >> $GITHUB_OUTPUT
 
+      - name: Create email sender script
+        run: |
+          cat > /tmp/send_email.py << 'SENDSCRIPT'
+          import smtplib, os, sys
+          from email.mime.multipart import MIMEMultipart
+          from email.mime.text import MIMEText
+
+          recipient, subject = sys.argv[1], sys.argv[2]
+          with open('/tmp/email_personal.html', 'r') as f:
+              body = f.read()
+
+          msg = MIMEMultipart('alternative')
+          msg['Subject'] = subject
+          msg['From'] = 'Parieur Discipliné <' + os.environ['EMAIL_USERNAME'] + '>'
+          msg['To'] = recipient
+          msg.attach(MIMEText(body, 'html', 'utf-8'))
+
+          with smtplib.SMTP('smtp.gmail.com', 587) as s:
+              s.starttls()
+              s.login(os.environ['EMAIL_USERNAME'], os.environ['EMAIL_PASSWORD'])
+              s.sendmail(os.environ['EMAIL_USERNAME'], [recipient], msg.as_string())
+          print(f"Sent to {recipient}")
+          SENDSCRIPT
       - name: Send test email only
         run: |
           SUBJECT="${{ steps.prepare_email.outputs.subject }}"
@@ -133,27 +161,5 @@ jobs:
 
             sed "s|\${UNSUBSCRIBE_URL}|${UNSUB_URL}|g" /tmp/email_body_final.html > /tmp/email_personal.html
 
-            python3 - "$EMAIL_ADDR" "$SUBJECT" <<'PYEOF'
-  import smtplib, os, sys
-  from email.mime.multipart import MIMEMultipart
-  from email.mime.text import MIMEText
-  
-  recipient, subject = sys.argv[1], sys.argv[2]
-
-with open('/tmp/email_personal.html', 'r') as f:
-  body = f.read()
-  
-  msg = MIMEMultipart('alternative')
-  msg['Subject'] = subject
-  msg['From'] = 'Parieur Discipliné <' + os.environ['EMAIL_USERNAME'] + '>'
-  msg['To'] = recipient
-  msg.attach(MIMEText(body, 'html', 'utf-8'))
-
-with smtplib.SMTP('smtp.gmail.com', 587) as s:
-  s.starttls()
-  s.login(os.environ['EMAIL_USERNAME'], os.environ['EMAIL_PASSWORD'])
-  s.sendmail(os.environ['EMAIL_USERNAME'], [recipient], msg.as_string())
-  
-  print(f"Sent to {recipient}")
-  PYEOF
-  done
+            python3 /tmp/send_email.py "$EMAIL_ADDR" "$SUBJECT"
+          done
