@@ -298,9 +298,7 @@ def main():
 
     if args.email and args.token:
         unsub_url = f"https://parieurdiscipline.com/api/unsubscribe?email={quote(args.email)}&token={args.token}"
-    else:
-        unsub_url = "https://parieurdiscipline.com/unsubscribe"
-    email_html = email_html.replace('${UNSUBSCRIBE_URL}', unsub_url)
+        email_html = email_html.replace('${UNSUBSCRIBE_URL}', unsub_url)
 
     # Note: Yesterday banner will be replaced by bash script
     # We keep the placeholder for now
