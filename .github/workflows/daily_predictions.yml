@@ -95,7 +95,19 @@ jobs:
             else
               git commit -m "Add final predictions for $(date -u +%Y-%m-%d)"
             fi
-            git push --set-upstream https://${GH_PAT}@github.com/${{ github.repository }} HEAD:master
+            # Retry push up to 3 times, rebasing on remote changes between attempts
+            for i in 1 2 3; do
+              if git push --set-upstream https://${GH_PAT}@github.com/${{ github.repository }} HEAD:master; then
+                break
+              elif [ $i -lt 3 ]; then
+                echo "Push failed (attempt $i), rebasing on remote changes..."
+                git fetch https://${GH_PAT}@github.com/${{ github.repository }} master
+                git rebase FETCH_HEAD
+              else
+                echo "Push failed after 3 attempts"
+                exit 1
+              fi
+            done
           else
             echo "No changes to commit"
           fi
