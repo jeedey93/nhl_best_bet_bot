@@ -1706,12 +1706,12 @@ def update_latest_predictions(preliminary=False):
     content += "<div class='blog-subtitle'>AI-Powered NHL & NBA Betting Predictions</div>\n"
     content += f"<div class='blog-date'>{nice_date}</div>\n"
     content += f"<div class='blog-update-time'>⏱️ {time_since}</div>\n"
-    subscriber_count = os.getenv('EMAIL_TO', '')
+    subscriber_count = os.getenv('SUBSCRIBER_LIST', '')
     # Count emails separated by commas
     if subscriber_count:
         subscriber_count = len([email.strip() for email in subscriber_count.split(',') if email.strip()])
     else:
-        subscriber_count = 6  # Default count when EMAIL_TO is not set
+        subscriber_count = 6  # Default count when SUBSCRIBER_LIST is not set
 
     # Combined subscriber count + subscribe banner (bold eye-catching style)
     content += "<div style='margin-top: 30px; text-align: center;'>\n"
