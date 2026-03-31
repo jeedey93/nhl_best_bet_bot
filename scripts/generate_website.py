@@ -1711,7 +1711,7 @@ def update_latest_predictions(preliminary=False):
     if subscriber_count:
         subscriber_count = len([email.strip() for email in subscriber_count.split(',') if email.strip()])
     else:
-        subscriber_count = 6  # Default count when SUBSCRIBER_LIST is not set
+        subscriber_count = 9  # Default count when SUBSCRIBER_LIST is not set
 
     # Combined subscriber count + subscribe banner (bold eye-catching style)
     content += "<div style='margin-top: 30px; text-align: center;'>\n"
