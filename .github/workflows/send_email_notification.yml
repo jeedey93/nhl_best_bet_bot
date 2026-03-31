@@ -125,15 +125,6 @@ jobs:
 
       - name: Create email sender script
         run: |
-          cat > /tmp/replace_unsub.py << 'REPLSCRIPT'
-import sys
-placeholder = '$' + '{UNSUBSCRIBE_URL}'
-with open('/tmp/email_body_final.html', 'r') as f:
-    html = f.read()
-html = html.replace(placeholder, sys.argv[1])
-with open('/tmp/email_personal.html', 'w') as f:
-    f.write(html)
-REPLSCRIPT
           cat > /tmp/send_email.py << 'SENDSCRIPT'
           import smtplib, os, sys
           from email.mime.multipart import MIMEMultipart
@@ -168,7 +159,7 @@ REPLSCRIPT
             ENCODED=$(python3 -c "import urllib.parse,sys; print(urllib.parse.quote(sys.argv[1]))" "$EMAIL_ADDR")
             UNSUB_URL="https://parieurdiscipline.com/api/unsubscribe?email=${ENCODED}&token=${TOKEN}"
 
-            python3 /tmp/replace_unsub.py "$UNSUB_URL"
+            python3 scripts/replace_unsub.py "$UNSUB_URL"
 
             python3 /tmp/send_email.py "$EMAIL_ADDR" "$SUBJECT"
           done
