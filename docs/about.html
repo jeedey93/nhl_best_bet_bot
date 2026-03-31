@@ -415,7 +415,44 @@ body {
   <div class='cta-box'>
     <h2>📬 Get Daily Picks Delivered</h2>
     <p>Subscribe to receive our daily predictions and analysis straight to your inbox</p>
-    <a href='https://forms.gle/vhuvwMLDzeBbRkrT6' target='_blank' class='cta-button'>Subscribe Now</a>
+    <div style='display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:16px;'>
+      <input id='about-email' type='email' placeholder='your@email.com' style='padding:10px 18px;border-radius:8px;border:none;font-size:0.95em;outline:none;min-width:220px;' />
+      <button onclick='aboutSubscribe()' class='cta-button' style='margin:0;'>Subscribe Now</button>
+    </div>
+    <p id='about-subscribe-msg' style='display:none;margin-top:12px;font-weight:600;font-size:0.95em;'></p>
+    <script>
+    function aboutSubscribe() {
+      var email = document.getElementById('about-email').value.trim();
+      var msg = document.getElementById('about-subscribe-msg');
+      if (!email) return;
+      fetch('/api/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email })
+      }).then(function(r) { return r.json(); }).then(function(d) {
+        msg.style.display = 'block';
+        if (d.success) {
+          document.getElementById('about-email').style.display = 'none';
+          document.querySelector('[onclick="aboutSubscribe()"]').style.display = 'none';
+          msg.style.color = '#10b981';
+          msg.textContent = '✅ You\'re subscribed! Check your inbox tomorrow.';
+        } else if (d.alreadySubscribed) {
+          msg.style.color = '#10b981';
+          msg.textContent = '✅ You\'re already on the list!';
+        } else {
+          msg.style.color = '#ef4444';
+          msg.textContent = d.error || 'Something went wrong. Try again.';
+        }
+      }).catch(function() {
+        msg.style.display = 'block';
+        msg.style.color = '#ef4444';
+        msg.textContent = 'Something went wrong. Try again.';
+      });
+    }
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && document.activeElement === document.getElementById('about-email')) aboutSubscribe();
+    });
+    </script>
   </div>
 
   <div class='cta-box' style='background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%); margin-top: 30px;'>

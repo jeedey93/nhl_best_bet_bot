@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='UTF-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+<title>Unsubscribe - Parieur Discipliné</title>
+<meta name='description' content='Unsubscribe from Parieur Discipliné daily picks emails.'>
+<link rel='icon' type='image/png' href='parieur_discipline_icon_1024.png'>
+<link rel='apple-touch-icon' href='parieur_discipline_icon_1024.png'>
+<link rel='shortcut icon' href='parieur_discipline_icon_1024.png'>
+</head>
+<body>
+
+<div id='nav-placeholder'></div>
+<script>
+fetch('nav.html')
+  .then(response => response.text())
+  .then(data => {
+    document.getElementById('nav-placeholder').innerHTML = data;
+
+    window.toggleMobileMenu = function() {
+      const navLinks = document.getElementById('navLinks');
+      navLinks.classList.toggle('active');
+    };
+
+    document.addEventListener('click', function(event) {
+      const nav = document.querySelector('nav');
+      const navLinks = document.getElementById('navLinks');
+      if (nav && !nav.contains(event.target) && navLinks && navLinks.classList.contains('active')) {
+        navLinks.classList.remove('active');
+      }
+    });
+  });
+</script>
+
+<div style='height: 88px;'></div>
+
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  line-height: 1.6;
+  background: #f5f7fa;
+  color: #1a1a1a;
+}
+.hero {
+  background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+  color: white;
+  padding: 60px 40px;
+  text-align: center;
+}
+.hero h1 { font-size: 2rem; font-weight: 700; margin-bottom: 12px; }
+.hero p { font-size: 1.1rem; opacity: 0.9; }
+.content {
+  max-width: 560px;
+  margin: 48px auto;
+  padding: 0 24px;
+  text-align: center;
+}
+.card {
+  background: white;
+  border-radius: 12px;
+  padding: 40px 32px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+.icon { font-size: 48px; margin-bottom: 20px; }
+.card h2 { font-size: 1.4rem; font-weight: 700; margin-bottom: 12px; color: #0f172a; }
+.card p { color: #475569; margin-bottom: 16px; font-size: 0.95rem; }
+.btn {
+  display: inline-block;
+  background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+  color: white;
+  text-decoration: none;
+  padding: 12px 28px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin: 8px 4px;
+  transition: opacity 0.2s;
+}
+.btn:hover { opacity: 0.88; }
+.btn-ghost {
+  background: transparent;
+  color: #4a90e2;
+  border: 1px solid #4a90e2;
+}
+.btn-ghost:hover { background: rgba(74,144,226,0.06); opacity: 1; }
+.divider { border: none; border-top: 1px solid #e2e8f0; margin: 24px 0; }
+.note { font-size: 0.82rem; color: #94a3b8; }
+</style>
+
+<div class='hero'>
+  <h1>Unsubscribe</h1>
+  <p>Manage your email preferences</p>
+</div>
+
+<div class='content'>
+  <div class='card'>
+    <div class='icon'>📧</div>
+    <h2>Want to unsubscribe?</h2>
+    <p>Each daily picks email contains a personalized <strong>Unsubscribe</strong> link in the footer. Click it to be removed instantly — no login required.</p>
+    <p>Can't find your last email? Contact us and we'll remove you manually within 24 hours.</p>
+    <hr class='divider'>
+    <a href='mailto:parieur.discipline@gmail.com?subject=Unsubscribe%20request' class='btn'>
+      Email us to unsubscribe
+    </a>
+    <br>
+    <a href='index.html' class='btn btn-ghost' style='margin-top:12px;'>
+      ← Back to home
+    </a>
+    <p class='note' style='margin-top:24px;'>Changed your mind?
+      <span id='resub-form' style='display:inline;'>
+        <input id='resub-email' type='email' placeholder='your@email.com' style='padding:5px 10px;border-radius:6px;border:1px solid #cbd5e1;font-size:0.82rem;margin:0 4px;outline:none;width:160px;' />
+        <button onclick='resubscribe()' style='background:#4a90e2;color:white;border:none;padding:5px 12px;border-radius:6px;font-size:0.82rem;cursor:pointer;font-weight:600;'>Subscribe</button>
+      </span>
+      <span id='resub-msg' style='display:none;font-size:0.82rem;font-weight:600;'></span>
+    </p>
+    <script>
+    function resubscribe() {
+      var email = document.getElementById('resub-email').value.trim();
+      var msg = document.getElementById('resub-msg');
+      if (!email) return;
+      fetch('/api/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email })
+      }).then(function(r) { return r.json(); }).then(function(d) {
+        document.getElementById('resub-form').style.display = 'none';
+        msg.style.display = 'inline';
+        if (d.success) {
+          msg.style.color = '#10b981';
+          msg.textContent = '✅ You\'re back on the list!';
+        } else if (d.alreadySubscribed) {
+          msg.style.color = '#10b981';
+          msg.textContent = '✅ Already subscribed!';
+        } else {
+          msg.style.color = '#ef4444';
+          msg.textContent = d.error || 'Error, try again.';
+        }
+      }).catch(function() {
+        msg.style.display = 'inline';
+        msg.style.color = '#ef4444';
+        msg.textContent = 'Error, try again.';
+      });
+    }
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && document.activeElement === document.getElementById('resub-email')) resubscribe();
+    });
+    </script>
+  </div>
+</div>
+
+</body>
+</html>

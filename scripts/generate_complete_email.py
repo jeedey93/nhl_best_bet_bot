@@ -4,10 +4,14 @@ Generate complete email body with picks and reasoning.
 Single script that combines pick extraction and reasoning generation.
 """
 
+import argparse
+import hashlib
+import hmac
 import os
 import re
 import sys
 from pathlib import Path
+from urllib.parse import quote
 
 
 def extract_picks_from_html(html_path):
@@ -227,6 +231,19 @@ def generate_reasoning_html(pick_data):
 
 def main():
     """Main function"""
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--email', default='')
+    parser.add_argument('--token', default='')
+    parser.add_argument('--generate-token', action='store_true')
+    args = parser.parse_args()
+
+    # Token generation mode: print HMAC token for a given email and exit
+    if args.generate_token and args.email:
+        secret = os.environ.get('UNSUBSCRIBE_SECRET', '')
+        token = hmac.new(secret.encode(), args.email.lower().strip().encode(), hashlib.sha256).hexdigest()
+        print(token)
+        return 0
+
     # Paths
     html_path = 'docs/daily-picks.html'
     dual_bet_path = 'data/predictions/dual_bet_of_the_day.txt'
@@ -278,6 +295,12 @@ def main():
     email_html = email_html.replace('${NBA_PICK}', nba_pick_html)
     email_html = email_html.replace('${NHL_REASONING}', nhl_reasoning_html)
     email_html = email_html.replace('${NBA_REASONING}', nba_reasoning_html)
+
+    if args.email and args.token:
+        unsub_url = f"https://parieurdiscipline.com/api/unsubscribe?email={quote(args.email)}&token={args.token}"
+    else:
+        unsub_url = "https://parieurdiscipline.com/unsubscribe"
+    email_html = email_html.replace('${UNSUBSCRIBE_URL}', unsub_url)
 
     # Note: Yesterday banner will be replaced by bash script
     # We keep the placeholder for now

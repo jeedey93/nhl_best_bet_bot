@@ -7,9 +7,10 @@ jobs:
   send-email:
     runs-on: ubuntu-latest
     env:
+      SUBSCRIBER_LIST: ${{ vars.SUBSCRIBER_LIST }}
+      UNSUBSCRIBE_SECRET: ${{ secrets.UNSUBSCRIBE_SECRET }}
       EMAIL_USERNAME: ${{ secrets.EMAIL_USERNAME }}
       EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
-      EMAIL_TO: ${{ secrets.EMAIL_TO }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -133,17 +134,39 @@ jobs:
           EMAIL_DATE=$(TZ='America/Toronto' date +"%A, %B %d, %Y")
           echo "subject=$EMAIL_DATE - NHL/NBA Daily Picks" >> $GITHUB_OUTPUT
 
-      - name: Send email notification
-        if: always()
-        uses: dawidd6/action-send-mail@v3
-        with:
-          server_address: smtp.gmail.com
-          server_port: 587
-          secure: false
-          username: ${{ env.EMAIL_USERNAME }}
-          password: ${{ env.EMAIL_PASSWORD }}
-          subject: ${{ steps.prepare_email.outputs.subject }}
-          html_body: ${{ steps.prepare_email.outputs.body }}
-          to: ${{ env.EMAIL_USERNAME }}
-          bcc: ${{ env.EMAIL_TO }}
-          from: Parieur Discipliné
+      - name: Send personalized emails to subscribers
+        run: |
+          SUBJECT="${{ steps.prepare_email.outputs.subject }}"
+          IFS=',' read -ra EMAILS <<< "$SUBSCRIBER_LIST"
+          for EMAIL_ADDR in "${EMAILS[@]}"; do
+            EMAIL_ADDR=$(echo "$EMAIL_ADDR" | tr -d ' ')
+            [ -z "$EMAIL_ADDR" ] && continue
+
+            TOKEN=$(python3 scripts/generate_complete_email.py --generate-token --email "$EMAIL_ADDR")
+            ENCODED=$(python3 -c "import urllib.parse,sys; print(urllib.parse.quote(sys.argv[1]))" "$EMAIL_ADDR")
+            UNSUB_URL="https://parieurdiscipline.com/api/unsubscribe?email=${ENCODED}&token=${TOKEN}"
+
+            sed "s|\${UNSUBSCRIBE_URL}|${UNSUB_URL}|g" /tmp/email_body_final.html > /tmp/email_personal.html
+
+            python3 - "$EMAIL_ADDR" "$SUBJECT" <<'PYEOF'
+import smtplib, os, sys
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
+recipient, subject = sys.argv[1], sys.argv[2]
+with open('/tmp/email_personal.html', 'r') as f:
+    body = f.read()
+
+msg = MIMEMultipart('alternative')
+msg['Subject'] = subject
+msg['From'] = 'Parieur Discipliné <' + os.environ['EMAIL_USERNAME'] + '>'
+msg['To'] = recipient
+msg.attach(MIMEText(body, 'html', 'utf-8'))
+
+with smtplib.SMTP('smtp.gmail.com', 587) as s:
+    s.starttls()
+    s.login(os.environ['EMAIL_USERNAME'], os.environ['EMAIL_PASSWORD'])
+    s.sendmail(os.environ['EMAIL_USERNAME'], [recipient], msg.as_string())
+print(f"Sent to {recipient}")
+PYEOF
+          done
