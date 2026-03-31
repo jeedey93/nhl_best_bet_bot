@@ -159,7 +159,14 @@ jobs:
             ENCODED=$(python3 -c "import urllib.parse,sys; print(urllib.parse.quote(sys.argv[1]))" "$EMAIL_ADDR")
             UNSUB_URL="https://parieurdiscipline.com/api/unsubscribe?email=${ENCODED}&token=${TOKEN}"
 
-            sed "s|\${UNSUBSCRIBE_URL}|${UNSUB_URL}|g" /tmp/email_body_final.html > /tmp/email_personal.html
+            python3 -c "
+import sys
+with open('/tmp/email_body_final.html', 'r') as f:
+    html = f.read()
+html = html.replace('\${UNSUBSCRIBE_URL}', sys.argv[1])
+with open('/tmp/email_personal.html', 'w') as f:
+    f.write(html)
+" "$UNSUB_URL"
 
             python3 /tmp/send_email.py "$EMAIL_ADDR" "$SUBJECT"
           done
