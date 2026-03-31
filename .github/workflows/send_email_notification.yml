@@ -11,6 +11,7 @@ jobs:
       UNSUBSCRIBE_SECRET: ${{ secrets.UNSUBSCRIBE_SECRET }}
       EMAIL_USERNAME: ${{ secrets.EMAIL_USERNAME }}
       EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -29,12 +30,13 @@ jobs:
       - name: Add yesterday's results banner and finalize email
         id: prepare_email
         run: |
-          # Extract yesterday's results for the banner
           TODAY=$(TZ='America/Toronto' date +"%Y-%m-%d")
           YESTERDAY=$(TZ='America/Toronto' date -d 'yesterday' +"%Y-%m-%d" 2>/dev/null || TZ='America/Toronto' date -v-1d +"%Y-%m-%d")
+
           RESULTS_FILE="data/bot_results/total_results_summary.txt"
           NHL_RESULTS_FILE="data/bot_results/nhl/nhl_daily_results_${TODAY}.txt"
           NBA_RESULTS_FILE="data/bot_results/nba/nba_daily_results_${TODAY}.txt"
+
           YESTERDAY_BANNER="NEW PREDICTIONS AVAILABLE - DAILY UPDATE"
 
           if [ -f "$RESULTS_FILE" ]; then
@@ -46,55 +48,38 @@ jobs:
               TOTAL_LOSSES=0
               TOTAL_UNITS=0
 
-              # Calculate NHL units
-              if [ -f "$NHL_RESULTS_FILE" ]; then
-                CURRENT_UNITS=""
-                CURRENT_ODDS=""
-                while IFS= read -r line; do
-                  if echo "$line" | grep -q "@ [0-9.]* - .*Units: [0-9.]*u"; then
-                    CURRENT_ODDS=$(echo "$line" | sed 's/.*@ \([0-9.]*\) -.*/\1/')
-                    CURRENT_UNITS=$(echo "$line" | sed 's/.*Units: \([0-9.]*\)u.*/\1/')
-                  fi
-                  if echo "$line" | grep -q "Outcome: \*\*WIN\*\*" && [ -n "$CURRENT_UNITS" ] && [ -n "$CURRENT_ODDS" ]; then
-                    PROFIT=$(echo "scale=2; $CURRENT_UNITS * ($CURRENT_ODDS - 1)" | bc)
-                    TOTAL_UNITS=$(echo "scale=2; $TOTAL_UNITS + $PROFIT" | bc)
-                    CURRENT_UNITS=""
-                    CURRENT_ODDS=""
-                  elif echo "$line" | grep -q "Outcome: \*\*LOSS\*\*" && [ -n "$CURRENT_UNITS" ]; then
-                    TOTAL_UNITS=$(echo "scale=2; $TOTAL_UNITS - $CURRENT_UNITS" | bc)
-                    CURRENT_UNITS=""
-                    CURRENT_ODDS=""
-                  elif echo "$line" | grep -q "Outcome: \*\*PUSH\*\*"; then
-                    CURRENT_UNITS=""
-                    CURRENT_ODDS=""
-                  fi
-                done < "$NHL_RESULTS_FILE"
-              fi
+              calculate_units () {
+                FILE=$1
+                if [ -f "$FILE" ]; then
+                  CURRENT_UNITS=""
+                  CURRENT_ODDS=""
+                  while IFS= read -r line; do
+                    if echo "$line" | grep -q "@ [0-9.]* - .*Units: [0-9.]*u"; then
+                      CURRENT_ODDS=$(echo "$line" | sed 's/.*@ \([0-9.]*\) -.*/\1/')
+                      CURRENT_UNITS=$(echo "$line" | sed 's/.*Units: \([0-9.]*\)u.*/\1/')
+                    fi
 
-              # Calculate NBA units
-              if [ -f "$NBA_RESULTS_FILE" ]; then
-                CURRENT_UNITS=""
-                CURRENT_ODDS=""
-                while IFS= read -r line; do
-                  if echo "$line" | grep -q "@ [0-9.]* - .*Units: [0-9.]*u"; then
-                    CURRENT_ODDS=$(echo "$line" | sed 's/.*@ \([0-9.]*\) -.*/\1/')
-                    CURRENT_UNITS=$(echo "$line" | sed 's/.*Units: \([0-9.]*\)u.*/\1/')
-                  fi
-                  if echo "$line" | grep -q "Outcome: \*\*WIN\*\*" && [ -n "$CURRENT_UNITS" ] && [ -n "$CURRENT_ODDS" ]; then
-                    PROFIT=$(echo "scale=2; $CURRENT_UNITS * ($CURRENT_ODDS - 1)" | bc)
-                    TOTAL_UNITS=$(echo "scale=2; $TOTAL_UNITS + $PROFIT" | bc)
-                    CURRENT_UNITS=""
-                    CURRENT_ODDS=""
-                  elif echo "$line" | grep -q "Outcome: \*\*LOSS\*\*" && [ -n "$CURRENT_UNITS" ]; then
-                    TOTAL_UNITS=$(echo "scale=2; $TOTAL_UNITS - $CURRENT_UNITS" | bc)
-                    CURRENT_UNITS=""
-                    CURRENT_ODDS=""
-                  elif echo "$line" | grep -q "Outcome: \*\*PUSH\*\*"; then
-                    CURRENT_UNITS=""
-                    CURRENT_ODDS=""
-                  fi
-                done < "$NBA_RESULTS_FILE"
-              fi
+                    if echo "$line" | grep -q "Outcome: \*\*WIN\*\*" && [ -n "$CURRENT_UNITS" ] && [ -n "$CURRENT_ODDS" ]; then
+                      PROFIT=$(echo "scale=2; $CURRENT_UNITS * ($CURRENT_ODDS - 1)" | bc)
+                      TOTAL_UNITS=$(echo "scale=2; $TOTAL_UNITS + $PROFIT" | bc)
+                      CURRENT_UNITS=""
+                      CURRENT_ODDS=""
+
+                    elif echo "$line" | grep -q "Outcome: \*\*LOSS\*\*" && [ -n "$CURRENT_UNITS" ]; then
+                      TOTAL_UNITS=$(echo "scale=2; $TOTAL_UNITS - $CURRENT_UNITS" | bc)
+                      CURRENT_UNITS=""
+                      CURRENT_ODDS=""
+
+                    elif echo "$line" | grep -q "Outcome: \*\*PUSH\*\*"; then
+                      CURRENT_UNITS=""
+                      CURRENT_ODDS=""
+                    fi
+                  done < "$FILE"
+                fi
+              }
+
+              calculate_units "$NHL_RESULTS_FILE"
+              calculate_units "$NBA_RESULTS_FILE"
 
               if [ -n "$NBA_YESTERDAY" ]; then
                 NBA_WINS=$(echo "$NBA_YESTERDAY" | sed 's/.*: \([0-9]*\) win.*/\1/')
@@ -111,6 +96,7 @@ jobs:
               fi
 
               TOTAL_UNITS=$(printf "%.2f" $TOTAL_UNITS)
+
               if [ $(echo "$TOTAL_UNITS > 0" | bc) -eq 1 ]; then
                 UNITS_TEXT="<span style='color: #10b981;'>+${TOTAL_UNITS}u</span>"
               elif [ $(echo "$TOTAL_UNITS < 0" | bc) -eq 1 ]; then
@@ -123,21 +109,20 @@ jobs:
             fi
           fi
 
-          # Replace the yesterday banner placeholder
           sed "s|NEW PREDICTIONS AVAILABLE - DAILY UPDATE|$YESTERDAY_BANNER|g" /tmp/email_body.html > /tmp/email_body_final.html
 
           echo "body<<EOF" >> $GITHUB_OUTPUT
           cat /tmp/email_body_final.html >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
-          # Generate email subject
           EMAIL_DATE=$(TZ='America/Toronto' date +"%A, %B %d, %Y")
           echo "subject=$EMAIL_DATE - NHL/NBA Daily Picks" >> $GITHUB_OUTPUT
 
-      - name: Send personalized emails to subscribers
+      - name: Send test email only
         run: |
           SUBJECT="${{ steps.prepare_email.outputs.subject }}"
-          IFS=',' read -ra EMAILS <<< "$SUBSCRIBER_LIST"
+          EMAILS=("parieur.discipline@gmail.com")
+
           for EMAIL_ADDR in "${EMAILS[@]}"; do
             EMAIL_ADDR=$(echo "$EMAIL_ADDR" | tr -d ' ')
             [ -z "$EMAIL_ADDR" ] && continue
@@ -149,24 +134,26 @@ jobs:
             sed "s|\${UNSUBSCRIBE_URL}|${UNSUB_URL}|g" /tmp/email_body_final.html > /tmp/email_personal.html
 
             python3 - "$EMAIL_ADDR" "$SUBJECT" <<'PYEOF'
-import smtplib, os, sys
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
+  import smtplib, os, sys
+  from email.mime.multipart import MIMEMultipart
+  from email.mime.text import MIMEText
+  
+  recipient, subject = sys.argv[1], sys.argv[2]
 
-recipient, subject = sys.argv[1], sys.argv[2]
 with open('/tmp/email_personal.html', 'r') as f:
-    body = f.read()
-
-msg = MIMEMultipart('alternative')
-msg['Subject'] = subject
-msg['From'] = 'Parieur Discipliné <' + os.environ['EMAIL_USERNAME'] + '>'
-msg['To'] = recipient
-msg.attach(MIMEText(body, 'html', 'utf-8'))
+  body = f.read()
+  
+  msg = MIMEMultipart('alternative')
+  msg['Subject'] = subject
+  msg['From'] = 'Parieur Discipliné <' + os.environ['EMAIL_USERNAME'] + '>'
+  msg['To'] = recipient
+  msg.attach(MIMEText(body, 'html', 'utf-8'))
 
 with smtplib.SMTP('smtp.gmail.com', 587) as s:
-    s.starttls()
-    s.login(os.environ['EMAIL_USERNAME'], os.environ['EMAIL_PASSWORD'])
-    s.sendmail(os.environ['EMAIL_USERNAME'], [recipient], msg.as_string())
-print(f"Sent to {recipient}")
-PYEOF
-          done
+  s.starttls()
+  s.login(os.environ['EMAIL_USERNAME'], os.environ['EMAIL_PASSWORD'])
+  s.sendmail(os.environ['EMAIL_USERNAME'], [recipient], msg.as_string())
+  
+  print(f"Sent to {recipient}")
+  PYEOF
+  done
