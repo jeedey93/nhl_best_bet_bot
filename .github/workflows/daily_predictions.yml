@@ -235,9 +235,10 @@ jobs:
         run: |
           cat > /tmp/replace_unsub.py << 'REPLSCRIPT'
 import sys
+placeholder = '$' + '{UNSUBSCRIBE_URL}'
 with open('/tmp/email_body_final.html', 'r') as f:
     html = f.read()
-html = html.replace('${UNSUBSCRIBE_URL}', sys.argv[1])
+html = html.replace(placeholder, sys.argv[1])
 with open('/tmp/email_personal.html', 'w') as f:
     f.write(html)
 REPLSCRIPT
