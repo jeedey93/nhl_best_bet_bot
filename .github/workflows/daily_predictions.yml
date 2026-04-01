@@ -67,6 +67,9 @@ jobs:
       - name: Generate daily picks table (7am)
         if: steps.run_time.outputs.time == '7am'
         run: python3 scripts/generate_daily_picks_table.py --results-only
+      - name: Generate early picks page (7am)
+        if: steps.run_time.outputs.time == '7am'
+        run: python3 scripts/generate_early_picks_page.py
       - name: Generate daily picks table (3pm)
         if: steps.run_time.outputs.time == '3pm'
         run: python3 scripts/generate_daily_picks_table.py
