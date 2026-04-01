@@ -1957,6 +1957,7 @@ def update_latest_predictions(preliminary=False):
             content += "<div style='padding: 20px; background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border-radius: 12px; border: 2px solid #60a5fa; max-width: 600px; margin: 0 auto;'>\n"
             content += "<div style='font-size: 1.2em; font-weight: 700; color: #1e3a8a; margin-bottom: 8px;'>⏰ Full Picks Coming Soon</div>\n"
             content += "<div style='font-size: 1em; color: #1e40af; margin-bottom: 15px;'>Complete picks table with all games and detailed analysis will be available at <strong>3:00 PM ET</strong></div>\n"
+            content += "<div style='margin-bottom: 15px;'><a href='early-picks.html' style='display: inline-block; padding: 10px 24px; background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 0.95em; box-shadow: 0 3px 10px rgba(59, 130, 246, 0.4); transition: all 0.3s ease;' onmouseover='this.style.transform=\"translateY(-2px)\"; this.style.boxShadow=\"0 5px 15px rgba(59, 130, 246, 0.5)\";' onmouseout='this.style.transform=\"translateY(0)\"; this.style.boxShadow=\"0 3px 10px rgba(59, 130, 246, 0.4)\";'>📋 View Early 7am Picks →</a></div>\n"
             content += "<div style='font-size: 0.9em; color: #3b82f6;'>Above are today's featured bets to get you started</div>\n"
             content += "</div>\n"
         else:
