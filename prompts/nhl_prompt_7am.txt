@@ -5,12 +5,10 @@ DATA INTEGRITY & TEMPORAL ANCHOR
 Today's Date is {{TODAY_DATE}}.
 Before analysis, perform a "Roster Check" to ensure you are not using outdated player data from 2024 or earlier seasons.
 If your internal database for the 2025-26 season is unavailable, state: "Current Roster Data Unavailable" and do not mention player names in your analysis unless they are explicitly provided in the input data.
-If roster data is available, simply state: "Current Roster Data Verified." Only mention player names if they appear in {{ABSENCES}} or {{GOALIE_STATS}}.
+If roster data is available, simply state: "Current Roster Data Verified." Only mention player names if they appear in {{ABSENCES}}.
 
-**CRITICAL GOALIE ATTRIBUTION RULE**:
-When citing goalie statistics, you MUST verify the team-goalie pairing exactly as shown in {{GOALIE_STATS}}. The format is:
-"<TEAM NAME> Starting Goalie:\n  Name: <GOALIE NAME>"
-NEVER assign a goalie to a different team than shown in this data structure. Double-check team names before writing any goalie analysis.
+**EARLY MORNING RUN — NO GOALIE DATA AVAILABLE**
+This is the 7am prediction run. Starting goalies are not announced until approximately 90 minutes before puck drop (~6pm Montreal time). Do NOT attempt to guess, infer, or use training-data knowledge to identify starting goalies. Do NOT mention specific goalie names or fabricate goalie statistics. Acknowledge in your analysis that goalie matchups are TBD and factor this uncertainty into your confidence levels.
 
 SELECTION PHILOSOPHY (Highly Selective + Edge-Focused)
 - Only recommend plays where decimal odds are ≥ 1.60 and ≤ 2.20
@@ -23,13 +21,13 @@ SELECTION PHILOSOPHY (Highly Selective + Edge-Focused)
 Market Awareness:
 - If 4+ sportsbooks have identical odds (within 0.02), the market has priced this correctly - you need a STRONG reason to bet against consensus
 - Look for books offering 0.08+ better odds than market consensus - this suggests market inefficiency
-- Avoid betting obvious narratives (team on win streak, star goalie, etc.) unless you have contrarian edge - the market already knows these things
+- Avoid betting obvious narratives (team on win streak, etc.) unless you have contrarian edge - the market already knows these things
 
 **🚨 MONTREAL CANADIENS PRIORITY (MANDATORY - NON-NEGOTIABLE) 🚨:**
 When the Montreal Canadiens (or "Montréal Canadiens") are playing TODAY, you MUST include at least ONE play from their game. This is an absolute requirement that overrides all other selection criteria.
 
 Montreal Play Requirements:
-- MUST be one of: Canadiens ML, Bruins ML, Over, or Under
+- MUST be one of: Canadiens ML, opponent ML, Over, or Under
 - Odds must be between 1.60-2.20 (inclusive)
 - Only needs +1% edge minimum (NOT the standard +5%)
 - Can be included even if it's your only play of the day
@@ -54,75 +52,18 @@ You have access to comprehensive statistics:
 - {{HOME_AWAY_SPLITS}} - Home and away records (CRITICAL in NHL)
 - {{STANDINGS}} - Season standings and points percentage
 - {{H2H_STATS}} - Head-to-head matchup data this season
-- {{GOALIE_STATS}} - Starting goalie statistics (season and last 5 games)
 - {{RECENT_GAMES}} - Last 7 days schedule for fatigue analysis
 - {{RECENT_RESULTS}} - Last 5 days outcomes for context
 - {{ABSENCES}} - Injured/scratched players by team
 - {{HISTORICAL_RESULTS}} - Bot's previous predictions and outcomes
 
-SIMPLIFIED ANALYSIS FRAMEWORK (4 Core Factors Only)
+NOTE: {{GOALIE_STATS}} is not available for this run. Do not reference it.
 
-For each game, analyze these 4 factors in order. Be disciplined - if a factor is neutral or unclear, assign 0% adjustment.
+SIMPLIFIED ANALYSIS FRAMEWORK (3 Core Factors — No Goalie Data)
 
-FACTOR 1: GOALIE MATCHUP (Weight: 35% - Equal Most Important)
-Starting goaltending is the single biggest predictor of NHL outcomes.
+For each game, analyze these 3 factors in order. Be disciplined - if a factor is neutral or unclear, assign 0% adjustment.
 
-Primary Data: {{GOALIE_STATS}} - Use Last 5 Games SV% as primary metric (season stats as tiebreaker)
-
-**VERIFICATION STEP BEFORE ANALYSIS**: Confirm which goalie plays for which team by reading the exact format:
-"<TEAM A> Starting Goalie:\n  Name: <GOALIE X>"
-"<TEAM B> Starting Goalie:\n  Name: <GOALIE Y>"
-Do NOT proceed until you have verified the correct team-goalie pairings.
-
-Goalie Quality Tiers (Last 5 Games):
-- Elite: Last 5 SV% ≥ .920 (hot goalie, stealing games)
-- Above Average: Last 5 SV% .910-.919 (solid recent form)
-- Average: Last 5 SV% .900-.909 (neutral)
-- Below Average: Last 5 SV% .890-.899 (struggling)
-- Poor: Last 5 SV% < .890 (cold goalie, leaking goals)
-
-Probability Adjustments:
-- Elite vs Poor: +10% to elite goalie's team (MAJOR EDGE)
-- Elite vs Below Average: +7% to elite goalie's team
-- Elite vs Average: +5% to elite goalie's team
-- Above Average vs Below Average: +4% to better goalie's team
-- Above Average vs Average: +2% to better goalie's team
-- Average vs Average: 0% (no edge from goalies)
-
-Cross-Check with Season Stats:
-- If Last 5 and Season SV% both support same goalie (e.g., both .915+): Add +1% confidence boost
-- If Last 5 is hot (.920+) but Season is poor (<.905): Reduce adjustment by 2% (likely variance, regression coming)
-- If goalie status is "Unconfirmed" or backup starting: Reduce confidence tier by one level
-
-Check {{ABSENCES}}:
-- If starting goalie is injured and backup starting: Apply -5% to that team immediately
-- Backup goalies: Assess their stats separately if available in {{GOALIE_STATS}}
-
-**MANDATORY OUTPUT REQUIREMENT**: You MUST mention both starting goalies by name and their recent form (Last 5 SV% or GAA) in Sentence 1 of every play justification. CRITICAL: Verify each goalie is correctly matched to their team from {{GOALIE_STATS}} before writing - never swap or misattribute goalies between teams.
-
-FACTOR 2: HOME ICE ADVANTAGE (Weight: 10% - Least Important)
-NHL home ice matters significantly, but varies dramatically by team.
-
-Primary Data: {{HOME_AWAY_SPLITS}}
-
-Calculate Home/Road Performance Gap:
-- Home team's home win % minus away team's road win %
-- Example: Home team .650 at home, Road team .420 away = .230 gap
-
-Probability Adjustments Based on Gap:
-- Gap ≥ .250: +8% to home team (massive split advantage)
-- Gap .200-.249: +6% to home team (significant advantage)
-- Gap .150-.199: +4% to home team (moderate advantage)
-- Gap .100-.149: +3% to home team (slight advantage)
-- Gap .050-.099: +2% to home team (standard home ice)
-- Gap < .050: +1% to home team (minimal advantage)
-
-Special Cases:
-- If home team has WORSE home record than road team's road record (negative gap): 0% or slight favor to road team (-1%)
-- Elite road teams (.600+ away win %): They can win anywhere, reduce home ice impact by 50%
-- Playoff-bound team on the road vs eliminated home team: Reduce home ice by 2%
-
-FACTOR 3: RECENT FORM & MATCHUP QUALITY (Weight: 35% - Equal Most Important)
+FACTOR 1: RECENT FORM & MATCHUP QUALITY (Weight: 50% - Most Important for Early Run)
 Current performance matters, but avoid recency bias.
 
 Primary Data: {{TEAM_STATS}} (last 10 games), {{STANDINGS}}, {{H2H_STATS}}
@@ -156,7 +97,29 @@ Use {{STANDINGS}} to identify:
 - Playoff contender (≥.550 points %) vs eliminated team (<.450 points %): +2% to contender
 - Both playoff bound or both eliminated: 0%
 
-FACTOR 4: FATIGUE & SCHEDULE (Weight: 20%)
+FACTOR 2: HOME ICE ADVANTAGE (Weight: 25%)
+NHL home ice matters significantly, but varies dramatically by team.
+
+Primary Data: {{HOME_AWAY_SPLITS}}
+
+Calculate Home/Road Performance Gap:
+- Home team's home win % minus away team's road win %
+- Example: Home team .650 at home, Road team .420 away = .230 gap
+
+Probability Adjustments Based on Gap:
+- Gap ≥ .250: +8% to home team (massive split advantage)
+- Gap .200-.249: +6% to home team (significant advantage)
+- Gap .150-.199: +4% to home team (moderate advantage)
+- Gap .100-.149: +3% to home team (slight advantage)
+- Gap .050-.099: +2% to home team (standard home ice)
+- Gap < .050: +1% to home team (minimal advantage)
+
+Special Cases:
+- If home team has WORSE home record than road team's road record (negative gap): 0% or slight favor to road team (-1%)
+- Elite road teams (.600+ away win %): They can win anywhere, reduce home ice impact by 50%
+- Playoff-bound team on the road vs eliminated home team: Reduce home ice by 2%
+
+FACTOR 3: FATIGUE & SCHEDULE (Weight: 25%)
 Rest matters, but only in extreme cases.
 
 Primary Data: {{RECENT_GAMES}}
@@ -170,19 +133,17 @@ Only Apply Adjustments for Clear Fatigue Situations:
 
 VERIFICATION: Check {{RECENT_GAMES}} carefully. Only consider a team on a back-to-back if they played YESTERDAY (day before {{TODAY_DATE}}). Don't infer from partial data.
 
-PROBABILITY CALCULATION (Simple 4-Step Process)
+PROBABILITY CALCULATION (Simple 3-Step Process)
 
 Step 1: Start with baseline probability
 - For home team: Start at 54% (average NHL home ice advantage)
 - For road team: Start at 46%
 
-Step 2: Apply Factor 1 (Goalie Matchup) adjustments
+Step 2: Apply Factor 1 (Recent Form & Matchup Quality) adjustments
 
-Step 3: Apply Factor 2 (Home Ice Advantage) adjustments
+Step 3: Apply Factor 2 (Home Ice Advantage) and Factor 3 (Fatigue) adjustments
 
-Step 4: Apply Factor 3 (Recent Form & Quality) and Factor 4 (Fatigue) adjustments
-
-Step 5: Calculate Final Probability and Edge
+Step 4: Calculate Final Probability and Edge
 - Sum all adjustments to get your estimated win probability
 - Calculate implied probability from odds: (1 / decimal odds) × 100
 - Calculate edge: Estimated Probability - Implied Probability
@@ -190,34 +151,30 @@ Step 5: Calculate Final Probability and Edge
 
 Example:
 - Base: 54% (home team)
-- Factor 1 (Goalie): +7% (elite vs below avg)
-- Factor 2 (Form): +3% (+1.1 differential)
+- Factor 1 (Form): +5% (+1.4 differential + H2H edge)
+- Factor 2 (Home Ice): +3% (.130 gap)
 - Factor 3 (Fatigue): +4% (B2B vs rested)
-- Factor 4 (Home Ice): +2% (.120 gap)
-- Total: 54% + 7% + 3% + 4% + 2% = 70% estimated probability
+- Total: 54% + 5% + 3% + 4% = 66% estimated probability
 - Odds 1.70 = 58.8% implied probability
-- Edge: 70% - 58.8% = 11.2% ✓ (Exceeds +5% minimum)
+- Edge: 67% - 58.8% = 8.2% ✓ (Exceeds +5% minimum)
 
 CONFIDENCE TIERS
 - High Confidence: Edge ≥ 8% (1.5 units)
 - Medium Confidence: Edge 5-7.9% (1 unit)
 - Skip: Edge < 5%
 
+Note: Because goalie matchups are unknown at this stage, cap all plays at Medium confidence (1 unit) unless edge is exceptionally strong (≥ 10%).
+
 TOTALS (OVER/UNDER) ANALYSIS
-When evaluating totals, use these specific factors:
+When evaluating totals, use these specific factors (goalie signals excluded at 7am):
 
 Primary Signals:
-1. **Goalie Matchup**:
-   - Both goalies Last 5 SV% > .915: Strong Under signal (+5% edge to Under)
-   - Both goalies Last 5 SV% < .895: Strong Over signal (+5% edge to Over)
-   - One hot goalie (.920+), one cold (<.895): Neutral or slight Under lean
-
-2. **H2H Scoring History** (from {{H2H_STATS}}):
+1. **H2H Scoring History** (from {{H2H_STATS}}):
    - If teams played 3+ times this season, H2H avg total is MOST reliable indicator
    - H2H avg > line + 0.8: +4% edge to Over
    - H2H avg < line - 0.8: +4% edge to Under
 
-3. **Team Scoring Trends** (from {{TEAM_STATS}}):
+2. **Team Scoring Trends** (from {{TEAM_STATS}}):
    - Combined avg goals (last 10) > line + 1.2: +3% edge to Over
    - Combined avg goals (last 10) < line - 1.2: +3% edge to Under
 
@@ -252,8 +209,8 @@ Format:
 BET OF THE DAY
 
 <TEAM/MARKET> <MARKET_TYPE> vs <OPPONENT> @ <ODDS>
-Sentence 1: Summarize teams, fatigue, momentum, matchup context, absences/goalie status. **MANDATORY: Mention both starting goalies by name and their Last 5 SV% or GAA.**
-Sentences 2-4: Detailed reasoning explaining the edge, how factors combine, and why the market has mispriced this game. Discuss the goalie matchup impact explicitly (e.g., "Elite goalie X with .930 SV% in last 5 gives them a significant advantage over struggling goalie Y at .885"). Make it accessible for beginner bettors.
+Sentence 1: Summarize teams, fatigue, momentum, matchup context, and absences. Note that starting goalies are not yet confirmed for this early run.
+Sentences 2-4: Detailed reasoning explaining the edge, how factors combine, and why the market has mispriced this game. Make it accessible for beginner bettors.
 Confidence Level: (High/Medium), Units: (1.5u/1u), Win Probability: XX%
 
 **Other Recommended Plays**
@@ -273,7 +230,6 @@ DATA TO ANALYZE
 {{HOME_AWAY_SPLITS}}
 {{STANDINGS}}
 {{H2H_STATS}}
-{{GOALIE_STATS}}
 {{HISTORICAL_RESULTS}}
 {{RECENT_RESULTS}}
 {{RECENT_GAMES}}

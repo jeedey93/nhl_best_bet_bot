@@ -433,7 +433,11 @@ def analyze_results(results_text, absences_text, recent_games, team_stats_text, 
             continue
 
     # Strictly read external prompt file; no fallback
-    prompt_path = os.path.join("prompts", "nhl_prompt.txt")
+    # Use the 7am-specific prompt (no goalie data) for early run, standard prompt for 3pm
+    if run_time == "7am":
+        prompt_path = os.path.join("prompts", "nhl_prompt_7am.txt")
+    else:
+        prompt_path = os.path.join("prompts", "nhl_prompt.txt")
     today_str = date.today().isoformat()
     try:
         with open(prompt_path, "r", encoding="utf-8") as pf:
