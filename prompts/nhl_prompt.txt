@@ -50,11 +50,12 @@ Montréal Canadiens vs Boston Bruins Over 6.5 @ 1.90 [reasoning...]"
 
 ENHANCED DATA SOURCES
 You have access to comprehensive statistics:
-- {{TEAM_STATS}} - Last 10 games performance (record, goals scored/allowed)
+- {{TEAM_STATS}} - Last 10 games performance (record, goals scored/allowed, current streak, form trend)
 - {{HOME_AWAY_SPLITS}} - Home and away records (CRITICAL in NHL)
 - {{STANDINGS}} - Season standings and points percentage
 - {{H2H_STATS}} - Head-to-head matchup data this season
 - {{GOALIE_STATS}} - Starting goalie statistics (season and last 5 games)
+- {{SPECIAL_TEAMS}} - Power Play % and Penalty Kill % for each team, plus rest days / back-to-back status
 - {{RECENT_GAMES}} - Last 7 days schedule for fatigue analysis
 - {{RECENT_RESULTS}} - Last 5 days outcomes for context
 - {{ABSENCES}} - Injured/scratched players by team
@@ -138,6 +139,12 @@ Calculate: (Avg Goals Scored - Avg Goals Allowed) for each team
 
 If BOTH teams have positive differentials, apply difference between them (e.g., +1.2 vs +0.3 = net +2% to better team)
 
+Step A2 - Streak & Form Trend (from {{TEAM_STATS}}):
+- Team on 4+ game win streak: +2%
+- Team on 4+ game losing streak: -2% (increase opponent's probability by 2%)
+- Form Trend "Improving" (last 5 avg goals up vs first 5): +1%
+- Form Trend "Declining" (last 5 avg goals down vs first 5): -1%
+
 Step B - Head-to-Head Dominance:
 Use {{H2H_STATS}} if teams have played 2+ times this season:
 
@@ -159,16 +166,18 @@ Use {{STANDINGS}} to identify:
 FACTOR 4: FATIGUE & SCHEDULE (Weight: 20%)
 Rest matters, but only in extreme cases.
 
-Primary Data: {{RECENT_GAMES}}
+Primary Data: {{SPECIAL_TEAMS}} (contains rest days / back-to-back status), {{RECENT_GAMES}}
 
 Only Apply Adjustments for Clear Fatigue Situations:
-- Team on back-to-back (played yesterday) vs team with 2+ days rest: +4% to rested team
+- Team on back-to-back (0 rest days) vs team with 2+ days rest: +4% to rested team
 - Team on back-to-back vs team also on back-to-back: 0% (both tired)
 - Team on road back-to-back (2nd game away) vs rested team: +5% to rested team
 - 3 games in 4 nights vs rested team: +2% to rested team
 - Otherwise: 0% (don't overthink rest)
 
-VERIFICATION: Check {{RECENT_GAMES}} carefully. Only consider a team on a back-to-back if they played YESTERDAY (day before {{TODAY_DATE}}). Don't infer from partial data.
+Use the rest days data in {{SPECIAL_TEAMS}} as the primary source. Cross-check with {{RECENT_GAMES}} only if rest data is missing.
+
+VERIFICATION: Only consider a team on a back-to-back if they have "Back-to-Back (0 rest days)" in {{SPECIAL_TEAMS}}.
 
 PROBABILITY CALCULATION (Simple 4-Step Process)
 
@@ -220,6 +229,16 @@ Primary Signals:
 3. **Team Scoring Trends** (from {{TEAM_STATS}}):
    - Combined avg goals (last 10) > line + 1.2: +3% edge to Over
    - Combined avg goals (last 10) < line - 1.2: +3% edge to Under
+
+4. **Special Teams Impact** (from {{SPECIAL_TEAMS}}):
+   - If BOTH teams have PP% > 22%: +2% edge to Over (high-scoring special teams)
+   - If BOTH teams have PK% > 84%: +2% edge to Under (strong penalty kills suppress scoring)
+   - If one team's PP% > 22% AND opponent's PK% < 78%: +2% edge to Over
+   - Average NHL PP%: ~19-20%. Average PK%: ~79-80%. Use these as baselines.
+
+5. **Line Sanity Check**:
+   - NHL average combined total goals is ~5.7. Lines above 6.5 require STRONG evidence (both teams top-10 in scoring AND poor goaltending) before betting Over.
+   - Default lean: slight Under when line is ≥ 6.5 unless signals strongly favor Over.
 
 Only recommend totals if edge ≥ +5%, same as moneyline/puck line.
 
@@ -274,6 +293,7 @@ DATA TO ANALYZE
 {{STANDINGS}}
 {{H2H_STATS}}
 {{GOALIE_STATS}}
+{{SPECIAL_TEAMS}}
 {{HISTORICAL_RESULTS}}
 {{RECENT_RESULTS}}
 {{RECENT_GAMES}}

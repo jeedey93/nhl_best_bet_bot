@@ -176,8 +176,10 @@ def get_nhl_team_last_games(team_name, last_n_games=10):
         wins = 0
         losses = 0
         ot_losses = 0
+        first_5_goals = []
+        last_5_goals = []
 
-        for game in recent_games:
+        for idx, game in enumerate(recent_games):
             home_team = game.get('homeTeam', {})
             away_team = game.get('awayTeam', {})
 
@@ -187,23 +189,65 @@ def get_nhl_team_last_games(team_name, last_n_games=10):
             away_score = away_team.get('score', 0)
 
             if team_abbrev == home_abbrev:
-                scores_for.append(home_score)
-                scores_against.append(away_score)
-                if home_score > away_score:
+                gf = home_score
+                ga = away_score
+                if gf > ga:
                     wins += 1
                 elif game.get('periodDescriptor', {}).get('periodType') in ['OT', 'SO']:
                     ot_losses += 1
                 else:
                     losses += 1
             elif team_abbrev == away_abbrev:
-                scores_for.append(away_score)
-                scores_against.append(home_score)
-                if away_score > home_score:
+                gf = away_score
+                ga = home_score
+                if gf > ga:
                     wins += 1
                 elif game.get('periodDescriptor', {}).get('periodType') in ['OT', 'SO']:
                     ot_losses += 1
                 else:
                     losses += 1
+            else:
+                continue
+
+            scores_for.append(gf)
+            scores_against.append(ga)
+            # first 5 = oldest games (end of list), last 5 = most recent (start of list)
+            if idx < 5:
+                last_5_goals.append(gf + ga)
+            if idx >= last_n_games - 5:
+                first_5_goals.append(gf + ga)
+
+        # Calculate streak (recent_games is sorted newest-first)
+        streak_type = None
+        streak_count = 0
+        for game in recent_games:
+            home_abbrev = game.get('homeTeam', {}).get('abbrev')
+            away_abbrev = game.get('awayTeam', {}).get('abbrev')
+            home_score = game.get('homeTeam', {}).get('score', 0)
+            away_score = game.get('awayTeam', {}).get('score', 0)
+
+            if team_abbrev == home_abbrev:
+                is_win = home_score > away_score
+            elif team_abbrev == away_abbrev:
+                is_win = away_score > home_score
+            else:
+                continue
+
+            result = 'W' if is_win else 'L'
+            if streak_type is None:
+                streak_type = result
+                streak_count = 1
+            elif result == streak_type:
+                streak_count += 1
+            else:
+                break
+
+        # Form trend: positive = improving (scoring more recently), negative = declining
+        form_trend = None
+        if len(last_5_goals) >= 3 and len(first_5_goals) >= 3:
+            avg_last_5 = sum(last_5_goals) / len(last_5_goals)
+            avg_first_5 = sum(first_5_goals) / len(first_5_goals)
+            form_trend = round(avg_last_5 - avg_first_5, 2)
 
         return {
             'avg_scored': round(sum(scores_for) / len(scores_for), 1) if scores_for else 0,
@@ -212,7 +256,10 @@ def get_nhl_team_last_games(team_name, last_n_games=10):
             'wins': wins,
             'losses': losses,
             'ot_losses': ot_losses,
-            'record': f"{wins}-{losses}-{ot_losses}"
+            'record': f"{wins}-{losses}-{ot_losses}",
+            'streak_type': streak_type,
+            'streak_count': streak_count,
+            'form_trend': form_trend,
         }
 
     except Exception as e:
@@ -407,7 +454,119 @@ def get_nhl_standings():
         return {}
 
 
-def analyze_results(results_text, absences_text, recent_games, team_stats_text, h2h_stats_text, goalie_stats_text, home_away_splits_text, standings_text):
+def get_nhl_special_teams_stats():
+    """
+    Fetch NHL special teams stats (Power Play % and Penalty Kill %).
+    Returns dict mapping full team names (odds API format) to their PP% and PK%.
+    """
+    try:
+        stats_url = 'https://api.nhle.com/stats/rest/en/team/summary?cayenneExp=seasonId=20252026'
+        response = requests.get(stats_url, timeout=10)
+        response.raise_for_status()
+        data = response.json()
+        time.sleep(0.6)
+
+        special_teams = {}
+        STANDINGS_TO_ODDS_MAP = {
+            'Anaheim Ducks': 'Anaheim Ducks',
+            'Boston Bruins': 'Boston Bruins',
+            'Buffalo Sabres': 'Buffalo Sabres',
+            'Calgary Flames': 'Calgary Flames',
+            'Carolina Hurricanes': 'Carolina Hurricanes',
+            'Chicago Blackhawks': 'Chicago Blackhawks',
+            'Colorado Avalanche': 'Colorado Avalanche',
+            'Columbus Blue Jackets': 'Columbus Blue Jackets',
+            'Dallas Stars': 'Dallas Stars',
+            'Detroit Red Wings': 'Detroit Red Wings',
+            'Edmonton Oilers': 'Edmonton Oilers',
+            'Florida Panthers': 'Florida Panthers',
+            'Los Angeles Kings': 'Los Angeles Kings',
+            'Minnesota Wild': 'Minnesota Wild',
+            'Montréal Canadiens': 'Montreal Canadiens',
+            'Montreal Canadiens': 'Montreal Canadiens',
+            'Nashville Predators': 'Nashville Predators',
+            'New Jersey Devils': 'New Jersey Devils',
+            'New York Islanders': 'New York Islanders',
+            'New York Rangers': 'New York Rangers',
+            'Ottawa Senators': 'Ottawa Senators',
+            'Philadelphia Flyers': 'Philadelphia Flyers',
+            'Pittsburgh Penguins': 'Pittsburgh Penguins',
+            'San Jose Sharks': 'San Jose Sharks',
+            'Seattle Kraken': 'Seattle Kraken',
+            'St. Louis Blues': 'St Louis Blues',
+            'Tampa Bay Lightning': 'Tampa Bay Lightning',
+            'Toronto Maple Leafs': 'Toronto Maple Leafs',
+            'Utah Mammoth': 'Utah Mammoth',
+            'Vancouver Canucks': 'Vancouver Canucks',
+            'Vegas Golden Knights': 'Vegas Golden Knights',
+            'Washington Capitals': 'Washington Capitals',
+            'Winnipeg Jets': 'Winnipeg Jets',
+        }
+
+        for team_stat in data.get('data', []):
+            team_full_name = team_stat.get('teamFullName', '')
+            pp_pct = round(team_stat.get('powerPlayPct', 0) * 100, 1)
+            pk_pct = round(team_stat.get('penaltyKillPct', 0) * 100, 1)
+            odds_name = STANDINGS_TO_ODDS_MAP.get(team_full_name)
+            if odds_name:
+                special_teams[odds_name] = {'pp_pct': pp_pct, 'pk_pct': pk_pct}
+
+        return special_teams
+    except Exception as e:
+        print(f"⚠️ Error fetching NHL special teams stats: {e}")
+        return {}
+
+
+def get_rest_days_for_team(team_name):
+    """
+    Get the number of rest days since team's last game.
+    Returns int (0 = back-to-back, 1 = one day rest, etc.) or None on error.
+    """
+    try:
+        NHL_TEAM_ABBREV_MAP = {
+            'Anaheim': 'ANA', 'Boston': 'BOS', 'Buffalo': 'BUF', 'Calgary': 'CGY',
+            'Carolina': 'CAR', 'Chicago': 'CHI', 'Colorado': 'COL', 'Columbus': 'CBJ',
+            'Dallas': 'DAL', 'Detroit': 'DET', 'Edmonton': 'EDM', 'Florida': 'FLA',
+            'Los Angeles': 'LAK', 'Minnesota': 'MIN', 'Montréal': 'MTL', 'Nashville': 'NSH',
+            'New Jersey': 'NJD', 'New York': 'NYI', 'Rangers': 'NYR', 'Ottawa': 'OTT',
+            'Philadelphia': 'PHI', 'Pittsburgh': 'PIT', 'San Jose': 'SJS', 'Seattle': 'SEA',
+            'St. Louis': 'STL', 'Tampa Bay': 'TBL', 'Toronto': 'TOR', 'Vancouver': 'VAN',
+            'Vegas': 'VGK', 'Washington': 'WSH', 'Winnipeg': 'WPG', 'Utah': 'UTA'
+        }
+
+        team_abbrev = NHL_TEAM_ABBREV_MAP.get(team_name)
+        if not team_abbrev:
+            return None
+
+        url = f'https://api-web.nhle.com/v1/club-schedule-season/{team_abbrev}/now'
+        response = api_call_with_retry(url)
+        if not response:
+            return None
+
+        data = response.json()
+        completed_games = [
+            g for g in data.get('games', [])
+            if g.get('gameState') in ['FINAL', 'OFF']
+        ]
+        if not completed_games:
+            return None
+
+        completed_games.sort(key=lambda x: x.get('gameDate', ''), reverse=True)
+        last_game_date_str = completed_games[0].get('gameDate', '')
+        if not last_game_date_str:
+            return None
+
+        today = date.today()
+        last_game_date = date.fromisoformat(last_game_date_str[:10])
+        rest_days = (today - last_game_date).days - 1
+        return rest_days
+
+    except Exception as e:
+        print(f"⚠️ Error getting rest days for {team_name}: {e}")
+        return None
+
+
+def analyze_results(results_text, absences_text, recent_games, team_stats_text, h2h_stats_text, goalie_stats_text, home_away_splits_text, standings_text, special_teams_text):
     api_key = os.environ["GOOGLE_API_KEY"]
     client = genai.Client(api_key=api_key)
 
@@ -453,6 +612,7 @@ def analyze_results(results_text, absences_text, recent_games, team_stats_text, 
             prompt_text = prompt_text.replace("{{GOALIE_STATS}}", goalie_stats_text)
             prompt_text = prompt_text.replace("{{HOME_AWAY_SPLITS}}", home_away_splits_text)
             prompt_text = prompt_text.replace("{{STANDINGS}}", standings_text)
+            prompt_text = prompt_text.replace("{{SPECIAL_TEAMS}}", special_teams_text)
     except Exception:
         return "AI analysis skipped: prompt file not found or unreadable."
 
@@ -594,6 +754,11 @@ with open(filename, "w") as f:
         goalie_stats_text = ""
         home_away_splits_text = ""
         standings_text = ""
+        special_teams_text = ""
+
+        # Fetch special teams stats once (not per-game)
+        print("Fetching NHL special teams stats (PP%/PK%)...")
+        special_teams_data = get_nhl_special_teams_stats()
 
         for g in matched:
             away_team = g['away']
@@ -655,6 +820,12 @@ with open(filename, "w") as f:
                 team_stats_text += f"  Record: {away_stats['record']}\n"
                 team_stats_text += f"  Avg Goals Scored: {away_stats['avg_scored']}\n"
                 team_stats_text += f"  Avg Goals Allowed: {away_stats['avg_allowed']}\n"
+                if away_stats.get('streak_type') and away_stats.get('streak_count', 0) >= 2:
+                    team_stats_text += f"  Current Streak: {away_stats['streak_count']}{away_stats['streak_type']}\n"
+                if away_stats.get('form_trend') is not None:
+                    trend = away_stats['form_trend']
+                    trend_label = "Improving" if trend > 0.3 else ("Declining" if trend < -0.3 else "Stable")
+                    team_stats_text += f"  Form Trend (last5 vs first5 avg total goals): {trend:+.2f} ({trend_label})\n"
             else:
                 team_stats_text += "  No stats available\n"
 
@@ -663,6 +834,12 @@ with open(filename, "w") as f:
                 team_stats_text += f"  Record: {home_stats['record']}\n"
                 team_stats_text += f"  Avg Goals Scored: {home_stats['avg_scored']}\n"
                 team_stats_text += f"  Avg Goals Allowed: {home_stats['avg_allowed']}\n"
+                if home_stats.get('streak_type') and home_stats.get('streak_count', 0) >= 2:
+                    team_stats_text += f"  Current Streak: {home_stats['streak_count']}{home_stats['streak_type']}\n"
+                if home_stats.get('form_trend') is not None:
+                    trend = home_stats['form_trend']
+                    trend_label = "Improving" if trend > 0.3 else ("Declining" if trend < -0.3 else "Stable")
+                    team_stats_text += f"  Form Trend (last5 vs first5 avg total goals): {trend:+.2f} ({trend_label})\n"
             else:
                 team_stats_text += "  No stats available\n"
 
@@ -762,7 +939,41 @@ with open(filename, "w") as f:
             else:
                 standings_text += "  No standings data\n"
 
-        # Print all variables being sent to AI analysis
+            # Build special teams text for this game
+            away_st = special_teams_data.get(away_team.replace('Montréal', 'Montreal'))
+            home_st = special_teams_data.get(home_team.replace('Montréal', 'Montreal'))
+
+            special_teams_text += f"\n{away_team} (Special Teams):\n"
+            if away_st:
+                special_teams_text += f"  Power Play %: {away_st['pp_pct']}%\n"
+                special_teams_text += f"  Penalty Kill %: {away_st['pk_pct']}%\n"
+            else:
+                special_teams_text += "  No special teams data\n"
+
+            special_teams_text += f"\n{home_team} (Special Teams):\n"
+            if home_st:
+                special_teams_text += f"  Power Play %: {home_st['pp_pct']}%\n"
+                special_teams_text += f"  Penalty Kill %: {home_st['pk_pct']}%\n"
+            else:
+                special_teams_text += "  No special teams data\n"
+
+            # Fetch rest days for each team
+            away_rest = get_rest_days_for_team(away_short)
+            time.sleep(0.5)
+            home_rest = get_rest_days_for_team(home_short)
+            time.sleep(0.5)
+
+            def rest_label(rest_days):
+                if rest_days is None:
+                    return "Unknown"
+                if rest_days <= 0:
+                    return "Back-to-Back (0 rest days)"
+                return f"{rest_days} rest day(s)"
+
+            special_teams_text += f"\n{away_team} Rest: {rest_label(away_rest)}\n"
+            special_teams_text += f"{home_team} Rest: {rest_label(home_rest)}\n"
+
+
         print("NHL Matchups and Odds:")
         print(results_text)
         print(absences_text)
@@ -770,6 +981,8 @@ with open(filename, "w") as f:
         print(team_stats_text)
         print("\nHome/Away Splits:")
         print(home_away_splits_text)
+        print("\nSpecial Teams (PP%/PK%) & Rest Days:")
+        print(special_teams_text)
         print("\nStandings:")
         print(standings_text)
         print("\nHead-to-Head Stats:")
@@ -781,7 +994,7 @@ with open(filename, "w") as f:
         print(recent_games)
 
         if results_text:
-            summary = analyze_results(results_text, absences_text, recent_games, team_stats_text, h2h_stats_text, goalie_stats_text, home_away_splits_text, standings_text)
+            summary = analyze_results(results_text, absences_text, recent_games, team_stats_text, h2h_stats_text, goalie_stats_text, home_away_splits_text, standings_text, special_teams_text)
             f.write("\nAI Analysis Summary:\n")
             f.write(summary + "\n")
             print("\nAI Analysis Summary:")
