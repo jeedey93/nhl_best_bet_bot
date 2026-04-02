@@ -39,10 +39,10 @@ def parse_results_file(filepath):
             return None
         game_date = date_match.group(1)
 
-    # Count wins and losses
-    wins = len(re.findall(r'Outcome:\s*\*\*WIN\*\*', content, re.IGNORECASE))
-    losses = len(re.findall(r'Outcome:\s*\*\*LOSS\*\*', content, re.IGNORECASE))
-    pushes = len(re.findall(r'Outcome:\s*\*\*PUSH\*\*', content, re.IGNORECASE))
+    # Count wins and losses (files use "Result: **WIN**" or inline "**WIN**")
+    wins = len(re.findall(r'\*\*WIN\*\*', content, re.IGNORECASE))
+    losses = len(re.findall(r'\*\*LOSS\*\*', content, re.IGNORECASE))
+    pushes = len(re.findall(r'\*\*PUSH\*\*', content, re.IGNORECASE))
 
     # Extract bet types (ML, Over/Under, Spread)
     ml_bets = len(re.findall(r'\bML\b', content))
@@ -104,7 +104,7 @@ def generate_dashboard_html(all_data):
             elif line.startswith("NHL:"):
                 current_sport = "nhl"
             elif line.startswith("TOTAL:") and current_sport:
-                m = re.match(r"TOTAL:\s*(\d+)\s*wins?,\s*(\d+)\s*losses?", line)
+                m = re.match(r"TOTAL:\s*(\d+)\s*wins?,\s*(\d+)\s*loss(?:es)?", line)
                 if m:
                     if current_sport == "nba":
                         nba_wins = int(m.group(1))
@@ -144,7 +144,27 @@ def generate_dashboard_html(all_data):
         daily_stats[entry['date']]['losses'] += entry['losses']
         daily_stats[entry['date']]['sports'].add(entry['sport'])
 
-    # Calculate streaks
+    # Supplement daily_stats with any dates in summary file that have no result files
+    if summary_path.exists():
+        with open(summary_path, 'r') as f:
+            summary_content = f.read()
+        current_sport_summary = None
+        for line in summary_content.splitlines():
+            line = line.strip()
+            if line.startswith("NBA:"):
+                current_sport_summary = "NBA"
+            elif line.startswith("NHL:"):
+                current_sport_summary = "NHL"
+            elif current_sport_summary:
+                match = re.match(r'(\d{4}-\d{2}-\d{2}):\s*(\d+)\s*wins?,\s*(\d+)\s*loss(?:es)?', line)
+                if match:
+                    d, w, l = match.group(1), int(match.group(2)), int(match.group(3))
+                    if d not in daily_stats:
+                        daily_stats[d]['wins'] += w
+                        daily_stats[d]['losses'] += l
+                        daily_stats[d]['sports'].add(current_sport_summary)
+
+
     streak_type = None
     streak_count = 0
     max_win_streak = 0
@@ -236,7 +256,7 @@ def generate_dashboard_html(all_data):
             elif line.startswith("NHL:"):
                 current_sport = "nhl"
             elif line.startswith("TOTAL:") and current_sport:
-                m = re.match(r"TOTAL:\s*(\d+)\s*wins?,\s*(\d+)\s*losses?", line)
+                m = re.match(r"TOTAL:\s*(\d+)\s*wins?,\s*(\d+)\s*loss(?:es)?", line)
                 if m:
                     if current_sport == "nba":
                         nba_total_w = int(m.group(1))
@@ -248,7 +268,7 @@ def generate_dashboard_html(all_data):
         # Now get the monthly breakdown from date lines
         date_monthly = defaultdict(lambda: {'wins': 0, 'losses': 0})
         for line in content.splitlines():
-            match = re.match(r'(\d{4}-\d{2}-\d{2}):\s*(\d+)\s*wins?,\s*(\d+)\s*losses?', line)
+            match = re.match(r'(\d{4}-\d{2}-\d{2}):\s*(\d+)\s*wins?,\s*(\d+)\s*loss(?:es)?', line)
             if match:
                 game_date = match.group(1)
                 wins = int(match.group(2))
