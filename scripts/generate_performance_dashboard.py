@@ -257,33 +257,11 @@ def generate_dashboard_html(all_data):
                 date_monthly[month_key]['wins'] += wins
                 date_monthly[month_key]['losses'] += losses
 
-        # The date breakdown sums to less than TOTALS, so we need to scale or use TOTALS directly
-        # Calculate what proportion of results are in each month based on date breakdown
-        total_from_dates_w = sum(date_monthly[m]['wins'] for m in date_monthly)
-        total_from_dates_l = sum(date_monthly[m]['losses'] for m in date_monthly)
-
-        correct_total_w = nba_total_w + nhl_total_w
-        correct_total_l = nba_total_l + nhl_total_l
-
-        # Use date breakdown proportions to split the correct totals
-        if total_from_dates_w > 0 and total_from_dates_l > 0:
-            for month in date_monthly:
-                # Scale wins and losses proportionally
-                month_win_ratio = date_monthly[month]['wins'] / total_from_dates_w
-                month_loss_ratio = date_monthly[month]['losses'] / total_from_dates_l
-                monthly_stats_summary[month]['wins'] = round(correct_total_w * month_win_ratio)
-                monthly_stats_summary[month]['losses'] = round(correct_total_l * month_loss_ratio)
-
-        # Adjust for rounding errors - make sure totals match exactly
-        if monthly_stats_summary:
-            actual_total_w = sum(monthly_stats_summary[m]['wins'] for m in monthly_stats_summary)
-            actual_total_l = sum(monthly_stats_summary[m]['losses'] for m in monthly_stats_summary)
-
-            # Add difference to the largest month
-            if actual_total_w != correct_total_w or actual_total_l != correct_total_l:
-                largest_month = max(monthly_stats_summary.keys(), key=lambda m: monthly_stats_summary[m]['wins'] + monthly_stats_summary[m]['losses'])
-                monthly_stats_summary[largest_month]['wins'] += (correct_total_w - actual_total_w)
-                monthly_stats_summary[largest_month]['losses'] += (correct_total_l - actual_total_l)
+        # Use raw date breakdown directly — proportional scaling distorts recent months
+        # because TOTAL lines include records not present in the date breakdown
+        for month in date_monthly:
+            monthly_stats_summary[month]['wins'] = date_monthly[month]['wins']
+            monthly_stats_summary[month]['losses'] = date_monthly[month]['losses']
 
     # Use summary data for monthly chart (scaled to match TOTAL lines)
     if monthly_stats_summary:
