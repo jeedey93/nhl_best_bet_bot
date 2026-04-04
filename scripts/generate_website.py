@@ -1717,7 +1717,6 @@ def update_latest_predictions(preliminary=False):
     content += "<div style='margin-top: 30px; text-align: center;'>\n"
     content += "<div style='display: inline-block; background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); border-radius: 50px; padding: 12px 28px; box-shadow: 0 6px 25px rgba(251, 191, 36, 0.5); animation: pulse 2s ease-in-out infinite; border: 2px solid #fbbf24;'>\n"
     content += "<span style='color: #78350f; font-size: 1em; margin-right: 10px; font-weight: 700;'>📬 Daily Picks</span>\n"
-    content += f"<span style='color: #78350f; font-size: 0.95em; margin-right: 15px; opacity: 0.9;'><strong style='color: white;'>{subscriber_count}</strong> joined</span>\n"
     content += "<span id='hero-subscribe-wrap' style='display:inline-flex;align-items:center;gap:6px;'>\n"
     content += "  <input id='hero-email' type='email' placeholder='your@email.com' style='padding:7px 14px;border-radius:25px;border:none;font-size:0.85em;outline:none;width:170px;' />\n"
     content += "  <button onclick='heroSubscribe()' style='display:inline-block;background:white;color:#f59e0b;padding:8px 18px;border-radius:25px;border:none;cursor:pointer;font-weight:800;font-size:0.9em;box-shadow:0 3px 12px rgba(0,0,0,0.2);transition:all 0.3s;text-transform:uppercase;letter-spacing:0.5px;' onmouseover=\"this.style.transform='scale(1.05)'\" onmouseout=\"this.style.transform='scale(1)'\">Subscribe</button>\n"
