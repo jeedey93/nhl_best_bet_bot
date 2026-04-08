@@ -1557,18 +1557,25 @@ def format_dual_bet(raw_text):
         odds_value = None
         for line in body_lines:
             if "Confidence Level:" in line or "Confidence:" in line:
-                # Split confidence line into confidence info and description
-                # Look for pattern like "Win Probability: XX%" which marks end of confidence info
-                prob_match = re.search(r'(Win Probability:\s*[\d.]+%)\s*(.*)', line)
+                # Extract only the short confidence summary: "Confidence Level: X, Units: Xu, Win Probability: XX%"
+                # The line may be preceded by a long paragraph — find where "Confidence Level:" starts
+                conf_start = line.find("Confidence Level:")
+                if conf_start == -1:
+                    conf_start = line.find("Confidence:")
+                # Text before "Confidence Level:" is reasoning, goes to description
+                before_conf = line[:conf_start].strip()
+                if before_conf:
+                    description_text += "\n" + before_conf
+                # Extract confidence info up to Win Probability
+                conf_portion = line[conf_start:]
+                prob_match = re.search(r'(Win Probability:\s*[\d.]+%)\s*(.*)', conf_portion)
                 if prob_match:
-                    # Everything up to and including Win Probability is confidence
-                    confidence_text = line[:prob_match.end(1)]
-                    # Everything after is description
+                    confidence_text = conf_portion[:prob_match.end(1)]
                     remaining = prob_match.group(2).strip()
                     if remaining:
                         description_text += "\n" + remaining
                 else:
-                    confidence_text = line
+                    confidence_text = conf_portion
             else:
                 description_text += "\n" + line
                 # Try to extract odds from the description
