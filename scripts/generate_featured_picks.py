@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 # Try to load environment variables from .env if present
 try:
     from dotenv import load_dotenv
@@ -97,6 +98,90 @@ def get_sections_from_index():
 
     return nhl_section, nba_section
 
+def summarize_justifications(nhl_just, nba_just):
+    """Call Gemini to convert paragraph justifications to emoji bullet points."""
+    try:
+        from google import genai
+    except ImportError:
+        print("⚠️  google-genai not installed, skipping summarization")
+        return nhl_just, nba_just
+
+    api_key = os.getenv('GOOGLE_API_KEY')
+    if not api_key:
+        print("⚠️  GOOGLE_API_KEY not found, skipping summarization")
+        return nhl_just, nba_just
+
+    prompt_file = Path(__file__).parent.parent / 'prompts' / 'summarize_bullet_points_prompt.txt'
+    with open(prompt_file, 'r', encoding='utf-8') as f:
+        base_prompt = f.read()
+
+    reasonings = {}
+    if nhl_just:
+        reasonings['nhl_0'] = nhl_just
+    if nba_just:
+        reasonings['nba_0'] = nba_just
+
+    if not reasonings:
+        return nhl_just, nba_just
+
+    batch_request = "I have multiple NHL/NBA betting analyses to convert to bullet points. Please process each one and return them with the same identifiers.\n\n"
+    for key, reasoning in reasonings.items():
+        batch_request += f"=== {key} ===\n{reasoning}\n\n"
+    batch_request += "\n\nPlease return the summarized bullet points for each analysis using the EXACT same identifier (e.g., === nhl_0 ===) followed by the bullet points, then a blank line before the next one."
+    full_prompt = f"{base_prompt}\n\n{batch_request}"
+
+    models_to_try = [
+        "models/gemini-2.5-flash",
+        "models/gemini-2.0-flash",
+        "models/gemini-2.0-flash-lite",
+        "models/gemini-2.5-flash-lite",
+    ]
+
+    print(f"📝 Summarizing {len(reasonings)} featured pick reasonings with Gemini...")
+    client = genai.Client(api_key=api_key)
+    response_text = None
+    for model in models_to_try:
+        try:
+            print(f"🤖 Trying {model}...")
+            response = client.models.generate_content(model=model, contents=full_prompt)
+            response_text = response.text
+            break
+        except Exception as e:
+            if "RESOURCE_EXHAUSTED" in str(e) or "quota" in str(e):
+                print(f"⚠️ {model} quota exceeded, trying next model...")
+            elif "503" in str(e) or "UNAVAILABLE" in str(e):
+                print(f"⚠️ {model} 503 error, trying next model...")
+            else:
+                raise
+
+    if not response_text:
+        print("⚠️ All models unavailable, using original paragraphs.")
+        return nhl_just, nba_just
+
+    # Parse response back into individual summaries
+    summaries = {}
+    current_key = None
+    current_lines = []
+    for line in response_text.split('\n'):
+        if line.strip().startswith('===') and line.strip().endswith('==='):
+            if current_key and current_lines:
+                summaries[current_key] = '\n'.join(current_lines).strip()
+            current_key = line.strip().replace('===', '').strip()
+            current_lines = []
+        else:
+            if current_key is not None:
+                current_lines.append(line)
+    if current_key and current_lines:
+        summaries[current_key] = '\n'.join(current_lines).strip()
+
+    print(f"✅ Received {len(summaries)} summaries from Gemini")
+
+    summarized_nhl = summaries.get('nhl_0', nhl_just)
+    summarized_nba = summaries.get('nba_0', nba_just)
+    return summarized_nhl, summarized_nba
+
+
+
 def build_gemini_prompt(nhl_bet, nhl_just, nba_bet, nba_just):
     """Builds the dual bet of the day prompt from a template file."""
     prompt_path = os.path.join("prompts", "bet_of_the_day.txt")
@@ -130,6 +215,8 @@ def main():
     if not (nhl_bet and nba_bet):
         print("Could not find both Bet of the Day entries.")
         return
+    # Summarize justifications into emoji bullet points
+    nhl_just, nba_just = summarize_justifications(nhl_just, nba_just)
     # Build output in the requested format (keep text as-is, no translation)
     output = build_gemini_prompt(nhl_bet, nhl_just, nba_bet, nba_just)
     print(output)
