@@ -111,34 +111,38 @@ async function getVotes(date) {
 
     const comments = await response.json();
 
-    // Parse votes from comments
+    // Parse votes and shares from comments
     const votes = {};
+    const shares = {};
     const userVotes = {}; // Track what each IP voted for
 
     comments.forEach(comment => {
       try {
-        const voteData = JSON.parse(comment.body);
-        const { pickId, ipHash } = voteData;
+        const data = JSON.parse(comment.body);
+        const { pickId, ipHash, type = 'vote' } = data;
 
-        if (!votes[pickId]) {
-          votes[pickId] = 0;
-        }
-
-        // Only count one vote per IP per pick
-        const voteKey = `${ipHash}-${pickId}`;
-        if (!userVotes[voteKey]) {
-          votes[pickId]++;
-          userVotes[voteKey] = true;
+        if (type === 'share') {
+          // Shares are unlimited per person — just count them
+          if (!shares[pickId]) shares[pickId] = 0;
+          shares[pickId]++;
+        } else {
+          // Votes: one per IP per pick
+          if (!votes[pickId]) votes[pickId] = 0;
+          const voteKey = `${ipHash}-${pickId}`;
+          if (!userVotes[voteKey]) {
+            votes[pickId]++;
+            userVotes[voteKey] = true;
+          }
         }
       } catch (e) {
         // Ignore malformed comments
       }
     });
 
-    return { votes, userVotes };
+    return { votes, shares, userVotes };
   } catch (error) {
     console.error('Error getting votes:', error);
-    return { votes: {}, userVotes: {} };
+    return { votes: {}, shares: {}, userVotes: {} };
   }
 }
 
@@ -280,26 +284,46 @@ module.exports = async (req, res) => {
                'unknown';
     const ipHash = hashIP(ip);
 
-    // GET: Fetch vote counts
+    // GET: Fetch vote and share counts
     if (req.method === 'GET') {
-      const { votes } = await getVotes(date);
-      return res.status(200).json({ success: true, votes });
+      const { votes, shares } = await getVotes(date);
+      return res.status(200).json({ success: true, votes, shares });
     }
 
-    // POST: Cast a vote
+    // POST: Cast a vote or record a share
     if (req.method === 'POST') {
-      const { pickId } = req.body;
+      const { pickId, type = 'vote' } = req.body;
 
       if (!pickId) {
         return res.status(400).json({ success: false, error: 'Missing pickId' });
       }
 
+      if (type === 'share') {
+        // Record share — no duplicate check, just append
+        const issueNumber = await getOrCreateVotingIssue(date);
+        const commentsUrl = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/issues/${issueNumber}/comments`;
+        const GITHUB_TOKEN = getGitHubToken();
+        await fetch(commentsUrl, {
+          method: 'POST',
+          headers: {
+            'Authorization': `token ${GITHUB_TOKEN}`,
+            'Accept': 'application/vnd.github.v3+json',
+            'Content-Type': 'application/json',
+            'User-Agent': 'Parieur-Discipline-Bot',
+          },
+          body: JSON.stringify({
+            body: JSON.stringify({ pickId, type: 'share', timestamp: new Date().toISOString() }),
+          }),
+        });
+        const { votes, shares } = await getVotes(date);
+        return res.status(200).json({ success: true, votes, shares });
+      }
+
       const result = await castVote(date, pickId, ipHash);
 
       if (result.success) {
-        // Return updated vote counts
-        const { votes } = await getVotes(date);
-        return res.status(200).json({ success: true, votes });
+        const { votes, shares } = await getVotes(date);
+        return res.status(200).json({ success: true, votes, shares });
       } else {
         return res.status(400).json(result);
       }
@@ -316,9 +340,8 @@ module.exports = async (req, res) => {
       const result = await removeVote(date, pickId, ipHash);
 
       if (result.success) {
-        // Return updated vote counts
-        const { votes } = await getVotes(date);
-        return res.status(200).json({ success: true, votes });
+        const { votes, shares } = await getVotes(date);
+        return res.status(200).json({ success: true, votes, shares });
       } else {
         return res.status(400).json(result);
       }

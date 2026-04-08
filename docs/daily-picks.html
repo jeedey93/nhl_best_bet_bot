@@ -1574,10 +1574,16 @@ function renderTable(sport, picks) {
             </div>
             <div class='voted-label' id='voted-label-${pickId}' style='display: none;'>✓ Voted</div>
           </div>
-          <button class='share-button' onclick='event.stopPropagation(); handleShare("${pickId}", "${sport}")' id='share-btn-${pickId}'>
-            <span style='font-size: 1.8em;'>📤</span>
-            <span>Share</span>
-          </button>
+          <div style='display:flex; flex-direction:column; align-items:center; gap:4px;'>
+            <button class='share-button' onclick='event.stopPropagation(); handleShare("${pickId}", "${sport}")' id='share-btn-${pickId}'>
+              <span style='font-size: 1.8em;'>📤</span>
+              <span>Share</span>
+            </button>
+            <div style='font-size:0.7em; color:#6b7280; font-weight:600; text-align:center;'>
+              <span id='share-count-${pickId}' style='font-size:1.3em; font-weight:800; color:#10b981; display:block;'>0</span>
+              shares
+            </div>
+          </div>
         </div>
       </td>
     </tr>
@@ -1674,18 +1680,19 @@ async function loadVoteCounts() {
     const response = await fetch(`${VOTE_API_URL}?date=${date}`);
     const data = await response.json();
 
-    console.log('Loading votes for date:', date);
-    console.log('Vote data received:', data);
-
-    if (data.success && data.votes) {
-      // Update vote counts in UI
-      Object.keys(data.votes).forEach(pickId => {
-        const countElement = document.getElementById(`vote-count-${pickId}`);
-        console.log(`Updating ${pickId}:`, data.votes[pickId], 'Element found:', !!countElement);
-        if (countElement) {
-          countElement.textContent = data.votes[pickId] || 0;
-        }
-      });
+    if (data.success) {
+      if (data.votes) {
+        Object.keys(data.votes).forEach(pickId => {
+          const countElement = document.getElementById(`vote-count-${pickId}`);
+          if (countElement) countElement.textContent = data.votes[pickId] || 0;
+        });
+      }
+      if (data.shares) {
+        Object.keys(data.shares).forEach(pickId => {
+          const shareElement = document.getElementById(`share-count-${pickId}`);
+          if (shareElement) shareElement.textContent = data.shares[pickId] || 0;
+        });
+      }
     }
 
     // Check which picks user has already voted for
@@ -1699,7 +1706,7 @@ async function loadVoteCounts() {
 }
 
 /**
- * Refresh all vote counts (called after voting to get latest counts)
+ * Refresh all vote and share counts (called after voting/sharing)
  */
 async function refreshAllVoteCounts() {
   try {
@@ -1707,14 +1714,19 @@ async function refreshAllVoteCounts() {
     const response = await fetch(`${VOTE_API_URL}?date=${date}`);
     const data = await response.json();
 
-    if (data.success && data.votes) {
-      // Update ALL vote counts in UI
-      Object.keys(data.votes).forEach(pickId => {
-        const countElement = document.getElementById(`vote-count-${pickId}`);
-        if (countElement) {
-          countElement.textContent = data.votes[pickId] || 0;
-        }
-      });
+    if (data.success) {
+      if (data.votes) {
+        Object.keys(data.votes).forEach(pickId => {
+          const countElement = document.getElementById(`vote-count-${pickId}`);
+          if (countElement) countElement.textContent = data.votes[pickId] || 0;
+        });
+      }
+      if (data.shares) {
+        Object.keys(data.shares).forEach(pickId => {
+          const shareElement = document.getElementById(`share-count-${pickId}`);
+          if (shareElement) shareElement.textContent = data.shares[pickId] || 0;
+        });
+      }
     }
   } catch (error) {
     console.error('Failed to refresh vote counts:', error);
@@ -1868,6 +1880,27 @@ function loadImageAsDataURL(src, size = 88) {
     img.onerror = () => resolve(null); // fail gracefully
     img.src = src;
   });
+}
+
+/**
+ * Record a share event to the API (fire-and-forget)
+ */
+async function recordShare(pickId) {
+  try {
+    const date = new Date().toISOString().split('T')[0];
+    const response = await fetch(`${VOTE_API_URL}?date=${date}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pickId, type: 'share' }),
+    });
+    const data = await response.json();
+    if (data.success && data.shares) {
+      const shareElement = document.getElementById(`share-count-${pickId}`);
+      if (shareElement) shareElement.textContent = data.shares[pickId] || 0;
+    }
+  } catch (e) {
+    // Non-critical — ignore silently
+  }
 }
 
 /**
@@ -2035,6 +2068,7 @@ async function handleShare(pickId, sport) {
     if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
       try {
         await navigator.share({ text: shareText, files: [file] });
+        recordShare(pickId);
         button.innerHTML = '<span style="font-size:1.8em">✓</span><span>Shared!</span>';
         setTimeout(() => { button.innerHTML = '<span style="font-size:1.8em">📤</span><span>Share</span>'; button.disabled = false; }, 2000);
         return;
@@ -2054,6 +2088,7 @@ async function handleShare(pickId, sport) {
         await navigator.clipboard.write([
           new ClipboardItem({ 'image/png': Promise.resolve(blob) })
         ]);
+        recordShare(pickId);
         button.innerHTML = '<span style="font-size:1.8em">📋</span><span>Copied!</span>';
         setTimeout(() => { button.innerHTML = '<span style="font-size:1.8em">📤</span><span>Share</span>'; button.disabled = false; }, 2500);
         return;
@@ -2073,6 +2108,7 @@ async function handleShare(pickId, sport) {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 
+    recordShare(pickId);
     button.innerHTML = '<span style="font-size:1.8em">✓</span><span>Saved!</span>';
     setTimeout(() => { button.innerHTML = '<span style="font-size:1.8em">📤</span><span>Share</span>'; button.disabled = false; }, 2000);
 
