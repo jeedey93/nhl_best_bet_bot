@@ -259,7 +259,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helv
 <div class='blog-title'>🎯 Parieur Discipliné</div>
 <div class='blog-subtitle'>AI-Powered NHL & NBA Betting Predictions</div>
 <div class='blog-date'>Wednesday, April 8, 2026</div>
-<div class='blog-update-time'>⏱️ Last Updated at 6:16 PM</div>
+<div class='blog-update-time'>⏱️ Last Updated at 6:24 PM</div>
 <div style='margin-top: 30px; text-align: center;'>
 <div style='display: inline-block; background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); border-radius: 50px; padding: 12px 28px; box-shadow: 0 6px 25px rgba(251, 191, 36, 0.5); animation: pulse 2s ease-in-out infinite; border: 2px solid #fbbf24;'>
 <span style='color: #78350f; font-size: 1em; margin-right: 10px; font-weight: 700;'>📬 Daily Picks</span>
@@ -802,8 +802,20 @@ async function handleShare(pickId, sport) {
     var probMatch = metaText.match(/Win Probability:\s*(\d+)%/i);
     var confidence = confMatch ? confMatch[1] : '';
     var winProb = probMatch ? parseInt(probMatch[1]) : null;
-    var desc = descEl ? descEl.textContent.trim() : '';
-    var firstSentence = desc.split('.')[0] + '.';
+    var desc = descEl ? descEl.getAttribute('data-raw') || descEl.textContent.trim() : '';
+    // Parse bullet points from raw text
+    var bulletLines = desc.split('\n').filter(function(l) { return l.trim(); });
+    var bulletPoints = [];
+    var i = 0;
+    while (i < bulletLines.length) {
+      var line = bulletLines[i].trim();
+      var m = line.match(/^([^\s*\w]+)\s*\*{0,2}(.+?)\*{0,2}$/);
+      if (m && m[1].length <= 2) {
+        var bulletDesc = (i + 1 < bulletLines.length && !bulletLines[i+1].trim().match(/^[^\s*\w]+\s/)) ? bulletLines[i+1].trim() : '';
+        bulletPoints.push({ emoji: m[1], title: m[2], desc: bulletDesc });
+        i += bulletDesc ? 2 : 1;
+      } else { i++; }
+    }
     var logoDataURL = await loadImageAsDataURL('/parieur_discipline_icon_1024.png', 88);
     var logoSrc = logoDataURL || '/parieur_discipline_icon_1024.png';
     var cardEl = document.createElement('div');
@@ -827,19 +839,29 @@ async function handleShare(pickId, sport) {
         <div style="margin-bottom:6px;"><span style="background:${sportColor};color:white;font-size:0.7em;font-weight:800;text-transform:uppercase;letter-spacing:0.8px;padding:4px 10px;border-radius:6px;">${sportIcon} ${sport}</span></div>
         <div style="color:white;font-size:1.15em;font-weight:800;line-height:1.3;position:relative;">${game}</div>
       </div>
-      <div style="padding:22px 28px;background:#0f172a;">
-        <div style="background:linear-gradient(135deg,#064e3b 0%,#065f46 100%);border:1px solid #10b981;border-radius:14px;padding:18px 22px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;">
-          <div>
-            <div style="color:#6ee7b7;font-size:0.7em;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:5px;">AI Pick</div>
-            <div style="color:white;font-size:1.25em;font-weight:800;">${pickLine}</div>
+      <div style="padding:16px 24px;background:#0f172a;">
+        <div style="background:linear-gradient(135deg,#064e3b 0%,#065f46 100%);border:1px solid #10b981;border-radius:12px;padding:12px 16px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;">
+          <div style="flex:1;min-width:0;">
+            <div style="color:#6ee7b7;font-size:0.62em;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:3px;">AI Pick</div>
+            <div style="color:white;font-size:1em;font-weight:800;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${pickLine}</div>
           </div>
-          ${odds ? `<div style="text-align:center;background:rgba(255,255,255,0.08);border-radius:10px;padding:12px 18px;min-width:80px;"><div style="color:#6ee7b7;font-size:0.65em;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Odds</div><div style="color:white;font-size:1.5em;font-weight:900;">${odds}</div></div>` : ''}
+          <div style="display:flex;gap:10px;margin-left:12px;flex-shrink:0;">
+            ${odds ? `<div style="text-align:center;background:rgba(255,255,255,0.08);border-radius:8px;padding:8px 14px;"><div style="color:#6ee7b7;font-size:0.6em;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;">Odds</div><div style="color:white;font-size:1.3em;font-weight:900;">${odds}</div></div>` : ''}
+            ${winProb ? `<div style="text-align:center;background:rgba(255,255,255,0.08);border-radius:8px;padding:8px 14px;"><div style="color:#6ee7b7;font-size:0.6em;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;">Win %</div><div style="color:#10b981;font-size:1.3em;font-weight:900;">${winProb}%</div></div>` : ''}
+          </div>
         </div>
-        <div style="display:flex;gap:12px;margin-bottom:18px;">
-          ${confidence ? `<div style="flex:1;background:#1e293b;border-radius:12px;padding:14px 16px;border:1px solid #334155;"><div style="color:#94a3b8;font-size:0.65em;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Confidence</div><div style="color:white;font-size:0.9em;font-weight:700;">${confidence}</div></div>` : ''}
-          ${winProb ? `<div style="flex:1;background:#1e293b;border-radius:12px;padding:14px 16px;border:1px solid #334155;"><div style="color:#94a3b8;font-size:0.65em;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Win Probability</div><div style="color:#10b981;font-size:1.6em;font-weight:900;line-height:1;">${winProb}%</div><div style="background:#0f172a;border-radius:4px;height:5px;margin-top:8px;overflow:hidden;"><div style="background:linear-gradient(90deg,#10b981,#34d399);height:100%;width:${winProb}%;border-radius:4px;"></div></div></div>` : ''}
-        </div>
-        ${firstSentence ? `<div style="background:#1e293b;border-radius:12px;padding:16px 18px;margin-bottom:18px;border:1px solid #334155;"><div style="color:#94a3b8;font-size:0.65em;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Analysis</div><div style="color:#e2e8f0;font-size:0.82em;line-height:1.6;">${firstSentence}</div></div>` : ''}
+        ${bulletPoints.length > 0 ? `
+        <div style="background:#1e293b;border-radius:12px;padding:14px 16px;margin-bottom:14px;border:1px solid #334155;">
+          <div style="color:#94a3b8;font-size:0.62em;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">Analysis</div>
+          ${bulletPoints.map(function(p) { return `
+            <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:9px;">
+              <span style="font-size:1em;flex-shrink:0;margin-top:1px;">${p.emoji}</span>
+              <div>
+                <div style="color:#e2e8f0;font-size:0.78em;font-weight:700;line-height:1.3;">${p.title}</div>
+                ${p.desc ? `<div style="color:#94a3b8;font-size:0.72em;line-height:1.4;margin-top:2px;">${p.desc}</div>` : ''}
+              </div>
+            </div>`;}).join('')}
+        </div>` : ''}
         <div style="display:flex;align-items:center;justify-content:space-between;padding-top:4px;">
           <div style="color:#475569;font-size:0.68em;">AI-generated for entertainment only. Gamble responsibly.</div>
           <div style="color:#64748b;font-size:0.72em;font-weight:700;">parieurdiscipline.com</div>
