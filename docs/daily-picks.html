@@ -489,94 +489,78 @@ nav > div {
   color: #1a1a1a;
 }
 
-/* Voting & Share Styles */
-.vote-share-container {
+/* Actions Cell */
+.actions-cell {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 12px;
+  gap: 10px;
+  min-width: 130px;
 }
-.vote-container {
+.action-row {
   display: flex;
-  flex-direction: column;
   align-items: center;
+  justify-content: space-between;
   gap: 8px;
 }
-.vote-button {
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-  color: white;
+.action-btn {
+  flex: 1;
   border: none;
   border-radius: 8px;
-  padding: 10px 18px;
-  font-size: 1.4em;
+  padding: 8px 12px;
+  font-size: 0.82em;
+  font-weight: 700;
   cursor: pointer;
   transition: all 0.2s;
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  min-width: 60px;
-  justify-content: center;
+  white-space: nowrap;
 }
-.vote-button:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+.vote-btn {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
 }
-.vote-button:disabled {
+.vote-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(59, 130, 246, 0.4);
+}
+.vote-btn:disabled {
   background: #e5e7eb;
   color: #9ca3af;
   cursor: not-allowed;
   box-shadow: none;
 }
-.vote-count {
-  font-size: 0.9em;
-  color: #6b7280;
-  font-weight: 600;
-  text-align: center;
+.share-btn {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3);
 }
-.vote-count-number {
-  font-size: 1.4em;
+.share-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(16, 185, 129, 0.4);
+}
+.share-btn:disabled {
+  background: #e5e7eb;
+  color: #9ca3af;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+.action-count {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 28px;
+  justify-content: flex-end;
+}
+.action-count-number {
+  font-size: 1em;
   font-weight: 800;
-  color: #3b82f6;
-  display: block;
+  color: #1f2937;
 }
 .voted-label {
   font-size: 0.75em;
   color: #10b981;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  text-align: center;
+  font-weight: 800;
 }
-.share-button {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 10px 18px;
-  font-size: 1em;
-  cursor: pointer;
-  transition: all 0.2s;
-  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  min-width: 60px;
-  justify-content: center;
-  font-weight: 600;
-}
-.share-button:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
-  background: linear-gradient(135deg, #059669 0%, #047857 100%);
-}
-.share-button:disabled {
-  background: #e5e7eb;
-  color: #9ca3af;
-  cursor: not-allowed;
-  box-shadow: none;
-}
+
 
 /* Responsive */
 @media (max-width: 768px) {
@@ -744,22 +728,14 @@ nav > div {
     font-size: 0.9em;
   }
 
-  /* Compact voting */
-  .vote-container {
-    gap: 4px;
+  /* Compact actions */
+  .actions-cell {
+    min-width: unset;
+    gap: 8px;
   }
-  .vote-button {
-    padding: 6px 12px; /* Smaller vote button */
-    font-size: 0.85em;
-    min-width: 60px;
-  }
-  .vote-count {
-    font-size: 0.75em;
-  }
-  .share-button {
-    padding: 6px 12px;
-    font-size: 0.85em;
-    min-width: 60px;
+  .action-btn {
+    padding: 6px 10px;
+    font-size: 0.78em;
   }
 
   /* Compact BOTD badge */
@@ -943,83 +919,17 @@ nav > div {
     min-width: auto;
   }
 
-  .vote-share-container {
-    flex-direction: row;
-    gap: 12px;
-    width: 100%;
-    align-items: stretch;
-  }
-
-  .vote-container {
-    flex-direction: column;
-    gap: 8px;
-    align-items: center;
-    flex: 1;
-    background: white;
-    padding: 16px 12px;
-    border-radius: 16px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-    border: 1px solid #e5e7eb;
-  }
-
-  .vote-button {
-    font-size: 2em;
-    padding: 12px;
-    width: 100%;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25);
-    font-weight: 600;
-  }
-
-  .vote-button:hover:not(:disabled) {
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.35);
-  }
-
-  .vote-count {
-    text-align: center;
-    width: 100%;
-  }
-
-  .vote-count-number {
-    font-size: 1.5em;
-    font-weight: 800;
-    color: #3b82f6;
-  }
-
-  .voted-label {
-    font-size: 0.75em;
-    padding: 4px 10px;
-    background: #dcfce7;
-    border-radius: 6px;
-    color: #166534;
-    font-weight: 700;
-    letter-spacing: 0.3px;
-  }
-
-  .share-button {
-    font-size: 0.95em;
-    padding: 16px;
-    flex: 1;
-    border-radius: 16px;
-    box-shadow: 0 2px 12px rgba(16, 185, 129, 0.25);
-    font-weight: 600;
-    gap: 8px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    line-height: 1.3;
-  }
-
-  .share-button:hover:not(:disabled) {
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
-  }
-
-  /* Make vote column full width on mobile */
+  /* Make actions column full width on mobile */
   .picks-table tbody td:last-child {
     border-top: 3px solid #3b82f6;
     background: #f9fafb;
-    padding: 20px 16px;
+    padding: 16px;
+  }
+  .actions-cell {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
   }
 }
 
@@ -1037,9 +947,34 @@ nav > div {
 .live-status {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+.live-score-inline {
+  display: inline-flex;
   align-items: center;
   gap: 6px;
-  min-width: 90px;
+  margin-top: 5px;
+  background: #f0fdf4;
+  border-radius: 8px;
+  padding: 4px 10px;
+  border: 1px solid #bbf7d0;
+}
+.live-score-num {
+  font-size: 1.05em;
+  font-weight: 900;
+  color: #1a1a1a;
+  line-height: 1;
+  min-width: 14px;
+  text-align: center;
+}
+.live-score-num.highlighted {
+  color: #16a34a;
+}
+.live-score-sep {
+  color: #d1d5db;
+  font-weight: 700;
+  font-size: 0.85em;
 }
 .status-badge {
   display: inline-flex;
@@ -1059,21 +994,21 @@ nav > div {
   border: 1px solid #e5e7eb;
 }
 .status-badge.live {
-  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
-  color: #dc2626;
-  border: 1px solid #fca5a5;
+  background: linear-gradient(135deg, #ffedd5 0%, #fed7aa 100%);
+  color: #c2410c;
+  border: 1px solid #fdba74;
   animation: pulse-live 2s infinite;
 }
 .status-badge.winning {
-  background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
-  color: #16a34a;
-  border: 1px solid #86efac;
+  background: linear-gradient(135deg, #ffedd5 0%, #fed7aa 100%);
+  color: #c2410c;
+  border: 1px solid #fdba74;
   animation: pulse-live 2s infinite;
 }
 .status-badge.losing {
-  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
-  color: #dc2626;
-  border: 1px solid #fca5a5;
+  background: linear-gradient(135deg, #ffedd5 0%, #fed7aa 100%);
+  color: #c2410c;
+  border: 1px solid #fdba74;
   animation: pulse-live 2s infinite;
 }
 .status-badge.win {
@@ -1320,8 +1255,7 @@ document.addEventListener('DOMContentLoaded', function() {
           <th>Pick & Odds</th>
           <th>Confidence</th>
           <th>Key Reasoning</th>
-          <th>Status</th>
-          <th>Votes & Share</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody id='nhlTableBody'>
@@ -1345,8 +1279,7 @@ document.addEventListener('DOMContentLoaded', function() {
           <th>Pick & Odds</th>
           <th>Confidence</th>
           <th>Key Reasoning</th>
-          <th>Status</th>
-          <th>Votes & Share</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody id='nbaTableBody'>
@@ -1536,12 +1469,16 @@ function renderTable(sport, picks) {
           <span class='sport-icon'>${sportIcon}</span>
           <div>
             <div class='teams'>${pick.game}</div>
-            ${pick.isBetOfDay ? `<div class='botd-badge'>🏆 BET OF THE DAY</div>` : ''}
+            <div class='live-score-inline' id='live-score-${pickId}'></div>
+            <div class='live-status' id='live-status-${pickId}' style='margin-top:6px;'>
+              <span class='status-badge pending'>⏳ Pending</span>
+            </div>
           </div>
         </div>
       </td>
       <td data-label='Pick & Odds'>
         <div class='pick-odds-container'>
+          ${pick.isBetOfDay ? `<div class='botd-badge'>🏆 BET OF THE DAY</div>` : ''}
           <div class='pick-badge'>${pick.pick}</div>
           <div class='bet-type ${pick.betType}'>${pick.betType}</div>
           <div class='odds'>${pick.odds}</div>
@@ -1557,31 +1494,25 @@ function renderTable(sport, picks) {
       <td data-label='Key Reasoning'>
         <div class='reasoning'>${formatReasoning(pick.reasoning)}</div>
       </td>
-      <td data-label='Status'>
-        <div class='live-status' id='live-status-${pickId}'>
-          <span class='status-badge pending'>⏳ Pending</span>
-        </div>
-      </td>
-      <td data-label='Votes & Share'>
-        <div class='vote-share-container'>
-          <div class='vote-container'>
-            <button class='vote-button' onclick='handleVote("${pickId}")' id='vote-btn-${pickId}'>
-              👍
+      <td data-label='Actions'>
+        <div class='actions-cell'>
+          <!-- Vote -->
+          <div class='action-row'>
+            <button class='action-btn vote-btn' onclick='handleVote("${pickId}")' id='vote-btn-${pickId}'>
+              👍 Vote
             </button>
-            <div class='vote-count'>
-              <div class='vote-count-number' id='vote-count-${pickId}'>0</div>
-              <div style='font-size: 0.7em; color: #6b7280; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;'>votes</div>
+            <div class='action-count'>
+              <span class='action-count-number' id='vote-count-${pickId}'>0</span>
+              <span class='voted-label' id='voted-label-${pickId}' style='display:none;'>✓</span>
             </div>
-            <div class='voted-label' id='voted-label-${pickId}' style='display: none;'>✓ Voted</div>
           </div>
-          <div style='display:flex; flex-direction:column; align-items:center; gap:4px;'>
-            <button class='share-button' onclick='event.stopPropagation(); handleShare("${pickId}", "${sport}")' id='share-btn-${pickId}'>
-              <span style='font-size: 1.8em;'>📤</span>
-              <span>Share</span>
+          <!-- Share -->
+          <div class='action-row'>
+            <button class='action-btn share-btn' onclick='event.stopPropagation(); handleShare("${pickId}", "${sport}")' id='share-btn-${pickId}'>
+              📤 Share
             </button>
-            <div style='font-size:0.7em; color:#6b7280; font-weight:600; text-align:center;'>
-              <span id='share-count-${pickId}' style='font-size:1.3em; font-weight:800; color:#10b981; display:block;'>0</span>
-              shares
+            <div class='action-count'>
+              <span class='action-count-number' id='share-count-${pickId}'>0</span>
             </div>
           </div>
         </div>
@@ -2229,20 +2160,30 @@ function evaluatePick(pick, team1, team2, score1, score2, competitors) {
 // Render a status cell
 function renderStatusBadge(pickId, state, extra) {
   const el = document.getElementById(`live-status-${pickId}`);
+  const scoreEl = document.getElementById(`live-score-${pickId}`);
   if (!el) return;
+
+  // Clear inline score for non-live states
+  if (scoreEl) scoreEl.innerHTML = '';
 
   if (state === 'pending') {
     el.innerHTML = `<span class='status-badge pending'>⏳ Pending</span>`;
 
   } else if (state === 'live') {
-    const { score, clock, result } = extra;
+    const { score1, score2, clock, result } = extra;
     const resultClass = result === 'winning' ? 'winning' : result === 'losing' ? 'losing' : 'live';
-    const resultText = result === 'winning' ? '🟢 Winning' : result === 'losing' ? '🔴 Losing' : '🔴 Live';
+    const resultText = result === 'winning' ? '🟢 Winning' : result === 'losing' ? '🔴 Losing' : '—';
+    // Highlight the leading score in green
+    const s1Class = score1 > score2 ? 'live-score-num highlighted' : 'live-score-num';
+    const s2Class = score2 > score1 ? 'live-score-num highlighted' : 'live-score-num';
+    if (scoreEl) scoreEl.innerHTML = `
+      <span class='${s1Class}'>${score1}</span>
+      <span class='live-score-sep'>—</span>
+      <span class='${s2Class}'>${score2}</span>
+    `;
     el.innerHTML = `
-      <span class='status-badge ${resultClass}'><span class='live-dot'></span> LIVE</span>
-      <div class='live-score'>${score}</div>
-      <div class='live-clock'>${clock}</div>
-      <div style='font-size:0.7em; font-weight:700; color:${result === 'winning' ? '#16a34a' : result === 'losing' ? '#dc2626' : '#6b7280'};'>${resultText}</div>
+      <span class='status-badge ${resultClass}'><span class='live-dot'></span> LIVE · ${clock}</span>
+      <div style='font-size:0.72em; font-weight:700; color:${result === 'winning' ? '#16a34a' : result === 'losing' ? '#dc2626' : '#6b7280'};'>${resultText}</div>
     `;
 
   } else if (state === 'win') {
@@ -2294,9 +2235,8 @@ async function updateLiveScores() {
           const clock = event.status?.displayClock || '';
           const sportLabel = sport === 'nhl' ? 'P' : 'Q';
           const clockStr = `${sportLabel}${period} ${clock}`;
-          const score = `${team1.split(' ').pop()} ${score1} — ${score2} ${team2.split(' ').pop()}`;
           const result = evaluatePick(pick, team1, team2, score1, score2, competitors);
-          renderStatusBadge(pick.pickId, 'live', { score, clock: clockStr, result });
+          renderStatusBadge(pick.pickId, 'live', { score1, score2, clock: clockStr, result });
 
         } else if (state === 'post') {
           const result = evaluatePick(pick, team1, team2, score1, score2, competitors);
