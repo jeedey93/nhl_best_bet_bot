@@ -539,7 +539,7 @@ with open(filename, "w") as f:
             # Headline summary per game (write to file + include in predictions_text)
             line = (
                 f"{g['home']} vs {g['away']}\n"
-                f"Home odds: {g.get('home_odds')}, Away odds: {g.get('away_odds')}, "
+                f"{g['home']} ML (Home): {g.get('home_odds')}, {g['away']} ML (Away): {g.get('away_odds')}, "
                 f"O/U: {g.get('over_under')}\n"
                 # Added spreads summary in the headline print
                 f"Spreads: Home {g.get('spread_home_points')} ({g.get('spread_home_price')}), "

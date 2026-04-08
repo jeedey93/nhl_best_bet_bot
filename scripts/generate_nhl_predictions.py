@@ -778,7 +778,7 @@ with open(filename, "w") as f:
 
             line = (
                 f"{away_team} @ {home_team}\n"
-                f"Home odds: {g['home_odds']}, Away odds: {g['away_odds']}, O/U: {g['over_under']}\n"
+                f"{home_team} ML (Home): {g['home_odds']}, {away_team} ML (Away): {g['away_odds']}, O/U: {g['over_under']}\n"
                 "------\n"
             )
             f.write(line)
