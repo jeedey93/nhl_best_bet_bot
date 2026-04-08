@@ -64,6 +64,171 @@ def parse_record(summary_path):
     return nba_record, nhl_record
 
 
+def parse_calendar_data(summary_path):
+    """Parse total_results_summary.txt and return {date: {wins, losses}} for all days."""
+    daily = {}
+    if not os.path.exists(summary_path):
+        return daily
+    content = read_file(summary_path)
+    for line in content.splitlines():
+        line = line.strip()
+        m = re.match(r'(\d{4}-\d{2}-\d{2}):\s*(\d+)\s*wins?,\s*(\d+)\s*loss(?:es)?', line)
+        if m:
+            date, wins, losses = m.group(1), int(m.group(2)), int(m.group(3))
+            if date not in daily:
+                daily[date] = {"wins": 0, "losses": 0}
+            daily[date]["wins"] += wins
+            daily[date]["losses"] += losses
+    return daily
+
+
+def build_calendar_html(calendar_data):
+    """Build a 2-month rolling calendar heatmap HTML block."""
+    import json
+    today = datetime.now()
+    # Build list of months to display (current month + previous month, or 2 full months)
+    months = []
+    for delta in range(1, -1, -1):  # previous month first, then current
+        year = today.year
+        month = today.month - delta
+        if month <= 0:
+            month += 12
+            year -= 1
+        months.append((year, month))
+
+    cal_json = json.dumps(calendar_data)
+
+    html = f"""
+<!-- Performance Calendar Heatmap -->
+<div id='perf-calendar-section' style='max-width: 1600px; margin: 60px auto 0; padding: 0 20px;'>
+  <div style='background: white; border-radius: 16px; padding: 40px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border: 1px solid #e5e7eb;'>
+    <div style='text-align: center; margin-bottom: 30px;'>
+      <h2 style='font-size: 2em; font-weight: 800; color: #111827; margin-bottom: 8px;'>📅 Performance Calendar</h2>
+      <p style='color: #6b7280; font-size: 1.05em;'>Daily win/loss heatmap — hover a day to see the record</p>
+      <div style='display: flex; justify-content: center; gap: 20px; margin-top: 14px; flex-wrap: wrap;'>
+        <span style='display:flex;align-items:center;gap:6px;font-size:0.85em;color:#374151;font-weight:600;'><span style='width:14px;height:14px;border-radius:3px;background:#10b981;display:inline-block;'></span>Winning day</span>
+        <span style='display:flex;align-items:center;gap:6px;font-size:0.85em;color:#374151;font-weight:600;'><span style='width:14px;height:14px;border-radius:3px;background:#ef4444;display:inline-block;'></span>Losing day</span>
+        <span style='display:flex;align-items:center;gap:6px;font-size:0.85em;color:#374151;font-weight:600;'><span style='width:14px;height:14px;border-radius:3px;background:#f59e0b;display:inline-block;'></span>Split day</span>
+        <span style='display:flex;align-items:center;gap:6px;font-size:0.85em;color:#374151;font-weight:600;'><span style='width:14px;height:14px;border-radius:3px;background:#e5e7eb;display:inline-block;'></span>No picks</span>
+      </div>
+    </div>
+    <div id='calendar-grid' style='display:flex;gap:30px;justify-content:center;flex-wrap:wrap;'></div>
+    <div id='cal-tooltip' style='position:fixed;background:#1f2937;color:white;padding:8px 14px;border-radius:8px;font-size:0.85em;font-weight:600;pointer-events:none;opacity:0;transition:opacity 0.15s;z-index:9999;white-space:nowrap;'></div>
+  </div>
+</div>
+<style>
+@media (max-width: 768px) {{
+  #perf-calendar-section {{ margin: 40px auto 0; padding: 0 15px; }}
+  #perf-calendar-section > div {{ padding: 25px 15px; border-radius: 12px; }}
+  #perf-calendar-section h2 {{ font-size: 1.5em !important; }}
+  #calendar-grid {{ gap: 20px !important; }}
+  .cal-day {{ width: 30px !important; height: 30px !important; font-size: 0.65em !important; }}
+}}
+</style>
+<script>
+(function() {{
+  var calData = {cal_json};
+  var months = {json.dumps([(y, m) for y, m in months])};
+  var monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  var dayLabels = ['Su','Mo','Tu','We','Th','Fr','Sa'];
+  var grid = document.getElementById('calendar-grid');
+  var tooltip = document.getElementById('cal-tooltip');
+
+  months.forEach(function(ym) {{
+    var year = ym[0], month = ym[1];
+    var daysInMonth = new Date(year, month, 0).getDate();
+    var firstDow = new Date(year, month - 1, 1).getDay(); // 0=Sun
+
+    var wrap = document.createElement('div');
+    wrap.style.cssText = 'min-width:280px;flex:1;max-width:420px;';
+
+    var title = document.createElement('div');
+    title.style.cssText = 'text-align:center;font-weight:800;font-size:1.1em;color:#111827;margin-bottom:12px;';
+    title.textContent = monthNames[month-1] + ' ' + year;
+    wrap.appendChild(title);
+
+    var table = document.createElement('div');
+    table.style.cssText = 'display:grid;grid-template-columns:repeat(7,1fr);gap:5px;';
+
+    // Day-of-week headers
+    dayLabels.forEach(function(d) {{
+      var h = document.createElement('div');
+      h.style.cssText = 'text-align:center;font-size:0.72em;font-weight:700;color:#9ca3af;padding-bottom:4px;';
+      h.textContent = d;
+      table.appendChild(h);
+    }});
+
+    // Empty cells before first day
+    for (var i = 0; i < firstDow; i++) {{
+      var blank = document.createElement('div');
+      table.appendChild(blank);
+    }}
+
+    // Day cells
+    for (var day = 1; day <= daysInMonth; day++) {{
+      var dateStr = year + '-' + String(month).padStart(2,'0') + '-' + String(day).padStart(2,'0');
+      var cell = document.createElement('div');
+      cell.className = 'cal-day';
+      cell.style.cssText = 'width:36px;height:36px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:0.75em;font-weight:700;cursor:default;transition:transform 0.1s,box-shadow 0.1s;margin:0 auto;';
+      cell.textContent = day;
+
+      var rec = calData[dateStr];
+      if (rec) {{
+        var wins = rec.wins, losses = rec.losses;
+        var total = wins + losses;
+        if (wins > losses) {{
+          var intensity = Math.min(0.4 + (wins / total) * 0.6, 1.0);
+          cell.style.background = 'rgba(16,185,129,' + intensity + ')';
+          cell.style.color = 'white';
+        }} else if (losses > wins) {{
+          var intensity = Math.min(0.4 + (losses / total) * 0.6, 1.0);
+          cell.style.background = 'rgba(239,68,68,' + intensity + ')';
+          cell.style.color = 'white';
+        }} else {{
+          // Exact split
+          cell.style.background = '#f59e0b';
+          cell.style.color = 'white';
+        }}
+        cell.style.cursor = 'pointer';
+        cell.title = dateStr + ': ' + wins + 'W - ' + losses + 'L';
+
+        (function(c, ds, w, l) {{
+          c.addEventListener('mouseenter', function(e) {{
+            var pct = (w + l) > 0 ? Math.round(w / (w + l) * 100) : 0;
+            tooltip.textContent = ds + ': ' + w + 'W \u2013 ' + l + 'L (' + pct + '%)';
+            tooltip.style.opacity = '1';
+            c.style.transform = 'scale(1.15)';
+            c.style.boxShadow = '0 4px 12px rgba(0,0,0,0.25)';
+          }});
+          c.addEventListener('mousemove', function(e) {{
+            var x = e.clientX + 14, y = e.clientY - 36;
+            if (x + 180 > window.innerWidth) x = e.clientX - 190;
+            tooltip.style.left = x + 'px';
+            tooltip.style.top = y + 'px';
+          }});
+          c.addEventListener('mouseleave', function() {{
+            tooltip.style.opacity = '0';
+            c.style.transform = '';
+            c.style.boxShadow = '';
+          }});
+        }})(cell, dateStr, wins, losses);
+      }} else {{
+        cell.style.background = '#f3f4f6';
+        cell.style.color = '#9ca3af';
+      }}
+
+      table.appendChild(cell);
+    }}
+
+    wrap.appendChild(table);
+    grid.appendChild(wrap);
+  }});
+}})();
+</script>
+"""
+    return html
+
+
 def format_sport_content(raw_text, sport_emoji, sport_name):
     """Format the raw prediction text into clean markdown sections."""
     lines = raw_text.strip().splitlines()
@@ -1994,6 +2159,10 @@ def update_latest_predictions(preliminary=False):
 
     # ── Close blog container ──
     content += "</div>\n\n"
+
+    # ── Performance Calendar ──
+    calendar_data = parse_calendar_data(summary_path)
+    content += build_calendar_html(calendar_data)
 
     # ── What's New Section ──
     content += "<!-- What's New Section -->\n"

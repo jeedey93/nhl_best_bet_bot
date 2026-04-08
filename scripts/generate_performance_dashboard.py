@@ -4,6 +4,7 @@ Generate Historical Performance Dashboard
 Parses all bot results and creates a comprehensive performance HTML page
 """
 
+import json
 import os
 import re
 from datetime import datetime
@@ -781,19 +782,154 @@ body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans
     </div>
   </div>
 
-  <!-- Daily Timeline -->
-  <div class='timeline'>
-    <div class='timeline-title'>📅 Daily Results Timeline</div>
 """
 
-    # Add timeline items (reverse chronological)
+    html += """</div>
+
+"""
+
+    # ── Performance Calendar ──
+    # Build calendar data from daily_stats (already has combined NHL+NBA per day)
+    calendar_data = {date: {"wins": day["wins"], "losses": day["losses"]} for date, day in daily_stats.items()}
+    cal_json = json.dumps(calendar_data)
+    # Determine which months to show: all distinct year-months in the data
+    all_months = sorted({d[:7] for d in daily_stats.keys()})
+    months_list = [[int(m.split('-')[0]), int(m.split('-')[1])] for m in all_months]
+
+    html += f"""<!-- Performance Calendar Heatmap -->
+<div id='perf-calendar-section' style='max-width: 1400px; margin: 0 auto 40px; padding: 0 20px;'>
+  <div style='background: white; border-radius: 12px; padding: 30px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);'>
+    <div style='text-align: center; margin-bottom: 30px;'>
+      <h2 style='font-size: 2em; font-weight: 700; color: #111827; margin-bottom: 8px;'>📅 Performance Calendar</h2>
+      <p style='color: #6b7280; font-size: 1.05em;'>Daily win/loss heatmap — hover a day to see the record</p>
+      <div style='display: flex; justify-content: center; gap: 20px; margin-top: 14px; flex-wrap: wrap;'>
+        <span style='display:flex;align-items:center;gap:6px;font-size:0.85em;color:#374151;font-weight:600;'><span style='width:14px;height:14px;border-radius:3px;background:#10b981;display:inline-block;'></span>Winning day</span>
+        <span style='display:flex;align-items:center;gap:6px;font-size:0.85em;color:#374151;font-weight:600;'><span style='width:14px;height:14px;border-radius:3px;background:#ef4444;display:inline-block;'></span>Losing day</span>
+        <span style='display:flex;align-items:center;gap:6px;font-size:0.85em;color:#374151;font-weight:600;'><span style='width:14px;height:14px;border-radius:3px;background:#f59e0b;display:inline-block;'></span>Split day</span>
+        <span style='display:flex;align-items:center;gap:6px;font-size:0.85em;color:#374151;font-weight:600;'><span style='width:14px;height:14px;border-radius:3px;background:#e5e7eb;display:inline-block;'></span>No picks</span>
+      </div>
+    </div>
+    <div id='calendar-grid' style='display:flex;gap:24px;justify-content:center;flex-wrap:wrap;'></div>
+    <div id='cal-tooltip' style='position:fixed;background:#1f2937;color:white;padding:8px 14px;border-radius:8px;font-size:0.85em;font-weight:600;pointer-events:none;opacity:0;transition:opacity 0.15s;z-index:9999;white-space:nowrap;'></div>
+  </div>
+</div>
+<style>
+@media (max-width: 768px) {{
+  #perf-calendar-section {{ padding: 0 15px; }}
+  #perf-calendar-section > div {{ padding: 20px 15px; }}
+  #perf-calendar-section h2 {{ font-size: 1.5em !important; }}
+  #calendar-grid {{ gap: 16px !important; }}
+  .cal-day {{ width: 30px !important; height: 30px !important; font-size: 0.65em !important; }}
+}}
+</style>
+<script>
+(function() {{
+  var calData = {cal_json};
+  var months = {json.dumps(months_list)};
+  var monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  var dayLabels = ['Su','Mo','Tu','We','Th','Fr','Sa'];
+  var grid = document.getElementById('calendar-grid');
+  var tooltip = document.getElementById('cal-tooltip');
+
+  months.forEach(function(ym) {{
+    var year = ym[0], month = ym[1];
+    var daysInMonth = new Date(year, month, 0).getDate();
+    var firstDow = new Date(year, month - 1, 1).getDay();
+
+    var wrap = document.createElement('div');
+    wrap.style.cssText = 'min-width:240px;flex:1;max-width:380px;';
+
+    var title = document.createElement('div');
+    title.style.cssText = 'text-align:center;font-weight:800;font-size:1.05em;color:#111827;margin-bottom:10px;';
+    title.textContent = monthNames[month-1] + ' ' + year;
+    wrap.appendChild(title);
+
+    var table = document.createElement('div');
+    table.style.cssText = 'display:grid;grid-template-columns:repeat(7,1fr);gap:4px;';
+
+    dayLabels.forEach(function(d) {{
+      var h = document.createElement('div');
+      h.style.cssText = 'text-align:center;font-size:0.7em;font-weight:700;color:#9ca3af;padding-bottom:4px;';
+      h.textContent = d;
+      table.appendChild(h);
+    }});
+
+    for (var i = 0; i < firstDow; i++) {{
+      table.appendChild(document.createElement('div'));
+    }}
+
+    for (var day = 1; day <= daysInMonth; day++) {{
+      var dateStr = year + '-' + String(month).padStart(2,'0') + '-' + String(day).padStart(2,'0');
+      var cell = document.createElement('div');
+      cell.className = 'cal-day';
+      cell.style.cssText = 'width:34px;height:34px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:0.75em;font-weight:700;cursor:default;transition:transform 0.1s,box-shadow 0.1s;margin:0 auto;';
+      cell.textContent = day;
+
+      var rec = calData[dateStr];
+      if (rec) {{
+        var wins = rec.wins, losses = rec.losses, total = wins + losses;
+        if (wins > losses) {{
+          var intensity = Math.min(0.4 + (wins / total) * 0.6, 1.0);
+          cell.style.background = 'rgba(16,185,129,' + intensity + ')';
+          cell.style.color = 'white';
+        }} else if (losses > wins) {{
+          var intensity = Math.min(0.4 + (losses / total) * 0.6, 1.0);
+          cell.style.background = 'rgba(239,68,68,' + intensity + ')';
+          cell.style.color = 'white';
+        }} else {{
+          cell.style.background = '#f59e0b';
+          cell.style.color = 'white';
+        }}
+        cell.style.cursor = 'pointer';
+        (function(c, ds, w, l) {{
+          c.addEventListener('mouseenter', function(e) {{
+            var pct = (w + l) > 0 ? Math.round(w / (w + l) * 100) : 0;
+            tooltip.textContent = ds + ': ' + w + 'W \u2013 ' + l + 'L (' + pct + '%)';
+            tooltip.style.opacity = '1';
+            c.style.transform = 'scale(1.15)';
+            c.style.boxShadow = '0 4px 12px rgba(0,0,0,0.25)';
+          }});
+          c.addEventListener('mousemove', function(e) {{
+            var x = e.clientX + 14, y = e.clientY - 36;
+            if (x + 180 > window.innerWidth) x = e.clientX - 190;
+            tooltip.style.left = x + 'px';
+            tooltip.style.top = y + 'px';
+          }});
+          c.addEventListener('mouseleave', function() {{
+            tooltip.style.opacity = '0';
+            c.style.transform = '';
+            c.style.boxShadow = '';
+          }});
+        }})(cell, dateStr, wins, losses);
+      }} else {{
+        cell.style.background = '#f3f4f6';
+        cell.style.color = '#9ca3af';
+      }}
+
+      table.appendChild(cell);
+    }}
+
+    wrap.appendChild(table);
+    grid.appendChild(wrap);
+  }});
+}})();
+</script>
+
+"""
+
+    # ── Collapsible Daily Timeline (after calendar) ──
+    html += """<div class='container' style='padding-top: 0;'>
+  <details class='timeline-details'>
+    <summary class='timeline-summary'>📅 Daily Results Timeline <span class='timeline-toggle-hint'>click to expand</span></summary>
+    <div class='timeline' style='margin-top: 15px;'>
+"""
+
     for date in sorted(daily_stats.keys(), reverse=True):
         day = daily_stats[date]
         net_result = day['wins'] - day['losses']
         day_class = 'win-day' if day['wins'] > day['losses'] else ('loss-day' if day['losses'] > day['wins'] else '')
         sports_text = ' + '.join(sorted(day['sports']))
 
-        # Format net result with + or - sign
         if net_result > 0:
             net_display = f"<span class='timeline-net net-positive'>+{net_result}</span>"
         elif net_result < 0:
@@ -801,21 +937,44 @@ body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans
         else:
             net_display = f"<span class='timeline-net net-even'>0</span>"
 
-        html += f"""    <div class='timeline-item {day_class}'>
-      <div class='timeline-date'>{date}</div>
-      <div class='timeline-record'>
-        <span class='timeline-wins'>{day['wins']}W</span>
-        <span class='timeline-losses'>{day['losses']}L</span>
-        {net_display}
-        <span class='timeline-sports'>{sports_text}</span>
+        html += f"""      <div class='timeline-item {day_class}'>
+        <div class='timeline-date'>{date}</div>
+        <div class='timeline-record'>
+          <span class='timeline-wins'>{day['wins']}W</span>
+          <span class='timeline-losses'>{day['losses']}L</span>
+          {net_display}
+          <span class='timeline-sports'>{sports_text}</span>
+        </div>
       </div>
-    </div>
 """
 
-    html += """  </div>
+    html += """    </div>
+  </details>
 </div>
+<style>
+.timeline-details {{ margin-bottom: 40px; }}
+.timeline-summary {{
+  display: flex; align-items: center; gap: 12px;
+  background: white; border-radius: 12px; padding: 18px 24px;
+  font-size: 1.4em; font-weight: 700; color: #111827;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08); cursor: pointer;
+  list-style: none; border: 2px solid #e5e7eb;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}}
+.timeline-summary::-webkit-details-marker {{ display: none; }}
+.timeline-summary::before {{ content: '▶'; font-size: 0.6em; color: #6b7280; transition: transform 0.2s; }}
+details[open] .timeline-summary::before {{ transform: rotate(90deg); }}
+.timeline-summary:hover {{ border-color: #4a90e2; box-shadow: 0 4px 15px rgba(74,144,226,0.15); }}
+details[open] .timeline-summary {{ border-color: #4a90e2; border-radius: 12px 12px 0 0; margin-bottom: 0; }}
+.timeline-toggle-hint {{ font-size: 0.55em; color: #9ca3af; font-weight: 500; margin-left: auto; }}
+details[open] .timeline-toggle-hint {{ display: none; }}
+@media (max-width: 768px) {{
+  .timeline-summary {{ font-size: 1.1em; padding: 14px 16px; }}
+}}
+</style>
+"""
 
-<script>
+    html += """<script>
 // Prepare chart data
 const dates = [DATES_PLACEHOLDER];
 const dailyWins = [DAILY_WINS_PLACEHOLDER];
