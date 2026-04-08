@@ -648,7 +648,8 @@ def analyze_results(results_text, absences_text, recent_games, team_stats_text, 
                     raise
             except genai.errors.ClientError as e:
                 if "RESOURCE_EXHAUSTED" in str(e) or "quota" in str(e):
-                    return "AI analysis skipped: Gemini API quota exceeded."
+                    print(f"⚠️ {model} quota exceeded, trying next model...")
+                    break
                 else:
                     raise
 
