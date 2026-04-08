@@ -386,8 +386,8 @@ def analyze_results(results_text, team_stats_text, h2h_stats_text, home_away_spl
                     print(f"⚠️ Gemini API 503 error (high demand). Retrying in {wait_time}s... (Attempt {attempt + 1}/{max_retries})")
                     time.sleep(wait_time)
                 else:
-                    print(f"⚠️ Gemini API still unavailable after {max_retries} retries")
-                    return "AI analysis skipped: Gemini API unavailable after multiple retries (503 high demand)."
+                    print(f"❌ Gemini API still unavailable after {max_retries} retries. Cancelling workflow.")
+                    sys.exit(1)
             else:
                 raise
         except genai.errors.ClientError as e:
