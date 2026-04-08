@@ -1566,11 +1566,11 @@ def format_dual_bet(raw_text):
                     # Everything after is description
                     remaining = prob_match.group(2).strip()
                     if remaining:
-                        description_text += " " + remaining
+                        description_text += "\n" + remaining
                 else:
                     confidence_text = line
             else:
-                description_text += " " + line
+                description_text += "\n" + line
                 # Try to extract odds from the description
                 if not odds_value:
                     # Look for patterns like "@ 1.77" or "at 1.91"
@@ -1600,7 +1600,8 @@ def format_dual_bet(raw_text):
             md += f"<div class='pick-meta'>{confidence_badge_html}<span class='pick-meta-text'>{confidence_text}</span></div>\n"
 
         if description_text:
-            md += f"<div class='pick-description'>{description_text.strip()}</div>\n"
+            import html as html_module
+            md += f"<div class='pick-description reasoning' data-raw='{html_module.escape(description_text.strip(), quote=True)}'></div>\n"
 
         # Add share button
         pick_id = f"featured-pick-{pick_num}"
@@ -1668,7 +1669,7 @@ def extract_bet_of_day_from_prediction(content, sport_name, sport_emoji):
         # Description (lines between bet and confidence)
         elif bet_line and not line.startswith("Confidence"):
             if description:
-                description += " "
+                description += "\n"
             description += line
 
     if not bet_line:
@@ -1689,7 +1690,8 @@ def extract_bet_of_day_from_prediction(content, sport_name, sport_emoji):
         html += f"<div class='pick-meta'>{confidence_line}</div>\n"
 
     if description:
-        html += f"<div class='pick-description'>{description}</div>\n"
+        import html as html_module
+        html += f"<div class='pick-description reasoning' data-raw='{html_module.escape(description, quote=True)}'></div>\n"
 
     html += "</div>\n"  # Close content container
 
@@ -1823,6 +1825,13 @@ def update_latest_predictions(preliminary=False):
     content += ".confidence-medium::before { content: '→'; margin-right: 6px; font-weight: 900; }\n"
     content += ".pick-meta-text { display: inline; }\n"
     content += ".pick-description { color: #374151; line-height: 1.8; font-size: 1em; font-weight: 500; }\n"
+    content += ".reasoning { font-size: 0.9em; color: #4b5563; line-height: 1.6; }\n"
+    content += ".reasoning-point { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; padding-left: 4px; line-height: 1.6; }\n"
+    content += ".reasoning-point:last-child { margin-bottom: 0; }\n"
+    content += ".reasoning-emoji { font-size: 1.2em; flex-shrink: 0; margin-top: 2px; }\n"
+    content += ".reasoning-content { flex: 1; display: block; }\n"
+    content += ".reasoning-title { font-weight: 700; color: #1f2937; display: block; margin-bottom: 3px; font-size: 0.95em; }\n"
+    content += ".reasoning-text { color: #6b7280; display: block; font-size: 0.95em; }\n"
     content += ".yesterday-section { background: #f9fafb; border-radius: 12px; padding: 30px; margin: 40px 0; border: 1px solid #e5e7eb; }\n"
     content += ".result-card { background: white; border-radius: 10px; padding: 20px; margin-bottom: 15px; border-left: 5px solid #e5e7eb; transition: all 0.2s; }\n"
     content += ".result-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }\n"
@@ -2303,6 +2312,43 @@ def update_latest_predictions(preliminary=False):
     content += "<script src='https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js'></script>\n\n"
 
     content += "<script>\n"
+    content += "/**\n"
+    content += " * Parse emoji bullet points into structured HTML\n"
+    content += " */\n"
+    content += "function formatReasoning(reasoning) {\n"
+    content += "  var lines = reasoning.split('\\n');\n"
+    content += "  var formatted = '';\n"
+    content += "  var i = 0;\n"
+    content += "  while (i < lines.length) {\n"
+    content += "    var line = lines[i].trim();\n"
+    content += "    var match = line.match(/^([^\\s*\\w]+)\\s*\\*{0,2}(.+?)\\*{0,2}$/);\n"
+    content += "    if (match && match[1].length <= 2) {\n"
+    content += "      var emoji = match[1];\n"
+    content += "      var title = match[2];\n"
+    content += "      var description = '';\n"
+    content += "      i++;\n"
+    content += "      while (i < lines.length) {\n"
+    content += "        var nextLine = lines[i].trim();\n"
+    content += "        if (!nextLine) { i++; break; }\n"
+    content += "        if (nextLine.match(/^([^\\s*\\w]+)\\s*\\*{0,2}/)) break;\n"
+    content += "        description += nextLine + ' ';\n"
+    content += "        i++;\n"
+    content += "      }\n"
+    content += "      formatted += \"<div class='reasoning-point'>\";\n"
+    content += "      formatted += \"<span class='reasoning-emoji'>\" + emoji + \"</span>\";\n"
+    content += "      formatted += \"<div class='reasoning-content'>\";\n"
+    content += "      formatted += \"<span class='reasoning-title'>\" + title + \"</span>\";\n"
+    content += "      if (description.trim()) formatted += \"<span class='reasoning-text'>\" + description.trim() + \"</span>\";\n"
+    content += "      formatted += \"</div></div>\";\n"
+    content += "    } else { i++; }\n"
+    content += "  }\n"
+    content += "  return formatted || '<p>' + reasoning + '</p>';\n"
+    content += "}\n\n"
+    content += "document.addEventListener('DOMContentLoaded', function() {\n"
+    content += "  document.querySelectorAll('.reasoning[data-raw]').forEach(function(el) {\n"
+    content += "    el.innerHTML = formatReasoning(el.getAttribute('data-raw'));\n"
+    content += "  });\n"
+    content += "});\n\n"
     content += "/**\n"
     content += " * Handle share button click for featured picks\n"
     content += " */\n"
