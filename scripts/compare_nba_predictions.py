@@ -39,27 +39,40 @@ def compare_predictions(morning_file, noon_file, output_file, prompt_path):
         noon_predictions=noon_predictions
     )
 
-    try:
-        response = client.models.generate_content(
-            model="models/gemini-2.5-flash",
-            contents=comparison_prompt,
-        )
-        combined_analysis = response.text.strip()
+    models_to_try = [
+        "models/gemini-2.5-flash",
+        "models/gemini-2.0-flash",
+        "models/gemini-2.0-flash-lite",
+        "models/gemini-2.5-flash-lite",
+    ]
 
-        # Write combined analysis to output file
-        with open(output_file, "w", encoding="utf-8") as f:
-            f.write(combined_analysis)
+    for model in models_to_try:
+        try:
+            print(f"🤖 Trying {model}...")
+            response = client.models.generate_content(
+                model=model,
+                contents=comparison_prompt,
+            )
+            combined_analysis = response.text.strip()
 
-        print(f"✅ Combined analysis saved to: {output_file}")
-        print("\n" + combined_analysis)
+            # Write combined analysis to output file
+            with open(output_file, "w", encoding="utf-8") as f:
+                f.write(combined_analysis)
 
-        return combined_analysis
+            print(f"✅ Combined analysis saved to: {output_file}")
+            print("\n" + combined_analysis)
 
-    except Exception as e:
-        if "RESOURCE_EXHAUSTED" in str(e) or "quota" in str(e):
-            print("AI analysis skipped: Gemini API quota exceeded.")
-        else:
-            raise
+            return combined_analysis
+
+        except Exception as e:
+            if "RESOURCE_EXHAUSTED" in str(e) or "quota" in str(e):
+                print(f"⚠️ {model} quota exceeded, trying next model...")
+            elif "503" in str(e) or "UNAVAILABLE" in str(e):
+                print(f"⚠️ {model} 503 error, trying next model...")
+            else:
+                raise
+
+    print("AI analysis skipped: all Gemini models unavailable.")
 
 
 def main():

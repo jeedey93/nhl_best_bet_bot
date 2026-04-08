@@ -616,33 +616,44 @@ def analyze_results(results_text, absences_text, recent_games, team_stats_text, 
     except Exception:
         return "AI analysis skipped: prompt file not found or unreadable."
 
-    # Retry logic for 503 errors with exponential backoff
-    max_retries = 5
-    retry_waits = [60, 120, 300, 600, 900]  # seconds (1m, 2m, 5m, 10m, 15m)
+    # Model fallback order — try each on 503, then give up
+    models_to_try = [
+        "models/gemini-2.5-flash",
+        "models/gemini-2.0-flash",
+        "models/gemini-2.0-flash-lite",
+        "models/gemini-2.5-flash-lite",
+    ]
+    retry_waits = [30, 60]  # seconds between retries on same model
 
-    for attempt in range(max_retries):
-        try:
-            response = client.models.generate_content(
-                model="models/gemini-2.5-flash",
-                contents=types.Part.from_text(text=prompt_text),
-            )
-            return response.candidates[0].content.parts[0].text
-        except genai.errors.ServerError as e:
-            if "503" in str(e) or "UNAVAILABLE" in str(e):
-                if attempt < max_retries - 1:
-                    wait_time = retry_waits[attempt]
-                    print(f"⚠️ Gemini API 503 error (high demand). Retrying in {wait_time}s... (Attempt {attempt + 1}/{max_retries})")
-                    time.sleep(wait_time)
+    for model in models_to_try:
+        max_retries = len(retry_waits) + 1
+        for attempt in range(max_retries):
+            try:
+                print(f"🤖 Trying {model}...")
+                response = client.models.generate_content(
+                    model=model,
+                    contents=types.Part.from_text(text=prompt_text),
+                )
+                return response.candidates[0].content.parts[0].text
+            except genai.errors.ServerError as e:
+                if "503" in str(e) or "UNAVAILABLE" in str(e):
+                    if attempt < max_retries - 1:
+                        wait_time = retry_waits[attempt]
+                        print(f"⚠️ {model} 503 error. Retrying in {wait_time}s... (Attempt {attempt + 1}/{max_retries})")
+                        time.sleep(wait_time)
+                    else:
+                        print(f"⚠️ {model} still unavailable, trying next model...")
+                        break
                 else:
-                    print(f"❌ Gemini API still unavailable after {max_retries} retries. Cancelling workflow.")
-                    sys.exit(1)
-            else:
-                raise
-        except genai.errors.ClientError as e:
-            if "RESOURCE_EXHAUSTED" in str(e) or "quota" in str(e):
-                return "AI analysis skipped: Gemini API quota exceeded."
-            else:
-                raise
+                    raise
+            except genai.errors.ClientError as e:
+                if "RESOURCE_EXHAUSTED" in str(e) or "quota" in str(e):
+                    return "AI analysis skipped: Gemini API quota exceeded."
+                else:
+                    raise
+
+    print(f"❌ All Gemini models unavailable. Cancelling workflow.")
+    sys.exit(1)
 
 # --- New logic for 7am/3pm runs ---
 def detect_run_time():
