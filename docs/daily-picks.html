@@ -2319,16 +2319,24 @@ function renderStatusBadge(pickId, state, extra) {
     el.innerHTML = `<span class='status-badge pending'>⏳ Pending</span>`;
 
   } else if (state === 'live') {
-    const { score1, score2, clock, result } = extra;
+    const { score1, score2, clock, result, awayAbbr, homeAbbr } = extra;
     const resultClass = result === 'winning' ? 'winning' : result === 'losing' ? 'losing' : 'live';
     const resultText = result === 'winning' ? '🟢 Winning' : result === 'losing' ? '🔴 Losing' : '—';
     // Highlight the leading score in green
     const s1Class = score1 > score2 ? 'live-score-num highlighted' : 'live-score-num';
     const s2Class = score2 > score1 ? 'live-score-num highlighted' : 'live-score-num';
     if (scoreEl) scoreEl.innerHTML = `
-      <span class='${s1Class}'>${score1}</span>
-      <span class='live-score-sep'>—</span>
-      <span class='${s2Class}'>${score2}</span>
+      <div style='display:flex; align-items:center; gap:4px;'>
+        <div style='text-align:center;'>
+          ${awayAbbr ? `<div style='font-size:0.6em; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:2px;'>${awayAbbr}</div>` : ''}
+          <span class='${s1Class}'>${score1}</span>
+        </div>
+        <span class='live-score-sep'>—</span>
+        <div style='text-align:center;'>
+          ${homeAbbr ? `<div style='font-size:0.6em; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:2px;'>${homeAbbr}</div>` : ''}
+          <span class='${s2Class}'>${score2}</span>
+        </div>
+      </div>
     `;
     el.innerHTML = `
       <span class='status-badge ${resultClass}'><span class='live-dot'></span> LIVE · ${clock}</span>
@@ -2375,6 +2383,9 @@ async function updateLiveScores() {
         const state = event.status?.type?.state; // 'pre', 'in', 'post'
         const score1 = parseFloat(competitors[0]?.score || 0);
         const score2 = parseFloat(competitors[1]?.score || 0);
+        // ESPN: competitors[0] = away, competitors[1] = home
+        const awayAbbr = competitors[0]?.team?.abbreviation || competitors[0]?.team?.displayName?.split(' ').pop() || '';
+        const homeAbbr = competitors[1]?.team?.abbreviation || competitors[1]?.team?.displayName?.split(' ').pop() || '';
 
         if (state === 'pre') {
           renderStatusBadge(pick.pickId, 'pending', {});
@@ -2385,7 +2396,7 @@ async function updateLiveScores() {
           const sportLabel = sport === 'nhl' ? 'P' : 'Q';
           const clockStr = `${sportLabel}${period} ${clock}`;
           const result = evaluatePick(pick, team1, team2, score1, score2, competitors);
-          renderStatusBadge(pick.pickId, 'live', { score1, score2, clock: clockStr, result });
+          renderStatusBadge(pick.pickId, 'live', { score1, score2, clock: clockStr, result, awayAbbr, homeAbbr });
 
         } else if (state === 'post') {
           const result = evaluatePick(pick, team1, team2, score1, score2, competitors);
