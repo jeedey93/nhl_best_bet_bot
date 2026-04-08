@@ -842,14 +842,13 @@ async function handleShare(pickId, sport) {
     const canvas = await html2canvas(cardEl, { backgroundColor: '#0f172a', scale: 2, logging: false });
     document.body.removeChild(cardEl);
 
-    const shareText = `🎯 AI Pick: ${pickLine}${odds ? ' @ ' + odds : ''}\n\nparieurdiscipline.com`;
     const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
     const file = new File([blob], `pick-${pickId}.png`, { type: 'image/png' });
 
     // 1. Native share (mobile)
     if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
       try {
-        await navigator.share({ text: shareText, files: [file] });
+        await navigator.share({ files: [file] });
         button.innerHTML = '✓ Shared!';
         setTimeout(() => { button.innerHTML = '<span style="font-size:1.5em">📤</span> <span>Share</span>'; button.disabled = false; }, 2000);
         return;
