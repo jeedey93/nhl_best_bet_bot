@@ -617,8 +617,8 @@ def analyze_results(results_text, absences_text, recent_games, team_stats_text, 
         return "AI analysis skipped: prompt file not found or unreadable."
 
     # Retry logic for 503 errors with exponential backoff
-    max_retries = 3
-    retry_waits = [30, 60, 120]  # seconds
+    max_retries = 5
+    retry_waits = [60, 120, 300, 600, 900]  # seconds (1m, 2m, 5m, 10m, 15m)
 
     for attempt in range(max_retries):
         try:
