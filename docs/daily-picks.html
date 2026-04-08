@@ -1625,8 +1625,7 @@ function renderTable(sport, picks) {
           <div>
             <div class='teams'>${pick.game}</div>
             <div class='live-score-inline' id='live-score-${pickId}'></div>
-            <div class='live-status' id='live-status-${pickId}' style='margin-top:6px;'>
-              <span class='status-badge pending'>⏳ Pending</span>
+            <div class='live-status' id='live-status-${pickId}' style='margin-top:6px;'></div>
             </div>
           </div>
         </div>
@@ -2316,7 +2315,8 @@ function renderStatusBadge(pickId, state, extra) {
   if (scoreEl) scoreEl.innerHTML = '';
 
   if (state === 'pending') {
-    el.innerHTML = `<span class='status-badge pending'>⏳ Pending</span>`;
+    el.innerHTML = '';
+    if (scoreEl) scoreEl.innerHTML = '';
 
   } else if (state === 'live') {
     const { score1, score2, clock, result, awayAbbr, homeAbbr } = extra;
