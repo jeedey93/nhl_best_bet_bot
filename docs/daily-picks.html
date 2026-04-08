@@ -1032,6 +1032,101 @@ nav > div {
     font-size: 0.75em;
   }
 }
+
+/* Live Tracker Status Badges */
+.live-status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-width: 90px;
+}
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.8em;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+.status-badge.pending {
+  background: #f3f4f6;
+  color: #6b7280;
+  border: 1px solid #e5e7eb;
+}
+.status-badge.live {
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+  color: #dc2626;
+  border: 1px solid #fca5a5;
+  animation: pulse-live 2s infinite;
+}
+.status-badge.winning {
+  background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+  color: #16a34a;
+  border: 1px solid #86efac;
+  animation: pulse-live 2s infinite;
+}
+.status-badge.losing {
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+  color: #dc2626;
+  border: 1px solid #fca5a5;
+  animation: pulse-live 2s infinite;
+}
+.status-badge.win {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  border: none;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+}
+.status-badge.loss {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  border: none;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+}
+.status-badge.push {
+  background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+  color: white;
+  border: none;
+}
+.live-score {
+  font-size: 0.85em;
+  font-weight: 700;
+  color: #1f2937;
+  text-align: center;
+  line-height: 1.4;
+}
+.live-clock {
+  font-size: 0.75em;
+  color: #dc2626;
+  font-weight: 600;
+  text-align: center;
+}
+@keyframes pulse-live {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+.live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  display: inline-block;
+  animation: pulse-live 1.2s infinite;
+}
+
+@media (max-width: 768px) {
+  .live-status {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    min-width: unset;
+  }
+}
 </style>
 </head>
 <body>
@@ -1225,6 +1320,7 @@ document.addEventListener('DOMContentLoaded', function() {
           <th>Pick & Odds</th>
           <th>Confidence</th>
           <th>Key Reasoning</th>
+          <th>Status</th>
           <th>Votes & Share</th>
         </tr>
       </thead>
@@ -1249,6 +1345,7 @@ document.addEventListener('DOMContentLoaded', function() {
           <th>Pick & Odds</th>
           <th>Confidence</th>
           <th>Key Reasoning</th>
+          <th>Status</th>
           <th>Votes & Share</th>
         </tr>
       </thead>
@@ -1390,8 +1487,7 @@ const picks = {
   ]
 };
 
-// Populate the page
-renderPicks();
+// Populate the page (called at bottom after all functions are defined)
 function renderPicks() {
   const nhlPicks = picks.nhl;
   const nbaPicks = picks.nba;
@@ -1460,6 +1556,11 @@ function renderTable(sport, picks) {
       </td>
       <td data-label='Key Reasoning'>
         <div class='reasoning'>${formatReasoning(pick.reasoning)}</div>
+      </td>
+      <td data-label='Status'>
+        <div class='live-status' id='live-status-${pickId}'>
+          <span class='status-badge pending'>⏳ Pending</span>
+        </div>
       </td>
       <td data-label='Votes & Share'>
         <div class='vote-share-container'>
@@ -1750,163 +1851,447 @@ cleanupOldVotes();
 // ===== SHARING SYSTEM =====
 
 /**
- * Handle share button click
- * Uses native Web Share API on mobile, falls back to screenshot download on desktop
+ * Load an image URL and return a base64 data URL via an offscreen canvas.
+ * This avoids CORS issues with html2canvas.
+ */
+function loadImageAsDataURL(src, size = 88) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      const c = document.createElement('canvas');
+      c.width = size; c.height = size;
+      const ctx = c.getContext('2d');
+      ctx.drawImage(img, 0, 0, size, size);
+      resolve(c.toDataURL('image/png'));
+    };
+    img.onerror = () => resolve(null); // fail gracefully
+    img.src = src;
+  });
+}
+
+/**
+ * Build a branded pick card as an offscreen DOM element, screenshot it, and share/download.
  */
 async function handleShare(pickId, sport) {
   const button = document.getElementById(`share-btn-${pickId}`);
-  const row = document.querySelector(`tr[data-pick-id="${pickId}"]`);
-
-  if (!row) return;
-
-  // Disable button while processing
   button.disabled = true;
-  button.innerHTML = '⏳ Sharing...';
+  button.innerHTML = '<span style="font-size:1.8em">⏳</span><span>Building...</span>';
 
   try {
-    // Clone the row to manipulate it without affecting the page
-    const clonedRow = row.cloneNode(true);
+    const index = parseInt(pickId.split('-').pop());
+    const pick = picks[sport][index];
+    const sportIcon = sport === 'nhl' ? '🏒' : '🏀';
+    const sportLabel = sport === 'nhl' ? 'NHL' : 'NBA';
+    const sportColor = sport === 'nhl' ? '#3b82f6' : '#f59e0b';
+    const date = new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
 
-    // Remove the last column (votes & share)
-    const lastCell = clonedRow.querySelector('td:last-child');
-    if (lastCell) {
-      lastCell.remove();
-    }
+    // Stars count from stars string
+    const starCount = (pick.stars.match(/⭐/g) || []).length;
+    const starsRow = '⭐'.repeat(starCount) + '☆'.repeat(5 - starCount);
 
-    // Create a temporary container for clean screenshot
-    const container = document.createElement('div');
-    container.style.position = 'absolute';
-    container.style.left = '-9999px';
-    container.style.background = 'white';
-    container.style.padding = '20px';
-    container.style.borderRadius = '12px';
-    document.body.appendChild(container);
+    // Bet type label
+    const betTypeLabels = { moneyline: 'Moneyline', spread: 'Spread', total: 'Total O/U' };
+    const betTypeLabel = betTypeLabels[pick.betType] || pick.betType;
 
-    // Create a table wrapper for proper styling
-    const table = document.createElement('table');
-    table.className = 'picks-table';
-    table.style.width = 'auto';
-    table.style.borderCollapse = 'separate';
-    table.style.borderSpacing = '0';
-    const tbody = document.createElement('tbody');
-    tbody.appendChild(clonedRow);
-    table.appendChild(tbody);
-    container.appendChild(table);
+    // Win probability bar width
+    const winProb = pick.winProbability ? parseInt(pick.winProbability) : null;
 
-    // Share text with just the URL
-    const shareText = `https://parieurdiscipline.com`;
-
-    // Try native Web Share API first (works best on mobile)
-    if (navigator.share && navigator.canShare) {
-      try {
-        // Generate screenshot as blob
-        const canvas = await html2canvas(container, {
-          backgroundColor: '#ffffff',
-          scale: 2,
-          logging: false,
-          useCORS: true
-        });
-
-        // Clean up temporary container
-        document.body.removeChild(container);
-
-        const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
-        const file = new File([blob], `parieur-discipline-pick.png`, { type: 'image/png' });
-
-        // Check if we can share with file
-        const shareData = {
-          text: shareText,
-          files: [file]
-        };
-
-        if (navigator.canShare(shareData)) {
-          await navigator.share(shareData);
-          button.innerHTML = '✓ Shared';
-        } else {
-          // Share text only if files not supported
-          await navigator.share({ text: shareText });
-          button.innerHTML = '✓ Shared';
-        }
-
-        setTimeout(() => {
-          button.innerHTML = '📤 Share';
-          button.disabled = false;
-        }, 2000);
-
-        return;
-      } catch (err) {
-        if (err.name === 'AbortError') {
-          // User cancelled share
-          document.body.removeChild(container);
-          button.innerHTML = '📤 Share';
-          button.disabled = false;
-          return;
-        }
-        // Fall through to screenshot download
-        console.log('Native share failed, falling back to download:', err);
+    // Extract first 2 reasoning points (emoji + title only, no description)
+    const reasoningLines = pick.reasoning.split('\n').filter(l => l.trim());
+    const keyPoints = [];
+    for (const line of reasoningLines) {
+      const m = line.trim().match(/^([^\s*\w]+)\s*\*{0,2}(.+?)\*{0,2}$/);
+      if (m && m[1].length <= 2) {
+        keyPoints.push({ emoji: m[1], title: m[2] });
+        if (keyPoints.length === 3) break;
       }
     }
 
-    // Fallback: Generate and download screenshot
-    const canvas = await html2canvas(container, {
-      backgroundColor: '#ffffff',
+    // Load logo as base64 data URL so html2canvas can render it without CORS issues
+    const logoDataURL = await loadImageAsDataURL('/parieur_discipline_icon_1024.png', 88);
+    const logoSrc = logoDataURL || '/parieur_discipline_icon_1024.png';
+
+    // Build card HTML
+    const card = document.createElement('div');
+    card.style.cssText = `
+      position: absolute; left: -9999px; top: 0;
+      width: 540px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0f172a;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    `;
+
+    card.innerHTML = `
+      <!-- Header gradient bar -->
+      <div style="background: linear-gradient(135deg, #1e3a8a 0%, #2c5aa0 50%, #1e40af 100%); padding: 22px 28px 18px; position: relative; overflow: hidden;">
+        <!-- Background pattern -->
+        <div style="position:absolute;top:0;left:0;right:0;bottom:0;opacity:0.07;background: repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(255,255,255,0.3) 20px, rgba(255,255,255,0.3) 21px);"></div>
+
+        <!-- Top row: logo + branding -->
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; position:relative;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <img src="${logoSrc}"
+                 style="width:44px; height:44px; border-radius:50%; border:2px solid rgba(255,255,255,0.3);" />
+            <div>
+              <div style="color:white; font-weight:800; font-size:1em; letter-spacing:0.3px;">Le Parieur Discipliné</div>
+              <div style="color:rgba(255,255,255,0.65); font-size:0.72em; font-weight:500;">AI Betting Predictions</div>
+            </div>
+          </div>
+          <div style="text-align:right;">
+            <div style="background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.2); border-radius:8px; padding:5px 12px;">
+              <div style="color:rgba(255,255,255,0.7); font-size:0.65em; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Date</div>
+              <div style="color:white; font-size:0.78em; font-weight:700;">${date}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sport + Game -->
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
+          <span style="background:${sportColor}; color:white; font-size:0.7em; font-weight:800; text-transform:uppercase; letter-spacing:0.8px; padding:4px 10px; border-radius:6px;">${sportIcon} ${sportLabel}</span>
+          ${pick.isBetOfDay ? `<span style="background:linear-gradient(135deg,#fbbf24,#f59e0b); color:#78350f; font-size:0.7em; font-weight:800; text-transform:uppercase; letter-spacing:0.8px; padding:4px 10px; border-radius:6px;">🏆 Bet of the Day</span>` : ''}
+        </div>
+        <div style="color:white; font-size:1.25em; font-weight:800; line-height:1.3;">${pick.game}</div>
+      </div>
+
+      <!-- Pick body -->
+      <div style="padding: 22px 28px; background: #0f172a;">
+
+        <!-- Pick highlight box -->
+        <div style="background: linear-gradient(135deg, #064e3b 0%, #065f46 100%); border: 1px solid #10b981; border-radius: 14px; padding: 18px 22px; margin-bottom: 18px; display:flex; align-items:center; justify-content:space-between;">
+          <div>
+            <div style="color:#6ee7b7; font-size:0.7em; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:5px;">AI Pick</div>
+            <div style="color:white; font-size:1.35em; font-weight:800;">${pick.pick}</div>
+            <div style="margin-top:6px;">
+              <span style="background:rgba(255,255,255,0.1); color:rgba(255,255,255,0.75); font-size:0.68em; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; padding:3px 9px; border-radius:5px;">${betTypeLabel}</span>
+            </div>
+          </div>
+          <div style="text-align:center; background:rgba(255,255,255,0.08); border-radius:10px; padding:12px 18px; min-width:80px;">
+            <div style="color:#6ee7b7; font-size:0.65em; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:3px;">Odds</div>
+            <div style="color:white; font-size:1.5em; font-weight:900;">${pick.odds}</div>
+          </div>
+        </div>
+
+        <!-- Stats row -->
+        <div style="display:flex; gap:12px; margin-bottom:18px;">
+          <!-- Confidence -->
+          <div style="flex:1; background:#1e293b; border-radius:12px; padding:14px 16px; border:1px solid #334155;">
+            <div style="color:#94a3b8; font-size:0.65em; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">Confidence</div>
+            <div style="font-size:1.1em; letter-spacing:2px; margin-bottom:4px;">${starsRow}</div>
+            <div style="color:white; font-size:0.82em; font-weight:700;">${pick.confidence}</div>
+          </div>
+          <!-- Win Probability -->
+          ${winProb ? `
+          <div style="flex:1; background:#1e293b; border-radius:12px; padding:14px 16px; border:1px solid #334155;">
+            <div style="color:#94a3b8; font-size:0.65em; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">Win Probability</div>
+            <div style="color:#10b981; font-size:1.6em; font-weight:900; line-height:1;">${winProb}%</div>
+            <div style="background:#0f172a; border-radius:4px; height:5px; margin-top:8px; overflow:hidden;">
+              <div style="background:linear-gradient(90deg,#10b981,#34d399); height:100%; width:${winProb}%; border-radius:4px;"></div>
+            </div>
+          </div>` : ''}
+        </div>
+
+        <!-- Key reasons -->
+        ${keyPoints.length > 0 ? `
+        <div style="background:#1e293b; border-radius:12px; padding:16px 18px; margin-bottom:18px; border:1px solid #334155;">
+          <div style="color:#94a3b8; font-size:0.65em; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:10px;">Key Reasons</div>
+          ${keyPoints.map(p => `
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
+              <span style="font-size:1em; flex-shrink:0;">${p.emoji}</span>
+              <span style="color:#e2e8f0; font-size:0.82em; font-weight:600;">${p.title}</span>
+            </div>
+          `).join('')}
+        </div>` : ''}
+
+        <!-- Footer -->
+        <div style="display:flex; align-items:center; justify-content:space-between; padding-top:4px;">
+          <div style="color:#475569; font-size:0.68em; font-weight:500;">AI-generated for entertainment only. Gamble responsibly.</div>
+          <div style="color:#64748b; font-size:0.72em; font-weight:700;">parieurdiscipline.com</div>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(card);
+
+    // Wait a tick for images to load
+    await new Promise(r => setTimeout(r, 200));
+
+    const canvas = await html2canvas(card, {
+      backgroundColor: '#0f172a',
       scale: 2,
-      logging: false,
-      useCORS: true
+      logging: false
     });
 
-    // Clean up temporary container
-    document.body.removeChild(container);
+    document.body.removeChild(card);
 
-    // Convert to blob and download
-    canvas.toBlob((blob) => {
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `parieur-discipline-${pickId}.png`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+    const shareText = `🎯 AI Pick: ${pick.pick} @ ${pick.odds}\n${pick.game}\n\nparieurdiscipline.com`;
+    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+    const file = new File([blob], `pick-${pickId}.png`, { type: 'image/png' });
 
-      button.innerHTML = '✓ Downloaded';
-      setTimeout(() => {
-        button.innerHTML = '📤 Share';
-        button.disabled = false;
-      }, 2000);
-    }, 'image/png');
+    // 1. Try native share with file (mobile browsers)
+    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({ text: shareText, files: [file] });
+        button.innerHTML = '<span style="font-size:1.8em">✓</span><span>Shared!</span>';
+        setTimeout(() => { button.innerHTML = '<span style="font-size:1.8em">📤</span><span>Share</span>'; button.disabled = false; }, 2000);
+        return;
+      } catch (err) {
+        if (err.name === 'AbortError') {
+          button.innerHTML = '<span style="font-size:1.8em">📤</span><span>Share</span>';
+          button.disabled = false;
+          return;
+        }
+        // fall through to clipboard
+      }
+    }
+
+    // 2. Try clipboard API (desktop Chrome/Edge/Firefox 127+)
+    if (navigator.clipboard && navigator.clipboard.write) {
+      try {
+        await navigator.clipboard.write([
+          new ClipboardItem({ 'image/png': blob })
+        ]);
+        button.innerHTML = '<span style="font-size:1.8em">📋</span><span>Copied!</span>';
+        setTimeout(() => { button.innerHTML = '<span style="font-size:1.8em">📤</span><span>Share</span>'; button.disabled = false; }, 2500);
+        return;
+      } catch (err) {
+        // Clipboard write denied (e.g. Firefox) — fall through to download
+        console.log('Clipboard write failed, falling back to download:', err);
+      }
+    }
+
+    // 3. Final fallback: download the PNG
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `parieur-discipline-${pickId}.png`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    button.innerHTML = '<span style="font-size:1.8em">✓</span><span>Saved!</span>';
+    setTimeout(() => { button.innerHTML = '<span style="font-size:1.8em">📤</span><span>Share</span>'; button.disabled = false; }, 2000);
 
   } catch (error) {
     console.error('Share error:', error);
-    alert('Failed to share. Please try again.');
-    button.innerHTML = '📤 Share';
+    alert('Failed to generate card. Please try again.');
+    button.innerHTML = '<span style="font-size:1.8em">📤</span><span>Share</span>';
     button.disabled = false;
   }
 }
 
-/**
- * Get pick data from the picks object
- */
-function getPickData(pickId, sport) {
-  const sportPicks = picks[sport];
-  const index = parseInt(pickId.split('-').pop());
-  const pick = sportPicks[index];
+// ===== END SHARING SYSTEM =====
 
-  return {
-    sport: sport,
-    game: pick.game,
-    pick: pick.pick,
-    odds: pick.odds,
-    confidence: pick.confidence,
-    winProbability: pick.winProbability || 'N/A'
-  };
+// ===== LIVE SCORE TRACKER =====
+
+const ESPN_URLS = {
+  nhl: 'https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/scoreboard',
+  nba: 'https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard'
+};
+
+// Normalize team name for fuzzy matching
+function normalizeTeamName(name) {
+  return name.toLowerCase()
+    .replace(/é/g, 'e').replace(/è/g, 'e').replace(/ê/g, 'e')
+    .replace(/à/g, 'a').replace(/â/g, 'a')
+    .replace(/ô/g, 'o').replace(/û/g, 'u')
+    .replace(/[^a-z0-9 ]/g, '')
+    .replace(/\s+/g, ' ').trim();
 }
 
-// ===== END SHARING SYSTEM =====
+// Check if a team name appears in a game string
+function teamInGame(teamName, gameStr) {
+  const normTeam = normalizeTeamName(teamName);
+  const normGame = normalizeTeamName(gameStr);
+  // Check if any word from team name appears significantly in the game string
+  const teamWords = normTeam.split(' ').filter(w => w.length > 3);
+  return teamWords.some(word => normGame.includes(word));
+}
+
+// Find matching ESPN event for a pick
+function findMatchingEvent(pick, events) {
+  const gameStr = pick.game;
+  for (const event of events) {
+    const eventName = event.name || '';
+    const competitors = event.competitions?.[0]?.competitors || [];
+    const team1 = competitors[0]?.team?.displayName || '';
+    const team2 = competitors[1]?.team?.displayName || '';
+    const combinedNames = `${team1} ${team2}`;
+
+    // Try to match both teams from the pick game string against ESPN teams
+    if (teamInGame(team1, gameStr) || teamInGame(team2, gameStr)) {
+      return { event, team1, team2, competitors };
+    }
+  }
+  return null;
+}
+
+// Determine pick result given final/live scores
+function evaluatePick(pick, team1, team2, score1, score2, competitors) {
+  const betType = pick.betType;
+  const pickText = pick.pick;
+
+  if (betType === 'moneyline') {
+    // Find which team is picked
+    const pickedTeam = pickText.replace(/ ML$/i, '').trim();
+    const isTeam1 = teamInGame(team1, pickedTeam) || normalizeTeamName(team1).includes(normalizeTeamName(pickedTeam).split(' ').pop());
+    const isTeam2 = teamInGame(team2, pickedTeam) || normalizeTeamName(team2).includes(normalizeTeamName(pickedTeam).split(' ').pop());
+
+    if (!isTeam1 && !isTeam2) return null; // can't determine
+
+    const pickedScore = isTeam1 ? score1 : score2;
+    const opposingScore = isTeam1 ? score2 : score1;
+
+    if (pickedScore > opposingScore) return 'winning';
+    if (pickedScore < opposingScore) return 'losing';
+    return 'push';
+
+  } else if (betType === 'spread') {
+    // Extract spread value and team: e.g. "Minnesota Timberwolves -12.5"
+    const spreadMatch = pickText.match(/([+-]?\d+\.?\d*)$/);
+    if (!spreadMatch) return null;
+    const spread = parseFloat(spreadMatch[1]);
+
+    // Find picked team
+    const pickedTeam = pickText.replace(/\s*[+-]?\d+\.?\d*$/, '').trim();
+    const isTeam1 = teamInGame(team1, pickedTeam) || normalizeTeamName(team1).includes(normalizeTeamName(pickedTeam).split(' ').pop());
+
+    const pickedScore = isTeam1 ? score1 : score2;
+    const opposingScore = isTeam1 ? score2 : score1;
+    const margin = pickedScore + spread - opposingScore;
+
+    if (margin > 0) return 'winning';
+    if (margin < 0) return 'losing';
+    return 'push';
+
+  } else if (betType === 'total') {
+    // Extract over/under and line: e.g. "Over 6.5" or "Under 220.5"
+    const totalMatch = pickText.match(/^(over|under)\s+(\d+\.?\d*)/i);
+    if (!totalMatch) return null;
+    const isOver = totalMatch[1].toLowerCase() === 'over';
+    const line = parseFloat(totalMatch[2]);
+    const totalScore = score1 + score2;
+
+    if (isOver) {
+      if (totalScore > line) return 'winning';
+      if (totalScore < line) return 'losing';
+      return 'push';
+    } else {
+      if (totalScore < line) return 'winning';
+      if (totalScore > line) return 'losing';
+      return 'push';
+    }
+  }
+
+  return null;
+}
+
+// Render a status cell
+function renderStatusBadge(pickId, state, extra) {
+  const el = document.getElementById(`live-status-${pickId}`);
+  if (!el) return;
+
+  if (state === 'pending') {
+    el.innerHTML = `<span class='status-badge pending'>⏳ Pending</span>`;
+
+  } else if (state === 'live') {
+    const { score, clock, result } = extra;
+    const resultClass = result === 'winning' ? 'winning' : result === 'losing' ? 'losing' : 'live';
+    const resultText = result === 'winning' ? '🟢 Winning' : result === 'losing' ? '🔴 Losing' : '🔴 Live';
+    el.innerHTML = `
+      <span class='status-badge ${resultClass}'><span class='live-dot'></span> LIVE</span>
+      <div class='live-score'>${score}</div>
+      <div class='live-clock'>${clock}</div>
+      <div style='font-size:0.7em; font-weight:700; color:${result === 'winning' ? '#16a34a' : result === 'losing' ? '#dc2626' : '#6b7280'};'>${resultText}</div>
+    `;
+
+  } else if (state === 'win') {
+    el.innerHTML = `<span class='status-badge win'>✅ WIN</span>`;
+  } else if (state === 'loss') {
+    el.innerHTML = `<span class='status-badge loss'>❌ LOSS</span>`;
+  } else if (state === 'push') {
+    el.innerHTML = `<span class='status-badge push'>➖ PUSH</span>`;
+  }
+}
+
+// Main function: fetch scores and update all picks
+async function updateLiveScores() {
+  const allPicks = [
+    ...picks.nhl.map((p, i) => ({ ...p, sport: 'nhl', pickId: `nhl-pick-${i}` })),
+    ...picks.nba.map((p, i) => ({ ...p, sport: 'nba', pickId: `nba-pick-${i}` }))
+  ];
+
+  if (allPicks.length === 0) return;
+
+  const sportGroups = { nhl: [], nba: [] };
+  allPicks.forEach(p => sportGroups[p.sport].push(p));
+
+  for (const [sport, sportPicks] of Object.entries(sportGroups)) {
+    if (sportPicks.length === 0) continue;
+
+    try {
+      const res = await fetch(ESPN_URLS[sport]);
+      const data = await res.json();
+      const events = data.events || [];
+
+      for (const pick of sportPicks) {
+        const match = findMatchingEvent(pick, events);
+        if (!match) {
+          renderStatusBadge(pick.pickId, 'pending', {});
+          continue;
+        }
+
+        const { event, team1, team2, competitors } = match;
+        const state = event.status?.type?.state; // 'pre', 'in', 'post'
+        const score1 = parseFloat(competitors[0]?.score || 0);
+        const score2 = parseFloat(competitors[1]?.score || 0);
+
+        if (state === 'pre') {
+          renderStatusBadge(pick.pickId, 'pending', {});
+
+        } else if (state === 'in') {
+          const period = event.status?.period || '';
+          const clock = event.status?.displayClock || '';
+          const sportLabel = sport === 'nhl' ? 'P' : 'Q';
+          const clockStr = `${sportLabel}${period} ${clock}`;
+          const score = `${team1.split(' ').pop()} ${score1} — ${score2} ${team2.split(' ').pop()}`;
+          const result = evaluatePick(pick, team1, team2, score1, score2, competitors);
+          renderStatusBadge(pick.pickId, 'live', { score, clock: clockStr, result });
+
+        } else if (state === 'post') {
+          const result = evaluatePick(pick, team1, team2, score1, score2, competitors);
+          if (result === 'winning') {
+            renderStatusBadge(pick.pickId, 'win', {});
+          } else if (result === 'losing') {
+            renderStatusBadge(pick.pickId, 'loss', {});
+          } else if (result === 'push') {
+            renderStatusBadge(pick.pickId, 'push', {});
+          } else {
+            renderStatusBadge(pick.pickId, 'pending', {});
+          }
+        }
+      }
+    } catch (err) {
+      console.warn(`Failed to fetch ${sport} scores:`, err);
+    }
+  }
+}
+
+// Start live tracking after picks are rendered
+function startLiveTracker() {
+  if (picks.nhl.length + picks.nba.length === 0) return;
+  updateLiveScores();
+  setInterval(updateLiveScores, 60000); // refresh every 60s
+}
+
+// ===== END LIVE SCORE TRACKER =====
 
 // Initial render (now voting functions are defined)
 renderPicks();
-
+startLiveTracker();
 </script>
 
 </body>
