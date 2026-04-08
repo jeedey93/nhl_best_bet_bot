@@ -370,7 +370,7 @@ def analyze_results(results_text, team_stats_text, h2h_stats_text, home_away_spl
 
     # Retry logic for 503 errors with exponential backoff
     max_retries = 3
-    base_wait = 300  # 5 minutes in seconds
+    retry_waits = [30, 60, 120]  # seconds
 
     for attempt in range(max_retries):
         try:
@@ -382,8 +382,8 @@ def analyze_results(results_text, team_stats_text, h2h_stats_text, home_away_spl
         except genai.errors.ServerError as e:
             if "503" in str(e) or "UNAVAILABLE" in str(e):
                 if attempt < max_retries - 1:
-                    wait_time = base_wait * (attempt + 1)  # 5min, 10min, 15min
-                    print(f"⚠️ Gemini API 503 error (high demand). Retrying in {wait_time//60} minutes... (Attempt {attempt + 1}/{max_retries})")
+                    wait_time = retry_waits[attempt]
+                    print(f"⚠️ Gemini API 503 error (high demand). Retrying in {wait_time}s... (Attempt {attempt + 1}/{max_retries})")
                     time.sleep(wait_time)
                 else:
                     print(f"⚠️ Gemini API still unavailable after {max_retries} retries")
