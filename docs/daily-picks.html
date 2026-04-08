@@ -1574,7 +1574,7 @@ function renderTable(sport, picks) {
             </div>
             <div class='voted-label' id='voted-label-${pickId}' style='display: none;'>✓ Voted</div>
           </div>
-          <button class='share-button' onclick='handleShare("${pickId}", "${sport}")' id='share-btn-${pickId}'>
+          <button class='share-button' onclick='event.stopPropagation(); handleShare("${pickId}", "${sport}")' id='share-btn-${pickId}'>
             <span style='font-size: 1.8em;'>📤</span>
             <span>Share</span>
           </button>
@@ -1875,6 +1875,7 @@ function loadImageAsDataURL(src, size = 88) {
  */
 async function handleShare(pickId, sport) {
   const button = document.getElementById(`share-btn-${pickId}`);
+  if (button.disabled) return; // prevent double-fire
   button.disabled = true;
   button.innerHTML = '<span style="font-size:1.8em">⏳</span><span>Building...</span>';
 
@@ -2051,7 +2052,7 @@ async function handleShare(pickId, sport) {
     if (navigator.clipboard && navigator.clipboard.write) {
       try {
         await navigator.clipboard.write([
-          new ClipboardItem({ 'image/png': blob })
+          new ClipboardItem({ 'image/png': Promise.resolve(blob) })
         ]);
         button.innerHTML = '<span style="font-size:1.8em">📋</span><span>Copied!</span>';
         setTimeout(() => { button.innerHTML = '<span style="font-size:1.8em">📤</span><span>Share</span>'; button.disabled = false; }, 2500);
