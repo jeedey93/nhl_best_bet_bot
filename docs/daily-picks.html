@@ -2001,14 +2001,13 @@ async function handleShare(pickId, sport) {
 
     document.body.removeChild(card);
 
-    const shareText = `🎯 AI Pick: ${pick.pick} @ ${pick.odds}\n${pick.game}\n\nparieurdiscipline.com`;
     const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
     const file = new File([blob], `pick-${pickId}.png`, { type: 'image/png' });
 
     // 1. Try native share with file (mobile browsers)
     if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
       try {
-        await navigator.share({ text: shareText, files: [file] });
+        await navigator.share({ files: [file] });
         recordShare(pickId);
         button.innerHTML = '<span style="font-size:1.8em">✓</span><span>Shared!</span>';
         setTimeout(() => { button.innerHTML = '<span style="font-size:1.8em">📤</span><span>Share</span>'; button.disabled = false; }, 2000);
