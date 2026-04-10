@@ -151,7 +151,13 @@
 </div>
 
 <script>
-const TEAMS_DATA=[
+const DISPLAY_NAME={'Utah Hockey Club':'Mammoth'};
+function shortTeamName(name){
+  if(!name||name==='TBD')return name||'TBD';
+  if(DISPLAY_NAME[name])return DISPLAY_NAME[name];
+  return name.split(' ').pop();
+}
+
   {name:"Buffalo Sabres",        abbr:"BUF"},
   {name:"Boston Bruins",         abbr:"BOS"},
   {name:"Montreal Canadiens",    abbr:"MTL"},
@@ -345,8 +351,8 @@ function buildSeriesCard(top,bottom,roundIdx){
 
   const topAbbr=abbr(top);
   const botAbbr=abbr(bottom);
-  const topShort=top.split(' ').pop();
-  const botShort=bottom.split(' ').pop();
+  const topShort=shortTeamName(top);
+  const botShort=shortTeamName(bottom);
 
   // Top team row
   const topSide=document.createElement('div');topSide.className='series-side';

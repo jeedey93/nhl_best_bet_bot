@@ -324,12 +324,21 @@ const TEAMS=[
   {name:"Dallas Stars",          abbr:"DAL",conf:"West",c1:"#006847",c2:"#FFFFFF"},
   {name:"Minnesota Wild",        abbr:"MIN",conf:"West",c1:"#154734",c2:"#DDAF57"},
   {name:"Edmonton Oilers",       abbr:"EDM",conf:"West",c1:"#FF4C00",c2:"#041E42"},
-  {name:"Utah Hockey Club",      abbr:"UTA",conf:"West",c1:"#6CACE4",c2:"#FFFFFF"},
+  {name:"Utah Hockey Club",      abbr:"UTA",conf:"West",c1:"#6CACE4",c2:"#FFFFFF",display:"Utah Mammoth"},
   {name:"Vegas Golden Knights",  abbr:"VGK",conf:"West",c1:"#B4975A",c2:"#333F42"},
   {name:"Anaheim Ducks",         abbr:"ANA",conf:"West",c1:"#F47A38",c2:"#B9975B"},
 ];
 
 function logoUrl(a){return`https://assets.nhle.com/logos/nhl/svg/${a}_light.svg`;}
+function displayName(nameOrTeam){
+  if(typeof nameOrTeam==='object')return nameOrTeam.display||nameOrTeam.name;
+  const t=TEAMS.find(t=>t.name===nameOrTeam);
+  return t?.display||nameOrTeam;
+}
+function shortName(nameOrTeam){
+  const full=displayName(nameOrTeam);
+  return full.split(' ').pop();
+}
 const ESPN_ABBR={TBL:'tb',LAK:'la',MTL:'mtl',OTT:'ott',PIT:'pit',PHI:'phi',BUF:'buf',UTA:'utah',ANA:'ana',VGK:'vgk'};
 function logoPngUrl(a){const e=ESPN_ABBR[a]||a.toLowerCase();return`https://a.espncdn.com/i/teamlogos/nhl/500/${e}.png`;}
 
@@ -400,7 +409,7 @@ function renderRanking(){
       li.dataset.idx=i;
       li.innerHTML=`<span class="pos-badge">${pos}</span>
         ${logoHtml(team)}
-        <div class="team-info"><div class="team-name">${team.name}</div><div class="team-conf">${team.conf}ern</div></div>
+        <div class="team-info"><div class="team-name">${displayName(team)}</div><div class="team-conf">${team.conf}ern</div></div>
         <button class="remove-btn" title="Remove">✕</button>`;
       li.querySelector('.remove-btn').addEventListener('click',()=>{
         pool.push(team);
@@ -432,7 +441,7 @@ function renderPool(){
     div.className='pool-item';
     div.dataset.idx=i;
     const tooltipHtml='';
-    div.innerHTML=`${logoHtml(team)}<div class="team-info"><div class="team-name">${team.name}</div><div class="team-conf">${team.conf}ern Conference</div></div>${tooltipHtml}`;
+    div.innerHTML=`${logoHtml(team)}<div class="team-info"><div class="team-name">${displayName(team)}</div><div class="team-conf">${team.conf}ern Conference</div></div>${tooltipHtml}`;
     setupMousePool(div,i);
     setupTouchPool(div,i);
     container.appendChild(div);
@@ -710,7 +719,7 @@ async function buildCanvas(name){
     const logoImg=logoImgs[i];
     if(logoImg){const pad2=3;ctx.drawImage(logoImg,lbX+pad2,lbY+pad2,lbS-pad2*2,lbS-pad2*2);}
     else{const cx=lbX+lbS/2,cy=lbY+lbS/2,cr=lbS/2-1;ctx.beginPath();ctx.arc(cx,cy,cr,0,Math.PI*2);ctx.fillStyle=team.c1;ctx.fill();ctx.font=`bold 8px Arial, sans-serif`;ctx.fillStyle=team.c2;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(team.abbr,cx,cy);ctx.textBaseline='alphabetic';}
-    ctx.font=`bold 13px Arial, sans-serif`;ctx.fillStyle='#ffffff';ctx.textAlign='left';ctx.fillText(team.name.toUpperCase(),PAD+32+lbS+10,y+ROW*0.46);
+    ctx.font=`bold 13px Arial, sans-serif`;ctx.fillStyle='#ffffff';ctx.textAlign='left';ctx.fillText(displayName(team).toUpperCase(),PAD+32+lbS+10,y+ROW*0.46);
     ctx.font=`600 10px Arial, sans-serif`;ctx.fillStyle='#a8b2be';ctx.fillText(team.conf.toUpperCase()+'ERN',PAD+32+lbS+10,y+ROW*0.76);
     const pillW=50,pillH=ROW-10,px2=W-PAD-pillW,py2=y+5;ctx.fillStyle='rgba(232,244,253,0.1)';rr(ctx,px2,py2,pillW,pillH,4);
     ctx.font=`900 14px Arial, sans-serif`;ctx.fillStyle='#e8f4fd';ctx.textAlign='center';ctx.fillText(p+' pts',px2+pillW/2,py2+pillH*0.68);
@@ -857,8 +866,8 @@ function sbTeamHtml(team,roundIdx,side,idx,isTop){
   const cls=isTbd?'tbd-team':winner===team?'winner':winner?'eliminated':'';
   const logo=isTbd?'<span class="sb-logo-ph"></span>'
     :`<img class="sb-logo" src="${logoUrl(TEAMS.find(t=>t.name===team)?.abbr||'')}" alt="" onerror="this.style.display='none'">`;
-  const shortName=isTbd?'TBD':team.split(' ').pop();
-  return`<div class="sb-team ${cls}" data-round="${roundIdx}" data-side="${side}" data-idx="${idx}" data-team="${team||''}">${logo}<span class="sb-team-name">${shortName}</span></div>`;
+  const shortN=isTbd?'TBD':shortName(team);
+  return`<div class="sb-team ${cls}" data-round="${roundIdx}" data-side="${side}" data-idx="${idx}" data-team="${team||''}">${logo}<span class="sb-team-name">${shortN}</span></div>`;
 }
 
 function sbSeriesHtml(roundIdx,side,idx,label='',extraClass=''){

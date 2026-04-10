@@ -362,7 +362,7 @@ function render(){
       return{team:t,earned:(row.picks[t]||0)*wins};
     }).filter(x=>x.earned>0).sort((a,b)=>b.earned-a.earned);
     const mvp=teamEarnings[0];
-    const mvpBadge=mvp?`<span class="mvp-badge">🔥 ${mvp.team.split(' ').pop()} ${mvp.earned}pts</span>`:'';
+    const mvpBadge=mvp?`<span class="mvp-badge">🔥 ${shortTeamName(mvp.team)} ${mvp.earned}pts</span>`:'';
 
     tr.innerHTML=`
       <td class="rank-cell ${rankClass}">${medal||rank}</td>
@@ -413,7 +413,7 @@ function render(){
     const teamsWithWins=TEAMS.filter(t=>results[t][ri]>0)
       .sort((a,b)=>results[b][ri]-results[a][ri]);
     const winsHtml=teamsWithWins.length>0
-      ? teamsWithWins.map(t=>`<span>${results[t][ri]}W</span> ${t.split(' ').pop()}`).join('<br>')
+      ? teamsWithWins.map(t=>`<span>${results[t][ri]}W</span> ${shortTeamName(t)}`).join('<br>')
       : '<span style="color:rgba(255,255,255,0.2)">No wins yet</span>';
     card.innerHTML=`
       <div class="round-name">${label}</div>
@@ -468,13 +468,18 @@ function seriesScore(top,bottom,roundIdx){
   return{tw,bw,done:tw===4||bw===4,tbd:false};
 }
 
-function bSeriesHtml(top,bottom,roundIdx,label,extraClass=''){
+const DISPLAY_NAME={'Utah Hockey Club':'Mammoth'};
+function shortTeamName(name){
+  if(!name||name==='TBD')return name||'TBD';
+  if(DISPLAY_NAME[name])return DISPLAY_NAME[name];
+  return name.split(' ').pop();
+}
   const{tw,bw,done,tbd}=seriesScore(top,bottom,roundIdx);
   const winner=done?(tw===4?top:bottom):null;
   const topClass=winner?(winner===top?'winner':'eliminated'):(tw>bw&&(tw||bw)?'leading':'');
   const botClass=winner?(winner===bottom?'winner':'eliminated'):(bw>tw&&(tw||bw)?'leading':'');
-  const topName=top&&top!=='TBD'?top.split(' ').pop():'TBD';
-  const botName=bottom&&bottom!=='TBD'?bottom.split(' ').pop():'TBD';
+  const topName=shortTeamName(top);
+  const botName=shortTeamName(bottom);
   const topWins=tbd?'':(tw>0?tw:'');
   const botWins=tbd?'':(bw>0?bw:'');
   const topLogo=top&&TEAM_LOGO[top]?`<img class="b-logo" src="${TEAM_LOGO[top]}" alt="">`:'<span class="b-logo-ph"></span>';
