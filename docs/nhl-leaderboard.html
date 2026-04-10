@@ -139,6 +139,10 @@ const TEAMS=[
 const ROUND_MULT=[1,2,3,4];
 const ROUND_LABELS=["R1","R2","CF","SC"];
 
+let participants=[];
+let results={};
+TEAMS.forEach(t=>{results[t]=[0,0,0,0];});
+
 // ── Load participants from docs/playoff/ ──────────────────────────────────────
 async function loadParticipants(){
   const list=document.getElementById('participant-list');
