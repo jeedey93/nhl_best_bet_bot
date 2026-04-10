@@ -51,22 +51,23 @@
   .podium-avatar{border-radius:50%;display:flex;align-items:center;justify-content:center;
     font-family:'Bebas Neue',cursive;color:white;font-size:1.6rem;letter-spacing:2px;
     margin-bottom:0.5rem;flex-shrink:0;}
-  .podium-place:nth-child(1) .podium-avatar{width:80px;height:80px;background:linear-gradient(135deg,#b8860b,#ffd700,#b8860b);
+  /* DOM order: 2nd (left), 1st (center/gold), 3rd (right) */
+  .podium-place:nth-child(2) .podium-avatar{width:80px;height:80px;background:linear-gradient(135deg,#b8860b,#ffd700,#b8860b);
     box-shadow:0 0 30px rgba(255,215,0,0.5);font-size:1.8rem;}
-  .podium-place:nth-child(2) .podium-avatar{width:66px;height:66px;background:linear-gradient(135deg,#707070,#c0c0c0,#707070);
+  .podium-place:nth-child(1) .podium-avatar{width:66px;height:66px;background:linear-gradient(135deg,#707070,#c0c0c0,#707070);
     box-shadow:0 0 20px rgba(192,192,192,0.3);}
   .podium-place:nth-child(3) .podium-avatar{width:60px;height:60px;background:linear-gradient(135deg,#7d4e1a,#cd7f32,#7d4e1a);
     box-shadow:0 0 16px rgba(205,127,50,0.3);}
   .podium-name{font-size:1rem;font-weight:700;color:white;letter-spacing:1px;text-transform:uppercase;margin-bottom:2px;}
   .podium-score{font-family:'Bebas Neue',cursive;color:var(--gold);letter-spacing:1px;}
-  .podium-place:nth-child(1) .podium-score{font-size:2rem;}
-  .podium-place:nth-child(2) .podium-score,.podium-place:nth-child(3) .podium-score{font-size:1.6rem;}
+  .podium-place:nth-child(2) .podium-score{font-size:2rem;}
+  .podium-place:nth-child(1) .podium-score,.podium-place:nth-child(3) .podium-score{font-size:1.6rem;}
   .podium-pts{font-size:0.7rem;color:var(--silver);letter-spacing:1px;}
   .podium-block{border-radius:6px 6px 0 0;width:100%;}
-  .podium-place:nth-child(1) .podium-block{height:80px;background:linear-gradient(180deg,rgba(255,215,0,0.25),rgba(255,215,0,0.05));border:1px solid rgba(255,215,0,0.3);border-bottom:none;}
-  .podium-place:nth-child(2) .podium-block{height:56px;background:linear-gradient(180deg,rgba(192,192,192,0.15),rgba(192,192,192,0.03));border:1px solid rgba(192,192,192,0.2);border-bottom:none;}
+  .podium-place:nth-child(2) .podium-block{height:80px;background:linear-gradient(180deg,rgba(255,215,0,0.25),rgba(255,215,0,0.05));border:1px solid rgba(255,215,0,0.3);border-bottom:none;}
+  .podium-place:nth-child(1) .podium-block{height:56px;background:linear-gradient(180deg,rgba(192,192,192,0.15),rgba(192,192,192,0.03));border:1px solid rgba(192,192,192,0.2);border-bottom:none;}
   .podium-place:nth-child(3) .podium-block{height:40px;background:linear-gradient(180deg,rgba(205,127,50,0.15),rgba(205,127,50,0.03));border:1px solid rgba(205,127,50,0.2);border-bottom:none;}
-  @media(max-width:400px){.podium{gap:0.5rem;}.podium-place:nth-child(1) .podium-avatar{width:68px;height:68px;}}
+  @media(max-width:400px){.podium{gap:0.5rem;}.podium-place:nth-child(2) .podium-avatar{width:68px;height:68px;}}
 
   /* ── Full leaderboard table ── */
   .lb-wrap{max-width:700px;margin:0 auto;overflow-x:auto;}
@@ -349,16 +350,17 @@ function render(){
   // ── Podium ──
   const podium=document.getElementById('podium');
   podium.innerHTML='';
-  // order: 2nd, 1st, 3rd for visual podium shape
+  // order: 2nd (left), 1st (center), 3rd (right) for visual podium shape
   const podiumOrder=[1,0,2];
   podiumOrder.forEach(idx=>{
     const row=rows[idx];
     if(!row)return;
     const rank=idx+1;
+    const medal=rank===1?'🥇':rank===2?'🥈':'🥉';
     const div=document.createElement('div');div.className='podium-place';
     div.innerHTML=`
       <div class="podium-avatar">${initials(row.name)}</div>
-      <div class="podium-name">${row.name}</div>
+      <div class="podium-name">${medal} ${row.name}</div>
       <div class="podium-score">${row.total}</div>
       <div class="podium-pts">pts</div>
       <div class="podium-block"></div>`;
