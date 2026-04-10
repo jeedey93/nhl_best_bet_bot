@@ -323,6 +323,46 @@ def get_nba_standings():
         print(f"⚠️ Error fetching NBA standings: {e}")
         return {}
 
+MIN_ODDS = 1.60
+MAX_ODDS = 2.20
+
+def filter_low_odds_picks(text):
+    """Remove any recommended play blocks where the odds are outside [1.60, 2.20].
+    This enforces the prompt rule even when the AI ignores it."""
+    import re
+    lines = text.splitlines()
+    result = []
+    skip_block = False
+
+    for i, line in enumerate(lines):
+        stripped = line.strip()
+
+        # Detect a pick header line like: **Team ML vs Team @ 1.20**
+        # Only filter within "Other Recommended Plays" section (not BET OF THE DAY)
+        if stripped.startswith('**') and ('@' in stripped) and 'BET OF THE DAY' not in stripped.upper():
+            odds_match = re.search(r'@\s*([\d.]+)', stripped)
+            if odds_match:
+                odds = float(odds_match.group(1))
+                if odds < MIN_ODDS or odds > MAX_ODDS:
+                    skip_block = True
+                    continue
+                else:
+                    skip_block = False
+            else:
+                skip_block = False
+
+        # End of a skipped block at the next pick header or section break
+        if skip_block:
+            if stripped.startswith('**') and ('@' in stripped or stripped == '---'):
+                skip_block = False
+                result.append(line)
+            # Skip confidence/units/justification lines belonging to the filtered pick
+            continue
+
+        result.append(line)
+
+    return '\n'.join(result)
+
 def analyze_results(results_text, team_stats_text, h2h_stats_text, home_away_splits_text, standings_text, recent_games):
     import time
     api_key = os.environ["GOOGLE_API_KEY"]
@@ -593,6 +633,7 @@ with open(filename, "w") as f:
 
             summary = analyze_results(predictions_text, team_stats_text, h2h_stats_text,
                                      home_away_splits_text, standings_text, recent_games)
+            summary = filter_low_odds_picks(summary)
             f.write("\nAI Analysis Summary:\n")
             f.write(summary + "\n")
             print("\nAI Analysis Summary:")
