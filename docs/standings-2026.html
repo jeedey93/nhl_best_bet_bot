@@ -104,12 +104,40 @@
   .rounds-section h3{font-family:'Bebas Neue',cursive;font-size:1.2rem;color:var(--gold);
     letter-spacing:3px;text-align:center;margin-bottom:1rem;}
 
-  /* ── Current bracket ── */
-  .bracket-section{max-width:900px;margin:2rem auto 0;text-align:center;}
+  /* ── Dynamic bracket ── */
+  .bracket-section{max-width:1100px;margin:2rem auto 0;text-align:center;}
   .bracket-section h3{font-family:'Bebas Neue',cursive;font-size:1.2rem;color:var(--gold);
     letter-spacing:3px;margin-bottom:1rem;}
-  .bracket-section img{width:100%;height:auto;object-fit:contain;border-radius:8px;
-    border:1px solid rgba(255,255,255,0.07);display:block;}
+  .bracket{display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr 1fr 1fr;gap:0;align-items:center;
+    width:100%;overflow-x:auto;}
+  .bracket-col{display:flex;flex-direction:column;justify-content:space-around;padding:0 4px;}
+  .bracket-col.r1{justify-content:space-evenly;}
+  .bracket-col.center{justify-content:center;}
+  .b-series{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
+    border-radius:7px;padding:6px 8px;margin:6px 0;min-width:130px;}
+  .b-team{display:flex;align-items:center;gap:5px;padding:3px 4px;border-radius:4px;
+    font-size:0.78rem;font-weight:600;color:rgba(255,255,255,0.75);white-space:nowrap;
+    transition:color 0.2s;}
+  .b-team.winner{color:var(--green);font-weight:700;}
+  .b-team.eliminated{color:rgba(255,255,255,0.2);text-decoration:line-through;}
+  .b-team.leading{color:white;}
+  .b-score{font-family:'Bebas Neue',cursive;font-size:0.75rem;text-align:center;
+    padding:2px 0;letter-spacing:1px;color:var(--silver);}
+  .b-score.final{color:var(--gold);}
+  .b-score.tbd{color:rgba(168,178,190,0.25);}
+  .b-label{font-family:'Bebas Neue',cursive;font-size:0.8rem;color:var(--gold);
+    letter-spacing:2px;text-align:center;margin-bottom:4px;}
+  .b-connector{display:flex;flex-direction:column;justify-content:space-around;
+    padding:0;align-self:stretch;}
+  /* Mobile: stack rounds vertically */
+  @media(max-width:700px){
+    .bracket{grid-template-columns:1fr;gap:0.5rem;}
+    .bracket-col{flex-direction:row;flex-wrap:wrap;justify-content:center;gap:0.4rem;padding:0;}
+    .bracket-col::before{content:attr(data-label);display:block;width:100%;
+      font-family:'Bebas Neue',cursive;font-size:0.85rem;color:var(--gold);
+      letter-spacing:2px;text-align:center;padding:4px 0;}
+    .b-series{min-width:140px;flex:1;}
+  }
   .rounds-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0.75rem;}
   @media(max-width:500px){.rounds-grid{grid-template-columns:repeat(2,1fr);}}
   .round-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);
@@ -157,10 +185,10 @@
   <div class="rounds-grid" id="rounds-grid"></div>
 </div>
 
-<!-- Current bracket -->
+<!-- Dynamic bracket -->
 <div class="bracket-section">
-  <h3>Current Bracket</h3>
-  <img src="nhl_bracket_2026_current.png" alt="2026 NHL Playoff Bracket">
+  <h3>Playoff Bracket</h3>
+  <div class="bracket" id="bracket"></div>
 </div>
 
 <script>
@@ -355,10 +383,78 @@ function render(){
   // ── Last updated ──
   document.getElementById('last-updated').textContent=
     'Updated '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  renderBracket();
+}
+
+// ── Bracket ──────────────────────────────────────────────────────────────────
+// All matchups loaded from playoff/bracket.json
+// rounds[0]=R1, [1]=R2, [2]=CF, [3]=SCF
+// Each round has east[], west[], and round 3 has final[]
+let bracketData=null;
+
+async function loadBracket(){
+  try{
+    const r=await fetch('playoff/bracket.json?_='+Date.now());
+    if(!r.ok)return;
+    bracketData=await r.json();
+    renderBracket();
+  }catch(e){}
+}
+
+function seriesScore(top,bottom,roundIdx){
+  const isTbd=!top||top==='TBD'||!bottom||bottom==='TBD';
+  if(isTbd)return{tw:0,bw:0,done:false,tbd:true};
+  const tw=results[top]?.[roundIdx]||0;
+  const bw=results[bottom]?.[roundIdx]||0;
+  return{tw,bw,done:tw===4||bw===4,tbd:false};
+}
+
+function bSeriesHtml(top,bottom,roundIdx,label){
+  const{tw,bw,done,tbd}=seriesScore(top,bottom,roundIdx);
+  const winner=done?(tw===4?top:bottom):null;
+  const topClass=winner?(winner===top?'winner':'eliminated'):(tw>bw&&(tw||bw)?'leading':'');
+  const botClass=winner?(winner===bottom?'winner':'eliminated'):(bw>tw&&(tw||bw)?'leading':'');
+  const scoreStr=tbd?'TBD':(tw||bw)?`${tw}-${bw}`:'vs';
+  const scoreClass=done?'final':tbd?'tbd':(tw||bw)?'':'tbd';
+  const labelHtml=label?`<div class="b-label">${label}</div>`:'';
+  const topName=top&&top!=='TBD'?top.split(' ').pop():'TBD';
+  const botName=bottom&&bottom!=='TBD'?bottom.split(' ').pop():'TBD';
+  return`<div class="b-series">
+    ${labelHtml}
+    <div class="b-team ${topClass}" title="${top||'TBD'}">${topName}</div>
+    <div class="b-score ${scoreClass}">${scoreStr}</div>
+    <div class="b-team ${botClass}" title="${bottom||'TBD'}">${botName}</div>
+  </div>`;
+}
+
+function renderBracket(){
+  const el=document.getElementById('bracket');
+  if(!el||!bracketData)return;
+  const rd=bracketData.rounds;
+
+  const eastR1Html=(rd[0]?.east||[]).map(([t,b])=>bSeriesHtml(t,b,0)).join('');
+  const westR1Html=(rd[0]?.west||[]).map(([t,b])=>bSeriesHtml(t,b,0)).join('');
+  const eastR2Html=(rd[1]?.east||[]).map(([t,b])=>bSeriesHtml(t,b,1)).join('');
+  const westR2Html=(rd[1]?.west||[]).map(([t,b])=>bSeriesHtml(t,b,1)).join('');
+  const eastCFHtml=(rd[2]?.east||[]).map(([t,b])=>bSeriesHtml(t,b,2,'East Final')).join('');
+  const westCFHtml=(rd[2]?.west||[]).map(([t,b])=>bSeriesHtml(t,b,2,'West Final')).join('');
+  const[sf1,sf2]=rd[3]?.final||['TBD','TBD'];
+  const scfHtml=bSeriesHtml(sf1,sf2,3,'Stanley Cup');
+
+  el.innerHTML=`
+    <div class="bracket-col r1" data-label="ROUND 1 · EAST">${eastR1Html}</div>
+    <div class="bracket-col" data-label="ROUND 2 · EAST">${eastR2Html}</div>
+    <div class="bracket-col center" data-label="CONF. FINAL · EAST">${eastCFHtml}</div>
+    <div class="bracket-col center" data-label="STANLEY CUP FINAL">${scfHtml}</div>
+    <div class="bracket-col center" data-label="CONF. FINAL · WEST">${westCFHtml}</div>
+    <div class="bracket-col" data-label="ROUND 2 · WEST">${westR2Html}</div>
+    <div class="bracket-col r1" data-label="ROUND 1 · WEST">${westR1Html}</div>
+  `;
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 loadResultsLocal();
+loadBracket();
 loadParticipants();
 loadResultsRemote();
 
