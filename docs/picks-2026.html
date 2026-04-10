@@ -88,6 +88,7 @@
 
   /* ── Pool (right) ── */
   .pool-list { display:flex;flex-direction:column;gap:5px; }
+  .pool-list.drag-over .pool-item:first-child,.pool-list.drag-over { background:rgba(255,184,28,0.04);border-radius:6px; }
 
   .pool-item { display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.04);
     border:1px solid var(--line);border-radius:6px;padding:6px 10px;
@@ -405,7 +406,44 @@ function handleDrop(dest){
 }
 
 function clearHL(){
-  document.querySelectorAll('.rank-item,.rank-slot-empty,.pool-item').forEach(el=>el.classList.remove('drag-over'));
+  document.querySelectorAll('.rank-item,.rank-slot-empty,.pool-item,.pool-list').forEach(el=>el.classList.remove('drag-over'));
+}
+
+// Find the nearest rank slot to a given point — used so dragging anywhere in the
+// rank column snaps to the closest slot, not just exact hit-testing.
+function nearestRankSlot(clientX,clientY){
+  const rankList=document.getElementById('rank-list');
+  if(!rankList)return null;
+  const listRect=rankList.getBoundingClientRect();
+  if(clientX<listRect.left-40||clientX>listRect.right+40)return null;
+  const slots=[...rankList.querySelectorAll('.rank-item,.rank-slot-empty')];
+  if(!slots.length)return null;
+  let best=null,bestDist=Infinity;
+  slots.forEach(slot=>{
+    const r=slot.getBoundingClientRect();
+    const cy=r.top+r.height/2;
+    const dist=Math.abs(clientY-cy);
+    if(dist<bestDist){bestDist=dist;best=slot;}
+  });
+  return best;
+}
+
+// Returns true if the point is horizontally within the pool panel column
+function isOverPoolColumn(clientX){
+  const poolPanel=document.querySelector('.pool-panel');
+  if(!poolPanel)return false;
+  const r=poolPanel.getBoundingClientRect();
+  return clientX>=r.left-40&&clientX<=r.right+40;
+}
+
+function resolveDropTarget(clientX,clientY,dragEl){
+  const under=document.elementFromPoint(clientX,clientY);
+  // If over the pool column, always treat as pool drop
+  if(isOverPoolColumn(clientX))return{slot:null,poolEl:true};
+  // Otherwise try direct hit then nearest slot in rank column
+  const slot=under?.closest('.rank-item,.rank-slot-empty')||nearestRankSlot(clientX,clientY);
+  const poolEl=!slot&&under?.closest('.pool-item,.pool-list');
+  return{slot:slot&&slot!==dragEl?slot:null,poolEl:!!poolEl};
 }
 
 // ── Mouse drag support (replaces native HTML5 drag — allows scroll while dragging on Windows) ──
@@ -433,11 +471,9 @@ function makeMouseHandler(el,getSrc){
       activeMouseDrag.clone.style.left=(e.clientX-offsetX)+'px';
       activeMouseDrag.clone.style.top=(e.clientY-offsetY)+'px';
       clearHL();
-      const under=document.elementFromPoint(e.clientX,e.clientY);
-      const slot=under?.closest('.rank-item,.rank-slot-empty');
-      const poolEl=under?.closest('.pool-item,.pool-list');
-      if(slot&&slot!==el)slot.classList.add('drag-over');
-      else if(poolEl)poolEl.classList.add('drag-over');
+      const{slot,poolEl}=resolveDropTarget(e.clientX,e.clientY,el);
+      if(slot)slot.classList.add('drag-over');
+      else if(poolEl)document.getElementById('pool-list').classList.add('drag-over');
     }
 
     function onUp(e){
@@ -449,9 +485,7 @@ function makeMouseHandler(el,getSrc){
       activeMouseDrag=null;
       document.body.style.cursor='';
       clearHL();
-      const under=document.elementFromPoint(e.clientX,e.clientY);
-      const slot=under?.closest('.rank-item,.rank-slot-empty');
-      const poolEl=under?.closest('.pool-item,.pool-list');
+      const{slot,poolEl}=resolveDropTarget(e.clientX,e.clientY,el);
       if(slot){handleDrop({to:'rank',idx:parseInt(slot.dataset.idx)});}
       else if(poolEl){handleDrop({to:'pool'});}
       else{dragSrc=null;}
@@ -516,12 +550,10 @@ function makeTouchHandler(el,getSrc){
     clearHL();
     // Hide clone temporarily to hit-test what's underneath
     clone.style.display='none';
-    const under=document.elementFromPoint(t.clientX,t.clientY);
+    const{slot,poolEl}=resolveDropTarget(t.clientX,t.clientY,el);
     clone.style.display='';
-    const slot=under?.closest('.rank-item,.rank-slot-empty');
-    const poolEl=under?.closest('.pool-item,.pool-list');
     if(slot&&slot!==el)slot.classList.add('drag-over');
-    else if(poolEl)poolEl.classList.add('drag-over');
+    else if(poolEl)document.getElementById('pool-list').classList.add('drag-over');
   },{passive:false});
 
   function endDrag(clientX,clientY){
@@ -533,9 +565,7 @@ function makeTouchHandler(el,getSrc){
     activeTouchDrag=null;
     clearHL();
     // Hit-test drop target
-    const under=document.elementFromPoint(clientX,clientY);
-    const slot=under?.closest('.rank-item,.rank-slot-empty');
-    const poolEl=under?.closest('.pool-item,.pool-list');
+    const{slot,poolEl}=resolveDropTarget(clientX,clientY,null);
     if(slot){handleDrop({to:'rank',idx:parseInt(slot.dataset.idx)});}
     else if(poolEl){handleDrop({to:'pool'});}
     else{dragSrc=null;}
