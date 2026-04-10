@@ -132,6 +132,10 @@
   .b-team.eliminated{color:rgba(255,255,255,0.18);text-decoration:line-through;}
   .b-team.leading{color:rgba(255,255,255,0.9);}
   .b-team-name{flex:1;overflow:hidden;text-overflow:ellipsis;}
+  .b-logo{width:16px;height:16px;object-fit:contain;margin-right:4px;flex-shrink:0;opacity:0.85;}
+  .b-logo-ph{width:16px;height:16px;flex-shrink:0;margin-right:4px;}
+  .b-team.eliminated .b-logo{opacity:0.2;}
+  .b-team.winner .b-logo{opacity:1;}
   .b-team-wins{font-family:'Bebas Neue',cursive;font-size:0.85rem;margin-left:4px;
     color:rgba(255,255,255,0.3);min-width:10px;text-align:right;}
   .b-team.winner .b-team-wins{color:var(--green);}
@@ -424,7 +428,25 @@ function render(){
 }
 
 // ── Bracket ──────────────────────────────────────────────────────────────────
-// All matchups loaded from playoff/bracket.json
+// NHL team logos from official CDN (by team ID)
+const TEAM_LOGO={
+  "Boston Bruins":         "https://assets.nhle.com/logos/nhl/svg/BOS_light.svg",
+  "Carolina Hurricanes":   "https://assets.nhle.com/logos/nhl/svg/CAR_light.svg",
+  "Florida Panthers":      "https://assets.nhle.com/logos/nhl/svg/FLA_light.svg",
+  "Toronto Maple Leafs":   "https://assets.nhle.com/logos/nhl/svg/TOR_light.svg",
+  "Tampa Bay Lightning":   "https://assets.nhle.com/logos/nhl/svg/TBL_light.svg",
+  "Washington Capitals":   "https://assets.nhle.com/logos/nhl/svg/WSH_light.svg",
+  "New York Rangers":      "https://assets.nhle.com/logos/nhl/svg/NYR_light.svg",
+  "New Jersey Devils":     "https://assets.nhle.com/logos/nhl/svg/NJD_light.svg",
+  "Vegas Golden Knights":  "https://assets.nhle.com/logos/nhl/svg/VGK_light.svg",
+  "Colorado Avalanche":    "https://assets.nhle.com/logos/nhl/svg/COL_light.svg",
+  "Dallas Stars":          "https://assets.nhle.com/logos/nhl/svg/DAL_light.svg",
+  "Winnipeg Jets":         "https://assets.nhle.com/logos/nhl/svg/WPG_light.svg",
+  "Edmonton Oilers":       "https://assets.nhle.com/logos/nhl/svg/EDM_light.svg",
+  "Los Angeles Kings":     "https://assets.nhle.com/logos/nhl/svg/LAK_light.svg",
+  "Minnesota Wild":        "https://assets.nhle.com/logos/nhl/svg/MIN_light.svg",
+  "Vancouver Canucks":     "https://assets.nhle.com/logos/nhl/svg/VAN_light.svg",
+};
 // rounds[0]=R1, [1]=R2, [2]=CF, [3]=SCF
 // Each round has east[], west[], and round 3 has final[]
 let bracketData=null;
@@ -455,13 +477,15 @@ function bSeriesHtml(top,bottom,roundIdx,label,extraClass=''){
   const botName=bottom&&bottom!=='TBD'?bottom.split(' ').pop():'TBD';
   const topWins=tbd?'':(tw>0?tw:'');
   const botWins=tbd?'':(bw>0?bw:'');
+  const topLogo=top&&TEAM_LOGO[top]?`<img class="b-logo" src="${TEAM_LOGO[top]}" alt="">`:'<span class="b-logo-ph"></span>';
+  const botLogo=bottom&&TEAM_LOGO[bottom]?`<img class="b-logo" src="${TEAM_LOGO[bottom]}" alt="">`:'<span class="b-logo-ph"></span>';
   const labelHtml=label?`<div class="b-label">${label}</div>`:'';
   const isActive=!tbd&&(tw||bw)&&!done;
   return`<div class="b-series${extraClass?' '+extraClass:''}${isActive?' active':''}">
     ${labelHtml}
-    <div class="b-team ${topClass}" title="${top||'TBD'}"><span class="b-team-name">${topName}</span><span class="b-team-wins">${topWins}</span></div>
+    <div class="b-team ${topClass}" title="${top||'TBD'}">${topLogo}<span class="b-team-name">${topName}</span><span class="b-team-wins">${topWins}</span></div>
     <div class="b-divider"></div>
-    <div class="b-team ${botClass}" title="${bottom||'TBD'}"><span class="b-team-name">${botName}</span><span class="b-team-wins">${botWins}</span></div>
+    <div class="b-team ${botClass}" title="${bottom||'TBD'}">${botLogo}<span class="b-team-name">${botName}</span><span class="b-team-wins">${botWins}</span></div>
   </div>`;
 }
 
