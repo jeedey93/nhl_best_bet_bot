@@ -318,7 +318,7 @@ function render(){
       const wins=results[t].reduce((s,w)=>s+w,0);
       const earned=p*wins;
       const isHot=mvp&&t===mvp.team&&earned>0;
-      return`<div class="spotlight-team"${isHot?' style="border-color:rgba(255,184,28,0.5);background:rgba(255,184,28,0.08)"':''}><span class="sp-rank">#${rank}</span><span class="sp-name">${isHot?'🔥 ':''}${t}</span></div>`;
+      return`<div class="spotlight-team"${isHot?' style="border-color:rgba(255,184,28,0.5);background:rgba(255,184,28,0.08)"':''}><span class="sp-rank">#${rank}</span><span class="sp-name">${isHot?'🔥 ':''}${t}</span>${earned>0?`<span class="sp-pts">${earned}pts</span>`:''}</div>`;
     }).join('');
     spotlightTr.innerHTML=`<td colspan="4"><div class="spotlight-inner">${teamsHtml||'<span style="color:var(--silver);font-size:0.85rem">No picks loaded</span>'}</div></td>`;
     lb.appendChild(spotlightTr);
