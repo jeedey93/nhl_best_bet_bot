@@ -114,6 +114,9 @@
   .btn-share { background:linear-gradient(135deg,var(--red) 0%,#8b0a1e 100%);color:white;box-shadow:0 4px 20px rgba(200,16,46,0.4); }
   .btn-clear { background:rgba(200,16,46,0.15);color:var(--red);border:1px solid rgba(200,16,46,0.35);box-shadow:none; }
   .btn-clear:hover { background:rgba(200,16,46,0.3);transform:translateY(-2px); }
+  .btn-standings { background:rgba(255,184,28,0.12);color:var(--gold);border:1px solid rgba(255,184,28,0.35);box-shadow:none;display:none; }
+  .btn-standings.visible { display:inline-block; }
+  .btn-standings:hover { background:rgba(255,184,28,0.25);transform:translateY(-2px); }
 
   /* ── Modal ── */
   #modal-overlay { display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:1000;
@@ -214,6 +217,7 @@
 
 <div class="btn-row">
   <button class="btn btn-share" id="btn-share">📸 Share Image</button>
+  <a class="btn btn-standings" id="btn-standings" href="standings-2026.html">🏆 See Leaderboard →</a>
   <button class="btn btn-clear" id="btn-clear">✕ Clear All</button>
 </div>
 
@@ -300,6 +304,8 @@ function render(){
   const filled=ranking.filter(Boolean).length;
   const counter=document.getElementById('progress-counter');
   if(counter){counter.textContent=`${filled} / 16`;counter.classList.toggle('complete',filled===16);}
+  const standingsBtn=document.getElementById('btn-standings');
+  if(standingsBtn)standingsBtn.classList.toggle('visible',filled===16);
   renderRanking();
   renderPool();
 }

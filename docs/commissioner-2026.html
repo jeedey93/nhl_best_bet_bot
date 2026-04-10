@@ -20,6 +20,7 @@
     text-shadow:0 0 40px rgba(200,16,46,0.5);}
   header h1 span{color:var(--gold);}
   header p{color:var(--silver);font-size:1rem;letter-spacing:2px;text-transform:uppercase;margin-top:0.3rem;}
+  .last-saved{font-size:0.75rem;color:rgba(168,178,190,0.45);letter-spacing:1px;margin-top:0.2rem;}
 
   .main{max-width:1100px;margin:0 auto;display:flex;flex-direction:column;gap:1.5rem;}
 
@@ -97,6 +98,7 @@
     <div>
       <h1>NHL <span>2026 Playoff</span> Commissioner</h1>
       <p>Click wins · Watch the leaderboard update</p>
+      <p class="last-saved" id="last-saved"></p>
     </div>
   </div>
 </header>
@@ -192,6 +194,12 @@ function saveResults(){
     method:'POST',
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify({results})
+  }).then(r=>{
+    if(r.ok){
+      const t=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+      const el=document.getElementById('last-saved');
+      if(el)el.textContent='Last saved: '+t;
+    }
   }).catch(()=>{});
 }
 
