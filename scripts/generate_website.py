@@ -1488,7 +1488,7 @@ def format_dual_bet(raw_text):
         stripped = line.strip()
 
         # Skip the header line and separator lines
-        if stripped.startswith("🔥 DUAL BET OF THE DAY"):
+        if stripped.startswith("🔥 DUAL BET OF THE DAY") or stripped.startswith("🔥 BET OF THE DAY"):
             continue
         if stripped == "⸻":
             if current_pick:
@@ -1496,8 +1496,8 @@ def format_dual_bet(raw_text):
                 current_pick = None
             continue
 
-        # Detect pick headers
-        if stripped.startswith("🎯 PICK #"):
+        # Detect pick headers (numbered "🎯 PICK #1" or unnumbered "🎯 PICK –")
+        if stripped.startswith("🎯 PICK #") or stripped.startswith("🎯 PICK –") or stripped.startswith("🎯 PICK -"):
             current_pick = {"header": stripped, "body": []}
             continue
 
@@ -1543,7 +1543,10 @@ def format_dual_bet(raw_text):
         bet_line = header
         for tag in ["🎯 PICK #1 – NHL 🏒", "🎯 PICK #2 – NBA 🏀",
                      "🎯 PICK #1 – NBA 🏀", "🎯 PICK #2 – NHL 🏒",
-                     "🎯 PICK #1 –", "🎯 PICK #2 –"]:
+                     "🎯 PICK – NHL 🏒", "🎯 PICK – NBA 🏀",
+                     "🎯 PICK - NHL 🏒", "🎯 PICK - NBA 🏀",
+                     "🎯 PICK #1 –", "🎯 PICK #2 –",
+                     "🎯 PICK –", "🎯 PICK -"]:
             if bet_line.startswith(tag):
                 bet_line = bet_line[len(tag):].strip()
                 break
