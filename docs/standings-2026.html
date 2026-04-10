@@ -88,17 +88,6 @@
   .spotlight-team .sp-name{color:white;font-weight:600;}
   .spotlight-team .sp-pts{font-size:0.7rem;color:var(--silver);margin-left:2px;}
 
-  /* ── Submit picks banner ── */
-  .picks-banner{max-width:700px;margin:0 auto 1.5rem;text-align:center;}
-  .picks-banner a{display:inline-block;font-family:'Bebas Neue',cursive;font-size:1.3rem;letter-spacing:3px;
-    padding:0.65rem 2rem;border-radius:6px;text-decoration:none;
-    background:linear-gradient(135deg,var(--red) 0%,#8b0a1e 100%);color:white;
-    box-shadow:0 4px 20px rgba(200,16,46,0.4);transition:transform 0.15s;}
-  .picks-banner a:hover{transform:translateY(-2px);}
-  .picks-banner a.deadline-passed{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.3);
-    box-shadow:none;pointer-events:none;border:1px solid rgba(255,255,255,0.08);}
-  .picks-banner .deadline-note{font-size:0.8rem;color:var(--silver);letter-spacing:1px;margin-top:0.4rem;}
-
   .empty-state{text-align:center;padding:4rem 1rem;color:var(--silver);}
   .empty-state .icon{font-size:3rem;margin-bottom:0.5rem;}
   .empty-state p{font-size:1.1rem;letter-spacing:1px;}
@@ -107,6 +96,13 @@
   .rounds-section{max-width:700px;margin:2rem auto 0;}
   .rounds-section h3{font-family:'Bebas Neue',cursive;font-size:1.2rem;color:var(--gold);
     letter-spacing:3px;text-align:center;margin-bottom:1rem;}
+
+  /* ── Current bracket ── */
+  .bracket-section{max-width:900px;margin:2rem auto 0;text-align:center;}
+  .bracket-section h3{font-family:'Bebas Neue',cursive;font-size:1.2rem;color:var(--gold);
+    letter-spacing:3px;margin-bottom:1rem;}
+  .bracket-section img{width:100%;height:auto;object-fit:contain;border-radius:8px;
+    border:1px solid rgba(255,255,255,0.07);display:block;}
   .rounds-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0.75rem;}
   @media(max-width:500px){.rounds-grid{grid-template-columns:repeat(2,1fr);}}
   .round-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);
@@ -129,9 +125,6 @@
 </header>
 
 <div class="scoring-legend" style="display:none;"></div>
-
-<!-- Submit picks banner -->
-<div class="picks-banner" id="picks-banner"></div>
 
 <!-- Podium -->
 <div class="podium" id="podium"></div>
@@ -156,6 +149,12 @@
   <div class="rounds-grid" id="rounds-grid"></div>
 </div>
 
+<!-- Current bracket -->
+<div class="bracket-section">
+  <h3>Current Bracket</h3>
+  <img src="nhl_bracket_2026_current.png" alt="2026 NHL Playoff Bracket">
+</div>
+
 <script>
 const TEAMS=[
   "Boston Bruins","Carolina Hurricanes","Florida Panthers","Toronto Maple Leafs",
@@ -168,8 +167,6 @@ const ROUND_LABELS=["R1","R2","CF","SC"];
 const ROUND_NAMES=["Round 1","Round 2","Conf. Final","Stanley Cup"];
 const API_URL='/api/playoff-results';
 const STORAGE_KEY='nhl_playoff_results_2026';
-// Set your picks submission deadline here (YYYY-MM-DD)
-const PICKS_DEADLINE=new Date('2026-04-19T23:59:59');
 
 let participants=[];
 let results={};
@@ -235,15 +232,6 @@ function calcScore(participant){
 }
 
 // ── Render ────────────────────────────────────────────────────────────────────
-function renderBanner(){
-  const banner=document.getElementById('picks-banner');
-  const passed=new Date()>PICKS_DEADLINE;
-  const dateStr=PICKS_DEADLINE.toLocaleDateString([],{month:'long',day:'numeric',year:'numeric'});
-  banner.innerHTML=passed
-    ? `<a class="deadline-passed">Picks Closed</a><p class="deadline-note">Submissions closed on ${dateStr}</p>`
-    : `<a href="picks-2026.html">📋 Submit Your Picks →</a><p class="deadline-note">Deadline: ${dateStr}</p>`;
-}
-
 function render(){
   if(participants.length===0)return;
 
@@ -351,7 +339,6 @@ function render(){
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────
-renderBanner();
 loadResultsLocal();
 loadParticipants();
 loadResultsRemote();
