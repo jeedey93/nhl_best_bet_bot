@@ -106,7 +106,6 @@
   .btn:disabled { opacity:0.6;cursor:not-allowed;transform:none; }
   .btn-share { background:linear-gradient(135deg,var(--red) 0%,#8b0a1e 100%);color:white;box-shadow:0 4px 20px rgba(200,16,46,0.4); }
   .btn-export { background:linear-gradient(135deg,var(--gold) 0%,#cc8f00 100%);color:#07111f;box-shadow:0 4px 20px rgba(255,184,28,0.3); }
-  .btn-bracket { background:linear-gradient(135deg,#1a4a8a 0%,#0d2d5e 100%);color:white;box-shadow:0 4px 20px rgba(26,74,138,0.4); }
   .btn-clear { background:rgba(200,16,46,0.15);color:var(--red);border:1px solid rgba(200,16,46,0.35);box-shadow:none; }
   .btn-clear:hover { background:rgba(200,16,46,0.3);transform:translateY(-2px); }
 
@@ -125,18 +124,12 @@
   #btn-open-img { background:var(--gold);color:var(--rink); }
   #btn-close-modal { background:rgba(255,255,255,0.1);color:white; }
 
-  /* ── Bracket modal ── */
-  #bracket-overlay { display:none;position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:1000;
-    flex-direction:column;align-items:center;justify-content:center;padding:1rem;overflow-y:auto; }
-  #bracket-overlay.open { display:flex; }
-  .bracket-box { background:#0d1f36;border:1px solid rgba(255,184,28,0.3);border-radius:10px;
-    max-width:95vw;width:100%;max-height:90vh;display:flex;flex-direction:column; }
-  .bracket-header { display:flex;align-items:center;justify-content:space-between;
-    padding:0.8rem 1.2rem;border-bottom:1px solid rgba(255,255,255,0.08); }
-  .bracket-header span { font-family:'Bebas Neue',cursive;font-size:1.3rem;color:var(--gold);letter-spacing:2px; }
-  .bracket-header button { background:none;border:none;color:rgba(255,255,255,0.4);font-size:1.2rem;cursor:pointer;transition:color 0.15s; }
-  .bracket-header button:hover { color:white; }
-  #bracket-img { width:100%;height:auto;object-fit:contain;border-radius:0 0 10px 10px;display:block; }
+  /* ── Bracket inline ── */
+  .bracket-section { max-width:960px;margin:0 auto 1.5rem;text-align:center; }
+  .bracket-section .panel-label { margin-bottom:0.5rem; }
+  .bracket-section img { width:100%;max-height:280px;object-fit:contain;border-radius:8px;
+    border:1px solid rgba(255,255,255,0.07);display:block; }
+  @media(max-width:640px){ .bracket-section img { max-height:180px; } }
 
   /* ── Toast ── */
   .toast { position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(80px);background:var(--gold);
@@ -162,6 +155,11 @@
   <input type="text" id="picker-name" placeholder="Enter your name…" maxlength="24">
 </div>
 
+<div class="bracket-section">
+  <div class="panel-label">🏒 2026 Playoff Bracket</div>
+  <img src="nhl_bracket_2026.png" alt="2026 NHL Playoff Bracket">
+</div>
+
 <div class="page-grid">
   <!-- LEFT: ranking -->
   <div>
@@ -176,14 +174,12 @@
 </div>
 
 <div class="btn-row">
-  <button class="btn btn-bracket" id="btn-bracket">🏒 View Bracket</button>
   <button class="btn btn-share" id="btn-share">📸 Share Image</button>
   <button class="btn btn-export" id="btn-export">📤 Export Picks File</button>
   <button class="btn btn-clear" id="btn-clear">✕ Clear All</button>
 </div>
 
-<!-- Share image modal -->
-<div id="modal-overlay">
+<!-- Share image modal --><div id="modal-overlay">
   <div class="modal-box">
     <p><strong>Your picks are ready!</strong><br>On mobile: tap below to open the image, then <strong>long-press → Save Image</strong>.</p>
     <img id="preview-img" src="" alt="Your NHL Picks">
@@ -194,16 +190,7 @@
   </div>
 </div>
 
-<!-- Bracket modal -->
-<div id="bracket-overlay">
-  <div class="bracket-box">
-    <div class="bracket-header">
-      <span>2026 NHL Playoff Bracket</span>
-      <button id="btn-close-bracket">✕</button>
-    </div>
-    <img id="bracket-img" src="nhl_bracket_2026.png" alt="2026 NHL Playoff Bracket">
-  </div>
-</div>
+<!-- (bracket modal removed — bracket shown inline) -->
 <div class="toast" id="toast"></div>
 
 <script>
@@ -533,10 +520,6 @@ document.getElementById('btn-clear').addEventListener('click',()=>{
   showToast('Ranking cleared');
 });
 
-// ── Bracket modal ─────────────────────────────────────────────────────────────
-document.getElementById('btn-bracket').addEventListener('click',()=>document.getElementById('bracket-overlay').classList.add('open'));
-document.getElementById('btn-close-bracket').addEventListener('click',()=>document.getElementById('bracket-overlay').classList.remove('open'));
-document.getElementById('bracket-overlay').addEventListener('click',e=>{if(e.target===document.getElementById('bracket-overlay'))document.getElementById('bracket-overlay').classList.remove('open');});
 
 render();
 preloadLogos();
