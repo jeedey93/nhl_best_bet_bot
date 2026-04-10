@@ -330,16 +330,18 @@ function renderRanking(){
       });
       li.addEventListener('dragstart',e=>{dragSrc={from:'rank',idx:i};e.dataTransfer.effectAllowed='move';setTimeout(()=>li.classList.add('dragging'),0);});
       li.addEventListener('dragend',()=>{li.classList.remove('dragging');clearHL();});
-      li.addEventListener('dragover',e=>{e.preventDefault();clearHL();li.classList.add('drag-over');});
-      li.addEventListener('dragleave',()=>li.classList.remove('drag-over'));
+      li.addEventListener('dragenter',e=>{e.preventDefault();clearHL();li.classList.add('drag-over');});
+      li.addEventListener('dragover',e=>{e.preventDefault();});
+      li.addEventListener('dragleave',e=>{if(!li.contains(e.relatedTarget))li.classList.remove('drag-over');});
       li.addEventListener('drop',e=>{e.preventDefault();li.classList.remove('drag-over');handleDrop({to:'rank',idx:i});});
       setupTouchRank(li,i);
     } else {
       li.className='rank-slot-empty';
       li.dataset.idx=i;
       li.innerHTML=`<span class="slot-pos">${pos}</span><span class="slot-hint">Drop here</span>`;
-      li.addEventListener('dragover',e=>{e.preventDefault();clearHL();li.classList.add('drag-over');});
-      li.addEventListener('dragleave',()=>li.classList.remove('drag-over'));
+      li.addEventListener('dragenter',e=>{e.preventDefault();clearHL();li.classList.add('drag-over');});
+      li.addEventListener('dragover',e=>{e.preventDefault();});
+      li.addEventListener('dragleave',e=>{if(!li.contains(e.relatedTarget))li.classList.remove('drag-over');});
       li.addEventListener('drop',e=>{e.preventDefault();li.classList.remove('drag-over');handleDrop({to:'rank',idx:i});});
     }
     list.appendChild(li);
@@ -366,8 +368,9 @@ function renderPool(){
     div.addEventListener('dragstart',e=>{dragSrc={from:'pool',idx:i};e.dataTransfer.effectAllowed='move';setTimeout(()=>div.classList.add('dragging'),0);});
     div.addEventListener('dragend',()=>{div.classList.remove('dragging');clearHL();});
     // Allow dropping a ranked team back onto the pool
-    div.addEventListener('dragover',e=>{e.preventDefault();clearHL();div.classList.add('drag-over');});
-    div.addEventListener('dragleave',()=>div.classList.remove('drag-over'));
+    div.addEventListener('dragenter',e=>{e.preventDefault();clearHL();div.classList.add('drag-over');});
+    div.addEventListener('dragover',e=>{e.preventDefault();});
+    div.addEventListener('dragleave',e=>{if(!div.contains(e.relatedTarget))div.classList.remove('drag-over');});
     div.addEventListener('drop',e=>{e.preventDefault();div.classList.remove('drag-over');handleDrop({to:'pool'});});
     setupTouchPool(div,i);
     container.appendChild(div);
@@ -408,20 +411,56 @@ function clearHL(){
 }
 
 // ── Touch support ─────────────────────────────────────────────────────────────
-function setupTouchRank(el,idx){
-  let clone=null,startX=0,startY=0;
-  el.addEventListener('touchstart',e=>{
-    dragSrc={from:'rank',idx};
-    const t=e.touches[0];startX=t.clientX;startY=t.clientY;
+// Drag activates after DRAG_THRESHOLD px of movement or LONG_PRESS_MS hold.
+// Until then, touch events pass through so normal scrolling works.
+const DRAG_THRESHOLD=8;
+const LONG_PRESS_MS=200;
+
+function makeTouchHandler(el,getSrc){
+  let clone=null,startX=0,startY=0,dragging=false,longPressTimer=null;
+
+  function activate(touch){
+    if(dragging)return;
+    dragging=true;
+    dragSrc=getSrc();
     const rect=el.getBoundingClientRect();
     clone=el.cloneNode(true);
-    Object.assign(clone.style,{position:'fixed',left:rect.left+'px',top:rect.top+'px',width:rect.width+'px',opacity:'0.85',zIndex:'9999',pointerEvents:'none',transition:'none',margin:'0'});
-    document.body.appendChild(clone);el.classList.add('dragging');
+    Object.assign(clone.style,{position:'fixed',left:rect.left+'px',top:rect.top+'px',
+      width:rect.width+'px',opacity:'0.85',zIndex:'9999',pointerEvents:'none',transition:'none',margin:'0'});
+    document.body.appendChild(clone);
+    el.classList.add('dragging');
+  }
+
+  el.addEventListener('touchstart',e=>{
+    const t=e.touches[0];startX=t.clientX;startY=t.clientY;dragging=false;clone=null;
+    longPressTimer=setTimeout(()=>activate(t),LONG_PRESS_MS);
   },{passive:true});
+
   el.addEventListener('touchmove',e=>{
-    e.preventDefault();
     const t=e.touches[0];
-    if(clone){clone.style.left=(parseFloat(clone.style.left)+t.clientX-startX)+'px';clone.style.top=(parseFloat(clone.style.top)+t.clientY-startY)+'px';}
+    const dx=t.clientX-startX,dy=t.clientY-startY;
+    const dist=Math.sqrt(dx*dx+dy*dy);
+
+    if(!dragging){
+      // Cancel long press if finger moved significantly
+      if(dist>DRAG_THRESHOLD){
+        clearTimeout(longPressTimer);
+        // Only activate drag if movement is more horizontal than vertical
+        // (vertical = user is scrolling)
+        if(Math.abs(dx)>=Math.abs(dy)-2){
+          activate(t);
+        } else {
+          // Vertical scroll intent — abort entirely
+          dragSrc=null;return;
+        }
+      } else {return;}// haven't moved enough yet, don't intercept
+    }
+
+    e.preventDefault();
+    if(clone){
+      clone.style.left=(parseFloat(clone.style.left)+t.clientX-startX)+'px';
+      clone.style.top=(parseFloat(clone.style.top)+t.clientY-startY)+'px';
+    }
     startX=t.clientX;startY=t.clientY;
     clearHL();
     const under=document.elementFromPoint(t.clientX,t.clientY);
@@ -430,50 +469,36 @@ function setupTouchRank(el,idx){
     if(slot&&slot!==el)slot.classList.add('drag-over');
     else if(poolEl)poolEl.classList.add('drag-over');
   },{passive:false});
+
   el.addEventListener('touchend',e=>{
+    clearTimeout(longPressTimer);
     if(clone){clone.remove();clone=null;}
     el.classList.remove('dragging');
+    if(!dragging){dragSrc=null;return;}
+    dragging=false;
     const t=e.changedTouches[0];
     clearHL();
     const under=document.elementFromPoint(t.clientX,t.clientY);
     const slot=under?.closest('.rank-item,.rank-slot-empty');
     const poolEl=under?.closest('.pool-item,.pool-list');
-    if(slot){const toIdx=parseInt(slot.dataset.idx);handleDrop({to:'rank',idx:toIdx});}
+    if(slot){handleDrop({to:'rank',idx:parseInt(slot.dataset.idx)});}
     else if(poolEl){handleDrop({to:'pool'});}
     else dragSrc=null;
   });
-}
 
-function setupTouchPool(el,idx){
-  let clone=null,startX=0,startY=0;
-  el.addEventListener('touchstart',e=>{
-    dragSrc={from:'pool',idx};
-    const t=e.touches[0];startX=t.clientX;startY=t.clientY;
-    const rect=el.getBoundingClientRect();
-    clone=el.cloneNode(true);
-    Object.assign(clone.style,{position:'fixed',left:rect.left+'px',top:rect.top+'px',width:rect.width+'px',opacity:'0.85',zIndex:'9999',pointerEvents:'none',transition:'none',margin:'0'});
-    document.body.appendChild(clone);el.classList.add('dragging');
-  },{passive:true});
-  el.addEventListener('touchmove',e=>{
-    e.preventDefault();
-    const t=e.touches[0];
-    if(clone){clone.style.left=(parseFloat(clone.style.left)+t.clientX-startX)+'px';clone.style.top=(parseFloat(clone.style.top)+t.clientY-startY)+'px';}
-    startX=t.clientX;startY=t.clientY;
-    clearHL();
-    const under=document.elementFromPoint(t.clientX,t.clientY);
-    const slot=under?.closest('.rank-item,.rank-slot-empty');
-    if(slot)slot.classList.add('drag-over');
-  },{passive:false});
-  el.addEventListener('touchend',e=>{
+  el.addEventListener('touchcancel',()=>{
+    clearTimeout(longPressTimer);
     if(clone){clone.remove();clone=null;}
     el.classList.remove('dragging');
-    const t=e.changedTouches[0];
-    clearHL();
-    const under=document.elementFromPoint(t.clientX,t.clientY);
-    const slot=under?.closest('.rank-item,.rank-slot-empty');
-    if(slot){const toIdx=parseInt(slot.dataset.idx);handleDrop({to:'rank',idx:toIdx});}
-    else dragSrc=null;
+    dragging=false;dragSrc=null;clearHL();
   });
+}
+
+function setupTouchRank(el,idx){
+  makeTouchHandler(el,()=>({from:'rank',idx}));
+}
+function setupTouchPool(el,idx){
+  makeTouchHandler(el,()=>({from:'pool',idx}));
 }
 
 // ── Build canvas & share image ────────────────────────────────────────────────
