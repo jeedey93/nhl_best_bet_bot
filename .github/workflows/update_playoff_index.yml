@@ -11,26 +11,28 @@ permissions:
 jobs:
   update-index:
     runs-on: ubuntu-latest
+    env:
+      GH_PAT: ${{ secrets.GH_PAT }}
     steps:
       - uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          persist-credentials: false
 
       - name: Regenerate playoff/index.json
         run: |
           cd docs/playoff
           python3 -c "
-          import json, os, glob
+          import json, os
           files = sorted(f for f in os.listdir('.') if f.endswith('.json') and f != 'index.json')
           with open('index.json', 'w') as fh:
               json.dump(files, fh)
           print('index.json updated:', files)
           "
 
-      - name: Commit index.json
+      - name: Commit and push index.json
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add docs/playoff/index.json
           git diff --cached --quiet || git commit -m "Auto-update playoff/index.json"
-          git push
+          git push https://${GH_PAT}@github.com/${{ github.repository }} HEAD:master
