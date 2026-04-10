@@ -469,11 +469,22 @@ function setupTouchPool(el,idx){
 async function buildCanvas(name){
   const ranked=ranking.map((t,i)=>t?{team:t,pos:i+1}:null).filter(Boolean);
   if(ranked.length===0)return null;
-  const logoImgs=await Promise.all(ranked.map(async({team})=>{
-    const d=await ensureLogo(team.abbr);
-    if(!d)return null;
-    try{return await loadImageFromDataURL(d);}catch{return null;}
-  }));
+  const [logoImgs, brandImg]=await Promise.all([
+    Promise.all(ranked.map(async({team})=>{
+      const d=await ensureLogo(team.abbr);
+      if(!d)return null;
+      try{return await loadImageFromDataURL(d);}catch{return null;}
+    })),
+    (async()=>{
+      try{
+        const r=await fetch('parieur_discipline_icon_1024.png');
+        if(!r.ok)return null;
+        const blob=await r.blob();
+        const d=await blobToDataURL(blob);
+        return await loadImageFromDataURL(d);
+      }catch{return null;}
+    })()
+  ]);
   const DPR=2,W=560,PAD=22,ROW=40,GAP=4,HEADER_H=90,FOOTER_H=30;
   const H=HEADER_H+ranked.length*(ROW+GAP)-GAP+PAD/2+FOOTER_H;
   const canvas=document.createElement('canvas');canvas.width=W*DPR;canvas.height=H*DPR;
@@ -484,6 +495,15 @@ async function buildCanvas(name){
   ctx.strokeStyle='rgba(255,255,255,0.025)';ctx.lineWidth=1;
   for(let y2=0;y2<H;y2+=44){ctx.beginPath();ctx.moveTo(0,y2);ctx.lineTo(W,y2);ctx.stroke();}
   ctx.fillStyle='#c8102e';ctx.fillRect(0,0,W,4);
+  // Brand icon top-right
+  const iconSize=48,iconX=W-PAD-iconSize,iconY=12;
+  if(brandImg){
+    ctx.save();
+    ctx.beginPath();const r2=8;ctx.moveTo(iconX+r2,iconY);ctx.lineTo(iconX+iconSize-r2,iconY);ctx.quadraticCurveTo(iconX+iconSize,iconY,iconX+iconSize,iconY+r2);ctx.lineTo(iconX+iconSize,iconY+iconSize-r2);ctx.quadraticCurveTo(iconX+iconSize,iconY+iconSize,iconX+iconSize-r2,iconY+iconSize);ctx.lineTo(iconX+r2,iconY+iconSize);ctx.quadraticCurveTo(iconX,iconY+iconSize,iconX,iconY+iconSize-r2);ctx.lineTo(iconX,iconY+r2);ctx.quadraticCurveTo(iconX,iconY,iconX+r2,iconY);ctx.closePath();
+    ctx.clip();
+    ctx.drawImage(brandImg,iconX,iconY,iconSize,iconSize);
+    ctx.restore();
+  }
   ctx.textBaseline='alphabetic';ctx.font=`900 28px Arial, sans-serif`;
   ctx.fillStyle='#ffffff';ctx.fillText('NHL ',PAD,42);const w1=ctx.measureText('NHL ').width;
   ctx.fillStyle='#ffb81c';ctx.fillText('2026 PLAYOFF ',PAD+w1,42);const w2=ctx.measureText('2026 PLAYOFF ').width;
