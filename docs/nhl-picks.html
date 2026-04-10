@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NHL Playoff Picks Ranker</title>
+<title>NHL 2026 Playoff Picks Ranker</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -11,11 +11,17 @@
   body { background:var(--rink);min-height:100vh;font-family:'Barlow Condensed',sans-serif;
     background-image:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(26,58,110,0.6) 0%,transparent 70%);
     padding:2rem 1rem 5rem; }
-  header { text-align:center;margin-bottom:2rem; }
-  header h1 { font-family:'Bebas Neue',cursive;font-size:clamp(2.5rem,6vw,4.5rem);color:white;letter-spacing:4px;
+
+  /* ── Header ── */
+  header { text-align:center;margin-bottom:1.5rem; }
+  .header-inner { display:flex;align-items:center;justify-content:center;gap:1rem;flex-wrap:wrap; }
+  .brand-icon { width:64px;height:64px;border-radius:12px;object-fit:cover;box-shadow:0 4px 16px rgba(0,0,0,0.5); }
+  header h1 { font-family:'Bebas Neue',cursive;font-size:clamp(2.2rem,5vw,4rem);color:white;letter-spacing:4px;
     text-shadow:0 0 40px rgba(200,16,46,0.5),0 4px 12px rgba(0,0,0,0.8); }
   header h1 span { color:var(--gold); }
-  header p { color:var(--silver);font-size:1.1rem;letter-spacing:2px;text-transform:uppercase;margin-top:0.4rem; }
+  header p { color:var(--silver);font-size:1rem;letter-spacing:2px;text-transform:uppercase;margin-top:0.4rem; }
+
+  /* ── Name bar ── */
   .name-bar { display:flex;justify-content:center;gap:0.75rem;margin-bottom:1.5rem;align-items:center;flex-wrap:wrap; }
   .name-bar label { color:var(--gold);font-size:1.1rem;font-weight:700;letter-spacing:2px;text-transform:uppercase; }
   .name-bar input { background:rgba(255,255,255,0.07);border:1px solid rgba(255,184,28,0.4);border-radius:4px;
@@ -23,33 +29,73 @@
     padding:0.5rem 1rem;outline:none;width:220px;transition:border-color 0.2s; }
   .name-bar input:focus { border-color:var(--gold); }
   .name-bar input::placeholder { color:rgba(255,255,255,0.25); }
-  .container { max-width:660px;margin:0 auto; }
-  .rank-list { list-style:none;display:flex;flex-direction:column;gap:6px; }
-  .rank-item { display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.045);
+
+  /* ── Two-panel grid ── */
+  .page-grid { display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;max-width:960px;margin:0 auto; }
+  @media(max-width:640px){ .page-grid { grid-template-columns:1fr; } }
+
+  .panel-label { font-family:'Bebas Neue',cursive;font-size:1rem;letter-spacing:3px;color:var(--gold);
+    text-align:center;margin-bottom:0.6rem;text-transform:uppercase; }
+
+  /* ── Rank slots (left) ── */
+  .rank-list { list-style:none;display:flex;flex-direction:column;gap:5px; }
+
+  /* Filled rank item */
+  .rank-item { display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.045);
     border:1px solid var(--line);border-left:3px solid rgba(255,255,255,0.1);border-radius:6px;
-    padding:7px 12px 7px 10px;cursor:grab;user-select:none;touch-action:none;transition:background 0.15s,border-left-color 0.2s; }
+    padding:6px 8px 6px 8px;cursor:grab;user-select:none;touch-action:none;
+    transition:background 0.15s,border-left-color 0.2s; }
   .rank-item:active { cursor:grabbing; }
   .rank-item.dragging { opacity:0.35; }
-  .rank-item.drag-over { background:rgba(255,184,28,0.1);border-left-color:var(--gold); }
+  .rank-item.drag-over { background:rgba(255,184,28,0.12);border-left-color:var(--gold); }
   .rank-item[data-pos="1"] { border-left-color:var(--gold); }
   .rank-item[data-pos="2"] { border-left-color:#c0c0c0; }
   .rank-item[data-pos="3"] { border-left-color:#cd7f32; }
-  .drag-handle { color:rgba(255,255,255,0.2);font-size:1.2rem;flex-shrink:0; }
-  .pos-badge { font-family:'Bebas Neue',cursive;font-size:1.5rem;color:rgba(255,255,255,0.3);width:26px;text-align:center;flex-shrink:0; }
+
+  /* Empty slot */
+  .rank-slot-empty { display:flex;align-items:center;gap:8px;border:1px dashed rgba(255,255,255,0.12);
+    border-radius:6px;padding:6px 8px;min-height:48px;transition:border-color 0.15s,background 0.15s; }
+  .rank-slot-empty.drag-over { border-color:var(--gold);background:rgba(255,184,28,0.07); }
+  .slot-pos { font-family:'Bebas Neue',cursive;font-size:1.4rem;color:rgba(255,255,255,0.18);width:24px;text-align:center;flex-shrink:0; }
+  .slot-hint { font-size:0.78rem;color:rgba(255,255,255,0.2);letter-spacing:1px; }
+
+  .pos-badge { font-family:'Bebas Neue',cursive;font-size:1.4rem;color:rgba(255,255,255,0.3);width:24px;text-align:center;flex-shrink:0; }
   .rank-item[data-pos="1"] .pos-badge { color:var(--gold); }
   .rank-item[data-pos="2"] .pos-badge { color:#c0c0c0; }
   .rank-item[data-pos="3"] .pos-badge { color:#cd7f32; }
-  .logo-wrap { width:44px;height:44px;flex-shrink:0;display:flex;align-items:center;justify-content:center;
-    background:rgba(255,255,255,0.06);border-radius:6px;overflow:hidden; }
-  .logo-wrap img { width:38px;height:38px;object-fit:contain; }
-  .logo-fallback { width:38px;height:38px;border-radius:50%;display:none;align-items:center;justify-content:center;
-    font-family:'Bebas Neue',cursive;font-size:0.72rem;font-weight:900; }
+
+  .logo-wrap { width:36px;height:36px;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+    background:rgba(255,255,255,0.06);border-radius:5px;overflow:hidden; }
+  .logo-wrap img { width:30px;height:30px;object-fit:contain; }
+  .logo-fallback { width:30px;height:30px;border-radius:50%;display:none;align-items:center;justify-content:center;
+    font-family:'Bebas Neue',cursive;font-size:0.65rem;font-weight:900; }
+
   .team-info { flex:1;min-width:0; }
-  .team-name { font-size:1.1rem;font-weight:700;color:white;letter-spacing:0.5px;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
-  .team-conf { font-size:0.72rem;font-weight:600;color:var(--silver);letter-spacing:1px; }
-  .pts-badge { font-family:'Bebas Neue',cursive;font-size:1.4rem;color:var(--ice);background:rgba(255,255,255,0.08);
-    border:1px solid rgba(255,255,255,0.1);border-radius:4px;width:50px;text-align:center;flex-shrink:0;padding:2px 0;line-height:1.2; }
-  .pts-badge small { font-size:0.65rem;opacity:0.6; }
+  .team-name { font-size:0.95rem;font-weight:700;color:white;letter-spacing:0.5px;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+  .team-conf { font-size:0.65rem;font-weight:600;color:var(--silver);letter-spacing:1px; }
+
+  .pts-badge { font-family:'Bebas Neue',cursive;font-size:1.2rem;color:var(--ice);background:rgba(255,255,255,0.08);
+    border:1px solid rgba(255,255,255,0.1);border-radius:4px;width:42px;text-align:center;flex-shrink:0;padding:1px 0;line-height:1.2; }
+  .pts-badge small { font-size:0.6rem;opacity:0.6; }
+
+  .remove-btn { background:none;border:none;color:rgba(255,255,255,0.2);cursor:pointer;font-size:0.9rem;
+    flex-shrink:0;line-height:1;padding:2px 4px;transition:color 0.15s; }
+  .remove-btn:hover { color:var(--red); }
+
+  /* ── Pool (right) ── */
+  .pool-list { display:flex;flex-direction:column;gap:5px; }
+
+  .pool-item { display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.04);
+    border:1px solid var(--line);border-radius:6px;padding:6px 10px;
+    cursor:grab;user-select:none;touch-action:none;transition:background 0.15s,border-color 0.15s; }
+  .pool-item:active { cursor:grabbing; }
+  .pool-item.dragging { opacity:0.35; }
+  .pool-item.drag-over { background:rgba(255,184,28,0.07);border-color:rgba(255,184,28,0.4); }
+
+  .pool-empty { text-align:center;padding:2rem 1rem;color:rgba(255,255,255,0.2);
+    font-size:0.9rem;letter-spacing:1px;border:1px dashed rgba(255,255,255,0.08);border-radius:6px; }
+
+  /* ── Buttons ── */
   .btn-row { display:flex;gap:0.75rem;justify-content:center;margin-top:2rem;flex-wrap:wrap; }
   .btn { font-family:'Bebas Neue',cursive;font-size:1.3rem;letter-spacing:3px;padding:0.7rem 2.2rem;
     cursor:pointer;border:none;border-radius:6px;transition:transform 0.15s,box-shadow 0.15s; }
@@ -57,6 +103,8 @@
   .btn:disabled { opacity:0.6;cursor:not-allowed;transform:none; }
   .btn-share { background:linear-gradient(135deg,var(--red) 0%,#8b0a1e 100%);color:white;box-shadow:0 4px 20px rgba(200,16,46,0.4); }
   .btn-export { background:linear-gradient(135deg,var(--gold) 0%,#cc8f00 100%);color:#07111f;box-shadow:0 4px 20px rgba(255,184,28,0.3); }
+
+  /* ── Modal ── */
   #modal-overlay { display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:1000;
     flex-direction:column;align-items:center;justify-content:center;padding:1rem; }
   #modal-overlay.open { display:flex; }
@@ -70,6 +118,8 @@
     padding:0.55rem 1.5rem;border-radius:5px;cursor:pointer;border:none;text-decoration:none;display:inline-block; }
   #btn-open-img { background:var(--gold);color:var(--rink); }
   #btn-close-modal { background:rgba(255,255,255,0.1);color:white; }
+
+  /* ── Toast ── */
   .toast { position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(80px);background:var(--gold);
     color:var(--rink);font-family:'Bebas Neue',cursive;font-size:1.2rem;letter-spacing:2px;
     padding:0.6rem 2rem;border-radius:4px;box-shadow:0 4px 20px rgba(0,0,0,0.4);
@@ -79,20 +129,38 @@
 </head>
 <body>
 <header>
-  <h1>NHL <span>Playoff</span> Picks</h1>
-  <p>Drag to rank · Points auto-assigned</p>
-</header>
-<div class="container">
-  <div class="name-bar">
-    <label for="picker-name">Your Name</label>
-    <input type="text" id="picker-name" placeholder="Enter your name…" maxlength="24">
+  <div class="header-inner">
+    <img src="parieur_discipline_icon_1024.png" alt="Parieur Discipline" class="brand-icon">
+    <div>
+      <h1>NHL <span>2026 Playoff</span> Picks</h1>
+      <p>Drag teams into your ranking · Points auto-assigned</p>
+    </div>
   </div>
-  <ul class="rank-list" id="rank-list"></ul>
-  <div class="btn-row">
-    <button class="btn btn-share" id="btn-share">📸 Share Image</button>
-    <button class="btn btn-export" id="btn-export">📤 Export Picks File</button>
+</header>
+
+<div class="name-bar">
+  <label for="picker-name">Your Name</label>
+  <input type="text" id="picker-name" placeholder="Enter your name…" maxlength="24">
+</div>
+
+<div class="page-grid">
+  <!-- LEFT: ranking -->
+  <div>
+    <div class="panel-label">🏆 Your Ranking</div>
+    <ul class="rank-list" id="rank-list"></ul>
+  </div>
+  <!-- RIGHT: pool -->
+  <div>
+    <div class="panel-label">🏒 Teams</div>
+    <div class="pool-list" id="pool-list"></div>
   </div>
 </div>
+
+<div class="btn-row">
+  <button class="btn btn-share" id="btn-share">📸 Share Image</button>
+  <button class="btn btn-export" id="btn-export">📤 Export Picks File</button>
+</div>
+
 <div id="modal-overlay">
   <div class="modal-box">
     <p><strong>Your picks are ready!</strong><br>On mobile: tap below to open the image, then <strong>long-press → Save Image</strong>.</p>
@@ -104,6 +172,7 @@
   </div>
 </div>
 <div class="toast" id="toast"></div>
+
 <script>
 const TEAMS=[
   {name:"Boston Bruins",       abbr:"BOS",conf:"East",c1:"#FFB81C",c2:"#000000"},
@@ -123,48 +192,230 @@ const TEAMS=[
   {name:"Minnesota Wild",      abbr:"MIN",conf:"West",c1:"#154734",c2:"#DDAF57"},
   {name:"Vancouver Canucks",   abbr:"VAN",conf:"West",c1:"#00205B",c2:"#00843D"},
 ];
+
 function logoUrl(a){return`https://assets.nhle.com/logos/nhl/svg/${a}_light.svg`;}
-// ESPN uses different abbreviations for some teams
 const ESPN_ABBR={TBL:'tb',LAK:'la',NJD:'nj',WSH:'wsh',VGK:'vgk',NYR:'nyr',WPG:'wpg'};
 function logoPngUrl(a){const e=ESPN_ABBR[a]||a.toLowerCase();return`https://a.espncdn.com/i/teamlogos/nhl/500/${e}.png`;}
-let teams=[...TEAMS],dragSrcIdx=null;
+
+// ranking[i] = team object or null (16 slots)
+let ranking=new Array(16).fill(null);
+// pool = teams not yet ranked
+let pool=[...TEAMS];
+
 const logoCache={};
 function pts(pos){return 17-pos;}
 function isMobile(){return/android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent)||window.innerWidth<600;}
-function preloadLogos(){TEAMS.forEach(t=>ensureLogo(t.abbr));}
 function blobToDataURL(b){return new Promise((r,j)=>{const fr=new FileReader();fr.onload=e=>r(e.target.result);fr.onerror=j;fr.readAsDataURL(b);});}
 function loadImageFromDataURL(d){return new Promise((r,j)=>{const i=new Image();i.onload=()=>r(i);i.onerror=j;i.src=d;});}
+
+// ── Logo helpers ──────────────────────────────────────────────────────────────
+async function ensureLogo(abbr){
+  if(logoCache[abbr]!==undefined)return logoCache[abbr];
+  const urls=[logoPngUrl(abbr),logoUrl(abbr)];
+  for(const url of urls){
+    try{
+      const r=await fetch(url,{mode:'cors'});
+      if(!r.ok)continue;
+      const blob=await r.blob();
+      const d=await blobToDataURL(blob);
+      await loadImageFromDataURL(d);
+      logoCache[abbr]=d;return d;
+    }catch{continue;}
+  }
+  logoCache[abbr]=null;return null;
+}
+function preloadLogos(){TEAMS.forEach(t=>ensureLogo(t.abbr));}
+
+// ── Logo HTML helper ──────────────────────────────────────────────────────────
+function logoHtml(team){
+  return`<div class="logo-wrap"><img src="${logoUrl(team.abbr)}" alt="${team.abbr}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="logo-fallback" style="background:${team.c1};color:${team.c2}">${team.abbr}</div></div>`;
+}
+
+// ── Drag state ────────────────────────────────────────────────────────────────
+// src: {from:'rank'|'pool', idx:number}
+let dragSrc=null;
+
+// ── Render ────────────────────────────────────────────────────────────────────
 function render(){
-  const list=document.getElementById('rank-list');list.innerHTML='';
-  teams.forEach((team,i)=>{
-    const pos=i+1,li=document.createElement('li');
-    li.className='rank-item';li.draggable=true;li.dataset.pos=pos;li.dataset.idx=i;
-    li.innerHTML=`<span class="drag-handle">⠿</span><span class="pos-badge">${pos}</span>
-      <div class="logo-wrap"><img src="${logoUrl(team.abbr)}" alt="${team.abbr}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-      <div class="logo-fallback" style="background:${team.c1};color:${team.c2}">${team.abbr}</div></div>
-      <div class="team-info"><div class="team-name">${team.name}</div><div class="team-conf">${team.conf}ern Conference</div></div>
-      <div class="pts-badge">${pts(pos)}<br><small>pts</small></div>`;
-    li.addEventListener('dragstart',e=>{dragSrcIdx=i;e.dataTransfer.effectAllowed='move';setTimeout(()=>li.classList.add('dragging'),0);});
-    li.addEventListener('dragend',()=>{li.classList.remove('dragging');clearHL();});
-    li.addEventListener('dragover',e=>{e.preventDefault();clearHL();li.classList.add('drag-over');});
-    li.addEventListener('dragleave',()=>li.classList.remove('drag-over'));
-    li.addEventListener('drop',e=>{e.preventDefault();li.classList.remove('drag-over');if(dragSrcIdx!==null&&dragSrcIdx!==i){const m=teams.splice(dragSrcIdx,1)[0];teams.splice(i,0,m);render();}});
-    setupTouch(li,i);list.appendChild(li);
+  renderRanking();
+  renderPool();
+}
+
+function renderRanking(){
+  const list=document.getElementById('rank-list');
+  list.innerHTML='';
+  for(let i=0;i<16;i++){
+    const pos=i+1;
+    const team=ranking[i];
+    const li=document.createElement('li');
+    if(team){
+      li.className='rank-item';
+      li.draggable=true;
+      li.dataset.pos=pos;
+      li.dataset.idx=i;
+      li.innerHTML=`<span class="pos-badge">${pos}</span>
+        ${logoHtml(team)}
+        <div class="team-info"><div class="team-name">${team.name}</div><div class="team-conf">${team.conf}ern</div></div>
+        <div class="pts-badge">${pts(pos)}<br><small>pts</small></div>
+        <button class="remove-btn" title="Remove">✕</button>`;
+      li.querySelector('.remove-btn').addEventListener('click',()=>{
+        pool.push(team);
+        ranking[i]=null;
+        render();
+      });
+      li.addEventListener('dragstart',e=>{dragSrc={from:'rank',idx:i};e.dataTransfer.effectAllowed='move';setTimeout(()=>li.classList.add('dragging'),0);});
+      li.addEventListener('dragend',()=>{li.classList.remove('dragging');clearHL();});
+      li.addEventListener('dragover',e=>{e.preventDefault();clearHL();li.classList.add('drag-over');});
+      li.addEventListener('dragleave',()=>li.classList.remove('drag-over'));
+      li.addEventListener('drop',e=>{e.preventDefault();li.classList.remove('drag-over');handleDrop({to:'rank',idx:i});});
+      setupTouchRank(li,i);
+    } else {
+      li.className='rank-slot-empty';
+      li.dataset.idx=i;
+      li.innerHTML=`<span class="slot-pos">${pos}</span><span class="slot-hint">Drop here</span>`;
+      li.addEventListener('dragover',e=>{e.preventDefault();clearHL();li.classList.add('drag-over');});
+      li.addEventListener('dragleave',()=>li.classList.remove('drag-over'));
+      li.addEventListener('drop',e=>{e.preventDefault();li.classList.remove('drag-over');handleDrop({to:'rank',idx:i});});
+    }
+    list.appendChild(li);
+  }
+}
+
+function renderPool(){
+  const container=document.getElementById('pool-list');
+  container.innerHTML='';
+  if(pool.length===0){
+    container.innerHTML='<div class="pool-empty">All teams ranked!</div>';
+    return;
+  }
+  pool.forEach((team,i)=>{
+    const div=document.createElement('div');
+    div.className='pool-item';
+    div.draggable=true;
+    div.dataset.idx=i;
+    div.innerHTML=`${logoHtml(team)}<div class="team-info"><div class="team-name">${team.name}</div><div class="team-conf">${team.conf}ern Conference</div></div>`;
+    div.addEventListener('dragstart',e=>{dragSrc={from:'pool',idx:i};e.dataTransfer.effectAllowed='move';setTimeout(()=>div.classList.add('dragging'),0);});
+    div.addEventListener('dragend',()=>{div.classList.remove('dragging');clearHL();});
+    // Allow dropping a ranked team back onto the pool
+    div.addEventListener('dragover',e=>{e.preventDefault();clearHL();div.classList.add('drag-over');});
+    div.addEventListener('dragleave',()=>div.classList.remove('drag-over'));
+    div.addEventListener('drop',e=>{e.preventDefault();div.classList.remove('drag-over');handleDrop({to:'pool'});});
+    setupTouchPool(div,i);
+    container.appendChild(div);
+  });
+  // Also allow dropping onto the pool container itself (empty area)
+  container.addEventListener('dragover',e=>{e.preventDefault();});
+  container.addEventListener('drop',e=>{e.preventDefault();handleDrop({to:'pool'});});
+}
+
+// ── Drop handler ──────────────────────────────────────────────────────────────
+function handleDrop(dest){
+  if(!dragSrc)return;
+  const {from,idx:srcIdx}=dragSrc;
+  dragSrc=null;
+
+  if(from==='pool'&&dest.to==='rank'){
+    const team=pool[srcIdx];
+    const displaced=ranking[dest.idx];
+    ranking[dest.idx]=team;
+    pool.splice(srcIdx,1);
+    if(displaced)pool.push(displaced);
+    render();
+  } else if(from==='rank'&&dest.to==='rank'){
+    if(srcIdx===dest.idx)return;
+    const tmp=ranking[dest.idx];
+    ranking[dest.idx]=ranking[srcIdx];
+    ranking[srcIdx]=tmp;
+    render();
+  } else if(from==='rank'&&dest.to==='pool'){
+    pool.push(ranking[srcIdx]);
+    ranking[srcIdx]=null;
+    render();
+  }
+}
+
+function clearHL(){
+  document.querySelectorAll('.rank-item,.rank-slot-empty,.pool-item').forEach(el=>el.classList.remove('drag-over'));
+}
+
+// ── Touch support ─────────────────────────────────────────────────────────────
+function setupTouchRank(el,idx){
+  let clone=null,startX=0,startY=0;
+  el.addEventListener('touchstart',e=>{
+    dragSrc={from:'rank',idx};
+    const t=e.touches[0];startX=t.clientX;startY=t.clientY;
+    const rect=el.getBoundingClientRect();
+    clone=el.cloneNode(true);
+    Object.assign(clone.style,{position:'fixed',left:rect.left+'px',top:rect.top+'px',width:rect.width+'px',opacity:'0.85',zIndex:'9999',pointerEvents:'none',transition:'none',margin:'0'});
+    document.body.appendChild(clone);el.classList.add('dragging');
+  },{passive:true});
+  el.addEventListener('touchmove',e=>{
+    e.preventDefault();
+    const t=e.touches[0];
+    if(clone){clone.style.left=(parseFloat(clone.style.left)+t.clientX-startX)+'px';clone.style.top=(parseFloat(clone.style.top)+t.clientY-startY)+'px';}
+    startX=t.clientX;startY=t.clientY;
+    clearHL();
+    const under=document.elementFromPoint(t.clientX,t.clientY);
+    const slot=under?.closest('.rank-item,.rank-slot-empty');
+    const poolEl=under?.closest('.pool-item,.pool-list');
+    if(slot&&slot!==el)slot.classList.add('drag-over');
+    else if(poolEl)poolEl.classList.add('drag-over');
+  },{passive:false});
+  el.addEventListener('touchend',e=>{
+    if(clone){clone.remove();clone=null;}
+    el.classList.remove('dragging');
+    const t=e.changedTouches[0];
+    clearHL();
+    const under=document.elementFromPoint(t.clientX,t.clientY);
+    const slot=under?.closest('.rank-item,.rank-slot-empty');
+    const poolEl=under?.closest('.pool-item,.pool-list');
+    if(slot){const toIdx=parseInt(slot.dataset.idx);handleDrop({to:'rank',idx:toIdx});}
+    else if(poolEl){handleDrop({to:'pool'});}
+    else dragSrc=null;
   });
 }
-function clearHL(){document.querySelectorAll('.rank-item').forEach(l=>l.classList.remove('drag-over'));}
-function setupTouch(el,idx){
-  let clone=null,startY=0;
-  el.addEventListener('touchstart',e=>{dragSrcIdx=idx;startY=e.touches[0].clientY;const rect=el.getBoundingClientRect();clone=el.cloneNode(true);Object.assign(clone.style,{position:'fixed',left:rect.left+'px',top:rect.top+'px',width:rect.width+'px',opacity:'0.85',zIndex:'9999',pointerEvents:'none',transition:'none',margin:'0'});document.body.appendChild(clone);el.classList.add('dragging');},{passive:true});
-  el.addEventListener('touchmove',e=>{e.preventDefault();if(clone)clone.style.top=(el.getBoundingClientRect().top+e.touches[0].clientY-startY)+'px';clearHL();const t=document.elementFromPoint(e.touches[0].clientX,e.touches[0].clientY)?.closest('.rank-item');if(t&&t!==el)t.classList.add('drag-over');},{passive:false});
-  el.addEventListener('touchend',e=>{if(clone){clone.remove();clone=null;}el.classList.remove('dragging');const t=document.elementFromPoint(e.changedTouches[0].clientX,e.changedTouches[0].clientY)?.closest('.rank-item');clearHL();if(t){const toIdx=parseInt(t.dataset.idx);if(toIdx!==dragSrcIdx){const m=teams.splice(dragSrcIdx,1)[0];teams.splice(toIdx,0,m);render();}}});
+
+function setupTouchPool(el,idx){
+  let clone=null,startX=0,startY=0;
+  el.addEventListener('touchstart',e=>{
+    dragSrc={from:'pool',idx};
+    const t=e.touches[0];startX=t.clientX;startY=t.clientY;
+    const rect=el.getBoundingClientRect();
+    clone=el.cloneNode(true);
+    Object.assign(clone.style,{position:'fixed',left:rect.left+'px',top:rect.top+'px',width:rect.width+'px',opacity:'0.85',zIndex:'9999',pointerEvents:'none',transition:'none',margin:'0'});
+    document.body.appendChild(clone);el.classList.add('dragging');
+  },{passive:true});
+  el.addEventListener('touchmove',e=>{
+    e.preventDefault();
+    const t=e.touches[0];
+    if(clone){clone.style.left=(parseFloat(clone.style.left)+t.clientX-startX)+'px';clone.style.top=(parseFloat(clone.style.top)+t.clientY-startY)+'px';}
+    startX=t.clientX;startY=t.clientY;
+    clearHL();
+    const under=document.elementFromPoint(t.clientX,t.clientY);
+    const slot=under?.closest('.rank-item,.rank-slot-empty');
+    if(slot)slot.classList.add('drag-over');
+  },{passive:false});
+  el.addEventListener('touchend',e=>{
+    if(clone){clone.remove();clone=null;}
+    el.classList.remove('dragging');
+    const t=e.changedTouches[0];
+    clearHL();
+    const under=document.elementFromPoint(t.clientX,t.clientY);
+    const slot=under?.closest('.rank-item,.rank-slot-empty');
+    if(slot){const toIdx=parseInt(slot.dataset.idx);handleDrop({to:'rank',idx:toIdx});}
+    else dragSrc=null;
+  });
 }
 
 // ── Export picks as JSON ──────────────────────────────────────────────────────
 document.getElementById('btn-export').addEventListener('click',()=>{
   const name=document.getElementById('picker-name').value.trim();
   if(!name){showToast('Enter your name first!');return;}
-  const picks=teams.map((team,i)=>({team:team.name,abbr:team.abbr,rank:i+1,points:pts(i+1)}));
+  const picks=ranking.filter(Boolean).map((team,i)=>{
+    const pos=ranking.indexOf(team)+1;
+    return{team:team.name,abbr:team.abbr,rank:pos,points:pts(pos)};
+  });
+  if(picks.length===0){showToast('Add at least one team to your ranking!');return;}
   const data=JSON.stringify({name,date:new Date().toISOString().slice(0,10),picks},null,2);
   const blob=new Blob([data],{type:'application/json'});
   const url=URL.createObjectURL(blob);
@@ -175,31 +426,16 @@ document.getElementById('btn-export').addEventListener('click',()=>{
 });
 
 // ── Build canvas & share image ────────────────────────────────────────────────
-async function ensureLogo(abbr){
-  if(logoCache[abbr]!==undefined)return logoCache[abbr];
-  // Try PNG first (canvas-safe), fall back to SVG blob
-  const urls=[logoPngUrl(abbr),logoUrl(abbr)];
-  for(const url of urls){
-    try{
-      const r=await fetch(url,{mode:'cors'});
-      if(!r.ok)continue;
-      const blob=await r.blob();
-      const d=await blobToDataURL(blob);
-      // Verify the image actually loads before caching
-      await loadImageFromDataURL(d);
-      logoCache[abbr]=d;return d;
-    }catch{continue;}
-  }
-  logoCache[abbr]=null;return null;
-}
 async function buildCanvas(name){
-  const logoImgs=await Promise.all(teams.map(async team=>{
+  const ranked=ranking.map((t,i)=>t?{team:t,pos:i+1}:null).filter(Boolean);
+  if(ranked.length===0)return null;
+  const logoImgs=await Promise.all(ranked.map(async({team})=>{
     const d=await ensureLogo(team.abbr);
     if(!d)return null;
     try{return await loadImageFromDataURL(d);}catch{return null;}
   }));
   const DPR=2,W=560,PAD=22,ROW=40,GAP=4,HEADER_H=90,FOOTER_H=30;
-  const H=HEADER_H+teams.length*(ROW+GAP)-GAP+PAD/2+FOOTER_H;
+  const H=HEADER_H+ranked.length*(ROW+GAP)-GAP+PAD/2+FOOTER_H;
   const canvas=document.createElement('canvas');canvas.width=W*DPR;canvas.height=H*DPR;
   const ctx=canvas.getContext('2d');ctx.scale(DPR,DPR);
   ctx.fillStyle='#07111f';ctx.fillRect(0,0,W,H);
@@ -210,14 +446,14 @@ async function buildCanvas(name){
   ctx.fillStyle='#c8102e';ctx.fillRect(0,0,W,4);
   ctx.textBaseline='alphabetic';ctx.font=`900 28px Arial, sans-serif`;
   ctx.fillStyle='#ffffff';ctx.fillText('NHL ',PAD,42);const w1=ctx.measureText('NHL ').width;
-  ctx.fillStyle='#ffb81c';ctx.fillText('PLAYOFF ',PAD+w1,42);const w2=ctx.measureText('PLAYOFF ').width;
+  ctx.fillStyle='#ffb81c';ctx.fillText('2026 PLAYOFF ',PAD+w1,42);const w2=ctx.measureText('2026 PLAYOFF ').width;
   ctx.fillStyle='#ffffff';ctx.fillText('PICKS',PAD+w1+w2,42);
   ctx.font=`600 12px Arial, sans-serif`;ctx.fillStyle='rgba(168,178,190,0.8)';ctx.fillText('PICKS BY ',PAD,62);
   const byw=ctx.measureText('PICKS BY ').width;ctx.fillStyle='#ffb81c';ctx.font=`bold 13px Arial, sans-serif`;
   ctx.fillText(name.toUpperCase(),PAD+byw,62);
   ctx.fillStyle='rgba(255,255,255,0.07)';ctx.fillRect(PAD,74,W-PAD*2,1);
-  teams.forEach((team,i)=>{
-    const pos=i+1,p=pts(pos),y=HEADER_H+i*(ROW+GAP),rowW=W-PAD*2;
+  ranked.forEach(({team,pos},i)=>{
+    const p=pts(pos),y=HEADER_H+i*(ROW+GAP),rowW=W-PAD*2;
     ctx.fillStyle=i%2===0?'rgba(255,255,255,0.042)':'rgba(0,0,0,0.12)';rr(ctx,PAD,y,rowW,ROW,5);
     let accent='rgba(255,255,255,0.12)';if(pos===1)accent='#ffb81c';else if(pos===2)accent='#c0c0c0';else if(pos===3)accent='#cd7f32';
     ctx.fillStyle=accent;rr(ctx,PAD,y,3,ROW,2);
@@ -231,7 +467,7 @@ async function buildCanvas(name){
     const pillW=50,pillH=ROW-10,px2=W-PAD-pillW,py2=y+5;ctx.fillStyle='rgba(232,244,253,0.1)';rr(ctx,px2,py2,pillW,pillH,4);
     ctx.font=`900 14px Arial, sans-serif`;ctx.fillStyle='#e8f4fd';ctx.textAlign='center';ctx.fillText(p+' pts',px2+pillW/2,py2+pillH*0.68);
   });
-  const fy=HEADER_H+teams.length*(ROW+GAP)+10;ctx.font=`11px Arial, sans-serif`;ctx.fillStyle='rgba(255,255,255,0.15)';ctx.textAlign='right';ctx.fillText('NHL Playoff Picks Ranker',W-PAD,fy+14);
+  const fy=HEADER_H+ranked.length*(ROW+GAP)+10;ctx.font=`11px Arial, sans-serif`;ctx.fillStyle='rgba(255,255,255,0.15)';ctx.textAlign='right';ctx.fillText('parieurdiscipline.com',W-PAD,fy+14);
   return canvas;
 }
 function rr(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();ctx.fill();}
@@ -241,7 +477,9 @@ document.getElementById('btn-share').addEventListener('click',async()=>{
   const filename=name.replace(/\s+/g,'')+'-NHL-Playoffs-2026.jpg';
   const btn=document.getElementById('btn-share');btn.disabled=true;btn.textContent='Generating…';
   try{
-    const canvas=await buildCanvas(name);const dataUrl=canvas.toDataURL('image/jpeg',0.92);
+    const canvas=await buildCanvas(name);
+    if(!canvas){showToast('Add teams to your ranking first!');btn.disabled=false;btn.textContent='📸 Share Image';return;}
+    const dataUrl=canvas.toDataURL('image/jpeg',0.92);
     if(isMobile()){document.getElementById('preview-img').src=dataUrl;document.getElementById('btn-open-img').href=dataUrl;document.getElementById('btn-open-img').download=filename;document.getElementById('modal-overlay').classList.add('open');}
     else{const a=document.createElement('a');a.href=dataUrl;a.download=filename;a.click();showToast('Image downloaded! 🏒');}
   }catch(err){console.error(err);showToast('Error: '+err.message);}
@@ -250,7 +488,9 @@ document.getElementById('btn-share').addEventListener('click',async()=>{
 document.getElementById('btn-close-modal').addEventListener('click',()=>document.getElementById('modal-overlay').classList.remove('open'));
 document.getElementById('modal-overlay').addEventListener('click',e=>{if(e.target===document.getElementById('modal-overlay'))document.getElementById('modal-overlay').classList.remove('open');});
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3500);}
-render();preloadLogos();
+
+render();
+preloadLogos();
 </script>
 </body>
 </html>
