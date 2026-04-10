@@ -139,23 +139,23 @@ const TEAMS=[
 const ROUND_MULT=[1,2,3,4];
 const ROUND_LABELS=["R1","R2","CF","SC"];
 
-// List of JSON files in docs/playoff/ — add filenames here as participants join
-const PICKS_FILES=[
-  'Justin_NHL_Picks.json',
-];
-
-let participants=[];
-let results={};
-TEAMS.forEach(t=>{results[t]=[0,0,0,0];});
-
 // ── Load participants from docs/playoff/ ──────────────────────────────────────
 async function loadParticipants(){
   const list=document.getElementById('participant-list');
   list.innerHTML='';
   participants=[];
 
-  await Promise.all(PICKS_FILES.map(async filename=>{
-    // Extract name: take everything before the first underscore or before "_NHL"
+  let files=[];
+  try{
+    const resp=await fetch(`playoff/index.json?_=${Date.now()}`);
+    if(!resp.ok)throw new Error('index not found');
+    files=await resp.json();
+  }catch(e){
+    list.innerHTML=`<p style="color:var(--red);font-size:0.9rem;">Could not load playoff/index.json</p>`;
+    return;
+  }
+
+  await Promise.all(files.map(async filename=>{
     const nameRaw=filename.replace(/\.json$/i,'');
     const name=nameRaw.split('_')[0];
     const chip=document.createElement('div');chip.className='participant-chip';
