@@ -39,38 +39,46 @@
   .load-status.ok{color:var(--green);}
   .load-status.err{color:var(--red);}
 
-  .round-headers{display:grid;grid-template-columns:28px 1fr repeat(4,72px);gap:6px;margin-bottom:6px;}
-  .round-headers span{font-size:0.65rem;color:var(--gold);text-align:center;font-weight:700;
-    letter-spacing:0.3px;line-height:1.2;}
+  /* ── Series grid ── */
+  .series-rounds{display:flex;flex-direction:column;gap:1.5rem;}
+  .series-round-label{font-family:'Bebas Neue',cursive;font-size:0.85rem;color:rgba(255,184,28,0.6);
+    letter-spacing:3px;margin-bottom:0.6rem;border-bottom:1px solid rgba(255,184,28,0.12);padding-bottom:0.3rem;}
+  .series-list{display:flex;flex-wrap:wrap;gap:10px;}
 
-  .results-grid{display:flex;flex-direction:column;gap:5px;}
-  .result-row{display:grid;grid-template-columns:28px 1fr repeat(4,72px);gap:6px;align-items:center;}
+  /* Series matchup card */
+  .series-card{
+    display:flex;flex-direction:column;align-items:stretch;gap:0;
+    background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);
+    border-radius:10px;overflow:hidden;width:170px;flex-shrink:0;
+    transition:border-color 0.2s,box-shadow 0.2s;}
+  .series-card.won{border-color:rgba(255,184,28,0.45);background:rgba(255,184,28,0.04);
+    box-shadow:0 0 12px rgba(255,184,28,0.1);}
+  .series-card.tbd{opacity:0.3;pointer-events:none;}
 
-  /* Win dots button — bigger */
-  .win-btn{display:flex;align-items:center;justify-content:center;gap:4px;
-    background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);
-    border-radius:6px;cursor:pointer;padding:0 6px;transition:background 0.15s,border-color 0.15s;
-    width:72px;height:44px;flex-direction:column;}
-  .win-btn:hover{background:rgba(255,184,28,0.1);border-color:rgba(255,184,28,0.5);}
-  .win-btn:active{transform:scale(0.95);}
-  .win-btn .dots-row{display:flex;gap:4px;align-items:center;}
-  .win-btn .dot{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,0.12);transition:background 0.15s;}
-  .win-btn .dot.on{background:var(--green);box-shadow:0 0 6px rgba(34,197,94,0.6);}
-  .win-btn .win-count{font-family:'Bebas Neue',cursive;font-size:0.75rem;color:rgba(255,255,255,0.4);letter-spacing:1px;line-height:1;}
-  .win-btn[data-wins="0"] .win-count{display:none;}
-  .win-btn[data-wins="4"]{border-color:rgba(255,184,28,0.6);background:rgba(255,184,28,0.06);}
-  .win-btn.confirm-reset{border-color:rgba(200,16,46,0.8);background:rgba(200,16,46,0.15);}
-  .win-btn.confirm-reset .win-count{color:var(--red);}
-
-  /* Team logo in results grid */
-  .team-logo-wrap{width:28px;height:28px;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  /* Each team row inside the card */
+  .series-side{display:flex;align-items:center;gap:7px;padding:8px 10px;}
+  .series-side+.series-side{border-top:1px solid rgba(255,255,255,0.06);}
+  .s-logo{width:26px;height:26px;flex-shrink:0;display:flex;align-items:center;justify-content:center;
     background:rgba(255,255,255,0.05);border-radius:4px;overflow:hidden;}
-  .team-logo-wrap img{width:22px;height:22px;object-fit:contain;}
+  .s-logo img{width:20px;height:20px;object-fit:contain;}
+  .s-name{font-size:0.8rem;font-weight:700;color:rgba(255,255,255,0.75);
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0;}
+  .s-name.winner{color:var(--green);}
+  .s-name.eliminated{color:rgba(255,255,255,0.2);}
 
-  /* Team row total wins */
-  .team-lbl-wrap{display:flex;flex-direction:column;min-width:0;}
-  .team-lbl{font-size:1rem;color:white;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .team-total{font-size:0.7rem;color:var(--silver);letter-spacing:0.5px;}
+  /* Win counter */
+  .series-counter{display:flex;align-items:center;gap:3px;flex-shrink:0;margin-left:auto;}
+  .s-btn{width:22px;height:22px;border-radius:4px;border:1px solid rgba(255,255,255,0.12);
+    background:rgba(255,255,255,0.06);color:white;font-size:0.9rem;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;line-height:1;
+    transition:background 0.15s,border-color 0.15s;user-select:none;}
+  .s-btn:hover{background:rgba(255,184,28,0.2);border-color:rgba(255,184,28,0.5);}
+  .s-btn:active{transform:scale(0.9);}
+  .s-wins{font-family:'Bebas Neue',cursive;font-size:1.1rem;color:white;min-width:14px;
+    text-align:center;line-height:1;}
+  .s-wins.max{color:var(--green);}
+  .s-sep{display:none;}
+
   .lb-wrap{overflow-x:auto;}
   table{width:100%;border-collapse:collapse;font-size:0.9rem;}
   thead tr th{background:rgba(200,16,46,0.7);color:white;font-family:'Bebas Neue',cursive;
@@ -108,11 +116,8 @@
   <div class="top-row">
     <!-- LEFT: Game Results (primary) -->
     <div class="panel">
-      <h2>🏒 Game Results</h2>
-      <div class="round-headers">
-        <span></span><span></span><span>Round 1</span><span>Round 2</span><span>Conf. Final</span><span>Stanley Cup Final</span>
-      </div>
-      <div class="results-grid" id="results-grid"></div>
+      <h2>🏒 Series Results</h2>
+      <div class="series-rounds" id="series-rounds"><p style="color:var(--silver);font-size:0.9rem;">Loading bracket…</p></div>
     </div>
 
     <!-- RIGHT: Participants (sidebar) -->
@@ -166,11 +171,6 @@ const TEAMS_DATA=[
 ];
 const TEAMS=TEAMS_DATA.map(t=>t.name);
 function logoUrl(abbr){return`https://assets.nhle.com/logos/nhl/svg/${abbr}_light.svg`;}
-function teamLogoHtml(name){
-  const t=TEAMS_DATA.find(x=>x.name===name);
-  if(!t)return'';
-  return`<div class="team-logo-wrap"><img src="${logoUrl(t.abbr)}" alt="${t.abbr}" onerror="this.style.display='none'"></div>`;
-}
 const ROUND_MULT=[1,2,3,4];
 const ROUND_LABELS=["Round 1","Round 2","Conf. Final","Stanley Cup Final"];
 
@@ -220,7 +220,7 @@ async function loadResultsRemote(){
       TEAMS.forEach(t=>{results[t]=[0,0,0,0];});
       applyResults(data.results);
       try{localStorage.setItem(STORAGE_KEY,JSON.stringify(results));}catch(e){}
-      buildResultsGrid();
+      buildSeriesGrid();
       recalc();
     }
   }catch(e){}
@@ -266,81 +266,140 @@ async function loadParticipants(){
   recalc();
 }
 
-// ── Results grid ──────────────────────────────────────────────────────────────
-function buildResultsGrid(){
-  const grid=document.getElementById('results-grid');
-  grid.innerHTML='';
-  TEAMS.forEach(team=>{
-    const row=document.createElement('div');row.className='result-row';
-    // Logo cell
-    row.insertAdjacentHTML('beforeend',teamLogoHtml(team));
-    const lbl=document.createElement('div');lbl.className='team-lbl-wrap';lbl.title=team;
-    const shortName=team.replace('Vegas Golden Knights','VGK').replace('Philadelphia Flyers','Flyers')
-      .replace('Tampa Bay Lightning','Lightning').replace('Los Angeles Kings','LA Kings')
-      .replace('Carolina Hurricanes','Hurricanes').replace('Colorado Avalanche','Avalanche')
-      .replace('Minnesota Wild','Wild').replace('Edmonton Oilers','Oilers')
-      .replace('Pittsburgh Penguins','Penguins').replace('Montreal Canadiens','Canadiens')
-      .replace('Utah Hockey Club','Utah HC').replace('Ottawa Senators','Senators')
-      .replace('Buffalo Sabres','Sabres').replace('Anaheim Ducks','Ducks')
-      .replace('Dallas Stars','Stars').replace('Boston Bruins','Bruins');
-    const totalEl=document.createElement('span');totalEl.className='team-total';totalEl.id='total-'+team.replace(/\s/g,'_');
-    lbl.innerHTML=`<span class="team-lbl">${shortName}</span>`;
-    lbl.appendChild(totalEl);
-    row.appendChild(lbl);
-    updateTotalLabel(team,totalEl);
+// ── Bracket-based series grid ─────────────────────────────────────────────────
+let bracketData=null;
 
-    ROUND_LABELS.forEach((_,ri)=>{
-      const btn=document.createElement('button');btn.className='win-btn';
-      btn.dataset.wins=results[team][ri];
-      renderDots(btn,results[team][ri]);
-      // Track pending reset confirmation
-      let pendingReset=false,resetTimer=null;
-      btn.addEventListener('click',()=>{
-        const cur=results[team][ri];
-        if(cur===4&&!pendingReset){
-          // First click at 4: warn before resetting
-          pendingReset=true;
-          btn.classList.add('confirm-reset');
-          btn.querySelector('.win-count').textContent='RESET?';
-          resetTimer=setTimeout(()=>{
-            pendingReset=false;btn.classList.remove('confirm-reset');
-            renderDots(btn,results[team][ri]);
-          },2500);
-          return;
-        }
-        if(resetTimer){clearTimeout(resetTimer);resetTimer=null;}
-        pendingReset=false;btn.classList.remove('confirm-reset');
-        const next=(cur+1)%5;
-        results[team][ri]=next;
-        btn.dataset.wins=next;
-        renderDots(btn,next);
-        updateTotalLabel(team,document.getElementById('total-'+team.replace(/\s/g,'_')));
-        saveResults();
-        recalc();
-      });
-      row.appendChild(btn);
-    });
-    grid.appendChild(row);
-  });
+async function loadBracket(){
+  try{
+    const r=await fetch('playoff/bracket.json?_='+Date.now());
+    if(!r.ok)return;
+    bracketData=await r.json();
+    buildSeriesGrid();
+  }catch(e){}
 }
 
-function updateTotalLabel(team,el){
-  const total=results[team].reduce((a,b)=>a+b,0);
-  el.textContent=total>0?`${total} total win${total!==1?'s':''}` :'';
+function abbr(name){
+  const t=TEAMS_DATA.find(x=>x.name===name);
+  return t?t.abbr:null;
 }
 
-function renderDots(btn,wins){
-  btn.innerHTML='';
-  const dotsRow=document.createElement('div');dotsRow.className='dots-row';
-  for(let i=0;i<4;i++){
-    const d=document.createElement('span');
-    d.className='dot'+(i<wins?' on':'');
-    dotsRow.appendChild(d);
+function makeWinCounter(team,roundIdx,onUpdate){
+  const wrap=document.createElement('div');wrap.className='series-counter';
+  const minus=document.createElement('button');minus.className='s-btn';minus.textContent='−';
+  const winsEl=document.createElement('span');winsEl.className='s-wins';
+  const sep=document.createElement('span');sep.className='s-sep';sep.textContent='W';
+  const plus=document.createElement('button');plus.className='s-btn';plus.textContent='+';
+
+  function refresh(){
+    const w=results[team]?.[roundIdx]||0;
+    winsEl.textContent=w;
+    winsEl.className='s-wins'+(w===4?' max':'');
   }
-  btn.appendChild(dotsRow);
-  const countEl=document.createElement('span');countEl.className='win-count';
-  countEl.textContent=wins>0?`${wins} WIN${wins!==1?'S':''}` :'';
-  btn.appendChild(countEl);
+  refresh();
+
+  minus.addEventListener('click',e=>{
+    e.stopPropagation();
+    const w=results[team]?.[roundIdx]||0;
+    if(w===0)return;
+    results[team][roundIdx]=w-1;
+    refresh();saveResults();recalc();onUpdate();
+  });
+  plus.addEventListener('click',e=>{
+    e.stopPropagation();
+    const w=results[team]?.[roundIdx]||0;
+    if(w===4)return;
+    results[team][roundIdx]=w+1;
+    refresh();saveResults();recalc();onUpdate();
+  });
+
+  wrap.appendChild(minus);wrap.appendChild(winsEl);wrap.appendChild(sep);wrap.appendChild(plus);
+  wrap._refresh=refresh;
+  return wrap;
+}
+
+function buildSeriesCard(top,bottom,roundIdx){
+  const isTbd=!top||top==='TBD'||!bottom||bottom==='TBD';
+  const card=document.createElement('div');
+  card.className='series-card'+(isTbd?' tbd':'');
+
+  function refreshCard(){
+    const tw=results[top]?.[roundIdx]||0;
+    const bw=results[bottom]?.[roundIdx]||0;
+    const won=tw===4||bw===4;
+    card.classList.toggle('won',won);
+    const topNameEl=card.querySelector('.top-name');
+    const botNameEl=card.querySelector('.bot-name');
+    if(topNameEl){
+      topNameEl.className='s-name top-name'+(tw===4?' winner':bw===4?' eliminated':'');
+    }
+    if(botNameEl){
+      botNameEl.className='s-name bot-name'+(bw===4?' winner':tw===4?' eliminated':'');
+    }
+  }
+
+  if(isTbd){
+    card.innerHTML=`<div class="series-side"><span class="s-name" style="color:rgba(255,255,255,0.3)">TBD</span></div>
+      <div class="series-side"><span class="s-name" style="color:rgba(255,255,255,0.3)">TBD</span></div>`;
+    return card;
+  }
+
+  const topAbbr=abbr(top);
+  const botAbbr=abbr(bottom);
+  const topShort=top.split(' ').pop();
+  const botShort=bottom.split(' ').pop();
+
+  // Top team row
+  const topSide=document.createElement('div');topSide.className='series-side';
+  const topLogoEl=document.createElement('div');topLogoEl.className='s-logo';
+  topLogoEl.innerHTML=`<img src="${logoUrl(topAbbr)}" alt="${topAbbr}" onerror="this.style.display='none'">`;
+  const topNameEl=document.createElement('span');
+  topNameEl.className='s-name top-name';topNameEl.title=top;topNameEl.textContent=topShort;
+  const topCounter=makeWinCounter(top,roundIdx,refreshCard);
+  topSide.appendChild(topLogoEl);
+  topSide.appendChild(topNameEl);
+  topSide.appendChild(topCounter);
+
+  // Bottom team row
+  const botSide=document.createElement('div');botSide.className='series-side';
+  const botLogoEl=document.createElement('div');botLogoEl.className='s-logo';
+  botLogoEl.innerHTML=`<img src="${logoUrl(botAbbr)}" alt="${botAbbr}" onerror="this.style.display='none'">`;
+  const botNameEl=document.createElement('span');
+  botNameEl.className='s-name bot-name';botNameEl.title=bottom;botNameEl.textContent=botShort;
+  const botCounter=makeWinCounter(bottom,roundIdx,refreshCard);
+  botSide.appendChild(botLogoEl);
+  botSide.appendChild(botNameEl);
+  botSide.appendChild(botCounter);
+
+  card.appendChild(topSide);card.appendChild(botSide);
+  refreshCard();
+  return card;
+}
+
+function buildSeriesGrid(){
+  const container=document.getElementById('series-rounds');
+  if(!container||!bracketData)return;
+  container.innerHTML='';
+  const roundLabels=['Round 1','Round 2','Conf. Final','Stanley Cup Final'];
+
+  bracketData.rounds.forEach((round,ri)=>{
+    const section=document.createElement('div');
+    const lbl=document.createElement('div');lbl.className='series-round-label';
+    lbl.textContent=roundLabels[ri];
+    const list=document.createElement('div');list.className='series-list';
+
+    // East series
+    (round.east||[]).forEach(([t,b])=>list.appendChild(buildSeriesCard(t,b,ri)));
+    // Final (SCF)
+    if(round.final){
+      const[f1,f2]=round.final;
+      list.appendChild(buildSeriesCard(f1,f2,ri));
+    }
+    // West series
+    (round.west||[]).forEach(([t,b])=>list.appendChild(buildSeriesCard(t,b,ri)));
+
+    section.appendChild(lbl);section.appendChild(list);
+    container.appendChild(section);
+  });
 }
 
 // ── Score calculation ─────────────────────────────────────────────────────────
@@ -384,7 +443,7 @@ function recalc(){
 }
 
 loadResultsLocal();   // instant restore from cache
-buildResultsGrid();   // render with cached values
+loadBracket();        // load bracket.json and build series grid
 loadParticipants();   // fetch participant picks
 loadResultsRemote();  // fetch authoritative results from API, re-render if different
 </script>
