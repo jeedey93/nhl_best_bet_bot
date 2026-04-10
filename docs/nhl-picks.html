@@ -181,7 +181,7 @@
 
 <!-- Share image modal --><div id="modal-overlay">
   <div class="modal-box">
-    <p><strong>Your picks are ready!</strong><br>On mobile: tap below to open the image, then <strong>long-press → Save Image</strong>.</p>
+    <p><strong>Your picks are ready!</strong><br>Long-press the image below and tap <strong>Save to Photos</strong>.</p>
     <img id="preview-img" src="" alt="Your NHL Picks">
     <div class="modal-btns">
       <a id="btn-open-img" href="#" target="_blank">Open Full Image</a>
@@ -505,9 +505,28 @@ document.getElementById('btn-share').addEventListener('click',async()=>{
     const canvas=await buildCanvas(name);
     if(!canvas){showToast('Add teams to your ranking first!');btn.disabled=false;btn.textContent='📸 Share Image';return;}
     const dataUrl=canvas.toDataURL('image/jpeg',0.92);
-    if(isMobile()){document.getElementById('preview-img').src=dataUrl;document.getElementById('btn-open-img').href=dataUrl;document.getElementById('btn-open-img').download=filename;document.getElementById('modal-overlay').classList.add('open');}
-    else{const a=document.createElement('a');a.href=dataUrl;a.download=filename;a.click();showToast('Image downloaded! 🏒');}
-  }catch(err){console.error(err);showToast('Error: '+err.message);}
+    // Try native share sheet (works on iOS/Android)
+    if(isMobile()&&navigator.share&&navigator.canShare){
+      const blob=await(await fetch(dataUrl)).blob();
+      const file=new File([blob],filename,{type:'image/jpeg'});
+      if(navigator.canShare({files:[file]})){
+        await navigator.share({files:[file],title:'NHL 2026 Playoff Picks'});
+        btn.disabled=false;btn.textContent='📸 Share Image';return;
+      }
+    }
+    // Fallback: show modal with preview image
+    if(isMobile()){
+      document.getElementById('preview-img').src=dataUrl;
+      document.getElementById('btn-open-img').href=dataUrl;
+      document.getElementById('btn-open-img').download=filename;
+      document.getElementById('modal-overlay').classList.add('open');
+    } else {
+      const a=document.createElement('a');a.href=dataUrl;a.download=filename;a.click();
+      showToast('Image downloaded! 🏒');
+    }
+  }catch(err){
+    if(err.name!=='AbortError'){console.error(err);showToast('Error: '+err.message);}
+  }
   btn.disabled=false;btn.textContent='📸 Share Image';
 });
 document.getElementById('btn-close-modal').addEventListener('click',()=>document.getElementById('modal-overlay').classList.remove('open'));
