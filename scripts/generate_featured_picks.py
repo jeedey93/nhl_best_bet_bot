@@ -72,13 +72,19 @@ def extract_bet_of_the_day(section_lines):
     return bet, justification
 
 def get_latest_file(folder, prefix, ext="txt"):
-    """Find the latest prediction file by creation time."""
+    """Find the latest prediction file by date in filename (YYYY-MM-DD suffix)."""
     from glob import glob
+    import re
     files = glob(os.path.join(folder, f"{prefix}_*.{ext}"))
     if not files:
         return None
-    latest = max(files, key=os.path.getctime)
-    return latest
+    def file_date(f):
+        m = re.search(r'(\d{4}-\d{2}-\d{2})', os.path.basename(f))
+        return m.group(1) if m else ''
+    dated = [f for f in files if file_date(f)]
+    if not dated:
+        return max(files, key=os.path.getctime)
+    return max(dated, key=file_date)
 
 def get_sections_from_index():
     # Read from latest prediction files instead of index.md (which is now HTML)
@@ -208,17 +214,40 @@ def save_to_file(content):
 
     print(f"✅ Saved to: {filepath}")
 
+def build_single_pick_prompt(sport, emoji, bet, just):
+    """Build output when only one sport has a pick."""
+    return f"""🔥 BET OF THE DAY 🤖📊 One pick. Full discipline. Same standard.
+⸻
+🎯 PICK – {sport} {emoji} {bet}
+{just}
+⸻
+We follow the value. We protect the bankroll. Discipline > emotion. 🎯
+""".strip()
+
 def main():
     nhl_section, nba_section = get_sections_from_index()
     nhl_bet, nhl_just = extract_bet_of_the_day(nhl_section)
     nba_bet, nba_just = extract_bet_of_the_day(nba_section)
-    if not (nhl_bet and nba_bet):
-        print("Could not find both Bet of the Day entries.")
+
+    if not nhl_bet and not nba_bet:
+        print("No Bet of the Day entries found for today.")
         return
-    # Summarize justifications into emoji bullet points
-    nhl_just, nba_just = summarize_justifications(nhl_just, nba_just)
-    # Build output in the requested format (keep text as-is, no translation)
-    output = build_gemini_prompt(nhl_bet, nhl_just, nba_bet, nba_just)
+
+    if nhl_bet and nba_bet:
+        # Both picks available — dual format
+        nhl_just, nba_just = summarize_justifications(nhl_just, nba_just)
+        output = build_gemini_prompt(nhl_bet, nhl_just, nba_bet, nba_just)
+    elif nba_bet:
+        # Only NBA pick
+        print("ℹ️  No NHL pick today — outputting NBA only.")
+        _, nba_just = summarize_justifications(None, nba_just)
+        output = build_single_pick_prompt("NBA", "🏀", nba_bet, nba_just)
+    else:
+        # Only NHL pick
+        print("ℹ️  No NBA pick today — outputting NHL only.")
+        nhl_just, _ = summarize_justifications(nhl_just, None)
+        output = build_single_pick_prompt("NHL", "🏒", nhl_bet, nhl_just)
+
     print(output)
     save_to_file(output)
 
