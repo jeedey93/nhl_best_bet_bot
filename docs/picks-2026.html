@@ -769,7 +769,7 @@ document.getElementById('btn-share').addEventListener('click',async()=>{
       const blob=await(await fetch(dataUrl)).blob();
       const file=new File([blob],filename,{type:'image/jpeg'});
       if(navigator.canShare({files:[file]})){
-        await navigator.share({files:[file]\});
+        await navigator.share({files:[file]});
         btn.disabled=false;btn.textContent='📸 Share Image';return;
       }
     }
