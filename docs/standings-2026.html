@@ -25,11 +25,7 @@
   .subtitle{color:var(--silver);font-size:1rem;letter-spacing:3px;text-transform:uppercase;margin-top:0.5rem;}
   .last-updated{font-size:0.8rem;color:rgba(168,178,190,0.5);letter-spacing:1px;margin-top:0.3rem;}
 
-  /* ── Scoring legend ── */
-  .scoring-legend{display:flex;gap:0.6rem;justify-content:center;flex-wrap:wrap;margin-bottom:2rem;}
-  .scoring-legend .pill{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);
-    border-radius:20px;padding:4px 14px;font-size:0.8rem;color:var(--silver);letter-spacing:1px;}
-  .scoring-legend .pill strong{color:var(--gold);}
+  /* ── Scoring legend removed ── */
 
   /* ── Podium (top 3) ── */
   .podium{display:flex;align-items:flex-end;justify-content:center;gap:1rem;margin-bottom:2.5rem;max-width:600px;margin-left:auto;margin-right:auto;}
@@ -71,7 +67,7 @@
   .rank-1{color:#FFD700;}.rank-2{color:#C0C0C0;}.rank-3{color:#CD7F32;}
   .name-cell{font-weight:700;font-size:1.1rem;letter-spacing:0.5px;}
   .score-cell{font-family:'Bebas Neue',cursive;font-size:1.6rem;color:var(--gold);}
-  .round-score{font-size:0.88rem;color:var(--silver);}
+  .round-score{display:none;}
 
   /* score bar */
   .score-bar-wrap{width:100%;background:rgba(255,255,255,0.06);border-radius:3px;height:4px;margin-top:3px;}
@@ -106,12 +102,7 @@
   <p class="last-updated" id="last-updated"></p>
 </header>
 
-<div class="scoring-legend">
-  <div class="pill">Round 1 <strong>×1 pt/win</strong></div>
-  <div class="pill">Round 2 <strong>×2 pts/win</strong></div>
-  <div class="pill">Conf. Final <strong>×3 pts/win</strong></div>
-  <div class="pill">Stanley Cup <strong>×4 pts/win</strong></div>
-</div>
+<div class="scoring-legend" style="display:none;"></div>
 
 <!-- Podium -->
 <div class="podium" id="podium"></div>
@@ -120,7 +111,7 @@
 <div class="lb-wrap">
   <table>
     <thead>
-      <tr><th>#</th><th>NAME</th><th>R1</th><th>R2</th><th>CF</th><th>SC</th><th>TOTAL</th></tr>
+      <tr><th>#</th><th>NAME</th><th>POINTS</th></tr>
     </thead>
     <tbody id="lb-body">
       <tr><td colspan="7" class="empty-state">
@@ -258,7 +249,6 @@ function render(){
         ${row.name}
         <div class="score-bar-wrap"><div class="score-bar" style="width:${barPct}%"></div></div>
       </td>
-      ${row.roundScores.map(s=>`<td class="round-score">${s}</td>`).join('')}
       <td class="score-cell">${row.total}</td>`;
     lb.appendChild(tr);
   });
@@ -275,7 +265,6 @@ function render(){
       : '<span style="color:rgba(255,255,255,0.2)">No wins yet</span>';
     card.innerHTML=`
       <div class="round-name">${label}</div>
-      <div class="round-mult">×${ROUND_MULT[ri]} pts per win</div>
       <div class="team-wins">${winsHtml}</div>`;
     grid.appendChild(card);
   });

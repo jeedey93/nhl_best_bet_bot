@@ -17,11 +17,13 @@
   header h1 span{color:var(--gold);}
   header p{color:var(--silver);font-size:1rem;letter-spacing:2px;text-transform:uppercase;margin-top:0.3rem;}
 
-  .main{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:300px 1fr;gap:1.5rem;}
-  @media(max-width:750px){.main{grid-template-columns:1fr;}}
+  .main{max-width:1100px;margin:0 auto;display:flex;flex-direction:column;gap:1.5rem;}
 
-  .panel{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:1.2rem;}
-  .panel h2{font-family:'Bebas Neue',cursive;font-size:1.3rem;color:var(--gold);letter-spacing:2px;
+  .top-row{display:grid;grid-template-columns:1fr 280px;gap:1.5rem;align-items:start;}
+  @media(max-width:800px){.top-row{grid-template-columns:1fr;}}
+
+  .panel{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:1.4rem;}
+  .panel h2{font-family:'Bebas Neue',cursive;font-size:1.4rem;color:var(--gold);letter-spacing:2px;
     margin-bottom:1rem;border-bottom:1px solid rgba(255,184,28,0.2);padding-bottom:0.5rem;}
 
   /* ── Participants ── */
@@ -33,48 +35,49 @@
   .load-status.err{color:var(--red);}
 
   /* ── Results grid ── */
-  .round-mult-legend{display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.75rem;}
-  .round-mult-legend span{background:rgba(255,255,255,0.06);border-radius:4px;padding:2px 8px;
-    font-size:0.78rem;color:var(--silver);}
+  .round-mult-legend{display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1rem;}
+  .round-mult-legend span{background:rgba(255,255,255,0.06);border-radius:4px;padding:3px 10px;
+    font-size:0.85rem;color:var(--silver);}
   .round-mult-legend strong{color:var(--gold);}
 
-  .round-headers{display:grid;grid-template-columns:1fr repeat(4,52px);gap:4px;margin-bottom:4px;}
-  .round-headers span{font-size:0.7rem;color:var(--gold);text-align:center;font-weight:700;
+  .round-headers{display:grid;grid-template-columns:1fr repeat(4,72px);gap:6px;margin-bottom:6px;}
+  .round-headers span{font-size:0.78rem;color:var(--gold);text-align:center;font-weight:700;
     letter-spacing:0.5px;line-height:1.2;}
 
-  .results-grid{display:flex;flex-direction:column;gap:3px;}
-  .result-row{display:grid;grid-template-columns:1fr repeat(4,52px);gap:4px;align-items:center;}
-  .team-lbl{font-size:0.82rem;color:white;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .results-grid{display:flex;flex-direction:column;gap:5px;}
+  .result-row{display:grid;grid-template-columns:1fr repeat(4,72px);gap:6px;align-items:center;}
+  .team-lbl{font-size:1rem;color:white;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 
-  /* Win dots button */
-  .win-btn{display:flex;align-items:center;justify-content:center;gap:2px;
-    background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);
-    border-radius:5px;cursor:pointer;padding:4px 2px;transition:background 0.15s,border-color 0.15s;
-    width:52px;height:30px;}
-  .win-btn:hover{background:rgba(255,184,28,0.1);border-color:rgba(255,184,28,0.4);}
-  .win-btn .dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,0.15);transition:background 0.15s;}
-  .win-btn .dot.on{background:var(--green);}
-  .win-btn[data-wins="4"]{border-color:rgba(255,184,28,0.5);}
+  /* Win dots button — bigger */
+  .win-btn{display:flex;align-items:center;justify-content:center;gap:4px;
+    background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);
+    border-radius:6px;cursor:pointer;padding:0;transition:background 0.15s,border-color 0.15s;
+    width:72px;height:44px;}
+  .win-btn:hover{background:rgba(255,184,28,0.1);border-color:rgba(255,184,28,0.5);}
+  .win-btn:active{transform:scale(0.95);}
+  .win-btn .dot{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,0.12);transition:background 0.15s;}
+  .win-btn .dot.on{background:var(--green);box-shadow:0 0 6px rgba(34,197,94,0.6);}
+  .win-btn[data-wins="4"]{border-color:rgba(255,184,28,0.6);background:rgba(255,184,28,0.06);}
 
-  /* ── Leaderboard table ── */
+  /* ── Leaderboard table (secondary) ── */
   .lb-wrap{overflow-x:auto;}
-  table{width:100%;border-collapse:collapse;font-size:0.95rem;}
-  thead tr th{background:rgba(200,16,46,0.8);color:white;font-family:'Bebas Neue',cursive;
-    font-size:1rem;letter-spacing:1.5px;padding:10px 12px;text-align:center;border-bottom:2px solid var(--red);}
+  table{width:100%;border-collapse:collapse;font-size:0.9rem;}
+  thead tr th{background:rgba(200,16,46,0.7);color:white;font-family:'Bebas Neue',cursive;
+    font-size:0.95rem;letter-spacing:1.5px;padding:8px 10px;text-align:center;border-bottom:2px solid var(--red);}
   thead tr th:first-child{text-align:left;}
   tbody tr{transition:background 0.15s;}
   tbody tr:nth-child(even){background:rgba(255,255,255,0.025);}
   tbody tr:hover{background:rgba(255,184,28,0.06);}
-  tbody td{padding:9px 12px;color:white;border-bottom:1px solid rgba(255,255,255,0.05);
+  tbody td{padding:7px 10px;color:white;border-bottom:1px solid rgba(255,255,255,0.05);
     text-align:center;vertical-align:middle;}
   tbody td:first-child{text-align:left;}
-  .rank-cell{font-family:'Bebas Neue',cursive;font-size:1.4rem;}
+  .rank-cell{font-family:'Bebas Neue',cursive;font-size:1.2rem;}
   .rank-1{color:#FFD700;}.rank-2{color:#C0C0C0;}.rank-3{color:#CD7F32;}
-  .name-cell{font-weight:700;font-size:1.05rem;}
-  .score-cell{font-family:'Bebas Neue',cursive;font-size:1.4rem;color:var(--gold);}
-  .round-score{font-size:0.9rem;color:var(--silver);}
-  .empty-state{text-align:center;padding:3rem 1rem;color:var(--silver);}
-  .empty-state p{font-size:1.1rem;margin-top:0.5rem;}
+  .name-cell{font-weight:700;font-size:1rem;}
+  .score-cell{font-family:'Bebas Neue',cursive;font-size:1.3rem;color:var(--gold);}
+  .round-score{font-size:0.85rem;color:var(--silver);}
+  .empty-state{text-align:center;padding:2rem 1rem;color:var(--silver);}
+  .empty-state p{font-size:1rem;margin-top:0.5rem;}
 </style>
 </head>
 <body>
@@ -84,13 +87,9 @@
 </header>
 
 <div class="main">
-  <!-- LEFT -->
-  <div>
-    <div class="panel" style="margin-bottom:1rem;">
-      <h2>👥 Participants</h2>
-      <div id="participant-list"><p style="color:var(--silver);font-size:0.9rem;">Loading picks from /playoff/…</p></div>
-    </div>
-
+  <!-- TOP ROW: Game Results (main) + Participants (sidebar) -->
+  <div class="top-row">
+    <!-- LEFT: Game Results (primary) -->
     <div class="panel">
       <h2>🏒 Game Results</h2>
       <div class="round-mult-legend">
@@ -104,11 +103,17 @@
       </div>
       <div class="results-grid" id="results-grid"></div>
     </div>
+
+    <!-- RIGHT: Participants (sidebar) -->
+    <div class="panel">
+      <h2>👥 Participants</h2>
+      <div id="participant-list"><p style="color:var(--silver);font-size:0.9rem;">Loading…</p></div>
+    </div>
   </div>
 
-  <!-- RIGHT: leaderboard -->
+  <!-- BOTTOM: Leaderboard (secondary reference) -->
   <div class="panel">
-    <h2>🏆 Live Leaderboard</h2>
+    <h2>🏆 Leaderboard</h2>
     <div class="lb-wrap">
       <table id="lb-table">
         <thead>
