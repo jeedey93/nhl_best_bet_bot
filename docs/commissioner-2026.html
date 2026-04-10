@@ -147,26 +147,25 @@
 
 <script>
 const TEAMS_DATA=[
-  {name:"Boston Bruins",       abbr:"BOS"},
-  {name:"Carolina Hurricanes", abbr:"CAR"},
-  {name:"Florida Panthers",    abbr:"FLA"},
-  {name:"Toronto Maple Leafs", abbr:"TOR"},
-  {name:"Tampa Bay Lightning", abbr:"TBL"},
-  {name:"Washington Capitals", abbr:"WSH"},
-  {name:"New York Rangers",    abbr:"NYR"},
-  {name:"New Jersey Devils",   abbr:"NJD"},
-  {name:"Vegas Golden Knights",abbr:"VGK"},
-  {name:"Colorado Avalanche",  abbr:"COL"},
-  {name:"Dallas Stars",        abbr:"DAL"},
-  {name:"Winnipeg Jets",       abbr:"WPG"},
-  {name:"Edmonton Oilers",     abbr:"EDM"},
-  {name:"Los Angeles Kings",   abbr:"LAK"},
-  {name:"Minnesota Wild",      abbr:"MIN"},
-  {name:"Vancouver Canucks",   abbr:"VAN"},
+  {name:"Buffalo Sabres",        abbr:"BUF"},
+  {name:"Boston Bruins",         abbr:"BOS"},
+  {name:"Montreal Canadiens",    abbr:"MTL"},
+  {name:"Tampa Bay Lightning",   abbr:"TBL"},
+  {name:"Carolina Hurricanes",   abbr:"CAR"},
+  {name:"Ottawa Senators",       abbr:"OTT"},
+  {name:"Pittsburgh Penguins",   abbr:"PIT"},
+  {name:"Philadelphia Flyers",   abbr:"PHI"},
+  {name:"Colorado Avalanche",    abbr:"COL"},
+  {name:"Los Angeles Kings",     abbr:"LAK"},
+  {name:"Dallas Stars",          abbr:"DAL"},
+  {name:"Minnesota Wild",        abbr:"MIN"},
+  {name:"Edmonton Oilers",       abbr:"EDM"},
+  {name:"Utah Hockey Club",      abbr:"UTA"},
+  {name:"Vegas Golden Knights",  abbr:"VGK"},
+  {name:"Anaheim Ducks",         abbr:"ANA"},
 ];
 const TEAMS=TEAMS_DATA.map(t=>t.name);
-const ESPN_ABBR={TBL:'tb',LAK:'la',NJD:'nj',WSH:'wsh',VGK:'vgk',NYR:'nyr',WPG:'wpg'};
-function logoUrl(abbr){const e=ESPN_ABBR[abbr]||abbr.toLowerCase();return`https://a.espncdn.com/i/teamlogos/nhl/500/${e}.png`;}
+function logoUrl(abbr){return`https://assets.nhle.com/logos/nhl/svg/${abbr}_light.svg`;}
 function teamLogoHtml(name){
   const t=TEAMS_DATA.find(x=>x.name===name);
   if(!t)return'';
@@ -276,12 +275,14 @@ function buildResultsGrid(){
     // Logo cell
     row.insertAdjacentHTML('beforeend',teamLogoHtml(team));
     const lbl=document.createElement('div');lbl.className='team-lbl-wrap';lbl.title=team;
-    const shortName=team.replace('Vegas Golden Knights','VGK').replace('New York Rangers','NY Rangers')
-      .replace('New Jersey Devils','NJ Devils').replace('Carolina Hurricanes','Hurricanes')
-      .replace('Tampa Bay Lightning','Lightning').replace('Washington Capitals','Capitals')
-      .replace('Los Angeles Kings','LA Kings').replace('Minnesota Wild','Wild')
-      .replace('Vancouver Canucks','Canucks').replace('Winnipeg Jets','Jets')
-      .replace('Colorado Avalanche','Avalanche').replace('Edmonton Oilers','Oilers');
+    const shortName=team.replace('Vegas Golden Knights','VGK').replace('Philadelphia Flyers','Flyers')
+      .replace('Tampa Bay Lightning','Lightning').replace('Los Angeles Kings','LA Kings')
+      .replace('Carolina Hurricanes','Hurricanes').replace('Colorado Avalanche','Avalanche')
+      .replace('Minnesota Wild','Wild').replace('Edmonton Oilers','Oilers')
+      .replace('Pittsburgh Penguins','Penguins').replace('Montreal Canadiens','Canadiens')
+      .replace('Utah Hockey Club','Utah HC').replace('Ottawa Senators','Senators')
+      .replace('Buffalo Sabres','Sabres').replace('Anaheim Ducks','Ducks')
+      .replace('Dallas Stars','Stars').replace('Boston Bruins','Bruins');
     const totalEl=document.createElement('span');totalEl.className='team-total';totalEl.id='total-'+team.replace(/\s/g,'_');
     lbl.innerHTML=`<span class="team-lbl">${shortName}</span>`;
     lbl.appendChild(totalEl);
