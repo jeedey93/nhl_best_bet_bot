@@ -48,9 +48,8 @@
   /* Filled rank item */
   .rank-item { display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.045);
     border:1px solid var(--line);border-left:3px solid rgba(255,255,255,0.1);border-radius:6px;
-    padding:6px 8px 6px 8px;cursor:grab;user-select:none;touch-action:none;
+    padding:6px 8px 6px 8px;cursor:grab;user-select:none;touch-action:none;-webkit-user-select:none;
     transition:background 0.15s,border-left-color 0.2s; }
-  .rank-item:active { cursor:grabbing; }
   .rank-item.dragging { opacity:0.35; }
   .rank-item.drag-over { background:rgba(255,184,28,0.12);border-left-color:var(--gold); }
   .rank-item[data-pos="1"] { border-left-color:var(--gold); }
@@ -92,8 +91,7 @@
 
   .pool-item { display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.04);
     border:1px solid var(--line);border-radius:6px;padding:6px 10px;
-    cursor:grab;user-select:none;touch-action:none;transition:background 0.15s,border-color 0.15s;position:relative; }
-  .pool-item:active { cursor:grabbing; }
+    cursor:grab;user-select:none;touch-action:none;-webkit-user-select:none;transition:background 0.15s,border-color 0.15s;position:relative; }
   .pool-item.dragging { opacity:0.35; }
   .pool-item.drag-over { background:rgba(255,184,28,0.07);border-color:rgba(255,184,28,0.4); }
 
@@ -337,7 +335,6 @@ function renderRanking(){
     const li=document.createElement('li');
     if(team){
       li.className='rank-item';
-      li.draggable=true;
       li.dataset.pos=pos;
       li.dataset.idx=i;
       li.innerHTML=`<span class="pos-badge">${pos}</span>
@@ -349,21 +346,12 @@ function renderRanking(){
         ranking[i]=null;
         render();
       });
-      li.addEventListener('dragstart',e=>{dragSrc={from:'rank',idx:i};e.dataTransfer.effectAllowed='move';setTimeout(()=>li.classList.add('dragging'),0);});
-      li.addEventListener('dragend',()=>{li.classList.remove('dragging');clearHL();});
-      li.addEventListener('dragenter',e=>{e.preventDefault();clearHL();li.classList.add('drag-over');});
-      li.addEventListener('dragover',e=>{e.preventDefault();});
-      li.addEventListener('dragleave',e=>{if(!li.contains(e.relatedTarget))li.classList.remove('drag-over');});
-      li.addEventListener('drop',e=>{e.preventDefault();li.classList.remove('drag-over');handleDrop({to:'rank',idx:i});});
+      setupMouseRank(li,i);
       setupTouchRank(li,i);
     } else {
       li.className='rank-slot-empty';
       li.dataset.idx=i;
       li.innerHTML=`<span class="slot-pos">${pos}</span><span class="slot-hint">Drop here</span>`;
-      li.addEventListener('dragenter',e=>{e.preventDefault();clearHL();li.classList.add('drag-over');});
-      li.addEventListener('dragover',e=>{e.preventDefault();});
-      li.addEventListener('dragleave',e=>{if(!li.contains(e.relatedTarget))li.classList.remove('drag-over');});
-      li.addEventListener('drop',e=>{e.preventDefault();li.classList.remove('drag-over');handleDrop({to:'rank',idx:i});});
     }
     list.appendChild(li);
   }
@@ -381,23 +369,13 @@ function renderPool(){
   const nextPts=nextSlot>=0?pts(nextSlot+1):null;  pool.forEach((team,i)=>{
     const div=document.createElement('div');
     div.className='pool-item';
-    div.draggable=true;
     div.dataset.idx=i;
     const tooltipHtml='';
     div.innerHTML=`${logoHtml(team)}<div class="team-info"><div class="team-name">${team.name}</div><div class="team-conf">${team.conf}ern Conference</div></div>${tooltipHtml}`;
-    div.addEventListener('dragstart',e=>{dragSrc={from:'pool',idx:i};e.dataTransfer.effectAllowed='move';setTimeout(()=>div.classList.add('dragging'),0);});
-    div.addEventListener('dragend',()=>{div.classList.remove('dragging');clearHL();});
-    // Allow dropping a ranked team back onto the pool
-    div.addEventListener('dragenter',e=>{e.preventDefault();clearHL();div.classList.add('drag-over');});
-    div.addEventListener('dragover',e=>{e.preventDefault();});
-    div.addEventListener('dragleave',e=>{if(!div.contains(e.relatedTarget))div.classList.remove('drag-over');});
-    div.addEventListener('drop',e=>{e.preventDefault();div.classList.remove('drag-over');handleDrop({to:'pool'});});
+    setupMousePool(div,i);
     setupTouchPool(div,i);
     container.appendChild(div);
   });
-  // Also allow dropping onto the pool container itself (empty area)
-  container.addEventListener('dragover',e=>{e.preventDefault();});
-  container.addEventListener('drop',e=>{e.preventDefault();handleDrop({to:'pool'});});
 }
 
 // ── Drop handler ──────────────────────────────────────────────────────────────
@@ -429,6 +407,63 @@ function handleDrop(dest){
 function clearHL(){
   document.querySelectorAll('.rank-item,.rank-slot-empty,.pool-item').forEach(el=>el.classList.remove('drag-over'));
 }
+
+// ── Mouse drag support (replaces native HTML5 drag — allows scroll while dragging on Windows) ──
+let activeMouseDrag=null;
+
+function makeMouseHandler(el,getSrc){
+  el.addEventListener('mousedown',e=>{
+    // Only main button; ignore clicks on remove-btn
+    if(e.button!==0||e.target.closest('.remove-btn'))return;
+    e.preventDefault();
+    dragSrc=getSrc();
+    const rect=el.getBoundingClientRect();
+    const offsetX=e.clientX-rect.left,offsetY=e.clientY-rect.top;
+    const clone=el.cloneNode(true);
+    clone.style.cssText=`position:fixed;left:${rect.left}px;top:${rect.top}px;width:${rect.width}px;
+      opacity:0.9;z-index:9999;pointer-events:none;transition:none;margin:0;
+      box-shadow:0 8px 32px rgba(0,0,0,0.5);transform:scale(1.03);`;
+    document.body.appendChild(clone);
+    el.classList.add('dragging');
+    document.body.style.cursor='grabbing';
+    activeMouseDrag={clone,el,offsetX,offsetY};
+
+    function onMove(e){
+      if(!activeMouseDrag)return;
+      activeMouseDrag.clone.style.left=(e.clientX-offsetX)+'px';
+      activeMouseDrag.clone.style.top=(e.clientY-offsetY)+'px';
+      clearHL();
+      const under=document.elementFromPoint(e.clientX,e.clientY);
+      const slot=under?.closest('.rank-item,.rank-slot-empty');
+      const poolEl=under?.closest('.pool-item,.pool-list');
+      if(slot&&slot!==el)slot.classList.add('drag-over');
+      else if(poolEl)poolEl.classList.add('drag-over');
+    }
+
+    function onUp(e){
+      document.removeEventListener('mousemove',onMove);
+      document.removeEventListener('mouseup',onUp);
+      if(!activeMouseDrag)return;
+      activeMouseDrag.clone.remove();
+      activeMouseDrag.el.classList.remove('dragging');
+      activeMouseDrag=null;
+      document.body.style.cursor='';
+      clearHL();
+      const under=document.elementFromPoint(e.clientX,e.clientY);
+      const slot=under?.closest('.rank-item,.rank-slot-empty');
+      const poolEl=under?.closest('.pool-item,.pool-list');
+      if(slot){handleDrop({to:'rank',idx:parseInt(slot.dataset.idx)});}
+      else if(poolEl){handleDrop({to:'pool'});}
+      else{dragSrc=null;}
+    }
+
+    document.addEventListener('mousemove',onMove);
+    document.addEventListener('mouseup',onUp);
+  });
+}
+
+function setupMouseRank(el,idx){makeMouseHandler(el,()=>({from:'rank',idx}));}
+function setupMousePool(el,idx){makeMouseHandler(el,()=>({from:'pool',idx}));}
 
 // ── Touch support ─────────────────────────────────────────────────────────────
 // Long-press (300ms) activates drag — finger movement before that scrolls normally.
