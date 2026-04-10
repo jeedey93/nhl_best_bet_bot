@@ -5,11 +5,16 @@ on:
     paths:
       - 'docs/playoff/*.json'
 
+permissions:
+  contents: write
+
 jobs:
   update-index:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Regenerate playoff/index.json
         run: |
