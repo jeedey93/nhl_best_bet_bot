@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-  :root{--rink:#07111f;--red:#c8102e;--gold:#ffb81c;--silver:#a8b2be;--ice:#e8f4fd;--green:#1a7a4a;}
+  :root{--rink:#07111f;--red:#c8102e;--gold:#ffb81c;--silver:#a8b2be;--ice:#e8f4fd;--green:#22c55e;}
   body{background:var(--rink);min-height:100vh;font-family:'Barlow Condensed',sans-serif;
     background-image:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(26,58,110,0.6) 0%,transparent 70%);
     padding:1.5rem 1rem 4rem;}
@@ -17,39 +17,44 @@
   header h1 span{color:var(--gold);}
   header p{color:var(--silver);font-size:1rem;letter-spacing:2px;text-transform:uppercase;margin-top:0.3rem;}
 
-  .main{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:280px 1fr;gap:1.5rem;}
-  @media(max-width:700px){.main{grid-template-columns:1fr;}}
+  .main{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:300px 1fr;gap:1.5rem;}
+  @media(max-width:750px){.main{grid-template-columns:1fr;}}
 
-  /* ── Left panel ── */
   .panel{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:1.2rem;}
-  .panel h2{font-family:'Bebas Neue',cursive;font-size:1.3rem;color:var(--gold);letter-spacing:2px;margin-bottom:1rem;border-bottom:1px solid rgba(255,184,28,0.2);padding-bottom:0.5rem;}
+  .panel h2{font-family:'Bebas Neue',cursive;font-size:1.3rem;color:var(--gold);letter-spacing:2px;
+    margin-bottom:1rem;border-bottom:1px solid rgba(255,184,28,0.2);padding-bottom:0.5rem;}
 
-  /* File drop zone */
-  .drop-zone{border:2px dashed rgba(255,184,28,0.35);border-radius:8px;padding:1.5rem 1rem;text-align:center;
-    cursor:pointer;transition:border-color 0.2s,background 0.2s;margin-bottom:1rem;}
-  .drop-zone:hover,.drop-zone.over{border-color:var(--gold);background:rgba(255,184,28,0.06);}
-  .drop-zone p{color:var(--silver);font-size:0.95rem;line-height:1.5;}
-  .drop-zone strong{color:var(--gold);}
-  #file-input{display:none;}
-
-  /* Participants list */
-  .participant-chip{display:flex;align-items:center;justify-content:space-between;
+  /* ── Participants ── */
+  .participant-chip{display:flex;align-items:center;gap:0.5rem;
     background:rgba(255,255,255,0.05);border-radius:5px;padding:0.4rem 0.7rem;margin-bottom:5px;}
-  .participant-chip span{color:white;font-size:1rem;font-weight:600;}
-  .participant-chip button{background:none;border:none;color:rgba(255,255,255,0.3);cursor:pointer;font-size:1rem;line-height:1;}
-  .participant-chip button:hover{color:var(--red);}
+  .participant-chip span{color:white;font-size:1rem;font-weight:600;flex:1;}
+  .load-status{font-size:0.75rem;color:var(--silver);letter-spacing:1px;}
+  .load-status.ok{color:var(--green);}
+  .load-status.err{color:var(--red);}
 
-  /* Results grid */
-  .results-grid{display:flex;flex-direction:column;gap:4px;margin-top:0.5rem;}
-  .result-row{display:grid;grid-template-columns:1fr repeat(4,40px);gap:4px;align-items:center;}
-  .result-row .team-lbl{font-size:0.85rem;color:white;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .result-row input[type=number]{width:40px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);
-    border-radius:4px;color:white;font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:700;
-    text-align:center;padding:2px 0;outline:none;appearance:textfield;-moz-appearance:textfield;}
-  .result-row input[type=number]::-webkit-inner-spin-button,.result-row input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;}
-  .result-row input[type=number]:focus{border-color:var(--gold);}
-  .round-headers{display:grid;grid-template-columns:1fr repeat(4,40px);gap:4px;margin-bottom:4px;}
-  .round-headers span{font-size:0.7rem;color:var(--gold);text-align:center;font-weight:700;letter-spacing:0.5px;line-height:1.2;}
+  /* ── Results grid ── */
+  .round-mult-legend{display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.75rem;}
+  .round-mult-legend span{background:rgba(255,255,255,0.06);border-radius:4px;padding:2px 8px;
+    font-size:0.78rem;color:var(--silver);}
+  .round-mult-legend strong{color:var(--gold);}
+
+  .round-headers{display:grid;grid-template-columns:1fr repeat(4,52px);gap:4px;margin-bottom:4px;}
+  .round-headers span{font-size:0.7rem;color:var(--gold);text-align:center;font-weight:700;
+    letter-spacing:0.5px;line-height:1.2;}
+
+  .results-grid{display:flex;flex-direction:column;gap:3px;}
+  .result-row{display:grid;grid-template-columns:1fr repeat(4,52px);gap:4px;align-items:center;}
+  .team-lbl{font-size:0.82rem;color:white;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+  /* Win dots button */
+  .win-btn{display:flex;align-items:center;justify-content:center;gap:2px;
+    background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);
+    border-radius:5px;cursor:pointer;padding:4px 2px;transition:background 0.15s,border-color 0.15s;
+    width:52px;height:30px;}
+  .win-btn:hover{background:rgba(255,184,28,0.1);border-color:rgba(255,184,28,0.4);}
+  .win-btn .dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,0.15);transition:background 0.15s;}
+  .win-btn .dot.on{background:var(--green);}
+  .win-btn[data-wins="4"]{border-color:rgba(255,184,28,0.5);}
 
   /* ── Leaderboard table ── */
   .lb-wrap{overflow-x:auto;}
@@ -60,45 +65,30 @@
   tbody tr{transition:background 0.15s;}
   tbody tr:nth-child(even){background:rgba(255,255,255,0.025);}
   tbody tr:hover{background:rgba(255,184,28,0.06);}
-  tbody td{padding:9px 12px;color:white;border-bottom:1px solid rgba(255,255,255,0.05);text-align:center;vertical-align:middle;}
+  tbody td{padding:9px 12px;color:white;border-bottom:1px solid rgba(255,255,255,0.05);
+    text-align:center;vertical-align:middle;}
   tbody td:first-child{text-align:left;}
   .rank-cell{font-family:'Bebas Neue',cursive;font-size:1.4rem;}
-  .rank-1{color:#FFD700;}
-  .rank-2{color:#C0C0C0;}
-  .rank-3{color:#CD7F32;}
+  .rank-1{color:#FFD700;}.rank-2{color:#C0C0C0;}.rank-3{color:#CD7F32;}
   .name-cell{font-weight:700;font-size:1.05rem;}
   .score-cell{font-family:'Bebas Neue',cursive;font-size:1.4rem;color:var(--gold);}
   .round-score{font-size:0.9rem;color:var(--silver);}
   .empty-state{text-align:center;padding:3rem 1rem;color:var(--silver);}
   .empty-state p{font-size:1.1rem;margin-top:0.5rem;}
-
-  .btn-clear{width:100%;background:rgba(200,16,46,0.2);border:1px solid rgba(200,16,46,0.4);
-    color:var(--red);font-family:'Bebas Neue',cursive;font-size:1rem;letter-spacing:2px;
-    padding:0.5rem;border-radius:5px;cursor:pointer;margin-top:0.75rem;transition:background 0.2s;}
-  .btn-clear:hover{background:rgba(200,16,46,0.4);}
-
-  .round-mult-legend{display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.75rem;}
-  .round-mult-legend span{background:rgba(255,255,255,0.06);border-radius:4px;padding:2px 8px;font-size:0.78rem;color:var(--silver);}
-  .round-mult-legend strong{color:var(--gold);}
 </style>
 </head>
 <body>
 <header>
-  <h1>NHL <span>Playoff</span> Commissioner</h1>
-  <p>Load picks · Enter results · Watch the leaderboard update</p>
+  <h1>NHL <span>2026 Playoff</span> Commissioner</h1>
+  <p>Click wins · Watch the leaderboard update</p>
 </header>
 
 <div class="main">
-  <!-- LEFT: inputs -->
+  <!-- LEFT -->
   <div>
     <div class="panel" style="margin-bottom:1rem;">
-      <h2>📤 Load Picks Files</h2>
-      <div class="drop-zone" id="drop-zone">
-        <p>Drop <strong>.json picks files</strong> here<br>or click to browse</p>
-        <input type="file" id="file-input" accept=".json" multiple>
-      </div>
-      <div id="participant-list"></div>
-      <button class="btn-clear" id="btn-clear-all">✕ Clear All Participants</button>
+      <h2>👥 Participants</h2>
+      <div id="participant-list"><p style="color:var(--silver);font-size:0.9rem;">Loading picks from /playoff/…</p></div>
     </div>
 
     <div class="panel">
@@ -110,7 +100,7 @@
         <span>SC <strong>×4</strong></span>
       </div>
       <div class="round-headers">
-        <span></span><span>R1<br>wins</span><span>R2<br>wins</span><span>CF<br>wins</span><span>SC<br>wins</span>
+        <span></span><span>R1</span><span>R2</span><span>CF</span><span>SC</span>
       </div>
       <div class="results-grid" id="results-grid"></div>
     </div>
@@ -131,7 +121,7 @@
         <tbody id="lb-body">
           <tr><td colspan="7" class="empty-state">
             <div style="font-size:2rem">🏒</div>
-            <p>Load participants' picks files to begin</p>
+            <p>Loading participants…</p>
           </td></tr>
         </tbody>
       </table>
@@ -149,11 +139,45 @@ const TEAMS=[
 const ROUND_MULT=[1,2,3,4];
 const ROUND_LABELS=["R1","R2","CF","SC"];
 
-let participants=[]; // [{name, picks: {teamName: points}}]
-let results={};      // {teamName: [0..4, 0..4, 0..4, 0..4]}  (games won per round)
+// List of JSON files in docs/playoff/ — add filenames here as participants join
+const PICKS_FILES=[
+  'Justin_NHL_Picks.json',
+];
 
-// Init results
+let participants=[];
+let results={};
 TEAMS.forEach(t=>{results[t]=[0,0,0,0];});
+
+// ── Load participants from docs/playoff/ ──────────────────────────────────────
+async function loadParticipants(){
+  const list=document.getElementById('participant-list');
+  list.innerHTML='';
+  participants=[];
+
+  await Promise.all(PICKS_FILES.map(async filename=>{
+    // Extract name: take everything before the first underscore or before "_NHL"
+    const nameRaw=filename.replace(/\.json$/i,'');
+    const name=nameRaw.split('_')[0];
+    const chip=document.createElement('div');chip.className='participant-chip';
+    const status=document.createElement('span');status.className='load-status';
+    chip.innerHTML=`<span>${name}</span>`;chip.appendChild(status);
+    list.appendChild(chip);
+
+    try{
+      const resp=await fetch(`playoff/${filename}?_=${Date.now()}`);
+      if(!resp.ok)throw new Error(resp.status);
+      const data=await resp.json();
+      const pickMap={};
+      data.picks.forEach(p=>{pickMap[p.team]=p.points;});
+      participants.push({name,picks:pickMap});
+      status.textContent='✓';status.className='load-status ok';
+    }catch(e){
+      status.textContent='✗ not found';status.className='load-status err';
+    }
+  }));
+
+  recalc();
+}
 
 // ── Results grid ──────────────────────────────────────────────────────────────
 function buildResultsGrid(){
@@ -161,53 +185,40 @@ function buildResultsGrid(){
   grid.innerHTML='';
   TEAMS.forEach(team=>{
     const row=document.createElement('div');row.className='result-row';
-    const lbl=document.createElement('div');lbl.className='team-lbl';lbl.textContent=team;row.appendChild(lbl);
+    const lbl=document.createElement('div');lbl.className='team-lbl';lbl.title=team;
+    // Shorten long names for display
+    lbl.textContent=team.replace('Vegas Golden Knights','VGK').replace('New York Rangers','NY Rangers')
+      .replace('New Jersey Devils','NJ Devils').replace('Carolina Hurricanes','Hurricanes')
+      .replace('Tampa Bay Lightning','Lightning').replace('Washington Capitals','Capitals')
+      .replace('Los Angeles Kings','LA Kings').replace('Minnesota Wild','Wild')
+      .replace('Vancouver Canucks','Canucks').replace('Winnipeg Jets','Jets')
+      .replace('Colorado Avalanche','Avalanche').replace('Edmonton Oilers','Oilers');
+    row.appendChild(lbl);
+
     ROUND_LABELS.forEach((_,ri)=>{
-      const inp=document.createElement('input');inp.type='number';inp.min=0;inp.max=4;inp.value=results[team][ri];inp.placeholder='0';
-      inp.addEventListener('input',()=>{results[team][ri]=Math.min(4,Math.max(0,parseInt(inp.value)||0));recalc();});
-      row.appendChild(inp);
+      const btn=document.createElement('button');btn.className='win-btn';
+      btn.dataset.wins=results[team][ri];
+      renderDots(btn,results[team][ri]);
+      btn.addEventListener('click',()=>{
+        const next=(results[team][ri]+1)%5; // 0→1→2→3→4→0
+        results[team][ri]=next;
+        btn.dataset.wins=next;
+        renderDots(btn,next);
+        recalc();
+      });
+      row.appendChild(btn);
     });
     grid.appendChild(row);
   });
 }
 
-// ── File loading ──────────────────────────────────────────────────────────────
-function loadFile(file){
-  const reader=new FileReader();
-  reader.onload=e=>{
-    try{
-      const data=JSON.parse(e.target.result);
-      if(!data.name||!data.picks)throw new Error('Invalid format');
-      // Convert picks array to map {teamName: points}
-      const pickMap={};
-      data.picks.forEach(p=>{pickMap[p.team]=p.points;});
-      // Replace if same name already loaded
-      const existing=participants.findIndex(p=>p.name===data.name);
-      if(existing>=0)participants[existing]={name:data.name,picks:pickMap};
-      else participants.push({name:data.name,picks:pickMap});
-      renderParticipants();recalc();
-    }catch(err){alert('Could not read file: '+file.name+'\n'+err.message);}
-  };
-  reader.readAsText(file);
-}
-
-const dz=document.getElementById('drop-zone');
-const fi=document.getElementById('file-input');
-dz.addEventListener('click',()=>fi.click());
-dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('over');});
-dz.addEventListener('dragleave',()=>dz.classList.remove('over'));
-dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('over');[...e.dataTransfer.files].forEach(loadFile);});
-fi.addEventListener('change',()=>{[...fi.files].forEach(loadFile);fi.value='';});
-document.getElementById('btn-clear-all').addEventListener('click',()=>{participants=[];renderParticipants();recalc();});
-
-function renderParticipants(){
-  const list=document.getElementById('participant-list');list.innerHTML='';
-  participants.forEach((p,i)=>{
-    const chip=document.createElement('div');chip.className='participant-chip';
-    chip.innerHTML=`<span>${p.name}</span><button title="Remove">✕</button>`;
-    chip.querySelector('button').addEventListener('click',()=>{participants.splice(i,1);renderParticipants();recalc();});
-    list.appendChild(chip);
-  });
+function renderDots(btn,wins){
+  btn.innerHTML='';
+  for(let i=0;i<4;i++){
+    const d=document.createElement('span');
+    d.className='dot'+(i<wins?' on':'');
+    btn.appendChild(d);
+  }
 }
 
 // ── Score calculation ─────────────────────────────────────────────────────────
@@ -225,7 +236,7 @@ function calcScore(participant){
 function recalc(){
   const lb=document.getElementById('lb-body');
   if(participants.length===0){
-    lb.innerHTML=`<tr><td colspan="7" class="empty-state"><div style="font-size:2rem">🏒</div><p>Load participants' picks files to begin</p></td></tr>`;
+    lb.innerHTML=`<tr><td colspan="7" class="empty-state"><div style="font-size:2rem">🏒</div><p>No participants loaded yet</p></td></tr>`;
     return;
   }
   const rows=participants.map(p=>{
@@ -251,7 +262,7 @@ function recalc(){
 }
 
 buildResultsGrid();
-recalc();
+loadParticipants();
 </script>
 </body>
 </html>
