@@ -69,11 +69,35 @@
   .rank-1{color:#FFD700;}.rank-2{color:#C0C0C0;}.rank-3{color:#CD7F32;}
   .name-cell{font-weight:700;font-size:1.1rem;letter-spacing:0.5px;}
   .score-cell{font-family:'Bebas Neue',cursive;font-size:1.6rem;color:var(--gold);}
+  .gap-cell{font-size:0.8rem;color:var(--silver);white-space:nowrap;}
+  .gap-cell.leader{color:var(--green);font-weight:700;}
   .round-score{display:none;}
 
   /* score bar */
   .score-bar-wrap{width:100%;background:rgba(255,255,255,0.06);border-radius:3px;height:4px;margin-top:3px;}
   .score-bar{height:4px;border-radius:3px;background:linear-gradient(90deg,var(--red),var(--gold));transition:width 0.6s ease;}
+
+  /* ── Spotlight expand ── */
+  tbody tr.expandable{cursor:pointer;}
+  .spotlight-row td{padding:0;border-bottom:1px solid rgba(255,255,255,0.04);}
+  .spotlight-inner{padding:0.6rem 1rem 0.8rem 1rem;background:rgba(255,184,28,0.04);
+    display:flex;flex-wrap:wrap;gap:0.4rem;}
+  .spotlight-team{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.05);
+    border:1px solid rgba(255,255,255,0.08);border-radius:5px;padding:3px 8px;font-size:0.8rem;}
+  .spotlight-team .sp-rank{font-family:'Bebas Neue',cursive;font-size:0.9rem;color:var(--gold);width:16px;}
+  .spotlight-team .sp-name{color:white;font-weight:600;}
+  .spotlight-team .sp-pts{font-size:0.7rem;color:var(--silver);margin-left:2px;}
+
+  /* ── Submit picks banner ── */
+  .picks-banner{max-width:700px;margin:0 auto 1.5rem;text-align:center;}
+  .picks-banner a{display:inline-block;font-family:'Bebas Neue',cursive;font-size:1.3rem;letter-spacing:3px;
+    padding:0.65rem 2rem;border-radius:6px;text-decoration:none;
+    background:linear-gradient(135deg,var(--red) 0%,#8b0a1e 100%);color:white;
+    box-shadow:0 4px 20px rgba(200,16,46,0.4);transition:transform 0.15s;}
+  .picks-banner a:hover{transform:translateY(-2px);}
+  .picks-banner a.deadline-passed{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.3);
+    box-shadow:none;pointer-events:none;border:1px solid rgba(255,255,255,0.08);}
+  .picks-banner .deadline-note{font-size:0.8rem;color:var(--silver);letter-spacing:1px;margin-top:0.4rem;}
 
   .empty-state{text-align:center;padding:4rem 1rem;color:var(--silver);}
   .empty-state .icon{font-size:3rem;margin-bottom:0.5rem;}
@@ -106,6 +130,9 @@
 
 <div class="scoring-legend" style="display:none;"></div>
 
+<!-- Submit picks banner -->
+<div class="picks-banner" id="picks-banner"></div>
+
 <!-- Podium -->
 <div class="podium" id="podium"></div>
 
@@ -113,7 +140,7 @@
 <div class="lb-wrap">
   <table>
     <thead>
-      <tr><th>#</th><th>NAME</th><th>POINTS</th></tr>
+      <tr><th>#</th><th>NAME</th><th>POINTS</th><th>GAP</th></tr>
     </thead>
     <tbody id="lb-body">
       <tr><td colspan="7" class="empty-state">
@@ -141,6 +168,8 @@ const ROUND_LABELS=["R1","R2","CF","SC"];
 const ROUND_NAMES=["Round 1","Round 2","Conf. Final","Stanley Cup"];
 const API_URL='/api/playoff-results';
 const STORAGE_KEY='nhl_playoff_results_2026';
+// Set your picks submission deadline here (YYYY-MM-DD)
+const PICKS_DEADLINE=new Date('2026-04-19T23:59:59');
 
 let participants=[];
 let results={};
@@ -206,16 +235,26 @@ function calcScore(participant){
 }
 
 // ── Render ────────────────────────────────────────────────────────────────────
+function renderBanner(){
+  const banner=document.getElementById('picks-banner');
+  const passed=new Date()>PICKS_DEADLINE;
+  const dateStr=PICKS_DEADLINE.toLocaleDateString([],{month:'long',day:'numeric',year:'numeric'});
+  banner.innerHTML=passed
+    ? `<a class="deadline-passed">Picks Closed</a><p class="deadline-note">Submissions closed on ${dateStr}</p>`
+    : `<a href="picks-2026.html">📋 Submit Your Picks →</a><p class="deadline-note">Deadline: ${dateStr}</p>`;
+}
+
 function render(){
   if(participants.length===0)return;
 
   const rows=participants.map(p=>{
     const roundScores=calcScore(p);
     const total=roundScores.reduce((a,b)=>a+b,0);
-    return{name:p.name,roundScores,total};
+    return{name:p.name,roundScores,total,picks:p.picks};
   }).sort((a,b)=>b.total-a.total);
 
   const maxScore=rows[0]?.total||1;
+  const leaderScore=rows[0]?.total||0;
 
   // ── Podium ──
   const podium=document.getElementById('podium');
@@ -244,15 +283,50 @@ function render(){
     const rankClass=rank===1?'rank-1':rank===2?'rank-2':rank===3?'rank-3':'';
     const medal=rank===1?'🥇':rank===2?'🥈':rank===3?'🥉':'';
     const barPct=maxScore>0?Math.round(row.total/maxScore*100):0;
+    const gap=leaderScore-row.total;
+    const gapHtml=rank===1
+      ? `<td class="gap-cell leader">Leader</td>`
+      : `<td class="gap-cell">-${gap} pts</td>`;
+
     const tr=document.createElement('tr');
+    tr.className='expandable';
     tr.innerHTML=`
       <td class="rank-cell ${rankClass}">${medal||rank}</td>
       <td class="name-cell">
         ${row.name}
         <div class="score-bar-wrap"><div class="score-bar" style="width:${barPct}%"></div></div>
       </td>
-      <td class="score-cell">${row.total}</td>`;
+      <td class="score-cell">${row.total}</td>
+      ${gapHtml}`;
     lb.appendChild(tr);
+
+    // Spotlight row (hidden by default)
+    const spotlightTr=document.createElement('tr');
+    spotlightTr.className='spotlight-row';
+    spotlightTr.style.display='none';
+    const topTeams=TEAMS
+      .filter(t=>row.picks[t]>0)
+      .sort((a,b)=>(row.picks[b]||0)-(row.picks[a]||0))
+      .slice(0,8);
+    const teamsHtml=topTeams.map(t=>{
+      const p=row.picks[t];
+      const pos=17-p;
+      return`<div class="spotlight-team"><span class="sp-rank">${pos}</span><span class="sp-name">${t.split(' ').pop()}</span><span class="sp-pts">${p}pts</span></div>`;
+    }).join('');
+    spotlightTr.innerHTML=`<td colspan="4"><div class="spotlight-inner">${teamsHtml||'<span style="color:var(--silver);font-size:0.85rem">No picks loaded</span>'}</div></td>`;
+    lb.appendChild(spotlightTr);
+
+    // Toggle spotlight on row click
+    tr.addEventListener('click',()=>{
+      const open=spotlightTr.style.display!=='none';
+      // Close all others
+      lb.querySelectorAll('.spotlight-row').forEach(r=>r.style.display='none');
+      lb.querySelectorAll('.expandable').forEach(r=>r.style.background='');
+      if(!open){
+        spotlightTr.style.display='';
+        tr.style.background='rgba(255,184,28,0.06)';
+      }
+    });
   });
 
   // ── Rounds grid ──
@@ -277,6 +351,7 @@ function render(){
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────
+renderBanner();
 loadResultsLocal();
 loadParticipants();
 loadResultsRemote();

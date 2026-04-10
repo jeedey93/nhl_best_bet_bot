@@ -92,10 +92,15 @@
 
   .pool-item { display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.04);
     border:1px solid var(--line);border-radius:6px;padding:6px 10px;
-    cursor:grab;user-select:none;touch-action:none;transition:background 0.15s,border-color 0.15s; }
+    cursor:grab;user-select:none;touch-action:none;transition:background 0.15s,border-color 0.15s;position:relative; }
   .pool-item:active { cursor:grabbing; }
   .pool-item.dragging { opacity:0.35; }
   .pool-item.drag-over { background:rgba(255,184,28,0.07);border-color:rgba(255,184,28,0.4); }
+
+  .pool-tooltip { position:absolute;right:8px;top:50%;transform:translateY(-50%);
+    background:rgba(255,184,28,0.15);border:1px solid rgba(255,184,28,0.4);border-radius:4px;
+    padding:2px 7px;font-size:0.72rem;font-weight:700;color:var(--gold);letter-spacing:0.5px;
+    pointer-events:none;white-space:nowrap; }
 
   .pool-empty { text-align:center;padding:2rem 1rem;color:rgba(255,255,255,0.2);
     font-size:0.9rem;letter-spacing:1px;border:1px dashed rgba(255,255,255,0.08);border-radius:6px; }
@@ -346,12 +351,16 @@ function renderPool(){
     container.innerHTML='<div class="pool-empty">All teams ranked!</div>';
     return;
   }
+  // Find the next empty slot position for the tooltip
+  const nextSlot=ranking.findIndex(s=>s===null);
+  const nextPts=nextSlot>=0?pts(nextSlot+1):null;
   pool.forEach((team,i)=>{
     const div=document.createElement('div');
     div.className='pool-item';
     div.draggable=true;
     div.dataset.idx=i;
-    div.innerHTML=`${logoHtml(team)}<div class="team-info"><div class="team-name">${team.name}</div><div class="team-conf">${team.conf}ern Conference</div></div>`;
+    const tooltipHtml=nextPts!==null?`<span class="pool-tooltip">${nextPts} pts/win</span>`:'';
+    div.innerHTML=`${logoHtml(team)}<div class="team-info"><div class="team-name">${team.name}</div><div class="team-conf">${team.conf}ern Conference</div></div>${tooltipHtml}`;
     div.addEventListener('dragstart',e=>{dragSrc={from:'pool',idx:i};e.dataTransfer.effectAllowed='move';setTimeout(()=>div.classList.add('dragging'),0);});
     div.addEventListener('dragend',()=>{div.classList.remove('dragging');clearHL();});
     // Allow dropping a ranked team back onto the pool
