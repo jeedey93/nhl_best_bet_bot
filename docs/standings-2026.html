@@ -283,7 +283,7 @@ async function loadParticipants(){
     const files=await idx.json();
     await Promise.all(files.map(async f=>{
       try{
-        const r=await fetch('playoff/'+f+'?_='+Date.now());
+        const r=await fetch('playoff/participants/'+f+'?_='+Date.now());
         if(!r.ok)return;
         const data=await r.json();
         const name=f.replace(/\.json$/i,'').split('_')[0];
