@@ -41,11 +41,14 @@
 
   /* Results grid */
   .results-grid{display:flex;flex-direction:column;gap:4px;margin-top:0.5rem;}
-  .result-row{display:grid;grid-template-columns:1fr repeat(4,36px);gap:4px;align-items:center;}
+  .result-row{display:grid;grid-template-columns:1fr repeat(4,40px);gap:4px;align-items:center;}
   .result-row .team-lbl{font-size:0.85rem;color:white;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .result-row .round-chk{display:flex;align-items:center;justify-content:center;}
-  .result-row input[type=checkbox]{width:18px;height:18px;accent-color:var(--green);cursor:pointer;}
-  .round-headers{display:grid;grid-template-columns:1fr repeat(4,36px);gap:4px;margin-bottom:4px;}
+  .result-row input[type=number]{width:40px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);
+    border-radius:4px;color:white;font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:700;
+    text-align:center;padding:2px 0;outline:none;appearance:textfield;-moz-appearance:textfield;}
+  .result-row input[type=number]::-webkit-inner-spin-button,.result-row input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;}
+  .result-row input[type=number]:focus{border-color:var(--gold);}
+  .round-headers{display:grid;grid-template-columns:1fr repeat(4,40px);gap:4px;margin-bottom:4px;}
   .round-headers span{font-size:0.7rem;color:var(--gold);text-align:center;font-weight:700;letter-spacing:0.5px;line-height:1.2;}
 
   /* ── Leaderboard table ── */
@@ -107,7 +110,7 @@
         <span>SC <strong>×4</strong></span>
       </div>
       <div class="round-headers">
-        <span></span><span>R1</span><span>R2</span><span>CF</span><span>SC</span>
+        <span></span><span>R1<br>wins</span><span>R2<br>wins</span><span>CF<br>wins</span><span>SC<br>wins</span>
       </div>
       <div class="results-grid" id="results-grid"></div>
     </div>
@@ -147,10 +150,10 @@ const ROUND_MULT=[1,2,3,4];
 const ROUND_LABELS=["R1","R2","CF","SC"];
 
 let participants=[]; // [{name, picks: {teamName: points}}]
-let results={};      // {teamName: [bool,bool,bool,bool]}  (won round 0..3)
+let results={};      // {teamName: [0..4, 0..4, 0..4, 0..4]}  (games won per round)
 
 // Init results
-TEAMS.forEach(t=>{results[t]=[false,false,false,false];});
+TEAMS.forEach(t=>{results[t]=[0,0,0,0];});
 
 // ── Results grid ──────────────────────────────────────────────────────────────
 function buildResultsGrid(){
@@ -160,10 +163,9 @@ function buildResultsGrid(){
     const row=document.createElement('div');row.className='result-row';
     const lbl=document.createElement('div');lbl.className='team-lbl';lbl.textContent=team;row.appendChild(lbl);
     ROUND_LABELS.forEach((_,ri)=>{
-      const wrap=document.createElement('div');wrap.className='round-chk';
-      const cb=document.createElement('input');cb.type='checkbox';cb.checked=results[team][ri];
-      cb.addEventListener('change',()=>{results[team][ri]=cb.checked;recalc();});
-      wrap.appendChild(cb);row.appendChild(wrap);
+      const inp=document.createElement('input');inp.type='number';inp.min=0;inp.max=4;inp.value=results[team][ri];inp.placeholder='0';
+      inp.addEventListener('input',()=>{results[team][ri]=Math.min(4,Math.max(0,parseInt(inp.value)||0));recalc();});
+      row.appendChild(inp);
     });
     grid.appendChild(row);
   });
@@ -214,7 +216,7 @@ function calcScore(participant){
   TEAMS.forEach(team=>{
     const pts=participant.picks[team]||0;
     ROUND_MULT.forEach((mult,ri)=>{
-      if(results[team][ri]) roundScores[ri]+=pts*mult;
+      roundScores[ri]+=pts*mult*results[team][ri];
     });
   });
   return roundScores;

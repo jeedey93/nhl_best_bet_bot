@@ -124,11 +124,14 @@ const TEAMS=[
   {name:"Vancouver Canucks",   abbr:"VAN",conf:"West",c1:"#00205B",c2:"#00843D"},
 ];
 function logoUrl(a){return`https://assets.nhle.com/logos/nhl/svg/${a}_light.svg`;}
+// ESPN uses different abbreviations for some teams
+const ESPN_ABBR={TBL:'tb',LAK:'la',NJD:'nj',WSH:'wsh',VGK:'vgk',NYR:'nyr',WPG:'wpg'};
+function logoPngUrl(a){const e=ESPN_ABBR[a]||a.toLowerCase();return`https://a.espncdn.com/i/teamlogos/nhl/500/${e}.png`;}
 let teams=[...TEAMS],dragSrcIdx=null;
 const logoCache={};
 function pts(pos){return 17-pos;}
 function isMobile(){return/android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent)||window.innerWidth<600;}
-function preloadLogos(){TEAMS.forEach(t=>{if(logoCache[t.abbr]!==undefined)return;fetch(logoUrl(t.abbr),{mode:'cors'}).then(r=>r.ok?r.blob():Promise.reject()).then(b=>blobToDataURL(b)).then(d=>{logoCache[t.abbr]=d;}).catch(()=>{logoCache[t.abbr]=null;});});}
+function preloadLogos(){TEAMS.forEach(t=>ensureLogo(t.abbr));}
 function blobToDataURL(b){return new Promise((r,j)=>{const fr=new FileReader();fr.onload=e=>r(e.target.result);fr.onerror=j;fr.readAsDataURL(b);});}
 function loadImageFromDataURL(d){return new Promise((r,j)=>{const i=new Image();i.onload=()=>r(i);i.onerror=j;i.src=d;});}
 function render(){
@@ -174,13 +177,20 @@ document.getElementById('btn-export').addEventListener('click',()=>{
 // ── Build canvas & share image ────────────────────────────────────────────────
 async function ensureLogo(abbr){
   if(logoCache[abbr]!==undefined)return logoCache[abbr];
-  try{
-    const r=await fetch(logoUrl(abbr),{mode:'cors'});
-    if(!r.ok)throw new Error('fetch failed');
-    const blob=await r.blob();
-    const d=await blobToDataURL(blob);
-    logoCache[abbr]=d;return d;
-  }catch{logoCache[abbr]=null;return null;}
+  // Try PNG first (canvas-safe), fall back to SVG blob
+  const urls=[logoPngUrl(abbr),logoUrl(abbr)];
+  for(const url of urls){
+    try{
+      const r=await fetch(url,{mode:'cors'});
+      if(!r.ok)continue;
+      const blob=await r.blob();
+      const d=await blobToDataURL(blob);
+      // Verify the image actually loads before caching
+      await loadImageFromDataURL(d);
+      logoCache[abbr]=d;return d;
+    }catch{continue;}
+  }
+  logoCache[abbr]=null;return null;
 }
 async function buildCanvas(name){
   const logoImgs=await Promise.all(teams.map(async team=>{
@@ -228,11 +238,12 @@ function rr(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y)
 
 document.getElementById('btn-share').addEventListener('click',async()=>{
   const name=document.getElementById('picker-name').value.trim()||'Anonymous';
+  const filename=name.replace(/\s+/g,'')+'-NHL-Playoffs-2026.jpg';
   const btn=document.getElementById('btn-share');btn.disabled=true;btn.textContent='Generating…';
   try{
-    const canvas=await buildCanvas(name);const dataUrl=canvas.toDataURL('image/png');
-    if(isMobile()){document.getElementById('preview-img').src=dataUrl;document.getElementById('btn-open-img').href=dataUrl;document.getElementById('modal-overlay').classList.add('open');}
-    else{const a=document.createElement('a');a.href=dataUrl;a.download=name.replace(/\s+/g,'_')+'_NHL_Picks.png';a.click();showToast('Image downloaded! 🏒');}
+    const canvas=await buildCanvas(name);const dataUrl=canvas.toDataURL('image/jpeg',0.92);
+    if(isMobile()){document.getElementById('preview-img').src=dataUrl;document.getElementById('btn-open-img').href=dataUrl;document.getElementById('btn-open-img').download=filename;document.getElementById('modal-overlay').classList.add('open');}
+    else{const a=document.createElement('a');a.href=dataUrl;a.download=filename;a.click();showToast('Image downloaded! 🏒');}
   }catch(err){console.error(err);showToast('Error: '+err.message);}
   btn.disabled=false;btn.textContent='📸 Share Image';
 });
