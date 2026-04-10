@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NHL 2026 Playoff Picks Ranker</title>
+<link rel="icon" type="image/png" href="parieur_discipline_icon_1024.png">
+<link rel="apple-touch-icon" href="parieur_discipline_icon_1024.png">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -105,7 +107,6 @@
   .btn:hover { transform:translateY(-2px); }
   .btn:disabled { opacity:0.6;cursor:not-allowed;transform:none; }
   .btn-share { background:linear-gradient(135deg,var(--red) 0%,#8b0a1e 100%);color:white;box-shadow:0 4px 20px rgba(200,16,46,0.4); }
-  .btn-export { background:linear-gradient(135deg,var(--gold) 0%,#cc8f00 100%);color:#07111f;box-shadow:0 4px 20px rgba(255,184,28,0.3); }
   .btn-clear { background:rgba(200,16,46,0.15);color:var(--red);border:1px solid rgba(200,16,46,0.35);box-shadow:none; }
   .btn-clear:hover { background:rgba(200,16,46,0.3);transform:translateY(-2px); }
 
@@ -175,7 +176,6 @@
 
 <div class="btn-row">
   <button class="btn btn-share" id="btn-share">📸 Share Image</button>
-  <button class="btn btn-export" id="btn-export">📤 Export Picks File</button>
   <button class="btn btn-clear" id="btn-clear">✕ Clear All</button>
 </div>
 
@@ -432,24 +432,6 @@ function setupTouchPool(el,idx){
   });
 }
 
-// ── Export picks as JSON ──────────────────────────────────────────────────────
-document.getElementById('btn-export').addEventListener('click',()=>{
-  const name=document.getElementById('picker-name').value.trim();
-  if(!name){showToast('Enter your name first!');return;}
-  const picks=ranking.filter(Boolean).map((team,i)=>{
-    const pos=ranking.indexOf(team)+1;
-    return{team:team.name,abbr:team.abbr,rank:pos,points:pts(pos)};
-  });
-  if(picks.length===0){showToast('Add at least one team to your ranking!');return;}
-  const data=JSON.stringify({name,date:new Date().toISOString().slice(0,10),picks},null,2);
-  const blob=new Blob([data],{type:'application/json'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');
-  a.href=url;a.download=name.replace(/\s+/g,'_')+'_NHL_Picks.json';a.click();
-  setTimeout(()=>URL.revokeObjectURL(url),1000);
-  showToast('Picks file exported! 📤');
-});
-
 // ── Build canvas & share image ────────────────────────────────────────────────
 async function buildCanvas(name){
   const ranked=ranking.map((t,i)=>t?{team:t,pos:i+1}:null).filter(Boolean);
@@ -498,7 +480,8 @@ async function buildCanvas(name){
 function rr(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();ctx.fill();}
 
 document.getElementById('btn-share').addEventListener('click',async()=>{
-  const name=document.getElementById('picker-name').value.trim()||'Anonymous';
+  const name=document.getElementById('picker-name').value.trim();
+  if(!name){showToast('Enter your name first!');return;}
   const filename=name.replace(/\s+/g,'')+'-NHL-Playoffs-2026.jpg';
   const btn=document.getElementById('btn-share');btn.disabled=true;btn.textContent='Generating…';
   try{
