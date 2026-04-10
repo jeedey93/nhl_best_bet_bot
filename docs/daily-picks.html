@@ -2228,9 +2228,9 @@ function normalizeTeamName(name) {
 function teamInGame(teamName, gameStr) {
   const normTeam = normalizeTeamName(teamName);
   const normGame = normalizeTeamName(gameStr);
-  // Check if any word from team name appears significantly in the game string
+  // Check if any word from team name appears as a whole word in the game string
   const teamWords = normTeam.split(' ').filter(w => w.length > 3);
-  return teamWords.some(word => normGame.includes(word));
+  return teamWords.some(word => new RegExp(`\\b${word}\\b`).test(normGame));
 }
 
 // Find matching ESPN event for a pick
