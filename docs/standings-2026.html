@@ -280,7 +280,7 @@ async function loadParticipants(){
   try{
     const idx=await fetch('playoff/index.json?_='+Date.now());
     if(!idx.ok)return;
-    const files=await idx.json();
+    const files=(await idx.json()).filter(f=>f!=='bracket.json');
     await Promise.all(files.map(async f=>{
       try{
         const r=await fetch('playoff/'+f+'?_='+Date.now());

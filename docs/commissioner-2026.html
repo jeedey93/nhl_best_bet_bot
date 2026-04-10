@@ -236,7 +236,7 @@ async function loadParticipants(){
   try{
     const resp=await fetch(`playoff/index.json?_=${Date.now()}`);
     if(!resp.ok)throw new Error('index not found');
-    files=await resp.json();
+    files=(await resp.json()).filter(f=>f!=='bracket.json');
   }catch(e){
     list.innerHTML=`<p style="color:var(--red);font-size:0.9rem;">Could not load playoff/index.json</p>`;
     return;
