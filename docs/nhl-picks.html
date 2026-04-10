@@ -129,6 +129,7 @@
   .bracket-section .panel-label { margin-bottom:0.5rem; }
   .bracket-section img { width:100%;height:auto;object-fit:contain;border-radius:8px;
     border:1px solid rgba(255,255,255,0.07);display:block; }
+  @media(max-width:640px){ .bracket-section { display:none; } .pool-panel { display:none; } }
 
   /* ── Toast ── */
   .toast { position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(80px);background:var(--gold);
@@ -166,7 +167,7 @@
     <ul class="rank-list" id="rank-list"></ul>
   </div>
   <!-- RIGHT: pool -->
-  <div>
+  <div class="pool-panel">
     <div class="panel-label">🏒 Teams</div>
     <div class="pool-list" id="pool-list"></div>
   </div>
@@ -216,14 +217,16 @@ function logoUrl(a){return`https://assets.nhle.com/logos/nhl/svg/${a}_light.svg`
 const ESPN_ABBR={TBL:'tb',LAK:'la',NJD:'nj',WSH:'wsh',VGK:'vgk',NYR:'nyr',WPG:'wpg'};
 function logoPngUrl(a){const e=ESPN_ABBR[a]||a.toLowerCase();return`https://a.espncdn.com/i/teamlogos/nhl/500/${e}.png`;}
 
-// ranking[i] = team object or null (16 slots)
-let ranking=new Array(16).fill(null);
-// pool = teams not yet ranked
-let pool=[...TEAMS];
-
 const logoCache={};
 function pts(pos){return 17-pos;}
 function isMobile(){return/android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent)||window.innerWidth<600;}
+
+// ranking[i] = team object or null (16 slots)
+// On mobile: pre-fill all 16 slots with teams in default order
+let ranking=isMobile()?[...TEAMS]:new Array(16).fill(null);
+// pool = teams not yet ranked (empty on mobile)
+let pool=isMobile()?[]:[...TEAMS];
+
 function blobToDataURL(b){return new Promise((r,j)=>{const fr=new FileReader();fr.onload=e=>r(e.target.result);fr.onerror=j;fr.readAsDataURL(b);});}
 function loadImageFromDataURL(d){return new Promise((r,j)=>{const i=new Image();i.onload=()=>r(i);i.onerror=j;i.src=d;});}
 
@@ -513,8 +516,12 @@ function showToast(msg){const t=document.getElementById('toast');t.textContent=m
 
 // ── Clear All ─────────────────────────────────────────────────────────────────
 document.getElementById('btn-clear').addEventListener('click',()=>{
-  if(ranking.every(s=>s===null)){showToast('Nothing to clear!');return;}
-  ranking.forEach((team,i)=>{if(team){pool.push(team);ranking[i]=null;}});
+  if(isMobile()){
+    ranking=[...TEAMS];pool=[];
+  } else {
+    if(ranking.every(s=>s===null)){showToast('Nothing to clear!');return;}
+    ranking.forEach((team,i)=>{if(team){pool.push(team);ranking[i]=null;}});
+  }
   render();
   showToast('Ranking cleared');
 });
