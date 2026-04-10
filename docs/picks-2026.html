@@ -357,13 +357,12 @@ function renderPool(){
   }
   // Find the next empty slot position for the tooltip
   const nextSlot=ranking.findIndex(s=>s===null);
-  const nextPts=nextSlot>=0?pts(nextSlot+1):null;
-  pool.forEach((team,i)=>{
+  const nextPts=nextSlot>=0?pts(nextSlot+1):null;  pool.forEach((team,i)=>{
     const div=document.createElement('div');
     div.className='pool-item';
     div.draggable=true;
     div.dataset.idx=i;
-    const tooltipHtml=nextPts!==null?`<span class="pool-tooltip">${nextPts} pts/win</span>`:'';
+    const tooltipHtml='';
     div.innerHTML=`${logoHtml(team)}<div class="team-info"><div class="team-name">${team.name}</div><div class="team-conf">${team.conf}ern Conference</div></div>${tooltipHtml}`;
     div.addEventListener('dragstart',e=>{dragSrc={from:'pool',idx:i};e.dataTransfer.effectAllowed='move';setTimeout(()=>div.classList.add('dragging'),0);});
     div.addEventListener('dragend',()=>{div.classList.remove('dragging');clearHL();});
