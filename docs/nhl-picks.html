@@ -172,10 +172,20 @@ document.getElementById('btn-export').addEventListener('click',()=>{
 });
 
 // ── Build canvas & share image ────────────────────────────────────────────────
+async function ensureLogo(abbr){
+  if(logoCache[abbr]!==undefined)return logoCache[abbr];
+  try{
+    const r=await fetch(logoUrl(abbr),{mode:'cors'});
+    if(!r.ok)throw new Error('fetch failed');
+    const blob=await r.blob();
+    const d=await blobToDataURL(blob);
+    logoCache[abbr]=d;return d;
+  }catch{logoCache[abbr]=null;return null;}
+}
 async function buildCanvas(name){
   const logoImgs=await Promise.all(teams.map(async team=>{
-    for(let i=0;i<30;i++){if(logoCache[team.abbr]!==undefined)break;await new Promise(r=>setTimeout(r,100));}
-    const d=logoCache[team.abbr];if(!d)return null;
+    const d=await ensureLogo(team.abbr);
+    if(!d)return null;
     try{return await loadImageFromDataURL(d);}catch{return null;}
   }));
   const DPR=2,W=560,PAD=22,ROW=40,GAP=4,HEADER_H=90,FOOTER_H=30;
