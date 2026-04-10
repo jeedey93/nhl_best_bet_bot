@@ -474,6 +474,8 @@ function shortTeamName(name){
   if(DISPLAY_NAME[name])return DISPLAY_NAME[name];
   return name.split(' ').pop();
 }
+
+function bSeriesHtml(top,bottom,roundIdx,label,extraClass=''){
   const{tw,bw,done,tbd}=seriesScore(top,bottom,roundIdx);
   const winner=done?(tw===4?top:bottom):null;
   const topClass=winner?(winner===top?'winner':'eliminated'):(tw>bw&&(tw||bw)?'leading':'');
