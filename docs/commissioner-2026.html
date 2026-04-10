@@ -143,6 +143,48 @@ let participants=[];
 let results={};
 TEAMS.forEach(t=>{results[t]=[0,0,0,0];});
 
+const STORAGE_KEY='nhl_playoff_results_2026';
+const API_URL='/api/playoff-results';
+
+// ── Persist results ───────────────────────────────────────────────────────────
+function applyResults(saved){
+  TEAMS.forEach(t=>{if(saved[t])results[t]=saved[t];});
+}
+
+// Save to localStorage immediately, then sync to API in background
+function saveResults(){
+  try{localStorage.setItem(STORAGE_KEY,JSON.stringify(results));}catch(e){}
+  fetch(API_URL,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({results})
+  }).catch(()=>{});
+}
+
+// On load: restore from localStorage first (instant), then fetch from API (authoritative)
+function loadResultsLocal(){
+  try{
+    const saved=localStorage.getItem(STORAGE_KEY);
+    if(saved)applyResults(JSON.parse(saved));
+  }catch(e){}
+}
+
+async function loadResultsRemote(){
+  try{
+    const resp=await fetch(API_URL+'?_='+Date.now());
+    if(!resp.ok)return;
+    const data=await resp.json();
+    if(data.success&&data.results&&Object.keys(data.results).length>0){
+      // Remote is authoritative — overwrite local
+      TEAMS.forEach(t=>{results[t]=[0,0,0,0];});
+      applyResults(data.results);
+      try{localStorage.setItem(STORAGE_KEY,JSON.stringify(results));}catch(e){}
+      buildResultsGrid();
+      recalc();
+    }
+  }catch(e){}
+}
+
 // ── Load participants from docs/playoff/ ──────────────────────────────────────
 async function loadParticipants(){
   const list=document.getElementById('participant-list');
@@ -208,6 +250,7 @@ function buildResultsGrid(){
         results[team][ri]=next;
         btn.dataset.wins=next;
         renderDots(btn,next);
+        saveResults();
         recalc();
       });
       row.appendChild(btn);
@@ -265,8 +308,10 @@ function recalc(){
   });
 }
 
-buildResultsGrid();
-loadParticipants();
+loadResultsLocal();   // instant restore from cache
+buildResultsGrid();   // render with cached values
+loadParticipants();   // fetch participant picks
+loadResultsRemote();  // fetch authoritative results from API, re-render if different
 </script>
 </body>
 </html>

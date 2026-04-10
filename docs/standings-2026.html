@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NHL 2026 Playoff Picks – Leaderboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  :root{--rink:#07111f;--red:#c8102e;--gold:#ffb81c;--silver:#a8b2be;--ice:#e8f4fd;--green:#22c55e;}
+
+  body{background:var(--rink);min-height:100vh;font-family:'Barlow Condensed',sans-serif;
+    background-image:
+      radial-gradient(ellipse 100% 60% at 50% -5%,rgba(26,58,110,0.7) 0%,transparent 65%),
+      radial-gradient(ellipse 60% 40% at 80% 80%,rgba(200,16,46,0.12) 0%,transparent 60%);
+    padding:2rem 1rem 5rem;}
+
+  /* ── Header ── */
+  header{text-align:center;margin-bottom:2.5rem;}
+  .header-inner{display:flex;align-items:center;justify-content:center;gap:1rem;flex-wrap:wrap;margin-bottom:0.5rem;}
+  .brand-icon{width:56px;height:56px;border-radius:12px;object-fit:cover;box-shadow:0 4px 20px rgba(0,0,0,0.5);}
+  header h1{font-family:'Bebas Neue',cursive;font-size:clamp(2.5rem,6vw,4.5rem);color:white;letter-spacing:5px;
+    text-shadow:0 0 60px rgba(200,16,46,0.6),0 4px 16px rgba(0,0,0,0.9);line-height:1;}
+  header h1 span{color:var(--gold);}
+  .subtitle{color:var(--silver);font-size:1rem;letter-spacing:3px;text-transform:uppercase;margin-top:0.5rem;}
+  .last-updated{font-size:0.8rem;color:rgba(168,178,190,0.5);letter-spacing:1px;margin-top:0.3rem;}
+
+  /* ── Scoring legend ── */
+  .scoring-legend{display:flex;gap:0.6rem;justify-content:center;flex-wrap:wrap;margin-bottom:2rem;}
+  .scoring-legend .pill{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);
+    border-radius:20px;padding:4px 14px;font-size:0.8rem;color:var(--silver);letter-spacing:1px;}
+  .scoring-legend .pill strong{color:var(--gold);}
+
+  /* ── Podium (top 3) ── */
+  .podium{display:flex;align-items:flex-end;justify-content:center;gap:1rem;margin-bottom:2.5rem;max-width:600px;margin-left:auto;margin-right:auto;}
+  .podium-place{flex:1;text-align:center;display:flex;flex-direction:column;align-items:center;}
+  .podium-avatar{border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-family:'Bebas Neue',cursive;color:white;font-size:1.6rem;letter-spacing:2px;
+    margin-bottom:0.5rem;flex-shrink:0;}
+  .podium-place:nth-child(1) .podium-avatar{width:80px;height:80px;background:linear-gradient(135deg,#b8860b,#ffd700,#b8860b);
+    box-shadow:0 0 30px rgba(255,215,0,0.5);font-size:1.8rem;}
+  .podium-place:nth-child(2) .podium-avatar{width:66px;height:66px;background:linear-gradient(135deg,#707070,#c0c0c0,#707070);
+    box-shadow:0 0 20px rgba(192,192,192,0.3);}
+  .podium-place:nth-child(3) .podium-avatar{width:60px;height:60px;background:linear-gradient(135deg,#7d4e1a,#cd7f32,#7d4e1a);
+    box-shadow:0 0 16px rgba(205,127,50,0.3);}
+  .podium-name{font-size:1rem;font-weight:700;color:white;letter-spacing:1px;text-transform:uppercase;margin-bottom:2px;}
+  .podium-score{font-family:'Bebas Neue',cursive;color:var(--gold);letter-spacing:1px;}
+  .podium-place:nth-child(1) .podium-score{font-size:2rem;}
+  .podium-place:nth-child(2) .podium-score,.podium-place:nth-child(3) .podium-score{font-size:1.6rem;}
+  .podium-pts{font-size:0.7rem;color:var(--silver);letter-spacing:1px;}
+  .podium-block{border-radius:6px 6px 0 0;width:100%;}
+  .podium-place:nth-child(1) .podium-block{height:80px;background:linear-gradient(180deg,rgba(255,215,0,0.25),rgba(255,215,0,0.05));border:1px solid rgba(255,215,0,0.3);border-bottom:none;}
+  .podium-place:nth-child(2) .podium-block{height:56px;background:linear-gradient(180deg,rgba(192,192,192,0.15),rgba(192,192,192,0.03));border:1px solid rgba(192,192,192,0.2);border-bottom:none;}
+  .podium-place:nth-child(3) .podium-block{height:40px;background:linear-gradient(180deg,rgba(205,127,50,0.15),rgba(205,127,50,0.03));border:1px solid rgba(205,127,50,0.2);border-bottom:none;}
+  @media(max-width:400px){.podium{gap:0.5rem;}.podium-place:nth-child(1) .podium-avatar{width:68px;height:68px;}}
+
+  /* ── Full leaderboard table ── */
+  .lb-wrap{max-width:700px;margin:0 auto;overflow-x:auto;}
+  table{width:100%;border-collapse:collapse;}
+  thead tr th{background:rgba(200,16,46,0.7);color:white;font-family:'Bebas Neue',cursive;
+    font-size:1rem;letter-spacing:2px;padding:10px 14px;text-align:center;border-bottom:2px solid var(--red);}
+  thead tr th:nth-child(2){text-align:left;}
+  tbody tr{transition:background 0.15s;cursor:default;}
+  tbody tr:nth-child(even){background:rgba(255,255,255,0.02);}
+  tbody tr:hover{background:rgba(255,184,28,0.05);}
+  tbody td{padding:11px 14px;color:white;border-bottom:1px solid rgba(255,255,255,0.04);
+    text-align:center;vertical-align:middle;}
+  tbody td:nth-child(2){text-align:left;}
+
+  .rank-cell{font-family:'Bebas Neue',cursive;font-size:1.5rem;width:40px;}
+  .rank-1{color:#FFD700;}.rank-2{color:#C0C0C0;}.rank-3{color:#CD7F32;}
+  .name-cell{font-weight:700;font-size:1.1rem;letter-spacing:0.5px;}
+  .score-cell{font-family:'Bebas Neue',cursive;font-size:1.6rem;color:var(--gold);}
+  .round-score{font-size:0.88rem;color:var(--silver);}
+
+  /* score bar */
+  .score-bar-wrap{width:100%;background:rgba(255,255,255,0.06);border-radius:3px;height:4px;margin-top:3px;}
+  .score-bar{height:4px;border-radius:3px;background:linear-gradient(90deg,var(--red),var(--gold));transition:width 0.6s ease;}
+
+  .empty-state{text-align:center;padding:4rem 1rem;color:var(--silver);}
+  .empty-state .icon{font-size:3rem;margin-bottom:0.5rem;}
+  .empty-state p{font-size:1.1rem;letter-spacing:1px;}
+
+  /* ── Round progress ── */
+  .rounds-section{max-width:700px;margin:2rem auto 0;}
+  .rounds-section h3{font-family:'Bebas Neue',cursive;font-size:1.2rem;color:var(--gold);
+    letter-spacing:3px;text-align:center;margin-bottom:1rem;}
+  .rounds-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0.75rem;}
+  @media(max-width:500px){.rounds-grid{grid-template-columns:repeat(2,1fr);}}
+  .round-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);
+    border-radius:8px;padding:0.75rem 0.5rem;text-align:center;}
+  .round-card .round-name{font-family:'Bebas Neue',cursive;font-size:1rem;color:var(--gold);
+    letter-spacing:2px;margin-bottom:0.4rem;}
+  .round-card .round-mult{font-size:0.7rem;color:var(--silver);letter-spacing:1px;margin-bottom:0.5rem;}
+  .round-card .team-wins{font-size:0.75rem;color:rgba(255,255,255,0.6);line-height:1.6;}
+  .round-card .team-wins span{color:var(--green);font-weight:700;}
+</style>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <img src="parieur_discipline_icon_1024.png" alt="Parieur Discipline" class="brand-icon">
+    <h1>NHL <span>2026 Playoff</span> Picks</h1>
+  </div>
+  <p class="subtitle">🏆 Live Leaderboard</p>
+  <p class="last-updated" id="last-updated"></p>
+</header>
+
+<div class="scoring-legend">
+  <div class="pill">Round 1 <strong>×1 pt/win</strong></div>
+  <div class="pill">Round 2 <strong>×2 pts/win</strong></div>
+  <div class="pill">Conf. Final <strong>×3 pts/win</strong></div>
+  <div class="pill">Stanley Cup <strong>×4 pts/win</strong></div>
+</div>
+
+<!-- Podium -->
+<div class="podium" id="podium"></div>
+
+<!-- Full table -->
+<div class="lb-wrap">
+  <table>
+    <thead>
+      <tr><th>#</th><th>NAME</th><th>R1</th><th>R2</th><th>CF</th><th>SC</th><th>TOTAL</th></tr>
+    </thead>
+    <tbody id="lb-body">
+      <tr><td colspan="7" class="empty-state">
+        <div class="icon">🏒</div><p>Loading leaderboard…</p>
+      </td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Round progress -->
+<div class="rounds-section">
+  <h3>Series Results</h3>
+  <div class="rounds-grid" id="rounds-grid"></div>
+</div>
+
+<script>
+const TEAMS=[
+  "Boston Bruins","Carolina Hurricanes","Florida Panthers","Toronto Maple Leafs",
+  "Tampa Bay Lightning","Washington Capitals","New York Rangers","New Jersey Devils",
+  "Vegas Golden Knights","Colorado Avalanche","Dallas Stars","Winnipeg Jets",
+  "Edmonton Oilers","Los Angeles Kings","Minnesota Wild","Vancouver Canucks"
+];
+const ROUND_MULT=[1,2,3,4];
+const ROUND_LABELS=["R1","R2","CF","SC"];
+const ROUND_NAMES=["Round 1","Round 2","Conf. Final","Stanley Cup"];
+const API_URL='/api/playoff-results';
+const STORAGE_KEY='nhl_playoff_results_2026';
+
+let participants=[];
+let results={};
+TEAMS.forEach(t=>{results[t]=[0,0,0,0];});
+
+// ── Initials from name ────────────────────────────────────────────────────────
+function initials(name){
+  return name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2)||name.slice(0,2).toUpperCase();
+}
+
+// ── Load results ──────────────────────────────────────────────────────────────
+function applyResults(saved){
+  TEAMS.forEach(t=>{if(saved[t])results[t]=saved[t];});
+}
+function loadResultsLocal(){
+  try{const s=localStorage.getItem(STORAGE_KEY);if(s)applyResults(JSON.parse(s));}catch(e){}
+}
+async function loadResultsRemote(){
+  try{
+    const resp=await fetch(API_URL+'?_='+Date.now());
+    if(!resp.ok)return;
+    const data=await resp.json();
+    if(data.success&&data.results&&Object.keys(data.results).length>0){
+      TEAMS.forEach(t=>{results[t]=[0,0,0,0];});
+      applyResults(data.results);
+      try{localStorage.setItem(STORAGE_KEY,JSON.stringify(results));}catch(e){}
+      render();
+    }
+  }catch(e){}
+}
+
+// ── Load participants ─────────────────────────────────────────────────────────
+async function loadParticipants(){
+  try{
+    const idx=await fetch('playoff/index.json?_='+Date.now());
+    if(!idx.ok)return;
+    const files=await idx.json();
+    await Promise.all(files.map(async f=>{
+      try{
+        const r=await fetch('playoff/'+f+'?_='+Date.now());
+        if(!r.ok)return;
+        const data=await r.json();
+        const name=f.replace(/\.json$/i,'').split('_')[0];
+        const pickMap={};
+        data.picks.forEach(p=>{pickMap[p.team]=p.points;});
+        const existing=participants.findIndex(p=>p.name===name);
+        if(existing>=0)participants[existing]={name,picks:pickMap};
+        else participants.push({name,picks:pickMap});
+      }catch(e){}
+    }));
+    render();
+  }catch(e){}
+}
+
+// ── Score calculation ─────────────────────────────────────────────────────────
+function calcScore(participant){
+  const roundScores=[0,0,0,0];
+  TEAMS.forEach(team=>{
+    const pts=participant.picks[team]||0;
+    ROUND_MULT.forEach((mult,ri)=>{roundScores[ri]+=pts*mult*results[team][ri];});
+  });
+  return roundScores;
+}
+
+// ── Render ────────────────────────────────────────────────────────────────────
+function render(){
+  if(participants.length===0)return;
+
+  const rows=participants.map(p=>{
+    const roundScores=calcScore(p);
+    const total=roundScores.reduce((a,b)=>a+b,0);
+    return{name:p.name,roundScores,total};
+  }).sort((a,b)=>b.total-a.total);
+
+  const maxScore=rows[0]?.total||1;
+
+  // ── Podium ──
+  const podium=document.getElementById('podium');
+  podium.innerHTML='';
+  // order: 2nd, 1st, 3rd for visual podium shape
+  const podiumOrder=[1,0,2];
+  podiumOrder.forEach(idx=>{
+    const row=rows[idx];
+    if(!row)return;
+    const rank=idx+1;
+    const div=document.createElement('div');div.className='podium-place';
+    div.innerHTML=`
+      <div class="podium-avatar">${initials(row.name)}</div>
+      <div class="podium-name">${row.name}</div>
+      <div class="podium-score">${row.total}</div>
+      <div class="podium-pts">pts</div>
+      <div class="podium-block"></div>`;
+    podium.appendChild(div);
+  });
+
+  // ── Table ──
+  const lb=document.getElementById('lb-body');
+  lb.innerHTML='';
+  rows.forEach((row,i)=>{
+    const rank=i+1;
+    const rankClass=rank===1?'rank-1':rank===2?'rank-2':rank===3?'rank-3':'';
+    const medal=rank===1?'🥇':rank===2?'🥈':rank===3?'🥉':'';
+    const barPct=maxScore>0?Math.round(row.total/maxScore*100):0;
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td class="rank-cell ${rankClass}">${medal||rank}</td>
+      <td class="name-cell">
+        ${row.name}
+        <div class="score-bar-wrap"><div class="score-bar" style="width:${barPct}%"></div></div>
+      </td>
+      ${row.roundScores.map(s=>`<td class="round-score">${s}</td>`).join('')}
+      <td class="score-cell">${row.total}</td>`;
+    lb.appendChild(tr);
+  });
+
+  // ── Rounds grid ──
+  const grid=document.getElementById('rounds-grid');
+  grid.innerHTML='';
+  ROUND_LABELS.forEach((label,ri)=>{
+    const card=document.createElement('div');card.className='round-card';
+    const teamsWithWins=TEAMS.filter(t=>results[t][ri]>0)
+      .sort((a,b)=>results[b][ri]-results[a][ri]);
+    const winsHtml=teamsWithWins.length>0
+      ? teamsWithWins.map(t=>`<span>${results[t][ri]}W</span> ${t.split(' ').pop()}`).join('<br>')
+      : '<span style="color:rgba(255,255,255,0.2)">No wins yet</span>';
+    card.innerHTML=`
+      <div class="round-name">${label}</div>
+      <div class="round-mult">×${ROUND_MULT[ri]} pts per win</div>
+      <div class="team-wins">${winsHtml}</div>`;
+    grid.appendChild(card);
+  });
+
+  // ── Last updated ──
+  document.getElementById('last-updated').textContent=
+    'Updated '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+loadResultsLocal();
+loadParticipants();
+loadResultsRemote();
+
+// Auto-refresh every 5 minutes
+setInterval(()=>{loadResultsRemote();loadParticipants();},5*60*1000);
+</script>
+</body>
+</html>
