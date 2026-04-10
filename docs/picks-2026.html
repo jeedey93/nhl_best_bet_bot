@@ -48,7 +48,7 @@
   /* Filled rank item */
   .rank-item { display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.045);
     border:1px solid var(--line);border-left:3px solid rgba(255,255,255,0.1);border-radius:6px;
-    padding:6px 8px 6px 8px;cursor:grab;user-select:none;touch-action:none;
+    padding:6px 8px 6px 8px;cursor:grab;user-select:none;touch-action:pan-y;
     transition:background 0.15s,border-left-color 0.2s; }
   .rank-item:active { cursor:grabbing; }
   .rank-item.dragging { opacity:0.35; }
@@ -92,7 +92,7 @@
 
   .pool-item { display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.04);
     border:1px solid var(--line);border-radius:6px;padding:6px 10px;
-    cursor:grab;user-select:none;touch-action:none;transition:background 0.15s,border-color 0.15s;position:relative; }
+    cursor:grab;user-select:none;touch-action:pan-y;transition:background 0.15s,border-color 0.15s;position:relative; }
   .pool-item:active { cursor:grabbing; }
   .pool-item.dragging { opacity:0.35; }
   .pool-item.drag-over { background:rgba(255,184,28,0.07);border-color:rgba(255,184,28,0.4); }
@@ -410,86 +410,93 @@ function clearHL(){
 }
 
 // ── Touch support ─────────────────────────────────────────────────────────────
-// Drag activates after DRAG_THRESHOLD px of movement or LONG_PRESS_MS hold.
-// Until then, touch events pass through so normal scrolling works.
-const DRAG_THRESHOLD=8;
-const LONG_PRESS_MS=200;
+// Long-press (300ms) activates drag — finger movement before that scrolls normally.
+// Once activated, the clone follows the finger and drops on release.
+const LONG_PRESS_MS=300;
+let activeTouchDrag=null; // global so touchcancel can clean up
 
 function makeTouchHandler(el,getSrc){
-  let clone=null,startX=0,startY=0,dragging=false,longPressTimer=null;
+  let startX=0,startY=0,longPressTimer=null;
 
-  function activate(touch){
-    if(dragging)return;
-    dragging=true;
+  function cancelPress(){
+    clearTimeout(longPressTimer);longPressTimer=null;
+  }
+
+  function activate(clientX,clientY){
+    cancelPress();
+    if(activeTouchDrag)return;
     dragSrc=getSrc();
     const rect=el.getBoundingClientRect();
-    clone=el.cloneNode(true);
-    Object.assign(clone.style,{position:'fixed',left:rect.left+'px',top:rect.top+'px',
-      width:rect.width+'px',opacity:'0.85',zIndex:'9999',pointerEvents:'none',transition:'none',margin:'0'});
+    const clone=el.cloneNode(true);
+    // Remove any nested event listeners from clone
+    clone.style.cssText=`position:fixed;left:${rect.left}px;top:${rect.top}px;width:${rect.width}px;
+      opacity:0.9;z-index:9999;pointer-events:none;transition:none;margin:0;
+      box-shadow:0 8px 32px rgba(0,0,0,0.5);transform:scale(1.03);`;
     document.body.appendChild(clone);
-    el.classList.add('dragging');
+    el.style.opacity='0.3';
+    // Vibrate to confirm drag started (if supported)
+    if(navigator.vibrate)navigator.vibrate(40);
+    activeTouchDrag={clone,el,offsetX:clientX-rect.left,offsetY:clientY-rect.top};
   }
 
   el.addEventListener('touchstart',e=>{
-    const t=e.touches[0];startX=t.clientX;startY=t.clientY;dragging=false;clone=null;
-    longPressTimer=setTimeout(()=>activate(t),LONG_PRESS_MS);
+    const t=e.touches[0];
+    startX=t.clientX;startY=t.clientY;
+    longPressTimer=setTimeout(()=>activate(t.clientX,t.clientY),LONG_PRESS_MS);
   },{passive:true});
 
   el.addEventListener('touchmove',e=>{
     const t=e.touches[0];
-    const dx=t.clientX-startX,dy=t.clientY-startY;
-    const dist=Math.sqrt(dx*dx+dy*dy);
-
-    if(!dragging){
-      // Cancel long press if finger moved significantly
-      if(dist>DRAG_THRESHOLD){
-        clearTimeout(longPressTimer);
-        // Only activate drag if movement is more horizontal than vertical
-        // (vertical = user is scrolling)
-        if(Math.abs(dx)>=Math.abs(dy)-2){
-          activate(t);
-        } else {
-          // Vertical scroll intent — abort entirely
-          dragSrc=null;return;
-        }
-      } else {return;}// haven't moved enough yet, don't intercept
+    // If not yet dragging, cancel long press if finger moved more than 8px
+    if(!activeTouchDrag){
+      const dx=t.clientX-startX,dy=t.clientY-startY;
+      if(Math.sqrt(dx*dx+dy*dy)>8)cancelPress();
+      return; // let scroll happen
     }
-
     e.preventDefault();
-    if(clone){
-      clone.style.left=(parseFloat(clone.style.left)+t.clientX-startX)+'px';
-      clone.style.top=(parseFloat(clone.style.top)+t.clientY-startY)+'px';
-    }
-    startX=t.clientX;startY=t.clientY;
+    const{clone}=activeTouchDrag;
+    clone.style.left=(t.clientX-activeTouchDrag.offsetX)+'px';
+    clone.style.top=(t.clientY-activeTouchDrag.offsetY)+'px';
     clearHL();
+    // Hide clone temporarily to hit-test what's underneath
+    clone.style.display='none';
     const under=document.elementFromPoint(t.clientX,t.clientY);
+    clone.style.display='';
     const slot=under?.closest('.rank-item,.rank-slot-empty');
     const poolEl=under?.closest('.pool-item,.pool-list');
     if(slot&&slot!==el)slot.classList.add('drag-over');
     else if(poolEl)poolEl.classList.add('drag-over');
   },{passive:false});
 
-  el.addEventListener('touchend',e=>{
-    clearTimeout(longPressTimer);
-    if(clone){clone.remove();clone=null;}
-    el.classList.remove('dragging');
-    if(!dragging){dragSrc=null;return;}
-    dragging=false;
-    const t=e.changedTouches[0];
+  function endDrag(clientX,clientY){
+    cancelPress();
+    if(!activeTouchDrag)return;
+    const{clone,el:dragEl}=activeTouchDrag;
+    clone.remove();
+    dragEl.style.opacity='';
+    activeTouchDrag=null;
     clearHL();
-    const under=document.elementFromPoint(t.clientX,t.clientY);
+    // Hit-test drop target
+    const under=document.elementFromPoint(clientX,clientY);
     const slot=under?.closest('.rank-item,.rank-slot-empty');
     const poolEl=under?.closest('.pool-item,.pool-list');
     if(slot){handleDrop({to:'rank',idx:parseInt(slot.dataset.idx)});}
     else if(poolEl){handleDrop({to:'pool'});}
-    else dragSrc=null;
-  });
+    else{dragSrc=null;}
+  }
 
+  el.addEventListener('touchend',e=>{
+    const t=e.changedTouches[0];
+    endDrag(t.clientX,t.clientY);
+  });
   el.addEventListener('touchcancel',()=>{
-    clearTimeout(longPressTimer);
-    if(clone){clone.remove();clone=null;}
-    el.classList.remove('dragging');
-    dragging=false;dragSrc=null;clearHL();
+    cancelPress();
+    if(activeTouchDrag){
+      activeTouchDrag.clone.remove();
+      activeTouchDrag.el.style.opacity='';
+      activeTouchDrag=null;
+    }
+    dragSrc=null;clearHL();
   });
 }
 
