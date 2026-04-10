@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NHL Playoff Picks – Commissioner Leaderboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  :root{--rink:#07111f;--red:#c8102e;--gold:#ffb81c;--silver:#a8b2be;--ice:#e8f4fd;--green:#1a7a4a;}
+  body{background:var(--rink);min-height:100vh;font-family:'Barlow Condensed',sans-serif;
+    background-image:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(26,58,110,0.6) 0%,transparent 70%);
+    padding:1.5rem 1rem 4rem;}
+  header{text-align:center;margin-bottom:1.5rem;}
+  header h1{font-family:'Bebas Neue',cursive;font-size:clamp(2rem,5vw,3.5rem);color:white;letter-spacing:4px;
+    text-shadow:0 0 40px rgba(200,16,46,0.5);}
+  header h1 span{color:var(--gold);}
+  header p{color:var(--silver);font-size:1rem;letter-spacing:2px;text-transform:uppercase;margin-top:0.3rem;}
+
+  .main{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:280px 1fr;gap:1.5rem;}
+  @media(max-width:700px){.main{grid-template-columns:1fr;}}
+
+  /* ── Left panel ── */
+  .panel{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:1.2rem;}
+  .panel h2{font-family:'Bebas Neue',cursive;font-size:1.3rem;color:var(--gold);letter-spacing:2px;margin-bottom:1rem;border-bottom:1px solid rgba(255,184,28,0.2);padding-bottom:0.5rem;}
+
+  /* File drop zone */
+  .drop-zone{border:2px dashed rgba(255,184,28,0.35);border-radius:8px;padding:1.5rem 1rem;text-align:center;
+    cursor:pointer;transition:border-color 0.2s,background 0.2s;margin-bottom:1rem;}
+  .drop-zone:hover,.drop-zone.over{border-color:var(--gold);background:rgba(255,184,28,0.06);}
+  .drop-zone p{color:var(--silver);font-size:0.95rem;line-height:1.5;}
+  .drop-zone strong{color:var(--gold);}
+  #file-input{display:none;}
+
+  /* Participants list */
+  .participant-chip{display:flex;align-items:center;justify-content:space-between;
+    background:rgba(255,255,255,0.05);border-radius:5px;padding:0.4rem 0.7rem;margin-bottom:5px;}
+  .participant-chip span{color:white;font-size:1rem;font-weight:600;}
+  .participant-chip button{background:none;border:none;color:rgba(255,255,255,0.3);cursor:pointer;font-size:1rem;line-height:1;}
+  .participant-chip button:hover{color:var(--red);}
+
+  /* Results grid */
+  .results-grid{display:flex;flex-direction:column;gap:4px;margin-top:0.5rem;}
+  .result-row{display:grid;grid-template-columns:1fr repeat(4,36px);gap:4px;align-items:center;}
+  .result-row .team-lbl{font-size:0.85rem;color:white;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .result-row .round-chk{display:flex;align-items:center;justify-content:center;}
+  .result-row input[type=checkbox]{width:18px;height:18px;accent-color:var(--green);cursor:pointer;}
+  .round-headers{display:grid;grid-template-columns:1fr repeat(4,36px);gap:4px;margin-bottom:4px;}
+  .round-headers span{font-size:0.7rem;color:var(--gold);text-align:center;font-weight:700;letter-spacing:0.5px;line-height:1.2;}
+
+  /* ── Leaderboard table ── */
+  .lb-wrap{overflow-x:auto;}
+  table{width:100%;border-collapse:collapse;font-size:0.95rem;}
+  thead tr th{background:rgba(200,16,46,0.8);color:white;font-family:'Bebas Neue',cursive;
+    font-size:1rem;letter-spacing:1.5px;padding:10px 12px;text-align:center;border-bottom:2px solid var(--red);}
+  thead tr th:first-child{text-align:left;}
+  tbody tr{transition:background 0.15s;}
+  tbody tr:nth-child(even){background:rgba(255,255,255,0.025);}
+  tbody tr:hover{background:rgba(255,184,28,0.06);}
+  tbody td{padding:9px 12px;color:white;border-bottom:1px solid rgba(255,255,255,0.05);text-align:center;vertical-align:middle;}
+  tbody td:first-child{text-align:left;}
+  .rank-cell{font-family:'Bebas Neue',cursive;font-size:1.4rem;}
+  .rank-1{color:#FFD700;}
+  .rank-2{color:#C0C0C0;}
+  .rank-3{color:#CD7F32;}
+  .name-cell{font-weight:700;font-size:1.05rem;}
+  .score-cell{font-family:'Bebas Neue',cursive;font-size:1.4rem;color:var(--gold);}
+  .round-score{font-size:0.9rem;color:var(--silver);}
+  .empty-state{text-align:center;padding:3rem 1rem;color:var(--silver);}
+  .empty-state p{font-size:1.1rem;margin-top:0.5rem;}
+
+  .btn-clear{width:100%;background:rgba(200,16,46,0.2);border:1px solid rgba(200,16,46,0.4);
+    color:var(--red);font-family:'Bebas Neue',cursive;font-size:1rem;letter-spacing:2px;
+    padding:0.5rem;border-radius:5px;cursor:pointer;margin-top:0.75rem;transition:background 0.2s;}
+  .btn-clear:hover{background:rgba(200,16,46,0.4);}
+
+  .round-mult-legend{display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.75rem;}
+  .round-mult-legend span{background:rgba(255,255,255,0.06);border-radius:4px;padding:2px 8px;font-size:0.78rem;color:var(--silver);}
+  .round-mult-legend strong{color:var(--gold);}
+</style>
+</head>
+<body>
+<header>
+  <h1>NHL <span>Playoff</span> Commissioner</h1>
+  <p>Load picks · Enter results · Watch the leaderboard update</p>
+</header>
+
+<div class="main">
+  <!-- LEFT: inputs -->
+  <div>
+    <div class="panel" style="margin-bottom:1rem;">
+      <h2>📤 Load Picks Files</h2>
+      <div class="drop-zone" id="drop-zone">
+        <p>Drop <strong>.json picks files</strong> here<br>or click to browse</p>
+        <input type="file" id="file-input" accept=".json" multiple>
+      </div>
+      <div id="participant-list"></div>
+      <button class="btn-clear" id="btn-clear-all">✕ Clear All Participants</button>
+    </div>
+
+    <div class="panel">
+      <h2>🏒 Game Results</h2>
+      <div class="round-mult-legend">
+        <span>R1 <strong>×1</strong></span>
+        <span>R2 <strong>×2</strong></span>
+        <span>CF <strong>×3</strong></span>
+        <span>SC <strong>×4</strong></span>
+      </div>
+      <div class="round-headers">
+        <span></span><span>R1</span><span>R2</span><span>CF</span><span>SC</span>
+      </div>
+      <div class="results-grid" id="results-grid"></div>
+    </div>
+  </div>
+
+  <!-- RIGHT: leaderboard -->
+  <div class="panel">
+    <h2>🏆 Live Leaderboard</h2>
+    <div class="lb-wrap">
+      <table id="lb-table">
+        <thead>
+          <tr>
+            <th>#</th><th>NAME</th>
+            <th>R1 (×1)</th><th>R2 (×2)</th><th>CF (×3)</th><th>SC (×4)</th>
+            <th>TOTAL</th>
+          </tr>
+        </thead>
+        <tbody id="lb-body">
+          <tr><td colspan="7" class="empty-state">
+            <div style="font-size:2rem">🏒</div>
+            <p>Load participants' picks files to begin</p>
+          </td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+const TEAMS=[
+  "Boston Bruins","Carolina Hurricanes","Florida Panthers","Toronto Maple Leafs",
+  "Tampa Bay Lightning","Washington Capitals","New York Rangers","New Jersey Devils",
+  "Vegas Golden Knights","Colorado Avalanche","Dallas Stars","Winnipeg Jets",
+  "Edmonton Oilers","Los Angeles Kings","Minnesota Wild","Vancouver Canucks"
+];
+const ROUND_MULT=[1,2,3,4];
+const ROUND_LABELS=["R1","R2","CF","SC"];
+
+let participants=[]; // [{name, picks: {teamName: points}}]
+let results={};      // {teamName: [bool,bool,bool,bool]}  (won round 0..3)
+
+// Init results
+TEAMS.forEach(t=>{results[t]=[false,false,false,false];});
+
+// ── Results grid ──────────────────────────────────────────────────────────────
+function buildResultsGrid(){
+  const grid=document.getElementById('results-grid');
+  grid.innerHTML='';
+  TEAMS.forEach(team=>{
+    const row=document.createElement('div');row.className='result-row';
+    const lbl=document.createElement('div');lbl.className='team-lbl';lbl.textContent=team;row.appendChild(lbl);
+    ROUND_LABELS.forEach((_,ri)=>{
+      const wrap=document.createElement('div');wrap.className='round-chk';
+      const cb=document.createElement('input');cb.type='checkbox';cb.checked=results[team][ri];
+      cb.addEventListener('change',()=>{results[team][ri]=cb.checked;recalc();});
+      wrap.appendChild(cb);row.appendChild(wrap);
+    });
+    grid.appendChild(row);
+  });
+}
+
+// ── File loading ──────────────────────────────────────────────────────────────
+function loadFile(file){
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const data=JSON.parse(e.target.result);
+      if(!data.name||!data.picks)throw new Error('Invalid format');
+      // Convert picks array to map {teamName: points}
+      const pickMap={};
+      data.picks.forEach(p=>{pickMap[p.team]=p.points;});
+      // Replace if same name already loaded
+      const existing=participants.findIndex(p=>p.name===data.name);
+      if(existing>=0)participants[existing]={name:data.name,picks:pickMap};
+      else participants.push({name:data.name,picks:pickMap});
+      renderParticipants();recalc();
+    }catch(err){alert('Could not read file: '+file.name+'\n'+err.message);}
+  };
+  reader.readAsText(file);
+}
+
+const dz=document.getElementById('drop-zone');
+const fi=document.getElementById('file-input');
+dz.addEventListener('click',()=>fi.click());
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('over');});
+dz.addEventListener('dragleave',()=>dz.classList.remove('over'));
+dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('over');[...e.dataTransfer.files].forEach(loadFile);});
+fi.addEventListener('change',()=>{[...fi.files].forEach(loadFile);fi.value='';});
+document.getElementById('btn-clear-all').addEventListener('click',()=>{participants=[];renderParticipants();recalc();});
+
+function renderParticipants(){
+  const list=document.getElementById('participant-list');list.innerHTML='';
+  participants.forEach((p,i)=>{
+    const chip=document.createElement('div');chip.className='participant-chip';
+    chip.innerHTML=`<span>${p.name}</span><button title="Remove">✕</button>`;
+    chip.querySelector('button').addEventListener('click',()=>{participants.splice(i,1);renderParticipants();recalc();});
+    list.appendChild(chip);
+  });
+}
+
+// ── Score calculation ─────────────────────────────────────────────────────────
+function calcScore(participant){
+  const roundScores=[0,0,0,0];
+  TEAMS.forEach(team=>{
+    const pts=participant.picks[team]||0;
+    ROUND_MULT.forEach((mult,ri)=>{
+      if(results[team][ri]) roundScores[ri]+=pts*mult;
+    });
+  });
+  return roundScores;
+}
+
+function recalc(){
+  const lb=document.getElementById('lb-body');
+  if(participants.length===0){
+    lb.innerHTML=`<tr><td colspan="7" class="empty-state"><div style="font-size:2rem">🏒</div><p>Load participants' picks files to begin</p></td></tr>`;
+    return;
+  }
+  const rows=participants.map(p=>{
+    const roundScores=calcScore(p);
+    const total=roundScores.reduce((a,b)=>a+b,0);
+    return{name:p.name,roundScores,total};
+  });
+  rows.sort((a,b)=>b.total-a.total);
+  lb.innerHTML='';
+  rows.forEach((row,i)=>{
+    const rank=i+1;
+    const rankClass=rank===1?'rank-1':rank===2?'rank-2':rank===3?'rank-3':'';
+    const medal=rank===1?'🥇':rank===2?'🥈':rank===3?'🥉':'';
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td class="rank-cell ${rankClass}">${medal||rank}</td>
+      <td class="name-cell">${row.name}</td>
+      ${row.roundScores.map(s=>`<td class="round-score">${s}</td>`).join('')}
+      <td class="score-cell">${row.total}</td>
+    `;
+    lb.appendChild(tr);
+  });
+}
+
+buildResultsGrid();
+recalc();
+</script>
+</body>
+</html>
