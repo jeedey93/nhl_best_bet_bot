@@ -147,12 +147,28 @@
   /* Mobile */
   @media(max-width:640px){
     .bracket-headers{display:none;}
-    .bracket{grid-template-columns:1fr;gap:0.6rem;}
-    .bracket-col{flex-direction:column;gap:4px;}
+    .bracket{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      grid-template-rows:auto auto auto auto;
+      gap:6px;
+    }
+    /* DOM order: E-R1(1) E-R2(2) E-CF(3) SCF(4) W-CF(5) W-R2(6) W-R1(7) */
+    .bracket>:nth-child(1){ grid-column:1; grid-row:1; } /* East R1  */
+    .bracket>:nth-child(2){ grid-column:1; grid-row:2; } /* East R2  */
+    .bracket>:nth-child(3){ grid-column:1; grid-row:3; } /* East CF  */
+    .bracket>:nth-child(4){ grid-column:1/3; grid-row:4; align-items:center; } /* SCF */
+    .bracket>:nth-child(5){ grid-column:2; grid-row:3; } /* West CF  */
+    .bracket>:nth-child(6){ grid-column:2; grid-row:2; } /* West R2  */
+    .bracket>:nth-child(7){ grid-column:2; grid-row:1; } /* West R1  */
+
+    .bracket-col{padding:0 2px;gap:4px;}
     .bracket-col::before{content:attr(data-label);display:block;
-      font-family:'Bebas Neue',cursive;font-size:0.75rem;color:rgba(255,184,28,0.5);
-      letter-spacing:2px;text-align:center;padding:2px 0 1px;}
-    .b-series{max-width:280px;margin:0 auto;width:100%;}
+      font-family:'Bebas Neue',cursive;font-size:0.6rem;color:rgba(255,184,28,0.45);
+      letter-spacing:1.5px;text-align:center;padding:2px 0 3px;}
+    .bracket>:nth-child(4)::before{font-size:0.65rem;color:var(--gold);}
+    .b-series{width:100%;}
+    .bracket>:nth-child(4) .b-series{max-width:200px;margin:0 auto;}
   }
   .rounds-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0.75rem;}
   @media(max-width:500px){.rounds-grid{grid-template-columns:repeat(2,1fr);}}
@@ -464,13 +480,13 @@ function renderBracket(){
   const scfHtml=bSeriesHtml(sf1,sf2,3,'🏆 STANLEY CUP','scf-card');
 
   el.innerHTML=`
-    <div class="bracket-col r1" data-label="ROUND 1 · EAST">${eastR1Html}</div>
-    <div class="bracket-col r2" data-label="ROUND 2 · EAST">${eastR2Html}</div>
-    <div class="bracket-col cf" data-label="CONF. FINAL · EAST">${eastCFHtml}</div>
+    <div class="bracket-col r1" data-label="R1 · EAST">${eastR1Html}</div>
+    <div class="bracket-col r2" data-label="R2 · EAST">${eastR2Html}</div>
+    <div class="bracket-col cf" data-label="CF · EAST">${eastCFHtml}</div>
     <div class="bracket-col scf" data-label="STANLEY CUP FINAL">${scfHtml}</div>
-    <div class="bracket-col cf" data-label="CONF. FINAL · WEST">${westCFHtml}</div>
-    <div class="bracket-col r2" data-label="ROUND 2 · WEST">${westR2Html}</div>
-    <div class="bracket-col r1" data-label="ROUND 1 · WEST">${westR1Html}</div>
+    <div class="bracket-col cf" data-label="CF · WEST">${westCFHtml}</div>
+    <div class="bracket-col r2" data-label="R2 · WEST">${westR2Html}</div>
+    <div class="bracket-col r1" data-label="R1 · WEST">${westR1Html}</div>
   `;
 }
 
