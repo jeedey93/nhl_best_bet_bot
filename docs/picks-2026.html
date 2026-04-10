@@ -48,7 +48,7 @@
   /* Filled rank item */
   .rank-item { display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.045);
     border:1px solid var(--line);border-left:3px solid rgba(255,255,255,0.1);border-radius:6px;
-    padding:6px 8px 6px 8px;cursor:grab;user-select:none;touch-action:pan-y;
+    padding:6px 8px 6px 8px;cursor:grab;user-select:none;touch-action:none;
     transition:background 0.15s,border-left-color 0.2s; }
   .rank-item:active { cursor:grabbing; }
   .rank-item.dragging { opacity:0.35; }
@@ -92,7 +92,7 @@
 
   .pool-item { display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.04);
     border:1px solid var(--line);border-radius:6px;padding:6px 10px;
-    cursor:grab;user-select:none;touch-action:pan-y;transition:background 0.15s,border-color 0.15s;position:relative; }
+    cursor:grab;user-select:none;touch-action:none;transition:background 0.15s,border-color 0.15s;position:relative; }
   .pool-item:active { cursor:grabbing; }
   .pool-item.dragging { opacity:0.35; }
   .pool-item.drag-over { background:rgba(255,184,28,0.07);border-color:rgba(255,184,28,0.4); }
@@ -137,7 +137,19 @@
   .bracket-section .panel-label { margin-bottom:0.5rem; }
   .bracket-section img { width:100%;height:auto;object-fit:contain;border-radius:8px;
     border:1px solid rgba(255,255,255,0.07);display:block; }
-  @media(max-width:640px){ .bracket-section { display:none; } .pool-panel { display:none; } }
+  .bracket-toggle { display:none;width:100%;background:rgba(255,255,255,0.04);
+    border:1px solid rgba(255,255,255,0.08);border-radius:6px;color:var(--gold);
+    font-family:'Bebas Neue',cursive;font-size:1rem;letter-spacing:2px;
+    padding:0.55rem 1rem;cursor:pointer;margin-bottom:0.5rem;text-align:center; }
+  .bracket-toggle:hover { background:rgba(255,255,255,0.07); }
+  .bracket-img-wrap { }
+  @media(max-width:640px){
+    .bracket-section { margin-bottom:1rem; }
+    .bracket-toggle { display:block; }
+    .bracket-img-wrap { display:none; }
+    .bracket-img-wrap.open { display:block; }
+    .pool-panel { display:none; }
+  }
 
   /* ── Rules section ── */
   .rules-section { max-width:960px;margin:0 auto 1.5rem; }
@@ -199,7 +211,10 @@
 
 <div class="bracket-section">
   <div class="panel-label">🏒 2026 Playoff Bracket</div>
-  <img src="nhl_bracket_2026.png" alt="2026 NHL Playoff Bracket">
+  <button class="bracket-toggle" id="bracket-toggle">▶ Show Bracket</button>
+  <div class="bracket-img-wrap" id="bracket-img-wrap">
+    <img src="nhl_bracket_2026.png" alt="2026 NHL Playoff Bracket">
+  </div>
 </div>
 
 <div class="page-grid">
@@ -261,7 +276,12 @@ function logoPngUrl(a){const e=ESPN_ABBR[a]||a.toLowerCase();return`https://a.es
 
 const logoCache={};
 function pts(pos){return 17-pos;}
-function isMobile(){return/android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent)||window.innerWidth<600;}
+// iPadOS reports as "Macintosh" — detect via maxTouchPoints as well
+function isMobile(){
+  return/android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent)
+    ||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1)
+    ||window.innerWidth<600;
+}
 
 // ranking[i] = team object or null (16 slots)
 // On mobile: pre-fill all 16 slots with teams in default order
@@ -624,6 +644,14 @@ document.getElementById('btn-clear').addEventListener('click',()=>{
   showToast('Ranking cleared');
 });
 
+
+// ── Bracket toggle (mobile) ───────────────────────────────────────────────────
+document.getElementById('bracket-toggle').addEventListener('click',()=>{
+  const wrap=document.getElementById('bracket-img-wrap');
+  const btn=document.getElementById('bracket-toggle');
+  const open=wrap.classList.toggle('open');
+  btn.textContent=open?'▼ Hide Bracket':'▶ Show Bracket';
+});
 
 render();
 preloadLogos();
