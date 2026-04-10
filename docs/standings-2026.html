@@ -105,38 +105,54 @@
     letter-spacing:3px;text-align:center;margin-bottom:1rem;}
 
   /* ── Dynamic bracket ── */
-  .bracket-section{max-width:1100px;margin:2rem auto 0;text-align:center;}
+  .bracket-section{max-width:960px;margin:2.5rem auto 0;text-align:center;}
   .bracket-section h3{font-family:'Bebas Neue',cursive;font-size:1.2rem;color:var(--gold);
-    letter-spacing:3px;margin-bottom:1rem;}
-  .bracket{display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr 1fr 1fr;gap:0;align-items:center;
-    width:100%;overflow-x:auto;}
-  .bracket-col{display:flex;flex-direction:column;justify-content:space-around;padding:0 4px;}
-  .bracket-col.r1{justify-content:space-evenly;}
-  .bracket-col.center{justify-content:center;}
-  .b-series{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
-    border-radius:7px;padding:6px 8px;margin:6px 0;min-width:130px;}
-  .b-team{display:flex;align-items:center;gap:5px;padding:3px 4px;border-radius:4px;
-    font-size:0.78rem;font-weight:600;color:rgba(255,255,255,0.75);white-space:nowrap;
-    transition:color 0.2s;}
+    letter-spacing:3px;margin-bottom:0.5rem;}
+  /* column headers */
+  .bracket-headers{display:grid;grid-template-columns:1fr 0.8fr 0.7fr 0.8fr 0.7fr 0.8fr 1fr;
+    gap:0;margin-bottom:0.4rem;padding:0 4px;}
+  .bracket-headers span{font-family:'Bebas Neue',cursive;font-size:0.7rem;color:rgba(255,184,28,0.5);
+    letter-spacing:2px;text-align:center;}
+  /* bracket grid */
+  .bracket{display:grid;grid-template-columns:1fr 0.8fr 0.7fr 0.8fr 0.7fr 0.8fr 1fr;
+    gap:0;align-items:stretch;width:100%;}
+  .bracket-col{display:flex;flex-direction:column;justify-content:space-around;padding:0 3px;gap:6px;}
+  .bracket-col.r2{justify-content:space-evenly;}
+  .bracket-col.cf,.bracket-col.scf{justify-content:center;}
+  /* series card */
+  .b-series{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);
+    border-radius:6px;padding:5px 7px;position:relative;transition:border-color 0.2s;}
+  .b-series:hover{border-color:rgba(255,255,255,0.15);}
+  .b-series.active{border-color:rgba(255,184,28,0.3);background:rgba(255,184,28,0.04);}
+  /* team row */
+  .b-team{display:flex;align-items:center;padding:3px 2px;border-radius:3px;
+    font-size:0.72rem;font-weight:600;color:rgba(255,255,255,0.5);
+    white-space:nowrap;overflow:hidden;line-height:1.2;transition:color 0.2s;}
   .b-team.winner{color:var(--green);font-weight:700;}
-  .b-team.eliminated{color:rgba(255,255,255,0.2);text-decoration:line-through;}
-  .b-team.leading{color:white;}
-  .b-score{font-family:'Bebas Neue',cursive;font-size:0.75rem;text-align:center;
-    padding:2px 0;letter-spacing:1px;color:var(--silver);}
-  .b-score.final{color:var(--gold);}
-  .b-score.tbd{color:rgba(168,178,190,0.25);}
-  .b-label{font-family:'Bebas Neue',cursive;font-size:0.8rem;color:var(--gold);
-    letter-spacing:2px;text-align:center;margin-bottom:4px;}
-  .b-connector{display:flex;flex-direction:column;justify-content:space-around;
-    padding:0;align-self:stretch;}
-  /* Mobile: stack rounds vertically */
-  @media(max-width:700px){
-    .bracket{grid-template-columns:1fr;gap:0.5rem;}
-    .bracket-col{flex-direction:row;flex-wrap:wrap;justify-content:center;gap:0.4rem;padding:0;}
-    .bracket-col::before{content:attr(data-label);display:block;width:100%;
-      font-family:'Bebas Neue',cursive;font-size:0.85rem;color:var(--gold);
-      letter-spacing:2px;text-align:center;padding:4px 0;}
-    .b-series{min-width:140px;flex:1;}
+  .b-team.eliminated{color:rgba(255,255,255,0.18);text-decoration:line-through;}
+  .b-team.leading{color:rgba(255,255,255,0.9);}
+  .b-team-name{flex:1;overflow:hidden;text-overflow:ellipsis;}
+  .b-team-wins{font-family:'Bebas Neue',cursive;font-size:0.85rem;margin-left:4px;
+    color:rgba(255,255,255,0.3);min-width:10px;text-align:right;}
+  .b-team.winner .b-team-wins{color:var(--green);}
+  .b-team.leading .b-team-wins{color:rgba(255,255,255,0.7);}
+  /* divider between teams */
+  .b-divider{height:1px;background:rgba(255,255,255,0.06);margin:1px 0;}
+  /* round label inside card (CF / SCF only) */
+  .b-label{font-family:'Bebas Neue',cursive;font-size:0.65rem;color:rgba(255,184,28,0.4);
+    letter-spacing:2px;text-align:center;margin-bottom:3px;}
+  /* SCF card special glow */
+  .b-series.scf-card{border-color:rgba(255,184,28,0.2);background:rgba(255,184,28,0.03);}
+  .b-series.scf-card .b-label{color:var(--gold);font-size:0.7rem;}
+  /* Mobile */
+  @media(max-width:640px){
+    .bracket-headers{display:none;}
+    .bracket{grid-template-columns:1fr;gap:0.6rem;}
+    .bracket-col{flex-direction:column;gap:4px;}
+    .bracket-col::before{content:attr(data-label);display:block;
+      font-family:'Bebas Neue',cursive;font-size:0.75rem;color:rgba(255,184,28,0.5);
+      letter-spacing:2px;text-align:center;padding:2px 0 1px;}
+    .b-series{max-width:280px;margin:0 auto;width:100%;}
   }
   .rounds-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0.75rem;}
   @media(max-width:500px){.rounds-grid{grid-template-columns:repeat(2,1fr);}}
@@ -188,6 +204,11 @@
 <!-- Dynamic bracket -->
 <div class="bracket-section">
   <h3>Playoff Bracket</h3>
+  <div class="bracket-headers">
+    <span>ROUND 1</span><span>ROUND 2</span><span>CONF. FINAL</span>
+    <span>STANLEY CUP</span>
+    <span>CONF. FINAL</span><span>ROUND 2</span><span>ROUND 1</span>
+  </div>
   <div class="bracket" id="bracket"></div>
 </div>
 
@@ -409,21 +430,22 @@ function seriesScore(top,bottom,roundIdx){
   return{tw,bw,done:tw===4||bw===4,tbd:false};
 }
 
-function bSeriesHtml(top,bottom,roundIdx,label){
+function bSeriesHtml(top,bottom,roundIdx,label,extraClass=''){
   const{tw,bw,done,tbd}=seriesScore(top,bottom,roundIdx);
   const winner=done?(tw===4?top:bottom):null;
   const topClass=winner?(winner===top?'winner':'eliminated'):(tw>bw&&(tw||bw)?'leading':'');
   const botClass=winner?(winner===bottom?'winner':'eliminated'):(bw>tw&&(tw||bw)?'leading':'');
-  const scoreStr=tbd?'TBD':(tw||bw)?`${tw}-${bw}`:'vs';
-  const scoreClass=done?'final':tbd?'tbd':(tw||bw)?'':'tbd';
-  const labelHtml=label?`<div class="b-label">${label}</div>`:'';
   const topName=top&&top!=='TBD'?top.split(' ').pop():'TBD';
   const botName=bottom&&bottom!=='TBD'?bottom.split(' ').pop():'TBD';
-  return`<div class="b-series">
+  const topWins=tbd?'':(tw>0?tw:'');
+  const botWins=tbd?'':(bw>0?bw:'');
+  const labelHtml=label?`<div class="b-label">${label}</div>`:'';
+  const isActive=!tbd&&(tw||bw)&&!done;
+  return`<div class="b-series${extraClass?' '+extraClass:''}${isActive?' active':''}">
     ${labelHtml}
-    <div class="b-team ${topClass}" title="${top||'TBD'}">${topName}</div>
-    <div class="b-score ${scoreClass}">${scoreStr}</div>
-    <div class="b-team ${botClass}" title="${bottom||'TBD'}">${botName}</div>
+    <div class="b-team ${topClass}" title="${top||'TBD'}"><span class="b-team-name">${topName}</span><span class="b-team-wins">${topWins}</span></div>
+    <div class="b-divider"></div>
+    <div class="b-team ${botClass}" title="${bottom||'TBD'}"><span class="b-team-name">${botName}</span><span class="b-team-wins">${botWins}</span></div>
   </div>`;
 }
 
@@ -436,18 +458,18 @@ function renderBracket(){
   const westR1Html=(rd[0]?.west||[]).map(([t,b])=>bSeriesHtml(t,b,0)).join('');
   const eastR2Html=(rd[1]?.east||[]).map(([t,b])=>bSeriesHtml(t,b,1)).join('');
   const westR2Html=(rd[1]?.west||[]).map(([t,b])=>bSeriesHtml(t,b,1)).join('');
-  const eastCFHtml=(rd[2]?.east||[]).map(([t,b])=>bSeriesHtml(t,b,2,'East Final')).join('');
-  const westCFHtml=(rd[2]?.west||[]).map(([t,b])=>bSeriesHtml(t,b,2,'West Final')).join('');
+  const eastCFHtml=(rd[2]?.east||[]).map(([t,b])=>bSeriesHtml(t,b,2,'EAST FINAL')).join('');
+  const westCFHtml=(rd[2]?.west||[]).map(([t,b])=>bSeriesHtml(t,b,2,'WEST FINAL')).join('');
   const[sf1,sf2]=rd[3]?.final||['TBD','TBD'];
-  const scfHtml=bSeriesHtml(sf1,sf2,3,'Stanley Cup');
+  const scfHtml=bSeriesHtml(sf1,sf2,3,'🏆 STANLEY CUP','scf-card');
 
   el.innerHTML=`
     <div class="bracket-col r1" data-label="ROUND 1 · EAST">${eastR1Html}</div>
-    <div class="bracket-col" data-label="ROUND 2 · EAST">${eastR2Html}</div>
-    <div class="bracket-col center" data-label="CONF. FINAL · EAST">${eastCFHtml}</div>
-    <div class="bracket-col center" data-label="STANLEY CUP FINAL">${scfHtml}</div>
-    <div class="bracket-col center" data-label="CONF. FINAL · WEST">${westCFHtml}</div>
-    <div class="bracket-col" data-label="ROUND 2 · WEST">${westR2Html}</div>
+    <div class="bracket-col r2" data-label="ROUND 2 · EAST">${eastR2Html}</div>
+    <div class="bracket-col cf" data-label="CONF. FINAL · EAST">${eastCFHtml}</div>
+    <div class="bracket-col scf" data-label="STANLEY CUP FINAL">${scfHtml}</div>
+    <div class="bracket-col cf" data-label="CONF. FINAL · WEST">${westCFHtml}</div>
+    <div class="bracket-col r2" data-label="ROUND 2 · WEST">${westR2Html}</div>
     <div class="bracket-col r1" data-label="ROUND 1 · WEST">${westR1Html}</div>
   `;
 }
