@@ -48,7 +48,7 @@
   /* Filled rank item */
   .rank-item { display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.045);
     border:1px solid var(--line);border-left:3px solid rgba(255,255,255,0.1);border-radius:6px;
-    padding:6px 8px 6px 8px;cursor:grab;user-select:none;touch-action:none;-webkit-user-select:none;
+    padding:4px 8px;cursor:grab;user-select:none;touch-action:none;-webkit-user-select:none;
     transition:background 0.15s,border-left-color 0.2s; }
   .rank-item.dragging { opacity:0.35; }
   .rank-item.drag-over { background:rgba(255,184,28,0.12);border-left-color:var(--gold); }
@@ -58,7 +58,7 @@
 
   /* Empty slot */
   .rank-slot-empty { display:flex;align-items:center;gap:8px;border:1px dashed rgba(255,255,255,0.12);
-    border-radius:6px;padding:6px 8px;min-height:48px;transition:border-color 0.15s,background 0.15s; }
+    border-radius:6px;padding:4px 8px;min-height:40px;transition:border-color 0.15s,background 0.15s; }
   .rank-slot-empty.drag-over { border-color:var(--gold);background:rgba(255,184,28,0.07); }
   .slot-pos { font-family:'Bebas Neue',cursive;font-size:1.4rem;color:rgba(255,255,255,0.18);width:24px;text-align:center;flex-shrink:0; }
   .slot-hint { font-size:0.78rem;color:rgba(255,255,255,0.2);letter-spacing:1px; }
@@ -90,7 +90,7 @@
   .pool-list.drag-over .pool-item:first-child,.pool-list.drag-over { background:rgba(255,184,28,0.04);border-radius:6px; }
 
   .pool-item { display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.04);
-    border:1px solid var(--line);border-radius:6px;padding:6px 10px;
+    border:1px solid var(--line);border-radius:6px;padding:4px 10px;
     cursor:grab;user-select:none;touch-action:none;-webkit-user-select:none;transition:background 0.15s,border-color 0.15s;position:relative; }
   .pool-item.dragging { opacity:0.35; }
   .pool-item.drag-over { background:rgba(255,184,28,0.07);border-color:rgba(255,184,28,0.4); }
@@ -459,14 +459,11 @@ function renderPool(){
     container.innerHTML='<div class="pool-empty">All teams ranked!</div>';
     return;
   }
-  // Find the next empty slot position for the tooltip
-  const nextSlot=ranking.findIndex(s=>s===null);
-  const nextPts=nextSlot>=0?pts(nextSlot+1):null;  pool.forEach((team,i)=>{
+  pool.forEach((team,i)=>{
     const div=document.createElement('div');
     div.className='pool-item';
     div.dataset.idx=i;
-    const tooltipHtml='';
-    div.innerHTML=`${logoHtml(team)}<div class="team-info"><div class="team-name">${displayName(team)}</div></div>${tooltipHtml}`;
+    div.innerHTML=`${logoHtml(team)}<div class="team-info"><div class="team-name">${displayName(team)}</div></div>`;
     setupMousePool(div,i);
     setupTouchPool(div,i);
     container.appendChild(div);
@@ -744,8 +741,7 @@ async function buildCanvas(name){
     const logoImg=logoImgs[i];
     if(logoImg){const pad2=3;ctx.drawImage(logoImg,lbX+pad2,lbY+pad2,lbS-pad2*2,lbS-pad2*2);}
     else{const cx=lbX+lbS/2,cy=lbY+lbS/2,cr=lbS/2-1;ctx.beginPath();ctx.arc(cx,cy,cr,0,Math.PI*2);ctx.fillStyle=team.c1;ctx.fill();ctx.font=`bold 8px Arial, sans-serif`;ctx.fillStyle=team.c2;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(team.abbr,cx,cy);ctx.textBaseline='alphabetic';}
-    ctx.font=`bold 13px Arial, sans-serif`;ctx.fillStyle='#ffffff';ctx.textAlign='left';ctx.fillText(displayName(team).toUpperCase(),PAD+32+lbS+10,y+ROW*0.46);
-    ctx.font=`600 10px Arial, sans-serif`;ctx.fillStyle='#a8b2be';ctx.fillText(team.conf.toUpperCase()+'ERN',PAD+32+lbS+10,y+ROW*0.76);
+    ctx.font=`bold 13px Arial, sans-serif`;ctx.fillStyle='#ffffff';ctx.textAlign='left';ctx.fillText(displayName(team).toUpperCase(),PAD+32+lbS+10,y+ROW*0.58);
     const pillW=50,pillH=ROW-10,px2=W-PAD-pillW,py2=y+5;ctx.fillStyle='rgba(232,244,253,0.1)';rr(ctx,px2,py2,pillW,pillH,4);
     ctx.font=`900 14px Arial, sans-serif`;ctx.fillStyle='#e8f4fd';ctx.textAlign='center';ctx.fillText(p+' pts',px2+pillW/2,py2+pillH*0.68);
   });
@@ -917,8 +913,6 @@ function renderSimBracket(){
 
   const eR1=( rd[0]?.east||[]).map((_,i)=>sbSeriesHtml(0,'east',i)).join('');
   const wR1=( rd[0]?.west||[]).map((_,i)=>sbSeriesHtml(0,'west',i)).join('');
-  const eR2Count=(rd[1]?.east||[{},{},{},{}]).length>0?2:2;
-  const wR2Count=2;
   const eR2=Array.from({length:2},(_,i)=>sbSeriesHtml(1,'east',i)).join('');
   const wR2=Array.from({length:2},(_,i)=>sbSeriesHtml(1,'west',i)).join('');
   const eCF=sbSeriesHtml(2,'east',0,'EAST FINAL');
