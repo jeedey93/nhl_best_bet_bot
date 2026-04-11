@@ -435,6 +435,7 @@ function renderRanking(){
       li.innerHTML=`<span class="pos-badge">${pos}</span>
         ${logoHtml(team)}
         <div class="team-info"><div class="team-name">${displayName(team)}</div></div>
+        <span class="pts-badge">${pts(pos)}<small>pts</small></span>
         <button class="remove-btn" title="Remove">✕</button>`;
       li.querySelector('.remove-btn').addEventListener('click',()=>{
         pool.push(team);
@@ -446,7 +447,7 @@ function renderRanking(){
     } else {
       li.className='rank-slot-empty';
       li.dataset.idx=i;
-      li.innerHTML=`<span class="slot-pos">${pos}</span><span class="slot-hint">Drop here</span>`;
+      li.innerHTML=`<span class="slot-pos">${pos}</span><span class="slot-hint">Drop here</span><span class="pts-badge" style="margin-left:auto;opacity:0.4">${pts(pos)}<small>pts</small></span>`;
     }
     list.appendChild(li);
   }
