@@ -755,6 +755,8 @@ function rr(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y)
 document.getElementById('btn-share').addEventListener('click',async()=>{
   const name=document.getElementById('picker-name').value.trim();
   if(!name){showToast('Enter your name first!');return;}
+  const filled=ranking.filter(Boolean).length;
+  if(filled<16){showToast(`Rank all 16 teams first! (${filled}/16)`);return;}
   const filename=name.replace(/\s+/g,'')+'-NHL-Playoffs-2026.jpg';
   const btn=document.getElementById('btn-share');btn.disabled=true;btn.textContent='Generating…';
   try{
