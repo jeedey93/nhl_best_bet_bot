@@ -356,7 +356,8 @@ const TEAMS=[
   {name:"Anaheim Ducks",         abbr:"ANA",conf:"West",c1:"#F47A38",c2:"#B9975B"},
 ];
 
-function logoUrl(a){return`https://assets.nhle.com/logos/nhl/svg/${a}_light.svg`;}
+const LOGO_VARIANT={'TBL':'dark'};
+function logoUrl(a){const v=LOGO_VARIANT[a]||'light';return`https://assets.nhle.com/logos/nhl/svg/${a}_${v}.svg`;}
 function displayName(nameOrTeam){
   if(typeof nameOrTeam==='object')return nameOrTeam.display||nameOrTeam.name;
   const t=TEAMS.find(t=>t.name===nameOrTeam);
