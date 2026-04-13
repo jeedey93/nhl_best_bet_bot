@@ -28,7 +28,7 @@ module.exports = async (req, res) => {
     return res.status(500).json({ error: 'RESEND_API_KEY not configured' });
   }
 
-  const { name, imageBase64, lang = 'en' } = req.body || {};
+  const { name, imageBase64, lang = 'en', picksJson } = req.body || {};
 
   if (!name || !name.trim()) {
     return res.status(400).json({ error: 'Missing participant name' });
@@ -50,6 +50,15 @@ module.exports = async (req, res) => {
     : `<p><strong>${participantName}</strong> submitted their NHL Playoff Picks 2026.</p><p>See the attached image.</p>`;
 
   const filename = `${participantName.replace(/\s+/g, '-')}-NHL-Playoffs-2026.jpg`;
+  const jsonFilename = `${participantName.replace(/\s+/g, '-')}-NHL-Playoffs-2026.json`;
+
+  const attachments = [
+    { filename, content: base64Data },
+  ];
+  if (picksJson) {
+    const jsonBase64 = Buffer.from(picksJson).toString('base64');
+    attachments.push({ filename: jsonFilename, content: jsonBase64 });
+  }
 
   try {
     const response = await fetch(RESEND_API, {
@@ -64,12 +73,7 @@ module.exports = async (req, res) => {
         to: RECIPIENT,
         subject,
         html: htmlBody,
-        attachments: [
-          {
-            filename,
-            content: base64Data,
-          },
-        ],
+        attachments,
       }),
     });
 

@@ -843,11 +843,14 @@ document.getElementById('btn-confirm-submit').addEventListener('click',async()=>
   const name=document.getElementById('picker-name').value.trim();
   if(!_pendingDataUrl){return;}
   showModal('submitting');
+  const picksJson=JSON.stringify({
+    picks:ranking.map((team,i)=>team?{team:team.name,points:pts(i+1)}:null).filter(Boolean)
+  });
   try{
     const resp=await fetch('/api/submit-picks',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({name,imageBase64:_pendingDataUrl,lang:'en'})
+      body:JSON.stringify({name,imageBase64:_pendingDataUrl,lang:'en',picksJson})
     });
     const result=await resp.json();
     if(!resp.ok){showModal('default');showToast(result.error||'Submission failed, please try again.');return;}
