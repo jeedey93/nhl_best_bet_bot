@@ -843,9 +843,12 @@ document.getElementById('btn-confirm-submit').addEventListener('click',async()=>
   const name=document.getElementById('picker-name').value.trim();
   if(!_pendingDataUrl){return;}
   showModal('submitting');
+  const today=new Date().toISOString().slice(0,10);
   const picksJson=JSON.stringify({
-    picks:ranking.map((team,i)=>team?{team:team.name,points:pts(i+1)}:null).filter(Boolean)
-  });
+    name,
+    date:today,
+    picks:ranking.map((team,i)=>team?{team:team.name,abbr:team.abbr,rank:i+1,points:pts(i+1)}:null).filter(Boolean)
+  },null,2);
   try{
     const resp=await fetch('/api/submit-picks',{
       method:'POST',
