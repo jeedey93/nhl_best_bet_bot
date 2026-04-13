@@ -314,7 +314,7 @@ async function loadParticipants(){
         const r=await fetch('playoff/'+f+'?_='+Date.now());
         if(!r.ok)return;
         const data=await r.json();
-        const name=f.replace(/\.json$/i,'').split('_')[0];
+        const name=data.name||f.replace(/\.json$/i,'').split('_')[0];
         const pickMap={};
         data.picks.forEach(p=>{pickMap[p.team]=p.points;});
         const existing=participants.findIndex(p=>p.name===name);

@@ -50,7 +50,7 @@ module.exports = async (req, res) => {
     : `<p><strong>${participantName}</strong> submitted their NHL Playoff Picks 2026.</p><p>See the attached image.</p>`;
 
   const filename = `${participantName.replace(/\s+/g, '-')}-NHL-Playoffs-2026.jpg`;
-  const jsonFilename = `${participantName.replace(/\s+/g, '-')}-NHL-Playoffs-2026.json`;
+  const jsonFilename = `${participantName.replace(/\s+/g, '_')}_NHL_Picks.json`;
 
   const attachments = [
     { filename, content: base64Data },

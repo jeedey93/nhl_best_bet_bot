@@ -251,21 +251,24 @@ async function loadParticipants(){
 
   await Promise.all(files.map(async filename=>{
     const nameRaw=filename.replace(/\.json$/i,'');
-    const name=nameRaw.split('_')[0];
+    const nameFallback=nameRaw.split('_')[0];
     const chip=document.createElement('div');chip.className='participant-chip';
     const status=document.createElement('span');status.className='load-status';
-    chip.innerHTML=`<span>${name}</span>`;chip.appendChild(status);
-    list.appendChild(chip);
 
     try{
       const resp=await fetch(`playoff/${filename}?_=${Date.now()}`);
       if(!resp.ok)throw new Error(resp.status);
       const data=await resp.json();
+      const name=data.name||nameFallback;
+      chip.innerHTML=`<span>${name}</span>`;chip.appendChild(status);
+      list.appendChild(chip);
       const pickMap={};
       data.picks.forEach(p=>{pickMap[p.team]=p.points;});
       participants.push({name,picks:pickMap});
       status.textContent='✓';status.className='load-status ok';
     }catch(e){
+      chip.innerHTML=`<span>${nameFallback}</span>`;chip.appendChild(status);
+      list.appendChild(chip);
       status.textContent='✗ not found';status.className='load-status err';
     }
   }));
