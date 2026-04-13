@@ -1,4 +1,6 @@
 import os
+import sys
+import time
 from datetime import date
 from dotenv import load_dotenv
 from google import genai
@@ -46,33 +48,48 @@ def compare_predictions(morning_file, noon_file, output_file, prompt_path):
         "models/gemini-2.5-flash-lite",
     ]
 
+    retry_waits = [30, 60]
+
     for model in models_to_try:
-        try:
-            print(f"🤖 Trying {model}...")
-            response = client.models.generate_content(
-                model=model,
-                contents=comparison_prompt,
-            )
-            combined_analysis = response.text.strip()
+        max_retries = len(retry_waits) + 1
+        for attempt in range(max_retries):
+            try:
+                print(f"🤖 Trying {model}...")
+                response = client.models.generate_content(
+                    model=model,
+                    contents=comparison_prompt,
+                )
+                combined_analysis = response.text.strip()
 
-            # Write combined analysis to output file
-            with open(output_file, "w", encoding="utf-8") as f:
-                f.write(combined_analysis)
+                # Write combined analysis to output file
+                with open(output_file, "w", encoding="utf-8") as f:
+                    f.write(combined_analysis)
 
-            print(f"✅ Combined analysis saved to: {output_file}")
-            print("\n" + combined_analysis)
+                print(f"✅ Combined analysis saved to: {output_file}")
+                print("\n" + combined_analysis)
 
-            return combined_analysis
+                return combined_analysis
 
-        except Exception as e:
-            if "RESOURCE_EXHAUSTED" in str(e) or "quota" in str(e):
-                print(f"⚠️ {model} quota exceeded, trying next model...")
-            elif "503" in str(e) or "UNAVAILABLE" in str(e):
-                print(f"⚠️ {model} 503 error, trying next model...")
-            else:
-                raise
+            except genai.errors.ServerError as e:
+                if "503" in str(e) or "UNAVAILABLE" in str(e):
+                    if attempt < max_retries - 1:
+                        wait_time = retry_waits[attempt]
+                        print(f"⚠️ {model} 503 error. Retrying in {wait_time}s... (Attempt {attempt + 1}/{max_retries})")
+                        time.sleep(wait_time)
+                    else:
+                        print(f"⚠️ {model} still unavailable, trying next model...")
+                        break
+                else:
+                    raise
+            except genai.errors.ClientError as e:
+                if "RESOURCE_EXHAUSTED" in str(e) or "quota" in str(e):
+                    print(f"⚠️ {model} quota exceeded, trying next model...")
+                    break
+                else:
+                    raise
 
-    print("AI analysis skipped: all Gemini models unavailable.")
+    print("❌ All Gemini models unavailable. Cancelling workflow.")
+    sys.exit(1)
 
 
 def main():

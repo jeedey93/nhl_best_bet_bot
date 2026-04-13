@@ -1,4 +1,6 @@
 import os
+import sys
+import time
 from pathlib import Path
 # Try to load environment variables from .env if present
 try:
@@ -146,19 +148,34 @@ def summarize_justifications(nhl_just, nba_just):
     print(f"📝 Summarizing {len(reasonings)} featured pick reasonings with Gemini...")
     client = genai.Client(api_key=api_key)
     response_text = None
+    retry_waits = [30, 60]
     for model in models_to_try:
-        try:
-            print(f"🤖 Trying {model}...")
-            response = client.models.generate_content(model=model, contents=full_prompt)
-            response_text = response.text
+        max_retries = len(retry_waits) + 1
+        for attempt in range(max_retries):
+            try:
+                print(f"🤖 Trying {model}...")
+                response = client.models.generate_content(model=model, contents=full_prompt)
+                response_text = response.text
+                break
+            except genai.errors.ServerError as e:
+                if "503" in str(e) or "UNAVAILABLE" in str(e):
+                    if attempt < max_retries - 1:
+                        wait_time = retry_waits[attempt]
+                        print(f"⚠️ {model} 503 error. Retrying in {wait_time}s... (Attempt {attempt + 1}/{max_retries})")
+                        time.sleep(wait_time)
+                    else:
+                        print(f"⚠️ {model} still unavailable, trying next model...")
+                        break
+                else:
+                    raise
+            except genai.errors.ClientError as e:
+                if "RESOURCE_EXHAUSTED" in str(e) or "quota" in str(e):
+                    print(f"⚠️ {model} quota exceeded, trying next model...")
+                    break
+                else:
+                    raise
+        if response_text:
             break
-        except Exception as e:
-            if "RESOURCE_EXHAUSTED" in str(e) or "quota" in str(e):
-                print(f"⚠️ {model} quota exceeded, trying next model...")
-            elif "503" in str(e) or "UNAVAILABLE" in str(e):
-                print(f"⚠️ {model} 503 error, trying next model...")
-            else:
-                raise
 
     if not response_text:
         print("⚠️ All models unavailable, using original paragraphs.")
