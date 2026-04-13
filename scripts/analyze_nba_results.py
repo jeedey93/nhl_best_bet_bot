@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -74,17 +75,44 @@ AI Predictions:
 Actual Results:
 {actuals_text}
 """
-    try:
-        response = client.models.generate_content(
-            model="models/gemini-2.5-flash",
-            contents=types.Part.from_text(text=prompt),
-        )
-        return response.candidates[0].content.parts[0].text
-    except genai.errors.ClientError as e:
-        if "RESOURCE_EXHAUSTED" in str(e) or "quota" in str(e):
-            return "AI analysis skipped: Gemini API quota exceeded."
-        else:
-            raise
+    models_to_try = [
+        "models/gemini-2.5-flash",
+        "models/gemini-2.0-flash",
+        "models/gemini-2.0-flash-lite",
+        "models/gemini-2.5-flash-lite",
+    ]
+    retry_waits = [30, 60]
+
+    for model in models_to_try:
+        max_retries = len(retry_waits) + 1
+        for attempt in range(max_retries):
+            try:
+                print(f"🤖 Trying {model}...")
+                response = client.models.generate_content(
+                    model=model,
+                    contents=types.Part.from_text(text=prompt),
+                )
+                return response.candidates[0].content.parts[0].text
+            except genai.errors.ServerError as e:
+                if "503" in str(e) or "UNAVAILABLE" in str(e):
+                    if attempt < max_retries - 1:
+                        wait_time = retry_waits[attempt]
+                        print(f"⚠️ {model} 503 error. Retrying in {wait_time}s... (Attempt {attempt + 1}/{max_retries})")
+                        time.sleep(wait_time)
+                    else:
+                        print(f"⚠️ {model} still unavailable, trying next model...")
+                        break
+                else:
+                    raise
+            except genai.errors.ClientError as e:
+                if "RESOURCE_EXHAUSTED" in str(e) or "quota" in str(e):
+                    print(f"⚠️ {model} quota exceeded, trying next model...")
+                    break
+                else:
+                    raise
+
+    print("❌ All Gemini models unavailable. Cancelling workflow.")
+    sys.exit(1)
 
 # Read the predictions file
 yesterday = (date.today() - timedelta(days=1)).isoformat()
