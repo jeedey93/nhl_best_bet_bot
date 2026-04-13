@@ -28,7 +28,7 @@ module.exports = async (req, res) => {
     return res.status(500).json({ error: 'RESEND_API_KEY not configured' });
   }
 
-  const { name, imageBase64, lang = 'en', picksJson } = req.body || {};
+  const { name, imageBase64, lang = 'en', picksData } = req.body || {};
 
   if (!name || !name.trim()) {
     return res.status(400).json({ error: 'Missing participant name' });
@@ -55,8 +55,8 @@ module.exports = async (req, res) => {
   const attachments = [
     { filename, content: base64Data },
   ];
-  if (picksJson) {
-    const jsonBase64 = Buffer.from(picksJson).toString('base64');
+  if (picksData) {
+    const jsonBase64 = Buffer.from(JSON.stringify(picksData, null, 2)).toString('base64');
     attachments.push({ filename: jsonFilename, content: jsonBase64 });
   }
 

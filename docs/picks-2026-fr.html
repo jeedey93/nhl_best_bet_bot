@@ -843,16 +843,16 @@ document.getElementById('btn-confirm-submit').addEventListener('click',async()=>
   if(!_pendingDataUrl){return;}
   showModal('submitting');
   const today=new Date().toISOString().slice(0,10);
-  const picksJson=JSON.stringify({
+  const picksData={
     name,
     date:today,
     picks:ranking.map((team,i)=>team?{team:team.name,abbr:team.abbr,rank:i+1,points:pts(i+1)}:null).filter(Boolean)
-  },null,2);
+  };
   try{
     const resp=await fetch('/api/submit-picks',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({name,imageBase64:_pendingDataUrl,lang:'fr',picksJson})
+      body:JSON.stringify({name,imageBase64:_pendingDataUrl,lang:'fr',picksData})
     });
     const result=await resp.json();
     if(!resp.ok){showModal('default');showToast(result.error||'Soumission échouée, réessaie.');return;}
