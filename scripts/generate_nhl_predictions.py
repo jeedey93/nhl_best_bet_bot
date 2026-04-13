@@ -566,7 +566,266 @@ def get_rest_days_for_team(team_name):
         return None
 
 
-def analyze_results(results_text, absences_text, recent_games, team_stats_text, h2h_stats_text, goalie_stats_text, home_away_splits_text, standings_text, special_teams_text):
+def get_playoff_series_status(season='20252026'):
+    """
+    Fetch current NHL playoff series status for all active series.
+    Returns a formatted string ready to inject into {{PLAYOFF_SERIES_STATUS}}.
+    """
+    try:
+        url = f'https://api-web.nhle.com/v1/playoff-bracket/{season}'
+        response = api_call_with_retry(url)
+        if not response:
+            url2 = f'https://api-web.nhle.com/v1/playoffs/carousel/{season}'
+            response = api_call_with_retry(url2)
+            if not response:
+                return "Playoff series status: Unavailable"
+
+        data = response.json()
+        output = "PLAYOFF SERIES STATUS:\n"
+        output += "=" * 40 + "\n"
+
+        series_found = False
+
+        rounds = data.get('rounds', [])
+        if not rounds:
+            rounds = data.get('series', [])
+
+        for round_data in rounds:
+            round_num = round_data.get('roundNumber', round_data.get('number', '?'))
+            round_name = {1: 'Round 1', 2: 'Round 2', 3: 'Conference Finals', 4: 'Stanley Cup Final'}.get(round_num, f'Round {round_num}')
+
+            series_list = round_data.get('series', [round_data] if 'topSeedTeam' in round_data else [])
+
+            for series in series_list:
+                top_team = series.get('topSeedTeam', {})
+                bottom_team = series.get('bottomSeedTeam', {})
+
+                top_name = top_team.get('commonName', {}).get('default', top_team.get('abbrev', 'TBD'))
+                bottom_name = bottom_team.get('commonName', {}).get('default', bottom_team.get('abbrev', 'TBD'))
+                top_wins = series.get('topSeedWins', 0)
+                bottom_wins = series.get('bottomSeedWins', 0)
+
+                if top_wins > bottom_wins:
+                    leader = top_name
+                    leader_wins = top_wins
+                    trailer_wins = bottom_wins
+                elif bottom_wins > top_wins:
+                    leader = bottom_name
+                    leader_wins = bottom_wins
+                    trailer_wins = top_wins
+                else:
+                    leader = None
+
+                games_played = top_wins + bottom_wins
+                next_game_num = games_played + 1
+
+                if top_wins == 4:
+                    status = f"{top_name} WON SERIES 4-{bottom_wins}"
+                elif bottom_wins == 4:
+                    status = f"{bottom_name} WON SERIES 4-{top_wins}"
+                elif leader:
+                    status = f"{leader} leads {leader_wins}-{trailer_wins} (Game {next_game_num} next)"
+                else:
+                    status = f"Series tied {top_wins}-{bottom_wins} (Game {next_game_num} next)"
+
+                home_games = {1: 'top', 2: 'top', 3: 'bottom', 4: 'bottom', 5: 'top', 6: 'bottom', 7: 'top'}
+                next_home_seed = home_games.get(next_game_num, 'top')
+                next_home_team = top_name if next_home_seed == 'top' else bottom_name
+                next_away_team = bottom_name if next_home_seed == 'top' else top_name
+
+                output += f"\n{round_name}: {top_name} vs {bottom_name}\n"
+                output += f"  Series Status: {status}\n"
+                output += f"  Games Played: {games_played}\n"
+                output += f"  Next Game: Game {next_game_num} — {next_away_team} @ {next_home_team}\n"
+
+                if top_wins == 3 and bottom_wins < 3:
+                    output += f"  ELIMINATION GAME: {bottom_name} must win or season ends\n"
+                elif bottom_wins == 3 and top_wins < 3:
+                    output += f"  ELIMINATION GAME: {top_name} must win or season ends\n"
+                elif top_wins == 3 and bottom_wins == 3:
+                    output += f"  GAME 7 — WINNER TAKE ALL\n"
+
+                series_found = True
+
+        if not series_found:
+            return "Playoff series status: No active series found (playoffs may not have started yet)"
+
+        return output
+
+    except Exception as e:
+        print(f"Warning: Error fetching playoff series status: {e}")
+        return f"Playoff series status: Error fetching data ({e})"
+
+
+def get_playoff_goalie_stats(home_team, away_team, starting_goalies, season='20252026'):
+    """
+    For both teams' confirmed starting goalies, fetch their playoff-specific stats.
+    Returns a formatted string ready to inject into {{PLAYOFF_GOALIE_STATS}}.
+    """
+
+    def fetch_goalie_playoff_stats(goalie_name):
+        try:
+            search_url = f'https://api-web.nhle.com/v1/player-search?q={goalie_name.replace(" ", "%20")}&culture=en'
+            search_resp = api_call_with_retry(search_url)
+            if not search_resp:
+                return None
+
+            players = search_resp.json().get('players', [])
+            if not players:
+                return None
+
+            goalie_id = None
+            for p in players:
+                if p.get('positionCode') == 'G':
+                    goalie_id = p.get('playerId')
+                    break
+
+            if not goalie_id:
+                return None
+
+            time.sleep(0.3)
+
+            gamelog_url = f'https://api-web.nhle.com/v1/player/{goalie_id}/game-log/{season}/3'
+            gamelog_resp = api_call_with_retry(gamelog_url)
+            if not gamelog_resp:
+                return None
+
+            games = gamelog_resp.json().get('gameLog', [])
+            if not games:
+                return None
+
+            games.sort(key=lambda x: x.get('gameDate', ''))
+
+            total_shots_against = 0
+            total_saves = 0
+            total_goals_against = 0
+            total_toi_seconds = 0
+            total_starts = 0
+            shutouts = 0
+
+            for g in games:
+                toi = g.get('toi', '0:00')
+                try:
+                    parts = toi.split(':')
+                    toi_seconds = int(parts[0]) * 60 + int(parts[1])
+                except Exception:
+                    toi_seconds = 0
+
+                if toi_seconds < 600:
+                    continue
+
+                sa = g.get('shotsAgainst', 0)
+                ga = g.get('goalsAgainst', 0)
+                saves = sa - ga
+
+                total_shots_against += sa
+                total_saves += saves
+                total_goals_against += ga
+                total_toi_seconds += toi_seconds
+                total_starts += 1
+
+                if ga == 0 and toi_seconds > 3000:
+                    shutouts += 1
+
+            if total_starts == 0:
+                return None
+
+            overall_sv_pct = round(total_saves / total_shots_against, 3) if total_shots_against > 0 else 0
+            overall_gaa = round((total_goals_against / total_toi_seconds) * 3600, 2) if total_toi_seconds > 0 else 0
+
+            last_3_games = games[-3:] if len(games) >= 3 else games
+            l3_shots = 0
+            l3_saves_count = 0
+            l3_ga = 0
+            l3_toi = 0
+
+            for g in last_3_games:
+                toi = g.get('toi', '0:00')
+                try:
+                    parts = toi.split(':')
+                    toi_seconds = int(parts[0]) * 60 + int(parts[1])
+                except Exception:
+                    toi_seconds = 0
+
+                if toi_seconds < 600:
+                    continue
+
+                sa = g.get('shotsAgainst', 0)
+                ga = g.get('goalsAgainst', 0)
+                l3_shots += sa
+                l3_saves_count += (sa - ga)
+                l3_ga += ga
+                l3_toi += toi_seconds
+
+            l3_sv_pct = round(l3_saves_count / l3_shots, 3) if l3_shots > 0 else 0
+            l3_gaa = round((l3_ga / l3_toi) * 3600, 2) if l3_toi > 0 else 0
+
+            return {
+                'playoff_starts': total_starts,
+                'overall_sv_pct': overall_sv_pct,
+                'overall_gaa': overall_gaa,
+                'shutouts': shutouts,
+                'last_3_sv_pct': l3_sv_pct,
+                'last_3_gaa': l3_gaa,
+            }
+
+        except Exception as e:
+            print(f"Warning: Error fetching playoff goalie stats for {goalie_name}: {e}")
+            return None
+
+    output = "PLAYOFF GOALIE STATS:\n"
+    output += "=" * 40 + "\n"
+
+    for team_full in [away_team, home_team]:
+        team_normalized = team_full.replace('Montréal', 'Montreal')
+        goalie_info = starting_goalies.get(team_normalized)
+
+        output += f"\n{team_full} Starting Goalie:\n"
+
+        if not goalie_info:
+            output += "  Name: Unconfirmed\n"
+            output += "  Playoff Stats: Not available\n"
+            continue
+
+        goalie_name = goalie_info.get('name', 'Unknown')
+        goalie_status = goalie_info.get('status', '')
+        output += f"  Name: {goalie_name} ({goalie_status})\n"
+
+        if 'sv_pct' in goalie_info:
+            output += f"  Regular Season SV%: {goalie_info['sv_pct']}\n"
+            output += f"  Regular Season GAA: {goalie_info['gaa']}\n"
+
+        playoff_stats = fetch_goalie_playoff_stats(goalie_name)
+        time.sleep(0.4)
+
+        if playoff_stats and playoff_stats['playoff_starts'] > 0:
+            output += f"  Playoff Starts (this run): {playoff_stats['playoff_starts']}\n"
+            output += f"  Playoff Overall SV%: {playoff_stats['overall_sv_pct']:.3f}\n"
+            output += f"  Playoff Overall GAA: {playoff_stats['overall_gaa']:.2f}\n"
+            output += f"  Playoff Shutouts: {playoff_stats['shutouts']}\n"
+            output += f"  Last 3 Playoff Starts SV%: {playoff_stats['last_3_sv_pct']:.3f}\n"
+            output += f"  Last 3 Playoff Starts GAA: {playoff_stats['last_3_gaa']:.2f}\n"
+
+            l3_sv = playoff_stats['last_3_sv_pct']
+            if l3_sv >= 0.930:
+                tier = "PLAYOFF ELITE (Stealing games)"
+            elif l3_sv >= 0.915:
+                tier = "PLAYOFF HOT (Strong form)"
+            elif l3_sv >= 0.900:
+                tier = "PLAYOFF AVERAGE"
+            elif l3_sv >= 0.885:
+                tier = "PLAYOFF STRUGGLING"
+            else:
+                tier = "PLAYOFF COLD (Major liability)"
+            output += f"  Current Form Tier: {tier}\n"
+        else:
+            output += "  Playoff Stats: No playoff starts yet this run\n"
+            output += "  NOTE: Use regular season Last 5 SV% as proxy (see {{GOALIE_STATS}})\n"
+
+    return output
+
+
+def analyze_results(results_text, absences_text, recent_games, team_stats_text, h2h_stats_text, goalie_stats_text, home_away_splits_text, standings_text, special_teams_text, playoff_series_text="", playoff_goalie_stats_text=""):
     api_key = os.environ["GOOGLE_API_KEY"]
     client = genai.Client(api_key=api_key)
 
@@ -593,7 +852,11 @@ def analyze_results(results_text, absences_text, recent_games, team_stats_text, 
 
     # Strictly read external prompt file; no fallback
     # Use the 7am-specific prompt (no goalie data) for early run, standard prompt for 3pm
-    if run_time == "7am":
+    # In playoff mode, use the playoff-specific prompt
+    is_playoffs = os.environ.get("PLAYOFF_MODE", "").lower() in ("1", "true", "yes")
+    if is_playoffs:
+        prompt_path = os.path.join("prompts", "nhl_playoff_prompt.txt")
+    elif run_time == "7am":
         prompt_path = os.path.join("prompts", "nhl_prompt_7am.txt")
     else:
         prompt_path = os.path.join("prompts", "nhl_prompt.txt")
@@ -613,6 +876,8 @@ def analyze_results(results_text, absences_text, recent_games, team_stats_text, 
             prompt_text = prompt_text.replace("{{HOME_AWAY_SPLITS}}", home_away_splits_text)
             prompt_text = prompt_text.replace("{{STANDINGS}}", standings_text)
             prompt_text = prompt_text.replace("{{SPECIAL_TEAMS}}", special_teams_text)
+            prompt_text = prompt_text.replace("{{PLAYOFF_SERIES_STATUS}}", playoff_series_text)
+            prompt_text = prompt_text.replace("{{PLAYOFF_GOALIE_STATS}}", playoff_goalie_stats_text)
     except Exception:
         return "AI analysis skipped: prompt file not found or unreadable."
 
@@ -767,6 +1032,16 @@ with open(filename, "w") as f:
         home_away_splits_text = ""
         standings_text = ""
         special_teams_text = ""
+        playoff_goalie_stats_text = ""
+
+        # Fetch playoff series status once (only in playoff mode)
+        is_playoffs = os.environ.get("PLAYOFF_MODE", "").lower() in ("1", "true", "yes")
+        if is_playoffs:
+            print("Fetching playoff series status...")
+            playoff_series_text = get_playoff_series_status()
+            print(playoff_series_text)
+        else:
+            playoff_series_text = ""
 
         # Fetch special teams stats once (not per-game)
         print("Fetching NHL special teams stats (PP%/PK%)...")
@@ -923,7 +1198,11 @@ with open(filename, "w") as f:
 
                 goalie_stats_text += "\n"
 
-            # Add standings info for both teams
+                # Fetch playoff goalie stats (only in playoff mode)
+                if is_playoffs:
+                    playoff_goalie_stats_text += get_playoff_goalie_stats(
+                        home_team, away_team, starting_goalies
+                    )
             # Standings dict is keyed by full team names (e.g., 'Montreal Canadiens', 'Boston Bruins')
             # from get_nhl_standings() which uses STANDINGS_TO_ODDS_MAP
             # Normalize Montréal to Montreal for consistent lookup
@@ -1002,11 +1281,14 @@ with open(filename, "w") as f:
         if run_time == "3pm":
             print("\nGoalie Stats:")
             print(goalie_stats_text)
+            if is_playoffs:
+                print("\nPlayoff Goalie Stats:")
+                print(playoff_goalie_stats_text)
         print("\nRecent Games:")
         print(recent_games)
 
         if results_text:
-            summary = analyze_results(results_text, absences_text, recent_games, team_stats_text, h2h_stats_text, goalie_stats_text, home_away_splits_text, standings_text, special_teams_text)
+            summary = analyze_results(results_text, absences_text, recent_games, team_stats_text, h2h_stats_text, goalie_stats_text, home_away_splits_text, standings_text, special_teams_text, playoff_series_text, playoff_goalie_stats_text)
             f.write("\nAI Analysis Summary:\n")
             f.write(summary + "\n")
             print("\nAI Analysis Summary:")
