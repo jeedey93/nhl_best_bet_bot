@@ -147,6 +147,12 @@
   #btn-open-img { background:var(--gold);color:var(--rink); }
   #btn-fb-post { background:linear-gradient(135deg,#1877f2,#0d5bbf);color:white; }
   #btn-close-modal { background:rgba(255,255,255,0.1);color:white; }
+  /* success state */
+  .modal-success { display:none;text-align:center;padding:1rem 0; }
+  .modal-success .success-icon { font-size:3rem;margin-bottom:0.5rem; }
+  .modal-success p { color:var(--silver);font-size:1rem;line-height:1.6; }
+  .modal-success p strong { color:#4ade80; }
+  .modal-submitting { color:var(--silver);font-size:0.95rem;letter-spacing:1px;margin-bottom:1rem; }
 
   /* ── Bracket inline ── */
   .bracket-section { max-width:960px;margin:0 auto 1.5rem;text-align:center; }
@@ -343,24 +349,38 @@
 </div>
 
 <div class="btn-row">
-  <button class="btn btn-share" id="btn-share">📸 Partager l'Image</button>
+  <button class="btn btn-share" id="btn-share">📨 Soumettre mes Choix</button>
   <a class="btn btn-standings" id="btn-standings" href="standings-2026.html">🏆 Voir le Classement →</a>
   <button class="btn btn-clear" id="btn-clear">✕ Tout Effacer</button>
 </div>
 
 <!-- Share image modal --><div id="modal-overlay">
   <div class="modal-box">
-    <p><strong>Tes choix sont prêts!</strong></p>
-    <ol class="modal-steps">
-      <li data-n="1.">Enregistre l'image ci-dessous dans tes photos</li>
-      <li data-n="2.">Va sur la publication Facebook</li>
-      <li data-n="3.">Publie l'image dans les commentaires</li>
-    </ol>
-    <img id="preview-img" src="" alt="Tes choix LNH">
-    <div class="modal-btns">
-      <a id="btn-open-img" href="#" target="_blank">Enregistrer</a>
-      <a id="btn-fb-post" href="#facebook-post" target="_blank">📘 Publication Facebook</a>
-      <button id="btn-close-modal">Fermer</button>
+    <!-- Submitting state -->
+    <div id="modal-submitting" style="display:none;text-align:center;padding:0.5rem 0 1rem">
+      <p class="modal-submitting">⏳ Envoi de tes choix…</p>
+    </div>
+    <!-- Default state -->
+    <div id="modal-default">
+      <p><strong>Prêt à soumettre?</strong></p>
+      <ol class="modal-steps">
+        <li data-n="1.">Ton image de choix sera envoyée par courriel automatiquement</li>
+        <li data-n="2.">Tu pourras aussi sauvegarder une copie sur ton appareil</li>
+      </ol>
+      <img id="preview-img" src="" alt="Tes choix LNH">
+      <div class="modal-btns">
+        <button id="btn-confirm-submit" class="btn btn-share" style="font-size:1rem;padding:0.6rem 1.5rem;">📨 Envoyer mes Choix</button>
+        <button id="btn-close-modal">Annuler</button>
+      </div>
+    </div>
+    <!-- Success state -->
+    <div class="modal-success" id="modal-success">
+      <div class="success-icon">✅</div>
+      <p><strong>Choix soumis!</strong><br>Nous avons bien reçu tes choix, <span id="success-name"></span>.<br>Bonne chance! 🏒</p>
+      <div class="modal-btns" style="margin-top:1rem">
+        <a id="btn-open-img" href="#" target="_blank" download>Sauvegarder l'Image</a>
+        <button id="btn-close-modal-success">Fermer</button>
+      </div>
     </div>
   </div>
 </div>
@@ -785,43 +805,64 @@ async function buildCanvas(name){
 }
 function rr(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();ctx.fill();}
 
+let _pendingDataUrl=null;
+let _pendingFilename=null;
+
+function showModal(state){
+  document.getElementById('modal-default').style.display=state==='default'?'':'none';
+  document.getElementById('modal-submitting').style.display=state==='submitting'?'block':'none';
+  document.getElementById('modal-success').style.display=state==='success'?'block':'none';
+  document.getElementById('modal-overlay').classList.add('open');
+}
+function closeModal(){
+  document.getElementById('modal-overlay').classList.remove('open');
+  _pendingDataUrl=null;_pendingFilename=null;
+}
+
 document.getElementById('btn-share').addEventListener('click',async()=>{
   const name=document.getElementById('picker-name').value.trim();
-  if(!name){showToast('Entre ton nom d\'abord!');return;}
+  if(!name){showToast('Entre ton nom complet d\'abord!');return;}
   const filled=ranking.filter(Boolean).length;
   if(filled<16){showToast(`Classe les 16 équipes pour finaliser! (${filled}/16)`);return;}
-  const filename=name.replace(/\s+/g,'')+'-LNH-Eliminatoires-2026.jpg';
   const btn=document.getElementById('btn-share');btn.disabled=true;btn.textContent='Génération…';
   try{
     const canvas=await buildCanvas(name);
-    if(!canvas){showToast('Ajoute des équipes d\'abord!');btn.disabled=false;btn.textContent='📸 Partager l\'Image';return;}
+    if(!canvas){showToast('Ajoute des équipes d\'abord!');btn.disabled=false;btn.textContent='📨 Soumettre mes Choix';return;}
     const dataUrl=canvas.toDataURL('image/jpeg',0.92);
-    // Try native share sheet (works on iOS/Android)
-    if(isMobile()&&navigator.share&&navigator.canShare){
-      const blob=await(await fetch(dataUrl)).blob();
-      const file=new File([blob],filename,{type:'image/jpeg'});
-      if(navigator.canShare({files:[file]})){
-        await navigator.share({files:[file]});
-        btn.disabled=false;btn.textContent='📸 Partager l\'Image';return;
-      }
-    }
-    // Fallback: show modal with preview image
-    if(isMobile()){
-      document.getElementById('preview-img').src=dataUrl;
-      document.getElementById('btn-open-img').href=dataUrl;
-      document.getElementById('btn-open-img').download=filename;
-      document.getElementById('modal-overlay').classList.add('open');
-    } else {
-      const a=document.createElement('a');a.href=dataUrl;a.download=filename;a.click();
-      showToast('Image téléchargée! 🏒');
-    }
+    const filename=name.replace(/\s+/g,'')+'-LNH-Eliminatoires-2026.jpg';
+    _pendingDataUrl=dataUrl;_pendingFilename=filename;
+    document.getElementById('preview-img').src=dataUrl;
+    showModal('default');
   }catch(err){
-    if(err.name!=='AbortError'){console.error(err);showToast('Error: '+err.message);}
+    console.error(err);showToast('Erreur: '+err.message);
   }
-  btn.disabled=false;btn.textContent='📸 Partager l\'Image';
+  btn.disabled=false;btn.textContent='📨 Soumettre mes Choix';
 });
-document.getElementById('btn-close-modal').addEventListener('click',()=>document.getElementById('modal-overlay').classList.remove('open'));
-document.getElementById('modal-overlay').addEventListener('click',e=>{if(e.target===document.getElementById('modal-overlay'))document.getElementById('modal-overlay').classList.remove('open');});
+
+document.getElementById('btn-confirm-submit').addEventListener('click',async()=>{
+  const name=document.getElementById('picker-name').value.trim();
+  if(!_pendingDataUrl){return;}
+  showModal('submitting');
+  try{
+    const resp=await fetch('/api/submit-picks',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({name,imageBase64:_pendingDataUrl,lang:'fr'})
+    });
+    const result=await resp.json();
+    if(!resp.ok){showModal('default');showToast(result.error||'Soumission échouée, réessaie.');return;}
+    document.getElementById('success-name').textContent=name;
+    document.getElementById('btn-open-img').href=_pendingDataUrl;
+    document.getElementById('btn-open-img').download=_pendingFilename;
+    showModal('success');
+  }catch(err){
+    console.error(err);showModal('default');showToast('Erreur réseau: '+err.message);
+  }
+});
+
+document.getElementById('btn-close-modal').addEventListener('click',closeModal);
+document.getElementById('btn-close-modal-success').addEventListener('click',closeModal);
+document.getElementById('modal-overlay').addEventListener('click',e=>{if(e.target===document.getElementById('modal-overlay'))closeModal();});
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3500);}
 
 // ── Clear All ─────────────────────────────────────────────────────────────────

@@ -147,6 +147,12 @@
   #btn-open-img { background:var(--gold);color:var(--rink); }
   #btn-fb-post { background:linear-gradient(135deg,#1877f2,#0d5bbf);color:white; }
   #btn-close-modal { background:rgba(255,255,255,0.1);color:white; }
+  /* success state */
+  .modal-success { display:none;text-align:center;padding:1rem 0; }
+  .modal-success .success-icon { font-size:3rem;margin-bottom:0.5rem; }
+  .modal-success p { color:var(--silver);font-size:1rem;line-height:1.6; }
+  .modal-success p strong { color:#4ade80; }
+  .modal-submitting { color:var(--silver);font-size:0.95rem;letter-spacing:1px;margin-bottom:1rem; }
 
   /* ── Bracket inline ── */
   .bracket-section { max-width:960px;margin:0 auto 1.5rem;text-align:center; }
@@ -343,24 +349,38 @@
 </div>
 
 <div class="btn-row">
-  <button class="btn btn-share" id="btn-share">📸 Share Image</button>
+  <button class="btn btn-share" id="btn-share">📨 Submit My Picks</button>
   <a class="btn btn-standings" id="btn-standings" href="standings-2026.html">🏆 See Leaderboard →</a>
   <button class="btn btn-clear" id="btn-clear">✕ Clear All</button>
 </div>
 
 <!-- Share image modal --><div id="modal-overlay">
   <div class="modal-box">
-    <p><strong>Your picks are ready!</strong></p>
-    <ol class="modal-steps">
-      <li data-n="1.">Save the image below to your photos</li>
-      <li data-n="2.">Go to the Facebook post</li>
-      <li data-n="3.">Post the image in the comments</li>
-    </ol>
-    <img id="preview-img" src="" alt="Your NHL Picks">
-    <div class="modal-btns">
-      <a id="btn-open-img" href="#" target="_blank">Save Image</a>
-      <a id="btn-fb-post" href="#facebook-post" target="_blank">📘 Facebook Post</a>
-      <button id="btn-close-modal">Close</button>
+    <!-- Submitting state -->
+    <div id="modal-submitting" style="display:none;text-align:center;padding:0.5rem 0 1rem">
+      <p class="modal-submitting">⏳ Sending your picks…</p>
+    </div>
+    <!-- Default state -->
+    <div id="modal-default">
+      <p><strong>Ready to submit?</strong></p>
+      <ol class="modal-steps">
+        <li data-n="1.">Your picks image will be emailed to us automatically</li>
+        <li data-n="2.">You'll also get a copy saved to your device</li>
+      </ol>
+      <img id="preview-img" src="" alt="Your NHL Picks">
+      <div class="modal-btns">
+        <button id="btn-confirm-submit" class="btn btn-share" style="font-size:1rem;padding:0.6rem 1.5rem;">📨 Send Picks</button>
+        <button id="btn-close-modal">Cancel</button>
+      </div>
+    </div>
+    <!-- Success state -->
+    <div class="modal-success" id="modal-success">
+      <div class="success-icon">✅</div>
+      <p><strong>Picks submitted!</strong><br>We received your picks, <span id="success-name"></span>.<br>Good luck! 🏒</p>
+      <div class="modal-btns" style="margin-top:1rem">
+        <a id="btn-open-img" href="#" target="_blank" download>Save Image</a>
+        <button id="btn-close-modal-success">Close</button>
+      </div>
     </div>
   </div>
 </div>
@@ -785,43 +805,65 @@ async function buildCanvas(name){
 }
 function rr(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();ctx.fill();}
 
+let _pendingDataUrl=null;
+let _pendingFilename=null;
+
+function showModal(state){
+  // state: 'default' | 'submitting' | 'success'
+  document.getElementById('modal-default').style.display=state==='default'?'':'none';
+  document.getElementById('modal-submitting').style.display=state==='submitting'?'block':'none';
+  document.getElementById('modal-success').style.display=state==='success'?'block':'none';
+  document.getElementById('modal-overlay').classList.add('open');
+}
+function closeModal(){
+  document.getElementById('modal-overlay').classList.remove('open');
+  _pendingDataUrl=null;_pendingFilename=null;
+}
+
 document.getElementById('btn-share').addEventListener('click',async()=>{
   const name=document.getElementById('picker-name').value.trim();
   if(!name){showToast('Enter your name first!');return;}
   const filled=ranking.filter(Boolean).length;
   if(filled<16){showToast(`Rank all 16 teams to finalize! (${filled}/16)`);return;}
-  const filename=name.replace(/\s+/g,'')+'-NHL-Playoffs-2026.jpg';
   const btn=document.getElementById('btn-share');btn.disabled=true;btn.textContent='Generating…';
   try{
     const canvas=await buildCanvas(name);
-    if(!canvas){showToast('Add teams to your ranking first!');btn.disabled=false;btn.textContent='📸 Share Image';return;}
+    if(!canvas){showToast('Add teams to your ranking first!');btn.disabled=false;btn.textContent='📨 Submit My Picks';return;}
     const dataUrl=canvas.toDataURL('image/jpeg',0.92);
-    // Try native share sheet (works on iOS/Android)
-    if(isMobile()&&navigator.share&&navigator.canShare){
-      const blob=await(await fetch(dataUrl)).blob();
-      const file=new File([blob],filename,{type:'image/jpeg'});
-      if(navigator.canShare({files:[file]})){
-        await navigator.share({files:[file]});
-        btn.disabled=false;btn.textContent='📸 Share Image';return;
-      }
-    }
-    // Fallback: show modal with preview image
-    if(isMobile()){
-      document.getElementById('preview-img').src=dataUrl;
-      document.getElementById('btn-open-img').href=dataUrl;
-      document.getElementById('btn-open-img').download=filename;
-      document.getElementById('modal-overlay').classList.add('open');
-    } else {
-      const a=document.createElement('a');a.href=dataUrl;a.download=filename;a.click();
-      showToast('Image downloaded! 🏒');
-    }
+    const filename=name.replace(/\s+/g,'')+'-NHL-Playoffs-2026.jpg';
+    _pendingDataUrl=dataUrl;_pendingFilename=filename;
+    document.getElementById('preview-img').src=dataUrl;
+    showModal('default');
   }catch(err){
-    if(err.name!=='AbortError'){console.error(err);showToast('Error: '+err.message);}
+    console.error(err);showToast('Error: '+err.message);
   }
-  btn.disabled=false;btn.textContent='📸 Share Image';
+  btn.disabled=false;btn.textContent='📨 Submit My Picks';
 });
-document.getElementById('btn-close-modal').addEventListener('click',()=>document.getElementById('modal-overlay').classList.remove('open'));
-document.getElementById('modal-overlay').addEventListener('click',e=>{if(e.target===document.getElementById('modal-overlay'))document.getElementById('modal-overlay').classList.remove('open');});
+
+document.getElementById('btn-confirm-submit').addEventListener('click',async()=>{
+  const name=document.getElementById('picker-name').value.trim();
+  if(!_pendingDataUrl){return;}
+  showModal('submitting');
+  try{
+    const resp=await fetch('/api/submit-picks',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({name,imageBase64:_pendingDataUrl,lang:'en'})
+    });
+    const result=await resp.json();
+    if(!resp.ok){showModal('default');showToast(result.error||'Submission failed, please try again.');return;}
+    document.getElementById('success-name').textContent=name;
+    document.getElementById('btn-open-img').href=_pendingDataUrl;
+    document.getElementById('btn-open-img').download=_pendingFilename;
+    showModal('success');
+  }catch(err){
+    console.error(err);showModal('default');showToast('Network error: '+err.message);
+  }
+});
+
+document.getElementById('btn-close-modal').addEventListener('click',closeModal);
+document.getElementById('btn-close-modal-success').addEventListener('click',closeModal);
+document.getElementById('modal-overlay').addEventListener('click',e=>{if(e.target===document.getElementById('modal-overlay'))closeModal();});
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3500);}
 
 // ── Clear All ─────────────────────────────────────────────────────────────────
