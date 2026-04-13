@@ -42,6 +42,11 @@
   header h1 span{color:var(--gold);}
   .subtitle{color:var(--silver);font-size:1rem;letter-spacing:3px;text-transform:uppercase;margin-top:0.5rem;}
   .last-updated{font-size:0.8rem;color:rgba(168,178,190,0.5);letter-spacing:1px;margin-top:0.3rem;}
+  .participants-count{display:inline-flex;align-items:center;gap:0.5rem;
+    background:rgba(255,184,28,0.08);border:1px solid rgba(255,184,28,0.2);
+    border-radius:20px;padding:0.3rem 1rem;margin-top:0.6rem;
+    font-size:0.85rem;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.7);}
+  .participants-count strong{font-family:'Bebas Neue',cursive;font-size:1.3rem;color:var(--gold);letter-spacing:1px;line-height:1;}
 
   /* ── Scoring legend removed ── */
 
@@ -220,6 +225,9 @@
     <h1>LNH <span>Éliminatoires 2026</span></h1>
   </div>
   <p class="subtitle">🏆 Classement en Direct</p>
+  <div class="participants-count" id="participants-count" style="display:none;">
+    <strong id="participants-num">—</strong> Participants
+  </div>
   <p class="last-updated" id="last-updated"></p>
   <p style="color:rgba(168,178,190,0.45);font-size:0.75rem;letter-spacing:2px;text-transform:uppercase;margin-top:0.25rem;">Présenté par Parieur Discipliné</p>
 </header>
@@ -485,6 +493,9 @@ function render(){
   // ── Last updated ──
   document.getElementById('last-updated').textContent=
     'Mis à jour '+new Date().toLocaleTimeString('fr-CA',{hour:'2-digit',minute:'2-digit'});
+  const countEl=document.getElementById('participants-count');
+  const numEl=document.getElementById('participants-num');
+  if(countEl&&numEl){numEl.textContent=rows.length;countEl.style.display='';}
   renderBracket();
 }
 
