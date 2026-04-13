@@ -439,14 +439,46 @@ function render(){
   grid.innerHTML='';
   ROUND_LABELS.forEach((label,ri)=>{
     const card=document.createElement('div');card.className='round-card';
-    const teamsWithWins=TEAMS.filter(t=>results[t][ri]>0)
-      .sort((a,b)=>results[b][ri]-results[a][ri]);
-    const winsHtml=teamsWithWins.length>0
-      ? teamsWithWins.map(t=>`<span>${results[t][ri]}W</span> ${shortTeamName(t)}`).join('<br>')
-      : '<span style="color:rgba(255,255,255,0.2)">Aucune victoire</span>';
+    let seriesHtml='';
+    if(bracketData){
+      const rd=bracketData.rounds;
+      let matchups=[];
+      if(ri===3){
+        const[sf1,sf2]=rd[3]?.final||[];
+        if(sf1||sf2)matchups.push([sf1||'TBD',sf2||'TBD']);
+      } else {
+        (rd[ri]?.east||[]).forEach(([t,b])=>matchups.push([t,b]));
+        (rd[ri]?.west||[]).forEach(([t,b])=>matchups.push([t,b]));
+      }
+      if(matchups.length>0){
+        seriesHtml=matchups.map(([t,b])=>{
+          const tw=results[t]?.[ri]||0;
+          const bw=results[b]?.[ri]||0;
+          const done=tw===4||bw===4;
+          const tn=shortTeamName(t),bn=shortTeamName(b);
+          const tElim=done&&tw!==4;
+          const bElim=done&&bw!==4;
+          const tNameStyle=tElim?'color:rgba(255,255,255,0.3);text-decoration:line-through':'color:rgba(255,255,255,0.85);font-weight:700';
+          const bNameStyle=bElim?'color:rgba(255,255,255,0.3);text-decoration:line-through':'color:rgba(255,255,255,0.85);font-weight:700';
+          const tWinHtml=tw>0?`<span style="color:var(--green);font-weight:700;margin-right:3px">${tw}V</span>`:'';
+          const bWinHtml=bw>0?`<span style="color:var(--green);font-weight:700;margin-left:3px">${bw}V</span>`:'';
+          const sep=done
+            ?'<span style="color:rgba(255,255,255,0.15);margin:0 6px">—</span>'
+            :'<span style="color:rgba(255,255,255,0.2);font-size:0.7rem;margin:0 6px;letter-spacing:1px">vs</span>';
+          return`<div style="display:flex;align-items:center;justify-content:center;padding:3px 0;font-size:0.82rem;">
+            ${tWinHtml}<span style="${tNameStyle}">${tn}</span>
+            ${sep}
+            <span style="${bNameStyle}">${bn}</span>${bWinHtml}
+          </div>`;
+        }).join('');
+      }
+    }
+    if(!seriesHtml){
+      seriesHtml=`<span style="color:rgba(255,255,255,0.2)">Aucune série encore</span>`;
+    }
     card.innerHTML=`
       <div class="round-name">${label}</div>
-      <div class="team-wins">${winsHtml}</div>`;
+      <div class="team-wins">${seriesHtml}</div>`;
     grid.appendChild(card);
   });
 
@@ -485,7 +517,7 @@ async function loadBracket(){
     const r=await fetch('playoff/bracket.json?_='+Date.now());
     if(!r.ok)return;
     bracketData=await r.json();
-    renderBracket();
+    if(participants.length>0)render();else renderBracket();
   }catch(e){}
 }
 
