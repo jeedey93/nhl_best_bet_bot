@@ -473,18 +473,14 @@ function loadImageFromDataURL(d){return new Promise((r,j)=>{const i=new Image();
 // ── Logo helpers ──────────────────────────────────────────────────────────────
 async function ensureLogo(abbr){
   if(logoCache[abbr]!==undefined)return logoCache[abbr];
-  const urls=[logoPngUrl(abbr),logoUrl(abbr)];
-  for(const url of urls){
-    try{
-      const r=await fetch(url,{mode:'cors'});
-      if(!r.ok)continue;
-      const blob=await r.blob();
-      const d=await blobToDataURL(blob);
-      await loadImageFromDataURL(d);
-      logoCache[abbr]=d;return d;
-    }catch{continue;}
-  }
-  logoCache[abbr]=null;return null;
+  const url=logoUrl(abbr);
+  return new Promise(resolve=>{
+    const img=new Image();
+    img.crossOrigin='anonymous';
+    img.onload=()=>{logoCache[abbr]=img;resolve(img);};
+    img.onerror=()=>{logoCache[abbr]=null;resolve(null);};
+    img.src=url;
+  });
 }
 function preloadLogos(){TEAMS.forEach(t=>ensureLogo(t.abbr));}
 
@@ -787,19 +783,15 @@ async function buildCanvas(name){
   const ranked=ranking.map((t,i)=>t?{team:t,pos:i+1}:null).filter(Boolean);
   if(ranked.length===0)return null;
   const [logoImgs, brandImg]=await Promise.all([
-    Promise.all(ranked.map(async({team})=>{
-      const d=await ensureLogo(team.abbr);
-      if(!d)return null;
-      try{return await loadImageFromDataURL(d);}catch{return null;}
-    })),
+    Promise.all(ranked.map(async({team})=>ensureLogo(team.abbr))),
     (async()=>{
-      try{
-        const r=await fetch('parieur_discipline_icon_1024.png');
-        if(!r.ok)return null;
-        const blob=await r.blob();
-        const d=await blobToDataURL(blob);
-        return await loadImageFromDataURL(d);
-      }catch{return null;}
+      return new Promise(resolve=>{
+        const img=new Image();
+        img.crossOrigin='anonymous';
+        img.onload=()=>resolve(img);
+        img.onerror=()=>resolve(null);
+        img.src='parieur_discipline_icon_1024.png';
+      });
     })()
   ]);
   const DPR=2,W=560,PAD=22,ROW=40,GAP=4,HEADER_H=90,FOOTER_H=30;
