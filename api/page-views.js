@@ -24,13 +24,14 @@ async function getOrCreateIssue() {
     'User-Agent': 'Parieur-Discipline-Bot',
   };
 
-  // Search for existing issue
-  const search = await fetch(
-    `https://api.github.com/search/issues?q=repo:${GITHUB_OWNER}/${GITHUB_REPO}+is:issue+in:title+"${ISSUE_TITLE}"`,
+  // List issues with the 'analytics' label — avoids search API indexing lag
+  const list = await fetch(
+    `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/issues?labels=analytics&state=open&per_page=50`,
     { headers }
   );
-  const searchData = await search.json();
-  if (searchData.total_count > 0) return searchData.items[0];
+  const issues = await list.json();
+  const existing = Array.isArray(issues) && issues.find(i => i.title === ISSUE_TITLE);
+  if (existing) return existing;
 
   // Create it
   const create = await fetch(
