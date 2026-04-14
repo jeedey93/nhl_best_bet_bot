@@ -38,6 +38,11 @@
   .name-bar input:focus { border-color:var(--gold); }
   .name-bar input::placeholder { color:rgba(255,255,255,0.25); }
 
+  /* ── Participant count badge on picks page ── */
+  .picks-participants{display:flex;flex-direction:column;align-items:center;gap:0.15rem;text-align:center;}
+  .picks-participants-num{font-family:'Bebas Neue',cursive;font-size:2rem;color:var(--gold);line-height:1;letter-spacing:1px;}
+  .picks-participants-label{font-size:0.7rem;letter-spacing:2px;text-transform:uppercase;color:rgba(168,178,190,0.55);}
+
   /* ── Pool type selector ── */
   .pool-type-bar{display:flex;justify-content:center;margin-bottom:1.25rem;}
   .pool-type-inner{display:flex;flex-direction:column;align-items:center;gap:0.5rem;}
@@ -313,6 +318,10 @@
 
 <div class="pool-type-bar">
   <div style="display:flex;align-items:center;justify-content:center;gap:1.5rem;flex-wrap:wrap;">
+    <div class="picks-participants">
+      <span class="picks-participants-num" id="picks-participant-count">—</span>
+      <span class="picks-participants-label">Participants</span>
+    </div>
     <div class="pool-type-inner">
       <span class="pool-type-label">Pool Entry</span>
       <div class="pool-type-toggle">
@@ -930,12 +939,15 @@ document.getElementById('btn-clear').addEventListener('click',()=>{
 });
 
 
-// ── Paid pot ──────────────────────────────────────────────────────────────────
+// ── Paid pot + participant count ──────────────────────────────────────────────
 (async()=>{
   try{
     const idx=await fetch('playoff/index.json?_='+Date.now());
     if(!idx.ok)return;
     const files=(await idx.json()).filter(f=>f!=='bracket.json');
+    // Update participant count immediately
+    const countEl=document.getElementById('picks-participant-count');
+    if(countEl)countEl.textContent=files.length;
     let paidCount=0;
     await Promise.all(files.map(async f=>{
       try{
