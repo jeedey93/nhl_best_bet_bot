@@ -501,7 +501,7 @@ function render(){
       const isElim=eliminated.has(t);
       const elimClass=isElim?' eliminated-team':'';
       const hotStyle=isHot?' style="border-color:rgba(255,184,28,0.5);background:rgba(255,184,28,0.08)"':'';
-      return`<div class="spotlight-team${elimClass}"${hotStyle}><span class="sp-pts-assigned">${p}</span><span class="sp-name">${isHot?'🔥 ':''}${t}</span>${earned>0?`<span class="sp-pts">${earned}pts</span>`:''}</div>`;
+      return`<div class="spotlight-team${elimClass}"${hotStyle}><span class="sp-pts-assigned">${p}<span style="font-size:0.6rem;opacity:0.7;letter-spacing:0"> pts</span></span><span class="sp-name">${isHot?'🔥 ':''}${t}</span>${earned>0?`<span class="sp-pts">${earned}pts</span>`:''}</div>`;
     }).join('');
     spotlightTr.innerHTML=`<td colspan="4"><div class="spotlight-inner">${teamsHtml||'<span style="color:var(--silver);font-size:0.85rem">No picks loaded</span>'}</div></td>`;
     lb.appendChild(spotlightTr);
