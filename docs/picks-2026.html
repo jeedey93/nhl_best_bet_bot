@@ -38,6 +38,21 @@
   .name-bar input:focus { border-color:var(--gold); }
   .name-bar input::placeholder { color:rgba(255,255,255,0.25); }
 
+  /* ── Pool type selector ── */
+  .pool-type-bar{display:flex;justify-content:center;margin-bottom:1.25rem;}
+  .pool-type-inner{display:flex;flex-direction:column;align-items:center;gap:0.5rem;}
+  .pool-type-label{color:rgba(168,178,190,0.6);font-size:0.75rem;letter-spacing:2px;text-transform:uppercase;}
+  .pool-type-toggle{display:flex;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:3px;gap:3px;}
+  .pool-type-btn{font-family:'Bebas Neue',cursive;font-size:0.95rem;letter-spacing:2px;
+    padding:0.4rem 1.3rem;border-radius:7px;border:none;cursor:pointer;
+    background:transparent;color:rgba(255,255,255,0.4);transition:all 0.18s;line-height:1.2;}
+  .pool-type-btn:hover{color:rgba(255,255,255,0.75);}
+  .pool-type-btn.active.free-btn{background:rgba(168,178,190,0.12);color:var(--silver);border:1px solid rgba(168,178,190,0.25);}
+  .pool-type-btn.active.paid-btn{background:linear-gradient(135deg,rgba(184,134,11,0.25),rgba(255,215,0,0.15));
+    color:var(--gold);border:1px solid rgba(255,215,0,0.4);}
+  .pool-type-desc{font-size:0.8rem;color:rgba(168,178,190,0.5);letter-spacing:0.5px;text-align:center;}
+  .pool-type-desc strong{color:var(--gold);}
+
   /* ── Bracket toggle ── */
   .bracket-toggle-row { text-align:center;margin-bottom:0.75rem; }
   .btn-bracket-toggle { font-family:'Bebas Neue',cursive;font-size:0.95rem;letter-spacing:2px;
@@ -98,6 +113,7 @@
   .remove-btn { background:none;border:none;color:rgba(255,255,255,0.2);cursor:pointer;font-size:0.9rem;
     flex-shrink:0;line-height:1;padding:2px 4px;transition:color 0.15s; }
   .remove-btn:hover { color:var(--red); }
+  @media(max-width:640px){ .remove-btn { display:none; } }
 
   /* ── Pool (right) ── */
   .pool-list { display:flex;flex-direction:column;gap:5px; }
@@ -291,6 +307,19 @@
 <div class="name-bar">
   <label for="picker-name">Your Name</label>
   <input type="text" id="picker-name" placeholder="Enter your full name…" maxlength="32">
+  <label for="picker-email">Email</label>
+  <input type="email" id="picker-email" placeholder="your@email.com" maxlength="64">
+</div>
+
+<div class="pool-type-bar">
+  <div class="pool-type-inner">
+    <span class="pool-type-label">Pool Entry</span>
+    <div class="pool-type-toggle">
+      <button class="pool-type-btn free-btn active" id="btn-pool-free" onclick="setPoolType('free')">Free Pool</button>
+      <button class="pool-type-btn paid-btn" id="btn-pool-paid" onclick="setPoolType('paid')">$10 Entry</button>
+    </div>
+    <span class="pool-type-desc" id="pool-type-desc">Joining the free pool</span>
+  </div>
 </div>
 
 
@@ -429,11 +458,12 @@ function isMobile(){
     ||window.innerWidth<600;
 }
 
+const TEAMS_ALPHA=[...TEAMS].sort((a,b)=>(a.display||a.name).localeCompare(b.display||b.name));
 // ranking[i] = team object or null (16 slots)
-// On mobile: pre-fill all 16 slots with teams in default order
-let ranking=isMobile()?[...TEAMS]:new Array(16).fill(null);
+// On mobile: pre-fill all 16 slots with teams in alphabetical order
+let ranking=isMobile()?[...TEAMS_ALPHA]:new Array(16).fill(null);
 // pool = teams not yet ranked (empty on mobile)
-let pool=isMobile()?[]:[...TEAMS];
+let pool=isMobile()?[]:[...TEAMS_ALPHA];
 
 function blobToDataURL(b){return new Promise((r,j)=>{const fr=new FileReader();fr.onload=e=>r(e.target.result);fr.onerror=j;fr.readAsDataURL(b);});}
 function loadImageFromDataURL(d){return new Promise((r,j)=>{const i=new Image();i.onload=()=>r(i);i.onerror=j;i.src=d;});}
@@ -738,6 +768,18 @@ function setupTouchPool(el,idx){
   makeTouchHandler(el,()=>({from:'pool',idx}));
 }
 
+let _poolType='free'; // 'free' | 'paid'
+
+function setPoolType(type){
+  _poolType=type;
+  document.getElementById('btn-pool-free').classList.toggle('active',type==='free');
+  document.getElementById('btn-pool-paid').classList.toggle('active',type==='paid');
+  const desc=document.getElementById('pool-type-desc');
+  if(desc)desc.innerHTML=type==='paid'
+    ?'Joining the <strong>$10 paid pool</strong>'
+    :'Joining the free pool';
+}
+
 // ── Build canvas & share image ────────────────────────────────────────────────
 async function buildCanvas(name){
   const ranked=ranking.map((t,i)=>t?{team:t,pos:i+1}:null).filter(Boolean);
@@ -821,7 +863,9 @@ function closeModal(){
 
 document.getElementById('btn-share').addEventListener('click',async()=>{
   const name=document.getElementById('picker-name').value.trim();
+  const email=document.getElementById('picker-email').value.trim();
   if(!name){showToast('Enter your name first!');return;}
+  if(!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){showToast('Enter a valid email address!');return;}
   const filled=ranking.filter(Boolean).length;
   if(filled<16){showToast(`Rank all 16 teams to finalize! (${filled}/16)`);return;}
   const btn=document.getElementById('btn-share');btn.disabled=true;btn.textContent='Generating…';
@@ -841,12 +885,15 @@ document.getElementById('btn-share').addEventListener('click',async()=>{
 
 document.getElementById('btn-confirm-submit').addEventListener('click',async()=>{
   const name=document.getElementById('picker-name').value.trim();
+  const email=document.getElementById('picker-email').value.trim();
   if(!_pendingDataUrl){return;}
   showModal('submitting');
   const today=new Date().toISOString().slice(0,10);
   const picksData={
     name,
+    email,
     date:today,
+    paid:_poolType==='paid',
     picks:ranking.map((team,i)=>team?{team:team.name,abbr:team.abbr,rank:i+1,points:pts(i+1)}:null).filter(Boolean)
   };
   try{
@@ -874,7 +921,7 @@ function showToast(msg){const t=document.getElementById('toast');t.textContent=m
 // ── Clear All ─────────────────────────────────────────────────────────────────
 document.getElementById('btn-clear').addEventListener('click',()=>{
   if(isMobile()){
-    ranking=[...TEAMS];pool=[];
+    ranking=[...TEAMS_ALPHA];pool=[];
   } else {
     if(ranking.every(s=>s===null)){showToast('Nothing to clear!');return;}
     ranking.forEach((team,i)=>{if(team){pool.push(team);ranking[i]=null;}});
