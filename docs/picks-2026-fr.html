@@ -312,13 +312,20 @@
 </div>
 
 <div class="pool-type-bar">
-  <div class="pool-type-inner">
-    <span class="pool-type-label">Type de participation</span>
-    <div class="pool-type-toggle">
-      <button class="pool-type-btn free-btn active" id="btn-pool-free" onclick="setPoolType('free')">Gratuit</button>
-      <button class="pool-type-btn paid-btn" id="btn-pool-paid" onclick="setPoolType('paid')">10$ Entrée</button>
+  <div style="display:flex;align-items:center;justify-content:center;gap:1.5rem;flex-wrap:wrap;">
+    <div class="pool-type-inner">
+      <span class="pool-type-label">Type de participation</span>
+      <div class="pool-type-toggle">
+        <button class="pool-type-btn free-btn active" id="btn-pool-free" onclick="setPoolType('free')">Gratuit</button>
+        <button class="pool-type-btn paid-btn" id="btn-pool-paid" onclick="setPoolType('paid')">10$ Entrée</button>
+      </div>
+      <span class="pool-type-desc" id="pool-type-desc">Participation gratuite</span>
     </div>
-    <span class="pool-type-desc" id="pool-type-desc">Participation gratuite</span>
+    <div id="pot-display" style="display:none;text-align:center;line-height:1.2;">
+      <div style="font-size:2.4rem;line-height:1;">🏆</div>
+      <div style="font-family:'Bebas Neue',cursive;font-size:0.7rem;letter-spacing:2px;color:rgba(168,178,190,0.5);text-transform:uppercase;margin-top:2px;">La cagnotte est maintenant</div>
+      <div style="font-family:'Bebas Neue',cursive;font-size:2rem;color:var(--gold);letter-spacing:2px;line-height:1;" id="pot-amount">$0</div>
+    </div>
   </div>
 </div>
 
@@ -923,6 +930,30 @@ document.getElementById('btn-clear').addEventListener('click',()=>{
   showToast('Classement effacé');
 });
 
+
+// ── Paid pot ──────────────────────────────────────────────────────────────────
+(async()=>{
+  try{
+    const idx=await fetch('playoff/index.json?_='+Date.now());
+    if(!idx.ok)return;
+    const files=(await idx.json()).filter(f=>f!=='bracket.json');
+    let paidCount=0;
+    await Promise.all(files.map(async f=>{
+      try{
+        const r=await fetch('playoff/'+f+'?_='+Date.now());
+        if(!r.ok)return;
+        const data=await r.json();
+        if(data.paid===true)paidCount++;
+      }catch(e){}
+    }));
+    const potEl=document.getElementById('pot-display');
+    const amountEl=document.getElementById('pot-amount');
+    if(potEl&&amountEl&&paidCount>0){
+      amountEl.textContent='$'+(paidCount*10);
+      potEl.style.display='';
+    }
+  }catch(e){}
+})();
 
 // ── Bracket toggle (mobile) ───────────────────────────────────────────────────
 

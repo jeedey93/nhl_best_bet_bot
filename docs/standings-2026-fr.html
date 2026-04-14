@@ -112,9 +112,12 @@
     display:flex;flex-wrap:wrap;gap:0.4rem;}
   .spotlight-team{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.05);
     border:1px solid rgba(255,255,255,0.08);border-radius:5px;padding:3px 8px;font-size:0.8rem;}
-  .spotlight-team .sp-rank{font-family:'Bebas Neue',cursive;font-size:0.9rem;color:var(--gold);width:26px;}
+  .spotlight-team .sp-pts-assigned{font-family:'Bebas Neue',cursive;font-size:0.95rem;color:var(--gold);width:32px;text-align:right;flex-shrink:0;}
   .spotlight-team .sp-name{color:white;font-weight:600;}
   .spotlight-team .sp-pts{font-size:0.7rem;color:var(--silver);margin-left:2px;}
+  .spotlight-team.eliminated-team{background:rgba(200,16,46,0.06);border-color:rgba(200,16,46,0.2);}
+  .spotlight-team.eliminated-team .sp-name{color:rgba(200,16,46,0.7);text-decoration:line-through;}
+  .spotlight-team.eliminated-team .sp-pts-assigned{color:rgba(200,16,46,0.5);}
 
   .empty-state{text-align:center;padding:4rem 1rem;color:var(--silver);}
   .empty-state .icon{font-size:3rem;margin-bottom:0.5rem;}
@@ -470,13 +473,36 @@ function render(){
     const rankedTeams=TEAMS
       .slice()
       .sort((a,b)=>(row.picks[b]||0)-(row.picks[a]||0));
-    const teamsHtml=rankedTeams.map((t,idx)=>{
+    // Build eliminated set from bracketData
+    const eliminated=new Set();
+    if(bracketData){
+      bracketData.rounds.forEach((rd,ri)=>{
+        ['east','west'].forEach(side=>{
+          (rd[side]||[]).forEach(([t,b])=>{
+            const tw=results[t]?.[ri]||0,bw=results[b]?.[ri]||0;
+            if(tw===4)eliminated.add(b);
+            else if(bw===4)eliminated.add(t);
+          });
+        });
+        if(rd.final){
+          const[f1,f2]=rd.final;
+          if(f1&&f2&&f1!=='TBD'&&f2!=='TBD'){
+            const tw=results[f1]?.[ri]||0,bw=results[f2]?.[ri]||0;
+            if(tw===4)eliminated.add(f2);
+            else if(bw===4)eliminated.add(f1);
+          }
+        }
+      });
+    }
+    const teamsHtml=rankedTeams.map((t)=>{
       const p=row.picks[t]||0;
-      const rank=idx+1;
       const wins=results[t].reduce((s,w)=>s+w,0);
       const earned=p*wins;
       const isHot=mvp&&t===mvp.team&&earned>0;
-      return`<div class="spotlight-team"${isHot?' style="border-color:rgba(255,184,28,0.5);background:rgba(255,184,28,0.08)"':''}><span class="sp-rank">#${rank}</span><span class="sp-name">${isHot?'🔥 ':''}${t}</span>${earned>0?`<span class="sp-pts">${earned}pts</span>`:''}</div>`;
+      const isElim=eliminated.has(t);
+      const elimClass=isElim?' eliminated-team':'';
+      const hotStyle=isHot?' style="border-color:rgba(255,184,28,0.5);background:rgba(255,184,28,0.08)"':'';
+      return`<div class="spotlight-team${elimClass}"${hotStyle}><span class="sp-pts-assigned">${p}</span><span class="sp-name">${isHot?'🔥 ':''}${t}</span>${earned>0?`<span class="sp-pts">${earned}pts</span>`:''}</div>`;
     }).join('');
     spotlightTr.innerHTML=`<td colspan="4"><div class="spotlight-inner">${teamsHtml||'<span style="color:var(--silver);font-size:0.85rem">Aucun choix chargé</span>'}</div></td>`;
     lb.appendChild(spotlightTr);
