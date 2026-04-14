@@ -97,9 +97,64 @@
   .round-score{font-size:0.85rem;color:var(--silver);}
   .empty-state{text-align:center;padding:2rem 1rem;color:var(--silver);}
   .empty-state p{font-size:1rem;margin-top:0.5rem;}
+
+  /* ── Password Gate ── */
+  #pw-gate{position:fixed;inset:0;z-index:9999;background:var(--rink);
+    display:flex;align-items:center;justify-content:center;
+    background-image:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(26,58,110,0.6) 0%,transparent 70%);}
+  .pw-box{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
+    border-radius:14px;padding:2.5rem 2rem;width:320px;max-width:90vw;text-align:center;}
+  .pw-box h2{font-family:'Bebas Neue',cursive;font-size:1.8rem;color:var(--gold);
+    letter-spacing:3px;margin-bottom:0.3rem;}
+  .pw-box p{color:var(--silver);font-size:0.85rem;letter-spacing:1px;margin-bottom:1.5rem;}
+  .pw-input{width:100%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);
+    border-radius:8px;padding:0.7rem 1rem;color:white;font-size:1rem;font-family:'Barlow Condensed',sans-serif;
+    letter-spacing:2px;outline:none;text-align:center;transition:border-color 0.2s;}
+  .pw-input:focus{border-color:rgba(255,184,28,0.5);}
+  .pw-input.error{border-color:rgba(200,16,46,0.7);animation:shake 0.3s;}
+  @keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-6px);}75%{transform:translateX(6px);}};
+  .pw-btn{margin-top:1rem;width:100%;background:var(--red);color:white;border:none;border-radius:8px;
+    padding:0.75rem;font-family:'Bebas Neue',cursive;font-size:1.2rem;letter-spacing:3px;
+    cursor:pointer;transition:background 0.2s;}
+  .pw-btn:hover{background:#e0122e;}
+  .pw-error{color:rgba(200,16,46,0.8);font-size:0.8rem;margin-top:0.5rem;min-height:1em;letter-spacing:1px;}
 </style>
 </head>
 <body>
+<div id="pw-gate">
+  <div class="pw-box">
+    <h2>🏒 Commissioner</h2>
+    <p>ENTER PASSWORD TO CONTINUE</p>
+    <input id="pw-input" class="pw-input" type="password" placeholder="Password" autocomplete="off">
+    <button class="pw-btn" onclick="checkPw()">ENTER</button>
+    <div class="pw-error" id="pw-error"></div>
+  </div>
+</div>
+<script>
+(function(){
+  if(sessionStorage.getItem('commissioner_auth')==='1'){
+    document.getElementById('pw-gate').style.display='none';
+  }
+  document.getElementById('pw-input').addEventListener('keydown',function(e){
+    if(e.key==='Enter')checkPw();
+  });
+})();
+function checkPw(){
+  const input=document.getElementById('pw-input');
+  const err=document.getElementById('pw-error');
+  if(input.value==='parieur2026'){
+    sessionStorage.setItem('commissioner_auth','1');
+    document.getElementById('pw-gate').style.display='none';
+    err.textContent='';
+  }else{
+    input.classList.add('error');
+    err.textContent='Incorrect password.';
+    setTimeout(()=>input.classList.remove('error'),400);
+    input.value='';
+    input.focus();
+  }
+}
+</script>
 <header>
   <div class="header-inner">
     <img src="parieur_discipline_icon_1024.png" alt="Parieur Discipline" class="brand-icon">
