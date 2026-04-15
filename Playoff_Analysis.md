@@ -1,230 +1,304 @@
 # 🏒 Parieur Discipliné — Classement des séries 2026
-### Analyse complète
+## Analyse avec scénarios
 
 ---
 
-## #1 — Tampa Bay Lightning (16 points)
-**Matchup Round 1 : Tampa Bay vs Montréal**
+### #1 — Tampa Bay Lightning (16 pts)
+**Matchup :** Tampa Bay vs Montréal  
+**Scénario attendu :**
+* Tampa contrôle la série avec son expérience → victoire en 5-6 matchs.
 
-Le Lightning arrive en séries comme le grand favori de l’Est.
+**Plafond :**
+* Tampa Bay Lightning se rend en finale de la Coupe Stanley avec un parcours dominant.
 
-Au premier tour, ils affrontent Montréal dans un duel de générations.
+**Pire scénario :**
+* Montréal joue sans pression → série devient messy → Tampa exposé.
 
-D’un côté : Kucherov, Point et Guentzel.  
-De l’autre : les jeunes du Canadien.
-
-Devant le filet, Vasilevskiy, l’un des meilleurs gardiens de séries de sa génération, fait face à Dobes, excellent en fin de saison mais totalement novice en séries.
-
-Tampa Bay est une machine construite pour gagner en avril et en mai.  
-Ce premier tour devrait se régler en 5 ou 6 matchs.
-
-S’ils passent, ils ont les outils pour battre n’importe qui en finale de conférence.  
-Scénario le plus probable : Tampa en finale de la Coupe Stanley.
+**Clé de la série :**
+* Andrei Vasilevskiy vs jeunesse du CH.
 
 ---
 
-## #2 — Colorado Avalanche (15 points)
-**Matchup Round 1 : Colorado vs Los Angeles Kings**
+### #2 — Colorado Avalanche (15 pts)
+**Matchup :** Colorado vs Los Angeles  
+**Scénario attendu :**
+* Talent supérieur → Colorado en 6 matchs.
 
-Colorado avec MacKinnon et Makar reste une puissance.
+**Plafond :**
+* Colorado Avalanche domine l’Ouest → finale de la Coupe.
 
-Même si Rantanen est maintenant à Dallas, l’Avalanche conserve une énorme force offensive.
+**Pire scénario :**
+* Les Kings ralentissent le jeu → série longue → attaque neutralisée.
 
-Les Kings sont structurés et difficiles à jouer contre, mais ils devront composer avec l’une des équipes les plus dynamiques de la ligue.
-
-S’ils passent le premier tour, Colorado devient immédiatement une des équipes les plus dangereuses de l’Ouest.
-
-Un potentiel choc contre Dallas en finale de conférence serait l’une des meilleures séries possibles.
-
----
-
-## #3 — Edmonton Oilers (14 points)
-**Matchup Round 1 : Edmonton vs Utah Hockey Club**
-
-McDavid… et cette fois, Draisaitl est aussi de la partie.
-
-Les Oilers arrivent donc avec leur duo de superstars complet.
-
-Ils affrontent Utah, une équipe qui vit ses toutes premières séries de son histoire.
-
-Sur papier, l’expérience et le talent offensif d’Edmonton font clairement la différence.
-
-Edmonton devrait passer ce premier tour assez confortablement.
-
-Mais la vraie question arrive ensuite :  
-si les Oilers affrontent Colorado ou Dallas, le gardiennage devient déterminant.
-
-McDavid peut porter cette équipe très loin, jusqu’à la finale de la Coupe Stanley.
-
-C’est l’équipe avec le plus grand écart entre scénario plafond et scénario catastrophe.
+**Clé :**
+* Nathan MacKinnon doit imposer le rythme.
 
 ---
 
-## #4 — Dallas Stars (13 points)
-**Matchup Round 1 : Dallas vs Minnesota Wild**
+### #3 — Edmonton Oilers (14 pts)
+**Matchup :** Edmonton vs Utah  
+**Scénario attendu :**
+* Victoire relativement facile (4-1 ou 4-2).
 
-Probablement le meilleur duel du premier tour dans l’Ouest.
+**Plafond :**
+* Run de Connor McDavid jusqu’à la finale.
 
-Dallas arrive avec un système défensif très solide, Rantanen en attaque et Oettinger dans les buts.
+**Pire scénario :**
+* Gardiennage coûte la série au 2e tour.
 
-Minnesota peut compter sur Kaprizov et une attaque capable de changer une série à elle seule.
+**Clé :**
+* Production du duo McDavid / Leon Draisaitl.
 
-Série très serrée possible, jusqu’à 6 ou 7 matchs.
-
-Si Dallas passe, ils entrent dans le cercle des vrais prétendants à la Coupe.
-
----
-
-## #5 — Vegas Golden Knights (12 points)
-**Matchup Round 1 : Vegas vs Anaheim Ducks**
-
-Vegas arrive avec l’expérience, les vétérans et une vraie culture de victoire.
-
-Ils affrontent Anaheim, une jeune équipe en reconstruction.
-
-Sur papier, c’est un premier tour favorable.
-
-Mais Vegas a montré certains signes de vulnérabilité cette saison.
-
-S’ils passent facilement, ils pourraient affronter Edmonton ou Colorado rapidement.
-
-Pour viser la Coupe, Hill devra jouer à son meilleur niveau.
+**Note :**
+* Plus gros écart plafond vs catastrophe.
 
 ---
 
-## #6 — Carolina Hurricanes (11 points)
-**Matchup Round 1 : Carolina vs Ottawa Senators**
+### #4 — Dallas Stars (13 pts)
+**Matchup :** Dallas vs Minnesota  
+**Scénario attendu :**
+* Série serrée → Dallas en 6-7.
 
-Carolina est l’une des équipes les mieux structurées de la ligue.
+**Plafond :**
+* Dallas Stars contender sérieux → finale de conférence.
 
-Rod Brind’Amour est possiblement l’un des meilleurs coachs en séries.
+**Pire scénario :**
+* Kaprizov vole la série.
 
-Ottawa arrive cependant avec du talent et de l’imprévisibilité.
-
-Stützle et Tkachuk peuvent changer le rythme d’une série.
-
-Carolina devrait passer, mais ce ne sera pas facile.
-
-Leur plafond : finale de conférence Est.
-
----
-
-## #7 — Minnesota Wild (10 points)
-**Matchup Round 1 : Minnesota vs Dallas Stars**
-
-Minnesota peut compter sur Kaprizov et une équipe rapide et talentueuse.
-
-Mais tomber sur Dallas dès le premier tour complique énormément les choses.
-
-Structure, discipline et Oettinger font la différence.
-
-Si Minnesota crée la surprise, ils deviennent immédiatement dangereux.
+**Clé :**
+* Jake Oettinger.
 
 ---
 
-## #8 — Los Angeles Kings (9 points)
-**Matchup Round 1 : Los Angeles vs Colorado Avalanche**
+### #5 — Vegas Golden Knights (12 pts)
+**Matchup :** Vegas vs Anaheim  
+**Scénario attendu :**
+* Vegas en contrôle → série courte.
 
-Les Kings sont solides, expérimentés et bien dirigés avec Kopitar.
+**Plafond :**
+* Run basé sur expérience.
 
-Mais affronter Colorado avec MacKinnon et Makar représente un énorme défi.
+**Pire scénario :**
+* Série trop longue → fatigue + expose leurs failles.
 
-Ils peuvent être compétitifs, mais il faudrait un scénario parfait pour gagner.
-
----
-
-## #9 — Ottawa Senators (8 points)
-**Matchup Round 1 : Ottawa vs Carolina Hurricanes**
-
-Ottawa est l’une des équipes surprises.
-
-Stützle et Tkachuk apportent énergie et talent.
-
-Mais Carolina est trop structurée et trop profonde.
-
-Une victoire d’Ottawa serait une énorme surprise.
+**Clé :**
+* Adin Hill.
 
 ---
 
-## #10 — Pittsburgh Penguins (7 points)
-**Matchup Round 1 : Pittsburgh vs Philadelphia Flyers**
+### #6 — Carolina Hurricanes (11 pts)
+**Matchup :** Carolina vs Ottawa  
+**Scénario attendu :**
+* Carolina passe en 6 matchs.
 
-Derby de Pennsylvanie.
+**Plafond :**
+* Finale de conférence.
 
-Crosby à 38 ans dans ce qui pourrait être ses dernières séries.
+**Pire scénario :**
+* Ottawa crée le chaos → upset.
 
-En face, Michkov représente l’avenir des Flyers.
-
-Mais Pittsburgh a clairement l’avantage de l’expérience.
-
----
-
-## #11 — Boston Bruins (6 points)
-**Matchup Round 1 : Boston vs Buffalo Sabres**
-
-Boston est une équipe habituée aux séries.
-
-Pastrnak et McAvoy mènent le groupe.
-
-Buffalo revient après une longue absence.
-
-Belle histoire, mais l’expérience des Bruins devrait faire la différence.
+**Clé :**
+* Structure vs talent.
 
 ---
 
-## #12 — Montréal Canadiens (5 points)
-**Matchup Round 1 : Montréal vs Tampa Bay Lightning**
+### #7 — Minnesota Wild (10 pts)
+**Matchup :** Minnesota vs Dallas  
+**Scénario attendu :**
+* Défaite serrée.
 
-Le Centre Bell sera électrique.
+**Plafond :**
+* Upset → équipe devient dangereuse.
 
-Montréal arrive avec une jeune équipe excitante : Dobes, Slafkovský et Caufield.
+**Pire scénario :**
+* Offensive neutralisée.
 
-Mais ils affrontent Tampa Bay, une machine bien rodée.
-
-Montréal devrait perdre, mais pousser la série serait déjà un gros pas en avant.
-
----
-
-## #13 — Buffalo Sabres (4 points)
-**Matchup Round 1 : Buffalo vs Boston Bruins**
-
-Buffalo a du talent avec Thompson et Dahlin.
-
-Mais Boston est trop expérimenté.
-
-C’est un retour en séries important, mais un apprentissage difficile.
+**Clé :**
+* Kirill Kaprizov.
 
 ---
 
-## #14 — Utah Hockey Club (3 points)
-**Matchup Round 1 : Utah vs Edmonton Oilers**
+### #8 — Los Angeles Kings (9 pts)
+**Matchup :** Los Angeles vs Colorado  
+**Scénario attendu :**
+* Bonne résistance → défaite en 6.
 
-Utah a du potentiel avec plusieurs jeunes joueurs intéressants.
+**Plafond :**
+* Forcent un match #7.
 
-Mais tomber sur McDavid et les Oilers est une entrée brutale en séries.
+**Pire scénario :**
+* Se font déborder par la vitesse.
 
-Une victoire ou deux serait déjà un succès.
-
----
-
-## #15 — Philadelphia Flyers (2 points)
-**Matchup Round 1 : Philadelphia vs Pittsburgh Penguins**
-
-Michkov est le joueur le plus excitant de cette série.
-
-Mais l’équipe est encore en construction.
-
-L’expérience de Pittsburgh fait la différence.
+**Clé :**
+* Anze Kopitar ralentit le jeu.
 
 ---
 
-## #16 — Anaheim Ducks (1 point)
-**Matchup Round 1 : Anaheim vs Vegas Golden Knights**
+### #9 — Ottawa Senators (8 pts)
+**Matchup :** Ottawa vs Carolina  
+**Scénario attendu :**
+* Compétitifs mais éliminés.
 
-Anaheim est une jeune équipe en reconstruction.
+**Plafond :**
+* Upset possible.
 
-Mais Vegas est une équipe construite pour gagner maintenant.
+**Pire scénario :**
+* Totalement neutralisés.
 
-L’écart est encore important.
+**Clé :**
+* Tim Stützle & Brady Tkachuk.
 
 ---
+
+### #10 — Pittsburgh Penguins (7 pts)
+**Matchup :** Pittsburgh vs Philadelphia  
+**Scénario attendu :**
+* Expérience fait la différence.
+
+**Plafond :**
+* Run de Sidney Crosby.
+
+**Pire scénario :**
+* Jeunesse des Flyers surprend.
+
+**Clé :**
+* Contrôle du tempo.
+
+---
+
+### #11 — Boston Bruins (6 pts)
+**Matchup :** Boston vs Buffalo  
+**Scénario attendu :**
+* Boston en contrôle.
+
+**Plafond :**
+* 2 rondes solides.
+
+**Pire scénario :**
+* Buffalo surprend.
+
+**Clé :**
+* David Pastrňák.
+
+---
+
+### #12 — Canadiens de Montréal (5 pts)
+**Matchup :** Montréal vs Tampa  
+**Scénario attendu :**
+* Défaite en 5-6 matchs.
+
+**Plafond :**
+* Poussent la série.
+
+**Pire scénario :**
+* Domination totale de Tampa.
+
+**Clé :**
+* Canadiens de Montréal jouent libérés.
+
+---
+
+### #13 — Buffalo Sabres (4 pts)
+**Matchup :** Buffalo vs Boston  
+**Scénario attendu :**
+* Apprentissage difficile.
+
+**Plafond :**
+* Quelques matchs volés.
+
+**Pire scénario :**
+* Écart d’expérience trop grand.
+
+**Clé :**
+* Rasmus Dahlin.
+
+---
+
+### #14 — Utah Hockey Club (3 pts)
+**Matchup :** Utah vs Edmonton  
+**Scénario attendu :**
+* Élimination rapide.
+
+**Plafond :**
+* 1-2 victoires.
+
+**Pire scénario :**
+* Domination totale.
+
+**Clé :**
+* Gestion de la pression.
+
+---
+
+### #15 — Philadelphia Flyers (2 pts)
+**Matchup :** Philadelphia vs Pittsburgh  
+**Scénario attendu :**
+* Défaite contre l’expérience.
+
+**Plafond :**
+* Surprise jeunesse.
+
+**Pire scénario :**
+* Manque de structure.
+
+**Clé :**
+* Matvei Michkov.
+
+---
+
+### #16 — Anaheim Ducks (1 pt)
+**Matchup :** Anaheim vs Vegas  
+**Scénario attendu :**
+* Série courte.
+
+**Plafond :**
+* 1-2 victoires.
+
+**Pire scénario :**
+* Sweep.
+
+**Clé :**
+* Apprentissage.
+
+---
+
+### 🎙️ Notes podcast
+* **Top contenders :** Tampa / Colorado / Dallas
+* **X-factor :** Edmonton
+* **Upset watch :** Minnesota / Ottawa
+* **Série à suivre :** Dallas vs Minnesota
+
+
+---
+
+Ok les boys… les séries 2026 sont là — pis cette année, y’a du chaos en vue 🔥
+
+On commence simple : le vrai favori, c’est le Tampa Bay Lightning.
+Expérience, talent, gardien élite avec Andrei Vasilevskiy… sur papier, c’est une run jusqu’en finale.
+
+Dans l’Ouest, c’est un peu plus ouvert — mais le Colorado Avalanche reste la machine la plus dangereuse.
+Si Nathan MacKinnon impose son rythme… bonne chance pour les arrêter.
+
+Mais l’équipe qui peut tout faire exploser… c’est le Edmonton Oilers.
+On parle du meilleur joueur au monde en Connor McDavid —
+plafond : Coupe Stanley.
+plancher : éliminés plus tôt à cause du gardiennage.
+C’est littéralement boom or bust.
+
+Le sleeper que personne veut affronter ?
+Le Dallas Stars.
+Équipe complète, solide devant le filet… ça peut aller très loin.
+
+Maintenant — upset watch 👇
+Le Minnesota Wild avec Kirill Kaprizov peut voler une série.
+Pis le Ottawa Senators… c’est le chaos total. Si ça dérape, ils peuvent surprendre n’importe qui.
+
+À Montréal — oubliez la pression.
+Le Canadiens de Montréal joue avec rien à perdre… pis c’est là que ça devient dangereux 👀
+
+Bref :
+Tampa, Colorado, Dallas = contenders.
+Edmonton = X-factor.
+Minnesota / Ottawa = surprises.
+
+Attachez vos tuques… ces séries-là vont être débiles 🏒🔥
