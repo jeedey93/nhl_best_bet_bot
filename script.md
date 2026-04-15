@@ -10,13 +10,21 @@ Pis un autre aspect que j’ai développé récemment, c’est que j’ai carré
 
 Dans le fond, il prend en compte plein de données — les matchups, les tendances récentes, les stats offensives pis défensives — pis il me sort des suggestions de paris chaque jour, surtout en hockey pis en basket.
 
+Le projet est relativement récent — on parle d’un début en mars — mais malgré ça, on commence déjà à voir une vraie base se former.
+
+En ce moment, on tourne autour de 46% en NHL pis 54% en NBA.
+
+Et ce que j’aime surtout, c’est la progression — parce que plus on nourrit le modèle avec des données, plus les décisions deviennent sharp, structurées, pis cohérentes.
+
+Fait que je suis clairement encore en phase de build… mais on voit déjà un edge se dessiner.
+
 Fait que j’utilise beaucoup la technologie qu’on a à notre portée en ce moment.
 
-Le AI, c’est le sujet chaud en ce moment — mais moi je le vois comme un outil, pas une garantie.
+Le AI, c’est le sujet chaud de l’heure — mais moi je le vois comme un vrai outil d’optimisation, pas une prédiction magique.
 
-Ça remplace pas le jugement — mais ça t’aide à prendre des décisions plus disciplinées, plus structurées.
+Ça remplace pas le jugement — mais ça te permet de prendre des décisions plus propres, plus disciplinées.
 
-Pis dans le betting, avoir un edge, même petit… à long terme, ça fait toute la différence.” 🔥
+Pis dans le betting, à long terme, c’est pas d’avoir raison tout le temps qui compte… c’est d’avoir un processus qui te donne un edge constant.” 🔥
 
 🏒 CONCEPT DU RANKING
 
