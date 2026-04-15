@@ -275,7 +275,7 @@ function saveResults(){
   }).catch(()=>{});
 }
 
-// Snapshot current results as "yesterday" baseline without changing current results
+// Snapshot current results as "yesterday" baseline, then save new results
 function snapshotYesterday(){
   const btn=document.querySelector('.snapshot-btn');
   const status=document.getElementById('snapshot-status');
@@ -283,9 +283,12 @@ function snapshotYesterday(){
   fetch(API_URL,{
     method:'POST',
     headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({snapshotOnly:true})
+    body:JSON.stringify({results})
   }).then(r=>{
     if(r.ok){
+      const t=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+      const el=document.getElementById('last-saved');
+      if(el)el.textContent='Last saved: '+t;
       if(status){status.classList.add('show');setTimeout(()=>status.classList.remove('show'),2500);}
     }
   }).catch(()=>{}).finally(()=>{if(btn)btn.disabled=false;});
@@ -394,14 +397,14 @@ function makeWinCounter(team,roundIdx,onUpdate){
     const w=results[team]?.[roundIdx]||0;
     if(w===0)return;
     results[team][roundIdx]=w-1;
-    refresh();saveResults();recalc();onUpdate();
+    refresh();recalc();onUpdate();
   });
   plus.addEventListener('click',e=>{
     e.stopPropagation();
     const w=results[team]?.[roundIdx]||0;
     if(w===4)return;
     results[team][roundIdx]=w+1;
-    refresh();saveResults();recalc();onUpdate();
+    refresh();recalc();onUpdate();
   });
 
   wrap.appendChild(minus);wrap.appendChild(winsEl);wrap.appendChild(sep);wrap.appendChild(plus);
