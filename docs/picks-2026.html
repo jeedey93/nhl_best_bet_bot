@@ -795,7 +795,7 @@ function setPoolType(type){
 }
 
 // ── Build canvas & share image ────────────────────────────────────────────────
-async function buildCanvas(name){
+async function buildCanvas(name,email){
   const ranked=ranking.map((t,i)=>t?{team:t,pos:i+1}:null).filter(Boolean);
   if(ranked.length===0)return null;
   const [logoImgs, brandImg]=await Promise.all([
@@ -810,7 +810,7 @@ async function buildCanvas(name){
       });
     })()
   ]);
-  const DPR=2,W=560,PAD=22,ROW=40,GAP=4,HEADER_H=90,FOOTER_H=30;
+  const DPR=2,W=560,PAD=22,ROW=40,GAP=4,HEADER_H=106,FOOTER_H=30;
   const H=HEADER_H+ranked.length*(ROW+GAP)-GAP+PAD/2+FOOTER_H;
   const canvas=document.createElement('canvas');canvas.width=W*DPR;canvas.height=H*DPR;
   const ctx=canvas.getContext('2d');ctx.scale(DPR,DPR);
@@ -836,7 +836,11 @@ async function buildCanvas(name){
   ctx.font=`600 12px Arial, sans-serif`;ctx.fillStyle='rgba(168,178,190,0.8)';ctx.fillText('PICKS BY ',PAD,62);
   const byw=ctx.measureText('PICKS BY ').width;ctx.fillStyle='#ffb81c';ctx.font=`bold 13px Arial, sans-serif`;
   ctx.fillText(name.toUpperCase(),PAD+byw,62);
-  ctx.fillStyle='rgba(255,255,255,0.07)';ctx.fillRect(PAD,74,W-PAD*2,1);
+  ctx.font=`11px Arial, sans-serif`;ctx.fillStyle='rgba(168,178,190,0.55)';ctx.textAlign='left';ctx.fillText(email,PAD,78);
+  const poolLabel=_poolType==='paid'?'$10 PAID POOL':'FREE POOL';
+  const poolColor=_poolType==='paid'?'#ffb81c':'rgba(168,178,190,0.6)';
+  ctx.font=`bold 10px Arial, sans-serif`;ctx.fillStyle=poolColor;ctx.fillText(poolLabel,PAD,92);
+  ctx.fillStyle='rgba(255,255,255,0.07)';ctx.fillRect(PAD,100,W-PAD*2,1);
   ranked.forEach(({team,pos},i)=>{
     const p=pts(pos),y=HEADER_H+i*(ROW+GAP),rowW=W-PAD*2;
     ctx.fillStyle=i%2===0?'rgba(255,255,255,0.042)':'rgba(0,0,0,0.12)';rr(ctx,PAD,y,rowW,ROW,5);
@@ -880,7 +884,7 @@ document.getElementById('btn-share').addEventListener('click',async()=>{
   if(filled<16){showToast(`Rank all 16 teams to finalize! (${filled}/16)`);return;}
   const btn=document.getElementById('btn-share');btn.disabled=true;btn.textContent='Generating…';
   try{
-    const canvas=await buildCanvas(name);
+    const canvas=await buildCanvas(name,email);
     if(!canvas){showToast('Add teams to your ranking first!');btn.disabled=false;btn.textContent='📨 Submit My Picks';return;}
     const dataUrl=canvas.toDataURL('image/jpeg',0.92);
     const filename=name.replace(/\s+/g,'')+'-NHL-Playoffs-2026.jpg';
