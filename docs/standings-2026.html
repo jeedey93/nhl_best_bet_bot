@@ -109,7 +109,8 @@
   tbody tr.expandable{cursor:pointer;}
   .spotlight-row td{padding:0;border-bottom:1px solid rgba(255,255,255,0.04);}
   .spotlight-inner{padding:0.6rem 1rem 0.8rem 1rem;background:rgba(255,184,28,0.04);
-    display:flex;flex-wrap:wrap;gap:0.4rem;justify-content:center;}
+    display:grid;grid-template-columns:repeat(4,1fr);gap:0.4rem;}
+  @media(max-width:500px){.spotlight-inner{grid-template-columns:repeat(2,1fr);}}
   .spotlight-team{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.05);
     border:1px solid rgba(255,255,255,0.08);border-radius:5px;padding:3px 8px;font-size:0.8rem;}
   .spotlight-team .sp-pts-assigned{font-family:'Bebas Neue',cursive;font-size:0.95rem;color:var(--gold);width:32px;text-align:right;flex-shrink:0;}
@@ -152,23 +153,24 @@
   .bracket-col.cf,.bracket-col.scf{justify-content:center;}
   /* series card */
   .b-series{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);
-    border-radius:8px;padding:8px 10px;position:relative;transition:border-color 0.2s;}
+    border-radius:8px;padding:8px 10px;position:relative;transition:border-color 0.2s;text-align:center;}
   .b-series:hover{border-color:rgba(255,255,255,0.15);}
   .b-series.active{border-color:rgba(255,184,28,0.3);background:rgba(255,184,28,0.04);}
   /* team row */
-  .b-team{display:flex;align-items:center;padding:5px 2px;border-radius:3px;
+  .b-team{display:grid;grid-template-columns:20px 1fr 20px;align-items:center;gap:5px;
+    padding:5px 4px;border-radius:3px;
     font-size:0.85rem;font-weight:600;color:rgba(255,255,255,0.5);
-    white-space:nowrap;overflow:hidden;line-height:1.2;transition:color 0.2s;}
+    white-space:nowrap;line-height:1.2;transition:color 0.2s;}
   .b-team.winner{color:var(--green);font-weight:700;}
   .b-team.eliminated{color:rgba(255,255,255,0.18);text-decoration:line-through;}
   .b-team.leading{color:rgba(255,255,255,0.9);}
-  .b-team-name{flex:1;overflow:hidden;text-overflow:ellipsis;}
-  .b-logo{width:20px;height:20px;object-fit:contain;margin-right:6px;flex-shrink:0;opacity:0.85;}
-  .b-logo-ph{width:20px;height:20px;flex-shrink:0;margin-right:6px;}
+  .b-team-name{overflow:hidden;text-overflow:ellipsis;text-align:center;}
+  .b-logo{width:20px;height:20px;object-fit:contain;flex-shrink:0;opacity:0.85;display:block;}
+  .b-logo-ph{width:20px;height:20px;flex-shrink:0;}
   .b-team.eliminated .b-logo{opacity:0.2;}
   .b-team.winner .b-logo{opacity:1;}
-  .b-team-wins{font-family:'Bebas Neue',cursive;font-size:0.95rem;margin-left:4px;
-    color:rgba(255,255,255,0.3);min-width:12px;text-align:right;}
+  .b-team-wins{font-family:'Bebas Neue',cursive;font-size:0.95rem;
+    color:rgba(255,255,255,0.3);text-align:right;}
   .b-team.winner .b-team-wins{color:var(--green);}
   .b-team.leading .b-team-wins{color:rgba(255,255,255,0.7);}
   /* divider between teams */
@@ -226,36 +228,35 @@
   .lb-toggle-btn.active.paid-btn{background:linear-gradient(135deg,rgba(184,134,11,0.25),rgba(255,215,0,0.15));
     border-color:rgba(255,215,0,0.4);}
 
-  /* ── Live games scroller ── */
-  .games-scroller{width:100%;background:rgba(0,0,0,0.35);border-bottom:1px solid rgba(255,255,255,0.06);
+  .games-scroller{width:100%;background:rgba(0,0,0,0.25);border-bottom:1px solid rgba(255,255,255,0.08);
     padding:10px 0;display:none;}
   .gs-inner{max-width:1100px;margin:0 auto;padding:0 1rem;}
   .gs-title{font-family:'Bebas Neue',cursive;font-size:0.7rem;letter-spacing:3px;
-    color:rgba(255,255,255,0.3);text-transform:uppercase;margin-bottom:8px;}
+    color:rgba(255,255,255,0.35);text-transform:uppercase;margin-bottom:8px;}
   .gs-container{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;
-    scrollbar-width:thin;scrollbar-color:rgba(255,255,255,0.12) transparent;}
+    scrollbar-width:thin;scrollbar-color:rgba(255,255,255,0.15) transparent;}
   .gs-container::-webkit-scrollbar{height:4px;}
-  .gs-container::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.12);border-radius:2px;}
-  .gs-tile{flex-shrink:0;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
+  .gs-container::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.15);border-radius:2px;}
+  .gs-tile{flex-shrink:0;background:rgba(255,255,255,0.10);border:1px solid rgba(255,255,255,0.18);
     border-radius:10px;padding:10px 14px;min-width:130px;display:flex;flex-direction:column;gap:5px;}
-  .gs-tile.gs-live{border-color:rgba(239,68,68,0.35);background:rgba(239,68,68,0.05);}
+  .gs-tile.gs-live{border-color:rgba(239,68,68,0.6);background:rgba(239,68,68,0.12);}
   .gs-team{display:flex;align-items:center;gap:7px;}
   .gs-team.gs-winner .gs-team-name{color:white;font-weight:700;}
   .gs-team.gs-winner .gs-score{color:var(--gold);}
   .gs-logo{width:22px;height:22px;object-fit:contain;flex-shrink:0;}
-  .gs-logo-ph{width:22px;height:22px;font-size:0.6rem;font-weight:700;color:rgba(255,255,255,0.4);
+  .gs-logo-ph{width:22px;height:22px;font-size:0.6rem;font-weight:700;color:rgba(255,255,255,0.5);
     display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-  .gs-team-name{font-size:0.8rem;font-weight:600;color:rgba(255,255,255,0.55);flex:1;
+  .gs-team-name{font-size:0.8rem;font-weight:600;color:rgba(255,255,255,0.8);flex:1;
     letter-spacing:0.5px;white-space:nowrap;}
-  .gs-score{font-family:'Bebas Neue',cursive;font-size:1.05rem;color:rgba(255,255,255,0.4);
+  .gs-score{font-family:'Bebas Neue',cursive;font-size:1.05rem;color:rgba(255,255,255,0.7);
     min-width:16px;text-align:right;line-height:1;}
-  .gs-status-live{font-size:0.62rem;font-weight:700;letter-spacing:1px;color:#f87171;
-    background:rgba(239,68,68,0.15);border-radius:3px;padding:2px 6px;text-align:center;
+  .gs-status-live{font-size:0.62rem;font-weight:700;letter-spacing:1px;color:#fca5a5;
+    background:rgba(239,68,68,0.25);border-radius:3px;padding:2px 6px;text-align:center;
     animation:pulse-gs 1.5s infinite;}
-  .gs-status-final{font-size:0.62rem;letter-spacing:1px;color:rgba(255,255,255,0.25);
-    background:rgba(255,255,255,0.05);border-radius:3px;padding:2px 6px;text-align:center;}
-  .gs-status-pre{font-size:0.62rem;letter-spacing:0.5px;color:rgba(255,184,28,0.6);
-    background:rgba(255,184,28,0.08);border-radius:3px;padding:2px 6px;text-align:center;}
+  .gs-status-final{font-size:0.62rem;letter-spacing:1px;color:rgba(255,255,255,0.4);
+    background:rgba(255,255,255,0.08);border-radius:3px;padding:2px 6px;text-align:center;}
+  .gs-status-pre{font-size:0.62rem;letter-spacing:0.5px;color:rgba(255,184,28,0.8);
+    background:rgba(255,184,28,0.12);border-radius:3px;padding:2px 6px;text-align:center;}
   @keyframes pulse-gs{0%,100%{opacity:1}50%{opacity:0.5}}
 </style>
 </head>
@@ -778,10 +779,12 @@ setInterval(()=>{loadResultsRemote();loadParticipants();},5*60*1000);
 // ── Live NHL games scroller ───────────────────────────────────────────────────
 (function(){
   const ESPN_NHL='https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/scoreboard';
+  // ESPN abbreviations that differ from the NHL CDN abbreviations
+  const ESPN_ABBR_FIX={'NJ':'NJD','LA':'LAK','TB':'TBL','SJ':'SJS','CLB':'CBJ'};
   function shortTeam(name){return name?name.split(' ').pop():'';}
   function getLogoUrl(name,ab){
-    // Use the same TEAM_LOGO map used by the bracket; fall back to abbr-based URL for non-playoff teams
-    return TEAM_LOGO[name]||(ab?`https://assets.nhle.com/logos/nhl/svg/${ab}_dark.svg`:'');
+    const fixedAb=ESPN_ABBR_FIX[ab]||ab;
+    return TEAM_LOGO[name]||(fixedAb?`https://assets.nhle.com/logos/nhl/svg/${fixedAb}_dark.svg`:'');
   }
   function buildTile(away,home,awayAbbr,homeAbbr,awayScore,homeScore,status,clock,time){
     const isPre=status==='pre',isLive=status==='live',isFinal=status==='final';
