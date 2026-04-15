@@ -99,6 +99,9 @@
   .score-cell{font-family:'Bebas Neue',cursive;font-size:1.6rem;color:var(--gold);}
   .gap-cell{font-size:0.8rem;color:var(--silver);white-space:nowrap;}
   .gap-cell.leader{color:var(--green);font-weight:700;}
+  .delta-cell{font-family:'Bebas Neue',cursive;font-size:1.1rem;white-space:nowrap;}
+  .delta-cell.pos{color:var(--green);}
+  .delta-cell.zero{color:rgba(255,255,255,0.2);}
   .round-score{display:none;}
 
   /* score bar */
@@ -304,10 +307,10 @@
   <div class="lb-wrap">
     <table>
       <thead>
-        <tr><th>#</th><th>NAME</th><th>POINTS</th><th>GAP</th></tr>
+        <tr><th>#</th><th>NAME</th><th>POINTS</th><th>SINCE LAST</th><th>GAP</th></tr>
       </thead>
       <tbody id="lb-body">
-        <tr><td colspan="7" class="empty-state">
+        <tr><td colspan="5" class="empty-state">
           <div class="icon">🏒</div><p>Loading leaderboard…</p>
         </td></tr>
       </tbody>
@@ -320,7 +323,7 @@
   <div class="lb-wrap">
     <table>
       <thead>
-        <tr><th>#</th><th>NAME</th><th>POINTS</th><th>GAP</th></tr>
+        <tr><th>#</th><th>NAME</th><th>POINTS</th><th>SINCE LAST</th><th>GAP</th></tr>
       </thead>
       <tbody id="paid-lb-body"></tbody>
     </table>
@@ -353,7 +356,8 @@ const STORAGE_KEY='nhl_playoff_results_2026';
 
 let participants=[];
 let results={};
-TEAMS.forEach(t=>{results[t]=[0,0,0,0];});
+let previousResults={};
+TEAMS.forEach(t=>{results[t]=[0,0,0,0];previousResults[t]=[0,0,0,0];});
 
 // ── Initials from name ────────────────────────────────────────────────────────
 function initials(name){
@@ -363,6 +367,10 @@ function initials(name){
 // ── Load results ──────────────────────────────────────────────────────────────
 function applyResults(saved){
   TEAMS.forEach(t=>{if(saved[t])results[t]=saved[t];});
+}
+function applyPreviousResults(saved){
+  if(!saved)return;
+  TEAMS.forEach(t=>{if(saved[t])previousResults[t]=saved[t];});
 }
 function loadResultsLocal(){
   try{const s=localStorage.getItem(STORAGE_KEY);if(s)applyResults(JSON.parse(s));}catch(e){}
@@ -375,6 +383,8 @@ async function loadResultsRemote(){
     if(data.success&&data.results&&Object.keys(data.results).length>0){
       TEAMS.forEach(t=>{results[t]=[0,0,0,0];});
       applyResults(data.results);
+      TEAMS.forEach(t=>{previousResults[t]=[0,0,0,0];});
+      applyPreviousResults(data.previousResults);
       try{localStorage.setItem(STORAGE_KEY,JSON.stringify(results));}catch(e){}
       render();
     }
@@ -414,6 +424,14 @@ function calcScore(participant){
   });
   return roundScores;
 }
+function calcScorePrev(participant){
+  let total=0;
+  TEAMS.forEach(team=>{
+    const pts=participant.picks[team]||0;
+    ROUND_MULT.forEach((mult,ri)=>{total+=pts*mult*(previousResults[team]?.[ri]||0);});
+  });
+  return total;
+}
 
 // ── Render ────────────────────────────────────────────────────────────────────
 function renderPodium(rows){
@@ -445,7 +463,9 @@ function render(){
   const rows=participants.map(p=>{
     const roundScores=calcScore(p);
     const total=roundScores.reduce((a,b)=>a+b,0);
-    return{name:p.name,roundScores,total,picks:p.picks};
+    const prev=calcScorePrev(p);
+    const delta=total-prev;
+    return{name:p.name,roundScores,total,delta,picks:p.picks};
   }).sort((a,b)=>b.total-a.total);
 
   _allRows=rows;
@@ -482,6 +502,9 @@ function render(){
     const mvp=teamEarnings[0];
     const mvpBadge=mvp?`<span class="mvp-badge">🔥 ${shortTeamName(mvp.team)} ${mvp.earned}pts</span>`:'';
 
+    const deltaClass=row.delta>0?'pos':'zero';
+    const deltaHtml=row.delta>0?`+${row.delta}`:(row.delta===0?'—':row.delta);
+
     tr.innerHTML=`
       <td class="rank-cell ${rankClass}">${medal||rank}</td>
       <td class="name-cell">
@@ -489,6 +512,7 @@ function render(){
         <div class="score-bar-wrap"><div class="score-bar" style="width:${barPct}%"></div></div>
       </td>
       <td class="score-cell">${row.total}</td>
+      <td class="delta-cell ${deltaClass}">${deltaHtml}</td>
       ${gapHtml}`;
     lb.appendChild(tr);
 
@@ -530,7 +554,7 @@ function render(){
       const hotStyle=isHot?' style="border-color:rgba(255,184,28,0.5);background:rgba(255,184,28,0.08)"':'';
       return`<div class="spotlight-team${elimClass}"${hotStyle}><span class="sp-pts-assigned">${p}<span style="font-size:0.6rem;opacity:0.7;letter-spacing:0"> pts</span></span><span class="sp-name">${isHot?'🔥 ':''}${t}</span>${earned>0?`<span class="sp-pts">${earned}pts</span>`:''}</div>`;
     }).join('');
-    spotlightTr.innerHTML=`<td colspan="4"><div class="spotlight-inner">${teamsHtml||'<span style="color:var(--silver);font-size:0.85rem">No picks loaded</span>'}</div></td>`;
+    spotlightTr.innerHTML=`<td colspan="5"><div class="spotlight-inner">${teamsHtml||'<span style="color:var(--silver);font-size:0.85rem">No picks loaded</span>'}</div></td>`;
     lb.appendChild(spotlightTr);
 
     // Toggle spotlight on row click
@@ -575,6 +599,8 @@ function render(){
 
       const tr=document.createElement('tr');
       tr.className='expandable';
+      const paidDeltaClass=row.delta>0?'pos':'zero';
+      const paidDeltaHtml=row.delta>0?`+${row.delta}`:(row.delta===0?'—':row.delta);
       tr.innerHTML=`
         <td class="rank-cell ${rankClass}">${medal||rank}</td>
         <td class="name-cell">
@@ -582,6 +608,7 @@ function render(){
           <div class="score-bar-wrap"><div class="score-bar" style="width:${barPct}%"></div></div>
         </td>
         <td class="score-cell">${row.total}</td>
+        <td class="delta-cell ${paidDeltaClass}">${paidDeltaHtml}</td>
         ${gapHtml}`;
       paidLb.appendChild(tr);
 
@@ -618,7 +645,7 @@ function render(){
         const hotStyle=isHot?' style="border-color:rgba(255,184,28,0.5);background:rgba(255,184,28,0.08)"':'';
         return`<div class="spotlight-team${elimClass}"${hotStyle}><span class="sp-pts-assigned">${p}<span style="font-size:0.6rem;opacity:0.7;letter-spacing:0"> pts</span></span><span class="sp-name">${isHot?'🔥 ':''}${t}</span>${earned>0?`<span class="sp-pts">${earned}pts</span>`:''}</div>`;
       }).join('');
-      spotlightTr.innerHTML=`<td colspan="4"><div class="spotlight-inner">${teamsHtml||'<span style="color:var(--silver);font-size:0.85rem">No picks loaded</span>'}</div></td>`;
+      spotlightTr.innerHTML=`<td colspan="5"><div class="spotlight-inner">${teamsHtml||'<span style="color:var(--silver);font-size:0.85rem">No picks loaded</span>'}</div></td>`;
       paidLb.appendChild(spotlightTr);
 
       tr.addEventListener('click',()=>{

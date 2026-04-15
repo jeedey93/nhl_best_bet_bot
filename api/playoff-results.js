@@ -52,10 +52,13 @@ module.exports = async (req, res) => {
 
     if (req.method === 'GET') {
       try {
-        const results = JSON.parse(issue.body || '{}');
-        return res.status(200).json({ success: true, results });
+        const stored = JSON.parse(issue.body || '{}');
+        // Support both old format (plain results object) and new format ({results, previousResults})
+        const results = stored.results || stored;
+        const previousResults = stored.previousResults || null;
+        return res.status(200).json({ success: true, results, previousResults });
       } catch {
-        return res.status(200).json({ success: true, results: {} });
+        return res.status(200).json({ success: true, results: {}, previousResults: null });
       }
     }
 
@@ -63,12 +66,19 @@ module.exports = async (req, res) => {
       const { results } = req.body;
       if (!results) return res.status(400).json({ success: false, error: 'Missing results' });
 
+      // Read current results to snapshot as previousResults
+      let previousResults = null;
+      try {
+        const stored = JSON.parse(issue.body || '{}');
+        previousResults = stored.results || stored;
+      } catch {}
+
       await fetch(
         `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/issues/${issue.number}`,
         {
           method: 'PATCH',
           headers: GH_HEADERS(),
-          body: JSON.stringify({ body: JSON.stringify(results) }),
+          body: JSON.stringify({ body: JSON.stringify({ results, previousResults }) }),
         }
       );
       return res.status(200).json({ success: true });
