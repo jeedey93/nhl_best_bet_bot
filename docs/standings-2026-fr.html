@@ -539,16 +539,70 @@ function render(){
       const gapHtml=rank===1
         ?`<td class="gap-cell leader">En tête</td>`
         :`<td class="gap-cell">-${gap} pts</td>`;
+
+      const teamEarnings=TEAMS.map(t=>{
+        const wins=results[t].reduce((s,w)=>s+w,0);
+        return{team:t,earned:(row.picks[t]||0)*wins};
+      }).filter(x=>x.earned>0).sort((a,b)=>b.earned-a.earned);
+      const mvp=teamEarnings[0];
+      const mvpBadge=mvp?`<span class="mvp-badge">🔥 ${shortTeamName(mvp.team)} ${mvp.earned}pts</span>`:'';
+
       const tr=document.createElement('tr');
+      tr.className='expandable';
       tr.innerHTML=`
         <td class="rank-cell ${rankClass}">${medal||rank}</td>
         <td class="name-cell">
-          ${row.name}
+          ${row.name}${mvpBadge}
           <div class="score-bar-wrap"><div class="score-bar" style="width:${barPct}%"></div></div>
         </td>
         <td class="score-cell">${row.total}</td>
         ${gapHtml}`;
       paidLb.appendChild(tr);
+
+      const spotlightTr=document.createElement('tr');
+      spotlightTr.className='spotlight-row';
+      spotlightTr.style.display='none';
+      const rankedTeams=TEAMS.slice().sort((a,b)=>(row.picks[b]||0)-(row.picks[a]||0));
+      const eliminated=new Set();
+      if(bracketData){
+        bracketData.rounds.forEach((rd,ri)=>{
+          ['east','west'].forEach(side=>{
+            (rd[side]||[]).forEach(([t,b])=>{
+              const tw=results[t]?.[ri]||0,bw=results[b]?.[ri]||0;
+              if(tw===4)eliminated.add(b);else if(bw===4)eliminated.add(t);
+            });
+          });
+          if(rd.final){
+            const[f1,f2]=rd.final;
+            if(f1&&f2&&f1!=='TBD'&&f2!=='TBD'){
+              const tw=results[f1]?.[ri]||0,bw=results[f2]?.[ri]||0;
+              if(tw===4)eliminated.add(f2);else if(bw===4)eliminated.add(f1);
+            }
+          }
+        });
+      }
+      const teamsHtml=rankedTeams.map(t=>{
+        const p=row.picks[t]||0;
+        const wins=results[t].reduce((s,w)=>s+w,0);
+        const earned=p*wins;
+        const isHot=mvp&&t===mvp.team&&earned>0;
+        const isElim=eliminated.has(t);
+        const elimClass=isElim?' eliminated-team':'';
+        const hotStyle=isHot?' style="border-color:rgba(255,184,28,0.5);background:rgba(255,184,28,0.08)"':'';
+        return`<div class="spotlight-team${elimClass}"${hotStyle}><span class="sp-pts-assigned">${p}<span style="font-size:0.6rem;opacity:0.7;letter-spacing:0"> pts</span></span><span class="sp-name">${isHot?'🔥 ':''}${t}</span>${earned>0?`<span class="sp-pts">${earned}pts</span>`:''}</div>`;
+      }).join('');
+      spotlightTr.innerHTML=`<td colspan="4"><div class="spotlight-inner">${teamsHtml||'<span style="color:var(--silver);font-size:0.85rem">Aucun choix chargé</span>'}</div></td>`;
+      paidLb.appendChild(spotlightTr);
+
+      tr.addEventListener('click',()=>{
+        const open=spotlightTr.style.display!=='none';
+        paidLb.querySelectorAll('.spotlight-row').forEach(r=>r.style.display='none');
+        paidLb.querySelectorAll('.expandable').forEach(r=>r.style.background='');
+        if(!open){
+          spotlightTr.style.display='';
+          tr.style.background='rgba(255,184,28,0.06)';
+        }
+      });
     });
   } else if(toggleEl){toggleEl.style.display='none';}
 
