@@ -109,7 +109,7 @@
   tbody tr.expandable{cursor:pointer;}
   .spotlight-row td{padding:0;border-bottom:1px solid rgba(255,255,255,0.04);}
   .spotlight-inner{padding:0.6rem 1rem 0.8rem 1rem;background:rgba(255,184,28,0.04);
-    display:flex;flex-wrap:wrap;gap:0.4rem;}
+    display:flex;flex-wrap:wrap;gap:0.4rem;justify-content:center;}
   .spotlight-team{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.05);
     border:1px solid rgba(255,255,255,0.08);border-radius:5px;padding:3px 8px;font-size:0.8rem;}
   .spotlight-team .sp-pts-assigned{font-family:'Bebas Neue',cursive;font-size:0.95rem;color:var(--gold);width:32px;text-align:right;flex-shrink:0;}
@@ -225,6 +225,38 @@
   .lb-toggle-btn.active{background:rgba(255,184,28,0.15);color:var(--gold);border:1px solid rgba(255,184,28,0.3);}
   .lb-toggle-btn.active.paid-btn{background:linear-gradient(135deg,rgba(184,134,11,0.25),rgba(255,215,0,0.15));
     border-color:rgba(255,215,0,0.4);}
+
+  /* ── Live games scroller ── */
+  .games-scroller{width:100%;background:rgba(0,0,0,0.35);border-bottom:1px solid rgba(255,255,255,0.06);
+    padding:10px 0;display:none;}
+  .gs-inner{max-width:1100px;margin:0 auto;padding:0 1rem;}
+  .gs-title{font-family:'Bebas Neue',cursive;font-size:0.7rem;letter-spacing:3px;
+    color:rgba(255,255,255,0.3);text-transform:uppercase;margin-bottom:8px;}
+  .gs-container{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;
+    scrollbar-width:thin;scrollbar-color:rgba(255,255,255,0.12) transparent;}
+  .gs-container::-webkit-scrollbar{height:4px;}
+  .gs-container::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.12);border-radius:2px;}
+  .gs-tile{flex-shrink:0;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
+    border-radius:10px;padding:10px 14px;min-width:130px;display:flex;flex-direction:column;gap:5px;}
+  .gs-tile.gs-live{border-color:rgba(239,68,68,0.35);background:rgba(239,68,68,0.05);}
+  .gs-team{display:flex;align-items:center;gap:7px;}
+  .gs-team.gs-winner .gs-team-name{color:white;font-weight:700;}
+  .gs-team.gs-winner .gs-score{color:var(--gold);}
+  .gs-logo{width:22px;height:22px;object-fit:contain;flex-shrink:0;}
+  .gs-logo-ph{width:22px;height:22px;font-size:0.6rem;font-weight:700;color:rgba(255,255,255,0.4);
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .gs-team-name{font-size:0.8rem;font-weight:600;color:rgba(255,255,255,0.55);flex:1;
+    letter-spacing:0.5px;white-space:nowrap;}
+  .gs-score{font-family:'Bebas Neue',cursive;font-size:1.05rem;color:rgba(255,255,255,0.4);
+    min-width:16px;text-align:right;line-height:1;}
+  .gs-status-live{font-size:0.62rem;font-weight:700;letter-spacing:1px;color:#f87171;
+    background:rgba(239,68,68,0.15);border-radius:3px;padding:2px 6px;text-align:center;
+    animation:pulse-gs 1.5s infinite;}
+  .gs-status-final{font-size:0.62rem;letter-spacing:1px;color:rgba(255,255,255,0.25);
+    background:rgba(255,255,255,0.05);border-radius:3px;padding:2px 6px;text-align:center;}
+  .gs-status-pre{font-size:0.62rem;letter-spacing:0.5px;color:rgba(255,184,28,0.6);
+    background:rgba(255,184,28,0.08);border-radius:3px;padding:2px 6px;text-align:center;}
+  @keyframes pulse-gs{0%,100%{opacity:1}50%{opacity:0.5}}
 </style>
 </head>
 <body>
@@ -238,6 +270,15 @@
     </div>
   </div>
 </nav>
+
+<!-- Live NHL games scroller -->
+<div class="games-scroller" id="games-scroller">
+  <div class="gs-inner">
+    <div class="gs-title">🏒 Today's Games</div>
+    <div class="gs-container" id="gs-container"></div>
+  </div>
+</div>
+
 <header>
   <div class="header-inner">
     <img src="parieur_discipline_icon_1024.png" alt="Parieur Discipline" class="brand-icon">
@@ -732,6 +773,79 @@ setInterval(()=>{loadResultsRemote();loadParticipants();},5*60*1000);
       if(el&&num){num.textContent=data.count.toLocaleString();el.style.display='';}
     }
   }catch(e){}
+})();
+
+// ── Live NHL games scroller ───────────────────────────────────────────────────
+(function(){
+  const ESPN_NHL='https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/scoreboard';
+  function shortTeam(name){return name?name.split(' ').pop():'';}
+  function getLogoUrl(name,ab){
+    // Use the same TEAM_LOGO map used by the bracket; fall back to abbr-based URL for non-playoff teams
+    return TEAM_LOGO[name]||(ab?`https://assets.nhle.com/logos/nhl/svg/${ab}_dark.svg`:'');
+  }
+  function buildTile(away,home,awayAbbr,homeAbbr,awayScore,homeScore,status,clock,time){
+    const isPre=status==='pre',isLive=status==='live',isFinal=status==='final';
+    const awayWin=!isPre&&awayScore>homeScore,homeWin=!isPre&&homeScore>awayScore;
+    const statusLabel=isFinal?'FINAL':isLive?(clock||'LIVE'):time;
+    const statusCls=isFinal?'gs-status-final':isLive?'gs-status-live':'gs-status-pre';
+    const tileCls='gs-tile'+(isLive?' gs-live':'');
+    const awayLogoSrc=getLogoUrl(away,awayAbbr);
+    const homeLogoSrc=getLogoUrl(home,homeAbbr);
+    const awayLogo=awayLogoSrc?`<img class="gs-logo" src="${awayLogoSrc}" alt="">`:`<span class="gs-logo-ph">${awayAbbr}</span>`;
+    const homeLogo=homeLogoSrc?`<img class="gs-logo" src="${homeLogoSrc}" alt="">`:`<span class="gs-logo-ph">${homeAbbr}</span>`;
+    return`<div class="${tileCls}">
+      <div class="gs-team${awayWin?' gs-winner':''}">
+        ${awayLogo}
+        <span class="gs-team-name">${shortTeam(away)}</span>
+        <span class="gs-score">${isPre?'':awayScore}</span>
+      </div>
+      <div class="gs-team${homeWin?' gs-winner':''}">
+        ${homeLogo}
+        <span class="gs-team-name">${shortTeam(home)}</span>
+        <span class="gs-score">${isPre?'':homeScore}</span>
+      </div>
+      <div class="${statusCls}">${statusLabel}</div>
+    </div>`;
+  }
+
+  async function fetchGames(){
+    try{
+      const r=await fetch(ESPN_NHL+'?_='+Date.now());
+      if(!r.ok)return;
+      const data=await r.json();
+      const events=data.events||[];
+      const container=document.getElementById('gs-container');
+      const section=document.getElementById('games-scroller');
+      if(!container||!section)return;
+      if(!events.length){section.style.display='none';return;}
+      let html='';
+      events.forEach(ev=>{
+        const comp=ev.competitions?.[0];if(!comp)return;
+        const comps=comp.competitors||[];
+        const awayC=comps.find(c=>c.homeAway==='away');
+        const homeC=comps.find(c=>c.homeAway==='home');
+        if(!awayC||!homeC)return;
+        const awayName=awayC.team?.displayName||'';
+        const homeName=homeC.team?.displayName||'';
+        const awayAbbr=awayC.team?.abbreviation||'';
+        const homeAbbr=homeC.team?.abbreviation||'';
+        const awayScore=parseInt(awayC.score||0);
+        const homeScore=parseInt(homeC.score||0);
+        const state=comp.status?.type?.state||'pre';
+        const shortDetail=comp.status?.type?.shortDetail||'';
+        const timeStr=ev.date?new Date(ev.date).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'}):'';
+        let status='pre',clock='';
+        if(state==='in'){status='live';clock=shortDetail;}
+        else if(state==='post'){status='final';}
+        html+=buildTile(awayName,homeName,awayAbbr,homeAbbr,awayScore,homeScore,status,clock,timeStr);
+      });
+      container.innerHTML=html;
+      section.style.display='block';
+    }catch(e){}
+  }
+
+  fetchGames();
+  setInterval(fetchGames,60000);
 })();
 </script>
 </body>
