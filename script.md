@@ -2,29 +2,58 @@
 
 “Merci de l’invitation les boys — parfait timing avec les séries, c’est littéralement le meilleur moment de l’année pour le hockey 👀
 
-Pour ceux qui me connaissent pas, Parieur Discipliné, c’est vraiment une page basée sur une approche plus structurée du betting — pas juste gambler au hasard, mais comprendre les matchups, le contexte, pis jouer sur le long terme.
+Pour ceux qui me connaissent pas, je suis développeur logiciel à la base.
 
-Le but c’est aussi de build une communauté — rendre ça plus interactif, surtout dans un moment comme les séries.
+Et à côté de ça, je suis vraiment passionné de sport et de betting depuis longtemps — c’est un mix d’analyse, de logique… pis un petit stress que j’aime bien quand y’a des bets en jeu 😄
 
-Pis un autre aspect que j’ai développé récemment, c’est que j’ai carrément créé un bot avec de l’AI qui m’aide à analyser les games.
+Même dans les pools d’hockey, je suis assez impliqué — surtout ceux avec cap salarial.
 
-Dans le fond, il prend en compte plein de données — les matchups, les tendances récentes, les stats offensives pis défensives — pis il me sort des suggestions de paris chaque jour, surtout en hockey pis en basket.
+D’ailleurs, ça fait deux ans de suite que je gagne dans le pool d’Oli…
+fait que rendu là, je pense que le débat c’est pas si j’ai une méthode… c’est pourquoi je suis pas encore officiellement consultant du podcast 😄
 
-Le projet est relativement récent — on parle d’un début en mars — mais malgré ça, on commence déjà à voir une vraie base se former.
+👉 “Oli, à ce point-ci, tu devrais juste commencer à prendre mes conseils pour les pools.”
 
-En ce moment, on tourne autour de 46% en NHL pis 54% en NBA.
+Et c’est un peu ça qui m’a amené à créer Le Parieur Discipliné.
 
-Et ce que j’aime surtout, c’est la progression — parce que plus on nourrit le modèle avec des données, plus les décisions deviennent sharp, structurées, pis cohérentes.
+C’est pas juste un site ou un projet — c’est un persona que j’ai construit autour de ma façon de voir le betting.
 
-Fait que je suis clairement encore en phase de build… mais on voit déjà un edge se dessiner.
+Une version idéale de la prise de décision : plus structurée, plus analytique, plus disciplinée.
 
-Fait que j’utilise beaucoup la technologie qu’on a à notre portée en ce moment.
+À la base, je suis développeur logiciel, donc j’ai toujours eu ce réflexe de construire des systèmes, structurer de la data, optimiser des décisions.
 
-Le AI, c’est le sujet chaud de l’heure — mais moi je le vois comme un vrai outil d’optimisation, pas une prédiction magique.
+Fait que naturellement, j’ai appliqué ça au sport.
 
-Ça remplace pas le jugement — mais ça te permet de prendre des décisions plus propres, plus disciplinées.
+Pis les pools d’hockey ont vraiment solidifié ça.
 
-Pis dans le betting, à long terme, c’est pas d’avoir raison tout le temps qui compte… c’est d’avoir un processus qui te donne un edge constant.” 🔥
+C’est devenu un genre de laboratoire pour tester ta lecture des équipes sur une saison complète.
+
+Et c’est vraiment tout ça qui m’a amené à Le Parieur Discipliné.
+
+Le côté dev m’a donné la structure, le sport la passion, pis les pools une forme de validation que cette approche peut fonctionner.
+
+Ensuite, j’ai poussé ça avec l’AI.
+
+J’ai développé un bot qui analyse les matchs de hockey et de basket.
+
+Il regarde les matchups, les tendances, les stats… pis il me sort des suggestions de paris chaque jour.
+
+L’idée, c’était pas de remplacer le jugement — mais de le structurer et l’améliorer.
+
+Le projet est encore jeune — ça a commencé en mars — donc je suis encore en phase de build.
+
+En ce moment, on tourne autour de 46% en NHL et 54% en NBA.
+
+Pis je vois ça comme une base de travail — chaque bet sert à améliorer le système.
+
+Et tranquillement, la communauté commence à prendre plus de place.
+
+Partager les analyses, comparer les picks, rendre ça interactif pendant les séries… c’est ça qui rend le projet vivant.
+
+Mais au final, l’AI reste un outil.
+
+C’est le sujet chaud de l’heure — mais moi je le vois comme une façon de rendre la prise de décision plus disciplinée.
+
+Et dans le betting, c’est ça la différence : pas d’être parfait… mais d’être constant.” 🔥
 
 🏒 CONCEPT DU RANKING
 
