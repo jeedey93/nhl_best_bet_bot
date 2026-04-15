@@ -1,293 +1,309 @@
 🧊 INTRO (toi)
 
-“Merci de l’invitation les boys — parfait timing avec les séries, c’est littéralement le meilleur moment de l’année pour le hockey 👀
+Merci de l’invitation les boys !
+Honnêtement, le timing est parfait avec les séries qui commencent.
 
-Pour ceux qui me connaissent pas, je suis développeur logiciel à la base.
+Pour ceux qui ne me connaissent pas, à la base, je suis développeur logiciel.
+Donc j’ai naturellement un biais vers tout ce qui est structuré, logique, basé sur la data.
 
-Et à côté de ça, je suis vraiment passionné de sport et de betting depuis longtemps — c’est un mix d’analyse, de logique, de stats sportives… pis un petit stress que j’aime bien quand y’a des bets en jeu 😄
+Mais à côté de ça, je suis aussi un mordu de hockey et d’investissement depuis toujours.
+Ce que j’aime, c’est vraiment le mix entre l’analyse… et le petit rush d’adrénaline quand il y a quelque chose en jeu.
 
-Je suis passionné, mais toujours de façon mesurée — jamais dans l’excès ou le démesure.
+Ça fait plus de 10 ans que je participe à des pools de hockey.
+Et d’ailleurs, ça fait deux ans de suite que je gagne celui auquel je participe avec Oli.
 
-Même dans les pools d’hockey, je suis assez impliqué — surtout ceux avec cap salarial.
+Deux.
+Back-to-back.
 
-D’ailleurs, ça fait deux ans de suite que je gagne dans le pool d’Oli…
-fait que rendu là, je pense que le débat c’est pas si j’ai une méthode… c’est pourquoi je suis pas encore officiellement consultant du podcast 😄
+Donc honnêtement… on peut peut-être commencer à se poser des questions.
 
-👉 “Oli, à ce point-ci, tu devrais juste commencer à prendre mes conseils pour les pools.”
+“Oli… pourquoi je suis pas encore consultant officiel sur le podcast ?”
 
-Et c’est un peu ça qui m’a amené à créer Le Parieur Discipliné.
+Sérieusement, prends mes conseils… pis tu vas finir par monter au classement.
 
-C’est pas juste un site ou un projet — c’est un persona que j’ai construit autour de ma façon de voir le betting.
+Blague à part, c’est un peu dans cet esprit-là qu’est né Le Parieur Discipliné.
 
-Une version idéale de la prise de décision : plus structurée, plus analytique, avec une vraie gestion du risque.
+C’est un nom qui reflète exactement l’approche derrière le projet.
 
-Parce que pour moi, le betting, c’est pas juste trouver des bons picks — c’est surtout gérer le risque, être constant, pis prendre des décisions propres sur le long terme.
+L’idée, c’est simple : prendre des paris réfléchis.
+Gérer le risque, être constant, pis surtout ne pas y aller avec ses émotions.
 
-À la base, je suis développeur logiciel, donc j’ai toujours eu ce réflexe de construire des systèmes, structurer de la data, optimiser des décisions.
+Comme je suis développeur, j’ai créé un site internet et un bot mixé à l’intelligence artificielle qui analyse les cotes de paris sportifs et détecte des paris avantageux.
 
-Fait que naturellement, j’ai appliqué ça au sport.
+Concrètement, je cible des paris qui sont évalués autour de 50% de probabilité de réussite par le marché.
 
-Pis les pools d’hockey ont vraiment solidifié ça.
+Mais avec les données que j’envoie à l’intelligence artificielle — stats, matchups, contexte, tendances — je suis capable d’identifier des spots qui se situent plutôt dans les 55 à 60%.
 
-C’est devenu un genre de laboratoire pour tester ta lecture des équipes sur une saison complète.
+Et c’est là que se crée l’avantage.
 
-Et c’est vraiment tout ça qui m’a amené à Le Parieur Discipliné.
+Pour l’instant, je me base sur les analyses du bot, mais je prends toujours le temps de faire ma propre réflexion avant d’appliquer un bet.
 
-Le côté dev m’a donné la structure, le sport la passion, pis les pools une forme de validation que cette approche peut fonctionner.
+Rien n’est automatique — c’est encore un processus hybride.
 
-Ensuite, j’ai poussé ça avec l’AI.
+Mais éventuellement, l’objectif, c’est d’aller vers un modèle beaucoup plus automatisé…
+où je pourrais pratiquement suivre le bot de façon presque aveugle.
 
-J’ai développé un bot qui analyse les matchs de hockey et de basket.
+La différence entre gagner et perdre sur le long terme…
 
-Il regarde les matchups, les tendances, les stats… pis il me sort des suggestions de paris chaque jour.
+C’est pas d’être parfait.
 
-L’idée, c’était pas de remplacer le jugement — mais de le structurer et l’améliorer.
+C’est d’être constant.
 
-Le projet est encore jeune — ça a commencé en mars — donc je suis encore en phase de build.
 
-En ce moment, le win rate est autour de 46% en NHL et 54% en NBA.
+🥇 TOP 4
 
-Pis je vois ça comme une base de travail — chaque bet sert à améliorer le système.
+🥇 En 1, Tampa Bay Lightning
 
-Et tranquillement, la communauté commence à prendre plus de place.
+Tampa Bay, pour moi, c’est le choix le plus safe du bracket.
 
-Partager les analyses, comparer les picks, rendre ça interactif pendant les séries… c’est ça qui rend le projet vivant.
+En premier round, ils affrontent Montréal.
 
-Mais au final, l’AI reste un outil.
+Et c’est exactement le genre de matchup qu’ils veulent.
 
-C’est le sujet chaud de l’heure — mais moi je le vois comme une façon de rendre la prise de décision plus disciplinée.
+Une équipe jeune, rapide, mais encore instable sur 7 games.
 
-Et dans le betting, c’est ça la différence : pas d’être parfait… mais d’être constant.” 🔥
+Montréal peut voler une game avec l’émotion…
+mais sur une série complète, Tampa contrôle trop bien les détails.
 
-🏒 CONCEPT DU RANKING
+Ce qui rend Tampa dangereux, c’est leur constance.
 
-“Mon ranking, c’est pas un power ranking classique.”
+Ils changent jamais leur game. Peu importe le score, peu importe le momentum.
 
-“C’est vraiment basé sur :
-le matchup du premier round,
-le chemin potentiel,
-pis surtout le plafond de l’équipe.”
+Et défensivement, ils forcent tout vers l’extérieur.
 
-“Le but, c’est pas de dire qui est le meilleur sur papier —
-c’est de dire : qui peut aller le plus loin.”
+C’est pas spectaculaire, mais c’est extrêmement efficace en séries.
 
-“Pis honnêtement, c’est ça qui rend les séries intéressantes —
-y’a toujours du chaos.”
+Et surtout… ils ne se battent jamais eux-mêmes.
 
-“Pis pour ceux qui écoutent — faites votre ranking aussi, comparez… ça rend chaque game 10x plus le fun.”
+C’est pour ça qu’ils sont numéro 1.
 
-🏆 TOP 4
+🥈 En 2, Colorado Avalanche
 
-“En 1, j’ai le Tampa Bay Lightning.”
+Colorado, c’est le plafond le plus élevé du bracket.
 
-“C’est pas compliqué — expérience, structure, pis un gardien élite en Andrei Vasilevskiy.”
+En premier round, ils affrontent les Kings.
 
-“C’est une équipe built pour gagner en séries — pour moi c’est le pick le plus safe.”
+Et là t’as un clash parfait de styles.
 
-“En 2, Colorado Avalanche.”
+Colorado veut jouer vite, en transition, en chaos contrôlé.
+Los Angeles veut ralentir, structurer, fermer le centre.
 
-“Si Nathan MacKinnon prend le contrôle d’une série… y’a pas beaucoup d’équipes qui peuvent suivre.”
+Donc tout dépend du tempo.
 
-“En 3, Edmonton Oilers.”
+Si Colorado impose le rythme… la série peut être courte.
 
-“C’est simple :
-plafond = Coupe Stanley
-plancher = élimination frustrante.”
+Mais si LA ralentit le jeu… ça devient une guerre tactique.
 
-“Avec Connor McDavid, tout est possible… mais le gardiennage reste le point d’interrogation.”
+Et c’est exactement ça qui définit Colorado.
 
-👉 Punchline :
-“C’est l’équipe la plus boom or bust des séries.”
+Ils sont dominants quand ils dictent le match.
 
-“En 4, Dallas Stars.”
+Mais dès qu’ils ne contrôlent plus le tempo… ils deviennent humains.
 
-“C’est probablement l’équipe la plus complète dans le top 4 —
-pas flashy, mais efficace partout.”
+C’est pour ça qu’ils sont deuxièmes.
 
-“C’est le genre d’équipe qui peut se rendre loin sans faire de bruit.”
+🥉 En 3, Edmonton Oilers
+
+Edmonton, c’est l’équipe la plus explosive du bracket.
+
+En premier round, ils affrontent Utah.
+
+Et là, c’est un matchup très déséquilibré offensivement.
+
+Edmonton peut dominer 70% du jeu.
+
+Et surtout, leur powerplay peut changer une série à lui seul.
+
+Mais le vrai problème, c’est la structure défensive.
+
+Parce qu’en séries, tu peux pas juste marquer…
+tu dois aussi survivre sans la rondelle.
+
+Et le gardiennage devient un facteur complètement variable.
+
+Ensuite, leur chemin devient encore plus intéressant.
+
+Vegas ou Anaheim, ça veut dire structure, expérience, discipline.
+
+Donc Edmonton, c’est simple.
+
+C’est le plus haut plafond… mais aussi le plus gros risque.
+
+Boom ou bust total.
+
+🏅 En 4, Dallas Stars
+
+Dallas, c’est probablement l’équipe la plus complète du bracket.
+
+En premier round, ils jouent Minnesota.
+
+Et ça, c’est une série lourde, physique, lente.
+
+Exactement le genre de série qui use les équipes.
+
+Mais Dallas peut tout faire.
+
+Ils peuvent jouer serré, ils peuvent jouer rapide, ils peuvent jouer physique.
+
+Et surtout, ils s’adaptent à n’importe quel style.
+
+Et ça, en séries, c’est extrêmement rare.
+
+Parce que peu importe qui ils affrontent après… Colorado, Vegas, peu importe…
+
+Dallas n’a pas besoin d’un scénario parfait pour gagner.
+
+Et c’est pour ça qu’ils sont dans le top 4.
 
 ⚔️ 5 À 8
+5, Vegas Golden Knights
 
-“En 5, Vegas.”
+Vegas commence contre Anaheim.
 
-“Expérience, culture de gagner… mais j’ai encore des doutes.”
+Donc premier round, c’est une série de gestion.
 
-“Si Adin Hill est solide, ils peuvent faire un run.”
+Pas beaucoup de stress, pas beaucoup de pression.
 
-“En 6, Carolina.”
+Mais après ça, ça devient intéressant.
 
-“Structure élite, coach élite… mais faut voir s’ils ont assez d’attaque pour closer des séries.”
+Parce que leur vrai test arrive au deuxième round.
 
-“En 7, Minnesota.”
+Probablement Colorado ou Dallas.
 
-“C’est clairement une équipe upset.”
+Et là, leur structure va être testée contre de la vitesse et du talent élite.
 
-“Si Kirill Kaprizov takeover une série… ça peut déraper vite.”
+Vegas, c’est une équipe expérimentée.
 
-“En 8, les Kings.”
+Mais ils dépendent beaucoup du momentum et du gardien.
 
-“Très disciplinés, très solides… mais ils doivent ralentir le jeu.”
+6, Carolina Hurricanes
 
-“Si ça devient un match de vitesse — ils sont en trouble.”
+Carolina joue Ottawa au premier round.
+
+Et là, c’est un clash clair.
+
+Carolina va dominer la possession.
+
+Ils vont passer énormément de temps en zone offensive.
+
+Mais Ottawa, eux, peuvent créer du chaos et voler des moments.
+
+Le problème avec Carolina, c’est pas le contrôle.
+
+C’est la finition.
+
+Ils dominent les matchs… mais doivent convertir ça en buts.
+
+Et en séries, ça devient crucial.
+
+7, Minnesota Wild
+
+Minnesota joue Dallas.
+
+Et ça, c’est une vraie série de grind.
+
+Très physique, très serrée, très lente.
+
+Minnesota doit absolument rendre ça chaotique pour survivre.
+
+Sinon Dallas contrôle tout.
+
+Mais si Minnesota passe ce round-là…
+
+Ils deviennent une équipe très dangereuse pour n’importe qui.
+
+8, Los Angeles Kings
+
+LA joue Colorado.
+
+Et honnêtement, c’est probablement le pire matchup possible pour eux.
+
+Parce que Colorado veut accélérer.
+
+Et LA veut ralentir.
+
+Donc tout dépend de qui impose son style.
+
+Si LA contrôle le tempo, ils peuvent rendre ça intéressant.
+
+Sinon, ils vont courir après la game toute la série.
 
 🎯 9 À 12
+9, Ottawa Senators
 
-“En 9, Ottawa.”
+Ottawa joue Carolina.
 
-“C’est du chaos contrôlé.”
+Et c’est un énorme test.
 
-“Avec Tim Stützle pis Tkachuk — ils peuvent complètement changer le momentum d’une série.”
+Parce que Carolina va contrôler la majorité du jeu.
 
-“En 10, Pittsburgh.”
+Ottawa doit vivre de moments, pas de possession.
 
-“L’expérience fait encore la différence — surtout avec Sidney Crosby.”
+Donc ils peuvent surprendre une game…
+mais sur une série complète, c’est très difficile.
 
-“En 11, Boston.”
+10, Pittsburgh Penguins
 
-“On dirait qu’à chaque année on les sous-estime… pis ils restent dangereux.”
+Pittsburgh joue Philly.
 
-“En 12, Canadiens de Montréal.”
+Donc premier round, c’est émotionnel, physique, une vraie rivalité.
 
-“Aucune pression, jeune équipe…”
+Et Pittsburgh a l’avantage de l’expérience.
 
-“C’est exactement le genre d’équipe qui peut voler 1-2 games juste avec l’énergie.”
+Ils savent comment gérer ces moments-là.
 
-👉 Punchline :
-“Pas une équipe qui gagne la Coupe — mais une équipe qui peut déranger.”
+Mais après ça, leur vitesse et leur profondeur deviennent un problème.
+
+11, Boston Bruins
+
+Boston joue Buffalo.
+
+Et là, c’est structure contre offense brute.
+
+Boston contrôle le rythme, contrôle les erreurs, contrôle le match.
+
+Mais leur plafond reste limité contre les top équipes du bracket.
+
+12, Montreal Canadiens
+
+Montréal joue Tampa.
+
+Donc c’est un des pires matchups possibles pour une jeune équipe.
+
+Ils peuvent voler une game avec l’énergie.
+
+Mais sur 7 matchs, l’expérience de Tampa prend le dessus.
 
 📉 13 À 16
+13, Buffalo Sabres
 
-“13, Buffalo.”
+Buffalo peut marquer.
 
-“Beaucoup de talent… mais pas encore prêts pour ce stage-là.”
+Mais défensivement, ils donnent trop.
 
-“14, Utah.”
+Et en séries, ça finit par coûter cher.
 
-“Premières séries — c’est un choc garanti.”
+14, Utah Hockey Club
 
-“15, Flyers.”
+Utah affronte Edmonton.
 
-“Beaucoup de jeunesse, avec Matvei Michkov… mais encore en construction.”
+Et c’est une première vraie expérience de séries.
 
-“16, Anaheim.”
+Le rythme, l’intensité, les ajustements… tout est nouveau.
 
-“Trop tôt — l’écart est encore trop grand.”
+15, Philadelphia Flyers
 
-🎙️ OUTRO
+Philly joue Pittsburgh.
 
-“Si je résume :”
+Ils vont être physiques, ils vont être intenses.
 
-“Contenders : Tampa, Colorado, Dallas.”
+Mais sur 7 games, ils manquent encore d’exécution.
 
-“X-factor : Edmonton — clairement.”
+16, Anaheim Ducks
 
-“Upset à surveiller : Minnesota pis Ottawa.”
+Anaheim joue Vegas.
 
-“Pis honnêtement, c’est ça qui est le fun des séries —
-sur papier tout fait du sens…”
+Et là, c’est un mismatch complet.
 
-“Mais ça prend juste une série pour que tout explose 👀”
+Vegas contrôle le tempo, contrôle l’expérience, contrôle tout.
 
-“Fait que faites vos rankings, comparez avec les nôtres…
-pis enjoy le chaos 🔥”
-
-
----
-
-🎯 RÉPLIQUES — PODCAST
-🔥 SI ON CHALLENGE TON #1 (Tampa)
-
-“Je comprends, mais en séries je prends jamais contre l’expérience + un gardien élite.”
-
-“C’est peut-être pas l’équipe la plus flashy — mais c’est la plus fiable.”
-
-“Tu veux battre Tampa Bay Lightning 4 fois avec Andrei Vasilevskiy ? Good luck.”
-
-⚡ SI ON DIT QUE EDMONTON VA GAGNER FACILE
-
-“Oui… mais ça dépend de quel Edmonton on parle.”
-
-“Si Connor McDavid est en mode god — ok.”
-“Mais si le gardiennage craque, ça peut finir très vite.”
-
-👉 Punchline :
-“C’est l’équipe que je trust le moins… mais que je veux pas affronter.”
-
-🧠 SI ON DIT QUE DALLAS EST TROP BAS / TROP HAUT
-
-“Dallas, c’est pas sexy… mais c’est complet.”
-
-“C’est le genre d’équipe que tu réalises trop tard qu’ils sont bons.”
-
-👉
-“Ils vont pas te dominer — ils vont juste te battre.”
-
-🧨 SI ON DIT QUE MINNESOTA PEUT PAS UPSET
-
-“Je suis pas d’accord.”
-
-“Un joueur comme Kirill Kaprizov peut gagner une série presque à lui seul.”
-
-👉
-“En séries, ça prend juste 1 gars qui prend feu.”
-
-😤 SI ON DIT QUE OTTAWA EST PAS DANGEREUX
-
-“C’est exactement pour ça qu’ils sont dangereux.”
-
-“Ils jouent loose, zéro pression.”
-
-“Avec Tim Stützle pis Tkachuk, ça peut devenir du chaos vite.”
-
-🏒 SI ON TE PUSH SUR MONTRÉAL
-
-“Ils gagneront probablement pas la série.”
-
-“Mais ils peuvent la rendre inconfortable.”
-
-👉
-“Pis en séries, inconfortable = dangereux.”
-
-🧱 SI ON DIT QUE CAROLINA VA LOIN
-
-“Oui, mais faut qu’ils scorent quand ça compte.”
-
-“La structure c’est beau… mais à un moment donné, faut finir les games.”
-
-🎭 SI ON DIT QUE VEGAS EST DEAD
-
-“Vegas mort ? Jamais.”
-
-“C’est une équipe built pour les séries — faut les sortir 4 fois.”
-
-👉
-“Pis ça, c’est jamais facile.”
-
-🐧 SI ON DIT QUE PITTSBURGH EST FINI
-
-“Peut-être… mais tant que Sidney Crosby est là, je les compte jamais out.”
-
-👉
-“L’expérience, ça disparaît pas en séries.”
-
-🧠 SI QUELQU’UN PARLE TROP “SUR PAPIER”
-
-“Sur papier, ça veut rien dire en séries.”
-
-“Les matchups pis le momentum, c’est ça qui change tout.”
-
-🔥 RÉPLIQUES GÉNÉRALES (CLUTCH)
-
-Tu peux les drop n’importe quand :
-
-“Les séries, c’est une autre game.”
-“Ça se joue pas sur le talent, ça se joue sur les détails.”
-“Faut gagner 4 games — pas être meilleur sur papier.”
-“Y’a toujours une équipe qui brise le bracket.”
-“C’est là que les gardiens volent des séries.”
-“Momentum > talent en séries.”
-😈 RÉPLIQUES POUR METTRE DE LA PRESSION
-“Ok mais tu les prends pour vrai ou c’est juste un hot take ?”
-“Tu serais prêt à bet là-dessus ?”
-“On s’en reparle dans 2 semaines 👀”
-“Clip ça.”
