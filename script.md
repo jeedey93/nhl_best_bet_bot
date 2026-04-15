@@ -1,10 +1,22 @@
 🧊 INTRO (toi)
 
-“Merci de l’invitation les boys — parfait timing avec les séries, c’est littéralement le meilleur moment de l’année pour le hockey 👀”
+“Merci de l’invitation les boys — parfait timing avec les séries, c’est littéralement le meilleur moment de l’année pour le hockey 👀
 
-“Pour ceux qui me connaissent pas, Parieur Discipliné, c’est vraiment une page basée sur une approche plus structurée du betting — pas juste gambler au hasard, mais comprendre les matchups, le contexte, pis jouer sur le long terme.”
+Pour ceux qui me connaissent pas, Parieur Discipliné, c’est vraiment une page basée sur une approche plus structurée du betting — pas juste gambler au hasard, mais comprendre les matchups, le contexte, pis jouer sur le long terme.
 
-“Le but c’est aussi de build une communauté — rendre ça plus interactif, surtout dans un moment comme les séries.”
+Le but c’est aussi de build une communauté — rendre ça plus interactif, surtout dans un moment comme les séries.
+
+Pis un autre aspect que j’ai développé récemment, c’est que j’ai carrément créé un bot avec de l’AI qui m’aide à analyser les games.
+
+Dans le fond, il prend en compte plein de données — les matchups, les tendances récentes, les stats offensives pis défensives — pis il me sort des suggestions de paris chaque jour, surtout en hockey pis en basket.
+
+Fait que j’utilise beaucoup la technologie qu’on a à notre portée en ce moment.
+
+Le AI, c’est le sujet chaud en ce moment — mais moi je le vois comme un outil, pas une garantie.
+
+Ça remplace pas le jugement — mais ça t’aide à prendre des décisions plus disciplinées, plus structurées.
+
+Pis dans le betting, avoir un edge, même petit… à long terme, ça fait toute la différence.” 🔥
 
 🏒 CONCEPT DU RANKING
 
