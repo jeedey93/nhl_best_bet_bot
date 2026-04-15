@@ -4,7 +4,9 @@
 
 Pour ceux qui me connaissent pas, je suis développeur logiciel à la base.
 
-Et à côté de ça, je suis vraiment passionné de sport et de betting depuis longtemps — c’est un mix d’analyse, de logique… pis un petit stress que j’aime bien quand y’a des bets en jeu 😄
+Et à côté de ça, je suis vraiment passionné de sport et de betting depuis longtemps — c’est un mix d’analyse, de logique, de stats sportives… pis un petit stress que j’aime bien quand y’a des bets en jeu 😄
+
+Je suis passionné, mais toujours de façon mesurée — jamais dans l’excès ou le démesure.
 
 Même dans les pools d’hockey, je suis assez impliqué — surtout ceux avec cap salarial.
 
@@ -17,7 +19,9 @@ Et c’est un peu ça qui m’a amené à créer Le Parieur Discipliné.
 
 C’est pas juste un site ou un projet — c’est un persona que j’ai construit autour de ma façon de voir le betting.
 
-Une version idéale de la prise de décision : plus structurée, plus analytique, plus disciplinée.
+Une version idéale de la prise de décision : plus structurée, plus analytique, avec une vraie gestion du risque.
+
+Parce que pour moi, le betting, c’est pas juste trouver des bons picks — c’est surtout gérer le risque, être constant, pis prendre des décisions propres sur le long terme.
 
 À la base, je suis développeur logiciel, donc j’ai toujours eu ce réflexe de construire des systèmes, structurer de la data, optimiser des décisions.
 
@@ -41,7 +45,7 @@ L’idée, c’était pas de remplacer le jugement — mais de le structurer et 
 
 Le projet est encore jeune — ça a commencé en mars — donc je suis encore en phase de build.
 
-En ce moment, on tourne autour de 46% en NHL et 54% en NBA.
+En ce moment, le win rate est autour de 46% en NHL et 54% en NBA.
 
 Pis je vois ça comme une base de travail — chaque bet sert à améliorer le système.
 
