@@ -94,8 +94,8 @@ def extract_picks_from_dual_bet(dual_bet_path):
     nhl_pick = None
     nba_pick = None
 
-    # Extract NHL pick (PICK #1)
-    nhl_match = re.search(r'PICK #1.*?NHL.*?🏒\s*(.+?)\s*@\s*([\d.]+)', content)
+    # Extract NHL pick — handles both "PICK #1 ... NHL 🏒" and "PICK – NHL 🏒" formats
+    nhl_match = re.search(r'PICK.*?NHL.*?🏒\s*(.+?)\s*(?:vs\s*.+?)?\s*@\s*([\d.]+)', content)
     if nhl_match:
         pick_text = nhl_match.group(1).strip()
         odds = nhl_match.group(2)
@@ -105,8 +105,8 @@ def extract_picks_from_dual_bet(dual_bet_path):
             'html': f"{pick_text}<br/><span style='font-size: 14px; color: #93c5fd;'>@{odds}</span>"
         }
 
-    # Extract NBA pick (PICK #2)
-    nba_match = re.search(r'PICK #2.*?NBA.*?🏀\s*(.+?)\s*@\s*([\d.]+)', content)
+    # Extract NBA pick — handles both "PICK #2 ... NBA 🏀" and "PICK – NBA 🏀" formats
+    nba_match = re.search(r'PICK.*?NBA.*?🏀\s*(.+?)\s*(?:vs\s*.+?)?\s*@\s*([\d.]+)', content)
     if nba_match:
         pick_text = nba_match.group(1).strip()
         odds = nba_match.group(2)
