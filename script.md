@@ -2,58 +2,31 @@
 
 Merci de l’invitation les boys !
 Honnêtement, le timing est parfait avec les séries qui commencent.
-
 Pour ceux qui ne me connaissent pas, à la base, je suis développeur logiciel.
-Donc j’ai naturellement un biais vers tout ce qui est structuré, logique, basé sur la data.
-
+Donc j’ai naturellement une attirance vers tout ce qui est structuré, logique, basé sur du data.
 Mais à côté de ça, je suis aussi un mordu de hockey et d’investissement depuis toujours.
-Ce que j’aime, c’est vraiment le mix entre l’analyse… et le petit rush d’adrénaline quand il y a quelque chose en jeu.
-
+Ce que j’aime, c’est le petit rush d’adrénaline quand il y a quelque chose en jeu.
 Ça fait plus de 10 ans que je participe à des pools de hockey.
 Et d’ailleurs, ça fait deux ans de suite que je gagne celui auquel je participe avec Oli.
-
-Deux.
-Back-to-back.
-
-Donc honnêtement… on peut peut-être commencer à se poser des questions.
-
-“Oli… pourquoi je suis pas encore consultant officiel sur le podcast ?”
-
-Sérieusement, prends mes conseils… pis tu vas finir par monter au classement.
+Deux ans. Back-to-back.
+“D’ailleurs, pourquoi je suis pas encore consultant officiel du podcast ?”
 
 Blague à part, c’est un peu dans cet esprit-là qu’est né Le Parieur Discipliné.
+C’est un site internet et un outil d’intelligence artificielle qui analyse les cotes de paris sportifs et identifie les opportunités de valeur basé sur les stats, matchups, tendances.
+Parce qu’au final, quand tu bets, le but n’est pas d’être parfait.
+C’est d’être discipliné.
 
-C’est un nom qui reflète exactement l’approche derrière le projet.
-
-L’idée, c’est simple : prendre des paris réfléchis.
-Gérer le risque, être constant, pis surtout ne pas y aller avec ses émotions.
-
-Comme je suis développeur, j’ai créé un site internet et un bot mixé à l’intelligence artificielle qui analyse les cotes de paris sportifs et détecte des paris avantageux.
-
-Concrètement, je cible des paris qui sont évalués autour de 50% de probabilité de réussite par le marché.
-
-Mais avec les données que j’envoie à l’intelligence artificielle — stats, matchups, contexte, tendances — je suis capable d’identifier des spots qui se situent plutôt dans les 55 à 60%.
-
-Et c’est là que se crée l’avantage.
-
+PLUS DE DETAILS
+Concrètement, je cible des paris que le marché estime à environ 50 % de chances de gagner.
+Mais avec les données que j’analyse avec l’IA (stats, matchups, contexte, tendances), je repère ceux qui sont plutôt autour de 55 à 60 %.
 Pour l’instant, je me base sur les analyses du bot, mais je prends toujours le temps de faire ma propre réflexion avant d’appliquer un bet.
-
 Rien n’est automatique — c’est encore un processus hybride.
-
-Mais éventuellement, l’objectif, c’est d’aller vers un modèle beaucoup plus automatisé…
-où je pourrais pratiquement suivre le bot de façon presque aveugle.
-
-La différence entre gagner et perdre sur le long terme…
-
-C’est pas d’être parfait.
-
-C’est d’être constant.
+Mais éventuellement, l’objectif, c’est d’aller vers un modèle beaucoup plus automatisé… où je pourrais pratiquement suivre le bot de façon presque aveugle.
 
 
 🥇 TOP 4
 
 🥇 En 1, Tampa Bay Lightning
-
 Tampa Bay, pour moi, c’est le choix le plus safe du bracket.
 
 En premier round, ils affrontent Montréal.
@@ -75,10 +48,11 @@ C’est pas spectaculaire, mais c’est extrêmement efficace en séries.
 
 Et surtout… ils ne se battent jamais eux-mêmes.
 
+📊 Projection victoires : 12 à 15
+
 C’est pour ça qu’ils sont numéro 1.
 
 🥈 En 2, Colorado Avalanche
-
 Colorado, c’est le plafond le plus élevé du bracket.
 
 En premier round, ils affrontent les Kings.
@@ -100,10 +74,11 @@ Ils sont dominants quand ils dictent le match.
 
 Mais dès qu’ils ne contrôlent plus le tempo… ils deviennent humains.
 
+📊 Projection victoires : 10 à 14
+
 C’est pour ça qu’ils sont deuxièmes.
 
 🥉 En 3, Edmonton Oilers
-
 Edmonton, c’est l’équipe la plus explosive du bracket.
 
 En premier round, ils affrontent Utah.
@@ -129,10 +104,11 @@ Donc Edmonton, c’est simple.
 
 C’est le plus haut plafond… mais aussi le plus gros risque.
 
+📊 Projection victoires : 12 à 16
+
 Boom ou bust total.
 
 🏅 En 4, Dallas Stars
-
 Dallas, c’est probablement l’équipe la plus complète du bracket.
 
 En premier round, ils jouent Minnesota.
@@ -147,6 +123,8 @@ Ils peuvent jouer serré, ils peuvent jouer rapide, ils peuvent jouer physique.
 
 Et surtout, ils s’adaptent à n’importe quel style.
 
+📊 Projection victoires : 10 à 14
+
 Et ça, en séries, c’est extrêmement rare.
 
 Parce que peu importe qui ils affrontent après… Colorado, Vegas, peu importe…
@@ -156,8 +134,8 @@ Dallas n’a pas besoin d’un scénario parfait pour gagner.
 Et c’est pour ça qu’ils sont dans le top 4.
 
 ⚔️ 5 À 8
-5, Vegas Golden Knights
 
+5, Vegas Golden Knights
 Vegas commence contre Anaheim.
 
 Donc premier round, c’est une série de gestion.
@@ -172,15 +150,10 @@ Probablement Colorado ou Dallas.
 
 Et là, leur structure va être testée contre de la vitesse et du talent élite.
 
-Vegas, c’est une équipe expérimentée.
-
-Mais ils dépendent beaucoup du momentum et du gardien.
+📊 Projection victoires : 9 à 13
 
 6, Carolina Hurricanes
-
 Carolina joue Ottawa au premier round.
-
-Et là, c’est un clash clair.
 
 Carolina va dominer la possession.
 
@@ -196,15 +169,14 @@ Ils dominent les matchs… mais doivent convertir ça en buts.
 
 Et en séries, ça devient crucial.
 
-7, Minnesota Wild
+📊 Projection victoires : 11 à 15
 
+Mais Ottawa peut voler des moments.
+
+7, Minnesota Wild
 Minnesota joue Dallas.
 
-Et ça, c’est une vraie série de grind.
-
 Très physique, très serrée, très lente.
-
-Minnesota doit absolument rendre ça chaotique pour survivre.
 
 Sinon Dallas contrôle tout.
 
@@ -212,78 +184,60 @@ Mais si Minnesota passe ce round-là…
 
 Ils deviennent une équipe très dangereuse pour n’importe qui.
 
-8, Los Angeles Kings
+📊 Projection victoires : 8 à 11
 
+Série de grind complète.
+
+8, Los Angeles Kings
 LA joue Colorado.
+
+📊 Projection victoires : 7 à 11
+
+Si LA contrôle le tempo, ils existent dans la série. Sinon, ils survivent difficilement.
 
 Et honnêtement, c’est probablement le pire matchup possible pour eux.
 
-Parce que Colorado veut accélérer.
-
-Et LA veut ralentir.
-
-Donc tout dépend de qui impose son style.
-
-Si LA contrôle le tempo, ils peuvent rendre ça intéressant.
-
-Sinon, ils vont courir après la game toute la série.
-
 🎯 9 À 12
-9, Ottawa Senators
 
+9, Ottawa Senators
 Ottawa joue Carolina.
 
-Et c’est un énorme test.
+📊 Projection victoires : 2 à 5
 
-Parce que Carolina va contrôler la majorité du jeu.
-
-Ottawa doit vivre de moments, pas de possession.
-
-Donc ils peuvent surprendre une game…
-mais sur une série complète, c’est très difficile.
+Peu de possession, beaucoup de survie.
 
 10, Pittsburgh Penguins
-
 Pittsburgh joue Philly.
 
-Donc premier round, c’est émotionnel, physique, une vraie rivalité.
+📊 Projection victoires : 5 à 9
 
-Et Pittsburgh a l’avantage de l’expérience.
-
-Ils savent comment gérer ces moments-là.
-
-Mais après ça, leur vitesse et leur profondeur deviennent un problème.
+Expérience + rivalité.
 
 11, Boston Bruins
-
 Boston joue Buffalo.
 
-Et là, c’est structure contre offense brute.
+📊 Projection victoires : 6 à 9
 
-Boston contrôle le rythme, contrôle les erreurs, contrôle le match.
+Structure solide, plafond limité.
 
-Mais leur plafond reste limité contre les top équipes du bracket.
-
-12, Montreal Canadiens
-
+12, Montréal Canadiens
 Montréal joue Tampa.
 
-Donc c’est un des pires matchups possibles pour une jeune équipe.
+📊 Projection victoires : 2 à 4
 
-Ils peuvent voler une game avec l’énergie.
-
-Mais sur 7 matchs, l’expérience de Tampa prend le dessus.
+Peut voler une game, mais pas une série.
 
 📉 13 À 16
+
 13, Buffalo Sabres
+📊 Projection victoires : 2 à 5
 
 Buffalo peut marquer.
 
 Mais défensivement, ils donnent trop.
 
-Et en séries, ça finit par coûter cher.
-
 14, Utah Hockey Club
+📊 Projection victoires : 1 à 3
 
 Utah affronte Edmonton.
 
@@ -292,6 +246,7 @@ Et c’est une première vraie expérience de séries.
 Le rythme, l’intensité, les ajustements… tout est nouveau.
 
 15, Philadelphia Flyers
+📊 Projection victoires : 2 à 5
 
 Philly joue Pittsburgh.
 
@@ -300,10 +255,12 @@ Ils vont être physiques, ils vont être intenses.
 Mais sur 7 games, ils manquent encore d’exécution.
 
 16, Anaheim Ducks
+📊 Projection victoires : 1 à 3
 
 Anaheim joue Vegas.
 
 Et là, c’est un mismatch complet.
 
 Vegas contrôle le tempo, contrôle l’expérience, contrôle tout.
+
 

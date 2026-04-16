@@ -269,36 +269,3 @@
 * **Série à suivre :** Dallas vs Minnesota
 
 
----
-
-Ok les boys… les séries 2026 sont là — pis cette année, y’a du chaos en vue 🔥
-
-On commence simple : le vrai favori, c’est le Tampa Bay Lightning.
-Expérience, talent, gardien élite avec Andrei Vasilevskiy… sur papier, c’est une run jusqu’en finale.
-
-Dans l’Ouest, c’est un peu plus ouvert — mais le Colorado Avalanche reste la machine la plus dangereuse.
-Si Nathan MacKinnon impose son rythme… bonne chance pour les arrêter.
-
-Mais l’équipe qui peut tout faire exploser… c’est le Edmonton Oilers.
-On parle du meilleur joueur au monde en Connor McDavid —
-plafond : Coupe Stanley.
-plancher : éliminés plus tôt à cause du gardiennage.
-C’est littéralement boom or bust.
-
-Le sleeper que personne veut affronter ?
-Le Dallas Stars.
-Équipe complète, solide devant le filet… ça peut aller très loin.
-
-Maintenant — upset watch 👇
-Le Minnesota Wild avec Kirill Kaprizov peut voler une série.
-Pis le Ottawa Senators… c’est le chaos total. Si ça dérape, ils peuvent surprendre n’importe qui.
-
-À Montréal — oubliez la pression.
-Le Canadiens de Montréal joue avec rien à perdre… pis c’est là que ça devient dangereux 👀
-
-Bref :
-Tampa, Colorado, Dallas = contenders.
-Edmonton = X-factor.
-Minnesota / Ottawa = surprises.
-
-Attachez vos tuques… ces séries-là vont être débiles 🏒🔥
