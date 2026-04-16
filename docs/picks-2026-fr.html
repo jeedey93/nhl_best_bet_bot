@@ -627,8 +627,13 @@ function isOverPoolColumn(clientX){
   return clientX>=r.left-40&&clientX<=r.right+40;
 }
 
-function resolveDropTarget(clientX,clientY,dragEl){
+function resolveDropTarget(clientX,clientY,dragEl,lockToRank=false){
   const under=document.elementFromPoint(clientX,clientY);
+  // If dragging from rank, never allow pool drop — always snap to nearest rank slot
+  if(lockToRank){
+    const slot=under?.closest('.rank-item,.rank-slot-empty')||nearestRankSlot(clientX,clientY);
+    return{slot:slot&&slot!==dragEl?slot:null,poolEl:false};
+  }
   // If over the pool column, always treat as pool drop
   if(isOverPoolColumn(clientX))return{slot:null,poolEl:true};
   // Otherwise try direct hit then nearest slot in rank column
@@ -741,7 +746,8 @@ function makeTouchHandler(el,getSrc){
     clearHL();
     // Hide clone temporarily to hit-test what's underneath
     clone.style.display='none';
-    const{slot,poolEl}=resolveDropTarget(t.clientX,t.clientY,el);
+    const lockToRank=dragSrc?.from==='rank';
+    const{slot,poolEl}=resolveDropTarget(t.clientX,t.clientY,el,lockToRank);
     clone.style.display='';
     if(slot&&slot!==el)slot.classList.add('drag-over');
     else if(poolEl)document.getElementById('pool-list').classList.add('drag-over');
@@ -756,7 +762,8 @@ function makeTouchHandler(el,getSrc){
     activeTouchDrag=null;
     clearHL();
     // Hit-test drop target
-    const{slot,poolEl}=resolveDropTarget(clientX,clientY,null);
+    const lockToRank=dragSrc?.from==='rank';
+    const{slot,poolEl}=resolveDropTarget(clientX,clientY,null,lockToRank);
     if(slot){handleDrop({to:'rank',idx:parseInt(slot.dataset.idx)});}
     else if(poolEl){handleDrop({to:'pool'});}
     else{dragSrc=null;}
