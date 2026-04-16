@@ -296,6 +296,17 @@ def main():
     email_html = email_html.replace('${NHL_REASONING}', nhl_reasoning_html)
     email_html = email_html.replace('${NBA_REASONING}', nba_reasoning_html)
 
+    # Remove card blocks for missing picks
+    import re
+    if not nhl_pick_info:
+        email_html = re.sub(r'<!-- NHL_CARD_START -->.*?<!-- NHL_CARD_END -->', '', email_html, flags=re.DOTALL)
+    else:
+        email_html = email_html.replace('<!-- NHL_CARD_START -->', '').replace('<!-- NHL_CARD_END -->', '')
+    if not nba_pick_info:
+        email_html = re.sub(r'<!-- NBA_CARD_START -->.*?<!-- NBA_CARD_END -->', '', email_html, flags=re.DOTALL)
+    else:
+        email_html = email_html.replace('<!-- NBA_CARD_START -->', '').replace('<!-- NBA_CARD_END -->', '')
+
     if args.email and args.token:
         unsub_url = f"https://parieurdiscipline.com/api/unsubscribe?email={quote(args.email)}&token={args.token}"
         email_html = email_html.replace('${UNSUBSCRIBE_URL}', unsub_url)
