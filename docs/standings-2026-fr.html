@@ -477,7 +477,7 @@ function renderPodium(rows, pot=0){
     if(!row)return;
     const rank=idx+1;
     const medal=rank===1?'🥇':rank===2?'🥈':'🥉';
-    const prize=pot>0?`<div class="podium-prize">${Math.round(pot*splits[idx])}$</div>`:'';
+    const prize=pot>0?`<div class="podium-prize">${Math.round(pot*splits[idx])}$ (${splits[idx]*100}%)</div>`:'';
     const div=document.createElement('div');div.className='podium-place';
     div.innerHTML=`
       <div class="podium-avatar">${initials(row.name)}${prize}</div>
@@ -910,7 +910,7 @@ function buildShareCardHTML(rows, title, totalCount, pot, date){
 
   const splits=[0.5,0.3,0.2];
   const podium = top10.slice(0,3).map((r,i)=>{
-    const prize = pot>0 ? `<div style="margin-top:4px;display:inline-block;background:#22c55e;color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;letter-spacing:0.5px;">${Math.round(pot*splits[i])}$</div>` : '';
+    const prize = pot>0 ? `<div style="margin-top:4px;display:inline-block;background:#22c55e;color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;letter-spacing:0.5px;">${Math.round(pot*splits[i])}$ (${splits[i]*100}%)</div>` : '';
     return `
     <div style="flex:1;text-align:center;padding:10px 8px;background:rgba(255,255,255,0.05);border-radius:8px;min-width:0;">
       <div style="font-size:26px;line-height:1.1;">${medals[i]}</div>
