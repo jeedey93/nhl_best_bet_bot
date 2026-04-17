@@ -420,6 +420,10 @@
         <li data-n="1.">Ton image de choix sera envoyée par courriel automatiquement</li>
         <li data-n="2.">Tu pourras aussi sauvegarder une copie sur ton appareil</li>
       </ol>
+      <div id="modal-etransfer" style="display:none;background:rgba(255,184,28,0.08);border:1px solid rgba(255,184,28,0.3);border-radius:8px;padding:10px 14px;margin-bottom:1rem;text-align:center;">
+        <p style="margin:0;font-size:0.9rem;line-height:1.6;">💰 <strong>Entrée 10$</strong> — envoie ton virement Interac à :<br>
+        <span style="color:var(--gold);font-size:1rem;font-weight:700;letter-spacing:0.5px;">justin.do@hotmail.com</span></p>
+      </div>
       <img id="preview-img" src="" alt="Tes choix LNH">
       <div class="modal-btns">
         <button id="btn-confirm-submit" class="btn btn-share" style="font-size:1rem;padding:0.6rem 1.5rem;">📨 Envoyer mes Choix</button>
@@ -884,6 +888,7 @@ function showModal(state){
   document.getElementById('modal-default').style.display=state==='default'?'':'none';
   document.getElementById('modal-submitting').style.display=state==='submitting'?'block':'none';
   document.getElementById('modal-success').style.display=state==='success'?'block':'none';
+  document.getElementById('modal-etransfer').style.display=(state==='default'&&_poolType==='paid')?'block':'none';
   document.getElementById('modal-overlay').classList.add('open');
 }
 function closeModal(){
