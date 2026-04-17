@@ -998,24 +998,21 @@ async function shareLeaderboard(){
 
   try{
     const canvas = await html2canvas(card,{scale:2,useCORS:true,backgroundColor:'#07111f',logging:false});
-    const dataUrl = canvas.toDataURL('image/png');
-    const blob = await (await fetch(dataUrl)).blob();
-    const file = new File([blob], `classement-${date}.png`, {type:'image/png'});
 
     // Partage natif (mobile + bureau Chrome/Edge/Safari)
-    if(navigator.share && navigator.canShare && navigator.canShare({files:[file]})){
-      await navigator.share({
-        files:[file],
-        title:'Parieur Discipliné – Classement',
-        text:'Voici le classement en cours ! 🎯'
-      });
-    } else {
-      // Repli : télécharger
-      const link = document.createElement('a');
-      link.download = `classement-${date}.png`;
-      link.href = dataUrl;
-      link.click();
+    if(navigator.share && navigator.canShare){
+      const blob = await new Promise(res=>canvas.toBlob(res,'image/png'));
+      const file = new File([blob], `classement-${date}.png`, {type:'image/png'});
+      if(navigator.canShare({files:[file]})){
+        await navigator.share({ files:[file], title:'Parieur Discipliné – Classement' });
+        return;
+      }
     }
+    // Repli : télécharger
+    const link = document.createElement('a');
+    link.download = `classement-${date}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
   }catch(e){
     if(e.name!=='AbortError'){
       alert('Impossible de générer l\'image. Veuillez réessayer.');

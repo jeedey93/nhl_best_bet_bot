@@ -1010,24 +1010,21 @@ async function shareLeaderboard(){
 
   try{
     const canvas = await html2canvas(card,{scale:2,useCORS:true,backgroundColor:'#07111f',logging:false});
-    const dataUrl = canvas.toDataURL('image/png');
-    const blob = await (await fetch(dataUrl)).blob();
-    const file = new File([blob], `standings-${date}.png`, {type:'image/png'});
 
     // Use native share sheet (mobile + desktop Chrome/Edge/Safari)
-    if(navigator.share && navigator.canShare && navigator.canShare({files:[file]})){
-      await navigator.share({
-        files:[file],
-        title:'Parieur Discipliné – Standings',
-        text:'Check out the current standings! 🎯'
-      });
-    } else {
-      // Fallback: download
-      const link = document.createElement('a');
-      link.download = `standings-${date}.png`;
-      link.href = dataUrl;
-      link.click();
+    if(navigator.share && navigator.canShare){
+      const blob = await new Promise(res=>canvas.toBlob(res,'image/png'));
+      const file = new File([blob], `standings-${date}.png`, {type:'image/png'});
+      if(navigator.canShare({files:[file]})){
+        await navigator.share({ files:[file], title:'Parieur Discipliné – Standings' });
+        return;
+      }
     }
+    // Fallback: download
+    const link = document.createElement('a');
+    link.download = `standings-${date}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
   }catch(e){
     if(e.name!=='AbortError'){
       alert('Could not generate image. Please try again.');
