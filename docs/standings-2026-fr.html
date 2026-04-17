@@ -232,6 +232,16 @@
   .lb-toggle-btn.active{background:rgba(255,184,28,0.15);color:var(--gold);border:1px solid rgba(255,184,28,0.3);}
   .lb-toggle-btn.active.paid-btn{background:linear-gradient(135deg,rgba(184,134,11,0.25),rgba(255,215,0,0.15));
     border-color:rgba(255,215,0,0.4);}
+  .lb-toggle{flex-wrap:wrap;gap:8px;}
+  .btn-share-lb{font-family:'Bebas Neue',cursive;font-size:0.9rem;letter-spacing:2px;
+    padding:0.35rem 1.1rem;border-radius:7px;border:1px solid rgba(255,184,28,0.4);
+    background:rgba(255,184,28,0.08);color:var(--gold);cursor:pointer;
+    display:inline-flex;align-items:center;gap:5px;transition:background 0.15s;}
+  .btn-share-lb:hover{background:rgba(255,184,28,0.2);}
+  .btn-share-lb:disabled{opacity:0.5;cursor:default;}
+  #share-card{position:fixed;left:-9999px;top:0;width:600px;
+    background:#07111f;font-family:'Barlow Condensed',sans-serif;color:white;
+    padding:0;overflow:hidden;}
 
   .games-scroller{width:100%;background:rgba(0,0,0,0.25);border-bottom:1px solid rgba(255,255,255,0.08);
     padding:10px 0;display:none;}
@@ -317,6 +327,7 @@
     <button class="lb-toggle-btn active" id="btn-general" onclick="switchLb('general')">Tous les Participants</button>
     <button class="lb-toggle-btn paid-btn" id="btn-paid" onclick="switchLb('paid')">Entrée Payante</button>
   </div>
+  <button class="btn-share-lb" id="btn-share-lb" onclick="shareLeaderboard()">📸 Partager</button>
 </div>
 
 <!-- Classement général -->
@@ -880,7 +891,113 @@ setInterval(()=>{loadResultsRemote();loadParticipants();},5*60*1000);
   fetchGames();
   setInterval(fetchGames,60000);
 })();
+
+// ── Partager le classement ───────────────────────────────────────────────────
+function buildShareCardHTML(rows, title, totalCount, pot, date){
+  const top10 = rows.slice(0,10);
+  const leaderScore = top10[0]?.total || 0;
+  const medals = ['🥇','🥈','🥉'];
+
+  const podium = top10.slice(0,3).map((r,i)=>`
+    <div style="flex:1;text-align:center;padding:10px 8px;background:rgba(255,255,255,0.05);border-radius:8px;min-width:0;">
+      <div style="font-size:26px;line-height:1.1;">${medals[i]}</div>
+      <div style="font-size:13px;font-weight:700;color:#ffffff;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${r.name}</div>
+      <div style="font-size:18px;font-weight:700;color:#ffb81c;margin-top:2px;">${r.total}</div>
+    </div>`).join('');
+
+  const tableRows = top10.map((r,i)=>{
+    const rank = i<3 ? medals[i] : `${i+1}`;
+    const gap = i===0 ? '<span style="color:#22c55e;font-weight:700;">Meneur</span>'
+               : `<span style="color:rgba(255,255,255,0.5);">-${leaderScore - r.total}</span>`;
+    const deltaColor = r.delta>0?'#22c55e':r.delta<0?'#f87171':'rgba(255,255,255,0.25)';
+    const deltaStr = r.delta>0?`+${r.delta}`:r.delta===0?'—':`${r.delta}`;
+    const rowBg = i%2===0?'rgba(255,255,255,0.03)':'transparent';
+    return `<tr style="background:${rowBg};">
+      <td style="padding:8px 10px;font-size:14px;text-align:center;width:36px;">${rank}</td>
+      <td style="padding:8px 6px;font-size:14px;font-weight:700;color:#ffffff;">${r.name}</td>
+      <td style="padding:8px 10px;font-size:15px;font-weight:700;color:#ffb81c;text-align:center;">${r.total}</td>
+      <td style="padding:8px 8px;font-size:13px;color:${deltaColor};text-align:center;font-weight:700;">${deltaStr}</td>
+      <td style="padding:8px 10px;font-size:13px;text-align:center;">${gap}</td>
+    </tr>`;
+  }).join('');
+
+  const potStr = pot>0 ? ` &nbsp;·&nbsp; 🏆 ${pot}$ La cagnotte` : '';
+
+  return `
+    <div style="background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%);padding:22px 24px 16px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="font-size:28px;">🎯</div>
+          <div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:#ffffff;letter-spacing:3px;line-height:1;">PARIEUR DISCIPLINÉ</div>
+            <div style="font-size:11px;color:#94a3b8;letter-spacing:2px;text-transform:uppercase;">Éliminatoires LNH 2026 · ${title}</div>
+          </div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:12px;color:#94a3b8;">${date}</div>
+          <div style="font-size:11px;color:rgba(148,163,184,0.6);margin-top:2px;">${totalCount} participants${potStr}</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:16px;">${podium}</div>
+    </div>
+    <div style="padding:0 16px 0;">
+      <table style="width:100%;border-collapse:collapse;font-family:'Barlow Condensed',sans-serif;">
+        <thead>
+          <tr style="border-bottom:1px solid rgba(255,184,28,0.3);">
+            <th style="padding:7px 10px;font-size:10px;color:rgba(255,184,28,0.7);letter-spacing:1.5px;text-align:center;">#</th>
+            <th style="padding:7px 6px;font-size:10px;color:rgba(255,184,28,0.7);letter-spacing:1.5px;text-align:left;">NOM</th>
+            <th style="padding:7px 10px;font-size:10px;color:rgba(255,184,28,0.7);letter-spacing:1.5px;text-align:center;">PTS</th>
+            <th style="padding:7px 8px;font-size:10px;color:rgba(255,184,28,0.7);letter-spacing:1.5px;text-align:center;">HIER</th>
+            <th style="padding:7px 10px;font-size:10px;color:rgba(255,184,28,0.7);letter-spacing:1.5px;text-align:center;">ÉCART</th>
+          </tr>
+        </thead>
+        <tbody>${tableRows}</tbody>
+      </table>
+    </div>
+    <div style="text-align:center;padding:12px;font-size:11px;color:rgba(148,163,184,0.45);letter-spacing:1px;border-top:1px solid rgba(255,255,255,0.06);margin-top:12px;">
+      parieurdiscipline.com
+    </div>`;
+}
+
+async function shareLeaderboard(){
+  const btn = document.getElementById('btn-share-lb');
+  const isPaid = document.getElementById('btn-paid').classList.contains('active');
+  const rows = isPaid ? _paidRows : _allRows;
+  if(!rows.length){ alert('Aucune donnée à partager.'); return; }
+
+  const origText = btn.textContent;
+  btn.textContent = '⏳';
+  btn.disabled = true;
+
+  const title = isPaid ? 'Entrée payante' : 'Tous les participants';
+  const paidCount = participants.filter(p=>p.paid).length;
+  const pot = paidCount*10;
+  const date = new Date().toLocaleDateString('fr-CA');
+  const totalCount = rows.length;
+
+  let card = document.getElementById('share-card');
+  if(!card){ card=document.createElement('div'); card.id='share-card'; document.body.appendChild(card); }
+  card.innerHTML = buildShareCardHTML(rows, title, totalCount, pot, date);
+
+  await new Promise(r=>setTimeout(r,150));
+
+  try{
+    const canvas = await html2canvas(card,{scale:2,useCORS:true,backgroundColor:'#07111f',logging:false});
+    const link = document.createElement('a');
+    link.download = `classement-${date}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  }catch(e){
+    alert('Impossible de générer l\'image. Veuillez réessayer.');
+    console.error(e);
+  }finally{
+    btn.textContent = origText;
+    btn.disabled = false;
+  }
+}
 </script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 <!-- Facebook Follow Badge -->
 <style>
