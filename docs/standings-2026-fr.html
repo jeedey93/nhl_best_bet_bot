@@ -894,7 +894,7 @@ setInterval(()=>{loadResultsRemote();loadParticipants();},5*60*1000);
 
 // ── Partager le classement ───────────────────────────────────────────────────
 function buildShareCardHTML(rows, title, totalCount, pot, date){
-  const top10 = rows.slice(0,10);
+  const top10 = rows;
   const leaderScore = top10[0]?.total || 0;
   const medals = ['🥇','🥈','🥉'];
 
@@ -983,13 +983,29 @@ async function shareLeaderboard(){
 
   try{
     const canvas = await html2canvas(card,{scale:2,useCORS:true,backgroundColor:'#07111f',logging:false});
-    const link = document.createElement('a');
-    link.download = `classement-${date}.png`;
-    link.href = canvas.toDataURL('image/png');
-    link.click();
+    const dataUrl = canvas.toDataURL('image/png');
+    const blob = await (await fetch(dataUrl)).blob();
+    const file = new File([blob], `classement-${date}.png`, {type:'image/png'});
+
+    // Partage natif (mobile + bureau Chrome/Edge/Safari)
+    if(navigator.share && navigator.canShare && navigator.canShare({files:[file]})){
+      await navigator.share({
+        files:[file],
+        title:'Parieur Discipliné – Classement',
+        text:'Voici le classement en cours ! 🎯'
+      });
+    } else {
+      // Repli : télécharger
+      const link = document.createElement('a');
+      link.download = `classement-${date}.png`;
+      link.href = dataUrl;
+      link.click();
+    }
   }catch(e){
-    alert('Impossible de générer l\'image. Veuillez réessayer.');
-    console.error(e);
+    if(e.name!=='AbortError'){
+      alert('Impossible de générer l\'image. Veuillez réessayer.');
+      console.error(e);
+    }
   }finally{
     btn.textContent = origText;
     btn.disabled = false;
