@@ -80,6 +80,11 @@
   .podium-place:nth-child(2) .podium-score{font-size:2rem;}
   .podium-place:nth-child(1) .podium-score,.podium-place:nth-child(3) .podium-score{font-size:1.6rem;}
   .podium-pts{font-size:0.7rem;color:var(--silver);letter-spacing:1px;}
+  .podium-prize{position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);
+    background:#22c55e;color:#fff;font-family:'Bebas Neue',cursive;font-size:0.85rem;
+    letter-spacing:1px;padding:1px 7px;border-radius:20px;white-space:nowrap;
+    box-shadow:0 2px 6px rgba(0,0,0,0.4);}
+  .podium-avatar{position:relative;}
   .podium-block{border-radius:6px 6px 0 0;width:100%;display:flex;align-items:center;justify-content:center;}
   .podium-rank{font-family:'Bebas Neue',cursive;font-size:1.8rem;color:rgba(255,255,255,0.5);letter-spacing:2px;}
   .podium-place:nth-child(2) .podium-block{height:80px;background:linear-gradient(180deg,rgba(255,215,0,0.25),rgba(255,215,0,0.05));border:1px solid rgba(255,215,0,0.3);border-bottom:none;}
@@ -463,18 +468,20 @@ function calcScorePrev(participant){
 }
 
 // ── Render ────────────────────────────────────────────────────────────────────
-function renderPodium(rows){
+function renderPodium(rows, pot=0){
   const podium=document.getElementById('podium');
   podium.innerHTML='';
+  const splits=[0.5,0.3,0.2];
   const podiumOrder=[1,0,2];
   podiumOrder.forEach(idx=>{
     const row=rows[idx];
     if(!row)return;
     const rank=idx+1;
     const medal=rank===1?'🥇':rank===2?'🥈':'🥉';
+    const prize=pot>0?`<div class="podium-prize">$${Math.round(pot*splits[idx])}</div>`:'';
     const div=document.createElement('div');div.className='podium-place';
     div.innerHTML=`
-      <div class="podium-avatar">${initials(row.name)}</div>
+      <div class="podium-avatar">${initials(row.name)}${prize}</div>
       <div class="podium-name">${medal} ${row.name}</div>
       <div class="podium-score">${row.total}</div>
       <div class="podium-pts">pts</div>
@@ -505,7 +512,8 @@ function render(){
 
   // ── Podium ──
   const activePaid=document.getElementById('btn-paid')?.classList.contains('active');
-  renderPodium(activePaid?_paidRows:_allRows);
+  const podiumPot=activePaid?participants.filter(p=>p.paid).length*10:0;
+  renderPodium(activePaid?_paidRows:_allRows, podiumPot);
 
   // ── Table ──
   const lb=document.getElementById('lb-body');
@@ -802,7 +810,8 @@ function switchLb(mode){
   document.getElementById('lb-paid').style.display=mode==='paid'?'':'none';
   document.getElementById('btn-general').classList.toggle('active',mode==='general');
   document.getElementById('btn-paid').classList.toggle('active',mode==='paid');
-  renderPodium(mode==='paid'?_paidRows:_allRows);
+  const pot=mode==='paid'?participants.filter(p=>p.paid).length*10:0;
+  renderPodium(mode==='paid'?_paidRows:_allRows, pot);
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────
@@ -910,12 +919,17 @@ function buildShareCardHTML(rows, title, totalCount, pot, date){
   const medals = ['🥇','🥈','🥉'];
 
   // Podium (top 3)
-  const podium = top10.slice(0,3).map((r,i)=>`
+  const splits=[0.5,0.3,0.2];
+  const podium = top10.slice(0,3).map((r,i)=>{
+    const prize = pot>0 ? `<div style="margin-top:4px;display:inline-block;background:#22c55e;color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;letter-spacing:0.5px;">$${Math.round(pot*splits[i])}</div>` : '';
+    return `
     <div style="flex:1;text-align:center;padding:10px 8px;background:rgba(255,255,255,0.05);border-radius:8px;min-width:0;">
       <div style="font-size:26px;line-height:1.1;">${medals[i]}</div>
       <div style="font-size:13px;font-weight:700;color:#ffffff;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${r.name}</div>
       <div style="font-size:18px;font-weight:700;color:#ffb81c;margin-top:2px;">${r.total}</div>
-    </div>`).join('');
+      ${prize}
+    </div>`;
+  }).join('');
 
   // Table rows
   const tableRows = top10.map((r,i)=>{
@@ -984,7 +998,7 @@ async function shareLeaderboard(){
 
   const title = isPaid ? 'Paid Entry' : 'All Participants';
   const paidCount = participants.filter(p=>p.paid).length;
-  const pot = paidCount*10;
+  const pot = isPaid ? paidCount*10 : 0;
   const date = new Date().toLocaleDateString('en-CA');
   const totalCount = rows.length;
 
