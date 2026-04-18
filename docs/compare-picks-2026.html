@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NHL 2026 Playoff Picks – Compare</title>
+<meta property="og:title" content="NHL 2026 Playoff Picks – Compare Picks">
+<meta property="og:description" content="Compare bracket picks for any participant in the NHL 2026 Playoff Picks pool.">
+<meta property="og:image" content="https://parieurdiscipline.com/parieur_discipline_icon_1024.png">
+<meta property="og:url" content="https://parieurdiscipline.com/compare-picks-2026.html">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://parieurdiscipline.com/parieur_discipline_icon_1024.png">
+<link rel="icon" type="image/png" href="parieur_discipline_icon_1024.png">
+<link rel="apple-touch-icon" href="parieur_discipline_icon_1024.png">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  :root{--rink:#07111f;--red:#c8102e;--gold:#ffb81c;--silver:#a8b2be;--ice:#e8f4fd;--green:#22c55e;}
+
+  body{background:var(--rink);min-height:100vh;font-family:'Barlow Condensed',sans-serif;
+    background-image:
+      radial-gradient(ellipse 100% 60% at 50% -5%,rgba(26,58,110,0.7) 0%,transparent 65%),
+      radial-gradient(ellipse 60% 40% at 80% 80%,rgba(200,16,46,0.12) 0%,transparent 60%);
+    padding:2rem 1rem 5rem;padding-top:calc(44px + 2rem);}
+
+  /* ── Navbar ── */
+  .site-nav{position:fixed;top:0;left:0;right:0;z-index:100;
+    background:rgba(7,17,31,0.92);border-bottom:1px solid rgba(255,255,255,0.07);
+    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);}
+  .site-nav-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;
+    justify-content:space-between;padding:0 1rem;height:44px;}
+  .site-nav-brand{font-family:'Bebas Neue',cursive;font-size:1.1rem;color:var(--gold);
+    letter-spacing:3px;text-decoration:none;white-space:nowrap;}
+  .site-nav-links{display:flex;align-items:center;gap:0.25rem;}
+  .site-nav-links a{font-family:'Barlow Condensed',sans-serif;font-size:0.85rem;font-weight:600;
+    letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.6);
+    text-decoration:none;padding:0.35rem 0.75rem;border-radius:5px;
+    transition:color 0.15s,background 0.15s;}
+  .site-nav-links a:hover{color:white;background:rgba(255,255,255,0.07);}
+  .site-nav-links a.active{color:var(--gold);background:rgba(255,184,28,0.1);}
+
+  /* ── Header ── */
+  header{text-align:center;margin-bottom:2rem;}
+  .header-inner{display:flex;align-items:center;justify-content:center;gap:1rem;flex-wrap:wrap;margin-bottom:0.5rem;}
+  .brand-icon{width:56px;height:56px;border-radius:12px;object-fit:cover;box-shadow:0 4px 20px rgba(0,0,0,0.5);}
+  header h1{font-family:'Bebas Neue',cursive;font-size:clamp(2rem,5vw,3.5rem);color:white;letter-spacing:5px;
+    text-shadow:0 0 60px rgba(200,16,46,0.6),0 4px 16px rgba(0,0,0,0.9);line-height:1;}
+  header h1 span{color:var(--gold);}
+  .subtitle{color:var(--silver);font-size:1rem;letter-spacing:3px;text-transform:uppercase;margin-top:0.5rem;}
+
+  /* ── Selector ── */
+  .selector-wrap{max-width:480px;margin:0 auto 2rem;text-align:center;}
+  .selector-label{font-family:'Bebas Neue',cursive;font-size:1rem;letter-spacing:3px;color:var(--gold);
+    margin-bottom:0.6rem;text-transform:uppercase;}
+  .selector-row{display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap;}
+  .participant-select{flex:1;min-width:220px;background:rgba(255,255,255,0.07);
+    border:1px solid rgba(255,184,28,0.4);border-radius:6px;
+    color:white;font-family:'Barlow Condensed',sans-serif;font-size:1.1rem;font-weight:600;
+    padding:0.55rem 1rem;outline:none;cursor:pointer;transition:border-color 0.2s;
+    appearance:none;-webkit-appearance:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23ffb81c' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;background-position:right 10px center;}
+  .participant-select:focus{border-color:var(--gold);}
+  .participant-select option{background:#0d1f36;color:white;}
+
+  /* loading state */
+  .loading-msg{color:var(--silver);font-size:1rem;letter-spacing:2px;text-align:center;padding:3rem 0;opacity:0.6;}
+
+  /* ── Card ── */
+  .card-wrap{max-width:580px;margin:0 auto;animation:fadeIn 0.25s ease;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+
+  .picks-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);
+    border-radius:12px;overflow:hidden;}
+
+  /* Card header */
+  .card-header{background:linear-gradient(135deg,rgba(26,58,110,0.6),rgba(7,17,31,0.9));
+    border-bottom:3px solid var(--red);padding:18px 22px 14px;}
+  .card-header-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
+  .card-title{font-family:'Bebas Neue',cursive;font-size:1.5rem;color:white;letter-spacing:4px;line-height:1;}
+  .card-title span{color:var(--gold);}
+  .card-meta{margin-top:6px;}
+  .card-meta-by{font-size:0.85rem;color:rgba(168,178,190,0.8);letter-spacing:1px;}
+  .card-meta-by strong{color:var(--gold);font-size:1rem;}
+  .card-meta-sub{font-size:0.75rem;color:rgba(168,178,190,0.45);letter-spacing:1px;margin-top:1px;}
+  .card-brand-icon{width:48px;height:48px;border-radius:10px;object-fit:cover;
+    box-shadow:0 2px 12px rgba(0,0,0,0.5);flex-shrink:0;}
+  .card-pool-badge{display:inline-flex;align-items:center;gap:4px;margin-top:6px;
+    font-size:0.72rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+    padding:2px 8px;border-radius:4px;}
+  .card-pool-badge.free{background:rgba(168,178,190,0.1);color:var(--silver);border:1px solid rgba(168,178,190,0.2);}
+  .card-pool-badge.paid{background:rgba(255,184,28,0.12);color:var(--gold);border:1px solid rgba(255,184,28,0.3);}
+
+  /* Picks list */
+  .picks-list{padding:8px 14px 14px;}
+  .pick-row{display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:6px;
+    border-left:3px solid rgba(255,255,255,0.08);margin-bottom:4px;
+    background:rgba(255,255,255,0.025);transition:background 0.15s;}
+  .pick-row:nth-child(even){background:rgba(0,0,0,0.12);}
+  .pick-row:hover{background:rgba(255,184,28,0.04);}
+  .pick-row[data-pos="1"]{border-left-color:var(--gold);}
+  .pick-row[data-pos="2"]{border-left-color:#c0c0c0;}
+  .pick-row[data-pos="3"]{border-left-color:#cd7f32;}
+
+  .pick-rank{font-family:'Bebas Neue',cursive;font-size:1.3rem;color:rgba(255,255,255,0.25);
+    width:24px;text-align:center;flex-shrink:0;line-height:1;}
+  .pick-row[data-pos="1"] .pick-rank{color:var(--gold);}
+  .pick-row[data-pos="2"] .pick-rank{color:#c0c0c0;}
+  .pick-row[data-pos="3"] .pick-rank{color:#cd7f32;}
+
+  .pick-logo-wrap{width:36px;height:36px;flex-shrink:0;display:flex;align-items:center;
+    justify-content:center;background:rgba(255,255,255,0.06);border-radius:5px;overflow:hidden;}
+  .pick-logo-wrap img{width:30px;height:30px;object-fit:contain;}
+  .pick-logo-fallback{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;
+    justify-content:center;font-family:'Bebas Neue',cursive;font-size:0.65rem;font-weight:900;}
+
+  .pick-info{flex:1;min-width:0;}
+  .pick-name{font-size:0.95rem;font-weight:700;color:white;letter-spacing:0.5px;
+    text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+  /* points pill */
+  .pts-pill{font-family:'Bebas Neue',cursive;font-size:1.1rem;color:var(--ice);
+    background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);
+    border-radius:4px;min-width:48px;text-align:center;flex-shrink:0;padding:2px 6px;line-height:1.2;}
+  .pts-pill small{font-size:0.6rem;opacity:0.6;}
+
+  /* earned points */
+  .earned-pts{font-family:'Bebas Neue',cursive;font-size:1rem;letter-spacing:0.5px;
+    min-width:60px;text-align:right;flex-shrink:0;white-space:nowrap;}
+  .earned-pts.has-earned{color:var(--green);}
+  .earned-pts.no-earned{color:rgba(255,255,255,0.15);}
+  .earned-pts.eliminated{color:rgba(200,16,46,0.5);}
+
+  /* Card footer */
+  .card-footer{padding:8px 14px 10px;border-top:1px solid rgba(255,255,255,0.05);
+    text-align:right;font-size:0.72rem;color:rgba(168,178,190,0.3);letter-spacing:1px;}
+
+  /* Total score banner */
+  .score-banner{display:flex;align-items:center;justify-content:center;gap:16px;
+    background:rgba(255,184,28,0.06);border-top:1px solid rgba(255,184,28,0.15);
+    border-bottom:1px solid rgba(255,184,28,0.15);padding:10px 22px;margin:0;}
+  .score-banner-label{font-family:'Bebas Neue',cursive;font-size:1rem;color:rgba(255,255,255,0.45);letter-spacing:3px;}
+  .score-banner-value{font-family:'Bebas Neue',cursive;font-size:2rem;color:var(--gold);letter-spacing:2px;line-height:1;}
+  .score-banner-rank{font-size:0.85rem;color:var(--silver);letter-spacing:2px;text-transform:uppercase;}
+
+  /* empty state */
+  .empty-state{text-align:center;padding:4rem 1rem;color:var(--silver);opacity:0.7;}
+  .empty-state .icon{font-size:3rem;margin-bottom:0.5rem;}
+  .empty-state p{font-size:1.1rem;letter-spacing:1px;}
+
+  /* legend */
+  .pts-legend{max-width:580px;margin:1.25rem auto 0;display:flex;gap:8px;justify-content:center;
+    flex-wrap:wrap;}
+  .pts-legend-item{font-size:0.72rem;letter-spacing:1px;color:rgba(168,178,190,0.5);
+    background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);
+    border-radius:4px;padding:3px 8px;white-space:nowrap;}
+  .pts-legend-item strong{color:rgba(255,184,28,0.7);}
+
+  /* eliminated styling */
+  .pick-row.elim-team .pick-name{color:rgba(255,255,255,0.35);text-decoration:line-through;}
+  .pick-row.elim-team .pick-logo-wrap{opacity:0.3;}
+  .pick-row.elim-team{background:rgba(200,16,46,0.04)!important;border-left-color:rgba(200,16,46,0.2)!important;}
+
+  /* hot team */
+  .pick-row.hot-team{border-left-color:rgba(255,184,28,0.6)!important;}
+</style>
+</head>
+<body>
+<nav class="site-nav">
+  <div class="site-nav-inner">
+    <a class="site-nav-brand" href="index.html">Parieur Discipliné</a>
+    <div class="site-nav-links">
+      <a href="picks-2026.html">My Picks</a>
+      <a href="standings-2026.html">Playoff Standings</a>
+      <a href="compare-picks-2026.html" class="active">Compare</a>
+    </div>
+  </div>
+</nav>
+
+<header>
+  <div class="header-inner">
+    <img src="parieur_discipline_icon_1024.png" alt="Parieur Discipline" class="brand-icon">
+    <h1>Compare <span>Picks</span></h1>
+  </div>
+  <p class="subtitle">NHL 2026 Playoff Picks Pool</p>
+</header>
+
+<!-- Selector -->
+<div class="selector-wrap">
+  <div class="selector-label">Select a Participant</div>
+  <div class="selector-row">
+    <select class="participant-select" id="participant-select">
+      <option value="">— Loading participants… —</option>
+    </select>
+  </div>
+</div>
+
+<!-- Card display area -->
+<div id="card-area">
+  <div class="empty-state">
+    <div class="icon">🏒</div>
+    <p>Select a participant above to view their picks</p>
+  </div>
+</div>
+
+<!-- Points legend -->
+<div class="pts-legend" id="pts-legend" style="display:none;">
+  <div class="pts-legend-item">Rank 1 = <strong>16 pts</strong></div>
+  <div class="pts-legend-item">Rank 2 = <strong>15 pts</strong></div>
+  <div class="pts-legend-item">Rank 3 = <strong>14 pts</strong></div>
+  <div class="pts-legend-item">…</div>
+  <div class="pts-legend-item">Rank 16 = <strong>1 pt</strong></div>
+  <div class="pts-legend-item">× wins per round</div>
+</div>
+
+<script>
+const TEAMS=[
+  {name:"Buffalo Sabres",        abbr:"BUF",conf:"East",c1:"#003E7E",c2:"#FCB514"},
+  {name:"Boston Bruins",         abbr:"BOS",conf:"East",c1:"#FFB81C",c2:"#000000"},
+  {name:"Montreal Canadiens",    abbr:"MTL",conf:"East",c1:"#AF1E2D",c2:"#192168"},
+  {name:"Tampa Bay Lightning",   abbr:"TBL",conf:"East",c1:"#002868",c2:"#FFFFFF"},
+  {name:"Carolina Hurricanes",   abbr:"CAR",conf:"East",c1:"#CC0000",c2:"#FFFFFF"},
+  {name:"Ottawa Senators",       abbr:"OTT",conf:"East",c1:"#C8102E",c2:"#C69214"},
+  {name:"Pittsburgh Penguins",   abbr:"PIT",conf:"East",c1:"#000000",c2:"#FCB514"},
+  {name:"Philadelphia Flyers",   abbr:"PHI",conf:"East",c1:"#F74902",c2:"#FFFFFF"},
+  {name:"Colorado Avalanche",    abbr:"COL",conf:"West",c1:"#6F263D",c2:"#FFFFFF"},
+  {name:"Los Angeles Kings",     abbr:"LAK",conf:"West",c1:"#111111",c2:"#A2AAAD"},
+  {name:"Dallas Stars",          abbr:"DAL",conf:"West",c1:"#006847",c2:"#FFFFFF"},
+  {name:"Minnesota Wild",        abbr:"MIN",conf:"West",c1:"#154734",c2:"#DDAF57"},
+  {name:"Edmonton Oilers",       abbr:"EDM",conf:"West",c1:"#FF4C00",c2:"#041E42"},
+  {name:"Utah Hockey Club",      abbr:"UTA",conf:"West",c1:"#6CACE4",c2:"#FFFFFF",display:"Utah Mammoth"},
+  {name:"Vegas Golden Knights",  abbr:"VGK",conf:"West",c1:"#B4975A",c2:"#333F42"},
+  {name:"Anaheim Ducks",         abbr:"ANA",conf:"West",c1:"#F47A38",c2:"#B9975B"},
+];
+
+const ROUND_MULT=[1,2,3,4];
+const STORAGE_KEY='nhl_playoff_results_2026';
+const API_URL='/api/playoff-results';
+
+let results={};
+let participants=[];
+let participantFiles={};
+let bracketData=null;
+
+TEAMS.forEach(t=>{results[t.name]=[0,0,0,0];});
+
+function logoUrl(abbr){return`https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg`;}
+function displayName(team){return team.display||team.name;}
+function pts(pos){return 17-pos;}
+
+// ── Results loading ───────────────────────────────────────────────────────────
+function applyResults(saved){
+  TEAMS.forEach(t=>{if(saved[t.name])results[t.name]=saved[t.name];});
+}
+function loadResultsLocal(){
+  try{const s=localStorage.getItem(STORAGE_KEY);if(s)applyResults(JSON.parse(s));}catch(e){}
+}
+async function loadResultsRemote(){
+  try{
+    const resp=await fetch(API_URL+'?_='+Date.now());
+    if(!resp.ok)return;
+    const data=await resp.json();
+    if(data.success&&data.results&&Object.keys(data.results).length>0){
+      TEAMS.forEach(t=>{results[t.name]=[0,0,0,0];});
+      applyResults(data.results);
+      try{localStorage.setItem(STORAGE_KEY,JSON.stringify(Object.fromEntries(TEAMS.map(t=>[t.name,results[t.name]]))));}catch(e){}
+    }
+  }catch(e){}
+}
+
+// ── Bracket loading ───────────────────────────────────────────────────────────
+async function loadBracket(){
+  try{
+    const r=await fetch('playoff/bracket.json?_='+Date.now());
+    if(r.ok)bracketData=await r.json();
+  }catch(e){}
+}
+
+// ── Eliminated set ────────────────────────────────────────────────────────────
+function getEliminated(){
+  const eliminated=new Set();
+  if(!bracketData)return eliminated;
+  bracketData.rounds.forEach((rd,ri)=>{
+    ['east','west'].forEach(side=>{
+      (rd[side]||[]).forEach(([t,b])=>{
+        const tw=results[t]?.[ri]||0,bw=results[b]?.[ri]||0;
+        if(tw===4)eliminated.add(b);
+        else if(bw===4)eliminated.add(t);
+      });
+    });
+    if(rd.final){
+      const[f1,f2]=rd.final;
+      if(f1&&f2&&f1!=='TBD'&&f2!=='TBD'){
+        const tw=results[f1]?.[ri]||0,bw=results[f2]?.[ri]||0;
+        if(tw===4)eliminated.add(f2);
+        else if(bw===4)eliminated.add(f1);
+      }
+    }
+  });
+  return eliminated;
+}
+
+// ── Score calculation ─────────────────────────────────────────────────────────
+function calcScore(pickMap){
+  let total=0;
+  TEAMS.forEach(team=>{
+    const p=pickMap[team.name]||0;
+    ROUND_MULT.forEach((mult,ri)=>{total+=p*mult*(results[team.name]?.[ri]||0);});
+  });
+  return total;
+}
+
+function calcTeamEarned(teamName, pts_assigned){
+  let earned=0;
+  ROUND_MULT.forEach((mult,ri)=>{earned+=pts_assigned*mult*(results[teamName]?.[ri]||0);});
+  return earned;
+}
+
+// ── Participants loading ──────────────────────────────────────────────────────
+async function loadParticipants(){
+  const sel=document.getElementById('participant-select');
+  sel.innerHTML='<option value="">— Loading… —</option>';
+  try{
+    const idx=await fetch('playoff/index.json?_='+Date.now());
+    if(!idx.ok){sel.innerHTML='<option value="">— No data —</option>';return;}
+    const files=(await idx.json()).filter(f=>f!=='bracket.json');
+
+    // Load all participant data for scoring
+    participants=[];
+    await Promise.all(files.map(async f=>{
+      try{
+        const r=await fetch('playoff/'+f+'?_='+Date.now());
+        if(!r.ok)return;
+        const data=await r.json();
+        const name=data.name||f.replace(/\.json$/i,'').split('_')[0];
+        const paid=data.paid===true;
+        const pickMap={};
+        data.picks.forEach(p=>{pickMap[p.team]=p.points;});
+        participants.push({name,paid,picks:pickMap,file:f,rawData:data});
+        participantFiles[name]={paid,picks:pickMap,file:f,rawData:data};
+      }catch(e){}
+    }));
+
+    // Sort alphabetically
+    participants.sort((a,b)=>a.name.localeCompare(b.name));
+
+    sel.innerHTML='<option value="">— Select a participant —</option>';
+    participants.forEach(p=>{
+      const opt=document.createElement('option');
+      opt.value=p.name;
+      opt.textContent=p.name+(p.paid?' ⭐':'');
+      sel.appendChild(opt);
+    });
+  }catch(e){
+    sel.innerHTML='<option value="">— Error loading —</option>';
+  }
+}
+
+// ── Render card ───────────────────────────────────────────────────────────────
+function renderCard(participantName){
+  const area=document.getElementById('card-area');
+  const legend=document.getElementById('pts-legend');
+  if(!participantName){
+    area.innerHTML=`<div class="empty-state"><div class="icon">🏒</div><p>Select a participant above to view their picks</p></div>`;
+    legend.style.display='none';
+    return;
+  }
+
+  const p=participantFiles[participantName];
+  if(!p){
+    area.innerHTML=`<div class="empty-state"><div class="icon">❓</div><p>Participant not found</p></div>`;
+    legend.style.display='none';
+    return;
+  }
+
+  const eliminated=getEliminated();
+  const totalScore=calcScore(p.picks);
+
+  // Build sorted picks array (rank 1..16 sorted by points descending)
+  // picks: {teamName: pointsAssigned}
+  const pickEntries=Object.entries(p.picks).sort((a,b)=>b[1]-a[1]);
+
+  // Find rank on leaderboard
+  const allScores=participants.map(pp=>calcScore(pp.picks)).sort((a,b)=>b-a);
+  const myRank=allScores.findIndex(s=>s===totalScore)+1;
+
+  // Find MVP team (most earned)
+  let mvpTeam=null,mvpEarned=0;
+  pickEntries.forEach(([teamName,p_assigned])=>{
+    const earned=calcTeamEarned(teamName,p_assigned);
+    if(earned>mvpEarned){mvpEarned=earned;mvpTeam=teamName;}
+  });
+
+  // Build rows
+  const rowsHtml=pickEntries.map(([teamName,pts_assigned],i)=>{
+    const pos=i+1;
+    const team=TEAMS.find(t=>t.name===teamName);
+    const isElim=eliminated.has(teamName);
+    const earned=calcTeamEarned(teamName,pts_assigned);
+    const isHot=teamName===mvpTeam&&earned>0;
+
+    let earnedHtml='';
+    if(isElim){
+      earnedHtml=`<div class="earned-pts eliminated" title="Eliminated">✗</div>`;
+    } else if(earned>0){
+      earnedHtml=`<div class="earned-pts has-earned" title="Points earned so far">+${earned} pts</div>`;
+    } else {
+      earnedHtml=`<div class="earned-pts no-earned">—</div>`;
+    }
+
+    const elimClass=isElim?' elim-team':'';
+    const hotClass=isHot?' hot-team':'';
+
+    if(!team){
+      return `<div class="pick-row${elimClass}" data-pos="${pos}">
+        <div class="pick-rank">${pos}</div>
+        <div class="pick-info"><div class="pick-name">${teamName}</div></div>
+        <div class="pts-pill">${pts_assigned} <small>pts</small></div>
+        ${earnedHtml}
+      </div>`;
+    }
+
+    return `<div class="pick-row${elimClass}${hotClass}" data-pos="${pos}">
+      <div class="pick-rank">${pos}</div>
+      <div class="pick-logo-wrap">
+        <img src="${logoUrl(team.abbr)}" alt="${team.abbr}"
+          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="pick-logo-fallback" style="background:${team.c1};color:${team.c2};display:none;">${team.abbr}</div>
+      </div>
+      <div class="pick-info">
+        <div class="pick-name">${displayName(team)}</div>
+      </div>
+      <div class="pts-pill">${pts_assigned} <small>pts</small></div>
+      ${earnedHtml}
+    </div>`;
+  }).join('');
+
+  const poolBadge=p.paid
+    ?`<span class="card-pool-badge paid">⭐ $10 Paid Pool</span>`
+    :`<span class="card-pool-badge free">Free Pool</span>`;
+
+  const dateStr=p.rawData?.date?new Date(p.rawData.date).toLocaleDateString('en-CA'):'';
+  const rankStr=totalScore>0?`Rank #${myRank} · `:'';
+
+  area.innerHTML=`
+    <div class="card-wrap">
+      <div class="picks-card">
+        <div class="card-header">
+          <div class="card-header-top">
+            <div>
+              <div class="card-title">NHL <span>2026 Playoff</span> Picks</div>
+              <div class="card-meta">
+                <div class="card-meta-by">Picks by <strong>${participantName}</strong></div>
+                <div class="card-meta-sub">${dateStr}</div>
+              </div>
+              ${poolBadge}
+            </div>
+            <img src="parieur_discipline_icon_1024.png" alt="" class="card-brand-icon">
+          </div>
+        </div>
+
+        ${totalScore>0?`<div class="score-banner">
+          <div class="score-banner-label">Total Score</div>
+          <div class="score-banner-value">${totalScore}</div>
+          <div class="score-banner-rank">${rankStr}${participants.length} participants</div>
+        </div>`:''}
+
+        <div class="picks-list">${rowsHtml}</div>
+
+        <div class="card-footer">parieurdiscipline.com</div>
+      </div>
+    </div>`;
+
+  legend.style.display='';
+}
+
+// ── Wire up selector ──────────────────────────────────────────────────────────
+document.getElementById('participant-select').addEventListener('change',function(){
+  renderCard(this.value);
+});
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+loadResultsLocal();
+Promise.all([loadBracket(), loadResultsRemote(), loadParticipants()]);
+</script>
+
+<!-- Facebook Follow Badge -->
+<style>
+.fb-follow-bar{position:fixed;bottom:0;left:0;right:0;z-index:9999;
+  background:linear-gradient(90deg,#1877f2 0%,#145dbf 100%);
+  display:flex;align-items:center;justify-content:center;gap:12px;
+  padding:10px 16px;box-shadow:0 -2px 12px rgba(0,0,0,0.4);}
+.fb-follow-bar a{display:flex;align-items:center;gap:9px;color:#fff;text-decoration:none;
+  font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:700;letter-spacing:1px;}
+.fb-follow-bar a svg{width:22px;height:22px;flex-shrink:0;}
+.fb-follow-bar span.fb-label{text-transform:uppercase;letter-spacing:1.5px;}
+.fb-follow-bar .fb-sub{font-size:0.78rem;font-weight:400;opacity:0.85;letter-spacing:0.5px;white-space:nowrap;}
+.fb-dismiss{background:none;border:none;color:rgba(255,255,255,0.55);font-size:1.2rem;cursor:pointer;
+  padding:2px 6px;margin-left:8px;line-height:1;flex-shrink:0;}
+.fb-dismiss:hover{color:#fff;}
+</style>
+<div class="fb-follow-bar" id="fbBar">
+  <a href="https://www.facebook.com/profile.php?id=61586995426630" target="_blank" rel="noopener">
+    <svg viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+      <path d="M24 12.073C24 5.406 18.627 0 12 0S0 5.406 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.313 0 2.686.235 2.686.235v2.97h-1.513c-1.491 0-1.956.93-1.956 1.874v2.25h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/>
+    </svg>
+    <span class="fb-label">Follow on Facebook</span>
+    <span class="fb-sub">Daily picks &amp; analysis</span>
+  </a>
+  <button class="fb-dismiss" id="fbDismiss" aria-label="Dismiss">×</button>
+</div>
+<script>
+(function(){
+  if(localStorage.getItem('fbBarDismissed')==='1'){document.getElementById('fbBar').style.display='none';}
+  document.getElementById('fbDismiss').addEventListener('click',function(){
+    document.getElementById('fbBar').style.display='none';
+    localStorage.setItem('fbBarDismissed','1');
+  });
+})();
+</script>
+
+</body>
+</html>
