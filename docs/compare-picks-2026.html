@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NHL 2026 Playoff Picks – Compare</title>
 <meta property="og:title" content="NHL 2026 Playoff Picks – Compare Picks">
-<meta property="og:description" content="Compare bracket picks for any participant in the NHL 2026 Playoff Picks pool.">
+<meta property="og:description" content="Compare bracket picks side-by-side for any two participants in the NHL 2026 Playoff Picks pool.">
 <meta property="og:image" content="https://parieurdiscipline.com/parieur_discipline_icon_1024.png">
 <meta property="og:url" content="https://parieurdiscipline.com/compare-picks-2026.html">
 <meta property="og:type" content="website">
@@ -41,7 +41,7 @@
   .site-nav-links a.active{color:var(--gold);background:rgba(255,184,28,0.1);}
 
   /* ── Header ── */
-  header{text-align:center;margin-bottom:2rem;}
+  header{text-align:center;margin-bottom:1.75rem;}
   .header-inner{display:flex;align-items:center;justify-content:center;gap:1rem;flex-wrap:wrap;margin-bottom:0.5rem;}
   .brand-icon{width:56px;height:56px;border-radius:12px;object-fit:cover;box-shadow:0 4px 20px rgba(0,0,0,0.5);}
   header h1{font-family:'Bebas Neue',cursive;font-size:clamp(2rem,5vw,3.5rem);color:white;letter-spacing:5px;
@@ -49,53 +49,91 @@
   header h1 span{color:var(--gold);}
   .subtitle{color:var(--silver);font-size:1rem;letter-spacing:3px;text-transform:uppercase;margin-top:0.5rem;}
 
-  /* ── Selector ── */
-  .selector-wrap{max-width:480px;margin:0 auto 2rem;text-align:center;}
+  /* ── Selectors ── */
+  .compare-selectors{display:flex;align-items:flex-end;justify-content:center;gap:12px;
+    max-width:780px;margin:0 auto 1.5rem;flex-wrap:wrap;}
+  .selector-col{display:flex;flex-direction:column;gap:6px;flex:1;min-width:200px;max-width:320px;}
   .selector-label{font-family:'Bebas Neue',cursive;font-size:1rem;letter-spacing:3px;color:var(--gold);
-    margin-bottom:0.6rem;text-transform:uppercase;}
-  .selector-row{display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap;}
-  .participant-select{flex:1;min-width:220px;background:rgba(255,255,255,0.07);
+    text-transform:uppercase;text-align:center;}
+  .vs-chip{font-family:'Bebas Neue',cursive;font-size:1.4rem;color:rgba(255,255,255,0.3);
+    letter-spacing:3px;padding-bottom:0.55rem;flex-shrink:0;align-self:flex-end;}
+  .participant-select{width:100%;background:rgba(255,255,255,0.07);
     border:1px solid rgba(255,184,28,0.4);border-radius:6px;
-    color:white;font-family:'Barlow Condensed',sans-serif;font-size:1.1rem;font-weight:600;
-    padding:0.55rem 1rem;outline:none;cursor:pointer;transition:border-color 0.2s;
+    color:white;font-family:'Barlow Condensed',sans-serif;font-size:1.05rem;font-weight:600;
+    padding:0.55rem 2rem 0.55rem 0.9rem;outline:none;cursor:pointer;transition:border-color 0.2s;
     appearance:none;-webkit-appearance:none;
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23ffb81c' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
     background-repeat:no-repeat;background-position:right 10px center;}
   .participant-select:focus{border-color:var(--gold);}
   .participant-select option{background:#0d1f36;color:white;}
 
-  /* loading state */
-  .loading-msg{color:var(--silver);font-size:1rem;letter-spacing:2px;text-align:center;padding:3rem 0;opacity:0.6;}
+  /* ── VS banner ── */
+  #vs-banner{max-width:1020px;margin:0 auto 1.25rem;
+    background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
+    border-radius:10px;padding:14px 20px;
+    display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;}
+  .vs-player{display:flex;flex-direction:column;align-items:center;gap:2px;}
+  .vs-player.lead .vs-name{color:var(--gold);}
+  .vs-name{font-family:'Bebas Neue',cursive;font-size:1.15rem;letter-spacing:2px;
+    color:white;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px;text-align:center;}
+  .vs-score{font-family:'Bebas Neue',cursive;font-size:2rem;color:var(--gold);line-height:1;letter-spacing:1px;}
+  .vs-player.lead .vs-score{color:var(--green);}
+  .vs-pts-label{font-size:0.7rem;color:rgba(168,178,190,0.5);letter-spacing:2px;text-transform:uppercase;}
+  .vs-player.trail .vs-score{color:rgba(255,255,255,0.4);}
+  .vs-player.trail .vs-name{color:rgba(255,255,255,0.55);}
+  .vs-middle{text-align:center;}
+  .vs-label{font-family:'Bebas Neue',cursive;font-size:1.3rem;color:rgba(255,255,255,0.25);
+    letter-spacing:3px;display:block;}
+  .vs-delta{font-family:'Bebas Neue',cursive;font-size:0.9rem;letter-spacing:1px;display:block;margin-top:2px;}
+  .vs-delta.a-leads{color:var(--green);}
+  .vs-delta.b-leads{color:var(--green);}
+  .vs-delta.tied{color:rgba(255,255,255,0.3);}
+  @media(max-width:480px){
+    #vs-banner{grid-template-columns:1fr auto 1fr;padding:10px 12px;}
+    .vs-name{font-size:0.95rem;max-width:120px;}
+    .vs-score{font-size:1.5rem;}
+  }
 
-  /* ── Card ── */
-  .card-wrap{max-width:580px;margin:0 auto;animation:fadeIn 0.25s ease;}
+  /* ── Compare grid ── */
+  .compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;max-width:1020px;margin:0 auto;}
+  @media(max-width:700px){.compare-grid{grid-template-columns:1fr;}}
+
   @keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
 
+  /* ── Card ── */
   .picks-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);
-    border-radius:12px;overflow:hidden;}
+    border-radius:12px;overflow:hidden;animation:fadeIn 0.2s ease;}
 
   /* Card header */
   .card-header{background:linear-gradient(135deg,rgba(26,58,110,0.6),rgba(7,17,31,0.9));
-    border-bottom:3px solid var(--red);padding:18px 22px 14px;}
-  .card-header-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
-  .card-title{font-family:'Bebas Neue',cursive;font-size:1.5rem;color:white;letter-spacing:4px;line-height:1;}
+    border-bottom:3px solid var(--red);padding:16px 18px 12px;}
+  .card-header-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;}
+  .card-title{font-family:'Bebas Neue',cursive;font-size:1.3rem;color:white;letter-spacing:4px;line-height:1;}
   .card-title span{color:var(--gold);}
-  .card-meta{margin-top:6px;}
-  .card-meta-by{font-size:0.85rem;color:rgba(168,178,190,0.8);letter-spacing:1px;}
-  .card-meta-by strong{color:var(--gold);font-size:1rem;}
-  .card-meta-sub{font-size:0.75rem;color:rgba(168,178,190,0.45);letter-spacing:1px;margin-top:1px;}
-  .card-brand-icon{width:48px;height:48px;border-radius:10px;object-fit:cover;
-    box-shadow:0 2px 12px rgba(0,0,0,0.5);flex-shrink:0;}
-  .card-pool-badge{display:inline-flex;align-items:center;gap:4px;margin-top:6px;
-    font-size:0.72rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;
-    padding:2px 8px;border-radius:4px;}
+  .card-meta{margin-top:5px;}
+  .card-meta-by{font-size:0.82rem;color:rgba(168,178,190,0.8);letter-spacing:1px;}
+  .card-meta-by strong{color:var(--gold);font-size:0.95rem;}
+  .card-meta-sub{font-size:0.72rem;color:rgba(168,178,190,0.4);letter-spacing:1px;margin-top:1px;}
+  .card-brand-icon{width:42px;height:42px;border-radius:8px;object-fit:cover;
+    box-shadow:0 2px 10px rgba(0,0,0,0.5);flex-shrink:0;}
+  .card-pool-badge{display:inline-flex;align-items:center;gap:4px;margin-top:5px;
+    font-size:0.68rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+    padding:2px 7px;border-radius:4px;}
   .card-pool-badge.free{background:rgba(168,178,190,0.1);color:var(--silver);border:1px solid rgba(168,178,190,0.2);}
   .card-pool-badge.paid{background:rgba(255,184,28,0.12);color:var(--gold);border:1px solid rgba(255,184,28,0.3);}
 
+  /* Total score banner */
+  .score-banner{display:flex;align-items:center;justify-content:center;gap:14px;
+    background:rgba(255,184,28,0.06);border-top:1px solid rgba(255,184,28,0.15);
+    border-bottom:1px solid rgba(255,184,28,0.15);padding:8px 18px;margin:0;}
+  .score-banner-label{font-family:'Bebas Neue',cursive;font-size:0.9rem;color:rgba(255,255,255,0.4);letter-spacing:3px;}
+  .score-banner-value{font-family:'Bebas Neue',cursive;font-size:1.8rem;color:var(--gold);letter-spacing:2px;line-height:1;}
+  .score-banner-rank{font-size:0.78rem;color:var(--silver);letter-spacing:1.5px;text-transform:uppercase;}
+
   /* Picks list */
-  .picks-list{padding:8px 14px 14px;}
-  .pick-row{display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:6px;
-    border-left:3px solid rgba(255,255,255,0.08);margin-bottom:4px;
+  .picks-list{padding:6px 12px 12px;}
+  .pick-row{display:flex;align-items:center;gap:8px;padding:5px 7px;border-radius:6px;
+    border-left:3px solid rgba(255,255,255,0.08);margin-bottom:3px;
     background:rgba(255,255,255,0.025);transition:background 0.15s;}
   .pick-row:nth-child(even){background:rgba(0,0,0,0.12);}
   .pick-row:hover{background:rgba(255,184,28,0.04);}
@@ -103,67 +141,75 @@
   .pick-row[data-pos="2"]{border-left-color:#c0c0c0;}
   .pick-row[data-pos="3"]{border-left-color:#cd7f32;}
 
-  .pick-rank{font-family:'Bebas Neue',cursive;font-size:1.3rem;color:rgba(255,255,255,0.25);
-    width:24px;text-align:center;flex-shrink:0;line-height:1;}
+  .pick-rank{font-family:'Bebas Neue',cursive;font-size:1.2rem;color:rgba(255,255,255,0.25);
+    width:22px;text-align:center;flex-shrink:0;line-height:1;}
   .pick-row[data-pos="1"] .pick-rank{color:var(--gold);}
   .pick-row[data-pos="2"] .pick-rank{color:#c0c0c0;}
   .pick-row[data-pos="3"] .pick-rank{color:#cd7f32;}
 
-  .pick-logo-wrap{width:36px;height:36px;flex-shrink:0;display:flex;align-items:center;
+  .pick-logo-wrap{width:32px;height:32px;flex-shrink:0;display:flex;align-items:center;
     justify-content:center;background:rgba(255,255,255,0.06);border-radius:5px;overflow:hidden;}
-  .pick-logo-wrap img{width:30px;height:30px;object-fit:contain;}
-  .pick-logo-fallback{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;
-    justify-content:center;font-family:'Bebas Neue',cursive;font-size:0.65rem;font-weight:900;}
+  .pick-logo-wrap img{width:26px;height:26px;object-fit:contain;}
+  .pick-logo-fallback{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;
+    justify-content:center;font-family:'Bebas Neue',cursive;font-size:0.6rem;font-weight:900;}
 
   .pick-info{flex:1;min-width:0;}
-  .pick-name{font-size:0.95rem;font-weight:700;color:white;letter-spacing:0.5px;
+  .pick-name{font-size:0.88rem;font-weight:700;color:white;letter-spacing:0.5px;
     text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 
+  /* rank-diff badge */
+  .diff-badge{font-family:'Bebas Neue',cursive;font-size:0.8rem;padding:1px 5px;
+    border-radius:4px;flex-shrink:0;min-width:26px;text-align:center;letter-spacing:0.5px;}
+  .diff-same{background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.18);}
+  .diff-small{background:rgba(255,184,28,0.12);color:var(--gold);}
+  .diff-big-neg{background:rgba(200,16,46,0.15);color:#f87171;}
+  .diff-big-pos{background:rgba(34,197,94,0.12);color:var(--green);}
+
   /* points pill */
-  .pts-pill{font-family:'Bebas Neue',cursive;font-size:1.1rem;color:var(--ice);
+  .pts-pill{font-family:'Bebas Neue',cursive;font-size:1rem;color:var(--ice);
     background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);
-    border-radius:4px;min-width:48px;text-align:center;flex-shrink:0;padding:2px 6px;line-height:1.2;}
-  .pts-pill small{font-size:0.6rem;opacity:0.6;}
+    border-radius:4px;min-width:44px;text-align:center;flex-shrink:0;padding:1px 5px;line-height:1.2;}
+  .pts-pill small{font-size:0.55rem;opacity:0.6;}
 
   /* earned points */
-  .earned-pts{font-family:'Bebas Neue',cursive;font-size:1rem;letter-spacing:0.5px;
-    min-width:60px;text-align:right;flex-shrink:0;white-space:nowrap;}
+  .earned-pts{font-family:'Bebas Neue',cursive;font-size:0.9rem;letter-spacing:0.5px;
+    min-width:54px;text-align:right;flex-shrink:0;white-space:nowrap;}
   .earned-pts.has-earned{color:var(--green);}
   .earned-pts.no-earned{color:rgba(255,255,255,0.15);}
-  .earned-pts.eliminated{color:rgba(200,16,46,0.5);}
+  .earned-pts.eliminated{color:rgba(200,16,46,0.4);}
 
   /* Card footer */
-  .card-footer{padding:8px 14px 10px;border-top:1px solid rgba(255,255,255,0.05);
-    text-align:right;font-size:0.72rem;color:rgba(168,178,190,0.3);letter-spacing:1px;}
+  .card-footer{padding:7px 12px 9px;border-top:1px solid rgba(255,255,255,0.05);
+    text-align:right;font-size:0.68rem;color:rgba(168,178,190,0.3);letter-spacing:1px;}
 
-  /* Total score banner */
-  .score-banner{display:flex;align-items:center;justify-content:center;gap:16px;
-    background:rgba(255,184,28,0.06);border-top:1px solid rgba(255,184,28,0.15);
-    border-bottom:1px solid rgba(255,184,28,0.15);padding:10px 22px;margin:0;}
-  .score-banner-label{font-family:'Bebas Neue',cursive;font-size:1rem;color:rgba(255,255,255,0.45);letter-spacing:3px;}
-  .score-banner-value{font-family:'Bebas Neue',cursive;font-size:2rem;color:var(--gold);letter-spacing:2px;line-height:1;}
-  .score-banner-rank{font-size:0.85rem;color:var(--silver);letter-spacing:2px;text-transform:uppercase;}
+  /* empty slot */
+  .empty-slot{display:flex;align-items:center;justify-content:center;min-height:200px;
+    background:rgba(255,255,255,0.02);border:1px dashed rgba(255,255,255,0.07);
+    border-radius:12px;padding:2rem 1rem;text-align:center;}
+  .empty-slot p{color:rgba(168,178,190,0.35);font-size:0.95rem;letter-spacing:1px;}
 
-  /* empty state */
+  /* global empty state */
   .empty-state{text-align:center;padding:4rem 1rem;color:var(--silver);opacity:0.7;}
   .empty-state .icon{font-size:3rem;margin-bottom:0.5rem;}
   .empty-state p{font-size:1.1rem;letter-spacing:1px;}
 
   /* legend */
-  .pts-legend{max-width:580px;margin:1.25rem auto 0;display:flex;gap:8px;justify-content:center;
+  .pts-legend{max-width:1020px;margin:1.25rem auto 0;display:flex;gap:8px;justify-content:center;
     flex-wrap:wrap;}
   .pts-legend-item{font-size:0.72rem;letter-spacing:1px;color:rgba(168,178,190,0.5);
     background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);
     border-radius:4px;padding:3px 8px;white-space:nowrap;}
   .pts-legend-item strong{color:rgba(255,184,28,0.7);}
+  .pts-legend-item.diff-legend-pos{background:rgba(34,197,94,0.07);border-color:rgba(34,197,94,0.2);color:rgba(34,197,94,0.7);}
+  .pts-legend-item.diff-legend-neg{background:rgba(200,16,46,0.07);border-color:rgba(200,16,46,0.2);color:rgba(248,113,113,0.7);}
 
   /* eliminated styling */
-  .pick-row.elim-team .pick-name{color:rgba(255,255,255,0.35);text-decoration:line-through;}
-  .pick-row.elim-team .pick-logo-wrap{opacity:0.3;}
-  .pick-row.elim-team{background:rgba(200,16,46,0.04)!important;border-left-color:rgba(200,16,46,0.2)!important;}
+  .pick-row.elim-team .pick-name{color:rgba(255,255,255,0.3);text-decoration:line-through;}
+  .pick-row.elim-team .pick-logo-wrap{opacity:0.25;}
+  .pick-row.elim-team{background:rgba(200,16,46,0.04)!important;border-left-color:rgba(200,16,46,0.18)!important;}
 
   /* hot team */
-  .pick-row.hot-team{border-left-color:rgba(255,184,28,0.6)!important;}
+  .pick-row.hot-team{border-left-color:rgba(255,184,28,0.55)!important;}
 </style>
 </head>
 <body>
@@ -186,32 +232,58 @@
   <p class="subtitle">NHL 2026 Playoff Picks Pool</p>
 </header>
 
-<!-- Selector -->
-<div class="selector-wrap">
-  <div class="selector-label">Select a Participant</div>
-  <div class="selector-row">
-    <select class="participant-select" id="participant-select">
-      <option value="">— Loading participants… —</option>
+<!-- Two-player selectors -->
+<div class="compare-selectors">
+  <div class="selector-col">
+    <div class="selector-label">Player 1</div>
+    <select id="select-a" class="participant-select">
+      <option value="">— Loading… —</option>
+    </select>
+  </div>
+  <div class="vs-chip">VS</div>
+  <div class="selector-col">
+    <div class="selector-label">Player 2</div>
+    <select id="select-b" class="participant-select">
+      <option value="">— Loading… —</option>
     </select>
   </div>
 </div>
 
-<!-- Card display area -->
-<div id="card-area">
-  <div class="empty-state">
-    <div class="icon">🏒</div>
-    <p>Select a participant above to view their picks</p>
+<!-- VS score banner (shown when both selected) -->
+<div id="vs-banner" style="display:none;">
+  <div class="vs-player" id="vs-player-a">
+    <div class="vs-name" id="vs-name-a">—</div>
+    <div class="vs-score" id="vs-score-a">0</div>
+    <div class="vs-pts-label">pts</div>
+  </div>
+  <div class="vs-middle">
+    <span class="vs-label">VS</span>
+    <span class="vs-delta" id="vs-delta">tied</span>
+  </div>
+  <div class="vs-player" id="vs-player-b">
+    <div class="vs-name" id="vs-name-b">—</div>
+    <div class="vs-score" id="vs-score-b">0</div>
+    <div class="vs-pts-label">pts</div>
+  </div>
+</div>
+
+<!-- Card grid -->
+<div class="compare-grid" id="compare-grid">
+  <div id="card-slot-a">
+    <div class="empty-slot"><p>Select Player 1 above</p></div>
+  </div>
+  <div id="card-slot-b">
+    <div class="empty-slot"><p>Select Player 2 above</p></div>
   </div>
 </div>
 
 <!-- Points legend -->
-<div class="pts-legend" id="pts-legend" style="display:none;">
+<div class="pts-legend" id="pts-legend">
   <div class="pts-legend-item">Rank 1 = <strong>16 pts</strong></div>
-  <div class="pts-legend-item">Rank 2 = <strong>15 pts</strong></div>
-  <div class="pts-legend-item">Rank 3 = <strong>14 pts</strong></div>
-  <div class="pts-legend-item">…</div>
   <div class="pts-legend-item">Rank 16 = <strong>1 pt</strong></div>
   <div class="pts-legend-item">× wins per round</div>
+  <div class="pts-legend-item diff-legend-pos">▲ = ranked higher than opponent</div>
+  <div class="pts-legend-item diff-legend-neg">▼ = ranked lower than opponent</div>
 </div>
 
 <script>
@@ -247,9 +319,8 @@ TEAMS.forEach(t=>{results[t.name]=[0,0,0,0];});
 
 function logoUrl(abbr){return`https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg`;}
 function displayName(team){return team.display||team.name;}
-function pts(pos){return 17-pos;}
 
-// ── Results loading ───────────────────────────────────────────────────────────
+// ── Results ───────────────────────────────────────────────────────────────────
 function applyResults(saved){
   TEAMS.forEach(t=>{if(saved[t.name])results[t.name]=saved[t.name];});
 }
@@ -265,11 +336,12 @@ async function loadResultsRemote(){
       TEAMS.forEach(t=>{results[t.name]=[0,0,0,0];});
       applyResults(data.results);
       try{localStorage.setItem(STORAGE_KEY,JSON.stringify(Object.fromEntries(TEAMS.map(t=>[t.name,results[t.name]]))));}catch(e){}
+      rerenderBoth();
     }
   }catch(e){}
 }
 
-// ── Bracket loading ───────────────────────────────────────────────────────────
+// ── Bracket ───────────────────────────────────────────────────────────────────
 async function loadBracket(){
   try{
     const r=await fetch('playoff/bracket.json?_='+Date.now());
@@ -277,31 +349,29 @@ async function loadBracket(){
   }catch(e){}
 }
 
-// ── Eliminated set ────────────────────────────────────────────────────────────
+// ── Eliminated ───────────────────────────────────────────────────────────────
 function getEliminated(){
-  const eliminated=new Set();
-  if(!bracketData)return eliminated;
+  const s=new Set();
+  if(!bracketData)return s;
   bracketData.rounds.forEach((rd,ri)=>{
     ['east','west'].forEach(side=>{
       (rd[side]||[]).forEach(([t,b])=>{
         const tw=results[t]?.[ri]||0,bw=results[b]?.[ri]||0;
-        if(tw===4)eliminated.add(b);
-        else if(bw===4)eliminated.add(t);
+        if(tw===4)s.add(b);else if(bw===4)s.add(t);
       });
     });
     if(rd.final){
       const[f1,f2]=rd.final;
       if(f1&&f2&&f1!=='TBD'&&f2!=='TBD'){
         const tw=results[f1]?.[ri]||0,bw=results[f2]?.[ri]||0;
-        if(tw===4)eliminated.add(f2);
-        else if(bw===4)eliminated.add(f1);
+        if(tw===4)s.add(f2);else if(bw===4)s.add(f1);
       }
     }
   });
-  return eliminated;
+  return s;
 }
 
-// ── Score calculation ─────────────────────────────────────────────────────────
+// ── Scoring ───────────────────────────────────────────────────────────────────
 function calcScore(pickMap){
   let total=0;
   TEAMS.forEach(team=>{
@@ -310,23 +380,52 @@ function calcScore(pickMap){
   });
   return total;
 }
-
-function calcTeamEarned(teamName, pts_assigned){
+function calcTeamEarned(teamName,pts_assigned){
   let earned=0;
   ROUND_MULT.forEach((mult,ri)=>{earned+=pts_assigned*mult*(results[teamName]?.[ri]||0);});
   return earned;
 }
 
+// ── Rank diff badge ───────────────────────────────────────────────────────────
+// diff > 0 means "I ranked this team higher (closer to 1) than opponent" — a potential advantage
+function rankDiffBadge(diff){
+  if(diff===null||diff===undefined)return '';
+  if(diff===0)return`<span class="diff-badge diff-same">=</span>`;
+  const dir=diff>0?'▲':'▼';
+  const abs=Math.abs(diff);
+  if(abs<3)return`<span class="diff-badge diff-small">${dir}${abs}</span>`;
+  return diff>0
+    ?`<span class="diff-badge diff-big-pos">${dir}${abs}</span>`
+    :`<span class="diff-badge diff-big-neg">${dir}${abs}</span>`;
+}
+
 // ── Participants loading ──────────────────────────────────────────────────────
+function populateSelect(sel){
+  const cur=sel.value;
+  sel.innerHTML='<option value="">— Select a participant —</option>';
+  participants.forEach(p=>{
+    const opt=document.createElement('option');
+    opt.value=p.name;
+    opt.textContent=p.name+(p.paid?' ⭐':'');
+    if(p.name===cur)opt.selected=true;
+    sel.appendChild(opt);
+  });
+}
+
 async function loadParticipants(){
-  const sel=document.getElementById('participant-select');
-  sel.innerHTML='<option value="">— Loading… —</option>';
+  const selA=document.getElementById('select-a');
+  const selB=document.getElementById('select-b');
+  selA.innerHTML='<option value="">— Loading… —</option>';
+  selB.innerHTML='<option value="">— Loading… —</option>';
   try{
     const idx=await fetch('playoff/index.json?_='+Date.now());
-    if(!idx.ok){sel.innerHTML='<option value="">— No data —</option>';return;}
+    if(!idx.ok){
+      selA.innerHTML='<option value="">— No data —</option>';
+      selB.innerHTML='<option value="">— No data —</option>';
+      return;
+    }
     const files=(await idx.json()).filter(f=>f!=='bracket.json');
 
-    // Load all participant data for scoring
     participants=[];
     await Promise.all(files.map(async f=>{
       try{
@@ -342,57 +441,55 @@ async function loadParticipants(){
       }catch(e){}
     }));
 
-    // Sort alphabetically
     participants.sort((a,b)=>a.name.localeCompare(b.name));
-
-    sel.innerHTML='<option value="">— Select a participant —</option>';
-    participants.forEach(p=>{
-      const opt=document.createElement('option');
-      opt.value=p.name;
-      opt.textContent=p.name+(p.paid?' ⭐':'');
-      sel.appendChild(opt);
-    });
+    populateSelect(selA);
+    populateSelect(selB);
   }catch(e){
-    sel.innerHTML='<option value="">— Error loading —</option>';
+    selA.innerHTML='<option value="">— Error —</option>';
+    selB.innerHTML='<option value="">— Error —</option>';
   }
 }
 
-// ── Render card ───────────────────────────────────────────────────────────────
-function renderCard(participantName){
-  const area=document.getElementById('card-area');
-  const legend=document.getElementById('pts-legend');
+// ── Render one card ───────────────────────────────────────────────────────────
+function renderCard(participantName, slotId, otherPickMap){
+  const slot=document.getElementById(slotId);
   if(!participantName){
-    area.innerHTML=`<div class="empty-state"><div class="icon">🏒</div><p>Select a participant above to view their picks</p></div>`;
-    legend.style.display='none';
+    const label=slotId==='card-slot-a'?'Select Player 1 above':'Select Player 2 above';
+    slot.innerHTML=`<div class="empty-slot"><p>${label}</p></div>`;
     return;
   }
 
   const p=participantFiles[participantName];
   if(!p){
-    area.innerHTML=`<div class="empty-state"><div class="icon">❓</div><p>Participant not found</p></div>`;
-    legend.style.display='none';
+    slot.innerHTML=`<div class="empty-slot"><p>Participant not found</p></div>`;
     return;
   }
 
   const eliminated=getEliminated();
   const totalScore=calcScore(p.picks);
 
-  // Build sorted picks array (rank 1..16 sorted by points descending)
-  // picks: {teamName: pointsAssigned}
+  // Sorted picks: rank 1 = most points assigned
   const pickEntries=Object.entries(p.picks).sort((a,b)=>b[1]-a[1]);
 
-  // Find rank on leaderboard
+  // Build a rank lookup for the other player: teamName → rank (1-based)
+  let otherRankOf=null;
+  if(otherPickMap){
+    const otherSorted=Object.entries(otherPickMap).sort((a,b)=>b[1]-a[1]);
+    otherRankOf={};
+    otherSorted.forEach(([tn],i)=>{otherRankOf[tn]=i+1;});
+  }
+
+  // Leaderboard rank
   const allScores=participants.map(pp=>calcScore(pp.picks)).sort((a,b)=>b-a);
   const myRank=allScores.findIndex(s=>s===totalScore)+1;
 
-  // Find MVP team (most earned)
+  // MVP team (most earned)
   let mvpTeam=null,mvpEarned=0;
-  pickEntries.forEach(([teamName,p_assigned])=>{
-    const earned=calcTeamEarned(teamName,p_assigned);
-    if(earned>mvpEarned){mvpEarned=earned;mvpTeam=teamName;}
+  pickEntries.forEach(([teamName,pa])=>{
+    const e=calcTeamEarned(teamName,pa);
+    if(e>mvpEarned){mvpEarned=e;mvpTeam=teamName;}
   });
 
-  // Build rows
   const rowsHtml=pickEntries.map(([teamName,pts_assigned],i)=>{
     const pos=i+1;
     const team=TEAMS.find(t=>t.name===teamName);
@@ -400,85 +497,130 @@ function renderCard(participantName){
     const earned=calcTeamEarned(teamName,pts_assigned);
     const isHot=teamName===mvpTeam&&earned>0;
 
+    // Diff: positive = I ranked this team higher (better rank number = lower) than opponent
+    let diffHtml='';
+    if(otherRankOf){
+      const otherRank=otherRankOf[teamName];
+      const diff=otherRank!=null?(otherRank-pos):null;
+      diffHtml=rankDiffBadge(diff);
+    }
+
     let earnedHtml='';
     if(isElim){
       earnedHtml=`<div class="earned-pts eliminated" title="Eliminated">✗</div>`;
     } else if(earned>0){
-      earnedHtml=`<div class="earned-pts has-earned" title="Points earned so far">+${earned} pts</div>`;
+      earnedHtml=`<div class="earned-pts has-earned" title="Points earned so far">+${earned}</div>`;
     } else {
       earnedHtml=`<div class="earned-pts no-earned">—</div>`;
     }
 
     const elimClass=isElim?' elim-team':'';
     const hotClass=isHot?' hot-team':'';
-
-    if(!team){
-      return `<div class="pick-row${elimClass}" data-pos="${pos}">
-        <div class="pick-rank">${pos}</div>
-        <div class="pick-info"><div class="pick-name">${teamName}</div></div>
-        <div class="pts-pill">${pts_assigned} <small>pts</small></div>
-        ${earnedHtml}
-      </div>`;
-    }
+    const logoFallback=team
+      ?`<div class="pick-logo-fallback" style="background:${team.c1};color:${team.c2};display:none;">${team.abbr}</div>`
+      :'';
+    const logoEl=team
+      ?`<img src="${logoUrl(team.abbr)}" alt="${team.abbr}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">${logoFallback}`
+      :'';
+    const nameDisplay=team?displayName(team):teamName;
 
     return `<div class="pick-row${elimClass}${hotClass}" data-pos="${pos}">
       <div class="pick-rank">${pos}</div>
-      <div class="pick-logo-wrap">
-        <img src="${logoUrl(team.abbr)}" alt="${team.abbr}"
-          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-        <div class="pick-logo-fallback" style="background:${team.c1};color:${team.c2};display:none;">${team.abbr}</div>
-      </div>
-      <div class="pick-info">
-        <div class="pick-name">${displayName(team)}</div>
-      </div>
-      <div class="pts-pill">${pts_assigned} <small>pts</small></div>
+      <div class="pick-logo-wrap">${logoEl}</div>
+      <div class="pick-info"><div class="pick-name">${nameDisplay}</div></div>
+      ${diffHtml}
+      <div class="pts-pill">${pts_assigned}<small>p</small></div>
       ${earnedHtml}
     </div>`;
   }).join('');
 
   const poolBadge=p.paid
-    ?`<span class="card-pool-badge paid">⭐ $10 Paid Pool</span>`
-    :`<span class="card-pool-badge free">Free Pool</span>`;
+    ?`<span class="card-pool-badge paid">⭐ Paid</span>`
+    :`<span class="card-pool-badge free">Free</span>`;
 
   const dateStr=p.rawData?.date?new Date(p.rawData.date).toLocaleDateString('en-CA'):'';
-  const rankStr=totalScore>0?`Rank #${myRank} · `:'';
+  const rankStr=totalScore>0?`#${myRank} of ${participants.length}`:'';
 
-  area.innerHTML=`
-    <div class="card-wrap">
-      <div class="picks-card">
-        <div class="card-header">
-          <div class="card-header-top">
-            <div>
-              <div class="card-title">NHL <span>2026 Playoff</span> Picks</div>
-              <div class="card-meta">
-                <div class="card-meta-by">Picks by <strong>${participantName}</strong></div>
-                <div class="card-meta-sub">${dateStr}</div>
-              </div>
-              ${poolBadge}
+  slot.innerHTML=`
+    <div class="picks-card">
+      <div class="card-header">
+        <div class="card-header-top">
+          <div>
+            <div class="card-title">NHL <span>2026</span> Picks</div>
+            <div class="card-meta">
+              <div class="card-meta-by">Picks by <strong>${participantName}</strong></div>
+              <div class="card-meta-sub">${dateStr}</div>
             </div>
-            <img src="parieur_discipline_icon_1024.png" alt="" class="card-brand-icon">
+            ${poolBadge}
           </div>
+          <img src="parieur_discipline_icon_1024.png" alt="" class="card-brand-icon">
         </div>
-
-        ${totalScore>0?`<div class="score-banner">
-          <div class="score-banner-label">Total Score</div>
-          <div class="score-banner-value">${totalScore}</div>
-          <div class="score-banner-rank">${rankStr}${participants.length} participants</div>
-        </div>`:''}
-
-        <div class="picks-list">${rowsHtml}</div>
-
-        <div class="card-footer">parieurdiscipline.com</div>
       </div>
+      ${totalScore>0?`<div class="score-banner">
+        <div class="score-banner-label">Score</div>
+        <div class="score-banner-value">${totalScore}</div>
+        <div class="score-banner-rank">${rankStr}</div>
+      </div>`:''}
+      <div class="picks-list">${rowsHtml}</div>
+      <div class="card-footer">parieurdiscipline.com</div>
     </div>`;
-
-  legend.style.display='';
 }
 
-// ── Wire up selector ──────────────────────────────────────────────────────────
-document.getElementById('participant-select').addEventListener('change',function(){
-  renderCard(this.value);
-});
+// ── VS banner ─────────────────────────────────────────────────────────────────
+function renderVsBanner(nameA, nameB){
+  const banner=document.getElementById('vs-banner');
+  if(!nameA||!nameB){banner.style.display='none';return;}
+
+  const pA=participantFiles[nameA];
+  const pB=participantFiles[nameB];
+  if(!pA||!pB){banner.style.display='none';return;}
+
+  const scoreA=calcScore(pA.picks);
+  const scoreB=calcScore(pB.picks);
+
+  document.getElementById('vs-name-a').textContent=nameA;
+  document.getElementById('vs-name-b').textContent=nameB;
+  document.getElementById('vs-score-a').textContent=scoreA;
+  document.getElementById('vs-score-b').textContent=scoreB;
+
+  const playerA=document.getElementById('vs-player-a');
+  const playerB=document.getElementById('vs-player-b');
+  const delta=document.getElementById('vs-delta');
+
+  playerA.classList.remove('lead','trail');
+  playerB.classList.remove('lead','trail');
+  delta.className='vs-delta';
+
+  if(scoreA>scoreB){
+    playerA.classList.add('lead');playerB.classList.add('trail');
+    delta.classList.add('a-leads');
+    delta.textContent=`+${scoreA-scoreB} ${nameA.split(' ')[0]}`;
+  } else if(scoreB>scoreA){
+    playerB.classList.add('lead');playerA.classList.add('trail');
+    delta.classList.add('b-leads');
+    delta.textContent=`+${scoreB-scoreA} ${nameB.split(' ')[0]}`;
+  } else {
+    delta.classList.add('tied');
+    delta.textContent='Tied';
+  }
+
+  banner.style.display='';
+}
+
+// ── Main render ───────────────────────────────────────────────────────────────
+function rerenderBoth(){
+  const nameA=document.getElementById('select-a').value;
+  const nameB=document.getElementById('select-b').value;
+  const pickMapA=nameA&&participantFiles[nameA]?participantFiles[nameA].picks:null;
+  const pickMapB=nameB&&participantFiles[nameB]?participantFiles[nameB].picks:null;
+  renderCard(nameA,'card-slot-a',pickMapB);
+  renderCard(nameB,'card-slot-b',pickMapA);
+  renderVsBanner(nameA,nameB);
+}
+
+// ── Wire up selects ───────────────────────────────────────────────────────────
+document.getElementById('select-a').addEventListener('change',rerenderBoth);
+document.getElementById('select-b').addEventListener('change',rerenderBoth);
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 loadResultsLocal();
