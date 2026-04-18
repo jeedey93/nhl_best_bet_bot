@@ -913,11 +913,10 @@ document.getElementById('btn-share').addEventListener('click',async()=>{
   };
   const filename=name.replace(/\s+/g,'')+'-LNH-Eliminatoires-2026.jpg';
   try{
-    const [canvas,resp]=await Promise.all([
-      buildCanvas(name,email),
-      fetch('/api/submit-picks',{method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({name,imageBase64:null,lang:'fr',picksData})})
-    ]);
+    const canvas=await buildCanvas(name,email);
+    const imageBase64=canvas?canvas.toDataURL('image/jpeg',0.92):null;
+    const resp=await fetch('/api/submit-picks',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({name,imageBase64,lang:'fr',picksData})});
     const result=await resp.json();
     if(!resp.ok){closeModal();showToast(result.error||'Soumission échouée, réessaie.');return;}
     document.getElementById('success-name').textContent=name;

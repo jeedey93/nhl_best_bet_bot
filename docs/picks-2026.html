@@ -914,15 +914,14 @@ document.getElementById('btn-share').addEventListener('click',async()=>{
   const filename=name.replace(/\s+/g,'')+'-NHL-Playoffs-2026.jpg';
 
   try{
-    // Build canvas and POST in parallel
-    const [canvas, resp]=await Promise.all([
-      buildCanvas(name,email),
-      fetch('/api/submit-picks',{
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({name,imageBase64:null,lang:'en',picksData})
-      })
-    ]);
+    // Build canvas first (needed for email attachment), then POST
+    const canvas=await buildCanvas(name,email);
+    const imageBase64=canvas?canvas.toDataURL('image/jpeg',0.92):null;
+    const resp=await fetch('/api/submit-picks',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({name,imageBase64,lang:'en',picksData})
+    });
 
     const result=await resp.json();
     if(!resp.ok){
@@ -932,9 +931,8 @@ document.getElementById('btn-share').addEventListener('click',async()=>{
     }
 
     // Store image for Save button
-    if(canvas){
-      const dataUrl=canvas.toDataURL('image/jpeg',0.92);
-      _pendingDataUrl=dataUrl;_pendingFilename=filename;
+    if(canvas&&imageBase64){
+      _pendingDataUrl=imageBase64;_pendingFilename=filename;
       document.getElementById('btn-open-img').onclick=async()=>{
         try{
           const blob=await new Promise(res=>canvas.toBlob(res,'image/jpeg',0.92));
@@ -942,7 +940,7 @@ document.getElementById('btn-share').addEventListener('click',async()=>{
           if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
             await navigator.share({files:[file],title:'My NHL Playoff Picks'});
           }else{
-            const link=document.createElement('a');link.href=dataUrl;link.download=filename;link.click();
+            const link=document.createElement('a');link.href=imageBase64;link.download=filename;link.click();
           }
         }catch(e){if(e.name!=='AbortError')console.error(e);}
       };
