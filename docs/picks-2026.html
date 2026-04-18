@@ -437,7 +437,7 @@
       <div class="success-icon">✅</div>
       <p><strong>Picks submitted!</strong><br>We received your picks, <span id="success-name"></span>.<br>Good luck! 🏒</p>
       <div class="modal-btns" style="margin-top:1rem">
-        <a id="btn-open-img" href="#" target="_blank" download>Save Image</a>
+        <button id="btn-open-img" class="btn" style="background:var(--gold);color:var(--rink);">💾 Save Image</button>
         <button id="btn-close-modal-success">Close</button>
       </div>
     </div>
@@ -941,8 +941,19 @@ document.getElementById('btn-confirm-submit').addEventListener('click',async()=>
     const result=await resp.json();
     if(!resp.ok){showModal('default');showToast(result.error||'Submission failed, please try again.');return;}
     document.getElementById('success-name').textContent=name;
-    document.getElementById('btn-open-img').href=_pendingDataUrl;
-    document.getElementById('btn-open-img').download=_pendingFilename;
+    // Store for save button
+    document.getElementById('btn-open-img').onclick=async()=>{
+      try{
+        const blob=await(await fetch(_pendingDataUrl)).blob();
+        const file=new File([blob],_pendingFilename,{type:'image/jpeg'});
+        if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
+          await navigator.share({files:[file],title:'My NHL Playoff Picks'});
+        }else{
+          const link=document.createElement('a');
+          link.href=_pendingDataUrl;link.download=_pendingFilename;link.click();
+        }
+      }catch(e){if(e.name!=='AbortError')console.error(e);}
+    };
     showModal('success');
   }catch(err){
     console.error(err);showModal('default');showToast('Network error: '+err.message);

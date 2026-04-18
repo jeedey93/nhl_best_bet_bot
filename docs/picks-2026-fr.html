@@ -437,7 +437,7 @@
       <div class="success-icon">✅</div>
       <p><strong>Choix soumis!</strong><br>Nous avons bien reçu tes choix, <span id="success-name"></span>.<br>Bonne chance! 🏒</p>
       <div class="modal-btns" style="margin-top:1rem">
-        <a id="btn-open-img" href="#" target="_blank" download>Sauvegarder l'Image</a>
+        <button id="btn-open-img" class="btn" style="background:var(--gold);color:var(--rink);">💾 Sauvegarder l'Image</button>
         <button id="btn-close-modal-success">Fermer</button>
       </div>
     </div>
@@ -942,8 +942,18 @@ document.getElementById('btn-confirm-submit').addEventListener('click',async()=>
     const result=await resp.json();
     if(!resp.ok){showModal('default');showToast(result.error||'Soumission échouée, réessaie.');return;}
     document.getElementById('success-name').textContent=name;
-    document.getElementById('btn-open-img').href=_pendingDataUrl;
-    document.getElementById('btn-open-img').download=_pendingFilename;
+    document.getElementById('btn-open-img').onclick=async()=>{
+      try{
+        const blob=await(await fetch(_pendingDataUrl)).blob();
+        const file=new File([blob],_pendingFilename,{type:'image/jpeg'});
+        if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
+          await navigator.share({files:[file],title:'Mes Choix Éliminatoires LNH'});
+        }else{
+          const link=document.createElement('a');
+          link.href=_pendingDataUrl;link.download=_pendingFilename;link.click();
+        }
+      }catch(e){if(e.name!=='AbortError')console.error(e);}
+    };
     showModal('success');
   }catch(err){
     console.error(err);showModal('default');showToast('Erreur réseau: '+err.message);
