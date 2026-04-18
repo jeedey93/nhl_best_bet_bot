@@ -427,6 +427,7 @@
     <div class="modal-success" id="modal-success">
       <div class="success-icon">✅</div>
       <p><strong>Picks submitted!</strong><br>We received your picks, <span id="success-name"></span>.<br>Good luck! 🏒</p>
+      <img id="preview-img" src="" alt="Your picks" style="display:none;width:100%;border-radius:6px;border:1px solid rgba(255,255,255,0.1);margin:10px 0;">
       <div id="modal-etransfer" style="display:none;background:rgba(255,184,28,0.08);border:1px solid rgba(255,184,28,0.3);border-radius:8px;padding:10px 14px;margin:12px 0;">
         <p style="margin:0;font-size:0.9rem;line-height:1.6;">💰 <strong>$10 Entry</strong> — send your e-transfer to:<br>
         <span style="color:var(--gold);font-size:1rem;font-weight:700;letter-spacing:0.5px;">justin.do@hotmail.com</span></p>
@@ -947,6 +948,7 @@ document.getElementById('btn-share').addEventListener('click',async()=>{
     }
 
     document.getElementById('success-name').textContent=name;
+    if(imageBase64){const pi=document.getElementById('preview-img');pi.src=imageBase64;pi.style.display='block';}
     showModal('success');
   }catch(err){
     console.error(err);closeModal();showToast('Network error: '+err.message);
