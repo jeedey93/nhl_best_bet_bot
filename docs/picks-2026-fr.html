@@ -421,27 +421,16 @@
     <div id="modal-submitting" style="display:none;text-align:center;padding:0.5rem 0 1rem">
       <p class="modal-submitting">⏳ Envoi de tes choix…</p>
     </div>
-    <!-- Default state -->
-    <div id="modal-default">
-      <p><strong>Prêt à soumettre?</strong></p>
-      <ol class="modal-steps">
-        <li data-n="1.">Ton image de choix sera envoyée par courriel automatiquement</li>
-        <li data-n="2.">Tu pourras aussi sauvegarder une copie sur ton appareil</li>
-      </ol>
-      <div id="modal-etransfer" style="display:none;background:rgba(255,184,28,0.08);border:1px solid rgba(255,184,28,0.3);border-radius:8px;padding:10px 14px;margin-bottom:1rem;text-align:center;">
-        <p style="margin:0;font-size:0.9rem;line-height:1.6;">💰 <strong>Entrée 10$</strong> — envoie ton virement Interac à :<br>
-        <span style="color:var(--gold);font-size:1rem;font-weight:700;letter-spacing:0.5px;">justin.do@hotmail.com</span></p>
-      </div>
-      <img id="preview-img" src="" alt="Tes choix LNH">
-      <div class="modal-btns">
-        <button id="btn-confirm-submit" class="btn btn-share" style="font-size:1rem;padding:0.6rem 1.5rem;">📨 Envoyer mes Choix</button>
-        <button id="btn-close-modal">Annuler</button>
-      </div>
-    </div>
+    <!-- Default state (unused — kept as hidden placeholder) -->
+    <div id="modal-default" style="display:none;"></div>
     <!-- Success state -->
     <div class="modal-success" id="modal-success">
       <div class="success-icon">✅</div>
       <p><strong>Choix soumis!</strong><br>Nous avons bien reçu tes choix, <span id="success-name"></span>.<br>Bonne chance! 🏒</p>
+      <div id="modal-etransfer" style="display:none;background:rgba(255,184,28,0.08);border:1px solid rgba(255,184,28,0.3);border-radius:8px;padding:10px 14px;margin:12px 0;">
+        <p style="margin:0;font-size:0.9rem;line-height:1.6;">💰 <strong>Entrée 10$</strong> — envoie ton virement Interac à :<br>
+        <span style="color:var(--gold);font-size:1rem;font-weight:700;letter-spacing:0.5px;">justin.do@hotmail.com</span></p>
+      </div>
       <div style="margin:12px 0;background:rgba(255,184,28,0.08);border:1px solid rgba(255,184,28,0.3);border-radius:8px;padding:10px 14px;">
         <p style="margin:0;font-size:0.85rem;line-height:1.6;color:rgba(168,178,190,0.85);">⏳ <strong style="color:var(--gold);">En attente d'approbation</strong> — le commissaire doit valider ton inscription avant que tu apparaisses au classement. Reviens plus tard!</p>
       </div>
@@ -450,6 +439,8 @@
         <button id="btn-close-modal-success">Fermer</button>
       </div>
     </div>
+  </div>
+</div>
   </div>
 </div>
 
@@ -896,10 +887,10 @@ let _pendingDataUrl=null;
 let _pendingFilename=null;
 
 function showModal(state){
-  document.getElementById('modal-default').style.display=state==='default'?'':'none';
+  document.getElementById('modal-default').style.display='none';
   document.getElementById('modal-submitting').style.display=state==='submitting'?'block':'none';
   document.getElementById('modal-success').style.display=state==='success'?'block':'none';
-  document.getElementById('modal-etransfer').style.display=(state==='default'&&_poolType==='paid')?'block':'none';
+  document.getElementById('modal-etransfer').style.display=(state==='success'&&_poolType==='paid')?'block':'none';
   document.getElementById('modal-overlay').classList.add('open');
 }
 function closeModal(){
@@ -914,62 +905,43 @@ document.getElementById('btn-share').addEventListener('click',async()=>{
   if(!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){showToast('Entre une adresse courriel valide!');return;}
   const filled=ranking.filter(Boolean).length;
   if(filled<16){showToast(`Classe les 16 équipes pour finaliser! (${filled}/16)`);return;}
-  const btn=document.getElementById('btn-share');btn.disabled=true;btn.textContent='Génération…';
-  try{
-    const canvas=await buildCanvas(name,email);
-    if(!canvas){showToast('Ajoute des équipes d\'abord!');btn.disabled=false;btn.textContent='📨 Soumettre mes Choix';return;}
-    const dataUrl=canvas.toDataURL('image/jpeg',0.92);
-    const filename=name.replace(/\s+/g,'')+'-LNH-Eliminatoires-2026.jpg';
-    _pendingDataUrl=dataUrl;_pendingFilename=filename;
-    document.getElementById('preview-img').src=dataUrl;
-    showModal('default');
-  }catch(err){
-    console.error(err);showToast('Erreur: '+err.message);
-  }
-  btn.disabled=false;btn.textContent='📨 Soumettre mes Choix';
-});
-
-document.getElementById('btn-confirm-submit').addEventListener('click',async()=>{
-  const name=document.getElementById('picker-name').value.trim();
-  const email=document.getElementById('picker-email').value.trim();
-  if(!_pendingDataUrl){return;}
   showModal('submitting');
   const today=new Date().toISOString().slice(0,10);
   const picksData={
-    name,
-    email,
-    date:today,
-    paid:_poolType==='paid',
+    name,email,date:today,paid:_poolType==='paid',
     picks:ranking.map((team,i)=>team?{team:team.name,abbr:team.abbr,rank:i+1,points:pts(i+1)}:null).filter(Boolean)
   };
+  const filename=name.replace(/\s+/g,'')+'-LNH-Eliminatoires-2026.jpg';
   try{
-    const resp=await fetch('/api/submit-picks',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({name,imageBase64:_pendingDataUrl,lang:'fr',picksData})
-    });
+    const [canvas,resp]=await Promise.all([
+      buildCanvas(name,email),
+      fetch('/api/submit-picks',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({name,imageBase64:null,lang:'fr',picksData})})
+    ]);
     const result=await resp.json();
-    if(!resp.ok){showModal('default');showToast(result.error||'Soumission échouée, réessaie.');return;}
+    if(!resp.ok){closeModal();showToast(result.error||'Soumission échouée, réessaie.');return;}
     document.getElementById('success-name').textContent=name;
     document.getElementById('btn-open-img').onclick=async()=>{
       try{
-        const blob=await(await fetch(_pendingDataUrl)).blob();
-        const file=new File([blob],_pendingFilename,{type:'image/jpeg'});
-        if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
-          await navigator.share({files:[file],title:'Mes Choix Éliminatoires LNH'});
-        }else{
-          const link=document.createElement('a');
-          link.href=_pendingDataUrl;link.download=_pendingFilename;link.click();
-        }
-      }catch(e){if(e.name!=='AbortError')console.error(e);}
+        if(!canvas){return;}
+        canvas.toBlob(async blob=>{
+          const file=new File([blob],filename,{type:'image/jpeg'});
+          if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
+            try{await navigator.share({files:[file],title:'Mes Choix Éliminatoires LNH'});}
+            catch(e){if(e.name!=='AbortError')console.error(e);}
+          }else{
+            const url=URL.createObjectURL(blob);
+            const link=document.createElement('a');link.href=url;link.download=filename;link.click();
+            setTimeout(()=>URL.revokeObjectURL(url),5000);
+          }
+        },'image/jpeg',0.92);
+      }catch(e){console.error(e);}
     };
     showModal('success');
   }catch(err){
-    console.error(err);showModal('default');showToast('Erreur réseau: '+err.message);
+    console.error(err);closeModal();showToast('Erreur réseau: '+err.message);
   }
 });
-
-document.getElementById('btn-close-modal').addEventListener('click',closeModal);
 document.getElementById('btn-close-modal-success').addEventListener('click',closeModal);
 document.getElementById('modal-overlay').addEventListener('click',e=>{if(e.target===document.getElementById('modal-overlay'))closeModal();});
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3500);}
