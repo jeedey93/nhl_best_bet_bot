@@ -926,18 +926,48 @@ setInterval(()=>{loadResultsRemote();loadParticipants();},5*60*1000);
 function buildShareCardHTML(rows, title, totalCount, pot, date){
   const top10 = rows.slice(0,10);
   const leaderScore = top10[0]?.total || 0;
-  const medals = ['🥇','🥈','🥉'];
 
-  // Podium (top 3)
+  // Podium (top 3) — same avatar+pedestal style as the live page
+  // DOM order: 2nd (left), 1st (center/gold), 3rd (right)
   const splits=[0.5,0.3,0.2];
-  const podium = top10.slice(0,3).map((r,i)=>{
-    const prize = pot>0 ? `<div style="margin-top:4px;display:inline-block;background:#22c55e;color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;letter-spacing:0.5px;">$${Math.round(pot*splits[i])} (${splits[i]*100}%)</div>` : '';
-    return `
-    <div style="flex:1;text-align:center;padding:10px 8px;background:rgba(255,255,255,0.05);border-radius:8px;min-width:0;">
-      <div style="font-size:26px;line-height:1.1;">${medals[i]}</div>
-      <div style="font-size:13px;font-weight:700;color:#ffffff;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${r.name}</div>
-      <div style="font-size:18px;font-weight:700;color:#ffb81c;margin-top:2px;">${r.total}</div>
-      ${prize}
+  const podiumOrder=[1,0,2]; // indices into top10: silver, gold, bronze
+  const avatarSizes=['66px','80px','60px'];
+  const avatarBgs=[
+    'linear-gradient(135deg,#707070,#c0c0c0,#707070)',
+    'linear-gradient(135deg,#b8860b,#ffd700,#b8860b)',
+    'linear-gradient(135deg,#7d4e1a,#cd7f32,#7d4e1a)',
+  ];
+  const avatarShadows=[
+    '0 0 20px rgba(192,192,192,0.3)',
+    '0 0 30px rgba(255,215,0,0.5)',
+    '0 0 16px rgba(205,127,50,0.3)',
+  ];
+  const blockHeights=['56px','80px','40px'];
+  const blockBgs=[
+    'linear-gradient(180deg,rgba(192,192,192,0.15),rgba(192,192,192,0.03))',
+    'linear-gradient(180deg,rgba(255,215,0,0.25),rgba(255,215,0,0.05))',
+    'linear-gradient(180deg,rgba(205,127,50,0.15),rgba(205,127,50,0.03))',
+  ];
+  const blockBorders=['rgba(192,192,192,0.2)','rgba(255,215,0,0.3)','rgba(205,127,50,0.2)'];
+  const scoreColors=['#C0C0C0','#FFD700','#CD7F32'];
+  const medals=['🥇','🥈','🥉'];
+
+  const podium = podiumOrder.map((dataIdx, displayIdx)=>{
+    const r = top10[dataIdx];
+    if(!r) return '';
+    const rank = dataIdx+1;
+    const prize = pot>0 ? `<div style="position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);background:#22c55e;color:#fff;font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;white-space:nowrap;letter-spacing:0.5px;">$${Math.round(pot*splits[dataIdx])} (${splits[dataIdx]*100}%)</div>` : '';
+    const firstName = r.name.split(' ')[0];
+    return `<div style="flex:1;text-align:center;display:flex;flex-direction:column;align-items:center;">
+      <div style="position:relative;width:${avatarSizes[displayIdx]};height:${avatarSizes[displayIdx]};border-radius:50%;background:${avatarBgs[displayIdx]};box-shadow:${avatarShadows[displayIdx]};display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;color:white;font-size:${displayIdx===1?'1.5rem':'1.2rem'};letter-spacing:2px;margin-bottom:6px;flex-shrink:0;">
+        ${initials(r.name)}${prize}
+      </div>
+      <div style="font-size:${displayIdx===1?'13px':'11px'};font-weight:700;color:white;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;">${medals[dataIdx]} ${firstName}</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:${displayIdx===1?'1.8rem':'1.4rem'};color:${scoreColors[displayIdx]};letter-spacing:1px;line-height:1;">${r.total}</div>
+      <div style="font-size:10px;color:rgba(168,178,190,0.6);letter-spacing:1px;">pts</div>
+      <div style="border-radius:6px 6px 0 0;width:100%;height:${blockHeights[displayIdx]};background:${blockBgs[displayIdx]};border:1px solid ${blockBorders[displayIdx]};border-bottom:none;margin-top:6px;display:flex;align-items:center;justify-content:center;">
+        <span style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:rgba(255,255,255,0.4);">${rank}</span>
+      </div>
     </div>`;
   }).join('');
 
@@ -975,7 +1005,7 @@ function buildShareCardHTML(rows, title, totalCount, pot, date){
           <div style="font-size:11px;color:rgba(148,163,184,0.6);margin-top:2px;">${totalCount} participants</div>
         </div>
       </div>
-      <div style="display:flex;gap:8px;margin-bottom:16px;">${podium}</div>
+      <div style="display:flex;gap:8px;margin-bottom:16px;align-items:flex-end;">${podium}</div>
     </div>
     <div style="padding:0 16px 0;">
       <table style="width:100%;border-collapse:collapse;font-family:'Barlow Condensed',sans-serif;">
