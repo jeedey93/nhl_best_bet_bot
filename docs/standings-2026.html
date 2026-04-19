@@ -1026,7 +1026,7 @@ async function shareLeaderboard(){
       const blob = await new Promise(res=>canvas.toBlob(res,'image/png'));
       const file = new File([blob], `standings-${date}.png`, {type:'image/png'});
       if(navigator.canShare({files:[file]})){
-        await navigator.share({ files:[file], title:'Parieur Discipliné – Standings' });
+        await navigator.share({ files:[file] });
         return;
       }
     }
