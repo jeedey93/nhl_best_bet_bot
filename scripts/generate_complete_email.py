@@ -131,19 +131,22 @@ def match_pick_to_reasoning(dual_pick, all_picks):
         pick_name = pick.get('pick', '').lower()
         game = pick.get('game', '').lower()
 
-        # Try to match by pick name or game teams
-        if pick_name in pick_text or any(team.lower() in pick_text for team in game.split('@')):
-            # Further validation: check if odds match (within 0.05)
-            try:
-                odds_diff = abs(float(pick.get('odds', '0')) - float(dual_pick['odds']))
-                if odds_diff <= 0.05:
-                    return pick
-            except ValueError:
-                pass
+        team_match = any(team.strip().lower() in pick_text for team in game.split('@') if team.strip())
+        name_match = pick_name in pick_text
 
-            # If odds don't match perfectly, still return if pick text matches well
-            if pick_name in pick_text:
+        if not (name_match or team_match):
+            continue
+
+        # Prefer odds match, but fall back to any name/team match
+        try:
+            odds_diff = abs(float(pick.get('odds', '0')) - float(dual_pick['odds']))
+            if odds_diff <= 0.05:
                 return pick
+        except ValueError:
+            pass
+
+        if name_match or team_match:
+            return pick
 
     return None
 
