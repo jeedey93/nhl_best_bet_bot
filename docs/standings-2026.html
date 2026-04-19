@@ -884,7 +884,14 @@ setInterval(()=>{loadResultsRemote();loadParticipants();},5*60*1000);
 
   async function fetchGames(){
     try{
-      const r=await fetch(ESPN_NHL+'?_='+Date.now());
+      // Use Montreal local date (UTC-4/5) to avoid ESPN defaulting to UTC day
+      const now=new Date();
+      const montrealOffset=-4*60; // EDT (UTC-4); adjust to -5 in winter if needed
+      const local=new Date(now.getTime()+now.getTimezoneOffset()*60000+montrealOffset*60000);
+      const dateStr=local.getFullYear().toString()
+        +(local.getMonth()+1).toString().padStart(2,'0')
+        +local.getDate().toString().padStart(2,'0');
+      const r=await fetch(ESPN_NHL+'?dates='+dateStr+'&_='+Date.now());
       if(!r.ok)return;
       const data=await r.json();
       const events=data.events||[];
