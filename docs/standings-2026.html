@@ -924,7 +924,7 @@ setInterval(()=>{loadResultsRemote();loadParticipants();},5*60*1000);
 
 // ── Share leaderboard ────────────────────────────────────────────────────────
 function buildShareCardHTML(rows, title, totalCount, pot, date){
-  const top10 = rows;
+  const top10 = rows.slice(0,10);
   const leaderScore = top10[0]?.total || 0;
   const medals = ['🥇','🥈','🥉'];
 
