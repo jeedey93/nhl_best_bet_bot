@@ -363,7 +363,7 @@ def filter_low_odds_picks(text):
 
     return '\n'.join(result)
 
-def analyze_results(results_text, team_stats_text, h2h_stats_text, home_away_splits_text, standings_text, recent_games):
+def analyze_results(results_text, team_stats_text, h2h_stats_text, home_away_splits_text, standings_text, recent_games, playoff_series_text=""):
     import time
     api_key = os.environ["GOOGLE_API_KEY"]
     client = genai.Client(api_key=api_key)
@@ -390,7 +390,8 @@ def analyze_results(results_text, team_stats_text, h2h_stats_text, home_away_spl
             continue
 
     # Strictly read external prompt; no fallback
-    prompt_path = os.path.join("prompts", "nba_prompt.txt")
+    is_playoffs = os.environ.get("PLAYOFF_MODE", "").lower() in ("1", "true", "yes")
+    prompt_path = os.path.join("prompts", "nba_playoff_prompt.txt") if is_playoffs else os.path.join("prompts", "nba_prompt.txt")
     today_str = date.today().isoformat()
     try:
         with open(prompt_path, "r", encoding="utf-8") as pf:
@@ -404,6 +405,7 @@ def analyze_results(results_text, team_stats_text, h2h_stats_text, home_away_spl
             prompt_text = prompt_text.replace("{{H2H_STATS}}", h2h_stats_text)
             prompt_text = prompt_text.replace("{{HOME_AWAY_SPLITS}}", home_away_splits_text)
             prompt_text = prompt_text.replace("{{STANDINGS}}", standings_text)
+            prompt_text = prompt_text.replace("{{PLAYOFF_SERIES_STATUS}}", playoff_series_text)
     except Exception as e:
         # If prompt file is missing or unreadable, skip AI analysis
         return "AI analysis skipped: prompt file not found or unreadable."
@@ -631,8 +633,38 @@ with open(filename, "w") as f:
             print("recent_games:\n", recent_games)
             print("-----------------------------\n")
 
+            # Fetch NBA playoff series status if in playoff mode
+            is_playoffs = os.environ.get("PLAYOFF_MODE", "").lower() in ("1", "true", "yes")
+            playoff_series_text = ""
+            if is_playoffs:
+                try:
+                    nba_series_url = "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?groups=1"
+                    r = requests.get(nba_series_url, timeout=10)
+                    if r.ok:
+                        sdata = r.json()
+                        playoff_series_text = "NBA PLAYOFF SERIES STATUS:\n" + "=" * 40 + "\n"
+                        events = sdata.get("events", [])
+                        if events:
+                            for ev in events:
+                                comp = ev.get("competitions", [{}])[0]
+                                competitors = comp.get("competitors", [])
+                                if len(competitors) == 2:
+                                    home = next((c for c in competitors if c.get("homeAway") == "home"), {})
+                                    away = next((c for c in competitors if c.get("homeAway") == "away"), {})
+                                    home_name = home.get("team", {}).get("displayName", "?")
+                                    away_name = away.get("team", {}).get("displayName", "?")
+                                    series = comp.get("series", {})
+                                    home_wins = series.get("competitors", [{}])[0].get("wins", 0) if series else 0
+                                    away_wins = series.get("competitors", [{}])[1].get("wins", 0) if series else 0
+                                    playoff_series_text += f"{away_name} @ {home_name}: Series {away_wins}-{home_wins}\n"
+                        else:
+                            playoff_series_text += "No active playoff games found.\n"
+                except Exception as e:
+                    playoff_series_text = f"Playoff series status: Unavailable ({e})\n"
+                print("playoff_series_text:\n", playoff_series_text)
+
             summary = analyze_results(predictions_text, team_stats_text, h2h_stats_text,
-                                     home_away_splits_text, standings_text, recent_games)
+                                     home_away_splits_text, standings_text, recent_games, playoff_series_text)
             summary = filter_low_odds_picks(summary)
             f.write("\nAI Analysis Summary:\n")
             f.write(summary + "\n")
