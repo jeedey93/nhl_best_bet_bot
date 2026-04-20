@@ -656,7 +656,8 @@ with open(filename, "w") as f:
                                     series = comp.get("series", {})
                                     home_wins = series.get("competitors", [{}])[0].get("wins", 0) if series else 0
                                     away_wins = series.get("competitors", [{}])[1].get("wins", 0) if series else 0
-                                    playoff_series_text += f"{away_name} @ {home_name}: Series {away_wins}-{home_wins}\n"
+                                    game_num = away_wins + home_wins + 1
+                                    playoff_series_text += f"{away_name} @ {home_name}: Series {away_wins}-{home_wins}, Game {game_num}\n"
                         else:
                             playoff_series_text += "No active playoff games found.\n"
                 except Exception as e:
