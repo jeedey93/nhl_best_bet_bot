@@ -282,7 +282,7 @@
       const res=await fetch(`${SUPA_URL}/rest/v1/comments`,{
         method:'POST',
         headers:{'apikey':SUPA_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
-        body:JSON.stringify({name,message})
+        body:JSON.stringify({name,message,status:'approved',tag:null})
       });
       if(res.ok||res.status===201){
         document.getElementById('cw-name').value='';
