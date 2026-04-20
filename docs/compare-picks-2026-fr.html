@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NHL 2026 Playoff Picks – Compare</title>
-<meta property="og:title" content="NHL 2026 Playoff Picks – Compare Picks">
-<meta property="og:description" content="Compare bracket picks side-by-side for any two participants in the NHL 2026 Playoff Picks pool.">
+<title>LNH 2026 Éliminatoires – Comparer les Choix</title>
+<meta property="og:title" content="LNH 2026 Éliminatoires – Comparer les Choix">
+<meta property="og:description" content="Comparez les choix de deux participants dans le pool des éliminatoires LNH 2026.">
 <meta property="og:image" content="https://parieurdiscipline.com/parieur_discipline_icon_1024.png">
-<meta property="og:url" content="https://parieurdiscipline.com/compare-picks-2026.html">
+<meta property="og:url" content="https://parieurdiscipline.com/compare-picks-2026-fr.html">
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://parieurdiscipline.com/parieur_discipline_icon_1024.png">
@@ -227,14 +227,12 @@
     .subtitle{font-size:0.75rem;letter-spacing:2px;}
     .brand-icon{width:40px;height:40px;}
 
-    /* Selectors: two columns side by side, no wrap */
     .compare-selectors{gap:6px;margin-bottom:1rem;flex-wrap:nowrap;padding:0;}
     .selector-col{min-width:0;max-width:none;}
     .selector-label{font-size:0.75rem;letter-spacing:1.5px;}
     .vs-chip{font-size:1rem;padding-bottom:0.5rem;}
     .participant-select{font-size:0.9rem;padding:0.45rem 1.6rem 0.45rem 0.6rem;}
 
-    /* VS banner: compact */
     #vs-banner{padding:8px 10px;gap:6px;margin-bottom:0.75rem;}
     .vs-name{font-size:0.8rem;max-width:90px;}
     .vs-score{font-size:1.3rem;}
@@ -242,7 +240,6 @@
     .vs-label{font-size:1rem;}
     .vs-delta{font-size:0.72rem;}
 
-    /* Cards: full width, tighter */
     .compare-grid{gap:1rem;}
     .card-header{padding:12px 12px 10px;}
     .card-title{font-size:1.1rem;letter-spacing:3px;}
@@ -252,7 +249,6 @@
     .score-banner-value{font-size:1.5rem;}
     .score-banner-rank{font-size:0.68rem;}
 
-    /* Pick rows: hide earned pts column to save space */
     .picks-list{padding:4px 8px 10px;}
     .pick-row{gap:5px;padding:4px 5px;}
     .pick-rank{width:18px;font-size:1rem;}
@@ -263,7 +259,6 @@
     .pts-pill{font-size:0.85rem;min-width:36px;padding:1px 4px;}
     .earned-pts{display:none;}
 
-    /* Legend */
     .pts-legend{margin-top:0.75rem;}
     .pts-legend-item{font-size:0.65rem;padding:2px 6px;}
   }
@@ -274,9 +269,9 @@
   <div class="site-nav-inner">
     <a class="site-nav-brand" href="index.html">Parieur Discipliné</a>
     <div class="site-nav-links">
-      <a href="standings-2026.html">Standings</a>
-      <a href="compare-picks-2026.html" class="active">Compare</a>
-      <a href="compare-picks-2026-fr.html" class="lang-switch">FR</a>
+      <a href="standings-2026-fr.html">Classement</a>
+      <a href="compare-picks-2026-fr.html" class="active">Comparer</a>
+      <a href="compare-picks-2026.html" class="lang-switch">EN</a>
     </div>
   </div>
 </nav>
@@ -284,24 +279,24 @@
 <header>
   <div class="header-inner">
     <img src="parieur_discipline_icon_1024.png" alt="Parieur Discipline" class="brand-icon">
-    <h1>Compare <span>Picks</span></h1>
+    <h1>Comparer les <span>Choix</span></h1>
   </div>
-  <p class="subtitle">NHL 2026 Playoff Picks Pool</p>
+  <p class="subtitle">Pool des Éliminatoires LNH 2026</p>
 </header>
 
 <!-- Two-player selectors -->
 <div class="compare-selectors">
   <div class="selector-col">
-    <div class="selector-label">Player 1</div>
+    <div class="selector-label">Joueur 1</div>
     <select id="select-a" class="participant-select">
-      <option value="">— Loading… —</option>
+      <option value="">— Chargement… —</option>
     </select>
   </div>
   <div class="vs-chip">VS</div>
   <div class="selector-col">
-    <div class="selector-label">Player 2</div>
+    <div class="selector-label">Joueur 2</div>
     <select id="select-b" class="participant-select">
-      <option value="">— Loading… —</option>
+      <option value="">— Chargement… —</option>
     </select>
   </div>
 </div>
@@ -315,7 +310,7 @@
   </div>
   <div class="vs-middle">
     <span class="vs-label">VS</span>
-    <span class="vs-delta" id="vs-delta">tied</span>
+    <span class="vs-delta" id="vs-delta">égalité</span>
   </div>
   <div class="vs-player" id="vs-player-b">
     <div class="vs-name" id="vs-name-b">—</div>
@@ -327,40 +322,40 @@
 <!-- Card grid -->
 <div class="compare-grid" id="compare-grid">
   <div id="card-slot-a">
-    <div class="empty-slot"><p>Select Player 1 above</p></div>
+    <div class="empty-slot"><p>Sélectionnez le Joueur 1 ci-dessus</p></div>
   </div>
   <div id="card-slot-b">
-    <div class="empty-slot"><p>Select Player 2 above</p></div>
+    <div class="empty-slot"><p>Sélectionnez le Joueur 2 ci-dessus</p></div>
   </div>
 </div>
 
 <!-- Points legend -->
 <div class="pts-legend" id="pts-legend">
-  <div class="pts-legend-item">Rank 1 = <strong>16 pts</strong></div>
-  <div class="pts-legend-item">Rank 16 = <strong>1 pt</strong></div>
-  <div class="pts-legend-item">× wins per round</div>
-  <div class="pts-legend-item diff-legend-pos">▲ = ranked higher than opponent</div>
-  <div class="pts-legend-item diff-legend-neg">▼ = ranked lower than opponent</div>
+  <div class="pts-legend-item">Rang 1 = <strong>16 pts</strong></div>
+  <div class="pts-legend-item">Rang 16 = <strong>1 pt</strong></div>
+  <div class="pts-legend-item">× victoires par ronde</div>
+  <div class="pts-legend-item diff-legend-pos">▲ = mieux classé que l'adversaire</div>
+  <div class="pts-legend-item diff-legend-neg">▼ = moins bien classé que l'adversaire</div>
 </div>
 
 <script>
 const TEAMS=[
-  {name:"Buffalo Sabres",        abbr:"BUF",conf:"East",c1:"#003E7E",c2:"#FCB514"},
-  {name:"Boston Bruins",         abbr:"BOS",conf:"East",c1:"#FFB81C",c2:"#000000"},
-  {name:"Montreal Canadiens",    abbr:"MTL",conf:"East",c1:"#AF1E2D",c2:"#192168"},
-  {name:"Tampa Bay Lightning",   abbr:"TBL",conf:"East",c1:"#002868",c2:"#FFFFFF"},
-  {name:"Carolina Hurricanes",   abbr:"CAR",conf:"East",c1:"#CC0000",c2:"#FFFFFF"},
-  {name:"Ottawa Senators",       abbr:"OTT",conf:"East",c1:"#C8102E",c2:"#C69214"},
-  {name:"Pittsburgh Penguins",   abbr:"PIT",conf:"East",c1:"#000000",c2:"#FCB514"},
-  {name:"Philadelphia Flyers",   abbr:"PHI",conf:"East",c1:"#F74902",c2:"#FFFFFF"},
-  {name:"Colorado Avalanche",    abbr:"COL",conf:"West",c1:"#6F263D",c2:"#FFFFFF"},
-  {name:"Los Angeles Kings",     abbr:"LAK",conf:"West",c1:"#111111",c2:"#A2AAAD"},
-  {name:"Dallas Stars",          abbr:"DAL",conf:"West",c1:"#006847",c2:"#FFFFFF"},
-  {name:"Minnesota Wild",        abbr:"MIN",conf:"West",c1:"#154734",c2:"#DDAF57"},
-  {name:"Edmonton Oilers",       abbr:"EDM",conf:"West",c1:"#FF4C00",c2:"#041E42"},
-  {name:"Utah Hockey Club",      abbr:"UTA",conf:"West",c1:"#6CACE4",c2:"#FFFFFF",display:"Utah Mammoth"},
-  {name:"Vegas Golden Knights",  abbr:"VGK",conf:"West",c1:"#B4975A",c2:"#333F42"},
-  {name:"Anaheim Ducks",         abbr:"ANA",conf:"West",c1:"#F47A38",c2:"#B9975B"},
+  {name:"Buffalo Sabres",        abbr:"BUF",conf:"Est",c1:"#003E7E",c2:"#FCB514"},
+  {name:"Boston Bruins",         abbr:"BOS",conf:"Est",c1:"#FFB81C",c2:"#000000"},
+  {name:"Montreal Canadiens",    abbr:"MTL",conf:"Est",c1:"#AF1E2D",c2:"#192168"},
+  {name:"Tampa Bay Lightning",   abbr:"TBL",conf:"Est",c1:"#002868",c2:"#FFFFFF"},
+  {name:"Carolina Hurricanes",   abbr:"CAR",conf:"Est",c1:"#CC0000",c2:"#FFFFFF"},
+  {name:"Ottawa Senators",       abbr:"OTT",conf:"Est",c1:"#C8102E",c2:"#C69214"},
+  {name:"Pittsburgh Penguins",   abbr:"PIT",conf:"Est",c1:"#000000",c2:"#FCB514"},
+  {name:"Philadelphia Flyers",   abbr:"PHI",conf:"Est",c1:"#F74902",c2:"#FFFFFF"},
+  {name:"Colorado Avalanche",    abbr:"COL",conf:"Ouest",c1:"#6F263D",c2:"#FFFFFF"},
+  {name:"Los Angeles Kings",     abbr:"LAK",conf:"Ouest",c1:"#111111",c2:"#A2AAAD"},
+  {name:"Dallas Stars",          abbr:"DAL",conf:"Ouest",c1:"#006847",c2:"#FFFFFF"},
+  {name:"Minnesota Wild",        abbr:"MIN",conf:"Ouest",c1:"#154734",c2:"#DDAF57"},
+  {name:"Edmonton Oilers",       abbr:"EDM",conf:"Ouest",c1:"#FF4C00",c2:"#041E42"},
+  {name:"Utah Hockey Club",      abbr:"UTA",conf:"Ouest",c1:"#6CACE4",c2:"#FFFFFF",display:"Utah Mammoth"},
+  {name:"Vegas Golden Knights",  abbr:"VGK",conf:"Ouest",c1:"#B4975A",c2:"#333F42"},
+  {name:"Anaheim Ducks",         abbr:"ANA",conf:"Ouest",c1:"#F47A38",c2:"#B9975B"},
 ];
 
 const ROUND_MULT=[1,2,3,4];
@@ -444,7 +439,6 @@ function calcTeamEarned(teamName,pts_assigned){
 }
 
 // ── Rank diff badge ───────────────────────────────────────────────────────────
-// diff > 0 means "I ranked this team higher (closer to 1) than opponent" — a potential advantage
 function rankDiffBadge(diff){
   if(diff===null||diff===undefined)return '';
   if(diff===0)return`<span class="diff-badge diff-same">=</span>`;
@@ -459,7 +453,7 @@ function rankDiffBadge(diff){
 // ── Participants loading ──────────────────────────────────────────────────────
 function populateSelect(sel){
   const cur=sel.value;
-  sel.innerHTML='<option value="">— Select a participant —</option>';
+  sel.innerHTML='<option value="">— Sélectionner un participant —</option>';
   participants.forEach(p=>{
     const opt=document.createElement('option');
     opt.value=p.name;
@@ -472,13 +466,13 @@ function populateSelect(sel){
 async function loadParticipants(){
   const selA=document.getElementById('select-a');
   const selB=document.getElementById('select-b');
-  selA.innerHTML='<option value="">— Loading… —</option>';
-  selB.innerHTML='<option value="">— Loading… —</option>';
+  selA.innerHTML='<option value="">— Chargement… —</option>';
+  selB.innerHTML='<option value="">— Chargement… —</option>';
   try{
     const idx=await fetch('playoff/index.json?_='+Date.now());
     if(!idx.ok){
-      selA.innerHTML='<option value="">— No data —</option>';
-      selB.innerHTML='<option value="">— No data —</option>';
+      selA.innerHTML='<option value="">— Aucune donnée —</option>';
+      selB.innerHTML='<option value="">— Aucune donnée —</option>';
       return;
     }
     const files=(await idx.json()).filter(f=>f!=='bracket.json');
@@ -502,8 +496,8 @@ async function loadParticipants(){
     populateSelect(selA);
     populateSelect(selB);
   }catch(e){
-    selA.innerHTML='<option value="">— Error —</option>';
-    selB.innerHTML='<option value="">— Error —</option>';
+    selA.innerHTML='<option value="">— Erreur —</option>';
+    selB.innerHTML='<option value="">— Erreur —</option>';
   }
 }
 
@@ -511,24 +505,22 @@ async function loadParticipants(){
 function renderCard(participantName, slotId, otherPickMap){
   const slot=document.getElementById(slotId);
   if(!participantName){
-    const label=slotId==='card-slot-a'?'Select Player 1 above':'Select Player 2 above';
+    const label=slotId==='card-slot-a'?'Sélectionnez le Joueur 1 ci-dessus':'Sélectionnez le Joueur 2 ci-dessus';
     slot.innerHTML=`<div class="empty-slot"><p>${label}</p></div>`;
     return;
   }
 
   const p=participantFiles[participantName];
   if(!p){
-    slot.innerHTML=`<div class="empty-slot"><p>Participant not found</p></div>`;
+    slot.innerHTML=`<div class="empty-slot"><p>Participant introuvable</p></div>`;
     return;
   }
 
   const eliminated=getEliminated();
   const totalScore=calcScore(p.picks);
 
-  // Sorted picks: rank 1 = most points assigned
   const pickEntries=Object.entries(p.picks).sort((a,b)=>b[1]-a[1]);
 
-  // Build a rank lookup for the other player: teamName → rank (1-based)
   let otherRankOf=null;
   if(otherPickMap){
     const otherSorted=Object.entries(otherPickMap).sort((a,b)=>b[1]-a[1]);
@@ -536,11 +528,9 @@ function renderCard(participantName, slotId, otherPickMap){
     otherSorted.forEach(([tn],i)=>{otherRankOf[tn]=i+1;});
   }
 
-  // Leaderboard rank
   const allScores=participants.map(pp=>calcScore(pp.picks)).sort((a,b)=>b-a);
   const myRank=allScores.findIndex(s=>s===totalScore)+1;
 
-  // MVP team (most earned)
   let mvpTeam=null,mvpEarned=0;
   pickEntries.forEach(([teamName,pa])=>{
     const e=calcTeamEarned(teamName,pa);
@@ -554,7 +544,6 @@ function renderCard(participantName, slotId, otherPickMap){
     const earned=calcTeamEarned(teamName,pts_assigned);
     const isHot=teamName===mvpTeam&&earned>0;
 
-    // Diff: positive = I ranked this team higher (better rank number = lower) than opponent
     let diffHtml='';
     if(otherRankOf){
       const otherRank=otherRankOf[teamName];
@@ -564,9 +553,9 @@ function renderCard(participantName, slotId, otherPickMap){
 
     let earnedHtml='';
     if(isElim){
-      earnedHtml=`<div class="earned-pts eliminated" title="Eliminated">✗</div>`;
+      earnedHtml=`<div class="earned-pts eliminated" title="Éliminé">✗</div>`;
     } else if(earned>0){
-      earnedHtml=`<div class="earned-pts has-earned" title="Points earned so far">+${earned}</div>`;
+      earnedHtml=`<div class="earned-pts has-earned" title="Points gagnés">+${earned}</div>`;
     } else {
       earnedHtml=`<div class="earned-pts no-earned">—</div>`;
     }
@@ -592,20 +581,20 @@ function renderCard(participantName, slotId, otherPickMap){
   }).join('');
 
   const poolBadge=p.paid
-    ?`<span class="card-pool-badge paid">⭐ Paid</span>`
-    :`<span class="card-pool-badge free">Free</span>`;
+    ?`<span class="card-pool-badge paid">⭐ Payant</span>`
+    :`<span class="card-pool-badge free">Gratuit</span>`;
 
-  const dateStr=p.rawData?.date?new Date(p.rawData.date).toLocaleDateString('en-CA'):'';
-  const rankStr=totalScore>0?`#${myRank} of ${participants.length}`:'';
+  const dateStr=p.rawData?.date?new Date(p.rawData.date).toLocaleDateString('fr-CA'):'';
+  const rankStr=totalScore>0?`#${myRank} sur ${participants.length}`:'';
 
   slot.innerHTML=`
     <div class="picks-card">
       <div class="card-header">
         <div class="card-header-top">
           <div>
-            <div class="card-title">NHL <span>2026</span> Picks</div>
+            <div class="card-title">LNH <span>2026</span> Choix</div>
             <div class="card-meta">
-              <div class="card-meta-by">Picks by <strong>${participantName}</strong></div>
+              <div class="card-meta-by">Choix de <strong>${participantName}</strong></div>
               <div class="card-meta-sub">${dateStr}</div>
             </div>
             ${poolBadge}
@@ -658,7 +647,7 @@ function renderVsBanner(nameA, nameB){
     delta.textContent=`+${scoreB-scoreA} ${nameB.split(' ')[0]}`;
   } else {
     delta.classList.add('tied');
-    delta.textContent='Tied';
+    delta.textContent='Égalité';
   }
 
   banner.style.display='';
@@ -704,10 +693,10 @@ Promise.all([loadBracket(), loadResultsRemote(), loadParticipants()]);
     <svg viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
       <path d="M24 12.073C24 5.406 18.627 0 12 0S0 5.406 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.313 0 2.686.235 2.686.235v2.97h-1.513c-1.491 0-1.956.93-1.956 1.874v2.25h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/>
     </svg>
-    <span class="fb-label">Follow on Facebook</span>
-    <span class="fb-sub">Daily picks &amp; analysis</span>
+    <span class="fb-label">Suivre sur Facebook</span>
+    <span class="fb-sub">Pronostics &amp; analyses quotidiennes</span>
   </a>
-  <button class="fb-dismiss" id="fbDismiss" aria-label="Dismiss">×</button>
+  <button class="fb-dismiss" id="fbDismiss" aria-label="Fermer">×</button>
 </div>
 <script>
 (function(){
