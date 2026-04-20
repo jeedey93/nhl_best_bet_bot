@@ -245,7 +245,12 @@
   }
   function cwRender(){
     const list = document.getElementById('cw-list');
-    const filtered = cwFilter === 'all' ? cwComments : cwComments.filter(c=>c.tag===cwFilter);
+    const filtered = cwFilter === 'all' ? cwComments : cwComments.filter(c=>{
+      if(cwFilter==='hot') return c.message&&c.message.includes('🔥');
+      if(cwFilter==='predictions') return c.message&&c.message.includes('🏆');
+      if(cwFilter==='trash') return c.message&&c.message.includes('😤');
+      return true;
+    });
     document.getElementById('cw-count-all').textContent = cwComments.length;
     if(!filtered.length){
       list.innerHTML = '<div class="cw-empty">No comments yet — be the first to post! 🏒</div>';
