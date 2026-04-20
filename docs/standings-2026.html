@@ -316,7 +316,8 @@
   .gs-vote-bar-fill{height:100%;border-radius:3px;transition:width 0.4s ease;}
   .gs-vote-bar-fill.away{background:rgba(200,16,46,0.7);}
   .gs-vote-bar-fill.home{background:rgba(255,184,28,0.7);}
-  .gs-vote-pct{width:26px;text-align:right;flex-shrink:0;font-family:'Bebas Neue',cursive;font-size:0.75rem;}
+  .gs-vote-pct{text-align:right;flex-shrink:0;font-family:'Bebas Neue',cursive;font-size:0.75rem;}
+  .gs-vote-count{font-size:0.6rem;color:rgba(255,255,255,0.35);margin-left:2px;font-family:'Barlow Condensed',sans-serif;}
 </style>
 </head>
 <body>
@@ -326,7 +327,7 @@
     <div class="site-nav-links">
       <a href="standings-2026.html" class="active">Standings</a>
       <a href="compare-picks-2026.html">Compare</a>
-      <a href="trash-talk-wall.html">Wall</a>
+      <a href="trash-talk-wall.html">Forum</a>
       <a href="standings-2026-fr.html" class="lang-switch">FR</a>
     </div>
   </div>
@@ -967,12 +968,12 @@ setInterval(()=>{loadResultsRemote();loadParticipants();},5*60*1000);
           <div class="gs-vote-bar-row">
             <span class="gs-vote-bar-label">${awayShort}</span>
             <div class="gs-vote-bar-track"><div class="gs-vote-bar-fill away" style="width:${awayPct}%"></div></div>
-            <span class="gs-vote-pct">${awayPct}%</span>
+            <span class="gs-vote-pct">${awayPct}%<span class="gs-vote-count">(${counts.away||0})</span></span>
           </div>
           <div class="gs-vote-bar-row">
             <span class="gs-vote-bar-label">${homeShort}</span>
             <div class="gs-vote-bar-track"><div class="gs-vote-bar-fill home" style="width:${homePct}%"></div></div>
-            <span class="gs-vote-pct">${homePct}%</span>
+            <span class="gs-vote-pct">${homePct}%<span class="gs-vote-count">(${counts.home||0})</span></span>
           </div>
         </div>
       </div>`:'';
@@ -1036,8 +1037,8 @@ setInterval(()=>{loadResultsRemote();loadParticipants();},5*60*1000);
     const pcts=bars.querySelectorAll('.gs-vote-pct');
     fills[0].style.width=awayPct+'%';
     fills[1].style.width=homePct+'%';
-    pcts[0].textContent=awayPct+'%';
-    pcts[1].textContent=homePct+'%';
+    pcts[0].innerHTML=awayPct+'%<span class="gs-vote-count">('+( counts.away||0)+')</span>';
+    pcts[1].innerHTML=homePct+'%<span class="gs-vote-count">('+( counts.home||0)+')</span>';
   }
 
   async function fetchGames(){
