@@ -253,6 +253,11 @@
     display:inline-flex;align-items:center;gap:5px;transition:background 0.15s;}
   .btn-share-lb:hover{background:rgba(255,184,28,0.2);}
   .btn-share-lb:disabled{opacity:0.5;cursor:default;}
+  .search-participant{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);
+    border-radius:7px;padding:0.35rem 0.8rem;color:white;font-family:'Barlow Condensed',sans-serif;
+    font-size:0.95rem;letter-spacing:1px;outline:none;width:160px;transition:border-color 0.2s;}
+  .search-participant::placeholder{color:rgba(168,178,190,0.5);}
+  .search-participant:focus{border-color:rgba(255,184,28,0.5);}
   #share-card{position:fixed;left:-9999px;top:0;width:600px;
     background:#07111f;font-family:'Barlow Condensed',sans-serif;color:white;
     padding:0;overflow:hidden;}
@@ -343,6 +348,7 @@
     <button class="lb-toggle-btn paid-btn" id="btn-paid" onclick="switchLb('paid')">Entrée Payante</button>
   </div>
   <button class="btn-share-lb" id="btn-share-lb" onclick="shareLeaderboard()">📸 Partager</button>
+  <input class="search-participant" id="search-participant" type="text" placeholder="🔍 Rechercher…" oninput="filterLeaderboard()" autocomplete="off">
 </div>
 
 <!-- Classement général -->
@@ -818,6 +824,25 @@ function switchLb(mode){
   document.getElementById('btn-paid').classList.toggle('active',mode==='paid');
   const pot=mode==='paid'?participants.filter(p=>p.paid).length*10:0;
   renderPodium(mode==='paid'?_paidRows:_allRows, pot);
+  filterLeaderboard();
+}
+
+function filterLeaderboard(){
+  const q=(document.getElementById('search-participant')?.value||'').trim().toLowerCase();
+  ['lb-body','paid-lb-body'].forEach(tbodyId=>{
+    const tbody=document.getElementById(tbodyId);
+    if(!tbody)return;
+    const rows=[...tbody.querySelectorAll('tr.expandable')];
+    rows.forEach(tr=>{
+      const name=tr.querySelector('.name-cell')?.textContent?.toLowerCase()||'';
+      const match=!q||name.includes(q);
+      tr.style.display=match?'':'none';
+      const next=tr.nextElementSibling;
+      if(next&&next.classList.contains('spotlight-row')&&!match){
+        next.style.display='none';
+      }
+    });
+  });
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────
