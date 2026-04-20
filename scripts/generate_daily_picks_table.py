@@ -255,7 +255,7 @@ def parse_prediction_file(file_path, sport):
     # Find BET OF THE DAY section (works for both formats)
     # Look for patterns like "🏆 **BET OF THE DAY**" or "BET OF THE DAY:"
     # The pick might be on the same line or the next line
-    bet_of_day_match = re.search(r'(?:🏆\s*)?(?:\*\*)?BET OF THE DAY(?:\*\*)?:?\s*\n\*\*(.+?@\s*[\d.]+)\*\*', content, re.DOTALL | re.IGNORECASE)
+    bet_of_day_match = re.search(r'(?:🏆\s*)?(?:\*\*)?BET OF THE DAY(?:\*\*)?:?\s*\n(?:\*\*)?(.+?@\s*[\d.]+)(?:\*\*)?', content, re.DOTALL | re.IGNORECASE)
 
     if bet_of_day_match:
         pick_line = bet_of_day_match.group(1).strip()
@@ -318,20 +318,20 @@ def parse_prediction_file(file_path, sport):
     if other_plays_section:
         plays_text = other_plays_section.group(1)
 
-        # Find all bold lines with team names and @ odds
-        pick_lines = re.findall(r'\*\*([A-Z][^*]+@\s*[\d.]+)\*\*', plays_text)
+        # Find all pick lines with team names and @ odds (with or without bold markers)
+        pick_lines = re.findall(r'(?:\*\*)?([A-Z][^*\n]+@\s*[\d.]+)(?:\*\*)?', plays_text)
 
         for pick_line in pick_lines:
             pick_line = pick_line.strip()
 
             # Find the section for this pick (from pick line to next pick or end)
-            escaped_pick = re.escape(pick_line)  # Use full pick line
+            escaped_pick = re.escape(pick_line)
             # Try to match until next pick or end of text
-            section_match = re.search(rf'\*\*{escaped_pick}\*\*\s*\n(.*?)(?=\n\*\*[A-Z])', plays_text, re.DOTALL)
+            section_match = re.search(rf'(?:\*\*)?{escaped_pick}(?:\*\*)?\s*\n(.*?)(?=\n(?:\*\*)?[A-Z])', plays_text, re.DOTALL)
 
             # If no match (likely the last pick), try matching till end
             if not section_match:
-                section_match = re.search(rf'\*\*{escaped_pick}\*\*\s*\n(.*)', plays_text, re.DOTALL)
+                section_match = re.search(rf'(?:\*\*)?{escaped_pick}(?:\*\*)?\s*\n(.*)', plays_text, re.DOTALL)
 
             reasoning = ""
             confidence_level = "High"
