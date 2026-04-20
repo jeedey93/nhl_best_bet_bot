@@ -336,7 +336,11 @@
         statusEl.className='cw-status ok';statusEl.textContent='Posted!';
         setTimeout(()=>{statusEl.textContent='';},4000);
         await cwLoad();
-      } else { throw new Error(res.status); }
+      } else {
+        const body=await res.text();
+        console.error('Supabase insert error',res.status,body);
+        throw new Error(res.status+': '+body);
+      }
     }catch(e){
       statusEl.className='cw-status err';statusEl.textContent='Error — please try again.';
     }finally{btn.disabled=false;btn.textContent='Post';}
