@@ -1660,24 +1660,26 @@ def extract_bet_of_day_from_prediction(content, sport_name, sport_emoji):
 
     for i in range(bet_start + 1, len(lines)):
         line = lines[i].strip()
+        clean_line = line.strip('*').strip()
 
         # Stop immediately if we hit another section (like "**Other Recommended Plays**")
-        if line.startswith("**"):
+        # Use clean_line so bold-wrapped bet lines aren't mistaken for section headers
+        if line.startswith("**") and clean_line and not clean_line.startswith("[") and bet_line:
             break
 
-        if not line:
+        if not clean_line:
             continue
 
         # First non-empty line after BET OF THE DAY is the bet
-        if not bet_line and not line.startswith("Confidence"):
-            bet_line = line
+        if not bet_line and not clean_line.startswith("Confidence"):
+            bet_line = clean_line
         # Confidence line
-        elif line.startswith("Confidence"):
-            confidence_line = line
+        elif clean_line.startswith("Confidence"):
+            confidence_line = clean_line
             # Stop after getting confidence - we have everything we need
             break
         # Description (lines between bet and confidence)
-        elif bet_line and not line.startswith("Confidence"):
+        elif bet_line and not clean_line.startswith("Confidence"):
             if description:
                 description += "\n"
             description += line
