@@ -854,7 +854,9 @@ def analyze_results(results_text, absences_text, recent_games, team_stats_text, 
     # Use the 7am-specific prompt (no goalie data) for early run, standard prompt for 3pm
     # In playoff mode, use the playoff-specific prompt
     is_playoffs = os.environ.get("PLAYOFF_MODE", "").lower() in ("1", "true", "yes")
-    if is_playoffs:
+    if is_playoffs and run_time == "7am":
+        prompt_path = os.path.join("prompts", "nhl_prompt_playoffs_7am.txt")
+    elif is_playoffs:
         prompt_path = os.path.join("prompts", "nhl_playoff_prompt.txt")
     elif run_time == "7am":
         prompt_path = os.path.join("prompts", "nhl_prompt_7am.txt")
