@@ -393,13 +393,22 @@ def parse_prediction_file(file_path, sport):
 
 def get_latest_prediction_file(sport):
     """Get the latest prediction file for a sport from main predictions directory."""
+    from datetime import date
+    today = date.today().isoformat()
+
+    # Prefer today's 7am file from daily_runs if it exists
+    daily_runs_dir = f'data/predictions/{sport}/daily_runs'
+    for suffix in ['_7am', '_3pm', '']:
+        candidate = os.path.join(daily_runs_dir, f'{sport}_daily_predictions_{today}{suffix}.txt')
+        if os.path.isfile(candidate):
+            return candidate
+
     predictions_dir = f'data/predictions/{sport}'
 
     if not os.path.exists(predictions_dir):
         return None
 
     # Get all prediction files matching the pattern
-    pattern = f'{sport}_daily_predictions_*.txt'
     files = []
 
     for filename in os.listdir(predictions_dir):
