@@ -213,10 +213,6 @@
   const SUPA_URL = 'https://fifurqlitkywtmhgtzeu.supabase.co';
   const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZpZnVycWxpdGt5d3RtaGd0emV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3MDIyMjQsImV4cCI6MjA5MjI3ODIyNH0.KPVPj1qwbSJJMyLR_-AhDcRs0vi2sUU6qbFQ-kH53C0';
 
-  const REACTIONS = ['🔥','👍','😂','💀','🏆','👎'];
-  const TAG_LABELS = { hot:'🔥 HOT', predictions:'🏆 PRED', trash:'😤 TRASH' };
-  const TAG_CLASSES = { hot:'hot', predictions:'predictions', trash:'trash' };
-
   let cwComments = [];
   let cwFilter = 'all';
   let cwVisible = 8;
@@ -252,20 +248,12 @@
     }
     const visible = filtered.slice(0, cwVisible);
     list.innerHTML = visible.map(c=>{
-      const reactions = c.reactions||{};
-      const mySet = new Set(cwReacted[c.id]||[]);
-      const reactHtml = REACTIONS.map(e=>{
-        const count = reactions[e]||0;
-        const active = mySet.has(e)?' reacted':'';
-        return `<button class="cw-react${active}" onclick="cwReact(${c.id},'${e}')">${e}<span class="cw-react-count">${count||''}</span></button>`;
-      }).join('');
-      const tagHtml = '';
       const teamHtml = c.team?`<span class="cw-card-team">· ${c.team}</span>`:'';
       return `<div class="cw-card" id="cw-card-${c.id}">
         <div class="cw-card-header">
           <div class="cw-avatar">${cwInitials(c.name)}</div>
           <div class="cw-card-meta">
-            <div><span class="cw-card-name">${c.name}</span>${teamHtml}${tagHtml}</div>
+            <div><span class="cw-card-name">${c.name}</span>${teamHtml}</div>
             <div class="cw-card-time">${cwTimeAgo(c.created_at)}</div>
           </div>
         </div>
@@ -287,29 +275,6 @@
       cwRender();
     }catch(e){}
   }
-  window.cwReact = async function(id,emoji){
-    const c=cwComments.find(x=>x.id===id); if(!c) return;
-    c.reactions=c.reactions||{};
-    if(!cwReacted[id]) cwReacted[id]=[];
-    const already=cwReacted[id].includes(emoji);
-    if(already){
-      cwReacted[id]=cwReacted[id].filter(e=>e!==emoji);
-      c.reactions[emoji]=Math.max(0,(c.reactions[emoji]||0)-1);
-      if(c.reactions[emoji]===0) delete c.reactions[emoji];
-    } else {
-      cwReacted[id].push(emoji);
-      c.reactions[emoji]=(c.reactions[emoji]||0)+1;
-    }
-    sessionStorage.setItem('cw_reacted',JSON.stringify(cwReacted));
-    cwRender();
-    try{
-      await fetch(`${SUPA_URL}/rest/v1/comments?id=eq.${id}`,{
-        method:'PATCH',
-        headers:{'apikey':SUPA_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
-        body:JSON.stringify({reactions:c.reactions})
-      });
-    }catch(e){}
-  };
   window.cwSubmit = async function(){
     const name=document.getElementById('cw-name').value.trim();
     const message=document.getElementById('cw-text').value.trim();
@@ -319,11 +284,10 @@
     const btn=document.getElementById('cw-submit');
     btn.disabled=true;btn.textContent='…';statusEl.textContent='';
     try{
-      const tag=cwDetectTag(message);
       const res=await fetch(`${SUPA_URL}/rest/v1/comments`,{
         method:'POST',
         headers:{'apikey':SUPA_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
-        body:JSON.stringify({name,team:null,message,tag,status:'approved',reactions:{}})
+        body:JSON.stringify({name,message})
       });
       if(res.ok||res.status===201){
         document.getElementById('cw-name').value='';
