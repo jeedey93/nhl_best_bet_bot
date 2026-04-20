@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trash Talk Wall – NHL 2026 Playoffs</title>
+<meta property="og:title" content="NHL 2026 Playoff Picks – Trash Talk Wall">
+<meta property="og:description" content="Drop your predictions, hot takes, and trash talk for the 2026 NHL Playoffs.">
+<meta property="og:image" content="https://parieurdiscipline.com/parieur_discipline_icon_1024.png">
+<meta property="og:url" content="https://parieurdiscipline.com/trash-talk-wall.html">
+<meta property="og:type" content="website">
+<link rel="icon" type="image/png" href="parieur_discipline_icon_1024.png">
+<link rel="apple-touch-icon" href="parieur_discipline_icon_1024.png">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  :root{--rink:#07111f;--red:#c8102e;--gold:#ffb81c;--silver:#a8b2be;--green:#22c55e;}
+
+  body{background:var(--rink);min-height:100vh;font-family:'Barlow Condensed',sans-serif;
+    background-image:
+      radial-gradient(ellipse 100% 60% at 50% -5%,rgba(26,58,110,0.7) 0%,transparent 65%),
+      radial-gradient(ellipse 60% 40% at 80% 80%,rgba(200,16,46,0.12) 0%,transparent 60%);
+    padding:2rem 1rem 5rem;padding-top:calc(68px + 2rem);}
+
+  /* ── Navbar ── */
+  .site-nav{position:fixed;top:0;left:0;right:0;z-index:100;
+    background:rgba(7,17,31,0.92);border-bottom:1px solid rgba(255,255,255,0.07);
+    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);}
+  .site-nav-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;
+    justify-content:space-between;padding:0 2rem;height:68px;}
+  .site-nav-brand{font-family:'Bebas Neue',cursive;font-size:1.6rem;color:var(--gold);
+    letter-spacing:4px;text-decoration:none;white-space:nowrap;}
+  .site-nav-links{display:flex;align-items:center;gap:0.5rem;}
+  .site-nav-links a{font-family:'Barlow Condensed',sans-serif;font-size:1.05rem;font-weight:600;
+    letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.6);
+    text-decoration:none;padding:0.6rem 1rem;border-radius:6px;
+    transition:color 0.15s,background 0.15s;}
+  .site-nav-links a:hover{color:white;background:rgba(255,255,255,0.07);}
+  .site-nav-links a.active{color:var(--gold);background:rgba(255,184,28,0.1);}
+  .site-nav-links a.lang-switch{font-size:0.8rem;opacity:0.6;}
+  @media(max-width:600px){
+    .site-nav-inner{height:58px;padding:0 0.75rem;}
+    .site-nav-brand{font-size:1.1rem;letter-spacing:2px;}
+    .site-nav-links{gap:0.1rem;}
+    .site-nav-links a{font-size:0.82rem;padding:0.45rem 0.5rem;letter-spacing:0.5px;}
+    .site-nav-links a.lang-switch{font-size:0.82rem;opacity:1;padding:0.45rem 0.5rem;}
+  }
+  @media(max-width:380px){
+    .site-nav-brand{font-size:0.9rem;letter-spacing:1px;}
+    .site-nav-links a{font-size:0.75rem;padding:0.4rem 0.4rem;}
+  }
+
+  /* ── Wall layout ── */
+  .wall-wrap{max-width:680px;margin:0 auto;}
+
+  header{text-align:center;margin-bottom:2rem;}
+  header h1{font-family:'Bebas Neue',cursive;font-size:clamp(2.2rem,6vw,3.8rem);color:white;
+    letter-spacing:5px;text-shadow:0 0 60px rgba(200,16,46,0.6);line-height:1;}
+  header h1 span{color:var(--gold);}
+  .wall-sub{text-align:center;font-size:0.8rem;color:rgba(168,178,190,0.5);
+    letter-spacing:2px;text-transform:uppercase;margin-top:0.4rem;}
+
+  /* ── Form ── */
+  .cw-form{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);
+    border-radius:10px;padding:1.1rem 1.25rem;margin-bottom:1.5rem;}
+  .cw-form-row{display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap;}
+  .cw-input{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);
+    border-radius:7px;padding:0.45rem 0.9rem;color:white;
+    font-family:'Barlow Condensed',sans-serif;font-size:0.95rem;
+    letter-spacing:0.5px;outline:none;transition:border-color 0.2s;}
+  .cw-input::placeholder{color:rgba(168,178,190,0.45);}
+  .cw-input:focus{border-color:rgba(255,184,28,0.5);}
+  .cw-input-name{width:180px;flex-shrink:0;}
+  .cw-input-team{flex:1;min-width:130px;}
+  @media(max-width:480px){.cw-input-name,.cw-input-team{width:100%;flex:none;}}
+  .cw-textarea{width:100%;box-sizing:border-box;resize:vertical;min-height:78px;
+    background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);
+    border-radius:7px;padding:0.5rem 0.9rem;color:white;
+    font-family:'Barlow Condensed',sans-serif;font-size:0.95rem;
+    letter-spacing:0.5px;outline:none;transition:border-color 0.2s;margin-bottom:10px;}
+  .cw-textarea::placeholder{color:rgba(168,178,190,0.45);}
+  .cw-textarea:focus{border-color:rgba(255,184,28,0.5);}
+  .cw-emoji-strip{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;align-items:center;}
+  .cw-emoji-strip span{font-size:0.7rem;color:rgba(168,178,190,0.4);letter-spacing:1px;}
+  .cw-emoji-btn{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);
+    border-radius:6px;padding:3px 9px;cursor:pointer;font-size:1rem;
+    transition:background 0.15s;line-height:1.4;}
+  .cw-emoji-btn:hover{background:rgba(255,255,255,0.12);}
+  .cw-form-actions{display:flex;align-items:center;gap:10px;}
+  .cw-submit{background:var(--red);border:none;color:white;border-radius:7px;
+    padding:0.5rem 1.3rem;font-family:'Bebas Neue',cursive;font-size:1rem;
+    letter-spacing:2px;cursor:pointer;transition:opacity 0.15s;}
+  .cw-submit:hover{opacity:0.85;}
+  .cw-submit:disabled{opacity:0.4;cursor:default;}
+  .cw-char{font-size:0.75rem;color:rgba(168,178,190,0.4);margin-left:auto;}
+  .cw-char.warn{color:var(--red);}
+  .cw-status{font-size:0.8rem;font-weight:600;letter-spacing:0.5px;}
+  .cw-status.ok{color:var(--green);}
+  .cw-status.err{color:var(--red);}
+  .cw-pending-banner{background:rgba(255,184,28,0.07);border:1px solid rgba(255,184,28,0.2);
+    border-left:3px solid var(--gold);border-radius:0 7px 7px 0;
+    padding:0.5rem 0.9rem;font-size:0.8rem;color:rgba(255,255,255,0.65);
+    letter-spacing:0.5px;margin-bottom:1rem;display:none;}
+
+  /* ── Filters ── */
+  .cw-filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem;align-items:center;}
+  .cw-filters span{font-size:0.7rem;color:rgba(168,178,190,0.4);letter-spacing:1px;text-transform:uppercase;}
+  .cw-filter{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
+    border-radius:20px;padding:3px 14px;font-family:'Barlow Condensed',sans-serif;
+    font-size:0.85rem;cursor:pointer;color:rgba(168,178,190,0.7);
+    transition:all 0.15s;letter-spacing:0.5px;}
+  .cw-filter:hover{color:white;}
+  .cw-filter.active{background:rgba(200,16,46,0.15);border-color:rgba(200,16,46,0.4);color:white;}
+
+  /* ── Cards ── */
+  .cw-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);
+    border-radius:10px;padding:0.9rem 1.1rem;margin-bottom:10px;transition:border-color 0.2s;}
+  .cw-card:hover{border-color:rgba(255,255,255,0.12);}
+  .cw-card-header{display:flex;align-items:center;gap:10px;margin-bottom:7px;}
+  .cw-avatar{width:36px;height:36px;border-radius:50%;
+    background:linear-gradient(135deg,rgba(200,16,46,0.3),rgba(200,16,46,0.1));
+    border:1px solid rgba(200,16,46,0.35);display:flex;align-items:center;
+    justify-content:center;font-family:'Bebas Neue',cursive;font-size:0.9rem;
+    color:rgba(255,255,255,0.85);letter-spacing:1px;flex-shrink:0;}
+  .cw-card-meta{flex:1;min-width:0;}
+  .cw-card-name{font-weight:700;font-size:0.95rem;color:white;letter-spacing:0.5px;}
+  .cw-card-team{font-size:0.78rem;color:rgba(168,178,190,0.55);margin-left:5px;}
+  .cw-card-time{font-size:0.72rem;color:rgba(168,178,190,0.4);letter-spacing:0.5px;margin-top:1px;}
+  .cw-tag{font-size:0.65rem;font-family:'Bebas Neue',cursive;letter-spacing:1.5px;
+    padding:1px 7px;border-radius:4px;margin-left:6px;vertical-align:middle;}
+  .cw-tag.hot{background:rgba(200,16,46,0.15);color:#ff6b6b;border:1px solid rgba(200,16,46,0.3);}
+  .cw-tag.predictions{background:rgba(255,184,28,0.1);color:var(--gold);border:1px solid rgba(255,184,28,0.25);}
+  .cw-tag.trash{background:rgba(168,178,190,0.08);color:var(--silver);border:1px solid rgba(168,178,190,0.2);}
+  .cw-card-body{font-size:0.95rem;color:rgba(255,255,255,0.85);line-height:1.5;margin-bottom:8px;word-break:break-word;}
+  .cw-reactions{display:flex;gap:5px;flex-wrap:wrap;}
+  .cw-react{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);
+    border-radius:20px;padding:2px 10px;font-size:0.82rem;cursor:pointer;
+    display:inline-flex;align-items:center;gap:4px;transition:all 0.15s;
+    color:rgba(168,178,190,0.7);}
+  .cw-react:hover{background:rgba(255,255,255,0.1);}
+  .cw-react.reacted{background:rgba(255,184,28,0.1);border-color:rgba(255,184,28,0.35);color:var(--gold);}
+  .cw-react-count{font-family:'Bebas Neue',cursive;font-size:0.85rem;min-width:8px;}
+  .cw-empty{text-align:center;padding:2.5rem 1rem;color:rgba(168,178,190,0.4);font-size:0.9rem;letter-spacing:1px;}
+  .cw-load-more{width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);
+    border-radius:7px;padding:0.5rem;font-family:'Barlow Condensed',sans-serif;
+    font-size:0.9rem;color:rgba(168,178,190,0.6);cursor:pointer;letter-spacing:1px;
+    margin-top:4px;transition:background 0.15s;}
+  .cw-load-more:hover{background:rgba(255,255,255,0.08);}
+  .cw-count-badge{font-size:0.75rem;background:rgba(200,16,46,0.15);
+    border:1px solid rgba(200,16,46,0.3);border-radius:20px;
+    padding:1px 9px;color:rgba(255,255,255,0.6);margin-left:8px;vertical-align:middle;}
+</style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="site-nav-inner">
+    <a class="site-nav-brand" href="index.html">Parieur Discipliné</a>
+    <div class="site-nav-links">
+      <a href="standings-2026.html">Standings</a>
+      <a href="compare-picks-2026.html">Compare</a>
+      <a href="trash-talk-wall.html" class="active">💬 Wall</a>
+      <a href="trash-talk-wall-fr.html" class="lang-switch">FR</a>
+    </div>
+  </div>
+</nav>
+
+<div class="wall-wrap">
+  <header>
+    <h1>Trash Talk <span>Wall</span></h1>
+    <p class="wall-sub">💬 Posts are live instantly</p>
+  </header>
+
+  <div class="cw-form">
+    <div class="cw-form-row">
+      <input class="cw-input cw-input-name" id="cw-name" type="text" placeholder="Your name" maxlength="40" autocomplete="off">
+    </div>
+    <div class="cw-emoji-strip">
+      <span>Quick:</span>
+      <button class="cw-emoji-btn" type="button" onclick="cwInsertEmoji('🔥')">🔥</button>
+      <button class="cw-emoji-btn" type="button" onclick="cwInsertEmoji('😤')">😤</button>
+      <button class="cw-emoji-btn" type="button" onclick="cwInsertEmoji('🏒')">🏒</button>
+      <button class="cw-emoji-btn" type="button" onclick="cwInsertEmoji('🏆')">🏆</button>
+      <button class="cw-emoji-btn" type="button" onclick="cwInsertEmoji('💀')">💀</button>
+      <button class="cw-emoji-btn" type="button" onclick="cwInsertEmoji('👑')">👑</button>
+      <button class="cw-emoji-btn" type="button" onclick="cwInsertEmoji('❄️')">❄️</button>
+      <button class="cw-emoji-btn" type="button" onclick="cwInsertEmoji('😂')">😂</button>
+    </div>
+    <textarea class="cw-textarea" id="cw-text" placeholder="Drop your prediction, trash talk, or hot take… (280 chars max)" maxlength="280" oninput="cwUpdateChar()"></textarea>
+    <div class="cw-form-actions">
+      <button class="cw-submit" id="cw-submit" type="button" onclick="cwSubmit()">Post</button>
+      <span class="cw-char" id="cw-char">280</span>
+      <span class="cw-status" id="cw-status"></span>
+    </div>
+  </div>
+
+  <div class="cw-pending-banner" id="cw-pending-banner">
+    ✅ Your comment was posted! Refresh in a moment to see it.
+  </div>
+
+  <div class="cw-filters">
+    <span>Filter:</span>
+    <button class="cw-filter active" data-filter="all" onclick="cwSetFilter('all',this)">All <span class="cw-count-badge" id="cw-count-all">0</span></button>
+    <button class="cw-filter" data-filter="hot" onclick="cwSetFilter('hot',this)">🔥 Hot takes</button>
+    <button class="cw-filter" data-filter="predictions" onclick="cwSetFilter('predictions',this)">🏆 Predictions</button>
+    <button class="cw-filter" data-filter="trash" onclick="cwSetFilter('trash',this)">😤 Trash talk</button>
+  </div>
+
+  <div id="cw-list"></div>
+  <button class="cw-load-more" id="cw-load-more" style="display:none" onclick="cwLoadMore()">Load more comments</button>
+</div>
+
+<script>
+(function(){
+  const SUPA_URL = 'https://fifurqlitkywtmhgtzeu.supabase.co';
+  const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZpZnVycWxpdGt5d3RtaGd0emV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3MDIyMjQsImV4cCI6MjA5MjI3ODIyNH0.KPVPj1qwbSJJMyLR_-AhDcRs0vi2sUU6qbFQ-kH53C0';
+
+  const REACTIONS = ['🔥','👍','😂','💀','🏆','👎'];
+  const TAG_LABELS = { hot:'🔥 HOT', predictions:'🏆 PRED', trash:'😤 TRASH' };
+  const TAG_CLASSES = { hot:'hot', predictions:'predictions', trash:'trash' };
+
+  let cwComments = [];
+  let cwFilter = 'all';
+  let cwVisible = 8;
+  let cwReacted = JSON.parse(sessionStorage.getItem('cw_reacted')||'{}');
+
+  function cwInitials(name){
+    return name.trim().split(/\s+/).map(w=>w[0]).join('').toUpperCase().slice(0,2)||'??';
+  }
+  function cwDetectTag(text){
+    const t = text.toLowerCase();
+    if(/🏆|predict|final|win in \d|screenshot|going all the way/.test(t)) return 'predictions';
+    if(/😤|💀|trash|fight me|pretend|wake up|clown|never/.test(t)) return 'trash';
+    if(/🔥|hot take|mark my words|built different|watch out|sleeping on/.test(t)) return 'hot';
+    return null;
+  }
+  function cwTimeAgo(iso){
+    const diff = Date.now() - new Date(iso).getTime();
+    const m = Math.floor(diff/60000);
+    if(m < 1) return 'just now';
+    if(m < 60) return m+'m ago';
+    const h = Math.floor(m/60);
+    if(h < 24) return h+'h ago';
+    return Math.floor(h/24)+'d ago';
+  }
+  function cwRender(){
+    const list = document.getElementById('cw-list');
+    const filtered = cwFilter === 'all' ? cwComments : cwComments.filter(c=>c.tag===cwFilter);
+    document.getElementById('cw-count-all').textContent = cwComments.length;
+    if(!filtered.length){
+      list.innerHTML = '<div class="cw-empty">No comments yet — be the first to post! 🏒</div>';
+      document.getElementById('cw-load-more').style.display = 'none';
+      return;
+    }
+    const visible = filtered.slice(0, cwVisible);
+    list.innerHTML = visible.map(c=>{
+      const reactions = c.reactions||{};
+      const mySet = new Set(cwReacted[c.id]||[]);
+      const reactHtml = REACTIONS.map(e=>{
+        const count = reactions[e]||0;
+        const active = mySet.has(e)?' reacted':'';
+        return `<button class="cw-react${active}" onclick="cwReact(${c.id},'${e}')">${e}<span class="cw-react-count">${count||''}</span></button>`;
+      }).join('');
+      const tagHtml = c.tag&&TAG_LABELS[c.tag]?`<span class="cw-tag ${TAG_CLASSES[c.tag]}">${TAG_LABELS[c.tag]}</span>`:'';
+      const teamHtml = c.team?`<span class="cw-card-team">· ${c.team}</span>`:'';
+      return `<div class="cw-card" id="cw-card-${c.id}">
+        <div class="cw-card-header">
+          <div class="cw-avatar">${cwInitials(c.name)}</div>
+          <div class="cw-card-meta">
+            <div><span class="cw-card-name">${c.name}</span>${teamHtml}${tagHtml}</div>
+            <div class="cw-card-time">${cwTimeAgo(c.created_at)}</div>
+          </div>
+        </div>
+        <div class="cw-card-body">${c.message}</div>
+        <div class="cw-reactions">${reactHtml}</div>
+      </div>`;
+    }).join('');
+    const loadMore = document.getElementById('cw-load-more');
+    if(filtered.length > cwVisible){
+      loadMore.style.display='';
+      loadMore.textContent=`Load ${Math.min(8,filtered.length-cwVisible)} more comments`;
+    } else { loadMore.style.display='none'; }
+  }
+  async function cwLoad(){
+    try{
+      const res = await fetch(`${SUPA_URL}/rest/v1/comments?status=eq.approved&order=created_at.desc&limit=100`,
+        {headers:{'apikey':SUPA_KEY,'Accept':'application/json'}});
+      if(!res.ok) return;
+      cwComments = await res.json();
+      cwRender();
+    }catch(e){}
+  }
+  window.cwReact = async function(id,emoji){
+    const c=cwComments.find(x=>x.id===id); if(!c) return;
+    c.reactions=c.reactions||{};
+    if(!cwReacted[id]) cwReacted[id]=[];
+    const already=cwReacted[id].includes(emoji);
+    if(already){
+      cwReacted[id]=cwReacted[id].filter(e=>e!==emoji);
+      c.reactions[emoji]=Math.max(0,(c.reactions[emoji]||0)-1);
+      if(c.reactions[emoji]===0) delete c.reactions[emoji];
+    } else {
+      cwReacted[id].push(emoji);
+      c.reactions[emoji]=(c.reactions[emoji]||0)+1;
+    }
+    sessionStorage.setItem('cw_reacted',JSON.stringify(cwReacted));
+    cwRender();
+    try{
+      await fetch(`${SUPA_URL}/rest/v1/comments?id=eq.${id}`,{
+        method:'PATCH',
+        headers:{'apikey':SUPA_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
+        body:JSON.stringify({reactions:c.reactions})
+      });
+    }catch(e){}
+  };
+  window.cwSubmit = async function(){
+    const name=document.getElementById('cw-name').value.trim();
+    const team=document.getElementById('cw-team').value.trim();
+    const message=document.getElementById('cw-text').value.trim();
+    const statusEl=document.getElementById('cw-status');
+    if(!name){statusEl.className='cw-status err';statusEl.textContent='Enter your name.';return;}
+    if(!message){statusEl.className='cw-status err';statusEl.textContent='Write something first!';return;}
+    const btn=document.getElementById('cw-submit');
+    btn.disabled=true;btn.textContent='…';statusEl.textContent='';
+    try{
+      const tag=cwDetectTag(message);
+      const res=await fetch(`${SUPA_URL}/rest/v1/comments`,{
+        method:'POST',
+        headers:{'apikey':SUPA_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
+        body:JSON.stringify({name,team:team||null,message,tag,status:'approved',reactions:{}})
+      });
+      if(res.ok||res.status===201){
+        document.getElementById('cw-name').value='';
+        document.getElementById('cw-team').value='';
+        document.getElementById('cw-text').value='';
+        document.getElementById('cw-char').textContent='280';
+        document.getElementById('cw-pending-banner').style.display='';
+        statusEl.className='cw-status ok';statusEl.textContent='Posted!';
+        setTimeout(()=>{statusEl.textContent='';},4000);
+        await cwLoad();
+      } else { throw new Error(res.status); }
+    }catch(e){
+      statusEl.className='cw-status err';statusEl.textContent='Error — please try again.';
+    }finally{btn.disabled=false;btn.textContent='Post';}
+  };
+  window.cwInsertEmoji=function(e){
+    const ta=document.getElementById('cw-text');
+    const s=ta.selectionStart;
+    ta.value=ta.value.slice(0,s)+e+ta.value.slice(ta.selectionEnd);
+    ta.selectionStart=ta.selectionEnd=s+e.length;
+    ta.focus();cwUpdateChar();
+  };
+  window.cwUpdateChar=function(){
+    const len=document.getElementById('cw-text').value.length;
+    const el=document.getElementById('cw-char');
+    el.textContent=280-len;
+    el.className='cw-char'+(280-len<30?' warn':'');
+  };
+  window.cwSetFilter=function(f,btn){
+    cwFilter=f;cwVisible=8;
+    document.querySelectorAll('.cw-filter').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');cwRender();
+  };
+  window.cwLoadMore=function(){cwVisible+=8;cwRender();};
+
+  cwLoad();
+  setInterval(cwLoad,2*60*1000);
+})();
+</script>
+</body>
+</html>
