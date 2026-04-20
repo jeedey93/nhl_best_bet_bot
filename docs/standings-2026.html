@@ -297,6 +297,23 @@
   .gs-status-pre{font-size:0.62rem;letter-spacing:0.5px;color:rgba(255,184,28,0.8);
     background:rgba(255,184,28,0.12);border-radius:3px;padding:2px 6px;text-align:center;}
   @keyframes pulse-gs{0%,100%{opacity:1}50%{opacity:0.5}}
+  .gs-vote{margin-top:6px;display:flex;flex-direction:column;gap:4px;}
+  .gs-vote-btns{display:flex;gap:4px;}
+  .gs-vote-btn{flex:1;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);
+    border-radius:5px;padding:3px 5px;font-family:'Barlow Condensed',sans-serif;
+    font-size:0.7rem;font-weight:600;color:rgba(255,255,255,0.6);cursor:pointer;
+    letter-spacing:0.5px;transition:all 0.15s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .gs-vote-btn:hover{background:rgba(255,255,255,0.13);color:white;}
+  .gs-vote-btn.gs-voted-away{background:rgba(200,16,46,0.2);border-color:rgba(200,16,46,0.5);color:white;}
+  .gs-vote-btn.gs-voted-home{background:rgba(255,184,28,0.15);border-color:rgba(255,184,28,0.45);color:var(--gold);}
+  .gs-vote-bars{display:none;flex-direction:column;gap:3px;}
+  .gs-vote-bar-row{display:flex;align-items:center;gap:5px;font-size:0.65rem;color:rgba(255,255,255,0.55);}
+  .gs-vote-bar-label{width:36px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0;}
+  .gs-vote-bar-track{flex:1;height:5px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden;}
+  .gs-vote-bar-fill{height:100%;border-radius:3px;transition:width 0.4s ease;}
+  .gs-vote-bar-fill.away{background:rgba(200,16,46,0.7);}
+  .gs-vote-bar-fill.home{background:rgba(255,184,28,0.7);}
+  .gs-vote-pct{width:26px;text-align:right;flex-shrink:0;font-family:'Bebas Neue',cursive;font-size:0.75rem;}
 </style>
 </head>
 <body>
@@ -906,14 +923,20 @@ setInterval(()=>{loadResultsRemote();loadParticipants();},5*60*1000);
 // ── Live NHL games scroller ───────────────────────────────────────────────────
 (function(){
   const ESPN_NHL='https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/scoreboard';
-  // ESPN abbreviations that differ from the NHL CDN abbreviations
   const ESPN_ABBR_FIX={'NJ':'NJD','LA':'LAK','TB':'TBL','SJ':'SJS','CLB':'CBJ'};
+  const SUPA_URL='https://fifurqlitkywtmhgtzeu.supabase.co';
+  const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZpZnVycWxpdGt5d3RtaGd0emV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3MDIyMjQsImV4cCI6MjA5MjI3ODIyNH0.KPVPj1qwbSJJMyLR_-AhDcRs0vi2sUU6qbFQ-kH53C0';
+
+  let gvVoted = JSON.parse(localStorage.getItem('gv_voted')||'{}'); // {gameId: 'away'|'home'}
+  let gvCounts = {}; // {gameId: {away:N, home:N}}
+
   function shortTeam(name){return name?name.split(' ').pop():'';}
   function getLogoUrl(name,ab){
     const fixedAb=ESPN_ABBR_FIX[ab]||ab;
     return TEAM_LOGO[name]||(fixedAb?`https://assets.nhle.com/logos/nhl/svg/${fixedAb}_dark.svg`:'');
   }
-  function buildTile(away,home,awayAbbr,homeAbbr,awayScore,homeScore,status,clock,time){
+
+  function buildTile(away,home,awayAbbr,homeAbbr,awayScore,homeScore,status,clock,time,gameId){
     const isPre=status==='pre',isLive=status==='live',isFinal=status==='final';
     const awayWin=!isPre&&awayScore>homeScore,homeWin=!isPre&&homeScore>awayScore;
     const statusLabel=isFinal?'FINAL':isLive?(clock||'LIVE'):time;
@@ -923,26 +946,100 @@ setInterval(()=>{loadResultsRemote();loadParticipants();},5*60*1000);
     const homeLogoSrc=getLogoUrl(home,homeAbbr);
     const awayLogo=awayLogoSrc?`<img class="gs-logo" src="${awayLogoSrc}" alt="">`:`<span class="gs-logo-ph">${awayAbbr}</span>`;
     const homeLogo=homeLogoSrc?`<img class="gs-logo" src="${homeLogoSrc}" alt="">`:`<span class="gs-logo-ph">${homeAbbr}</span>`;
+    const myVote=gvVoted[gameId];
+    const counts=gvCounts[gameId]||{away:0,home:0};
+    const total=(counts.away||0)+(counts.home||0);
+    const awayPct=total?Math.round((counts.away||0)/total*100):50;
+    const homePct=total?Math.round((counts.home||0)/total*100):50;
+    const showBars=!!myVote;
+    const awayShort=shortTeam(away),homeShort=shortTeam(home);
+    const voteHtml=isPre?`
+      <div class="gs-vote" id="gv-${gameId}">
+        <div class="gs-vote-btns" style="${showBars?'display:none':''}">
+          <button class="gs-vote-btn${myVote==='away'?' gs-voted-away':''}" onclick="gvVote('${gameId}','away','${away}','${home}')">${awayShort}</button>
+          <button class="gs-vote-btn${myVote==='home'?' gs-voted-home':''}" onclick="gvVote('${gameId}','home','${away}','${home}')">${homeShort}</button>
+        </div>
+        <div class="gs-vote-bars" style="${showBars?'display:flex':'display:none'}">
+          <div class="gs-vote-bar-row">
+            <span class="gs-vote-bar-label">${awayShort}</span>
+            <div class="gs-vote-bar-track"><div class="gs-vote-bar-fill away" style="width:${awayPct}%"></div></div>
+            <span class="gs-vote-pct">${awayPct}%</span>
+          </div>
+          <div class="gs-vote-bar-row">
+            <span class="gs-vote-bar-label">${homeShort}</span>
+            <div class="gs-vote-bar-track"><div class="gs-vote-bar-fill home" style="width:${homePct}%"></div></div>
+            <span class="gs-vote-pct">${homePct}%</span>
+          </div>
+        </div>
+      </div>`:'';
     return`<div class="${tileCls}">
       <div class="gs-team${awayWin?' gs-winner':''}">
         ${awayLogo}
-        <span class="gs-team-name">${shortTeam(away)}</span>
+        <span class="gs-team-name">${awayShort}</span>
         <span class="gs-score">${isPre?'':awayScore}</span>
       </div>
       <div class="gs-team${homeWin?' gs-winner':''}">
         ${homeLogo}
-        <span class="gs-team-name">${shortTeam(home)}</span>
+        <span class="gs-team-name">${homeShort}</span>
         <span class="gs-score">${isPre?'':homeScore}</span>
       </div>
       <div class="${statusCls}">${statusLabel}</div>
+      ${voteHtml}
     </div>`;
+  }
+
+  async function gvLoadCounts(gameIds){
+    try{
+      const ids=gameIds.map(id=>`game_id.eq.${id}`).join(',');
+      const res=await fetch(`${SUPA_URL}/rest/v1/game_votes?or=(${ids})`,
+        {headers:{'apikey':SUPA_KEY,'Accept':'application/json'}});
+      if(!res.ok)return;
+      const rows=await res.json();
+      rows.forEach(r=>{
+        if(!gvCounts[r.game_id])gvCounts[r.game_id]={away:0,home:0};
+        gvCounts[r.game_id][r.side]=(gvCounts[r.game_id][r.side]||0)+1;
+      });
+    }catch(e){}
+  }
+
+  window.gvVote=async function(gameId,side,away,home){
+    if(gvVoted[gameId])return;
+    gvVoted[gameId]=side;
+    localStorage.setItem('gv_voted',JSON.stringify(gvVoted));
+    if(!gvCounts[gameId])gvCounts[gameId]={away:0,home:0};
+    gvCounts[gameId][side]=(gvCounts[gameId][side]||0)+1;
+    gvUpdateTile(gameId);
+    try{
+      await fetch(`${SUPA_URL}/rest/v1/game_votes`,{
+        method:'POST',
+        headers:{'apikey':SUPA_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
+        body:JSON.stringify({game_id:gameId,side,away_team:away,home_team:home})
+      });
+    }catch(e){}
+  };
+
+  function gvUpdateTile(gameId){
+    const wrap=document.getElementById('gv-'+gameId);
+    if(!wrap)return;
+    const counts=gvCounts[gameId]||{away:0,home:0};
+    const total=(counts.away||0)+(counts.home||0);
+    const awayPct=total?Math.round((counts.away||0)/total*100):50;
+    const homePct=total?Math.round((counts.home||0)/total*100):50;
+    wrap.querySelector('.gs-vote-btns').style.display='none';
+    const bars=wrap.querySelector('.gs-vote-bars');
+    bars.style.display='flex';
+    const fills=bars.querySelectorAll('.gs-vote-bar-fill');
+    const pcts=bars.querySelectorAll('.gs-vote-pct');
+    fills[0].style.width=awayPct+'%';
+    fills[1].style.width=homePct+'%';
+    pcts[0].textContent=awayPct+'%';
+    pcts[1].textContent=homePct+'%';
   }
 
   async function fetchGames(){
     try{
-      // Use Montreal local date (UTC-4/5) to avoid ESPN defaulting to UTC day
       const now=new Date();
-      const montrealOffset=-4*60; // EDT (UTC-4); adjust to -5 in winter if needed
+      const montrealOffset=-4*60;
       const local=new Date(now.getTime()+now.getTimezoneOffset()*60000+montrealOffset*60000);
       const dateStr=local.getFullYear().toString()
         +(local.getMonth()+1).toString().padStart(2,'0')
@@ -955,6 +1052,9 @@ setInterval(()=>{loadResultsRemote();loadParticipants();},5*60*1000);
       const section=document.getElementById('games-scroller');
       if(!container||!section)return;
       if(!events.length){section.style.display='none';return;}
+      const gameIds=events.map(ev=>ev.id);
+      gvCounts={};
+      await gvLoadCounts(gameIds);
       let html='';
       events.forEach(ev=>{
         const comp=ev.competitions?.[0];if(!comp)return;
@@ -974,7 +1074,7 @@ setInterval(()=>{loadResultsRemote();loadParticipants();},5*60*1000);
         let status='pre',clock='';
         if(state==='in'){status='live';clock=shortDetail;}
         else if(state==='post'){status='final';}
-        html+=buildTile(awayName,homeName,awayAbbr,homeAbbr,awayScore,homeScore,status,clock,timeStr);
+        html+=buildTile(awayName,homeName,awayAbbr,homeAbbr,awayScore,homeScore,status,clock,timeStr,ev.id);
       });
       container.innerHTML=html;
       section.style.display='block';
