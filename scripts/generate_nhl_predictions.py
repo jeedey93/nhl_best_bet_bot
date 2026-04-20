@@ -568,9 +568,121 @@ def get_rest_days_for_team(team_name):
 
 def get_playoff_series_status(season='20252026'):
     """
-    Fetch current NHL playoff series status using today's schedule endpoint
-    which includes seriesStatus on each game.
+    Fetch current NHL playoff series status from the commissioner page GitHub Issue
+    (the same source updated manually via the commissioner UI).
+    Falls back to the NHL schedule API if the Issue is unavailable.
     """
+    try:
+        import json as json_mod
+
+        GITHUB_OWNER = 'jeedey93'
+        GITHUB_REPO = 'parieur-discipline-bot'
+        ISSUE_TITLE = 'NHL Playoff Results 2026'
+
+        gh_token = os.environ.get('GH_PAT') or os.environ.get('GH_API_TOKEN') or os.environ.get('GITHUB_TOKEN')
+
+        results_from_commissioner = None
+        if gh_token:
+            try:
+                search_url = f'https://api.github.com/search/issues?q=repo:{GITHUB_OWNER}/{GITHUB_REPO}+is:issue+in:title+"{ISSUE_TITLE}"'
+                headers = {
+                    'Authorization': f'token {gh_token}',
+                    'Accept': 'application/vnd.github.v3+json',
+                    'User-Agent': 'Parieur-Discipline-Bot',
+                }
+                resp = requests.get(search_url, headers=headers, timeout=15)
+                if resp.ok:
+                    data = resp.json()
+                    if data.get('total_count', 0) > 0:
+                        body = data['items'][0].get('body', '{}')
+                        stored = json_mod.loads(body or '{}')
+                        # Supports both {results: {...}} and plain {...}
+                        results_from_commissioner = stored.get('results', stored)
+                        print("✅ Loaded playoff series status from commissioner GitHub Issue")
+            except Exception as e:
+                print(f"⚠️ Could not load commissioner results from GitHub: {e}")
+
+        # Load bracket.json to know the matchups per round
+        bracket_path = os.path.join(os.path.dirname(__file__), '..', 'docs', 'playoff', 'bracket.json')
+        try:
+            with open(bracket_path, 'r', encoding='utf-8') as bf:
+                bracket = json_mod.load(bf)
+        except Exception:
+            bracket = None
+
+        if results_from_commissioner is None or bracket is None:
+            print("⚠️ Commissioner data or bracket unavailable, falling back to NHL API")
+            return _get_playoff_series_status_from_nhl_api()
+
+        ROUND_LABELS = ['Round 1', 'Round 2', 'Conference Finals', 'Stanley Cup Final']
+        HOME_GAMES = {1: 'top', 2: 'top', 3: 'bottom', 4: 'bottom', 5: 'top', 6: 'bottom', 7: 'top'}
+
+        output = "PLAYOFF SERIES STATUS (from Commissioner):\n"
+        output += "=" * 40 + "\n"
+
+        series_found = False
+
+        for ri, round_data in enumerate(bracket.get('rounds', [])):
+            round_label = ROUND_LABELS[ri] if ri < len(ROUND_LABELS) else f'Round {ri + 1}'
+
+            # Collect all matchups: east + west + final
+            matchups = list(round_data.get('east', [])) + list(round_data.get('west', []))
+            if round_data.get('final'):
+                matchups.append(round_data['final'])
+
+            for matchup in matchups:
+                if len(matchup) < 2:
+                    continue
+                top, bottom = matchup[0], matchup[1]
+                if not top or top == 'TBD' or not bottom or bottom == 'TBD':
+                    continue
+
+                top_wins = results_from_commissioner.get(top, [0, 0, 0, 0])[ri] if isinstance(results_from_commissioner.get(top), list) else 0
+                bot_wins = results_from_commissioner.get(bottom, [0, 0, 0, 0])[ri] if isinstance(results_from_commissioner.get(bottom), list) else 0
+
+                next_game_num = top_wins + bot_wins + 1
+
+                if top_wins == 4:
+                    status = f"{top} WON SERIES 4-{bot_wins}"
+                elif bot_wins == 4:
+                    status = f"{bottom} WON SERIES 4-{top_wins}"
+                elif top_wins > bot_wins:
+                    status = f"{top} leads {top_wins}-{bot_wins} (Game {next_game_num} next)"
+                elif bot_wins > top_wins:
+                    status = f"{bottom} leads {bot_wins}-{top_wins} (Game {next_game_num} next)"
+                else:
+                    status = f"Series tied {top_wins}-{bot_wins} (Game {next_game_num} next)"
+
+                next_home_seed = HOME_GAMES.get(next_game_num, 'top')
+                next_home_team = top if next_home_seed == 'top' else bottom
+                next_away_team = bottom if next_home_seed == 'top' else top
+
+                output += f"\n{round_label}: {bottom} @ {top}\n"
+                output += f"  Series Status: {status}\n"
+                if top_wins < 4 and bot_wins < 4:
+                    output += f"  Next Game: Game {next_game_num} — {next_away_team} @ {next_home_team}\n"
+
+                if top_wins == 3 and bot_wins < 3:
+                    output += f"  ELIMINATION GAME: {bottom} must win or season ends\n"
+                elif bot_wins == 3 and top_wins < 3:
+                    output += f"  ELIMINATION GAME: {top} must win or season ends\n"
+                elif top_wins == 3 and bot_wins == 3:
+                    output += f"  GAME 7 — WINNER TAKE ALL\n"
+
+                series_found = True
+
+        if not series_found:
+            return "Playoff series status: No active series found in bracket"
+
+        return output
+
+    except Exception as e:
+        print(f"Warning: Error fetching playoff series status from commissioner: {e}")
+        return _get_playoff_series_status_from_nhl_api()
+
+
+def _get_playoff_series_status_from_nhl_api():
+    """Fallback: fetch series status from the NHL schedule API."""
     try:
         from datetime import date as date_mod
         today_str = date_mod.today().isoformat()
@@ -582,9 +694,8 @@ def get_playoff_series_status(season='20252026'):
         data = response.json()
         games = data.get('gameWeek', [{}])[0].get('games', [])
 
-        output = "PLAYOFF SERIES STATUS:\n"
+        output = "PLAYOFF SERIES STATUS (NHL API):\n"
         output += "=" * 40 + "\n"
-
         series_found = False
 
         for game in games:
@@ -625,8 +736,8 @@ def get_playoff_series_status(season='20252026'):
             else:
                 status = f"Series tied {top_wins}-{bot_wins} (Game {next_game_num} next)"
 
-            home_games = {1: 'top', 2: 'top', 3: 'bottom', 4: 'bottom', 5: 'top', 6: 'bottom', 7: 'top'}
-            next_home_seed = home_games.get(next_game_num, 'top')
+            home_games_map = {1: 'top', 2: 'top', 3: 'bottom', 4: 'bottom', 5: 'top', 6: 'bottom', 7: 'top'}
+            next_home_seed = home_games_map.get(next_game_num, 'top')
             next_home_team = top_name if next_home_seed == 'top' else bot_name
             next_away_team = bot_name if next_home_seed == 'top' else top_name
 
@@ -649,7 +760,7 @@ def get_playoff_series_status(season='20252026'):
         return output
 
     except Exception as e:
-        print(f"Warning: Error fetching playoff series status: {e}")
+        print(f"Warning: Error fetching playoff series status from NHL API: {e}")
         return f"Playoff series status: Error fetching data ({e})"
 
 
