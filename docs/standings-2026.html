@@ -267,57 +267,79 @@
     background:#07111f;font-family:'Barlow Condensed',sans-serif;color:white;
     padding:0;overflow:hidden;}
 
-  .games-scroller{width:100%;background:rgba(0,0,0,0.25);border-bottom:1px solid rgba(255,255,255,0.08);
-    padding:10px 0;display:none;}
+  .games-scroller{width:100%;background:rgba(0,0,0,0.3);border-bottom:1px solid rgba(255,255,255,0.07);
+    padding:12px 0;display:none;}
   .gs-inner{max-width:1100px;margin:0 auto;padding:0 1rem;}
   .gs-title{font-family:'Bebas Neue',cursive;font-size:0.7rem;letter-spacing:3px;
-    color:rgba(255,255,255,0.35);text-transform:uppercase;margin-bottom:8px;}
-  .gs-container{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;
-    scrollbar-width:thin;scrollbar-color:rgba(255,255,255,0.15) transparent;}
-  .gs-container::-webkit-scrollbar{height:4px;}
-  .gs-container::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.15);border-radius:2px;}
-  .gs-tile{flex-shrink:0;background:rgba(255,255,255,0.10);border:1px solid rgba(255,255,255,0.18);
-    border-radius:10px;padding:10px 14px;min-width:130px;display:flex;flex-direction:column;gap:5px;}
-  .gs-tile.gs-live{border-color:rgba(239,68,68,0.6);background:rgba(239,68,68,0.12);}
-  .gs-team{display:flex;align-items:center;gap:7px;}
+    color:rgba(255,255,255,0.3);text-transform:uppercase;margin-bottom:10px;}
+  .gs-container{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px;
+    scrollbar-width:thin;scrollbar-color:rgba(255,255,255,0.12) transparent;}
+  .gs-container::-webkit-scrollbar{height:3px;}
+  .gs-container::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.12);border-radius:2px;}
+
+  /* ── Tile ── */
+  .gs-tile{flex-shrink:0;background:rgba(255,255,255,0.06);
+    border:1px solid rgba(255,255,255,0.12);border-radius:12px;
+    min-width:155px;display:flex;flex-direction:column;overflow:hidden;
+    transition:border-color 0.2s,box-shadow 0.2s;}
+  .gs-tile:hover{border-color:rgba(255,255,255,0.22);box-shadow:0 4px 20px rgba(0,0,0,0.35);}
+  .gs-tile.gs-live{border-color:rgba(239,68,68,0.55);box-shadow:0 0 14px rgba(239,68,68,0.15);}
+
+  /* status header chip */
+  .gs-status-bar{padding:5px 12px;display:flex;align-items:center;justify-content:center;}
+  .gs-status-live{font-size:0.6rem;font-weight:700;letter-spacing:1.5px;color:#fca5a5;
+    background:rgba(239,68,68,0.2);border-radius:3px;padding:2px 8px;
+    animation:pulse-gs 1.5s infinite;}
+  .gs-status-final{font-size:0.6rem;letter-spacing:1.5px;color:rgba(255,255,255,0.35);
+    background:rgba(255,255,255,0.06);border-radius:3px;padding:2px 8px;}
+  .gs-status-pre{font-size:0.6rem;letter-spacing:1.5px;color:rgba(255,184,28,0.85);
+    background:rgba(255,184,28,0.1);border-radius:3px;padding:2px 8px;}
+  @keyframes pulse-gs{0%,100%{opacity:1}50%{opacity:0.45}}
+
+  /* matchup body */
+  .gs-body{padding:6px 12px 10px;display:flex;flex-direction:column;gap:5px;}
+  .gs-team{display:flex;align-items:center;gap:8px;}
   .gs-team.gs-winner .gs-team-name{color:white;font-weight:700;}
   .gs-team.gs-winner .gs-score{color:var(--gold);}
-  .gs-logo{width:22px;height:22px;object-fit:contain;flex-shrink:0;}
-  .gs-logo-ph{width:22px;height:22px;font-size:0.6rem;font-weight:700;color:rgba(255,255,255,0.5);
+  .gs-logo{width:26px;height:26px;object-fit:contain;flex-shrink:0;}
+  .gs-logo-ph{width:26px;height:26px;font-size:0.55rem;font-weight:700;color:rgba(255,255,255,0.45);
     display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-  .gs-team-name{font-size:0.8rem;font-weight:600;color:rgba(255,255,255,0.8);flex:1;
-    letter-spacing:0.5px;white-space:nowrap;}
-  .gs-score{font-family:'Bebas Neue',cursive;font-size:1.05rem;color:rgba(255,255,255,0.7);
-    min-width:16px;text-align:right;line-height:1;}
-  .gs-status-live{font-size:0.62rem;font-weight:700;letter-spacing:1px;color:#fca5a5;
-    background:rgba(239,68,68,0.25);border-radius:3px;padding:2px 6px;text-align:center;
-    animation:pulse-gs 1.5s infinite;}
-  .gs-status-final{font-size:0.62rem;letter-spacing:1px;color:rgba(255,255,255,0.4);
-    background:rgba(255,255,255,0.08);border-radius:3px;padding:2px 6px;text-align:center;}
-  .gs-status-pre{font-size:0.62rem;letter-spacing:0.5px;color:rgba(255,184,28,0.8);
-    background:rgba(255,184,28,0.12);border-radius:3px;padding:2px 6px;text-align:center;}
-  @keyframes pulse-gs{0%,100%{opacity:1}50%{opacity:0.5}}
-  .gs-vote{margin-top:8px;display:flex;flex-direction:column;gap:5px;border-top:1px solid rgba(255,255,255,0.08);padding-top:7px;}
-  .gs-vote-label{font-size:0.6rem;font-family:'Bebas Neue',cursive;letter-spacing:2px;color:var(--gold);text-align:center;text-transform:uppercase;}
+  .gs-team-name{font-size:0.82rem;font-weight:600;color:rgba(255,255,255,0.75);flex:1;
+    letter-spacing:0.3px;white-space:nowrap;}
+  .gs-score{font-family:'Bebas Neue',cursive;font-size:1.15rem;color:rgba(255,255,255,0.65);
+    min-width:18px;text-align:right;line-height:1;}
+
+  /* divider between teams */
+  .gs-divider{height:1px;background:rgba(255,255,255,0.06);margin:1px 0;}
+
+  /* ── Vote section ── */
+  .gs-vote{padding:7px 12px 10px;border-top:1px solid rgba(255,255,255,0.07);
+    display:flex;flex-direction:column;gap:6px;}
+  .gs-vote-label{font-size:0.58rem;font-family:'Bebas Neue',cursive;letter-spacing:2px;
+    color:rgba(255,255,255,0.3);text-align:center;text-transform:uppercase;}
   .gs-vote-btns{display:flex;gap:5px;}
-  .gs-vote-btn{flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.2);
-    border-radius:6px;padding:5px 5px;font-family:'Barlow Condensed',sans-serif;
-    font-size:0.75rem;font-weight:700;color:rgba(255,255,255,0.75);cursor:pointer;
-    letter-spacing:0.5px;transition:all 0.15s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .gs-vote-btn:first-child{border-color:rgba(200,16,46,0.5);color:rgba(255,120,120,0.9);}
-  .gs-vote-btn:last-child{border-color:rgba(255,184,28,0.45);color:rgba(255,184,28,0.9);}
-  .gs-vote-btn:hover{background:rgba(255,255,255,0.1);color:white;transform:scale(1.03);}
-  .gs-vote-btn.gs-voted-away{background:rgba(200,16,46,0.25);border-color:rgba(200,16,46,0.7);color:white;}
-  .gs-vote-btn.gs-voted-home{background:rgba(255,184,28,0.2);border-color:rgba(255,184,28,0.7);color:var(--gold);}
-  .gs-vote-bars{display:none;flex-direction:column;gap:3px;}
-  .gs-vote-bar-row{display:flex;align-items:center;gap:5px;font-size:0.65rem;color:rgba(255,255,255,0.55);}
-  .gs-vote-bar-label{width:36px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0;}
-  .gs-vote-bar-track{flex:1;height:5px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden;}
-  .gs-vote-bar-fill{height:100%;border-radius:3px;transition:width 0.4s ease;}
-  .gs-vote-bar-fill.away{background:rgba(200,16,46,0.7);}
-  .gs-vote-bar-fill.home{background:rgba(255,184,28,0.7);}
-  .gs-vote-pct{text-align:right;flex-shrink:0;font-family:'Bebas Neue',cursive;font-size:0.75rem;}
-  .gs-vote-count{font-size:0.6rem;color:rgba(255,255,255,0.35);margin-left:2px;font-family:'Barlow Condensed',sans-serif;}
+  .gs-vote-btn{flex:1;background:transparent;border:1px solid rgba(255,255,255,0.12);
+    border-radius:7px;padding:6px 5px;font-family:'Barlow Condensed',sans-serif;
+    font-size:0.78rem;font-weight:700;cursor:pointer;
+    letter-spacing:0.5px;transition:all 0.18s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .gs-vote-btn:first-child{border-color:rgba(200,16,46,0.45);color:rgba(255,100,100,0.85);}
+  .gs-vote-btn:last-child{border-color:rgba(255,184,28,0.4);color:rgba(255,184,28,0.85);}
+  .gs-vote-btn:hover{transform:translateY(-1px);box-shadow:0 3px 10px rgba(0,0,0,0.3);}
+  .gs-vote-btn:first-child:hover{background:rgba(200,16,46,0.2);border-color:rgba(200,16,46,0.7);color:white;}
+  .gs-vote-btn:last-child:hover{background:rgba(255,184,28,0.15);border-color:rgba(255,184,28,0.7);color:var(--gold);}
+  .gs-vote-btn.gs-voted-away{background:rgba(200,16,46,0.22);border-color:rgba(200,16,46,0.65);color:white;}
+  .gs-vote-btn.gs-voted-home{background:rgba(255,184,28,0.15);border-color:rgba(255,184,28,0.65);color:var(--gold);}
+
+  /* single split bar */
+  .gs-vote-bars{display:none;flex-direction:column;gap:4px;}
+  .gs-split-bar{height:6px;border-radius:4px;overflow:hidden;display:flex;background:rgba(255,255,255,0.06);}
+  .gs-split-away{height:100%;background:rgba(200,16,46,0.65);transition:width 0.45s ease;border-radius:4px 0 0 4px;}
+  .gs-split-home{height:100%;background:rgba(255,184,28,0.65);transition:width 0.45s ease;border-radius:0 4px 4px 0;}
+  .gs-split-labels{display:flex;justify-content:space-between;align-items:center;}
+  .gs-split-lbl{font-size:0.62rem;color:rgba(255,255,255,0.45);letter-spacing:0.3px;
+    display:flex;align-items:baseline;gap:3px;}
+  .gs-split-pct{font-family:'Bebas Neue',cursive;font-size:0.82rem;color:rgba(255,255,255,0.75);}
+  .gs-split-count{font-size:0.58rem;color:rgba(255,255,255,0.3);font-family:'Barlow Condensed',sans-serif;}
 </style>
 </head>
 <body>
@@ -965,30 +987,31 @@ setInterval(()=>{loadResultsRemote();loadParticipants();},5*60*1000);
           <button class="gs-vote-btn${myVote==='home'?' gs-voted-home':''}" onclick="gvVote('${gameId}','home','${away}','${home}')">${homeShort}</button>
         </div>
         <div class="gs-vote-bars" style="${showBars?'display:flex':'display:none'}">
-          <div class="gs-vote-bar-row">
-            <span class="gs-vote-bar-label">${awayShort}</span>
-            <div class="gs-vote-bar-track"><div class="gs-vote-bar-fill away" style="width:${awayPct}%"></div></div>
-            <span class="gs-vote-pct">${awayPct}%<span class="gs-vote-count">(${counts.away||0})</span></span>
+          <div class="gs-split-bar">
+            <div class="gs-split-away" style="width:${awayPct}%"></div>
+            <div class="gs-split-home" style="width:${homePct}%"></div>
           </div>
-          <div class="gs-vote-bar-row">
-            <span class="gs-vote-bar-label">${homeShort}</span>
-            <div class="gs-vote-bar-track"><div class="gs-vote-bar-fill home" style="width:${homePct}%"></div></div>
-            <span class="gs-vote-pct">${homePct}%<span class="gs-vote-count">(${counts.home||0})</span></span>
+          <div class="gs-split-labels">
+            <span class="gs-split-lbl"><span class="gs-split-pct">${awayPct}%</span><span class="gs-split-count">(${counts.away||0})</span>${awayShort}</span>
+            <span class="gs-split-lbl">${homeShort}<span class="gs-split-count">(${counts.home||0})</span><span class="gs-split-pct">${homePct}%</span></span>
           </div>
         </div>
       </div>`:'';
     return`<div class="${tileCls}">
-      <div class="gs-team${awayWin?' gs-winner':''}">
-        ${awayLogo}
-        <span class="gs-team-name">${awayShort}</span>
-        <span class="gs-score">${isPre?'':awayScore}</span>
+      <div class="gs-status-bar"><span class="${statusCls}">${statusLabel}</span></div>
+      <div class="gs-body">
+        <div class="gs-team${awayWin?' gs-winner':''}">
+          ${awayLogo}
+          <span class="gs-team-name">${awayShort}</span>
+          <span class="gs-score">${isPre?'':awayScore}</span>
+        </div>
+        <div class="gs-divider"></div>
+        <div class="gs-team${homeWin?' gs-winner':''}">
+          ${homeLogo}
+          <span class="gs-team-name">${homeShort}</span>
+          <span class="gs-score">${isPre?'':homeScore}</span>
+        </div>
       </div>
-      <div class="gs-team${homeWin?' gs-winner':''}">
-        ${homeLogo}
-        <span class="gs-team-name">${homeShort}</span>
-        <span class="gs-score">${isPre?'':homeScore}</span>
-      </div>
-      <div class="${statusCls}">${statusLabel}</div>
       ${voteHtml}
     </div>`;
   }
@@ -1033,12 +1056,13 @@ setInterval(()=>{loadResultsRemote();loadParticipants();},5*60*1000);
     wrap.querySelector('.gs-vote-btns').style.display='none';
     const bars=wrap.querySelector('.gs-vote-bars');
     bars.style.display='flex';
-    const fills=bars.querySelectorAll('.gs-vote-bar-fill');
-    const pcts=bars.querySelectorAll('.gs-vote-pct');
-    fills[0].style.width=awayPct+'%';
-    fills[1].style.width=homePct+'%';
-    pcts[0].innerHTML=awayPct+'%<span class="gs-vote-count">('+( counts.away||0)+')</span>';
-    pcts[1].innerHTML=homePct+'%<span class="gs-vote-count">('+( counts.home||0)+')</span>';
+    const splitAway=bars.querySelector('.gs-split-away');
+    const splitHome=bars.querySelector('.gs-split-home');
+    const lbls=bars.querySelectorAll('.gs-split-lbl');
+    if(splitAway) splitAway.style.width=awayPct+'%';
+    if(splitHome) splitHome.style.width=homePct+'%';
+    if(lbls[0]) lbls[0].querySelector('.gs-split-pct').textContent=awayPct+'%',lbls[0].querySelector('.gs-split-count').textContent='('+( counts.away||0)+')';
+    if(lbls[1]) lbls[1].querySelector('.gs-split-pct').textContent=homePct+'%',lbls[1].querySelector('.gs-split-count').textContent='('+( counts.home||0)+')';
   }
 
   async function fetchGames(){
