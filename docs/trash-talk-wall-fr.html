@@ -307,7 +307,6 @@
   };
   window.cwSubmit=async function(){
     const name=document.getElementById('cw-name').value.trim();
-    const team=document.getElementById('cw-team').value.trim();
     const message=document.getElementById('cw-text').value.trim();
     const statusEl=document.getElementById('cw-status');
     if(!name){statusEl.className='cw-status err';statusEl.textContent='Entrez votre nom.';return;}
@@ -319,11 +318,10 @@
       const res=await fetch(`${SUPA_URL}/rest/v1/comments`,{
         method:'POST',
         headers:{'apikey':SUPA_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
-        body:JSON.stringify({name,team:team||null,message,tag,status:'approved',reactions:{}})
+        body:JSON.stringify({name,team:null,message,tag,status:'approved',reactions:{}})
       });
       if(res.ok||res.status===201){
         document.getElementById('cw-name').value='';
-        document.getElementById('cw-team').value='';
         document.getElementById('cw-text').value='';
         document.getElementById('cw-char').textContent='280';
         document.getElementById('cw-pending-banner').style.display='';
