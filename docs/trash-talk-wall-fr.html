@@ -170,9 +170,6 @@
     <div class="cw-emoji-strip">
       <span>Rapide :</span>
       <button class="cw-emoji-btn" type="button" onclick="cwInsertEmoji('🔥')">🔥</button>
-      <button class="cw-emoji-btn" type="button" onclick="cwInsertEmoji('😤')">😤</button>
-      <button class="cw-emoji-btn" type="button" onclick="cwInsertEmoji('🏒')">🏒</button>
-      <button class="cw-emoji-btn" type="button" onclick="cwInsertEmoji('🏆')">🏆</button>
       <button class="cw-emoji-btn" type="button" onclick="cwInsertEmoji('💀')">💀</button>
       <button class="cw-emoji-btn" type="button" onclick="cwInsertEmoji('👑')">👑</button>
       <button class="cw-emoji-btn" type="button" onclick="cwInsertEmoji('❄️')">❄️</button>
@@ -191,11 +188,12 @@
   </div>
 
   <div class="cw-filters">
-    <span>Filtrer :</span>
     <button class="cw-filter active" data-filter="all" onclick="cwSetFilter('all',this)">Tous <span class="cw-count-badge" id="cw-count-all">0</span></button>
-    <button class="cw-filter" data-filter="hot" onclick="cwSetFilter('hot',this)">🔥 Opinions</button>
-    <button class="cw-filter" data-filter="predictions" onclick="cwSetFilter('predictions',this)">🏆 Prédictions</button>
-    <button class="cw-filter" data-filter="trash" onclick="cwSetFilter('trash',this)">😤 Trash talk</button>
+    <button class="cw-filter" data-filter="🔥" onclick="cwSetFilter('🔥',this)">🔥</button>
+    <button class="cw-filter" data-filter="💀" onclick="cwSetFilter('💀',this)">💀</button>
+    <button class="cw-filter" data-filter="👑" onclick="cwSetFilter('👑',this)">👑</button>
+    <button class="cw-filter" data-filter="❄️" onclick="cwSetFilter('❄️',this)">❄️</button>
+    <button class="cw-filter" data-filter="😂" onclick="cwSetFilter('😂',this)">😂</button>
   </div>
 
   <div id="cw-list"></div>
@@ -237,12 +235,7 @@
   }
   function cwRender(){
     const list=document.getElementById('cw-list');
-    const filtered=cwFilter==='all'?cwComments:cwComments.filter(c=>{
-      if(cwFilter==='hot') return c.message&&c.message.includes('🔥');
-      if(cwFilter==='predictions') return c.message&&c.message.includes('🏆');
-      if(cwFilter==='trash') return c.message&&c.message.includes('😤');
-      return true;
-    });
+    const filtered=cwFilter==='all'?cwComments:cwComments.filter(c=>c.message&&c.message.includes(cwFilter));
     document.getElementById('cw-count-all').textContent=cwComments.length;
     if(!filtered.length){
       list.innerHTML='<div class="cw-empty">Aucun commentaire — soyez le premier à publier ! 🏒</div>';
