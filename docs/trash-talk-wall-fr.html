@@ -275,7 +275,7 @@
   }
   async function cwLoad(){
     try{
-      const res=await fetch(`${SUPA_URL}/rest/v1/comments?status=eq.approved&order=created_at.desc&limit=100`,
+      const res=await fetch(`${SUPA_URL}/rest/v1/comments?order=created_at.desc&limit=100`,
         {headers:{'apikey':SUPA_KEY,'Accept':'application/json'}});
       if(!res.ok) return;
       cwComments=await res.json();
@@ -318,7 +318,7 @@
       const res=await fetch(`${SUPA_URL}/rest/v1/comments`,{
         method:'POST',
         headers:{'apikey':SUPA_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
-        body:JSON.stringify({name,team:null,message,tag,status:'approved'})
+        body:JSON.stringify({name,team:null,message,tag,status:'approved',reactions:{}})
       });
       if(res.ok||res.status===201){
         document.getElementById('cw-name').value='';
