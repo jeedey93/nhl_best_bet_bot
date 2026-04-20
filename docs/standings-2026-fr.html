@@ -1039,11 +1039,11 @@ setInterval(()=>{loadResultsRemote();loadParticipants();},5*60*1000);
     const total=(counts.away||0)+(counts.home||0);
     const awayPct=total?Math.round((counts.away||0)/total*100):50;
     const homePct=total?Math.round((counts.home||0)/total*100):50;
-    const showBars=!!myVote;
+    const showBars=!!myVote||!isPre;
     const awayShort=shortTeam(away),homeShort=shortTeam(home);
-    const voteHtml=isPre?`
+    const voteHtml=`
       <div class="gs-vote" id="gv-${gameId}">
-        <div class="gs-vote-label">Qui gagne ?</div>
+        <div class="gs-vote-label">${isPre?'Qui gagne ?':'Votes des fans'}</div>
         <div class="gs-vote-btns" style="${showBars?'display:none':''}">
           <button class="gs-vote-btn${myVote==='away'?' gs-voted-away':''}" onclick="gvVote('${gameId}','away','${away}','${home}')">${awayShort}</button>
           <button class="gs-vote-btn${myVote==='home'?' gs-voted-home':''}" onclick="gvVote('${gameId}','home','${away}','${home}')">${homeShort}</button>
@@ -1058,7 +1058,7 @@ setInterval(()=>{loadResultsRemote();loadParticipants();},5*60*1000);
             <span class="gs-split-lbl">${homeShort}<span class="gs-split-count">(${counts.home||0})</span><span class="gs-split-pct">${homePct}%</span></span>
           </div>
         </div>
-      </div>`:'';
+      </div>`;
     return`<div class="${tileCls}">
       <div class="gs-status-bar"><span class="${statusCls}">${statusLabel}</span></div>
       <div class="gs-body">
