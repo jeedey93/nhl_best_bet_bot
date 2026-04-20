@@ -568,87 +568,83 @@ def get_rest_days_for_team(team_name):
 
 def get_playoff_series_status(season='20252026'):
     """
-    Fetch current NHL playoff series status for all active series.
-    Returns a formatted string ready to inject into {{PLAYOFF_SERIES_STATUS}}.
+    Fetch current NHL playoff series status using today's schedule endpoint
+    which includes seriesStatus on each game.
     """
     try:
-        url = f'https://api-web.nhle.com/v1/playoff-bracket/{season}'
+        from datetime import date as date_mod
+        today_str = date_mod.today().isoformat()
+        url = f'https://api-web.nhle.com/v1/schedule/{today_str}'
         response = api_call_with_retry(url)
         if not response:
-            url2 = f'https://api-web.nhle.com/v1/playoffs/carousel/{season}'
-            response = api_call_with_retry(url2)
-            if not response:
-                return "Playoff series status: Unavailable"
+            return "Playoff series status: Unavailable"
 
         data = response.json()
+        games = data.get('gameWeek', [{}])[0].get('games', [])
+
         output = "PLAYOFF SERIES STATUS:\n"
         output += "=" * 40 + "\n"
 
         series_found = False
 
-        rounds = data.get('rounds', [])
-        if not rounds:
-            rounds = data.get('series', [])
+        for game in games:
+            ss = game.get('seriesStatus')
+            if not ss:
+                continue
 
-        for round_data in rounds:
-            round_num = round_data.get('roundNumber', round_data.get('number', '?'))
-            round_name = {1: 'Round 1', 2: 'Round 2', 3: 'Conference Finals', 4: 'Stanley Cup Final'}.get(round_num, f'Round {round_num}')
+            top_abbrev = ss.get('topSeedTeamAbbrev', '')
+            bot_abbrev = ss.get('bottomSeedTeamAbbrev', '')
+            top_wins = ss.get('topSeedWins', 0)
+            bot_wins = ss.get('bottomSeedWins', 0)
+            next_game_num = top_wins + bot_wins + 1
+            round_name = {1: 'Round 1', 2: 'Round 2', 3: 'Conference Finals', 4: 'Stanley Cup Final'}.get(ss.get('round', 1), 'Round 1')
 
-            series_list = round_data.get('series', [round_data] if 'topSeedTeam' in round_data else [])
+            home = game.get('homeTeam', {})
+            away = game.get('awayTeam', {})
+            home_abbrev = home.get('abbrev', '')
+            away_abbrev = away.get('abbrev', '')
+            home_name = home.get('commonName', {}).get('default', home_abbrev)
+            away_name = away.get('commonName', {}).get('default', away_abbrev)
 
-            for series in series_list:
-                top_team = series.get('topSeedTeam', {})
-                bottom_team = series.get('bottomSeedTeam', {})
+            top_name = home_name if home_abbrev == top_abbrev else away_name
+            bot_name = home_name if home_abbrev == bot_abbrev else away_name
 
-                top_name = top_team.get('commonName', {}).get('default', top_team.get('abbrev', 'TBD'))
-                bottom_name = bottom_team.get('commonName', {}).get('default', bottom_team.get('abbrev', 'TBD'))
-                top_wins = series.get('topSeedWins', 0)
-                bottom_wins = series.get('bottomSeedWins', 0)
+            if top_wins > bot_wins:
+                leader, leader_wins, trailer_wins = top_name, top_wins, bot_wins
+            elif bot_wins > top_wins:
+                leader, leader_wins, trailer_wins = bot_name, bot_wins, top_wins
+            else:
+                leader = None
 
-                if top_wins > bottom_wins:
-                    leader = top_name
-                    leader_wins = top_wins
-                    trailer_wins = bottom_wins
-                elif bottom_wins > top_wins:
-                    leader = bottom_name
-                    leader_wins = bottom_wins
-                    trailer_wins = top_wins
-                else:
-                    leader = None
+            if top_wins == 4:
+                status = f"{top_name} WON SERIES 4-{bot_wins}"
+            elif bot_wins == 4:
+                status = f"{bot_name} WON SERIES 4-{top_wins}"
+            elif leader:
+                status = f"{leader} leads {leader_wins}-{trailer_wins} (Game {next_game_num} next)"
+            else:
+                status = f"Series tied {top_wins}-{bot_wins} (Game {next_game_num} next)"
 
-                games_played = top_wins + bottom_wins
-                next_game_num = games_played + 1
+            home_games = {1: 'top', 2: 'top', 3: 'bottom', 4: 'bottom', 5: 'top', 6: 'bottom', 7: 'top'}
+            next_home_seed = home_games.get(next_game_num, 'top')
+            next_home_team = top_name if next_home_seed == 'top' else bot_name
+            next_away_team = bot_name if next_home_seed == 'top' else top_name
 
-                if top_wins == 4:
-                    status = f"{top_name} WON SERIES 4-{bottom_wins}"
-                elif bottom_wins == 4:
-                    status = f"{bottom_name} WON SERIES 4-{top_wins}"
-                elif leader:
-                    status = f"{leader} leads {leader_wins}-{trailer_wins} (Game {next_game_num} next)"
-                else:
-                    status = f"Series tied {top_wins}-{bottom_wins} (Game {next_game_num} next)"
+            output += f"\n{round_name}: {away_name} @ {home_name}\n"
+            output += f"  Series Status: {status}\n"
+            output += f"  Next Game: Game {next_game_num} — {next_away_team} @ {next_home_team}\n"
 
-                home_games = {1: 'top', 2: 'top', 3: 'bottom', 4: 'bottom', 5: 'top', 6: 'bottom', 7: 'top'}
-                next_home_seed = home_games.get(next_game_num, 'top')
-                next_home_team = top_name if next_home_seed == 'top' else bottom_name
-                next_away_team = bottom_name if next_home_seed == 'top' else top_name
+            if top_wins == 3 and bot_wins < 3:
+                output += f"  ELIMINATION GAME: {bot_name} must win or season ends\n"
+            elif bot_wins == 3 and top_wins < 3:
+                output += f"  ELIMINATION GAME: {top_name} must win or season ends\n"
+            elif top_wins == 3 and bot_wins == 3:
+                output += f"  GAME 7 — WINNER TAKE ALL\n"
 
-                output += f"\n{round_name}: {top_name} vs {bottom_name}\n"
-                output += f"  Series Status: {status}\n"
-                output += f"  Games Played: {games_played}\n"
-                output += f"  Next Game: Game {next_game_num} — {next_away_team} @ {next_home_team}\n"
-
-                if top_wins == 3 and bottom_wins < 3:
-                    output += f"  ELIMINATION GAME: {bottom_name} must win or season ends\n"
-                elif bottom_wins == 3 and top_wins < 3:
-                    output += f"  ELIMINATION GAME: {top_name} must win or season ends\n"
-                elif top_wins == 3 and bottom_wins == 3:
-                    output += f"  GAME 7 — WINNER TAKE ALL\n"
-
-                series_found = True
+            series_found = True
 
         if not series_found:
-            return "Playoff series status: No active series found (playoffs may not have started yet)"
+            return "Playoff series status: No active series found"
 
         return output
 
