@@ -14,6 +14,20 @@ from pathlib import Path
 from google import genai
 from dotenv import load_dotenv
 
+def normalize_pick_line(line):
+    """Clean up pick lines: remove junk tokens, fix all-caps team names."""
+    line = re.sub(r'<[^>]+>', '', line)  # remove any <token> artifacts
+    line = line.strip()
+    # If the whole line before '@' is uppercase, title-case it
+    parts = line.split('@')
+    if len(parts) == 2 and parts[0] == parts[0].upper():
+        line = parts[0].strip().title() + ' @ ' + parts[1].strip()
+        # Fix common title-case issues: ML, OT, etc.
+        line = re.sub(r'\bMl\b', 'ML', line)
+        line = re.sub(r'\bNhl\b', 'NHL', line)
+        line = re.sub(r'\bNba\b', 'NBA', line)
+    return line
+
 load_dotenv()
 
 
@@ -72,6 +86,18 @@ def parse_pick_line(line, game_matchups):
 
     # Remove odds from line for easier parsing
     line_without_odds = line.split('@')[0].strip()
+
+    # Normalize all-caps team names to title case
+    def fix_case(s):
+        alpha = [c for c in s if c.isalpha()]
+        if alpha and sum(c.isupper() for c in alpha) / len(alpha) > 0.8:
+            s = s.title()
+            s = re.sub(r'\bMl\b', 'ML', s)
+            s = re.sub(r'\bNhl\b', 'NHL', s)
+            s = re.sub(r'\bNba\b', 'NBA', s)
+            s = re.sub(r'\bVs\b', 'vs', s)
+        return s
+    line_without_odds = fix_case(line_without_odds)
 
     # Determine if it's over/under
     if 'over' in line_without_odds.lower():
@@ -258,7 +284,7 @@ def parse_prediction_file(file_path, sport):
     bet_of_day_match = re.search(r'(?:🏆\s*)?(?:\*\*)?BET OF THE DAY(?:\*\*)?:?\s*\n(?:\*\*)?(.+?@\s*[\d.]+)(?:\*\*)?', content, re.DOTALL | re.IGNORECASE)
 
     if bet_of_day_match:
-        pick_line = bet_of_day_match.group(1).strip()
+        pick_line = normalize_pick_line(bet_of_day_match.group(1).strip())
 
         # Find the section after this pick for reasoning
         start_pos = bet_of_day_match.end()
@@ -321,13 +347,14 @@ def parse_prediction_file(file_path, sport):
         # Find all pick lines with team names and @ odds (with or without bold markers)
         pick_lines = re.findall(r'(?:\*\*)?([A-Z][^*\n]+@\s*[\d.]+)(?:\*\*)?', plays_text)
 
-        for pick_line in pick_lines:
-            pick_line = pick_line.strip()
+        for raw_pick_line in pick_lines:
+            raw_pick_line = raw_pick_line.strip()
+            pick_line = normalize_pick_line(raw_pick_line)
 
-            # Find the section for this pick (from pick line to next pick or end)
-            escaped_pick = re.escape(pick_line)
+            # Search using the raw line to match original text
+            escaped_pick = re.escape(raw_pick_line)
             # Try to match until next pick or end of text
-            section_match = re.search(rf'(?:\*\*)?{escaped_pick}(?:\*\*)?\s*\n(.*?)(?=\n(?:\*\*)?[A-Z])', plays_text, re.DOTALL)
+            section_match = re.search(rf'(?:\*\*)?{escaped_pick}(?:\*\*)?\s*\n(.*?)(?=\n(?:\*\*)?[A-Z][^\n]+@\s*[\d.]|\Z)', plays_text, re.DOTALL)
 
             # If no match (likely the last pick), try matching till end
             if not section_match:
