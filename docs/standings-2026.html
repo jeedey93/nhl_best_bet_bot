@@ -149,6 +149,12 @@
   .spotlight-inner{padding:0.6rem 1rem 0.8rem 1rem;background:rgba(255,184,28,0.04);
     display:grid;grid-template-columns:repeat(4,1fr);gap:0.4rem;}
   @media(max-width:500px){.spotlight-inner{grid-template-columns:repeat(2,1fr);}}
+  .spotlight-share-row{grid-column:1/-1;display:flex;justify-content:flex-end;margin-top:0.3rem;}
+  .spotlight-share-btn{font-family:'Bebas Neue',cursive;font-size:0.85rem;letter-spacing:1.5px;
+    background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:6px;
+    color:rgba(255,255,255,0.6);padding:4px 12px;cursor:pointer;transition:all 0.15s;}
+  .spotlight-share-btn:hover{background:rgba(255,255,255,0.1);color:white;border-color:rgba(255,255,255,0.3);}
+  .spotlight-share-btn:disabled{opacity:0.4;cursor:default;}
   .spotlight-team{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.05);
     border:1px solid rgba(255,255,255,0.08);border-radius:5px;padding:3px 8px;font-size:0.8rem;}
   .spotlight-team .sp-pts-assigned{font-family:'Bebas Neue',cursive;font-size:0.95rem;color:var(--gold);width:32px;text-align:right;flex-shrink:0;}
@@ -680,7 +686,8 @@ function render(){
       const hotStyle=isHot?' style="border-color:rgba(255,184,28,0.5);background:rgba(255,184,28,0.08)"':'';
       return`<div class="spotlight-team${elimClass}"${hotStyle}><span class="sp-pts-assigned">${p}<span style="font-size:0.6rem;opacity:0.7;letter-spacing:0"> pts</span></span><span class="sp-name">${isHot?'🔥 ':''}${shortTeamName(t)}</span><span class="sp-wins-earned">${wins>0?`${wins}W · ${earned}pts`:earned>0?`${earned}pts`:''}</span></div>`;
     }).join('');
-    spotlightTr.innerHTML=`<td colspan="5"><div class="spotlight-inner">${teamsHtml||'<span style="color:var(--silver);font-size:0.85rem">No picks loaded</span>'}</div></td>`;
+    spotlightTr.innerHTML=`<td colspan="5"><div class="spotlight-inner">${teamsHtml||'<span style="color:var(--silver);font-size:0.85rem">No picks loaded</span>'}<div class="spotlight-share-row"><button class="spotlight-share-btn" onclick="event.stopPropagation();sharePersonalCard(window.__spRow_${i},${rank},${leaderScore},${totalCount},this)">📸 Share my card</button></div></div></td>`;
+    window[`__spRow_${i}`]=row;
     lb.appendChild(spotlightTr);
 
     // Toggle spotlight on row click
@@ -772,7 +779,8 @@ function render(){
         const hotStyle=isHot?' style="border-color:rgba(255,184,28,0.5);background:rgba(255,184,28,0.08)"':'';
         return`<div class="spotlight-team${elimClass}"${hotStyle}><span class="sp-pts-assigned">${p}<span style="font-size:0.6rem;opacity:0.7;letter-spacing:0"> pts</span></span><span class="sp-name">${isHot?'🔥 ':''}${shortTeamName(t)}</span><span class="sp-wins-earned">${wins>0?`${wins}W · ${earned}pts`:earned>0?`${earned}pts`:''}</span></div>`;
       }).join('');
-      spotlightTr.innerHTML=`<td colspan="5"><div class="spotlight-inner">${teamsHtml||'<span style="color:var(--silver);font-size:0.85rem">No picks loaded</span>'}</div></td>`;
+      spotlightTr.innerHTML=`<td colspan="5"><div class="spotlight-inner">${teamsHtml||'<span style="color:var(--silver);font-size:0.85rem">No picks loaded</span>'}<div class="spotlight-share-row"><button class="spotlight-share-btn" onclick="event.stopPropagation();sharePersonalCard(window.__spPaidRow_${i},${rank},${paidLeader},${paidRows.length},this)">📸 Share my card</button></div></div></td>`;
+      window[`__spPaidRow_${i}`]=row;
       paidLb.appendChild(spotlightTr);
 
       tr.addEventListener('click',()=>{
@@ -1233,6 +1241,119 @@ function buildShareCardHTML(rows, title, totalCount, pot, date){
     <div style="background:linear-gradient(160deg,#0d1b2e 0%,#111827 100%);text-align:center;padding:12px 16px 16px;border-top:1px solid rgba(255,255,255,0.05);margin-top:4px;">
       <span style="font-size:12px;color:rgba(148,163,184,0.4);letter-spacing:2px;text-transform:uppercase;">parieurdiscipline.com</span>
     </div>`;
+}
+
+// ── Personal share card ───────────────────────────────────────────────────────
+function buildPersonalCardHTML(row, rank, leaderScore, totalCount){
+  const medals=['🥇','🥈','🥉'];
+  const rankDisplay = rank<=3 ? medals[rank-1] : `#${rank}`;
+  const gap = rank===1 ? 'Leader 🏆' : `-${leaderScore - row.total} pts behind`;
+  const date = new Date().toLocaleDateString('en-CA');
+
+  const teamEarnings = TEAMS.map(t=>({
+    team:t,
+    earned:(row.picks[t]||0)*results[t].reduce((s,w)=>s+w,0),
+    wins:results[t].reduce((s,w)=>s+w,0),
+    pts:row.picks[t]||0
+  })).filter(x=>x.pts>0).sort((a,b)=>b.earned-a.earned);
+  const mvp = teamEarnings[0];
+
+  // Avatar gradient based on rank
+  const avatarBg = rank===1
+    ? 'linear-gradient(135deg,#b8860b,#ffd700,#b8860b)'
+    : rank===2
+      ? 'linear-gradient(135deg,#707070,#c0c0c0,#707070)'
+      : rank===3
+        ? 'linear-gradient(135deg,#7d4e1a,#cd7f32,#7d4e1a)'
+        : 'linear-gradient(135deg,#1e3a5f,#2d5a8e,#1e3a5f)';
+  const avatarGlow = rank===1
+    ? '0 0 40px rgba(255,215,0,0.5)'
+    : rank<=3 ? '0 0 20px rgba(255,255,255,0.15)' : '0 2px 12px rgba(0,0,0,0.5)';
+  const scoreColor = rank===1?'#FFD700':rank===2?'#C0C0C0':rank===3?'#CD7F32':'#ffb81c';
+
+  // Top 3 teams rows
+  const teamsHtml = teamEarnings.slice(0,5).map((x,i)=>{
+    const logoHtml = TEAM_LOGO[x.team]
+      ? `<img src="${TEAM_LOGO[x.team]}" style="width:20px;height:20px;object-fit:contain;flex-shrink:0;">`
+      : `<span style="font-size:11px;color:rgba(255,255,255,0.4);width:20px;text-align:center;">${shortTeamName(x.team)}</span>`;
+    const isMvp = i===0 && x.earned>0;
+    return `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+      ${logoHtml}
+      <span style="flex:1;font-size:14px;font-weight:${isMvp?'700':'600'};color:${isMvp?'white':'rgba(255,255,255,0.7)'};">${shortTeamName(x.team)}</span>
+      <span style="font-size:12px;color:rgba(255,255,255,0.4);">${x.pts}pts assigned</span>
+      <span style="font-family:'Bebas Neue',sans-serif;font-size:16px;color:${isMvp?'#ffb81c':'rgba(255,255,255,0.5)'};min-width:40px;text-align:right;">${x.earned>0?x.earned+'pts':'—'}</span>
+    </div>`;
+  }).join('');
+
+  return `
+    <div style="background:linear-gradient(160deg,#0d1b2e 0%,#111827 100%);padding:28px 28px 24px;font-family:'Barlow Condensed',sans-serif;">
+
+      <!-- Header -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <img src="https://parieurdiscipline.com/parieur_discipline_icon_1024.png" style="width:36px;height:36px;border-radius:8px;object-fit:cover;flex-shrink:0;">
+          <div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:#ffffff;letter-spacing:3px;line-height:1;">PARIEUR DISCIPLINÉ</div>
+            <div style="font-size:11px;color:#64748b;letter-spacing:2px;text-transform:uppercase;margin-top:1px;">NHL Playoffs 2026</div>
+          </div>
+        </div>
+        <div style="font-size:12px;color:#64748b;">${date} · ${totalCount} players</div>
+      </div>
+
+      <!-- Player hero block -->
+      <div style="display:flex;align-items:center;gap:20px;margin-bottom:24px;padding:20px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;">
+        <div style="width:72px;height:72px;border-radius:50%;background:${avatarBg};box-shadow:${avatarGlow};display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:white;letter-spacing:1px;flex-shrink:0;">
+          ${initials(row.name)}
+        </div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:26px;font-weight:900;color:white;letter-spacing:0.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${row.name}</div>
+          <div style="font-size:13px;color:rgba(255,255,255,0.4);margin-top:2px;letter-spacing:0.5px;">${gap}</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:3rem;color:${scoreColor};line-height:1;letter-spacing:1px;">${row.total}</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.35);letter-spacing:1px;text-transform:uppercase;">points</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:rgba(255,255,255,0.5);margin-top:2px;">${rankDisplay}</div>
+        </div>
+      </div>
+
+      <!-- Teams section -->
+      <div style="margin-bottom:8px;">
+        <div style="font-size:10px;color:rgba(255,184,28,0.6);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;">Points earned by team</div>
+        ${teamsHtml||'<div style="font-size:13px;color:rgba(255,255,255,0.3);padding:8px 0;">No picks loaded</div>'}
+      </div>
+
+      <!-- Footer -->
+      <div style="text-align:center;margin-top:16px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.05);">
+        <span style="font-size:11px;color:rgba(148,163,184,0.35);letter-spacing:2px;text-transform:uppercase;">parieurdiscipline.com</span>
+      </div>
+    </div>`;
+}
+
+async function sharePersonalCard(row, rank, leaderScore, totalCount, btn){
+  const origText = btn.textContent;
+  btn.textContent = '⏳';
+  btn.disabled = true;
+  const date = new Date().toLocaleDateString('en-CA');
+  let card = document.getElementById('share-card');
+  if(!card){ card=document.createElement('div'); card.id='share-card'; document.body.appendChild(card); }
+  card.innerHTML = buildPersonalCardHTML(row, rank, leaderScore, totalCount);
+  await new Promise(r=>setTimeout(r,150));
+  try{
+    const canvas = await html2canvas(card,{scale:2,useCORS:true,backgroundColor:'#07111f',logging:false});
+    if(navigator.share && navigator.canShare){
+      const blob = await new Promise(res=>canvas.toBlob(res,'image/png'));
+      const file = new File([blob],`my-picks-${date}.png`,{type:'image/png'});
+      if(navigator.canShare({files:[file]})){
+        await navigator.share({files:[file]});
+        return;
+      }
+    }
+    const link = document.createElement('a');
+    link.download = `my-picks-${date}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  }catch(e){ if(e.name!=='AbortError') console.error(e); }
+  finally{ btn.textContent=origText; btn.disabled=false; }
 }
 
 async function shareLeaderboard(){
