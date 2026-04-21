@@ -721,7 +721,8 @@ function render(){
         return{team:t,earned:(row.picks[t]||0)*wins};
       }).filter(x=>x.earned>0).sort((a,b)=>b.earned-a.earned);
       const mvp=teamEarnings[0];
-      const mvpBadge=mvp?`<span class="mvp-badge">🔥 ${shortTeamName(mvp.team)} ${mvp.earned}pts</span>`:'';
+      const mvpLogo=mvp&&TEAM_LOGO[mvp.team]?`<img src="${TEAM_LOGO[mvp.team]}" alt="">`:`<span style="font-size:0.6rem;color:rgba(255,255,255,0.4);">${mvp?shortTeamName(mvp.team):''}</span>`;
+      const mvpBadge=mvp?`<span class="mvp-badge">${mvpLogo}<span class="mvp-badge-pts">${mvp.earned}pts</span></span>`:'';
 
       const tr=document.createElement('tr');
       tr.className='expandable';
