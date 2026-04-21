@@ -1167,11 +1167,19 @@ function buildShareCardHTML(rows, title, totalCount, pot, date){
     const nameParts = r.name.split(' ');
     const firstName = nameParts[0];
     const lastName = nameParts.slice(1).join(' ');
+    const teamEarnings = TEAMS.map(t=>({team:t,earned:(r.picks[t]||0)*results[t].reduce((s,w)=>s+w,0)}))
+      .filter(x=>x.earned>0).sort((a,b)=>b.earned-a.earned);
+    const mvp = teamEarnings[0];
+    const mvpPill = mvp ? (TEAM_LOGO[mvp.team]
+      ? `<span style="display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:20px;padding:2px 8px 2px 4px;margin-left:6px;vertical-align:middle;white-space:nowrap;"><img src="${TEAM_LOGO[mvp.team]}" style="width:16px;height:16px;object-fit:contain;"><span style="font-family:'Bebas Neue',sans-serif;font-size:14px;color:#ffb81c;line-height:1;">${mvp.earned}pts</span></span>`
+      : `<span style="font-family:'Bebas Neue',sans-serif;font-size:13px;color:#ffb81c;margin-left:5px;">${shortTeamName(mvp.team)} ${mvp.earned}pts</span>`
+    ) : '';
     return `<tr style="background:${rowBg};">
       <td style="padding:10px 10px;text-align:center;width:40px;">${rankCell}</td>
       <td style="padding:10px 6px;">
         <span style="font-size:17px;font-weight:800;color:#ffffff;letter-spacing:0.3px;">${firstName}</span>
         ${lastName?`<span style="font-size:14px;font-weight:600;color:rgba(255,255,255,0.55);margin-left:4px;">${lastName}</span>`:''}
+        ${mvpPill}
       </td>
       <td style="padding:10px 14px;font-family:'Bebas Neue',sans-serif;font-size:22px;color:#ffb81c;text-align:center;line-height:1;">${r.total}</td>
       <td style="padding:10px 10px;font-size:14px;font-weight:700;color:${deltaColor};text-align:center;">${deltaStr}</td>
