@@ -1130,7 +1130,7 @@ function buildShareCardHTML(rows, title, totalCount, pot, date){
   // Top 3 podium — horizontal row, generous sizing
   const splits=[0.5,0.3,0.2];
   const podiumOrder=[1,0,2];
-  const podiumSizes=[96,120,80]; // avatar px — center is biggest
+  const podiumSizes=[96,120,80]; // avatar px by display position — center biggest
   const podiumFontSizes=['18px','22px','16px'];
   const podiumScoreSizes=['2.2rem','2.8rem','1.9rem'];
 
@@ -1141,13 +1141,14 @@ function buildShareCardHTML(rows, title, totalCount, pot, date){
       ? `<div style="position:absolute;bottom:-9px;left:50%;transform:translateX(-50%);background:#22c55e;color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap;letter-spacing:0.5px;">$${Math.round(pot*splits[dataIdx])}</div>`
       : '';
     const sz = podiumSizes[displayIdx];
+    const isCenter = displayIdx===1;
     const firstName = r.name.split(' ')[0];
     return `<div style="flex:1;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px;padding:0 4px;">
-      <div style="position:relative;width:${sz}px;height:${sz}px;border-radius:50%;background:${avatarBgs[displayIdx]};display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;color:white;font-size:${displayIdx===1?'2rem':'1.6rem'};letter-spacing:1px;flex-shrink:0;box-shadow:${displayIdx===1?'0 0 32px rgba(255,215,0,0.45)':'0 2px 12px rgba(0,0,0,0.5)'};">
+      <div style="position:relative;width:${sz}px;height:${sz}px;border-radius:50%;background:${avatarBgs[dataIdx]};display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;color:white;font-size:${isCenter?'2rem':'1.6rem'};letter-spacing:1px;flex-shrink:0;box-shadow:${isCenter?'0 0 32px rgba(255,215,0,0.45)':'0 2px 12px rgba(0,0,0,0.5)'};">
         ${initials(r.name)}${prize}
       </div>
       <div style="font-size:${podiumFontSizes[displayIdx]};font-weight:900;color:white;letter-spacing:0.5px;text-transform:uppercase;white-space:nowrap;margin-top:2px;">${medals[dataIdx]} ${firstName}</div>
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:${podiumScoreSizes[displayIdx]};color:${scoreColors[displayIdx]};letter-spacing:1px;line-height:1;">${r.total}<span style="font-size:0.45em;color:rgba(255,255,255,0.4);margin-left:3px;vertical-align:middle;">pts</span></div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:${podiumScoreSizes[displayIdx]};color:${scoreColors[dataIdx]};letter-spacing:1px;line-height:1;">${r.total}<span style="font-size:0.45em;color:rgba(255,255,255,0.4);margin-left:3px;vertical-align:middle;">pts</span></div>
     </div>`;
   }).join('');
 
