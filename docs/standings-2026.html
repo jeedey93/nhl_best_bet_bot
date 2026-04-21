@@ -603,6 +603,7 @@ function render(){
 
   const maxScore=rows[0]?.total||1;
   const leaderScore=rows[0]?.total||0;
+  const totalCount=rows.length;
 
   // ── Podium ──
   const activePaid=document.getElementById('btn-paid')?.classList.contains('active');
@@ -1179,8 +1180,8 @@ function buildShareCardHTML(rows, title, totalCount, pot, date){
     const teamEarnings = TEAMS.map(t=>({team:t,earned:(r.picks[t]||0)*results[t].reduce((s,w)=>s+w,0)}))
       .filter(x=>x.earned>0).sort((a,b)=>b.earned-a.earned);
     const mvp = teamEarnings[0];
-    const mvpPill = mvp ? (TEAM_LOGO[mvp.team]
-      ? `<span style="display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:20px;padding:2px 8px 2px 4px;margin-left:6px;vertical-align:middle;white-space:nowrap;"><img src="${TEAM_LOGO[mvp.team]}" style="width:16px;height:16px;object-fit:contain;"><span style="font-family:'Bebas Neue',sans-serif;font-size:14px;color:#ffb81c;line-height:1;">${mvp.earned}pts</span></span>`
+    const mvpPill = mvp ? (logoSrc(mvp.team)
+      ? `<span style="display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:20px;padding:2px 8px 2px 4px;margin-left:6px;vertical-align:middle;white-space:nowrap;"><img src="${logoSrc(mvp.team)}" style="width:16px;height:16px;object-fit:contain;"><span style="font-family:'Bebas Neue',sans-serif;font-size:14px;color:#ffb81c;line-height:1;">${mvp.earned}pts</span></span>`
       : `<span style="font-family:'Bebas Neue',sans-serif;font-size:13px;color:#ffb81c;margin-left:5px;">${shortTeamName(mvp.team)} ${mvp.earned}pts</span>`
     ) : '';
     return `<tr style="background:${rowBg};">
@@ -1243,6 +1244,28 @@ function buildShareCardHTML(rows, title, totalCount, pot, date){
     </div>`;
 }
 
+// ── Logo fetcher — converts NHL CDN SVGs to data URLs for html2canvas ─────────
+const _logoDataCache = {};
+async function fetchLogoDataUrl(url){
+  if(_logoDataCache[url]) return _logoDataCache[url];
+  try{
+    const res = await fetch(url);
+    const blob = await res.blob();
+    const dataUrl = await new Promise(resolve=>{
+      const reader = new FileReader();
+      reader.onload = ()=>resolve(reader.result);
+      reader.readAsDataURL(blob);
+    });
+    _logoDataCache[url] = dataUrl;
+    return dataUrl;
+  }catch(e){ return url; }
+}
+async function resolveLogos(teams){
+  const urls = [...new Set(teams.map(t=>TEAM_LOGO[t]).filter(Boolean))];
+  await Promise.all(urls.map(fetchLogoDataUrl));
+}
+function logoSrc(team){ return _logoDataCache[TEAM_LOGO[team]] || TEAM_LOGO[team] || ''; }
+
 // ── Personal share card ───────────────────────────────────────────────────────
 function buildPersonalCardHTML(row, rank, leaderScore, totalCount){
   const medals=['🥇','🥈','🥉'];
@@ -1273,8 +1296,8 @@ function buildPersonalCardHTML(row, rank, leaderScore, totalCount){
 
   // Top 3 teams rows
   const teamsHtml = teamEarnings.slice(0,5).map((x,i)=>{
-    const logoHtml = TEAM_LOGO[x.team]
-      ? `<img src="${TEAM_LOGO[x.team]}" style="width:20px;height:20px;object-fit:contain;flex-shrink:0;">`
+    const logoHtml = logoSrc(x.team)
+      ? `<img src="${logoSrc(x.team)}" style="width:20px;height:20px;object-fit:contain;flex-shrink:0;">`
       : `<span style="font-size:11px;color:rgba(255,255,255,0.4);width:20px;text-align:center;">${shortTeamName(x.team)}</span>`;
     const isMvp = i===0 && x.earned>0;
     return `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
@@ -1336,6 +1359,7 @@ async function sharePersonalCard(row, rank, leaderScore, totalCount, btn){
   const date = new Date().toLocaleDateString('en-CA');
   let card = document.getElementById('share-card');
   if(!card){ card=document.createElement('div'); card.id='share-card'; document.body.appendChild(card); }
+  await resolveLogos(TEAMS.filter(t=>row.picks[t]>0));
   card.innerHTML = buildPersonalCardHTML(row, rank, leaderScore, totalCount);
   await new Promise(r=>setTimeout(r,150));
   try{
@@ -1374,6 +1398,8 @@ async function shareLeaderboard(){
 
   let card = document.getElementById('share-card');
   if(!card){ card=document.createElement('div'); card.id='share-card'; document.body.appendChild(card); }
+  const top10teams = [...new Set(rows.slice(0,10).flatMap(r=>TEAMS.filter(t=>r.picks[t]>0)))];
+  await resolveLogos(top10teams);
   card.innerHTML = buildShareCardHTML(rows, title, totalCount, pot, date);
 
   await new Promise(r=>setTimeout(r,150));

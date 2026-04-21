@@ -158,6 +158,12 @@
   .spotlight-team.eliminated-team{background:rgba(200,16,46,0.06);border-color:rgba(200,16,46,0.2);}
   .spotlight-team.eliminated-team .sp-name{color:rgba(255,255,255,0.5);text-decoration:line-through;}
   .spotlight-team.eliminated-team .sp-pts-assigned{color:rgba(255,255,255,0.35);}
+  .spotlight-share-row{grid-column:1/-1;display:flex;justify-content:flex-end;margin-top:0.3rem;}
+  .spotlight-share-btn{font-family:'Bebas Neue',cursive;font-size:0.85rem;letter-spacing:1.5px;
+    background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:6px;
+    color:rgba(255,255,255,0.6);padding:4px 12px;cursor:pointer;transition:all 0.15s;}
+  .spotlight-share-btn:hover{background:rgba(255,255,255,0.1);color:white;border-color:rgba(255,255,255,0.3);}
+  .spotlight-share-btn:disabled{opacity:0.4;cursor:default;}
 
   .empty-state{text-align:center;padding:4rem 1rem;color:var(--silver);}
   .empty-state .icon{font-size:3rem;margin-bottom:0.5rem;}
@@ -666,6 +672,7 @@ function render(){
 
   const maxScore=rows[0]?.total||1;
   const leaderScore=rows[0]?.total||0;
+  const totalCount=rows.length;
 
   // ── Podium ──
   // ── Podium ──
@@ -747,7 +754,8 @@ function render(){
       const hotStyle=isHot?' style="border-color:rgba(255,184,28,0.5);background:rgba(255,184,28,0.08)"':'';
       return`<div class="spotlight-team${elimClass}"${hotStyle}><span class="sp-pts-assigned">${p}<span style="font-size:0.6rem;opacity:0.7;letter-spacing:0"> pts</span></span><span class="sp-name">${isHot?'🔥 ':''}${shortTeamName(t)}</span><span class="sp-wins-earned">${wins>0?`${wins}V · ${earned}pts`:earned>0?`${earned}pts`:''}</span></div>`;
     }).join('');
-    spotlightTr.innerHTML=`<td colspan="5"><div class="spotlight-inner">${teamsHtml||'<span style="color:var(--silver);font-size:0.85rem">Aucun choix chargé</span>'}</div></td>`;
+    spotlightTr.innerHTML=`<td colspan="5"><div class="spotlight-inner">${teamsHtml||'<span style="color:var(--silver);font-size:0.85rem">Aucun choix chargé</span>'}<div class="spotlight-share-row"><button class="spotlight-share-btn" onclick="event.stopPropagation();sharePersonalCard(window.__spFrRow_${i},${rank},${leaderScore},${totalCount},this)">📸 Ma carte</button></div></div></td>`;
+    window[`__spFrRow_${i}`]=row;
     lb.appendChild(spotlightTr);
 
     // Toggle spotlight on row click
@@ -835,7 +843,8 @@ function render(){
         const hotStyle=isHot?' style="border-color:rgba(255,184,28,0.5);background:rgba(255,184,28,0.08)"':'';
         return`<div class="spotlight-team${elimClass}"${hotStyle}><span class="sp-pts-assigned">${p}<span style="font-size:0.6rem;opacity:0.7;letter-spacing:0"> pts</span></span><span class="sp-name">${isHot?'🔥 ':''}${shortTeamName(t)}</span><span class="sp-wins-earned">${wins>0?`${wins}V · ${earned}pts`:earned>0?`${earned}pts`:''}</span></div>`;
       }).join('');
-      spotlightTr.innerHTML=`<td colspan="5"><div class="spotlight-inner">${teamsHtml||'<span style="color:var(--silver);font-size:0.85rem">Aucun choix chargé</span>'}</div></td>`;
+      spotlightTr.innerHTML=`<td colspan="5"><div class="spotlight-inner">${teamsHtml||'<span style="color:var(--silver);font-size:0.85rem">Aucun choix chargé</span>'}<div class="spotlight-share-row"><button class="spotlight-share-btn" onclick="event.stopPropagation();sharePersonalCard(window.__spFrPaidRow_${i},${rank},${paidLeader},${paidRows.length},this)">📸 Ma carte</button></div></div></td>`;
+      window[`__spFrPaidRow_${i}`]=row;
       paidLb.appendChild(spotlightTr);
 
       tr.addEventListener('click',()=>{
@@ -1181,74 +1190,238 @@ setInterval(()=>{loadResultsRemote();loadParticipants();},5*60*1000);
 
 // ── Partager le classement ───────────────────────────────────────────────────
 function buildShareCardHTML(rows, title, totalCount, pot, date){
-  const top10 = rows;
+  const top10 = rows.slice(0,10);
   const leaderScore = top10[0]?.total || 0;
-  const medals = ['🥇','🥈','🥉'];
-
+  const medals=['🥇','🥈','🥉'];
+  const scoreColors=['#FFD700','#C0C0C0','#CD7F32'];
+  const avatarBgs=[
+    'linear-gradient(135deg,#b8860b,#ffd700,#b8860b)',
+    'linear-gradient(135deg,#707070,#c0c0c0,#707070)',
+    'linear-gradient(135deg,#7d4e1a,#cd7f32,#7d4e1a)',
+  ];
   const splits=[0.5,0.3,0.2];
-  const podium = top10.slice(0,3).map((r,i)=>{
-    const prize = pot>0 ? `<div style="margin-top:4px;display:inline-block;background:#22c55e;color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;letter-spacing:0.5px;">${Math.round(pot*splits[i])}$ (${splits[i]*100}%)</div>` : '';
-    return `
-    <div style="flex:1;text-align:center;padding:10px 8px;background:rgba(255,255,255,0.05);border-radius:8px;min-width:0;">
-      <div style="font-size:26px;line-height:1.1;">${medals[i]}</div>
-      <div style="font-size:13px;font-weight:700;color:#ffffff;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${r.name}</div>
-      <div style="font-size:18px;font-weight:700;color:#ffb81c;margin-top:2px;">${r.total}</div>
-      ${prize}
+  const podiumOrder=[1,0,2];
+  const podiumSizes=[96,120,80];
+  const podiumFontSizes=['18px','22px','16px'];
+  const podiumScoreSizes=['2.2rem','2.8rem','1.9rem'];
+
+  const podium = podiumOrder.map((dataIdx, displayIdx)=>{
+    const r = top10[dataIdx];
+    if(!r) return '';
+    const prize = pot>0
+      ? `<div style="position:absolute;bottom:-9px;left:50%;transform:translateX(-50%);background:#22c55e;color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap;letter-spacing:0.5px;">$${Math.round(pot*splits[dataIdx])}</div>`
+      : '';
+    const sz = podiumSizes[displayIdx];
+    const isCenter = displayIdx===1;
+    const firstName = r.name.split(' ')[0];
+    return `<div style="flex:1;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px;padding:0 4px;">
+      <div style="position:relative;width:${sz}px;height:${sz}px;border-radius:50%;background:${avatarBgs[dataIdx]};display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;color:white;font-size:${isCenter?'2rem':'1.6rem'};letter-spacing:1px;flex-shrink:0;box-shadow:${isCenter?'0 0 32px rgba(255,215,0,0.45)':'0 2px 12px rgba(0,0,0,0.5)'};">
+        ${initials(r.name)}${prize}
+      </div>
+      <div style="font-size:${podiumFontSizes[displayIdx]};font-weight:900;color:white;letter-spacing:0.5px;text-transform:uppercase;white-space:nowrap;margin-top:2px;">${medals[dataIdx]} ${firstName}</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:${podiumScoreSizes[displayIdx]};color:${scoreColors[dataIdx]};letter-spacing:1px;line-height:1;">${r.total}<span style="font-size:0.45em;color:rgba(255,255,255,0.4);margin-left:3px;vertical-align:middle;">pts</span></div>
     </div>`;
   }).join('');
 
   const tableRows = top10.map((r,i)=>{
-    const rank = i<3 ? medals[i] : `${i+1}`;
-    const gap = i===0 ? '<span style="color:#22c55e;font-weight:700;">Meneur</span>'
-               : `<span style="color:rgba(255,255,255,0.5);">-${leaderScore - r.total}</span>`;
-    const deltaColor = r.delta>0?'#22c55e':r.delta<0?'#f87171':'rgba(255,255,255,0.25)';
+    const rankCell = i<3 ? `<span style="font-size:18px;">${medals[i]}</span>` : `<span style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:rgba(255,255,255,0.5);">${i+1}</span>`;
+    const gap = i===0
+      ? `<span style="color:#22c55e;font-weight:700;font-size:13px;">Meneur</span>`
+      : `<span style="color:rgba(255,255,255,0.45);font-size:13px;">-${leaderScore - r.total}</span>`;
+    const deltaColor = r.delta>0?'#22c55e':r.delta<0?'#f87171':'rgba(255,255,255,0.2)';
     const deltaStr = r.delta>0?`+${r.delta}`:r.delta===0?'—':`${r.delta}`;
-    const rowBg = i%2===0?'rgba(255,255,255,0.03)':'transparent';
+    const rowBg = i%2===0?'rgba(255,255,255,0.04)':'transparent';
+    const nameParts = r.name.split(' ');
+    const firstName = nameParts[0];
+    const lastName = nameParts.slice(1).join(' ');
+    const teamEarnings = TEAMS.map(t=>({team:t,earned:(r.picks[t]||0)*results[t].reduce((s,w)=>s+w,0)}))
+      .filter(x=>x.earned>0).sort((a,b)=>b.earned-a.earned);
+    const mvp = teamEarnings[0];
+    const mvpPill = mvp ? (logoSrc(mvp.team)
+      ? `<span style="display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:20px;padding:2px 8px 2px 4px;margin-left:6px;vertical-align:middle;white-space:nowrap;"><img src="${logoSrc(mvp.team)}" style="width:16px;height:16px;object-fit:contain;"><span style="font-family:'Bebas Neue',sans-serif;font-size:14px;color:#ffb81c;line-height:1;">${mvp.earned}pts</span></span>`
+      : `<span style="font-family:'Bebas Neue',sans-serif;font-size:13px;color:#ffb81c;margin-left:5px;">${shortTeamName(mvp.team)} ${mvp.earned}pts</span>`
+    ) : '';
     return `<tr style="background:${rowBg};">
-      <td style="padding:8px 10px;font-size:14px;text-align:center;width:36px;">${rank}</td>
-      <td style="padding:8px 6px;font-size:14px;font-weight:700;color:#ffffff;">${r.name}</td>
-      <td style="padding:8px 10px;font-size:15px;font-weight:700;color:#ffb81c;text-align:center;">${r.total}</td>
-      <td style="padding:8px 8px;font-size:13px;color:${deltaColor};text-align:center;font-weight:700;">${deltaStr}</td>
-      <td style="padding:8px 10px;font-size:13px;text-align:center;">${gap}</td>
+      <td style="padding:10px 10px;text-align:center;width:40px;">${rankCell}</td>
+      <td style="padding:10px 6px;">
+        <span style="font-size:17px;font-weight:800;color:#ffffff;letter-spacing:0.3px;">${firstName}</span>
+        ${lastName?`<span style="font-size:14px;font-weight:600;color:rgba(255,255,255,0.55);margin-left:4px;">${lastName}</span>`:''}
+        ${mvpPill}
+      </td>
+      <td style="padding:10px 14px;font-family:'Bebas Neue',sans-serif;font-size:22px;color:#ffb81c;text-align:center;line-height:1;">${r.total}</td>
+      <td style="padding:10px 10px;font-size:14px;font-weight:700;color:${deltaColor};text-align:center;">${deltaStr}</td>
+      <td style="padding:10px 10px;text-align:center;">${gap}</td>
     </tr>`;
   }).join('');
 
-  const potStr = pot>0 ? ` &nbsp;·&nbsp; 🏆 ${pot}$ La cagnotte` : '';
-
   return `
-    <div style="background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%);padding:22px 24px 16px;">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-        <div style="display:flex;align-items:center;gap:10px;">
-          <div style="font-size:28px;">🎯</div>
+    <div style="background:linear-gradient(160deg,#0d1b2e 0%,#111827 60%,#0f172a 100%);padding:28px 28px 0;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <img src="https://parieurdiscipline.com/parieur_discipline_icon_1024.png" style="width:48px;height:48px;border-radius:10px;object-fit:cover;box-shadow:0 3px 12px rgba(0,0,0,0.6);flex-shrink:0;">
           <div>
-            <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:#ffffff;letter-spacing:3px;line-height:1;">PARIEUR DISCIPLINÉ</div>
-            <div style="font-size:11px;color:#94a3b8;letter-spacing:2px;text-transform:uppercase;">Éliminatoires LNH 2026 · ${title}</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;color:#ffffff;letter-spacing:4px;line-height:1;">PARIEUR DISCIPLINÉ</div>
+            <div style="font-size:12px;color:#94a3b8;letter-spacing:2px;text-transform:uppercase;margin-top:2px;">Éliminatoires LNH 2026 · ${title}</div>
           </div>
         </div>
         <div style="text-align:right;">
-          <div style="font-size:12px;color:#94a3b8;">${date}</div>
-          <div style="font-size:11px;color:rgba(148,163,184,0.6);margin-top:2px;">${totalCount} participants</div>
+          <div style="font-size:13px;color:#94a3b8;font-weight:600;">${date}</div>
+          <div style="font-size:11px;color:rgba(148,163,184,0.5);margin-top:2px;">${totalCount} participants</div>
         </div>
       </div>
-      <div style="display:flex;gap:8px;margin-bottom:16px;">${podium}</div>
+      <div style="display:flex;gap:6px;margin-bottom:24px;align-items:flex-end;padding:0 4px;">${podium}</div>
+      <div style="height:1px;background:linear-gradient(90deg,transparent,rgba(255,184,28,0.3),transparent);margin-bottom:2px;"></div>
     </div>
-    <div style="padding:0 16px 0;">
+    <div style="background:linear-gradient(160deg,#0d1b2e 0%,#111827 100%);padding:0 20px 4px;">
       <table style="width:100%;border-collapse:collapse;font-family:'Barlow Condensed',sans-serif;">
         <thead>
-          <tr style="border-bottom:1px solid rgba(255,184,28,0.3);">
-            <th style="padding:7px 10px;font-size:10px;color:rgba(255,184,28,0.7);letter-spacing:1.5px;text-align:center;">#</th>
-            <th style="padding:7px 6px;font-size:10px;color:rgba(255,184,28,0.7);letter-spacing:1.5px;text-align:left;">NOM</th>
-            <th style="padding:7px 10px;font-size:10px;color:rgba(255,184,28,0.7);letter-spacing:1.5px;text-align:center;">PTS</th>
-            <th style="padding:7px 8px;font-size:10px;color:rgba(255,184,28,0.7);letter-spacing:1.5px;text-align:center;">HIER</th>
-            <th style="padding:7px 10px;font-size:10px;color:rgba(255,184,28,0.7);letter-spacing:1.5px;text-align:center;">ÉCART</th>
+          <tr style="border-bottom:1px solid rgba(255,184,28,0.2);">
+            <th style="padding:8px 10px;font-size:10px;color:rgba(255,184,28,0.6);letter-spacing:2px;text-align:center;">#</th>
+            <th style="padding:8px 6px;font-size:10px;color:rgba(255,184,28,0.6);letter-spacing:2px;text-align:left;">NOM</th>
+            <th style="padding:8px 14px;font-size:10px;color:rgba(255,184,28,0.6);letter-spacing:2px;text-align:center;">PTS</th>
+            <th style="padding:8px 10px;font-size:10px;color:rgba(255,184,28,0.6);letter-spacing:2px;text-align:center;">HIER</th>
+            <th style="padding:8px 10px;font-size:10px;color:rgba(255,184,28,0.6);letter-spacing:2px;text-align:center;">ÉCART</th>
           </tr>
         </thead>
         <tbody>${tableRows}</tbody>
       </table>
     </div>
-    <div style="text-align:center;padding:12px;font-size:11px;color:rgba(148,163,184,0.45);letter-spacing:1px;border-top:1px solid rgba(255,255,255,0.06);margin-top:12px;">
-      parieurdiscipline.com
+    <div style="background:linear-gradient(160deg,#0d1b2e 0%,#111827 100%);text-align:center;padding:12px 16px 16px;border-top:1px solid rgba(255,255,255,0.05);margin-top:4px;">
+      <span style="font-size:12px;color:rgba(148,163,184,0.4);letter-spacing:2px;text-transform:uppercase;">parieurdiscipline.com</span>
     </div>`;
+}
+
+// ── Logo fetcher — converts NHL CDN SVGs to data URLs for html2canvas ─────────
+const _logoDataCache = {};
+async function fetchLogoDataUrl(url){
+  if(_logoDataCache[url]) return _logoDataCache[url];
+  try{
+    const res = await fetch(url);
+    const blob = await res.blob();
+    const dataUrl = await new Promise(resolve=>{
+      const reader = new FileReader();
+      reader.onload = ()=>resolve(reader.result);
+      reader.readAsDataURL(blob);
+    });
+    _logoDataCache[url] = dataUrl;
+    return dataUrl;
+  }catch(e){ return url; }
+}
+async function resolveLogos(teams){
+  const urls = [...new Set(teams.map(t=>TEAM_LOGO[t]).filter(Boolean))];
+  await Promise.all(urls.map(fetchLogoDataUrl));
+}
+function logoSrc(team){ return _logoDataCache[TEAM_LOGO[team]] || TEAM_LOGO[team] || ''; }
+
+function buildPersonalCardHTML(row, rank, leaderScore, totalCount){
+  const medals=['🥇','🥈','🥉'];
+  const rankDisplay = rank<=3 ? medals[rank-1] : `#${rank}`;
+  const gap = rank===1 ? 'En tête 🏆' : `-${leaderScore - row.total} pts de retard`;
+  const date = new Date().toLocaleDateString('fr-CA');
+
+  const teamEarnings = TEAMS.map(t=>({
+    team:t,
+    earned:(row.picks[t]||0)*results[t].reduce((s,w)=>s+w,0),
+    wins:results[t].reduce((s,w)=>s+w,0),
+    pts:row.picks[t]||0
+  })).filter(x=>x.pts>0).sort((a,b)=>b.earned-a.earned);
+  const mvp = teamEarnings[0];
+
+  const avatarBg = rank===1
+    ? 'linear-gradient(135deg,#b8860b,#ffd700,#b8860b)'
+    : rank===2
+      ? 'linear-gradient(135deg,#707070,#c0c0c0,#707070)'
+      : rank===3
+        ? 'linear-gradient(135deg,#7d4e1a,#cd7f32,#7d4e1a)'
+        : 'linear-gradient(135deg,#1e3a5f,#2d5a8e,#1e3a5f)';
+  const avatarGlow = rank===1
+    ? '0 0 40px rgba(255,215,0,0.5)'
+    : rank<=3 ? '0 0 20px rgba(255,255,255,0.15)' : '0 2px 12px rgba(0,0,0,0.5)';
+  const scoreColor = rank===1?'#FFD700':rank===2?'#C0C0C0':rank===3?'#CD7F32':'#ffb81c';
+
+  const teamsHtml = teamEarnings.slice(0,5).map((x,i)=>{
+    const logoHtml = logoSrc(x.team)
+      ? `<img src="${logoSrc(x.team)}" style="width:20px;height:20px;object-fit:contain;flex-shrink:0;">`
+      : `<span style="font-size:11px;color:rgba(255,255,255,0.4);width:20px;text-align:center;">${shortTeamName(x.team)}</span>`;
+    const isMvp = i===0 && x.earned>0;
+    return `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+      ${logoHtml}
+      <span style="flex:1;font-size:14px;font-weight:${isMvp?'700':'600'};color:${isMvp?'white':'rgba(255,255,255,0.7)'};">${shortTeamName(x.team)}</span>
+      <span style="font-size:12px;color:rgba(255,255,255,0.4);">${x.pts}pts misés</span>
+      <span style="font-family:'Bebas Neue',sans-serif;font-size:16px;color:${isMvp?'#ffb81c':'rgba(255,255,255,0.5)'};min-width:40px;text-align:right;">${x.earned>0?x.earned+'pts':'—'}</span>
+    </div>`;
+  }).join('');
+
+  return `
+    <div style="background:linear-gradient(160deg,#0d1b2e 0%,#111827 100%);padding:28px 28px 24px;font-family:'Barlow Condensed',sans-serif;">
+
+      <!-- En-tête -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <img src="https://parieurdiscipline.com/parieur_discipline_icon_1024.png" style="width:36px;height:36px;border-radius:8px;object-fit:cover;flex-shrink:0;">
+          <div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:#ffffff;letter-spacing:3px;line-height:1;">PARIEUR DISCIPLINÉ</div>
+            <div style="font-size:11px;color:#64748b;letter-spacing:2px;text-transform:uppercase;margin-top:1px;">LNH Éliminatoires 2026</div>
+          </div>
+        </div>
+        <div style="font-size:12px;color:#64748b;">${date} · ${totalCount} joueurs</div>
+      </div>
+
+      <!-- Bloc joueur -->
+      <div style="display:flex;align-items:center;gap:20px;margin-bottom:24px;padding:20px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;">
+        <div style="width:72px;height:72px;border-radius:50%;background:${avatarBg};box-shadow:${avatarGlow};display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:white;letter-spacing:1px;flex-shrink:0;">
+          ${initials(row.name)}
+        </div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:26px;font-weight:900;color:white;letter-spacing:0.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${row.name}</div>
+          <div style="font-size:13px;color:rgba(255,255,255,0.4);margin-top:2px;letter-spacing:0.5px;">${gap}</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:3rem;color:${scoreColor};line-height:1;letter-spacing:1px;">${row.total}</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.35);letter-spacing:1px;text-transform:uppercase;">points</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:rgba(255,255,255,0.5);margin-top:2px;">${rankDisplay}</div>
+        </div>
+      </div>
+
+      <!-- Équipes -->
+      <div style="margin-bottom:8px;">
+        <div style="font-size:10px;color:rgba(255,184,28,0.6);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;">Points gagnés par équipe</div>
+        ${teamsHtml||'<div style="font-size:13px;color:rgba(255,255,255,0.3);padding:8px 0;">Aucun choix chargé</div>'}
+      </div>
+
+      <!-- Pied de page -->
+      <div style="text-align:center;margin-top:16px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.05);">
+        <span style="font-size:11px;color:rgba(148,163,184,0.35);letter-spacing:2px;text-transform:uppercase;">parieurdiscipline.com</span>
+      </div>
+    </div>`;
+}
+
+async function sharePersonalCard(row, rank, leaderScore, totalCount, btn){
+  const origText = btn.textContent;
+  btn.textContent = '⏳';
+  btn.disabled = true;
+  const date = new Date().toLocaleDateString('fr-CA');
+  let card = document.getElementById('share-card');
+  if(!card){ card=document.createElement('div'); card.id='share-card'; document.body.appendChild(card); }
+  await resolveLogos(TEAMS.filter(t=>row.picks[t]>0));
+  card.innerHTML = buildPersonalCardHTML(row, rank, leaderScore, totalCount);
+  await new Promise(r=>setTimeout(r,150));
+  try{
+    const canvas = await html2canvas(card,{scale:2,useCORS:true,backgroundColor:'#07111f',logging:false});
+    if(navigator.share && navigator.canShare){
+      const blob = await new Promise(res=>canvas.toBlob(res,'image/png'));
+      const file = new File([blob],`ma-carte-${date}.png`,{type:'image/png'});
+      if(navigator.canShare({files:[file]})){
+        await navigator.share({files:[file]});
+        return;
+      }
+    }
+    const link = document.createElement('a');
+    link.download = `ma-carte-${date}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  }catch(e){ if(e.name!=='AbortError') console.error(e); }
+  finally{ btn.textContent=origText; btn.disabled=false; }
 }
 
 async function shareLeaderboard(){
@@ -1269,6 +1442,8 @@ async function shareLeaderboard(){
 
   let card = document.getElementById('share-card');
   if(!card){ card=document.createElement('div'); card.id='share-card'; document.body.appendChild(card); }
+  const top10teams = [...new Set(rows.slice(0,10).flatMap(r=>TEAMS.filter(t=>r.picks[t]>0)))];
+  await resolveLogos(top10teams);
   card.innerHTML = buildShareCardHTML(rows, title, totalCount, pot, date);
 
   await new Promise(r=>setTimeout(r,150));
