@@ -328,7 +328,7 @@
   .gs-vote-btn{flex:1;background:transparent;border:1px solid rgba(255,255,255,0.12);
     border-radius:7px;padding:6px 5px;font-family:'Barlow Condensed',sans-serif;
     font-size:0.78rem;font-weight:700;cursor:pointer;
-    letter-spacing:0.5px;transition:all 0.18s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    letter-spacing:0.5px;transition:all 0.18s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;}
   .gs-vote-btn:first-child{border-color:rgba(200,16,46,0.45);color:rgba(255,100,100,0.85);}
   .gs-vote-btn:last-child{border-color:rgba(255,184,28,0.4);color:rgba(255,184,28,0.85);}
   .gs-vote-btn:hover{transform:translateY(-1px);box-shadow:0 3px 10px rgba(0,0,0,0.3);}
@@ -1349,9 +1349,9 @@ function buildPersonalCardHTML(row, rank, leaderScore, totalCount){
     const winsColor = x.wins > 0 ? 'rgba(255,255,255,0.65)' : 'rgba(255,255,255,0.2)';
     const winsStr = x.wins > 0 ? `${x.wins}` : '—';
     const earnedStr = x.earned > 0 ? `${x.earned}` : '—';
-    return `<div style="display:grid;grid-template-columns:30px 1fr 48px 60px;align-items:center;gap:8px;padding:7px 10px;background:${rowBg};border-radius:7px;">
+    return `<div style="display:grid;grid-template-columns:28px 1fr 32px 52px;align-items:center;gap:4px;padding:6px 10px;background:${rowBg};border-radius:7px;">
       <span style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:${scoreColor};line-height:1;">${x.pts}</span>
-      <span style="font-size:18px;font-weight:${nameFw};color:${nameColor};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${shortTeamName(x.team)}${isMvp?' 🔥':''}</span>
+      <span style="font-size:18px;font-weight:${nameFw};color:${nameColor};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;">${shortTeamName(x.team)}${isMvp?' 🔥':''}</span>
       <span style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:${winsColor};text-align:center;line-height:1;">${winsStr}</span>
       <span style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:${earnedColor};text-align:right;line-height:1;">${earnedStr}<span style="font-size:13px;opacity:0.6;">pts</span></span>
     </div>`;
@@ -1395,7 +1395,7 @@ function buildPersonalCardHTML(row, rank, leaderScore, totalCount){
 
       <!-- Équipes -->
       <div>
-        <div style="display:grid;grid-template-columns:30px 1fr 48px 60px;gap:8px;padding:0 10px 6px;border-bottom:1px solid rgba(255,255,255,0.07);margin-bottom:4px;">
+        <div style="display:grid;grid-template-columns:28px 1fr 32px 52px;gap:4px;padding:0 10px 6px;border-bottom:1px solid rgba(255,255,255,0.07);margin-bottom:4px;">
           <span style="font-size:11px;color:rgba(255,184,28,0.4);letter-spacing:1.5px;text-transform:uppercase;">Pts</span>
           <span style="font-size:11px;color:rgba(255,184,28,0.4);letter-spacing:1.5px;text-transform:uppercase;">Équipe</span>
           <span style="font-size:11px;color:rgba(255,184,28,0.4);letter-spacing:1.5px;text-transform:uppercase;text-align:center;">V</span>
