@@ -263,7 +263,7 @@
     font-size:0.95rem;letter-spacing:1px;outline:none;width:160px;transition:border-color 0.2s;}
   .search-participant::placeholder{color:rgba(168,178,190,0.5);}
   .search-participant:focus{border-color:rgba(255,184,28,0.5);}
-  #share-card{position:fixed;left:-9999px;top:0;width:600px;
+  #share-card{position:fixed;left:-9999px;top:0;width:720px;
     background:#07111f;font-family:'Barlow Condensed',sans-serif;color:white;
     padding:0;overflow:hidden;}
 
@@ -1119,103 +1119,108 @@ function buildShareCardHTML(rows, title, totalCount, pot, date){
   const top10 = rows.slice(0,10);
   const leaderScore = top10[0]?.total || 0;
 
-  // Podium (top 3) — same avatar+pedestal style as the live page
-  // DOM order: 2nd (left), 1st (center/gold), 3rd (right)
-  const splits=[0.5,0.3,0.2];
-  const podiumOrder=[1,0,2]; // indices into top10: silver, gold, bronze
-  const avatarSizes=['66px','80px','60px'];
+  const medals=['🥇','🥈','🥉'];
+  const scoreColors=['#FFD700','#C0C0C0','#CD7F32'];
   const avatarBgs=[
-    'linear-gradient(135deg,#707070,#c0c0c0,#707070)',
     'linear-gradient(135deg,#b8860b,#ffd700,#b8860b)',
+    'linear-gradient(135deg,#707070,#c0c0c0,#707070)',
     'linear-gradient(135deg,#7d4e1a,#cd7f32,#7d4e1a)',
   ];
-  const avatarShadows=[
-    '0 0 20px rgba(192,192,192,0.3)',
-    '0 0 30px rgba(255,215,0,0.5)',
-    '0 0 16px rgba(205,127,50,0.3)',
-  ];
-  const blockHeights=['56px','80px','40px'];
-  const blockBgs=[
-    'linear-gradient(180deg,rgba(192,192,192,0.15),rgba(192,192,192,0.03))',
-    'linear-gradient(180deg,rgba(255,215,0,0.25),rgba(255,215,0,0.05))',
-    'linear-gradient(180deg,rgba(205,127,50,0.15),rgba(205,127,50,0.03))',
-  ];
-  const blockBorders=['rgba(192,192,192,0.2)','rgba(255,215,0,0.3)','rgba(205,127,50,0.2)'];
-  const scoreColors=['#C0C0C0','#FFD700','#CD7F32'];
-  const medals=['🥇','🥈','🥉'];
+
+  // Top 3 podium — horizontal row, generous sizing
+  const splits=[0.5,0.3,0.2];
+  const podiumOrder=[1,0,2];
+  const podiumSizes=[96,120,80]; // avatar px — center is biggest
+  const podiumFontSizes=['18px','22px','16px'];
+  const podiumScoreSizes=['2.2rem','2.8rem','1.9rem'];
 
   const podium = podiumOrder.map((dataIdx, displayIdx)=>{
     const r = top10[dataIdx];
     if(!r) return '';
-    const rank = dataIdx+1;
-    const prize = pot>0 ? `<div style="position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);background:#22c55e;color:#fff;font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;white-space:nowrap;letter-spacing:0.5px;">$${Math.round(pot*splits[dataIdx])} (${splits[dataIdx]*100}%)</div>` : '';
+    const prize = pot>0
+      ? `<div style="position:absolute;bottom:-9px;left:50%;transform:translateX(-50%);background:#22c55e;color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap;letter-spacing:0.5px;">$${Math.round(pot*splits[dataIdx])}</div>`
+      : '';
+    const sz = podiumSizes[displayIdx];
     const firstName = r.name.split(' ')[0];
-    return `<div style="flex:1;text-align:center;display:flex;flex-direction:column;align-items:center;">
-      <div style="position:relative;width:${avatarSizes[displayIdx]};height:${avatarSizes[displayIdx]};border-radius:50%;background:${avatarBgs[displayIdx]};box-shadow:${avatarShadows[displayIdx]};display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;color:white;font-size:${displayIdx===1?'1.5rem':'1.2rem'};letter-spacing:2px;margin-bottom:6px;flex-shrink:0;">
+    return `<div style="flex:1;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px;padding:0 4px;">
+      <div style="position:relative;width:${sz}px;height:${sz}px;border-radius:50%;background:${avatarBgs[displayIdx]};display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;color:white;font-size:${displayIdx===1?'2rem':'1.6rem'};letter-spacing:1px;flex-shrink:0;box-shadow:${displayIdx===1?'0 0 32px rgba(255,215,0,0.45)':'0 2px 12px rgba(0,0,0,0.5)'};">
         ${initials(r.name)}${prize}
       </div>
-      <div style="font-size:${displayIdx===1?'13px':'11px'};font-weight:700;color:white;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;">${medals[dataIdx]} ${firstName}</div>
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:${displayIdx===1?'1.8rem':'1.4rem'};color:${scoreColors[displayIdx]};letter-spacing:1px;line-height:1;">${r.total}</div>
-      <div style="font-size:10px;color:rgba(168,178,190,0.6);letter-spacing:1px;">pts</div>
-      <div style="border-radius:6px 6px 0 0;width:100%;height:${blockHeights[displayIdx]};background:${blockBgs[displayIdx]};border:1px solid ${blockBorders[displayIdx]};border-bottom:none;margin-top:6px;display:flex;align-items:center;justify-content:center;">
-        <span style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:rgba(255,255,255,0.4);">${rank}</span>
-      </div>
+      <div style="font-size:${podiumFontSizes[displayIdx]};font-weight:900;color:white;letter-spacing:0.5px;text-transform:uppercase;white-space:nowrap;margin-top:2px;">${medals[dataIdx]} ${firstName}</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:${podiumScoreSizes[displayIdx]};color:${scoreColors[displayIdx]};letter-spacing:1px;line-height:1;">${r.total}<span style="font-size:0.45em;color:rgba(255,255,255,0.4);margin-left:3px;vertical-align:middle;">pts</span></div>
     </div>`;
   }).join('');
 
-  // Table rows
+  // Table rows — bigger, high contrast
   const tableRows = top10.map((r,i)=>{
-    const rank = i<3 ? medals[i] : `${i+1}`;
-    const gap = i===0 ? '<span style="color:#22c55e;font-weight:700;">Leader</span>'
-               : `<span style="color:rgba(255,255,255,0.5);">-${leaderScore - r.total}</span>`;
-    const deltaColor = r.delta>0?'#22c55e':r.delta<0?'#f87171':'rgba(255,255,255,0.25)';
+    const rankCell = i<3 ? `<span style="font-size:18px;">${medals[i]}</span>` : `<span style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:rgba(255,255,255,0.5);">${i+1}</span>`;
+    const gap = i===0
+      ? `<span style="color:#22c55e;font-weight:700;font-size:13px;">Leader</span>`
+      : `<span style="color:rgba(255,255,255,0.45);font-size:13px;">-${leaderScore - r.total}</span>`;
+    const deltaColor = r.delta>0?'#22c55e':r.delta<0?'#f87171':'rgba(255,255,255,0.2)';
     const deltaStr = r.delta>0?`+${r.delta}`:r.delta===0?'—':`${r.delta}`;
-    const rowBg = i%2===0?'rgba(255,255,255,0.03)':'transparent';
+    const rowBg = i%2===0?'rgba(255,255,255,0.04)':'transparent';
+    const nameParts = r.name.split(' ');
+    const firstName = nameParts[0];
+    const lastName = nameParts.slice(1).join(' ');
     return `<tr style="background:${rowBg};">
-      <td style="padding:8px 10px;font-size:14px;text-align:center;width:36px;">${rank}</td>
-      <td style="padding:8px 6px;font-size:14px;font-weight:700;color:#ffffff;">${r.name}</td>
-      <td style="padding:8px 10px;font-size:15px;font-weight:700;color:#ffb81c;text-align:center;">${r.total}</td>
-      <td style="padding:8px 8px;font-size:13px;color:${deltaColor};text-align:center;font-weight:700;">${deltaStr}</td>
-      <td style="padding:8px 10px;font-size:13px;text-align:center;">${gap}</td>
+      <td style="padding:10px 10px;text-align:center;width:40px;">${rankCell}</td>
+      <td style="padding:10px 6px;">
+        <span style="font-size:17px;font-weight:800;color:#ffffff;letter-spacing:0.3px;">${firstName}</span>
+        ${lastName?`<span style="font-size:14px;font-weight:600;color:rgba(255,255,255,0.55);margin-left:4px;">${lastName}</span>`:''}
+      </td>
+      <td style="padding:10px 14px;font-family:'Bebas Neue',sans-serif;font-size:22px;color:#ffb81c;text-align:center;line-height:1;">${r.total}</td>
+      <td style="padding:10px 10px;font-size:14px;font-weight:700;color:${deltaColor};text-align:center;">${deltaStr}</td>
+      <td style="padding:10px 10px;text-align:center;">${gap}</td>
     </tr>`;
   }).join('');
 
-  const potStr = pot>0 ? ` &nbsp;·&nbsp; 🏆 $${pot} The pot` : '';
-
   return `
-    <div style="background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%);padding:22px 24px 16px;">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-        <div style="display:flex;align-items:center;gap:10px;">
-          <img src="https://parieurdiscipline.com/parieur_discipline_icon_1024.png" style="width:40px;height:40px;border-radius:8px;object-fit:cover;box-shadow:0 2px 8px rgba(0,0,0,0.5);flex-shrink:0;">
+    <div style="background:linear-gradient(160deg,#0d1b2e 0%,#111827 60%,#0f172a 100%);padding:28px 28px 0;">
+
+      <!-- Header -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <img src="https://parieurdiscipline.com/parieur_discipline_icon_1024.png" style="width:48px;height:48px;border-radius:10px;object-fit:cover;box-shadow:0 3px 12px rgba(0,0,0,0.6);flex-shrink:0;">
           <div>
-            <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:#ffffff;letter-spacing:3px;line-height:1;">PARIEUR DISCIPLINÉ</div>
-            <div style="font-size:11px;color:#94a3b8;letter-spacing:2px;text-transform:uppercase;">NHL Playoffs 2026 · ${title} · Top 10</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;color:#ffffff;letter-spacing:4px;line-height:1;">PARIEUR DISCIPLINÉ</div>
+            <div style="font-size:12px;color:#94a3b8;letter-spacing:2px;text-transform:uppercase;margin-top:2px;">NHL Playoffs 2026 · ${title}</div>
           </div>
         </div>
         <div style="text-align:right;">
-          <div style="font-size:12px;color:#94a3b8;">${date}</div>
-          <div style="font-size:11px;color:rgba(148,163,184,0.6);margin-top:2px;">${totalCount} participants</div>
+          <div style="font-size:13px;color:#94a3b8;font-weight:600;">${date}</div>
+          <div style="font-size:11px;color:rgba(148,163,184,0.5);margin-top:2px;">${totalCount} participants</div>
         </div>
       </div>
-      <div style="display:flex;gap:8px;margin-bottom:16px;align-items:flex-end;">${podium}</div>
+
+      <!-- Podium -->
+      <div style="display:flex;gap:6px;margin-bottom:24px;align-items:flex-end;padding:0 4px;">${podium}</div>
+
+      <!-- Divider -->
+      <div style="height:1px;background:linear-gradient(90deg,transparent,rgba(255,184,28,0.3),transparent);margin-bottom:2px;"></div>
     </div>
-    <div style="padding:0 16px 0;">
+
+    <!-- Table -->
+    <div style="background:linear-gradient(160deg,#0d1b2e 0%,#111827 100%);padding:0 20px 4px;">
       <table style="width:100%;border-collapse:collapse;font-family:'Barlow Condensed',sans-serif;">
         <thead>
-          <tr style="border-bottom:1px solid rgba(255,184,28,0.3);">
-            <th style="padding:7px 10px;font-size:10px;color:rgba(255,184,28,0.7);letter-spacing:1.5px;text-align:center;">#</th>
-            <th style="padding:7px 6px;font-size:10px;color:rgba(255,184,28,0.7);letter-spacing:1.5px;text-align:left;">NAME</th>
-            <th style="padding:7px 10px;font-size:10px;color:rgba(255,184,28,0.7);letter-spacing:1.5px;text-align:center;">PTS</th>
-            <th style="padding:7px 8px;font-size:10px;color:rgba(255,184,28,0.7);letter-spacing:1.5px;text-align:center;">YESTERDAY</th>
-            <th style="padding:7px 10px;font-size:10px;color:rgba(255,184,28,0.7);letter-spacing:1.5px;text-align:center;">GAP</th>
+          <tr style="border-bottom:1px solid rgba(255,184,28,0.2);">
+            <th style="padding:8px 10px;font-size:10px;color:rgba(255,184,28,0.6);letter-spacing:2px;text-align:center;">#</th>
+            <th style="padding:8px 6px;font-size:10px;color:rgba(255,184,28,0.6);letter-spacing:2px;text-align:left;">NAME</th>
+            <th style="padding:8px 14px;font-size:10px;color:rgba(255,184,28,0.6);letter-spacing:2px;text-align:center;">PTS</th>
+            <th style="padding:8px 10px;font-size:10px;color:rgba(255,184,28,0.6);letter-spacing:2px;text-align:center;">YEST.</th>
+            <th style="padding:8px 10px;font-size:10px;color:rgba(255,184,28,0.6);letter-spacing:2px;text-align:center;">GAP</th>
           </tr>
         </thead>
         <tbody>${tableRows}</tbody>
       </table>
     </div>
-    <div style="text-align:center;padding:12px;font-size:11px;color:rgba(148,163,184,0.45);letter-spacing:1px;border-top:1px solid rgba(255,255,255,0.06);margin-top:12px;">
-      parieurdiscipline.com
+
+    <!-- Footer -->
+    <div style="background:linear-gradient(160deg,#0d1b2e 0%,#111827 100%);text-align:center;padding:12px 16px 16px;border-top:1px solid rgba(255,255,255,0.05);margin-top:4px;">
+      <span style="font-size:12px;color:rgba(148,163,184,0.4);letter-spacing:2px;text-transform:uppercase;">parieurdiscipline.com</span>
     </div>`;
+}
 }
 
 async function shareLeaderboard(){
