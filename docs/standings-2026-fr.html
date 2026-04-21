@@ -1342,15 +1342,18 @@ function buildPersonalCardHTML(row, rank, leaderScore, totalCount){
 
   const teamsHtml = teamEarnings.map((x,i)=>{
     const isMvp = i===0 && x.earned>0;
-    const nameColor = isMvp ? 'white' : 'rgba(255,255,255,0.7)';
-    const earnedColor = isMvp ? '#ffb81c' : 'rgba(255,255,255,0.45)';
-    const borderColor = isMvp ? 'rgba(255,184,28,0.3)' : 'rgba(255,255,255,0.06)';
-    const winsStr = x.wins > 0 ? `${x.wins}V` : '—';
-    return `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid ${borderColor};">
-      <span style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:${scoreColor};width:28px;flex-shrink:0;">${x.pts}</span>
-      <span style="flex:1;font-size:15px;font-weight:${isMvp?'700':'600'};color:${nameColor};">${shortTeamName(x.team)}${isMvp?' 🔥':''}</span>
-      <span style="font-size:13px;color:rgba(255,255,255,0.3);min-width:28px;text-align:center;">${winsStr}</span>
-      <span style="font-family:'Bebas Neue',sans-serif;font-size:16px;color:${earnedColor};min-width:52px;text-align:right;">${x.earned>0?x.earned+'pts':'—'}</span>
+    const rowBg = isMvp ? 'rgba(255,184,28,0.06)' : 'transparent';
+    const nameFw = isMvp ? '700' : '600';
+    const nameColor = isMvp ? 'white' : 'rgba(255,255,255,0.75)';
+    const earnedColor = isMvp ? '#ffb81c' : 'rgba(255,255,255,0.5)';
+    const winsColor = x.wins > 0 ? 'rgba(255,255,255,0.65)' : 'rgba(255,255,255,0.2)';
+    const winsStr = x.wins > 0 ? `${x.wins}` : '—';
+    const earnedStr = x.earned > 0 ? `${x.earned}` : '—';
+    return `<div style="display:grid;grid-template-columns:30px 1fr 48px 60px;align-items:center;gap:8px;padding:7px 10px;background:${rowBg};border-radius:7px;">
+      <span style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:${scoreColor};line-height:1;">${x.pts}</span>
+      <span style="font-size:18px;font-weight:${nameFw};color:${nameColor};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${shortTeamName(x.team)}${isMvp?' 🔥':''}</span>
+      <span style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:${winsColor};text-align:center;line-height:1;">${winsStr}</span>
+      <span style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:${earnedColor};text-align:right;line-height:1;">${earnedStr}<span style="font-size:13px;opacity:0.6;">pts</span></span>
     </div>`;
   }).join('');
 
@@ -1358,49 +1361,52 @@ function buildPersonalCardHTML(row, rank, leaderScore, totalCount){
     <div style="background:#0d1520;border-radius:18px;padding:28px 28px 24px;font-family:'Barlow Condensed',sans-serif;width:100%;box-sizing:border-box;">
 
       <!-- En-tête -->
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;">
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;color:#ffb81c;letter-spacing:3px;">PARIEUR DISCIPLINÉ <span style="color:rgba(255,255,255,0.35);font-size:14px;">· LNH 2026</span></div>
-        <div style="font-size:14px;color:rgba(255,255,255,0.35);">${dateLabel}</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:#ffb81c;letter-spacing:3px;">PARIEUR DISCIPLINÉ <span style="color:rgba(255,255,255,0.35);font-size:15px;">· LNH 2026</span></div>
+        <div style="font-size:15px;color:rgba(255,255,255,0.35);">${dateLabel}</div>
       </div>
 
       <!-- Bloc joueur -->
-      <div style="display:flex;align-items:center;gap:18px;margin-bottom:22px;">
-        <div style="width:72px;height:72px;border-radius:50%;background:${avatarBg};display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:1.7rem;color:white;letter-spacing:1px;flex-shrink:0;">
+      <div style="display:flex;align-items:center;gap:18px;margin-bottom:20px;">
+        <div style="width:76px;height:76px;border-radius:50%;background:${avatarBg};display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:1.8rem;color:white;letter-spacing:1px;flex-shrink:0;">
           ${initials(row.name)}
         </div>
         <div>
-          <div style="font-size:30px;font-weight:900;color:white;line-height:1.1;">${row.name}</div>
-          <div style="font-size:15px;color:rgba(255,255,255,0.55);margin-top:3px;">${rankLabel}</div>
+          <div style="font-size:34px;font-weight:900;color:white;line-height:1.1;">${row.name}</div>
+          <div style="font-size:17px;color:rgba(255,255,255,0.55);margin-top:3px;">${rankLabel}</div>
         </div>
       </div>
 
       <!-- Tuiles stats -->
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:22px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:20px;">
         <div style="background:rgba(255,255,255,0.05);border-radius:10px;padding:14px 10px;text-align:center;">
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;color:${scoreColor};line-height:1;">${row.total}</div>
-          <div style="font-size:12px;color:rgba(255,255,255,0.35);letter-spacing:1px;margin-top:2px;">Points</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:36px;color:${scoreColor};line-height:1;">${row.total}</div>
+          <div style="font-size:13px;color:rgba(255,255,255,0.35);letter-spacing:1px;margin-top:3px;">Points</div>
         </div>
         <div style="background:rgba(255,255,255,0.05);border-radius:10px;padding:14px 10px;text-align:center;">
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;color:${deltaColor};line-height:1;">${deltaStr}</div>
-          <div style="font-size:12px;color:rgba(255,255,255,0.35);letter-spacing:1px;margin-top:2px;">Hier</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:36px;color:${deltaColor};line-height:1;">${deltaStr}</div>
+          <div style="font-size:13px;color:rgba(255,255,255,0.35);letter-spacing:1px;margin-top:3px;">Hier</div>
         </div>
         <div style="background:rgba(255,255,255,0.05);border-radius:10px;padding:14px 10px;text-align:center;">
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;color:${gapColor};line-height:1;">${gapLabel}</div>
-          <div style="font-size:12px;color:rgba(255,255,255,0.35);letter-spacing:1px;margin-top:2px;">Écart</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:36px;color:${gapColor};line-height:1;">${gapLabel}</div>
+          <div style="font-size:13px;color:rgba(255,255,255,0.35);letter-spacing:1px;margin-top:3px;">Écart</div>
         </div>
       </div>
 
       <!-- Équipes -->
-      <div style="margin-bottom:4px;">
-        <div style="font-size:10px;color:rgba(255,184,28,0.5);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;display:flex;justify-content:space-between;">
-          <span>Équipe</span><span style="display:flex;gap:28px;"><span>Victoires</span><span>Gagnés</span></span>
+      <div>
+        <div style="display:grid;grid-template-columns:30px 1fr 48px 60px;gap:8px;padding:0 10px 6px;border-bottom:1px solid rgba(255,255,255,0.07);margin-bottom:4px;">
+          <span style="font-size:11px;color:rgba(255,184,28,0.4);letter-spacing:1.5px;text-transform:uppercase;">Pts</span>
+          <span style="font-size:11px;color:rgba(255,184,28,0.4);letter-spacing:1.5px;text-transform:uppercase;">Équipe</span>
+          <span style="font-size:11px;color:rgba(255,184,28,0.4);letter-spacing:1.5px;text-transform:uppercase;text-align:center;">V</span>
+          <span style="font-size:11px;color:rgba(255,184,28,0.4);letter-spacing:1.5px;text-transform:uppercase;text-align:right;">Gagnés</span>
         </div>
-        ${teamsHtml||'<div style="font-size:13px;color:rgba(255,255,255,0.3);padding:8px 0;">Aucun choix chargé</div>'}
+        ${teamsHtml||'<div style="font-size:15px;color:rgba(255,255,255,0.3);padding:10px 0;">Aucun choix chargé</div>'}
       </div>
 
       <!-- Pied de page -->
-      <div style="text-align:center;margin-top:16px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.06);">
-        <span style="font-size:11px;color:rgba(148,163,184,0.3);letter-spacing:2.5px;text-transform:uppercase;">parieurdiscipline.com</span>
+      <div style="text-align:center;margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.06);">
+        <span style="font-size:12px;color:rgba(148,163,184,0.3);letter-spacing:2.5px;text-transform:uppercase;">parieurdiscipline.com</span>
       </div>
     </div>`;
 }
