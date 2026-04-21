@@ -164,9 +164,11 @@
   .empty-state p{font-size:1.1rem;letter-spacing:1px;}
 
   /* ── Most valuable team ── */
-  .mvp-badge{display:inline-flex;align-items:center;gap:3px;font-size:0.72rem;color:var(--gold);
-    background:rgba(255,184,28,0.1);border:1px solid rgba(255,184,28,0.25);border-radius:4px;
-    padding:1px 6px;margin-left:6px;vertical-align:middle;white-space:nowrap;}
+  .mvp-badge{display:inline-flex;align-items:center;gap:4px;
+    background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:20px;
+    padding:1px 7px 1px 4px;margin-left:6px;vertical-align:middle;white-space:nowrap;}
+  .mvp-badge img{width:16px;height:16px;object-fit:contain;flex-shrink:0;}
+  .mvp-badge-pts{font-family:'Bebas Neue',cursive;font-size:0.82rem;color:var(--gold);line-height:1;}
   .spotlight-mvp{font-size:0.75rem;color:var(--gold);font-weight:700;margin-top:0.4rem;
     padding:0.3rem 0.6rem;background:rgba(255,184,28,0.08);border-radius:4px;display:inline-block;}
 
@@ -693,7 +695,8 @@ function render(){
       return{team:t,earned:(row.picks[t]||0)*wins};
     }).filter(x=>x.earned>0).sort((a,b)=>b.earned-a.earned);
     const mvp=teamEarnings[0];
-    const mvpBadge=mvp?`<span class="mvp-badge">🔥 ${shortTeamName(mvp.team)} ${mvp.earned}pts</span>`:'';
+    const mvpLogo=mvp&&TEAM_LOGO[mvp.team]?`<img src="${TEAM_LOGO[mvp.team]}" alt="">`:`<span style="font-size:0.6rem;color:rgba(255,255,255,0.4);">${mvp?shortTeamName(mvp.team):''}</span>`;
+    const mvpBadge=mvp?`<span class="mvp-badge">${mvpLogo}<span class="mvp-badge-pts">${mvp.earned}pts</span></span>`:'';
 
     tr.innerHTML=`
       <td class="rank-cell ${rankClass}">${medal||rank}</td>
@@ -784,7 +787,8 @@ function render(){
         return{team:t,earned:(row.picks[t]||0)*wins};
       }).filter(x=>x.earned>0).sort((a,b)=>b.earned-a.earned);
       const mvp=teamEarnings[0];
-      const mvpBadge=mvp?`<span class="mvp-badge">🔥 ${shortTeamName(mvp.team)} ${mvp.earned}pts</span>`:'';
+      const mvpLogo=mvp&&TEAM_LOGO[mvp.team]?`<img src="${TEAM_LOGO[mvp.team]}" alt="">`:`<span style="font-size:0.6rem;color:rgba(255,255,255,0.4);">${mvp?shortTeamName(mvp.team):''}</span>`;
+    const mvpBadge=mvp?`<span class="mvp-badge">${mvpLogo}<span class="mvp-badge-pts">${mvp.earned}pts</span></span>`:'';
 
       const tr=document.createElement('tr');
       tr.className='expandable';
