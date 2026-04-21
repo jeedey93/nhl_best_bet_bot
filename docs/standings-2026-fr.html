@@ -1340,20 +1340,42 @@ function buildPersonalCardHTML(row, rank, leaderScore, totalCount){
   const deltaColor = (row.delta||0) > 0 ? '#FFD700' : (row.delta||0) < 0 ? '#ef4444' : 'rgba(255,255,255,0.4)';
   const gapColor = rank===1 ? '#FFD700' : 'rgba(255,255,255,0.7)';
 
-  const teamsHtml = teamEarnings.map((x,i)=>{
-    const isMvp = i===0 && x.earned>0;
-    const rowBg = isMvp ? 'rgba(255,184,28,0.06)' : 'transparent';
-    const nameFw = isMvp ? '700' : '600';
-    const nameColor = isMvp ? 'white' : 'rgba(255,255,255,0.75)';
-    const earnedColor = isMvp ? '#ffb81c' : 'rgba(255,255,255,0.5)';
-    const winsColor = x.wins > 0 ? 'rgba(255,255,255,0.65)' : 'rgba(255,255,255,0.2)';
-    const winsStr = x.wins > 0 ? `${x.wins}` : '—';
-    const earnedStr = x.earned > 0 ? `${x.earned}` : '—';
-    return `<div style="display:grid;grid-template-columns:28px 1fr 32px 52px;align-items:center;gap:4px;padding:6px 10px;background:${rowBg};border-radius:7px;">
-      <span style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:${scoreColor};line-height:1;">${x.pts}</span>
-      <span style="font-size:18px;font-weight:${nameFw};color:${nameColor};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;">${shortTeamName(x.team)}${isMvp?' 🔥':''}</span>
-      <span style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:${winsColor};text-align:center;line-height:1;">${winsStr}</span>
-      <span style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:${earnedColor};text-align:right;line-height:1;">${earnedStr}<span style="font-size:13px;opacity:0.6;">pts</span></span>
+  // Build eliminated set
+  const eliminated_pc = new Set();
+  if(bracketData){
+    bracketData.rounds.forEach((rd,ri)=>{
+      ['east','west'].forEach(side=>{
+        (rd[side]||[]).forEach(([t,b])=>{
+          const tw=results[t]?.[ri]||0,bw=results[b]?.[ri]||0;
+          if(tw===4)eliminated_pc.add(b);
+          else if(bw===4)eliminated_pc.add(t);
+        });
+      });
+      if(rd.final){
+        const [f1,f2]=rd.final;
+        const tw=results[f1]?.[ri]||0,bw=results[f2]?.[ri]||0;
+        if(tw===4)eliminated_pc.add(f2);
+        else if(bw===4)eliminated_pc.add(f1);
+      }
+    });
+  }
+
+  const rankedTeams_pc = TEAMS.slice().sort((a,b)=>(row.picks[b]||0)-(row.picks[a]||0)).filter(t=>row.picks[t]>0);
+  const tilesHtml = rankedTeams_pc.map(t=>{
+    const p = row.picks[t]||0;
+    const wins = results[t].reduce((s,w)=>s+w,0);
+    const earned = p*wins;
+    const isMvp = mvp && t===mvp.team && earned>0;
+    const isElim = eliminated_pc.has(t);
+    const tileBg = isElim ? 'rgba(200,16,46,0.06)' : isMvp ? 'rgba(255,184,28,0.08)' : 'rgba(255,255,255,0.05)';
+    const tileBorder = isElim ? '1px solid rgba(200,16,46,0.2)' : isMvp ? '1px solid rgba(255,184,28,0.4)' : '1px solid rgba(255,255,255,0.08)';
+    const nameStyle = isElim ? 'color:rgba(255,255,255,0.4);text-decoration:line-through;' : 'color:white;';
+    const ptsStyle = isElim ? 'color:rgba(255,255,255,0.3);' : `color:${scoreColor};`;
+    const winsEarned = wins>0 ? `${wins}V · ${earned}pts` : earned>0 ? `${earned}pts` : '';
+    return `<div style="display:flex;align-items:center;gap:6px;background:${tileBg};border:${tileBorder};border-radius:6px;padding:5px 10px;font-size:0.8rem;">
+      <span style="font-family:'Bebas Neue',sans-serif;font-size:20px;${ptsStyle}line-height:1;flex-shrink:0;">${p}<span style="font-size:11px;opacity:0.6;"> pts</span></span>
+      <span style="font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;${nameStyle}font-size:16px;">${isMvp?'🔥 ':''}${shortTeamName(t)}</span>
+      <span style="font-size:13px;color:rgba(168,178,190,0.6);white-space:nowrap;flex-shrink:0;">${winsEarned}</span>
     </div>`;
   }).join('');
 
@@ -1394,14 +1416,8 @@ function buildPersonalCardHTML(row, rank, leaderScore, totalCount){
       </div>
 
       <!-- Équipes -->
-      <div>
-        <div style="display:grid;grid-template-columns:28px 1fr 32px 52px;gap:4px;padding:0 10px 6px;border-bottom:1px solid rgba(255,255,255,0.07);margin-bottom:4px;">
-          <span style="font-size:11px;color:rgba(255,184,28,0.4);letter-spacing:1.5px;text-transform:uppercase;">Pts</span>
-          <span style="font-size:11px;color:rgba(255,184,28,0.4);letter-spacing:1.5px;text-transform:uppercase;">Équipe</span>
-          <span style="font-size:11px;color:rgba(255,184,28,0.4);letter-spacing:1.5px;text-transform:uppercase;text-align:center;">V</span>
-          <span style="font-size:11px;color:rgba(255,184,28,0.4);letter-spacing:1.5px;text-transform:uppercase;text-align:right;">Gagnés</span>
-        </div>
-        ${teamsHtml||'<div style="font-size:15px;color:rgba(255,255,255,0.3);padding:10px 0;">Aucun choix chargé</div>'}
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;">
+        ${tilesHtml||'<div style="font-size:15px;color:rgba(255,255,255,0.3);padding:10px 0;grid-column:1/-1;">Aucun choix chargé</div>'}
       </div>
 
       <!-- Pied de page -->
