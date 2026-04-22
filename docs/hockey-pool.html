@@ -115,16 +115,25 @@
 
     /* ── Left panel ── */
     .your-team-panel {
-      display: flex;
-      flex-direction: column;
-      min-height: 0;
-      overflow-y: auto;
-      padding-right: 4px;
-      padding-bottom: 1rem;
+      display: flex; flex-direction: column; min-height: 0;
+      overflow-y: auto; padding-right: 4px; padding-bottom: 1rem;
     }
     .your-team-panel::-webkit-scrollbar { width: 3px; }
     .your-team-panel::-webkit-scrollbar-track { background: transparent; }
     .your-team-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
+
+    .your-team-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 0.6rem; flex-shrink: 0;
+    }
+    .btn-clear-team {
+      font-family: 'Bebas Neue', cursive; font-size: 0.8rem; letter-spacing: 1.5px;
+      background: none; border: 1px solid rgba(200,16,46,0.25);
+      color: rgba(200,16,46,0.6); border-radius: 5px;
+      padding: 3px 10px; cursor: pointer;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+    }
+    .btn-clear-team:hover { background: rgba(200,16,46,0.12); color: var(--red); border-color: rgba(200,16,46,0.5); }
 
     .panel-title {
       font-family: 'Bebas Neue', cursive;
@@ -253,6 +262,14 @@
     }
     .remove-btn:hover { color: var(--red); }
 
+    .drag-handle {
+      cursor: grab; color: rgba(255,255,255,0.15);
+      font-size: 0.85rem; flex-shrink: 0; padding: 0 2px;
+      transition: color 0.15s; user-select: none;
+    }
+    .drag-handle:hover { color: rgba(255,255,255,0.4); }
+    .roster-slot.reorder-over { border: 1px solid rgba(255,184,28,0.5) !important; background: rgba(255,184,28,0.07); }
+
     .add-btn {
       background: none; border: 1px solid rgba(255,184,28,0.25);
       border-radius: 4px; cursor: pointer;
@@ -268,14 +285,40 @@
       background: rgba(255,255,255,0.03);
       border: 1px solid var(--line);
       border-radius: 7px; padding: 0.55rem 0.85rem;
+      transition: border-color 0.3s, background 0.3s;
     }
-    .cap-bar-label {
-      display: flex; justify-content: space-between;
-      font-size: 0.72rem; color: var(--silver);
-      letter-spacing: 0.5px; margin-bottom: 0.35rem;
+    .cap-bar-wrap.warning {
+      border-color: rgba(245,158,11,0.4);
+      background: rgba(245,158,11,0.04);
     }
-    .cap-bar-label strong { color: white; font-weight: 700; }
+    .cap-bar-wrap.over {
+      border-color: rgba(200,16,46,0.4);
+      background: rgba(200,16,46,0.04);
+    }
+    .cap-remaining-row {
+      display: flex; align-items: baseline; justify-content: space-between;
+      margin-bottom: 2px;
+    }
+    .cap-remaining-label {
+      font-family: 'Bebas Neue', cursive; font-size: 0.7rem;
+      letter-spacing: 2px; color: var(--silver);
+    }
+    .cap-remaining-amount {
+      font-family: 'Bebas Neue', cursive; font-size: 1.5rem;
+      letter-spacing: 1px; color: var(--green);
+      transition: color 0.3s;
+    }
+    .cap-bar-wrap.warning .cap-remaining-amount { color: #f59e0b; }
+    .cap-bar-wrap.over    .cap-remaining-amount { color: var(--red); }
+    .cap-used-row {
+      display: flex; gap: 4px; align-items: center;
+      font-size: 0.68rem; color: rgba(255,255,255,0.3);
+      margin-bottom: 0.35rem;
+    }
+    .cap-used-row #cap-used { color: rgba(255,255,255,0.55); font-weight: 600; }
+    .cap-used-sep { color: rgba(255,255,255,0.2); }
     .cap-bar-label .over { color: var(--red); }
+    .over { color: var(--red); font-weight: 700; }
     .cap-track {
       height: 5px; background: rgba(255,255,255,0.07);
       border-radius: 3px; overflow: hidden;
@@ -283,9 +326,10 @@
     .cap-fill {
       height: 100%;
       background: linear-gradient(90deg, var(--green), #16a34a);
-      border-radius: 3px; transition: width 0.3s ease;
+      border-radius: 3px; transition: width 0.3s ease, background 0.3s ease;
     }
-    .cap-fill.over { background: linear-gradient(90deg, var(--red), #8b0a1e); }
+    .cap-fill.warning { background: linear-gradient(90deg, #f59e0b, #d97706); }
+    .cap-fill.over    { background: linear-gradient(90deg, var(--red), #8b0a1e); }
 
     /* ── Right panel ── */
     .pool-panel {
@@ -508,12 +552,21 @@
 
   <!-- LEFT: Your Team -->
   <div class="your-team-panel">
-    <h2>Your <span>Team</span></h2>
+    <div class="your-team-header">
+      <h2>Your <span>Team</span></h2>
+      <button class="btn-clear-team" onclick="clearTeam()">✕ Clear</button>
+    </div>
 
-    <div class="cap-bar-wrap">
-      <div class="cap-bar-label">
-        <span>Salary Cap</span>
-        <span><strong id="cap-used">$0</strong> / <strong>$95,500,000</strong> <span id="cap-over" class="over" style="display:none;">— OVER CAP</span></span>
+    <div class="cap-bar-wrap" id="cap-bar-wrap">
+      <div class="cap-remaining-row">
+        <span class="cap-remaining-label">Remaining</span>
+        <span class="cap-remaining-amount" id="cap-remaining">$95.5M</span>
+      </div>
+      <div class="cap-used-row">
+        <span id="cap-used">$0</span>
+        <span class="cap-used-sep">used of</span>
+        <span>$95,500,000</span>
+        <span id="cap-over" class="over" style="display:none;">— OVER CAP</span>
       </div>
       <div class="cap-track"><div class="cap-fill" id="cap-fill" style="width:0%"></div></div>
     </div>
@@ -775,7 +828,9 @@
         <div class="player-salary">${salary}</div>
       </div>
       ${statBoxHtml}
-      ${inRoster ? `<button class="remove-btn" title="Remove">✕</button>` : `<button class="add-btn" title="Add to team">+</button>`}`;
+      ${inRoster
+        ? `<span class="drag-handle" title="Drag to reorder">⠿</span><button class="remove-btn" title="Remove">✕</button>`
+        : `<button class="add-btn" title="Add to team">+</button>`}`;
     if (!disabled) {
       makeMouseHandler(el, player, inRoster, group, index);
       makeTouchHandler(el, player, inRoster, group, index);
@@ -1028,6 +1083,8 @@
           filled++;
           const card = makeCard(player, group, true, false, group, i);
           slot.appendChild(card);
+          const handle = card.querySelector('.drag-handle');
+          if (handle) initReorderHandle(handle, group, i);
         } else {
           slot.innerHTML = `<span class="slot-num">${i + 1}</span><span class="slot-hint">Drop here</span>`;
         }
@@ -1044,11 +1101,80 @@
   // ── Cap bar ────────────────────────────────────────────────────────────────
   function updateCapBar() {
     const total = [...roster.F,...roster.D,...roster.G].filter(Boolean).reduce((s,p) => s+(p.cap_hit||0), 0);
+    const remaining = CAP_MAX - total;
+    const pct = Math.min(total / CAP_MAX * 100, 100);
+    const isOver    = total > CAP_MAX;
+    const isWarning = !isOver && total > CAP_MAX * 0.95;
+
+    // Remaining amount
+    const remEl = document.getElementById('cap-remaining');
+    if (remaining >= 0) {
+      remEl.textContent = '$' + (remaining / 1_000_000).toFixed(1) + 'M left';
+    } else {
+      remEl.textContent = '-$' + (Math.abs(remaining) / 1_000_000).toFixed(1) + 'M over';
+    }
+
+    // Used line
     document.getElementById('cap-used').textContent = '$' + total.toLocaleString();
+    document.getElementById('cap-over').style.display = isOver ? '' : 'none';
+
+    // Bar fill
     const fill = document.getElementById('cap-fill');
-    fill.style.width = Math.min(total/CAP_MAX*100, 100) + '%';
-    fill.classList.toggle('over', total > CAP_MAX);
-    document.getElementById('cap-over').style.display = total > CAP_MAX ? '' : 'none';
+    fill.style.width = pct + '%';
+    fill.classList.toggle('over', isOver);
+    fill.classList.toggle('warning', isWarning);
+
+    // Wrap state
+    const wrap = document.getElementById('cap-bar-wrap');
+    wrap.classList.toggle('over', isOver);
+    wrap.classList.toggle('warning', isWarning);
+  }
+
+  // ── Clear team ─────────────────────────────────────────────────────────────
+  function clearTeam() {
+    roster = { F: Array(12).fill(null), D: Array(6).fill(null), G: Array(2).fill(null) };
+    refreshRoster();
+    renderPool();
+  }
+
+  // ── Reorder drag (handle only, within same group) ──────────────────────────
+  function initReorderHandle(handleEl, group, fromIndex) {
+    handleEl.addEventListener('mousedown', e => {
+      e.preventDefault(); e.stopPropagation();
+      let overSlot = null;
+
+      function getSlot(x, y) {
+        const els = document.elementsFromPoint(x, y);
+        for (const el of els) {
+          const s = el.closest('.roster-slot');
+          if (s && s.dataset.group === group) return s;
+        }
+        return null;
+      }
+      function clearReorderHL() {
+        document.querySelectorAll('.roster-slot.reorder-over').forEach(s => s.classList.remove('reorder-over'));
+      }
+      function onMove(e) {
+        clearReorderHL();
+        overSlot = getSlot(e.clientX, e.clientY);
+        if (overSlot && parseInt(overSlot.dataset.index) !== fromIndex) overSlot.classList.add('reorder-over');
+      }
+      function onUp(e) {
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+        clearReorderHL();
+        if (!overSlot) return;
+        const toIndex = parseInt(overSlot.dataset.index);
+        if (toIndex === fromIndex) return;
+        // Swap the two slots
+        const tmp = roster[group][toIndex];
+        roster[group][toIndex] = roster[group][fromIndex];
+        roster[group][fromIndex] = tmp;
+        refreshRoster();
+      }
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+    });
   }
 
   // ── Logo cache (same Image→canvas pattern as standings) ───────────────────
