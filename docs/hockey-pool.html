@@ -254,14 +254,13 @@
     .remove-btn:hover { color: var(--red); }
 
     .add-btn {
-      display: none; /* shown on mobile only */
-      font-size: 1.2rem; font-weight: 700; line-height: 1;
-      color: var(--gold); flex-shrink: 0; padding: 0 4px;
-      pointer-events: none;
+      background: none; border: 1px solid rgba(255,184,28,0.25);
+      border-radius: 4px; cursor: pointer;
+      font-size: 1.1rem; font-weight: 700; line-height: 1;
+      color: var(--gold); flex-shrink: 0; padding: 2px 7px;
+      transition: background 0.15s, border-color 0.15s;
     }
-    @media (max-width: 860px) {
-      .add-btn { display: block; }
-    }
+    .add-btn:hover { background: rgba(255,184,28,0.15); border-color: rgba(255,184,28,0.5); }
 
     /* ── Cap bar ── */
     .cap-bar-wrap {
@@ -776,13 +775,13 @@
         <div class="player-salary">${salary}</div>
       </div>
       ${statBoxHtml}
-      ${inRoster ? `<button class="remove-btn" title="Remove">✕</button>` : '<span class="add-btn">+</span>'}`;
+      ${inRoster ? `<button class="remove-btn" title="Remove">✕</button>` : `<button class="add-btn" title="Add to team">+</button>`}`;
     if (!disabled) {
       makeMouseHandler(el, player, inRoster, group, index);
       makeTouchHandler(el, player, inRoster, group, index);
       // Mobile tap-to-add (pool cards only)
       if (!inRoster) {
-        el.addEventListener('click', () => { if (window.innerWidth <= 860) tapAddPlayer(player, pos); });
+        el.querySelector('.add-btn').addEventListener('click', e => { e.stopPropagation(); tapAddPlayer(player, pos); });
       }
     }
     if (inRoster) {
