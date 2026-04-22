@@ -158,6 +158,15 @@
     }
     .panel-title span { color: var(--gold); }
 
+    .your-team-header h2,
+    .pool-panel > h2 {
+      font-family: 'Bebas Neue', cursive;
+      font-size: 1.1rem; letter-spacing: 4px; color: white;
+    }
+    .your-team-header h2 span,
+    .pool-panel > h2 span { color: var(--gold); }
+    .pool-panel > h2 { margin-bottom: 0.6rem; flex-shrink: 0; }
+
     .roster-section { margin-bottom: 0.5rem; flex-shrink: 0; }
 
     /* ── Fixed slots (one per position) ── */
@@ -360,6 +369,9 @@
       margin-bottom: 0.6rem; flex-shrink: 0;
       flex-wrap: wrap;
     }
+    .pool-controls-filters {
+      display: flex; gap: 0.5rem; flex-wrap: wrap;
+    }
 
     .pos-filter {
       display: flex; gap: 0;
@@ -529,6 +541,24 @@
       .your-team-panel.mobile-hidden,
       .pool-panel.mobile-hidden { display: none; }
       .pool-list { max-height: none; }
+
+      /* Share row stacks on mobile */
+      .share-row { flex-direction: column; align-items: stretch; gap: 6px; padding: 0 0.5rem; }
+      .team-name-input { width: 100%; }
+      .btn-share-pool { width: 100%; }
+
+      /* Pool controls: filter rows side by side, search below */
+      .pool-controls { flex-direction: column; gap: 6px; }
+      .pool-controls > .pos-filter { flex: none; }
+      .pool-controls-filters { display: flex; gap: 6px; }
+      .search-input { width: 100%; min-width: 0; }
+
+      /* Player cards: hide GP box and EFF in pool list to keep cards readable */
+      .pool-list .stat-box-gp { display: none; }
+      .pool-list .stat-box-eff { display: none; }
+
+      /* EFF legend font size */
+      .eff-legend-text { font-size: 0.7rem; }
     }
     @media (min-width: 861px) {
       .mobile-tabs { display: none; }
@@ -537,6 +567,13 @@
       .site-nav-brand { font-size: 1.2rem; letter-spacing: 3px; }
       .site-nav-links a { font-size: 0.9rem; padding: 0.3rem 0.6rem; }
       header { padding: 0.75rem 1rem 0.5rem; }
+      /* Tighter stat boxes on very small screens */
+      .stat-box { min-width: 38px; padding: 3px 5px; }
+      .stat-box-main { font-size: 1.05rem; }
+      /* Slightly smaller pos badge */
+      .pos-badge { font-size: 0.65rem; padding: 1px 4px; min-width: 22px; }
+      /* Team logo smaller */
+      .card-team-logo { width: 22px; height: 22px; }
     }
   </style>
 </head>
@@ -627,16 +664,18 @@
     <h2>Player <span>Pool</span></h2>
 
     <div class="pool-controls">
-      <div class="pos-filter">
-        <button class="active" data-pos="ALL" onclick="setFilter('ALL',this)">All</button>
-        <button data-pos="F" onclick="setFilter('F',this)">Forwards</button>
-        <button data-pos="D" onclick="setFilter('D',this)">Defence</button>
-        <button data-pos="G" onclick="setFilter('G',this)">Goalies</button>
-      </div>
-      <div class="pos-filter">
-        <button class="active" data-sort="salary" onclick="setSort('salary',this)">Salary</button>
-        <button data-sort="points" onclick="setSort('points',this)">Points</button>
-        <button data-sort="value" onclick="setSort('value',this)">EFF</button>
+      <div class="pool-controls-filters">
+        <div class="pos-filter">
+          <button class="active" data-pos="ALL" onclick="setFilter('ALL',this)">All</button>
+          <button data-pos="F" onclick="setFilter('F',this)">Forwards</button>
+          <button data-pos="D" onclick="setFilter('D',this)">Defence</button>
+          <button data-pos="G" onclick="setFilter('G',this)">Goalies</button>
+        </div>
+        <div class="pos-filter">
+          <button class="active" data-sort="salary" onclick="setSort('salary',this)">Salary</button>
+          <button data-sort="points" onclick="setSort('points',this)">Points</button>
+          <button data-sort="value" onclick="setSort('value',this)">EFF</button>
+        </div>
       </div>
       <input class="search-input" id="search-input" type="text" placeholder="🔍 Search player…" oninput="renderPool()" autocomplete="off">
     </div>
