@@ -1248,17 +1248,23 @@ function buildShareCardHTML(rows, title, totalCount, pot, date){
 const _logoDataCache = {};
 async function fetchLogoDataUrl(url){
   if(_logoDataCache[url]) return _logoDataCache[url];
-  try{
-    const res = await fetch(url);
-    const blob = await res.blob();
-    const dataUrl = await new Promise(resolve=>{
-      const reader = new FileReader();
-      reader.onload = ()=>resolve(reader.result);
-      reader.readAsDataURL(blob);
-    });
-    _logoDataCache[url] = dataUrl;
-    return dataUrl;
-  }catch(e){ return url; }
+  return new Promise(resolve=>{
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = ()=>{
+      try{
+        const c = document.createElement('canvas');
+        c.width = img.naturalWidth || 64;
+        c.height = img.naturalHeight || 64;
+        c.getContext('2d').drawImage(img,0,0);
+        const dataUrl = c.toDataURL('image/png');
+        _logoDataCache[url] = dataUrl;
+        resolve(dataUrl);
+      }catch(e){ _logoDataCache[url]=url; resolve(url); }
+    };
+    img.onerror = ()=>{ _logoDataCache[url]=url; resolve(url); };
+    img.src = url;
+  });
 }
 async function resolveLogos(teams){
   const urls = [...new Set(teams.map(t=>TEAM_LOGO[t]).filter(Boolean))];
