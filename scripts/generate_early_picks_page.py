@@ -69,6 +69,10 @@ def parse_picks(raw: str) -> list[dict]:
         clean_stripped = stripped.strip("*").strip()
         odds_match = re.search(r'@\s*([\d.]+)\s*(?:\([^)]*\))?\s*$', clean_stripped)
         if odds_match and clean_stripped and not clean_stripped.startswith("#"):
+            odds_val = float(odds_match.group(1))
+            if not (1.60 <= odds_val <= 2.20):
+                current = None  # skip pick outside allowed range
+                continue
             if current:
                 picks.append(current)
             # Clean up bold markers and trailing sportsbook name e.g. "@ 4.0 (BetRivers)"
