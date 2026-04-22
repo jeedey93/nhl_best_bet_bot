@@ -207,6 +207,16 @@
     }
     .remove-btn:hover { color: var(--red); }
 
+    .add-btn {
+      display: none; /* shown on mobile only */
+      font-size: 1.2rem; font-weight: 700; line-height: 1;
+      color: var(--gold); flex-shrink: 0; padding: 0 4px;
+      pointer-events: none;
+    }
+    @media (max-width: 860px) {
+      .add-btn { display: block; }
+    }
+
     /* ── Cap bar ── */
     .cap-bar-wrap {
       margin-bottom: 0.7rem; flex-shrink: 0;
@@ -337,9 +347,44 @@
 
     @media (max-width: 860px) {
       body { display: block; }
-      .pool-layout { grid-template-columns: 1fr; height: auto; }
+      .pool-layout {
+        grid-template-columns: 1fr;
+        height: auto;
+        padding: 0;
+      }
+      /* Mobile tab switcher */
+      .mobile-tabs {
+        display: flex;
+        border-bottom: 1px solid var(--line);
+        background: rgba(7,17,31,0.95);
+        position: sticky; top: var(--nav-h); z-index: 50;
+        flex-shrink: 0;
+      }
+      .mobile-tab {
+        flex: 1; padding: 0.7rem 0.5rem;
+        font-family: 'Bebas Neue', cursive; font-size: 1rem;
+        letter-spacing: 2px; text-align: center;
+        color: var(--silver); cursor: pointer;
+        border-bottom: 2px solid transparent;
+        transition: color 0.15s, border-color 0.15s;
+        display: flex; align-items: center; justify-content: center; gap: 6px;
+      }
+      .mobile-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+      .mobile-tab-badge {
+        background: var(--gold); color: var(--rink);
+        font-family: 'Barlow Condensed', sans-serif; font-size: 0.65rem;
+        font-weight: 700; border-radius: 10px; padding: 1px 6px; line-height: 1.4;
+      }
+      /* Hide inactive panel */
       .your-team-panel { overflow-y: visible; }
-      .pool-list { max-height: 60vh; }
+      .your-team-panel,
+      .pool-panel { padding: 0.75rem 1rem 1rem; }
+      .your-team-panel.mobile-hidden,
+      .pool-panel.mobile-hidden { display: none; }
+      .pool-list { max-height: none; }
+    }
+    @media (min-width: 861px) {
+      .mobile-tabs { display: none; }
     }
     @media (max-width: 500px) {
       .site-nav-brand { font-size: 1.2rem; letter-spacing: 3px; }
@@ -365,6 +410,16 @@
   <h1>Hockey <span>Pool</span></h1>
   <p>Build your team · Drag players from the pool</p>
 </header>
+
+<!-- Mobile tab switcher (hidden on desktop via CSS) -->
+<div class="mobile-tabs">
+  <div class="mobile-tab active" id="mob-tab-team" onclick="switchMobileTab('team')">
+    Your Team <span class="mobile-tab-badge" id="mob-roster-count">0/20</span>
+  </div>
+  <div class="mobile-tab" id="mob-tab-pool" onclick="switchMobileTab('pool')">
+    Player Pool
+  </div>
+</div>
 
 <div class="pool-layout">
 
@@ -479,6 +534,27 @@
   let activeTeam = 'ALL';
   let dragSrc = null; // { slug, pos, fromGroup, fromIndex }
 
+  // ── Mobile tab switcher ────────────────────────────────────────────────────
+  let _mobileTab = 'team';
+  function switchMobileTab(tab) {
+    _mobileTab = tab;
+    document.getElementById('mob-tab-team').classList.toggle('active', tab === 'team');
+    document.getElementById('mob-tab-pool').classList.toggle('active', tab === 'pool');
+    document.querySelector('.your-team-panel').classList.toggle('mobile-hidden', tab !== 'team');
+    document.querySelector('.pool-panel').classList.toggle('mobile-hidden', tab !== 'pool');
+  }
+  // Start with pool visible on mobile so users find players first
+  function initMobileTabs() {
+    if (window.innerWidth <= 860) switchMobileTab('pool');
+  }
+
+  // ── Mobile roster badge ────────────────────────────────────────────────────
+  function updateMobileRosterCount() {
+    const filled = [...roster.F, ...roster.D, ...roster.G].filter(Boolean).length;
+    const badge = document.getElementById('mob-roster-count');
+    if (badge) badge.textContent = `${filled}/20`;
+  }
+
   // ── Fetch ──────────────────────────────────────────────────────────────────
   async function loadPlayers() {
     const res = await fetch(
@@ -573,15 +649,35 @@
         <div class="player-name">${formatName(player.player_name)}</div>
         <div class="player-salary">${salary}</div>
       </div>
-      ${inRoster ? `<button class="remove-btn" title="Remove">✕</button>` : ''}`;
+      ${inRoster ? `<button class="remove-btn" title="Remove">✕</button>` : '<span class="add-btn">+</span>'}`;
     if (!disabled) {
       makeMouseHandler(el, player, inRoster, group, index);
       makeTouchHandler(el, player, inRoster, group, index);
+      // Mobile tap-to-add (pool cards only)
+      if (!inRoster) {
+        el.addEventListener('click', () => { if (window.innerWidth <= 860) tapAddPlayer(player, pos); });
+      }
     }
     if (inRoster) {
       el.querySelector('.remove-btn').addEventListener('click', e => { e.stopPropagation(); removeFromRoster(group, index); });
     }
     return el;
+  }
+
+  // ── Tap-to-add (mobile) ────────────────────────────────────────────────────
+  function tapAddPlayer(player, pos) {
+    const group = pos; // F, D, or G
+    const slots = roster[group];
+    const emptyIdx = slots.findIndex(s => s === null);
+    if (emptyIdx === -1) { toast(`${groupLabel(group)} slots full`); return; }
+    if (slots.find(p => p && p.puckpedia_slug === player.puckpedia_slug)) return;
+    const cap = [...roster.F, ...roster.D, ...roster.G].filter(Boolean).reduce((s, p) => s + (p.cap_hit || 0), 0);
+    if (cap + (player.cap_hit || 0) > CAP_MAX) {
+      toast(`Over cap — $${(CAP_MAX - cap).toLocaleString()} remaining`); return;
+    }
+    roster[group][emptyIdx] = player;
+    refreshRoster();
+    renderPool();
   }
 
   // ── Filter ─────────────────────────────────────────────────────────────────
@@ -751,10 +847,13 @@
       roster[dragSrc.fromGroup][dragSrc.fromIndex] = null;
     }
 
+    const wasFromPool = dragSrc.fromGroup === null;
     roster[group][idx] = player;
     dragSrc = null;
     refreshRoster();
     renderPool();
+    // On mobile: after dropping from pool, stay on pool to keep picking
+    if (window.innerWidth <= 860 && wasFromPool) switchMobileTab('pool');
   }
 
   // ── Remove from slot ───────────────────────────────────────────────────────
@@ -790,6 +889,7 @@
       countEl.className = 'count' + (filled >= max ? ' full' : '');
     }
     updateCapBar();
+    updateMobileRosterCount();
   }
 
   // ── Cap bar ────────────────────────────────────────────────────────────────
@@ -810,6 +910,7 @@
     clearTimeout(_tt); _tt = setTimeout(() => el.classList.remove('show'), 2200);
   }
 
+  initMobileTabs();
   refreshRoster(); // render empty slots immediately
   loadPlayers();
 </script>
