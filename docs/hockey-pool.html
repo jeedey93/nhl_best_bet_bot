@@ -204,8 +204,9 @@
       background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.5);
       border-radius: 3px; padding: 0px 4px; white-space: nowrap;
     }
-    .stat-pill.pts { background: rgba(255,184,28,0.12); color: var(--gold); }
-    .stat-pill.gp  { color: rgba(255,255,255,0.3); }
+    .stat-pill.pts   { background: rgba(255,184,28,0.12); color: var(--gold); }
+    .stat-pill.gp    { color: rgba(255,255,255,0.3); }
+    .stat-pill.value { background: rgba(34,197,94,0.12); color: #22c55e; }
 
     .remove-btn {
       background: none; border: none;
@@ -501,6 +502,11 @@
         <button data-pos="D" onclick="setFilter('D',this)">Defence</button>
         <button data-pos="G" onclick="setFilter('G',this)">Goalies</button>
       </div>
+      <div class="pos-filter">
+        <button class="active" data-sort="salary" onclick="setSort('salary',this)">Salary</button>
+        <button data-sort="points" onclick="setSort('points',this)">Points</button>
+        <button data-sort="value" onclick="setSort('value',this)">Value</button>
+      </div>
       <input class="search-input" id="search-input" type="text" placeholder="🔍 Search player…" oninput="renderPool()" autocomplete="off">
     </div>
 
@@ -561,7 +567,8 @@
     G: { containerId: 'slots-G', max: 2,  countId: 'gol-count' },
   };
   let activeFilter = 'ALL';
-  let activeTeam = 'ALL';
+  let activeTeam   = 'ALL';
+  let activeSort   = 'salary';
   let dragSrc = null; // { slug, pos, fromGroup, fromIndex }
 
   // ── Mobile tab switcher ────────────────────────────────────────────────────
@@ -659,7 +666,7 @@
       if (activeTeam !== 'ALL' && p.team !== activeTeam) return false;
       if (query && !p.player_name.toLowerCase().includes(query)) return false;
       return true;
-    });
+    }).slice().sort((a, b) => playerSortKey(b) - playerSortKey(a));
     const list = document.getElementById('pool-list');
     if (!filtered.length) { list.innerHTML = '<div class="empty-msg">No players found.</div>'; return; }
     list.innerHTML = '';
@@ -673,9 +680,12 @@
     el.dataset.slug = player.puckpedia_slug;
     el.dataset.pos = pos;
     const salary = player.cap_hit ? '$' + player.cap_hit.toLocaleString() : 'No contract';
+    const capM = (player.cap_hit || 1) / 1_000_000;
+    const valuePill = activeSort === 'value' && player.cap_hit
+      ? `<span class="stat-pill value">${(playerSortKey(player)).toFixed(1)}val</span>` : '';
     const statsHtml = pos === 'G'
-      ? (player.wins != null ? `<span class="stat-pill">${player.wins}W</span><span class="stat-pill gp">${player.games_played ?? '—'}GP</span>` : '')
-      : (player.points != null ? `<span class="stat-pill">${player.goals}G</span><span class="stat-pill">${player.assists}A</span><span class="stat-pill pts">${player.points}PTS</span>` : '');
+      ? (player.wins != null ? `<span class="stat-pill">${player.wins}W</span><span class="stat-pill gp">${player.games_played ?? '—'}GP</span>${valuePill}` : '')
+      : (player.points != null ? `<span class="stat-pill">${player.goals}G</span><span class="stat-pill">${player.assists}A</span><span class="stat-pill pts">${player.points}PTS</span>${valuePill}` : '');
     el.innerHTML = `
       <span class="pos-badge ${pos}">${pos}</span>
       <div class="player-info">
@@ -719,9 +729,25 @@
   // ── Filter ─────────────────────────────────────────────────────────────────
   function setFilter(pos, btn) {
     activeFilter = pos;
-    document.querySelectorAll('.pos-filter button').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('[data-pos]').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     renderPool();
+  }
+
+  function setSort(sort, btn) {
+    activeSort = sort;
+    document.querySelectorAll('[data-sort]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderPool();
+  }
+
+  function playerSortKey(p) {
+    const pos = normalizePos(p.position);
+    const stat = pos === 'G' ? (p.wins ?? 0) : (p.points ?? 0);
+    const capM = (p.cap_hit || 1) / 1_000_000;
+    if (activeSort === 'points') return stat;
+    if (activeSort === 'value')  return stat / capM;
+    return p.cap_hit || 0; // salary
   }
 
   // ── Slot hit-test (same pattern: hide clone, elementsFromPoint) ──────────────
