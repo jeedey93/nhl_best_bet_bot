@@ -643,6 +643,10 @@
         <span id="cap-over" class="over" style="display:none;">— OVER CAP</span>
       </div>
       <div class="cap-track"><div class="cap-fill" id="cap-fill" style="width:0%"></div></div>
+      <div style="margin-top:6px;display:flex;align-items:baseline;justify-content:space-between;">
+        <span style="font-family:'Bebas Neue',cursive;font-size:0.7rem;letter-spacing:2px;color:var(--silver);">Total Points</span>
+        <span id="roster-total-pts" style="font-family:'Bebas Neue',cursive;font-size:1.3rem;letter-spacing:1px;color:var(--gold);">0</span>
+      </div>
     </div>
 
     <div class="roster-section">
@@ -1036,7 +1040,8 @@
 
   // ── Cap bar ────────────────────────────────────────────────────────────────
   function updateCapBar() {
-    const total = [...roster.F,...roster.D,...roster.G].filter(Boolean).reduce((s,p) => s+(p.cap_hit||0), 0);
+    const players = [...roster.F,...roster.D,...roster.G].filter(Boolean);
+    const total = players.reduce((s,p) => s+(p.cap_hit||0), 0);
     const remaining = CAP_MAX - total;
     const pct = Math.min(total / CAP_MAX * 100, 100);
     const isOver    = total > CAP_MAX;
@@ -1059,6 +1064,13 @@
     fill.style.width = pct + '%';
     fill.classList.toggle('over', isOver);
     fill.classList.toggle('warning', isWarning);
+
+    // Total points
+    const totalPts = players.reduce((s,p) => {
+      const pos = normalizePos(p.position);
+      return s + (pos === 'G' ? (p.wins ?? 0) : (p.points ?? 0));
+    }, 0);
+    document.getElementById('roster-total-pts').textContent = totalPts;
 
     // Wrap state
     const wrap = document.getElementById('cap-bar-wrap');
