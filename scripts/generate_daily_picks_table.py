@@ -423,34 +423,33 @@ def get_latest_prediction_file(sport):
     from datetime import date
     today = date.today().isoformat()
 
-    # Prefer today's 7am file from daily_runs if it exists
-    daily_runs_dir = f'data/predictions/{sport}/daily_runs'
-    for suffix in ['_7am', '_3pm', '']:
+    predictions_dir = f'data/predictions/{sport}'
+
+    # Prefer today's merged file in main folder (written by compare scripts at 3pm)
+    merged = os.path.join(predictions_dir, f'{sport}_daily_predictions_{today}.txt')
+    if os.path.isfile(merged):
+        return merged
+
+    # Fall back to daily_runs: 3pm then 7am
+    daily_runs_dir = os.path.join(predictions_dir, 'daily_runs')
+    for suffix in ['_3pm', '_7am']:
         candidate = os.path.join(daily_runs_dir, f'{sport}_daily_predictions_{today}{suffix}.txt')
         if os.path.isfile(candidate):
             return candidate
 
-    predictions_dir = f'data/predictions/{sport}'
-
     if not os.path.exists(predictions_dir):
         return None
 
-    # Get all prediction files matching the pattern
-    files = []
-
-    for filename in os.listdir(predictions_dir):
-        if filename.startswith(f'{sport}_daily_predictions_') and filename.endswith('.txt'):
-            filepath = os.path.join(predictions_dir, filename)
-            # Skip if it's a directory
-            if os.path.isfile(filepath):
-                files.append(filepath)
-
+    # Last resort: most recently modified file in main folder
+    files = [
+        os.path.join(predictions_dir, f)
+        for f in os.listdir(predictions_dir)
+        if f.startswith(f'{sport}_daily_predictions_') and f.endswith('.txt')
+        and os.path.isfile(os.path.join(predictions_dir, f))
+    ]
     if not files:
         return None
-
-    # Sort by modification time, get the most recent
     files.sort(key=lambda x: os.path.getmtime(x), reverse=True)
-
     return files[0]
 
 

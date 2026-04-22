@@ -67,12 +67,12 @@ def parse_picks(raw: str) -> list[dict]:
 
         # New pick line: contains @ with decimal odds, not a header
         clean_stripped = stripped.strip("*").strip()
-        odds_match = re.search(r'@\s*([\d.]+)\s*$', clean_stripped)
+        odds_match = re.search(r'@\s*([\d.]+)\s*(?:\([^)]*\))?\s*$', clean_stripped)
         if odds_match and clean_stripped and not clean_stripped.startswith("#"):
             if current:
                 picks.append(current)
-            # Clean up bold markers
-            bet_line = clean_stripped
+            # Clean up bold markers and trailing sportsbook name e.g. "@ 4.0 (BetRivers)"
+            bet_line = re.sub(r'\s*\([^)]*\)\s*$', '', clean_stripped).strip()
             current = {
                 "bet": bet_line,
                 "description": "",

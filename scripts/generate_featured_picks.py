@@ -89,18 +89,31 @@ def get_latest_file(folder, prefix, ext="txt"):
     return max(dated, key=file_date)
 
 def get_sections_from_index():
-    # Read from latest prediction files instead of index.md (which is now HTML)
-    nhl_file = get_latest_file("data/predictions/nhl", "nhl_daily_predictions")
-    nba_file = get_latest_file("data/predictions/nba", "nba_daily_predictions")
+    # Read from today's compared/merged file in main predictions folder, then fall back to latest
+    from datetime import date
+    today = date.today().isoformat()
 
+    def find_file(sport):
+        # Prefer today's merged file (written by compare scripts at 3pm)
+        main_dir = os.path.join("data", "predictions", sport)
+        merged = os.path.join(main_dir, f"{sport}_daily_predictions_{today}.txt")
+        if os.path.isfile(merged):
+            return merged
+        # Fall back to latest file in main folder (previous day)
+        return get_latest_file(main_dir, f"{sport}_daily_predictions")
+
+    nhl_file = find_file("nhl")
+    nba_file = find_file("nba")
     nhl_section = []
     nba_section = []
 
     if nhl_file:
+        print(f"📂 Featured picks using NHL file: {nhl_file}")
         with open(nhl_file, 'r', encoding='utf-8') as f:
             nhl_section = f.readlines()
 
     if nba_file:
+        print(f"📂 Featured picks using NBA file: {nba_file}")
         with open(nba_file, 'r', encoding='utf-8') as f:
             nba_section = f.readlines()
 
