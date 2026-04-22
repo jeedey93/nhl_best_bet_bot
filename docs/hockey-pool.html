@@ -151,6 +151,7 @@
     }
     .btn-generate-team:hover { background: rgba(255,184,28,0.2); border-color: rgba(255,184,28,0.6); }
     .btn-generate-team:disabled { opacity: 0.4; cursor: default; }
+    .btn-generate-team:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
     .btn-clear-team {
@@ -161,6 +162,7 @@
       transition: background 0.15s, color 0.15s, border-color 0.15s;
     }
     .btn-clear-team:hover { background: rgba(200,16,46,0.12); color: var(--red); border-color: rgba(200,16,46,0.5); }
+    .btn-clear-team:focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
     .panel-title {
       font-family: 'Bebas Neue', cursive;
       font-size: 1.1rem; letter-spacing: 4px;
@@ -217,8 +219,35 @@
     .player-card.in-roster {
       background: rgba(255,184,28,0.05);
       border-color: rgba(255,184,28,0.15);
+      cursor: pointer;
     }
     .player-card.in-roster:hover { background: rgba(255,184,28,0.1); }
+    .player-card.swap-source {
+      border-color: #60a5fa !important;
+      background: rgba(96,165,250,0.12) !important;
+      box-shadow: 0 0 0 2px rgba(96,165,250,0.35);
+    }
+    .swap-banner {
+      display: none;
+      background: rgba(96,165,250,0.12);
+      border: 1px solid rgba(96,165,250,0.35);
+      border-radius: 7px;
+      padding: 7px 12px;
+      font-size: 0.82rem;
+      color: #93c5fd;
+      margin-bottom: 0.5rem;
+      flex-shrink: 0;
+      align-items: center;
+      gap: 8px;
+    }
+    .swap-banner.active { display: flex; }
+    .swap-banner-cancel {
+      margin-left: auto; cursor: pointer;
+      background: none; border: none;
+      color: #93c5fd; font-size: 1rem; line-height: 1;
+      padding: 0 2px;
+    }
+    .swap-banner-cancel:focus-visible { outline: 2px solid #60a5fa; outline-offset: 2px; }
 
     .pos-badge {
       font-family: 'Bebas Neue', cursive;
@@ -299,7 +328,7 @@
       transition: color 0.15s; flex-shrink: 0;
     }
     .remove-btn:hover { color: var(--red); }
-
+    .remove-btn:focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
 
     .add-btn {
       background: none; border: 1px solid rgba(255,184,28,0.25);
@@ -309,6 +338,7 @@
       transition: background 0.15s, border-color 0.15s;
     }
     .add-btn:hover { background: rgba(255,184,28,0.15); border-color: rgba(255,184,28,0.5); }
+    .add-btn:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 
     /* ── Cap bar ── */
     .cap-bar-wrap {
@@ -341,6 +371,9 @@
     }
     .cap-bar-wrap.warning .cap-remaining-amount { color: #f59e0b; }
     .cap-bar-wrap.over    .cap-remaining-amount { color: var(--red); }
+    #cap-status-icon { color: var(--green); font-size: 0.65rem; }
+    .cap-bar-wrap.warning #cap-status-icon { color: #f59e0b; }
+    .cap-bar-wrap.over    #cap-status-icon { color: var(--red); }
     .cap-used-row {
       display: flex; gap: 4px; align-items: center;
       font-size: 0.68rem; color: rgba(255,255,255,0.3);
@@ -652,8 +685,8 @@
 
     <div class="cap-bar-wrap" id="cap-bar-wrap">
       <div class="cap-remaining-row">
-        <span class="cap-remaining-label">Remaining</span>
-        <span class="cap-remaining-amount" id="cap-remaining">$95.5M</span>
+        <span class="cap-remaining-label">Remaining <span id="cap-status-icon" aria-hidden="true">✓</span></span>
+        <span class="cap-remaining-amount" id="cap-remaining" aria-live="polite">$95.5M</span>
       </div>
       <div class="cap-used-row">
         <span id="cap-used">$0</span>
@@ -723,6 +756,11 @@
       <div class="team-strip" id="team-strip"></div>
     </div>
 
+    <div class="swap-banner" id="swap-banner" role="status">
+      <span>🔄 Select a replacement from the list below</span>
+      <button class="swap-banner-cancel" onclick="cancelSwap()" aria-label="Cancel swap">✕</button>
+    </div>
+
     <div class="pool-list" id="pool-list">
       <div class="loading-msg">Loading players…</div>
     </div>
@@ -778,6 +816,7 @@
   let activeFilter = 'ALL';
   let activeTeam   = 'ALL';
   let activeSort   = 'salary';
+  let swapMode     = null; // { group, index } when active
 
   // ── Mobile tab switcher ────────────────────────────────────────────────────
   let _mobileTab = 'team';
@@ -969,8 +1008,8 @@
       </div>
       ${statBoxHtml}
       ${inRoster
-        ? `<button class="remove-btn" title="Remove">✕</button>`
-        : `<button class="add-btn" title="Add to team">+</button>`}`;
+        ? `<button class="remove-btn" aria-label="Remove ${player.player_name} from roster">✕</button>`
+        : `<button class="add-btn" aria-label="Add ${player.player_name} to team">+</button>`}`;
     if (!disabled) {
       if (!inRoster) {
         el.querySelector('.add-btn').addEventListener('click', e => { e.stopPropagation(); tapAddPlayer(player, pos); });
@@ -982,9 +1021,59 @@
     return el;
   }
 
+  // ── Swap mode ──────────────────────────────────────────────────────────────
+  function enterSwap(group, index) {
+    // Toggle off if clicking the same slot again
+    if (swapMode && swapMode.group === group && swapMode.index === index) {
+      cancelSwap(); return;
+    }
+    swapMode = { group, index };
+    // Show banner
+    document.getElementById('swap-banner').classList.add('active');
+    // Highlight source card
+    refreshRoster();
+    // Auto-filter pool to matching position and scroll into view
+    if (activeFilter !== group) {
+      activeFilter = group;
+      document.querySelectorAll('[data-pos]').forEach(b => b.classList.toggle('active', b.dataset.pos === group));
+    }
+    renderPool();
+    document.getElementById('pool-list').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function cancelSwap() {
+    swapMode = null;
+    document.getElementById('swap-banner').classList.remove('active');
+    refreshRoster();
+    renderPool();
+  }
+
   // ── Tap-to-add ─────────────────────────────────────────────────────────────
   function tapAddPlayer(player, pos) {
-    const group = pos; // F, D, or G
+    const group = pos;
+
+    // Swap mode: replace the selected roster slot
+    if (swapMode && swapMode.group === group) {
+      const outgoing = roster[group][swapMode.index];
+      // Cap check: replace outgoing cap with incoming
+      const currentCap = [...roster.F,...roster.D,...roster.G].filter(Boolean).reduce((s,p) => s+(p.cap_hit||0), 0);
+      const capWithSwap = currentCap - (outgoing?.cap_hit || 0) + (player.cap_hit || 0);
+      if (capWithSwap > CAP_MAX) {
+        toast(`Over cap — can't fit $${(player.cap_hit/1_000_000).toFixed(1)}M here`); return;
+      }
+      // Don't allow adding a player already in another slot
+      const otherSlots = [...roster.F,...roster.D,...roster.G].filter((p,_) => p && p !== outgoing);
+      if (otherSlots.find(p => p.puckpedia_slug === player.puckpedia_slug)) return;
+      roster[group][swapMode.index] = player;
+      const swapped = outgoing ? outgoing.player_name : 'slot';
+      swapMode = null;
+      document.getElementById('swap-banner').classList.remove('active');
+      refreshRoster();
+      renderPool();
+      toast(`🔄 Swapped in ${formatName(player.player_name)}`);
+      return;
+    }
+
     const slots = roster[group];
     const emptyIdx = slots.findIndex(s => s === null);
     if (emptyIdx === -1) { toast(`${groupLabel(group)} slots full`); return; }
@@ -1057,9 +1146,16 @@
         if (player) {
           filled++;
           const card = makeCard(player, group, true, false, group, i);
+          if (swapMode && swapMode.group === group && swapMode.index === i) {
+            card.classList.add('swap-source');
+          }
+          // Click the card body (not remove btn) to enter swap mode
+          card.addEventListener('click', () => enterSwap(group, i));
           slot.appendChild(card);
         } else {
           slot.innerHTML = `<span class="slot-num">${i + 1}</span>`;
+          // Clicking an empty slot while in swap mode for this group cancels it
+          slot.addEventListener('click', () => { if (swapMode) cancelSwap(); });
         }
         container.appendChild(slot);
       }
@@ -1102,10 +1198,12 @@
     const totalPts = players.reduce((s,p) => s + poolScore(p), 0);
     document.getElementById('roster-total-pts').textContent = totalPts;
 
-    // Wrap state
+    // Wrap state + status icon
     const wrap = document.getElementById('cap-bar-wrap');
     wrap.classList.toggle('over', isOver);
     wrap.classList.toggle('warning', isWarning);
+    const iconEl = document.getElementById('cap-status-icon');
+    if (iconEl) iconEl.textContent = isOver ? '✕' : isWarning ? '⚠' : '✓';
   }
 
   // ── Clear team ─────────────────────────────────────────────────────────────
@@ -1379,6 +1477,7 @@
 
   initMobileTabs();
   refreshRoster(); // render empty slots immediately
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && swapMode) cancelSwap(); });
   loadPlayers();
 </script>
 
