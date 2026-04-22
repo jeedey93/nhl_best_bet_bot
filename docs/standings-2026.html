@@ -1333,8 +1333,13 @@ function buildPersonalCardHTML(row, rank, leaderScore, totalCount){
     const nameStyle = isElim ? 'color:rgba(255,255,255,0.4);text-decoration:line-through;' : 'color:white;';
     const ptsStyle = isElim ? 'color:rgba(255,255,255,0.3);' : `color:${scoreColor};`;
     const winsEarned = wins>0 ? `${wins}W · ${earned}pts` : earned>0 ? `${earned}pts` : '';
+    const logoUrl = logoSrc(t);
+    const logoEl = logoUrl
+      ? `<img src="${logoUrl}" style="width:20px;height:20px;object-fit:contain;flex-shrink:0;opacity:${isElim?'0.25':'0.9'};">`
+      : '';
     return `<div style="display:flex;align-items:center;gap:6px;background:${tileBg};border:${tileBorder};border-radius:6px;padding:5px 10px;font-size:0.8rem;">
       <span style="font-family:'Bebas Neue',sans-serif;font-size:20px;${ptsStyle}line-height:1;flex-shrink:0;">${p}<span style="font-size:11px;opacity:0.6;"> pts</span></span>
+      ${logoEl}
       <span style="font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;${nameStyle}font-size:16px;">${isMvp?'🔥 ':''}${shortTeamName(t)}</span>
       <span style="font-size:13px;color:rgba(168,178,190,0.6);white-space:nowrap;flex-shrink:0;">${winsEarned}</span>
     </div>`;
