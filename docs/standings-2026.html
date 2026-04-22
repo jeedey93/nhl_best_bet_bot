@@ -1428,8 +1428,7 @@ async function shareLeaderboard(){
 
   let card = document.getElementById('share-card');
   if(!card){ card=document.createElement('div'); card.id='share-card'; document.body.appendChild(card); }
-  const top10teams = [...new Set(rows.slice(0,10).flatMap(r=>TEAMS.filter(t=>r.picks[t]>0)))];
-  await resolveLogos(top10teams);
+  await resolveLogos(TEAMS);
   card.innerHTML = buildShareCardHTML(rows, title, totalCount, pot, date);
 
   await new Promise(r=>setTimeout(r,150));
