@@ -82,7 +82,7 @@ def parse_pick_line(line, game_matchups):
     if not odds_match:
         return None
 
-    decimal_odds = odds_match.group(1)
+    decimal_odds = odds_match.group(1).rstrip('.')
 
     # Reject picks outside the allowed odds range
     if not (1.60 <= float(decimal_odds) <= 2.20):
