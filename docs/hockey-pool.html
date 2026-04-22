@@ -618,8 +618,16 @@
       .eff-legend-text { font-size: 0.7rem; }
 
       /* Prevent cards from overflowing viewport */
-      .player-card { overflow: hidden; }
-      .stat-boxes { flex-shrink: 0; gap: 3px; }
+      .player-card { overflow: hidden; flex-wrap: wrap; padding: 5px 8px; }
+      /* Top row: badge + logo + name/salary + button */
+      .player-card .pos-badge { order: 1; }
+      .player-card .card-team-logo { order: 2; }
+      .player-card .player-info { order: 3; }
+      .player-card .add-btn,
+      .player-card .remove-btn { order: 4; }
+      /* Stat boxes drop to second row, full width */
+      .player-card .stat-boxes { order: 5; width: 100%; padding-top: 4px; gap: 4px; flex-shrink: 1; }
+      .stat-box { min-width: 40px; flex: 1; max-width: 70px; }
     }
     @media (min-width: 861px) {
       .mobile-tabs { display: none; }
@@ -628,16 +636,13 @@
       .site-nav-brand { font-size: 1.2rem; letter-spacing: 3px; }
       .site-nav-links a { font-size: 0.9rem; padding: 0.3rem 0.6rem; }
       header { padding: 0.75rem 0.75rem 0.5rem; }
-      /* Tighter stat boxes on very small screens */
-      .stat-box { min-width: 36px; padding: 2px 4px; }
       .stat-box-main { font-size: 1rem; }
-      /* Slightly smaller pos badge */
       .pos-badge { font-size: 0.65rem; padding: 1px 4px; min-width: 22px; }
-      /* Team logo smaller */
       .card-team-logo { width: 20px; height: 20px; }
-      /* Smaller player name on very narrow screens */
       .player-name { font-size: 0.85rem; }
       .player-salary { font-size: 0.7rem; }
+      /* Collapse EFF legend on very narrow screens */
+      .eff-legend-text { white-space: normal; }
     }
   </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
