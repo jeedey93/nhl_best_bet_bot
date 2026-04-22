@@ -333,6 +333,24 @@
       font-size: 0.9rem; padding: 2rem 0; letter-spacing: 1px;
     }
 
+    /* ── Share button ── */
+    .btn-share-pool {
+      font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 2px;
+      background: rgba(255,184,28,0.1); border: 1px solid rgba(255,184,28,0.3);
+      color: var(--gold); border-radius: 6px; padding: 0.35rem 1rem;
+      cursor: pointer; transition: background 0.15s; margin-top: 0.4rem;
+    }
+    .btn-share-pool:hover { background: rgba(255,184,28,0.2); }
+    .btn-share-pool:disabled { opacity: 0.4; cursor: default; }
+
+    /* ── Share card (off-screen) ── */
+    #pool-share-card {
+      position: fixed; left: -9999px; top: 0;
+      width: 680px;
+      font-family: 'Barlow Condensed', sans-serif;
+      background: linear-gradient(160deg,#0d1b2e 0%,#111827 60%,#0f172a 100%);
+    }
+
     /* ── Toast ── */
     .toast {
       position: fixed; bottom: 1.5rem; left: 50%;
@@ -409,7 +427,10 @@
 <header>
   <h1>Hockey <span>Pool</span></h1>
   <p>Build your team · Drag players from the pool</p>
+  <button class="btn-share-pool" id="btn-share-pool" onclick="sharePool()">📸 Share My Team</button>
 </header>
+
+<div id="pool-share-card"></div>
 
 <!-- Mobile tab switcher (hidden on desktop via CSS) -->
 <div class="mobile-tabs">
@@ -902,6 +923,144 @@
     document.getElementById('cap-over').style.display = total > CAP_MAX ? '' : 'none';
   }
 
+  // ── Logo cache (same Image→canvas pattern as standings) ───────────────────
+  const _logoCache = {};
+  async function fetchLogoDataUrl(url) {
+    if (_logoCache[url]) return _logoCache[url];
+    return new Promise(resolve => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        try {
+          const c = document.createElement('canvas');
+          c.width = img.naturalWidth || 64; c.height = img.naturalHeight || 64;
+          c.getContext('2d').drawImage(img, 0, 0);
+          _logoCache[url] = c.toDataURL('image/png');
+        } catch(e) { _logoCache[url] = url; }
+        resolve(_logoCache[url]);
+      };
+      img.onerror = () => { _logoCache[url] = url; resolve(url); };
+      img.src = url;
+    });
+  }
+  function logoDataUrl(teamSlug) {
+    const abbr = TEAM_ABBR[teamSlug];
+    if (!abbr) return '';
+    const url = `https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg`;
+    return _logoCache[url] || url;
+  }
+  async function resolveRosterLogos() {
+    const slugs = [...roster.F, ...roster.D, ...roster.G].filter(Boolean).map(p => p.team).filter(Boolean);
+    const urls = [...new Set(slugs.map(s => { const a = TEAM_ABBR[s]; return a ? `https://assets.nhle.com/logos/nhl/svg/${a}_dark.svg` : null; }).filter(Boolean))];
+    await Promise.all(urls.map(fetchLogoDataUrl));
+  }
+
+  // ── Build share card HTML ──────────────────────────────────────────────────
+  function buildPoolShareCard() {
+    const total = [...roster.F, ...roster.D, ...roster.G].filter(Boolean).reduce((s, p) => s + (p.cap_hit || 0), 0);
+    const capPct = Math.min(total / CAP_MAX * 100, 100);
+    const capColor = total > CAP_MAX ? '#c8102e' : total > CAP_MAX * 0.9 ? '#f59e0b' : '#22c55e';
+    const date = new Date().toLocaleDateString('en-CA');
+
+    const sectionHtml = (group, label) => {
+      const players = roster[group].filter(Boolean);
+      if (!players.length) return '';
+      const rows = players.map(p => {
+        const abbr = TEAM_ABBR[p.team] || '';
+        const logoUrl = logoDataUrl(p.team);
+        const logoHtml = logoUrl
+          ? `<img src="${logoUrl}" style="width:22px;height:22px;object-fit:contain;flex-shrink:0;">`
+          : `<span style="width:22px;height:22px;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;font-size:9px;color:rgba(255,255,255,0.4);">${abbr}</span>`;
+        const salary = p.cap_hit ? `$${(p.cap_hit/1_000_000).toFixed(2)}M` : '';
+        const posColor = group === 'F' ? '#ff7a8a' : group === 'D' ? '#7db4ff' : '#ffb81c';
+        return `<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:rgba(255,255,255,0.04);border-radius:5px;border:1px solid rgba(255,255,255,0.07);">
+          ${logoHtml}
+          <span style="font-size:16px;font-weight:700;color:white;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${formatName(p.player_name)}</span>
+          <span style="font-family:'Bebas Neue',sans-serif;font-size:11px;color:${posColor};background:rgba(255,255,255,0.07);padding:1px 6px;border-radius:3px;flex-shrink:0;">${group}</span>
+          <span style="font-size:13px;color:rgba(168,178,190,0.8);flex-shrink:0;">${salary}</span>
+        </div>`;
+      }).join('');
+      const posColor = group === 'F' ? '#ff7a8a' : group === 'D' ? '#7db4ff' : '#ffb81c';
+      return `<div style="margin-bottom:14px;">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:3px;color:${posColor};margin-bottom:6px;">${label} (${players.length})</div>
+        <div style="display:flex;flex-direction:column;gap:4px;">${rows}</div>
+      </div>`;
+    };
+
+    return `<div style="background:linear-gradient(160deg,#0d1b2e 0%,#111827 60%,#0f172a 100%);padding:28px 28px 24px;font-family:'Barlow Condensed',sans-serif;width:100%;box-sizing:border-box;">
+
+      <!-- Header -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <img src="https://parieurdiscipline.com/parieur_discipline_icon_1024.png" style="width:44px;height:44px;border-radius:10px;object-fit:cover;box-shadow:0 3px 12px rgba(0,0,0,0.6);flex-shrink:0;">
+          <div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:#ffffff;letter-spacing:4px;line-height:1;">PARIEUR DISCIPLINÉ</div>
+            <div style="font-size:12px;color:#94a3b8;letter-spacing:2px;text-transform:uppercase;margin-top:2px;">My Hockey Pool · NHL 2026</div>
+          </div>
+        </div>
+        <div style="font-size:13px;color:rgba(255,255,255,0.35);">${date}</div>
+      </div>
+
+      <!-- Cap bar -->
+      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:12px 16px;margin-bottom:18px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <span style="font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;color:#94a3b8;">SALARY CAP</span>
+          <span style="font-size:15px;font-weight:700;color:${capColor};">$${(total/1_000_000).toFixed(2)}M <span style="color:rgba(255,255,255,0.3);font-weight:400;">/ $95.50M</span></span>
+        </div>
+        <div style="height:6px;background:rgba(255,255,255,0.07);border-radius:3px;overflow:hidden;">
+          <div style="height:100%;width:${capPct}%;background:${capColor};border-radius:3px;"></div>
+        </div>
+      </div>
+
+      <!-- Two-column roster -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 20px;">
+        <div>
+          ${sectionHtml('F', 'FORWARDS')}
+        </div>
+        <div>
+          ${sectionHtml('D', 'DEFENCE')}
+          ${sectionHtml('G', 'GOALIES')}
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div style="margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.07);display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:12px;color:rgba(255,255,255,0.25);letter-spacing:1px;">parieurdiscipline.com</span>
+        <span style="font-family:'Bebas Neue',sans-serif;font-size:13px;color:#ffb81c;letter-spacing:2px;">NHL PLAYOFFS 2026</span>
+      </div>
+    </div>`;
+  }
+
+  // ── Share ──────────────────────────────────────────────────────────────────
+  async function sharePool() {
+    const filled = [...roster.F, ...roster.D, ...roster.G].filter(Boolean).length;
+    if (!filled) { toast('Add some players first!'); return; }
+    const btn = document.getElementById('btn-share-pool');
+    const origText = btn.textContent;
+    btn.textContent = '⏳'; btn.disabled = true;
+    await resolveRosterLogos();
+    const card = document.getElementById('pool-share-card');
+    card.innerHTML = buildPoolShareCard();
+    await new Promise(r => setTimeout(r, 150));
+    try {
+      const canvas = await html2canvas(card, { scale: 2, useCORS: true, backgroundColor: '#0d1b2e', logging: false });
+      const date = new Date().toLocaleDateString('en-CA');
+      if (navigator.share && navigator.canShare) {
+        const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
+        const file = new File([blob], `hockey-pool-${date}.png`, { type: 'image/png' });
+        if (navigator.canShare({ files: [file] })) { await navigator.share({ files: [file] }); return; }
+      }
+      const link = document.createElement('a');
+      link.download = `hockey-pool-${date}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    } catch(e) {
+      if (e.name !== 'AbortError') { toast('Could not generate image.'); console.error(e); }
+    } finally {
+      btn.textContent = origText; btn.disabled = false;
+    }
+  }
+
   // ── Toast ──────────────────────────────────────────────────────────────────
   let _tt;
   function toast(msg) {
@@ -914,6 +1073,8 @@
   refreshRoster(); // render empty slots immediately
   loadPlayers();
 </script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 </body>
 </html>
