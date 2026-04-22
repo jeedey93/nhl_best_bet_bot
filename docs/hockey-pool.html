@@ -772,7 +772,7 @@
     const stat = pos === 'G' ? (p.wins ?? 0) : (p.points ?? 0);
     const capM = (p.cap_hit || 1) / 1_000_000;
     if (activeSort === 'points') return stat;
-    if (activeSort === 'value')  return stat / capM;
+    if (activeSort === 'value')  return stat / Math.sqrt(capM);
     return p.cap_hit || 0; // salary
   }
 
