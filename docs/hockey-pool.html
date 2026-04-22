@@ -834,6 +834,9 @@
   let allPlayers = [];
   // Fixed-length slot arrays — null = empty
   let roster = { F: Array(12).fill(null), D: Array(6).fill(null), G: Array(2).fill(null) };
+  let _clearPending = false;
+  let _clearTimer = null;
+  let _undoSnapshot = null;
   const SLOT_CFG = {
     F: { containerId: 'slots-F', max: 12, countId: 'fwd-count' },
     D: { containerId: 'slots-D', max: 6,  countId: 'def-count' },
@@ -875,6 +878,7 @@
     allPlayers = await res.json();
     buildTeamStrip();
     renderPool();
+    restoreRoster();
   }
 
   // ── Helpers ────────────────────────────────────────────────────────────────
@@ -1098,6 +1102,7 @@
       refreshRoster();
       renderPool();
       toast(`🔄 Swapped in ${formatName(player.player_name)}`);
+      saveRoster();
       return;
     }
 
@@ -1112,9 +1117,8 @@
     roster[group][emptyIdx] = player;
     refreshRoster();
     renderPool();
+    saveRoster();
   }
-
-  // ── Filter ─────────────────────────────────────────────────────────────────
   function setFilter(pos, btn) {
     activeFilter = pos;
     document.querySelectorAll('[data-pos]').forEach(b => b.classList.remove('active'));
@@ -1156,6 +1160,7 @@
     roster[group][index] = null;
     refreshRoster();
     renderPool();
+    saveRoster();
   }
 
   // ── Refresh roster UI (fixed slots) ───────────────────────────────────────
@@ -1235,9 +1240,50 @@
 
   // ── Clear team ─────────────────────────────────────────────────────────────
   function clearTeam() {
+    if (!_clearPending) {
+      _clearPending = true;
+      const btn = document.querySelector('.btn-clear-team');
+      btn.textContent = '✕ Sure?';
+      btn.style.borderColor = 'rgba(200,16,46,0.6)';
+      btn.style.color = 'var(--red)';
+      _clearTimer = setTimeout(() => {
+        _clearPending = false;
+        btn.textContent = '✕ Clear';
+        btn.style.borderColor = '';
+        btn.style.color = '';
+      }, 3000);
+      return;
+    }
+    clearTimeout(_clearTimer);
+    _clearPending = false;
+    const btn = document.querySelector('.btn-clear-team');
+    btn.textContent = '✕ Clear';
+    btn.style.borderColor = '';
+    btn.style.color = '';
+    _undoSnapshot = { F: [...roster.F], D: [...roster.D], G: [...roster.G] };
     roster = { F: Array(12).fill(null), D: Array(6).fill(null), G: Array(2).fill(null) };
     refreshRoster();
     renderPool();
+    saveRoster();
+    toastWithUndo('Team cleared');
+  }
+
+  function toastWithUndo(msg) {
+    const el = document.getElementById('toast');
+    el.innerHTML = `${msg} <button onclick="undoClear()" style="background:none;border:1px solid rgba(7,17,31,0.4);border-radius:3px;color:var(--rink);font-family:'Bebas Neue',cursive;font-size:0.85rem;letter-spacing:1px;cursor:pointer;padding:1px 8px;margin-left:8px;">Undo</button>`;
+    el.classList.add('show');
+    clearTimeout(_tt);
+    _tt = setTimeout(() => { el.classList.remove('show'); _undoSnapshot = null; }, 5000);
+  }
+
+  function undoClear() {
+    if (!_undoSnapshot) return;
+    roster = _undoSnapshot;
+    _undoSnapshot = null;
+    refreshRoster();
+    renderPool();
+    saveRoster();
+    toast('✓ Restored');
   }
 
   // ── Logo cache — fetch SVG as text → base64 data URL (avoids canvas taint) ──
@@ -1489,12 +1535,35 @@
     roster = { F: best.picked.F, D: best.picked.D, G: best.picked.G };
     refreshRoster();
     renderPool();
+    saveRoster();
     const lockedCount = locked.F.length + locked.D.length + locked.G.length;
     const verb = lockedCount > 0 ? `Filled ${20 - lockedCount} spots` : 'Ultimate Team built';
     toast(`⚡ ${verb} · ${best.totalPts} pts · $${(best.capUsed/1_000_000).toFixed(1)}M used`);
     label.textContent = '⚡ Ultimate Team';
     btn.disabled = false;
   }
+  // ── localStorage persistence ───────────────────────────────────────────────
+  function saveRoster() {
+    const slim = g => roster[g].map(p => p ? p.puckpedia_slug : null);
+    localStorage.setItem('hp_roster', JSON.stringify({ F: slim('F'), D: slim('D'), G: slim('G') }));
+  }
+
+  function restoreRoster() {
+    try {
+      const raw = localStorage.getItem('hp_roster');
+      if (!raw) return;
+      const saved = JSON.parse(raw);
+      const bySlug = Object.fromEntries(allPlayers.map(p => [p.puckpedia_slug, p]));
+      ['F','D','G'].forEach(g => {
+        if (Array.isArray(saved[g])) {
+          roster[g] = saved[g].map(slug => (slug && bySlug[slug]) ? bySlug[slug] : null);
+        }
+      });
+      refreshRoster();
+      renderPool();
+    } catch(e) { /* ignore malformed saved data */ }
+  }
+
   let _tt;
   function toast(msg) {
     const el = document.getElementById('toast');
