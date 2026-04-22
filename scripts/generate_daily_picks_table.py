@@ -292,7 +292,7 @@ def parse_prediction_file(file_path, sport):
 
         # Find the section after this pick for reasoning
         start_pos = bet_of_day_match.end()
-        section_text = content[start_pos:start_pos + 1500]
+        section_text = content[start_pos:start_pos + 4000]
 
         # Extract confidence and reasoning
         conf_match = re.search(r'Confidence Level:\s*(\w+(?:\s+\w+)?)', section_text, re.IGNORECASE)
@@ -357,10 +357,18 @@ def parse_prediction_file(file_path, sport):
 
             # Search using the raw line to match original text
             escaped_pick = re.escape(raw_pick_line)
-            # Try to match until next pick or end of text
+            # Match section text up to the next pick line or end of string (greedy to capture all lines including Win Probability)
             section_match = re.search(rf'(?:\*\*)?{escaped_pick}(?:\*\*)?\s*\n(.*?)(?=\n(?:\*\*)?[A-Z][^\n]+@\s*[\d.]|\Z)', plays_text, re.DOTALL)
 
-            # If no match (likely the last pick), try matching till end
+            # For the last pick the non-greedy match may stop early — retry with greedy match
+            if section_match:
+                section_text_candidate = section_match.group(1)
+                if 'Win Probability:' not in section_text_candidate:
+                    greedy_match = re.search(rf'(?:\*\*)?{escaped_pick}(?:\*\*)?\s*\n(.*)', plays_text, re.DOTALL)
+                    if greedy_match:
+                        section_match = greedy_match
+
+            # If still no match, try greedy from the pick line to end
             if not section_match:
                 section_match = re.search(rf'(?:\*\*)?{escaped_pick}(?:\*\*)?\s*\n(.*)', plays_text, re.DOTALL)
 
@@ -463,7 +471,7 @@ def generate_javascript_data(nhl_picks, nba_picks):
     def picks_to_js(picks):
         js_picks = []
         for pick in picks:
-            win_prob = pick.get('win_probability', '')
+            win_prob = pick.get('win_probability') or ''
             is_bet_of_day = 'true' if pick.get('is_bet_of_day', False) else 'false'
             js_picks.append(f"""  {{
     game: '{pick['game']}',
