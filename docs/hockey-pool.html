@@ -314,6 +314,23 @@
     .search-input::placeholder { color: rgba(168,178,190,0.35); }
     .search-input:focus { border-color: rgba(255,255,255,0.22); }
 
+    .eff-legend {
+      display: flex; align-items: center; gap: 8px;
+      background: rgba(34,197,94,0.06);
+      border: 1px solid rgba(34,197,94,0.15);
+      border-radius: 6px; padding: 6px 10px;
+      margin-bottom: 0.6rem; flex-shrink: 0;
+    }
+    .eff-legend-badge {
+      font-family: 'Bebas Neue', cursive; font-size: 0.72rem; letter-spacing: 1.5px;
+      color: #22c55e; background: rgba(34,197,94,0.12);
+      border-radius: 3px; padding: 1px 6px; flex-shrink: 0;
+    }
+    .eff-legend-text {
+      font-size: 0.75rem; color: rgba(255,255,255,0.4); letter-spacing: 0.2px;
+    }
+    .eff-legend-text strong { color: rgba(255,255,255,0.65); font-weight: 600; }
+
     /* ── Team strip ── */
     .team-strip-wrap { margin-bottom: 0.6rem; flex-shrink: 0; }
     .team-strip {
@@ -522,9 +539,14 @@
       <div class="pos-filter">
         <button class="active" data-sort="salary" onclick="setSort('salary',this)">Salary</button>
         <button data-sort="points" onclick="setSort('points',this)">Points</button>
-        <button data-sort="value" onclick="setSort('value',this)">Value</button>
+        <button data-sort="value" onclick="setSort('value',this)">EFF</button>
       </div>
       <input class="search-input" id="search-input" type="text" placeholder="🔍 Search player…" oninput="renderPool()" autocomplete="off">
+    </div>
+
+    <div class="eff-legend">
+      <span class="eff-legend-badge">EFF</span>
+      <span class="eff-legend-text">Efficiency Score — <strong>Points ÷ √(Cap in $M)</strong> · Rewards elite production, not just cheap contracts</span>
     </div>
 
     <div class="team-strip-wrap">
@@ -697,8 +719,8 @@
     el.dataset.slug = player.puckpedia_slug;
     el.dataset.pos = pos;
     const salary = player.cap_hit ? '$' + player.cap_hit.toLocaleString() : 'No contract';
-    const valueLine = activeSort === 'value' && player.cap_hit
-      ? `<div class="stat-box-value">${playerSortKey(player).toFixed(1)} val</div>` : '';
+    const valueLine = player.cap_hit
+      ? `<div class="stat-box-value">${effScore(player).toFixed(1)} EFF</div>` : '';
     const statBoxHtml = pos === 'G'
       ? (player.wins != null
           ? `<div class="stat-box">
@@ -767,12 +789,19 @@
     renderPool();
   }
 
+  function effScore(p) {
+    const pos = normalizePos(p.position);
+    const stat = pos === 'G' ? (p.wins ?? 0) : (p.points ?? 0);
+    const capM = (p.cap_hit || 1) / 1_000_000;
+    return stat / Math.sqrt(capM);
+  }
+
   function playerSortKey(p) {
     const pos = normalizePos(p.position);
     const stat = pos === 'G' ? (p.wins ?? 0) : (p.points ?? 0);
     const capM = (p.cap_hit || 1) / 1_000_000;
     if (activeSort === 'points') return stat;
-    if (activeSort === 'value')  return stat / Math.sqrt(capM);
+    if (activeSort === 'value')  return effScore(p);
     return p.cap_hit || 0; // salary
   }
 
