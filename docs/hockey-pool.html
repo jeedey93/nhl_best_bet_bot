@@ -660,7 +660,7 @@
       </div>
       <div class="cap-track"><div class="cap-fill" id="cap-fill" style="width:0%"></div></div>
       <div style="margin-top:6px;display:flex;align-items:baseline;justify-content:space-between;">
-        <span style="font-family:'Bebas Neue',cursive;font-size:0.7rem;letter-spacing:2px;color:var(--silver);">Total Points</span>
+        <span style="font-family:'Bebas Neue',cursive;font-size:0.7rem;letter-spacing:2px;color:var(--silver);">Total Pool Points</span>
         <span id="roster-total-pts" style="font-family:'Bebas Neue',cursive;font-size:1.3rem;letter-spacing:1px;color:var(--gold);">0</span>
       </div>
     </div>
@@ -800,7 +800,7 @@
   // ── Fetch ──────────────────────────────────────────────────────────────────
   async function loadPlayers() {
     const res = await fetch(
-      `${SUPABASE_URL}/rest/v1/nhl_players?select=puckpedia_slug,player_name,position,cap_hit,team,goals,assists,points,wins,games_played&order=cap_hit.desc&limit=1000`,
+      `${SUPABASE_URL}/rest/v1/nhl_players?select=puckpedia_slug,player_name,position,cap_hit,team,goals,assists,points,wins,shutouts,games_played&order=cap_hit.desc&limit=1000`,
       { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
     );
     if (!res.ok) { document.getElementById('pool-list').innerHTML = '<div class="empty-msg">Failed to load players.</div>'; return; }
@@ -906,6 +906,10 @@
                    <div class="stat-box-main">${player.wins}</div>
                    <div class="stat-box-label">W</div>
                  </div>
+                 ${player.shutouts ? `<div class="stat-box stat-box-pts">
+                   <div class="stat-box-main">${player.shutouts}</div>
+                   <div class="stat-box-label">SO</div>
+                 </div>` : ''}
                </div>` : '')
         : (player.points != null
             ? `<div class="stat-boxes">
@@ -925,6 +929,10 @@
                    <div class="stat-box-main">${player.wins}</div>
                    <div class="stat-box-label">WINS</div>
                  </div>
+                 ${player.shutouts ? `<div class="stat-box stat-box-pts">
+                   <div class="stat-box-main">${player.shutouts}</div>
+                   <div class="stat-box-label">SO</div>
+                 </div>` : ''}
                  ${effBox}
                </div>` : '')
         : (player.points != null
@@ -1005,10 +1013,10 @@
   // ── Pool scoring rules ─────────────────────────────────────────────────────
   // F:  G=1pt,  A=1pt  (= regular points total)
   // D:  G=2pts, A=1pt  (= goals + points)
-  // G:  W=2pts         (shutouts excluded until DB column added)
+  // G:  W=2pts · SO=3pts
   function poolScore(p) {
     const pos = normalizePos(p.position);
-    if (pos === 'G') return (p.wins ?? 0) * 2;
+    if (pos === 'G') return (p.wins ?? 0) * 2 + (p.shutouts ?? 0) * 3;
     if (pos === 'D') return (p.goals ?? 0) + (p.points ?? 0); // goals counted twice
     return p.points ?? 0; // F: goals + assists = points
   }
@@ -1150,7 +1158,7 @@
         const eff = p.cap_hit ? effScore(p).toFixed(1) : null;
         const effChip = eff ? `<span style="font-family:'Bebas Neue',sans-serif;font-size:12px;color:#22c55e;background:rgba(34,197,94,0.1);padding:1px 5px;border-radius:3px;">EFF ${eff}</span>` : '';
         const statsHtml = group === 'G'
-          ? (p.wins != null ? `<span style="font-family:'Bebas Neue',sans-serif;font-size:12px;color:#ffb81c;background:rgba(255,184,28,0.1);padding:1px 5px;border-radius:3px;">${p.wins}W</span>${effChip}` : '')
+          ? (p.wins != null ? `<span style="font-family:'Bebas Neue',sans-serif;font-size:12px;color:#ffb81c;background:rgba(255,184,28,0.1);padding:1px 5px;border-radius:3px;">${p.wins}W${p.shutouts ? ` ${p.shutouts}SO` : ''}</span>${effChip}` : '')
           : (p.points != null ? `<span style="font-family:'Bebas Neue',sans-serif;font-size:12px;color:rgba(255,255,255,0.5);background:rgba(255,255,255,0.07);padding:1px 5px;border-radius:3px;">${p.goals}G ${p.assists}A</span><span style="font-family:'Bebas Neue',sans-serif;font-size:12px;color:#ffb81c;background:rgba(255,184,28,0.1);padding:1px 5px;border-radius:3px;">${p.points}PTS</span>${effChip}` : '');
         return `<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:rgba(255,255,255,0.04);border-radius:5px;border:1px solid rgba(255,255,255,0.07);">
           ${logoHtml}
