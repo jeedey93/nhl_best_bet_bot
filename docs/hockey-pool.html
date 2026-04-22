@@ -142,6 +142,16 @@
       display: flex; align-items: center; justify-content: space-between;
       margin-bottom: 0.6rem; flex-shrink: 0;
     }
+    .btn-generate-team {
+      font-family: 'Bebas Neue', cursive; font-size: 0.8rem; letter-spacing: 1.5px;
+      background: rgba(255,184,28,0.08); border: 1px solid rgba(255,184,28,0.3);
+      color: var(--gold); border-radius: 5px;
+      padding: 3px 10px; cursor: pointer;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+    }
+    .btn-generate-team:hover { background: rgba(255,184,28,0.2); border-color: rgba(255,184,28,0.6); }
+    .btn-generate-team:disabled { opacity: 0.4; cursor: default; }
+
     .btn-clear-team {
       font-family: 'Bebas Neue', cursive; font-size: 0.8rem; letter-spacing: 1.5px;
       background: none; border: 1px solid rgba(200,16,46,0.25);
@@ -150,8 +160,6 @@
       transition: background 0.15s, color 0.15s, border-color 0.15s;
     }
     .btn-clear-team:hover { background: rgba(200,16,46,0.12); color: var(--red); border-color: rgba(200,16,46,0.5); }
-
-    .panel-title {
       font-family: 'Bebas Neue', cursive;
       font-size: 1.1rem; letter-spacing: 4px;
       color: white; margin-bottom: 0.6rem; flex-shrink: 0;
@@ -617,7 +625,10 @@
   <div class="your-team-panel">
     <div class="your-team-header">
       <h2>Your <span>Team</span></h2>
-      <button class="btn-clear-team" onclick="clearTeam()">✕ Clear</button>
+      <div style="display:flex;gap:6px;align-items:center;">
+        <button class="btn-generate-team" id="btn-generate-team" onclick="generateUltimateTeam()">⚡ Ultimate Team</button>
+        <button class="btn-clear-team" onclick="clearTeam()">✕ Clear</button>
+      </div>
     </div>
 
     <div class="cap-bar-wrap" id="cap-bar-wrap">
@@ -1205,7 +1216,96 @@
     }
   }
 
-  // ── Toast ──────────────────────────────────────────────────────────────────
+  // ── Generate Ultimate Team ─────────────────────────────────────────────────
+  // Fills the roster to maximise total points while staying under the cap.
+  // Uses a randomised greedy knapsack so each click produces a different
+  // high-scoring team: players within 20% of the top scorer at each pick are
+  // shuffled before selection, ensuring variety without sacrificing quality.
+  function generateUltimateTeam() {
+    if (!allPlayers.length) { toast('Players not loaded yet'); return; }
+
+    const btn = document.getElementById('btn-generate-team');
+    btn.disabled = true;
+
+    const byPos = { F: [], D: [], G: [] };
+    for (const p of allPlayers) {
+      if (!p.cap_hit) continue;
+      const pos = normalizePos(p.position);
+      byPos[pos].push(p);
+    }
+
+    // Sort each group by points desc (wins for goalies)
+    const stat = p => normalizePos(p.position) === 'G' ? (p.wins ?? 0) : (p.points ?? 0);
+    for (const g of ['F','D','G']) byPos[g].sort((a,b) => stat(b) - stat(a));
+
+    const MAX_ATTEMPTS = 200;
+    let best = null;
+
+    for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+      const picked = { F: [], D: [], G: [] };
+      let capUsed = 0;
+
+      for (const g of ['F','D','G']) {
+        const needed = SLOT_CFG[g].max;
+        const pool = byPos[g].filter(p => !picked.F.concat(picked.D, picked.G).find(x => x.puckpedia_slug === p.puckpedia_slug));
+
+        for (let i = 0; i < pool.length && picked[g].length < needed; i++) {
+          // Shuffle candidates within 20% of the current best stat score
+          if (i === 0 || i % 3 === 0) {
+            const topStat = stat(pool[i]);
+            const threshold = topStat * 0.80;
+            let j = i;
+            while (j < pool.length && stat(pool[j]) >= threshold) j++;
+            // Fisher-Yates shuffle the window [i, j)
+            for (let k = j - 1; k > i; k--) {
+              const r = i + Math.floor(Math.random() * (k - i + 1));
+              [pool[i], pool[r]] = [pool[r], pool[i]];
+            }
+          }
+
+          const p = pool[i];
+          const remaining = CAP_MAX - capUsed;
+          const slotsLeft = needed - picked[g].length;
+          // Need at least slotsLeft players to fit; reserve a minimum for each remaining slot
+          const otherGroupsMinCap = (['F','D','G']
+            .filter(og => og !== g)
+            .reduce((s, og) => {
+              const filled = picked[og].length;
+              const stillNeeded = SLOT_CFG[og].max - filled;
+              // estimate minimum cap for remaining slots using cheapest available
+              const cheapest = byPos[og]
+                .filter(x => !picked.F.concat(picked.D, picked.G).find(y => y.puckpedia_slug === x.puckpedia_slug))
+                .slice(-(stillNeeded || 1))
+                .reduce((a, x) => a + (x.cap_hit || 0), 0);
+              return s + cheapest;
+            }, 0));
+
+          if (p.cap_hit <= remaining - otherGroupsMinCap) {
+            picked[g].push(p);
+            capUsed += p.cap_hit;
+          }
+        }
+
+        // If we couldn't fill this group, abort this attempt
+        if (picked[g].length < needed) { picked[g] = null; break; }
+      }
+
+      if (!picked.F || !picked.D || !picked.G) continue;
+
+      const totalPts = [...picked.F, ...picked.D, ...picked.G].reduce((s, p) => s + stat(p), 0);
+      if (!best || totalPts > best.totalPts) {
+        best = { picked, totalPts, capUsed };
+      }
+    }
+
+    if (!best) { toast('Could not build a valid team — try again'); btn.disabled = false; return; }
+
+    roster = { F: best.picked.F, D: best.picked.D, G: best.picked.G };
+    refreshRoster();
+    renderPool();
+    toast(`⚡ Ultimate Team built · ${best.totalPts} pts · $${(best.capUsed/1_000_000).toFixed(1)}M used`);
+    btn.disabled = false;
+  }
   let _tt;
   function toast(msg) {
     const el = document.getElementById('toast');
