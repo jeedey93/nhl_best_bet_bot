@@ -198,30 +198,37 @@
     }
     .player-salary { font-size: 0.8rem; color: var(--silver); letter-spacing: 0.3px; font-weight: 600; margin-top: 1px; }
 
-    /* ── Stat box (right side of card) ── */
+    /* ── Stat boxes (right side of card) ── */
+    .stat-boxes {
+      display: flex; gap: 5px; flex-shrink: 0;
+    }
     .stat-box {
       display: flex; flex-direction: column; align-items: center; justify-content: center;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 5px;
-      padding: 4px 8px; min-width: 46px;
-      flex-shrink: 0; text-align: center;
+      border-radius: 6px; padding: 5px 10px; min-width: 52px; text-align: center;
+    }
+    .stat-box-pts {
+      background: rgba(255,184,28,0.08);
+      border: 1px solid rgba(255,184,28,0.2);
+    }
+    .stat-box-eff {
+      background: rgba(34,197,94,0.07);
+      border: 1px solid rgba(34,197,94,0.2);
     }
     .stat-box-main {
-      font-family: 'Bebas Neue', cursive; font-size: 1.3rem; line-height: 1;
-      color: var(--gold); letter-spacing: 1px;
+      font-family: 'Bebas Neue', cursive; font-size: 1.6rem; line-height: 1;
+      letter-spacing: 1px;
     }
+    .stat-box-pts .stat-box-main { color: var(--gold); }
+    .stat-box-eff .stat-box-main { color: #22c55e; }
     .stat-box-label {
-      font-family: 'Bebas Neue', cursive; font-size: 0.6rem; letter-spacing: 1.5px;
-      color: rgba(255,255,255,0.3); margin-top: 1px;
+      font-family: 'Bebas Neue', cursive; font-size: 0.65rem; letter-spacing: 2px;
+      margin-top: 1px;
     }
+    .stat-box-pts .stat-box-label { color: rgba(255,184,28,0.5); }
+    .stat-box-eff .stat-box-label { color: rgba(34,197,94,0.5); }
     .stat-box-sub {
-      font-size: 0.65rem; color: rgba(255,255,255,0.35); letter-spacing: 0.3px;
-      white-space: nowrap; margin-top: 1px;
-    }
-    .stat-box-value {
-      font-family: 'Bebas Neue', cursive; font-size: 0.62rem; letter-spacing: 0.5px;
-      color: #22c55e; margin-top: 2px;
+      font-size: 0.68rem; color: rgba(255,255,255,0.3);
+      white-space: nowrap; margin-top: 2px; letter-spacing: 0.2px;
     }
     .stat-box.no-stats { display: none; }
 
@@ -719,23 +726,30 @@
     el.dataset.slug = player.puckpedia_slug;
     el.dataset.pos = pos;
     const salary = player.cap_hit ? '$' + player.cap_hit.toLocaleString() : 'No contract';
-    const valueLine = player.cap_hit
-      ? `<div class="stat-box-value">${effScore(player).toFixed(1)} EFF</div>` : '';
+    const eff = player.cap_hit ? effScore(player).toFixed(1) : null;
+    const effBox = eff ? `<div class="stat-box stat-box-eff">
+      <div class="stat-box-main">${eff}</div>
+      <div class="stat-box-label">EFF</div>
+    </div>` : '';
     const statBoxHtml = pos === 'G'
       ? (player.wins != null
-          ? `<div class="stat-box">
-               <div class="stat-box-main">${player.wins}</div>
-               <div class="stat-box-label">WINS</div>
-               <div class="stat-box-sub">${player.games_played ?? '—'} GP</div>
-               ${valueLine}
-             </div>` : '<div class="stat-box no-stats"></div>')
+          ? `<div class="stat-boxes">
+               <div class="stat-box stat-box-pts">
+                 <div class="stat-box-main">${player.wins}</div>
+                 <div class="stat-box-label">WINS</div>
+                 <div class="stat-box-sub">${player.games_played ?? '—'} GP</div>
+               </div>
+               ${effBox}
+             </div>` : '')
       : (player.points != null
-          ? `<div class="stat-box">
-               <div class="stat-box-main">${player.points}</div>
-               <div class="stat-box-label">PTS</div>
-               <div class="stat-box-sub">${player.goals}G · ${player.assists}A</div>
-               ${valueLine}
-             </div>` : '<div class="stat-box no-stats"></div>');
+          ? `<div class="stat-boxes">
+               <div class="stat-box stat-box-pts">
+                 <div class="stat-box-main">${player.points}</div>
+                 <div class="stat-box-label">PTS</div>
+                 <div class="stat-box-sub">${player.goals}G · ${player.assists}A</div>
+               </div>
+               ${effBox}
+             </div>` : '');
     el.innerHTML = `
       <span class="pos-badge ${pos}">${pos}</span>
       <div class="player-info">
