@@ -1244,27 +1244,22 @@ function buildShareCardHTML(rows, title, totalCount, pot, date){
     </div>`;
 }
 
-// ── Logo fetcher — converts NHL CDN SVGs to data URLs for html2canvas ─────────
+// ── Logo fetcher — fetches SVG as text → base64 data URL (avoids canvas taint) ─
 const _logoDataCache = {};
 async function fetchLogoDataUrl(url){
   if(_logoDataCache[url]) return _logoDataCache[url];
-  return new Promise(resolve=>{
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.onload = ()=>{
-      try{
-        const c = document.createElement('canvas');
-        c.width = img.naturalWidth || 64;
-        c.height = img.naturalHeight || 64;
-        c.getContext('2d').drawImage(img,0,0);
-        const dataUrl = c.toDataURL('image/png');
-        _logoDataCache[url] = dataUrl;
-        resolve(dataUrl);
-      }catch(e){ _logoDataCache[url]=url; resolve(url); }
-    };
-    img.onerror = ()=>{ _logoDataCache[url]=url; resolve(url); };
-    img.src = url;
-  });
+  try{
+    const res = await fetch(url);
+    if(!res.ok) throw new Error(res.status);
+    const svg = await res.text();
+    const b64 = btoa(unescape(encodeURIComponent(svg)));
+    const dataUrl = `data:image/svg+xml;base64,${b64}`;
+    _logoDataCache[url] = dataUrl;
+    return dataUrl;
+  }catch(e){
+    _logoDataCache[url] = url; // fall back to original URL
+    return url;
+  }
 }
 async function resolveLogos(teams){
   const urls = [...new Set(teams.map(t=>TEAM_LOGO[t]).filter(Boolean))];

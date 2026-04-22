@@ -1062,25 +1062,18 @@
     renderPool();
   }
 
-  // ── Logo cache (same Image→canvas pattern as standings) ───────────────────
+  // ── Logo cache — fetch SVG as text → base64 data URL (avoids canvas taint) ──
   const _logoCache = {};
   async function fetchLogoDataUrl(url) {
     if (_logoCache[url]) return _logoCache[url];
-    return new Promise(resolve => {
-      const img = new Image();
-      img.crossOrigin = 'anonymous';
-      img.onload = () => {
-        try {
-          const c = document.createElement('canvas');
-          c.width = img.naturalWidth || 64; c.height = img.naturalHeight || 64;
-          c.getContext('2d').drawImage(img, 0, 0);
-          _logoCache[url] = c.toDataURL('image/png');
-        } catch(e) { _logoCache[url] = url; }
-        resolve(_logoCache[url]);
-      };
-      img.onerror = () => { _logoCache[url] = url; resolve(url); };
-      img.src = url;
-    });
+    try {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(res.status);
+      const svg = await res.text();
+      const b64 = btoa(unescape(encodeURIComponent(svg)));
+      _logoCache[url] = `data:image/svg+xml;base64,${b64}`;
+    } catch(e) { _logoCache[url] = url; }
+    return _logoCache[url];
   }
   function logoDataUrl(teamSlug) {
     const abbr = TEAM_ABBR[teamSlug];
