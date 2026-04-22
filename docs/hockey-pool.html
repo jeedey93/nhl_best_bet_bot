@@ -1227,83 +1227,95 @@
     const btn = document.getElementById('btn-generate-team');
     btn.disabled = true;
 
+    // Locked = already in the roster
+    const locked = {
+      F: roster.F.filter(Boolean),
+      D: roster.D.filter(Boolean),
+      G: roster.G.filter(Boolean),
+    };
+    const lockedSlugs = new Set([...locked.F, ...locked.D, ...locked.G].map(p => p.puckpedia_slug));
+    const lockedCap   = [...locked.F, ...locked.D, ...locked.G].reduce((s, p) => s + (p.cap_hit || 0), 0);
+
+    const stat = p => normalizePos(p.position) === 'G' ? (p.wins ?? 0) : (p.points ?? 0);
+
+    // Candidate pool per position, excluding locked players, sorted by stat desc
     const byPos = { F: [], D: [], G: [] };
     for (const p of allPlayers) {
-      if (!p.cap_hit) continue;
-      const pos = normalizePos(p.position);
-      byPos[pos].push(p);
+      if (!p.cap_hit || lockedSlugs.has(p.puckpedia_slug)) continue;
+      byPos[normalizePos(p.position)].push(p);
     }
+    for (const g of ['F','D','G']) byPos[g].sort((a, b) => stat(b) - stat(a));
 
-    // Sort each group by points desc (wins for goalies)
-    const stat = p => normalizePos(p.position) === 'G' ? (p.wins ?? 0) : (p.points ?? 0);
-    for (const g of ['F','D','G']) byPos[g].sort((a,b) => stat(b) - stat(a));
+    // Pre-compute cheapest-N cap for each position to use as a floor reservation
+    function cheapestCap(g, n, excludeSlugs) {
+      const avail = byPos[g].filter(p => !excludeSlugs.has(p.puckpedia_slug));
+      return avail.slice(-n).reduce((s, p) => s + p.cap_hit, 0);
+    }
 
     const MAX_ATTEMPTS = 200;
     let best = null;
 
     for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
-      const picked = { F: [], D: [], G: [] };
-      let capUsed = 0;
+      const picked   = { F: [...locked.F], D: [...locked.D], G: [...locked.G] };
+      let capUsed    = lockedCap;
 
+      let failed = false;
       for (const g of ['F','D','G']) {
-        const needed = SLOT_CFG[g].max;
-        const pool = byPos[g].filter(p => !picked.F.concat(picked.D, picked.G).find(x => x.puckpedia_slug === p.puckpedia_slug));
+        const needed = SLOT_CFG[g].max - picked[g].length;
+        if (needed <= 0) continue;
 
-        for (let i = 0; i < pool.length && picked[g].length < needed; i++) {
-          // Shuffle candidates within 20% of the current best stat score
-          if (i === 0 || i % 3 === 0) {
-            const topStat = stat(pool[i]);
-            const threshold = topStat * 0.80;
-            let j = i;
-            while (j < pool.length && stat(pool[j]) >= threshold) j++;
-            // Fisher-Yates shuffle the window [i, j)
-            for (let k = j - 1; k > i; k--) {
-              const r = i + Math.floor(Math.random() * (k - i + 1));
-              [pool[i], pool[r]] = [pool[r], pool[i]];
-            }
+        // Build the set of all slugs already picked (locked + picked so far)
+        const usedSlugs = new Set([...picked.F, ...picked.D, ...picked.G].map(p => p.puckpedia_slug));
+        const pool = byPos[g].filter(p => !usedSlugs.has(p.puckpedia_slug));
+
+        // Shuffle within 20% windows for variation
+        const shuffled = [...pool];
+        for (let i = 0; i < shuffled.length; ) {
+          const topStat  = stat(shuffled[i]);
+          const threshold = topStat * 0.80;
+          let j = i + 1;
+          while (j < shuffled.length && stat(shuffled[j]) >= threshold) j++;
+          for (let k = j - 1; k > i; k--) {
+            const r = i + Math.floor(Math.random() * (k - i + 1));
+            [shuffled[i], shuffled[r]] = [shuffled[r], shuffled[i]];
           }
+          i = j;
+        }
 
-          const p = pool[i];
-          const remaining = CAP_MAX - capUsed;
-          const slotsLeft = needed - picked[g].length;
-          // Need at least slotsLeft players to fit; reserve a minimum for each remaining slot
-          const otherGroupsMinCap = (['F','D','G']
-            .filter(og => og !== g)
-            .reduce((s, og) => {
-              const filled = picked[og].length;
-              const stillNeeded = SLOT_CFG[og].max - filled;
-              // estimate minimum cap for remaining slots using cheapest available
-              const cheapest = byPos[og]
-                .filter(x => !picked.F.concat(picked.D, picked.G).find(y => y.puckpedia_slug === x.puckpedia_slug))
-                .slice(-(stillNeeded || 1))
-                .reduce((a, x) => a + (x.cap_hit || 0), 0);
-              return s + cheapest;
-            }, 0));
+        for (const p of shuffled) {
+          if (picked[g].length - locked[g].length >= needed) break;
 
-          if (p.cap_hit <= remaining - otherGroupsMinCap) {
+          // Reserve cap for groups not yet fully filled
+          const usedNow = new Set([...picked.F, ...picked.D, ...picked.G].map(x => x.puckpedia_slug));
+          usedNow.add(p.puckpedia_slug);
+          const reserve = ['F','D','G'].reduce((s, og) => {
+            const stillNeeded = SLOT_CFG[og].max - picked[og].length - (og === g ? 1 : 0);
+            return stillNeeded > 0 ? s + cheapestCap(og, stillNeeded, usedNow) : s;
+          }, 0);
+
+          if (capUsed + p.cap_hit + reserve <= CAP_MAX) {
             picked[g].push(p);
             capUsed += p.cap_hit;
           }
         }
 
-        // If we couldn't fill this group, abort this attempt
-        if (picked[g].length < needed) { picked[g] = null; break; }
+        if (picked[g].length < SLOT_CFG[g].max) { failed = true; break; }
       }
 
-      if (!picked.F || !picked.D || !picked.G) continue;
+      if (failed) continue;
 
       const totalPts = [...picked.F, ...picked.D, ...picked.G].reduce((s, p) => s + stat(p), 0);
-      if (!best || totalPts > best.totalPts) {
-        best = { picked, totalPts, capUsed };
-      }
+      if (!best || totalPts > best.totalPts) best = { picked, totalPts, capUsed };
     }
 
-    if (!best) { toast('Could not build a valid team — try again'); btn.disabled = false; return; }
+    if (!best) { toast('Could not fill team — try again'); btn.disabled = false; return; }
 
     roster = { F: best.picked.F, D: best.picked.D, G: best.picked.G };
     refreshRoster();
     renderPool();
-    toast(`⚡ Ultimate Team built · ${best.totalPts} pts · $${(best.capUsed/1_000_000).toFixed(1)}M used`);
+    const lockedCount = locked.F.length + locked.D.length + locked.G.length;
+    const verb = lockedCount > 0 ? `Filled ${20 - lockedCount} spots` : 'Ultimate Team built';
+    toast(`⚡ ${verb} · ${best.totalPts} pts · $${(best.capUsed/1_000_000).toFixed(1)}M used`);
     btn.disabled = false;
   }
   let _tt;
