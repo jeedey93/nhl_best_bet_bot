@@ -588,7 +588,7 @@
       .pool-list { max-height: none; }
 
       /* Share row stacks on mobile */
-      .share-row { flex-direction: column; align-items: stretch; gap: 6px; padding: 0 0.5rem; }
+      .share-row { flex-direction: column; align-items: stretch; gap: 6px; padding: 0 1rem; }
       .team-name-input { width: 100%; }
       .btn-share-pool { width: 100%; }
 
@@ -601,15 +601,25 @@
       .search-input { width: 100%; min-width: 0; }
 
       /* Team strip: horizontal scroll on mobile instead of wrapping */
-      .team-strip-wrap { overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; }
+      .team-strip-wrap { overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; max-width: 100%; }
       .team-strip { flex-wrap: nowrap; padding-bottom: 4px; }
+      /* Compact team pills on mobile */
+      .team-pill { min-width: 36px; padding: 3px 4px; }
+      .team-pill img { width: 18px; height: 18px; }
+      .team-pill span { font-size: 0.52rem; }
+      .team-pill-all { min-height: 38px; font-size: 0.65rem; }
 
-      /* Player cards: hide GP box and EFF in pool list to keep cards readable */
+      /* Player cards: hide GP, Goals, Assists boxes in pool list — keep only PTS + EFF */
       .pool-list .stat-box-gp { display: none; }
-      .pool-list .stat-box-eff { display: none; }
+      .pool-list .stat-box-goals { display: none; }
+      .pool-list .stat-box-assists { display: none; }
 
       /* EFF legend font size */
       .eff-legend-text { font-size: 0.7rem; }
+
+      /* Prevent cards from overflowing viewport */
+      .player-card { overflow: hidden; }
+      .stat-boxes { flex-shrink: 0; gap: 3px; }
     }
     @media (min-width: 861px) {
       .mobile-tabs { display: none; }
@@ -617,14 +627,17 @@
     @media (max-width: 500px) {
       .site-nav-brand { font-size: 1.2rem; letter-spacing: 3px; }
       .site-nav-links a { font-size: 0.9rem; padding: 0.3rem 0.6rem; }
-      header { padding: 0.75rem 1rem 0.5rem; }
+      header { padding: 0.75rem 0.75rem 0.5rem; }
       /* Tighter stat boxes on very small screens */
-      .stat-box { min-width: 38px; padding: 3px 5px; }
-      .stat-box-main { font-size: 1.05rem; }
+      .stat-box { min-width: 36px; padding: 2px 4px; }
+      .stat-box-main { font-size: 1rem; }
       /* Slightly smaller pos badge */
       .pos-badge { font-size: 0.65rem; padding: 1px 4px; min-width: 22px; }
       /* Team logo smaller */
-      .card-team-logo { width: 22px; height: 22px; }
+      .card-team-logo { width: 20px; height: 20px; }
+      /* Smaller player name on very narrow screens */
+      .player-name { font-size: 0.85rem; }
+      .player-salary { font-size: 0.7rem; }
     }
   </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
