@@ -97,6 +97,13 @@ def scrape_team(pw_page, team_slug: str) -> list[dict]:
         if not table:
             continue
 
+        # section_id → fallback position if the pos span is missing
+        SECTION_POS_FALLBACK = {
+            "capby_forwards":    "F",
+            "capby_defence":     "D",
+            "capby_goaltenders": "G",
+        }
+
         for row in table.select("tr[role='row']"):
             first_td = row.find("td")
             if not first_td:
@@ -125,6 +132,10 @@ def scrape_team(pw_page, team_slug: str) -> list[dict]:
                         pass
                 elif label == "pos":
                     position = value.upper()
+
+            # Fall back to section-derived position when the span is absent (e.g. goalies)
+            if not position:
+                position = SECTION_POS_FALLBACK.get(section_id)
 
             # Cap hit columns: <td data-js="capcol">
             cap_tds = row.find_all("td", attrs={"data-js": "capcol"})

@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hockey Pool | Parieur Discipliné</title>
+  <link rel="icon" type="image/png" href="parieur_discipline_icon_1024.png">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --rink: #07111f;
+      --red: #c8102e;
+      --gold: #ffb81c;
+      --silver: #a8b2be;
+      --ice: #e8f4fd;
+      --green: #22c55e;
+      --line: rgba(255,255,255,0.08);
+      --nav-h: 44px;
+    }
+
+    body {
+      background: var(--rink);
+      background-image: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(26,58,110,0.6) 0%, transparent 70%);
+      min-height: 100vh;
+      font-family: 'Barlow Condensed', sans-serif;
+      color: white;
+      padding-top: var(--nav-h);
+      /* Full-height layout — no page scroll on desktop */
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Nav ── */
+    .site-nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(7,17,31,0.92);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    .site-nav-inner {
+      max-width: 1100px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      height: var(--nav-h); padding: 0 1.5rem;
+    }
+    .site-nav-brand {
+      font-family: 'Bebas Neue', cursive; font-size: 1.5rem;
+      color: var(--gold); letter-spacing: 4px; text-decoration: none;
+    }
+    .site-nav-links { display: flex; align-items: center; gap: 0.5rem; }
+    .site-nav-links a {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 1rem;
+      font-weight: 600; color: var(--silver); text-decoration: none;
+      padding: 0.3rem 0.8rem; border-radius: 5px; letter-spacing: 1.5px;
+      transition: color 0.15s, background 0.15s;
+    }
+    .site-nav-links a:hover { color: white; background: rgba(255,255,255,0.07); }
+    .site-nav-links a.active { color: var(--gold); background: rgba(255,184,28,0.1); }
+
+    /* ── Compact header ── */
+    header {
+      text-align: center;
+      padding: 1rem 1rem 0.75rem;
+      flex-shrink: 0;
+    }
+    header h1 {
+      font-family: 'Bebas Neue', cursive;
+      font-size: clamp(1.6rem, 3vw, 2.4rem);
+      letter-spacing: 5px;
+      text-shadow: 0 0 30px rgba(200,16,46,0.4), 0 2px 8px rgba(0,0,0,0.8);
+      line-height: 1;
+    }
+    header h1 span { color: var(--gold); }
+    header p {
+      color: var(--silver); font-size: 0.8rem;
+      letter-spacing: 2px; text-transform: uppercase; margin-top: 0.2rem;
+    }
+
+    /* ── Full-height two-column layout ── */
+    .pool-layout {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 1rem;
+      max-width: 1100px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 0.75rem 1.25rem 0;
+      flex: 1;
+      min-height: 0;
+      /* Each column scrolls independently */
+      align-items: stretch;
+    }
+
+    /* ── Section labels ── */
+    .section-label {
+      font-family: 'Bebas Neue', cursive;
+      font-size: 0.85rem;
+      letter-spacing: 3px;
+      color: var(--silver);
+      margin-bottom: 4px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .section-label .count {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.7rem; font-weight: 700;
+      background: rgba(255,255,255,0.07);
+      border-radius: 20px; padding: 1px 8px;
+      color: var(--silver); letter-spacing: 1px;
+    }
+    .section-label .count.full {
+      background: rgba(34,197,94,0.2); color: var(--green);
+    }
+
+    /* ── Left panel ── */
+    .your-team-panel {
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      overflow-y: auto;
+      padding-right: 4px;
+      padding-bottom: 1rem;
+    }
+    .your-team-panel::-webkit-scrollbar { width: 3px; }
+    .your-team-panel::-webkit-scrollbar-track { background: transparent; }
+    .your-team-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
+
+    .panel-title {
+      font-family: 'Bebas Neue', cursive;
+      font-size: 1.1rem; letter-spacing: 4px;
+      color: white; margin-bottom: 0.6rem; flex-shrink: 0;
+    }
+    .panel-title span { color: var(--gold); }
+
+    .roster-section { margin-bottom: 0.5rem; flex-shrink: 0; }
+
+    /* ── Fixed slots (one per position) ── */
+    .roster-slots { display: flex; flex-direction: column; gap: 3px; }
+
+    .roster-slot {
+      border-radius: 5px;
+      transition: border-color 0.15s, background 0.15s;
+    }
+
+    /* Empty placeholder — dashed, like picks-2026 rank-slot-empty */
+    .roster-slot.empty {
+      display: flex; align-items: center; gap: 8px;
+      border: 1px dashed rgba(255,255,255,0.1);
+      border-radius: 5px;
+      padding: 5px 8px;
+      cursor: default;
+    }
+    .roster-slot.empty.drag-over {
+      border-color: var(--gold);
+      background: rgba(255,184,28,0.07);
+    }
+    .slot-num {
+      font-family: 'Bebas Neue', cursive; font-size: 0.85rem;
+      color: rgba(255,255,255,0.15); width: 18px; text-align: center; flex-shrink: 0;
+    }
+    .slot-hint { font-size: 0.72rem; color: rgba(255,255,255,0.18); letter-spacing: 1px; }
+
+    /* ── Player cards ── */
+    .player-card {
+      display: flex; align-items: center; gap: 7px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 5px;
+      padding: 7px 10px;
+      cursor: grab; user-select: none;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .player-card:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.14); }
+    .player-card.in-roster {
+      background: rgba(255,184,28,0.05);
+      border-color: rgba(255,184,28,0.15);
+    }
+    .player-card.in-roster:hover { background: rgba(255,184,28,0.1); }
+    .roster-slot.drag-over .player-card { border-color: var(--gold); background: rgba(255,184,28,0.1); }
+
+    .pos-badge {
+      font-family: 'Bebas Neue', cursive;
+      font-size: 0.7rem; letter-spacing: 1px;
+      padding: 1px 5px; border-radius: 3px;
+      background: rgba(255,255,255,0.07); color: var(--silver);
+      min-width: 26px; text-align: center; flex-shrink: 0;
+    }
+    .pos-badge.F { background: rgba(200,16,46,0.18); color: #ff7a8a; }
+    .pos-badge.D { background: rgba(26,58,110,0.45); color: #7db4ff; }
+    .pos-badge.G { background: rgba(255,184,28,0.14); color: var(--gold); }
+
+    .player-info { flex: 1; min-width: 0; }
+    .player-name {
+      font-weight: 700; font-size: 1.05rem;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: white;
+    }
+    .player-salary { font-size: 0.85rem; color: var(--silver); letter-spacing: 0.3px; font-weight: 600; }
+
+    .remove-btn {
+      background: none; border: none;
+      color: rgba(255,255,255,0.2); cursor: pointer;
+      font-size: 0.9rem; line-height: 1;
+      padding: 2px 3px; border-radius: 3px;
+      transition: color 0.15s; flex-shrink: 0;
+    }
+    .remove-btn:hover { color: var(--red); }
+
+    /* ── Cap bar ── */
+    .cap-bar-wrap {
+      margin-bottom: 0.7rem; flex-shrink: 0;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--line);
+      border-radius: 7px; padding: 0.55rem 0.85rem;
+    }
+    .cap-bar-label {
+      display: flex; justify-content: space-between;
+      font-size: 0.72rem; color: var(--silver);
+      letter-spacing: 0.5px; margin-bottom: 0.35rem;
+    }
+    .cap-bar-label strong { color: white; font-weight: 700; }
+    .cap-bar-label .over { color: var(--red); }
+    .cap-track {
+      height: 5px; background: rgba(255,255,255,0.07);
+      border-radius: 3px; overflow: hidden;
+    }
+    .cap-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--green), #16a34a);
+      border-radius: 3px; transition: width 0.3s ease;
+    }
+    .cap-fill.over { background: linear-gradient(90deg, var(--red), #8b0a1e); }
+
+    /* ── Right panel ── */
+    .pool-panel {
+      display: flex; flex-direction: column; min-height: 0;
+      padding-bottom: 1rem;
+    }
+
+    .panel-title-row {
+      display: flex; align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.6rem; flex-shrink: 0;
+    }
+
+    .pool-controls {
+      display: flex; gap: 0.5rem;
+      margin-bottom: 0.6rem; flex-shrink: 0;
+      flex-wrap: wrap;
+    }
+
+    .pos-filter {
+      display: flex; gap: 0;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--line);
+      border-radius: 6px; overflow: hidden;
+    }
+    .pos-filter button {
+      font-family: 'Bebas Neue', cursive;
+      font-size: 0.9rem; letter-spacing: 2px;
+      padding: 0.35rem 0.9rem;
+      background: none; border: none; color: var(--silver);
+      cursor: pointer; transition: background 0.15s, color 0.15s;
+    }
+    .pos-filter button.active { background: rgba(255,255,255,0.09); color: white; }
+    .pos-filter button:hover:not(.active) { color: rgba(255,255,255,0.7); }
+
+    .search-input {
+      flex: 1; min-width: 140px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--line); border-radius: 6px;
+      padding: 0.35rem 0.8rem; color: white;
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.95rem;
+      outline: none; transition: border-color 0.15s;
+    }
+    .search-input::placeholder { color: rgba(168,178,190,0.35); }
+    .search-input:focus { border-color: rgba(255,255,255,0.22); }
+
+    /* ── Team strip ── */
+    .team-strip-wrap { margin-bottom: 0.6rem; flex-shrink: 0; }
+    .team-strip {
+      display: flex; flex-wrap: wrap; gap: 4px;
+    }
+    .team-pill {
+      display: flex; flex-direction: column; align-items: center; gap: 2px;
+      padding: 4px 5px; border-radius: 6px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.03);
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+      min-width: 44px;
+    }
+    .team-pill:hover { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.14); }
+    .team-pill.active { background: rgba(255,184,28,0.1); border-color: rgba(255,184,28,0.3); }
+    .team-pill img { width: 22px; height: 22px; object-fit: contain; }
+    .team-pill span {
+      font-family: 'Bebas Neue', cursive; font-size: 0.58rem;
+      letter-spacing: 1px; color: var(--silver); white-space: nowrap;
+    }
+    .team-pill.active span { color: var(--gold); }
+    .team-pill-all {
+      font-family: 'Bebas Neue', cursive; font-size: 0.72rem;
+      letter-spacing: 2px; color: var(--silver); justify-content: center;
+    }
+    .team-pill-all.active { color: var(--gold); }
+
+    /* ── Pool list ── */
+    .pool-list {
+      flex: 1; min-height: 0;
+      display: flex; flex-direction: column; gap: 4px;
+      overflow-y: auto; padding-right: 4px;
+    }
+    .pool-list::-webkit-scrollbar { width: 3px; }
+    .pool-list::-webkit-scrollbar-track { background: transparent; }
+    .pool-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+    .pool-list .player-card.already-added {
+      opacity: 0.3; cursor: not-allowed; pointer-events: none;
+    }
+
+    .loading-msg, .empty-msg {
+      text-align: center; color: var(--silver);
+      font-size: 0.9rem; padding: 2rem 0; letter-spacing: 1px;
+    }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed; bottom: 1.5rem; left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--gold); color: var(--rink);
+      font-family: 'Bebas Neue', cursive; font-size: 1.1rem;
+      letter-spacing: 2px; padding: 0.5rem 1.8rem;
+      border-radius: 4px; box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+      transition: transform 0.3s ease; pointer-events: none; z-index: 9999;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+
+    @media (max-width: 860px) {
+      body { display: block; }
+      .pool-layout { grid-template-columns: 1fr; height: auto; }
+      .your-team-panel { overflow-y: visible; }
+      .pool-list { max-height: 60vh; }
+    }
+    @media (max-width: 500px) {
+      .site-nav-brand { font-size: 1.2rem; letter-spacing: 3px; }
+      .site-nav-links a { font-size: 0.9rem; padding: 0.3rem 0.6rem; }
+      header { padding: 0.75rem 1rem 0.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="site-nav-inner">
+    <a class="site-nav-brand" href="index.html">Parieur Discipliné</a>
+    <div class="site-nav-links">
+      <a href="standings-2026.html">Standings</a>
+      <a href="picks-2026.html">Picks</a>
+      <a href="hockey-pool.html" class="active">Pool</a>
+    </div>
+  </div>
+</nav>
+
+<header>
+  <h1>Hockey <span>Pool</span></h1>
+  <p>Build your team · Drag players from the pool</p>
+</header>
+
+<div class="pool-layout">
+
+  <!-- LEFT: Your Team -->
+  <div class="your-team-panel">
+    <h2>Your <span>Team</span></h2>
+
+    <div class="cap-bar-wrap">
+      <div class="cap-bar-label">
+        <span>Salary Cap</span>
+        <span><strong id="cap-used">$0</strong> / <strong>$95,500,000</strong> <span id="cap-over" class="over" style="display:none;">— OVER CAP</span></span>
+      </div>
+      <div class="cap-track"><div class="cap-fill" id="cap-fill" style="width:0%"></div></div>
+    </div>
+
+    <div class="roster-section">
+      <div class="section-label">
+        Forwards
+        <span class="count" id="fwd-count">0 / 12</span>
+      </div>
+      <div class="roster-slots" id="slots-F"></div>
+    </div>
+
+    <div class="roster-section">
+      <div class="section-label">
+        Defensemen
+        <span class="count" id="def-count">0 / 6</span>
+      </div>
+      <div class="roster-slots" id="slots-D"></div>
+    </div>
+
+    <div class="roster-section">
+      <div class="section-label">
+        Goalies
+        <span class="count" id="gol-count">0 / 2</span>
+      </div>
+      <div class="roster-slots" id="slots-G"></div>
+    </div>
+  </div>
+
+  <!-- RIGHT: Player Pool -->
+  <div class="pool-panel">
+    <h2>Player <span>Pool</span></h2>
+
+    <div class="pool-controls">
+      <div class="pos-filter">
+        <button class="active" data-pos="ALL" onclick="setFilter('ALL',this)">All</button>
+        <button data-pos="F" onclick="setFilter('F',this)">Forwards</button>
+        <button data-pos="D" onclick="setFilter('D',this)">Defence</button>
+        <button data-pos="G" onclick="setFilter('G',this)">Goalies</button>
+      </div>
+      <input class="search-input" id="search-input" type="text" placeholder="🔍 Search player…" oninput="renderPool()" autocomplete="off">
+    </div>
+
+    <div class="team-strip-wrap">
+      <div class="team-strip" id="team-strip"></div>
+    </div>
+
+    <div class="pool-list" id="pool-list">
+      <div class="loading-msg">Loading players…</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const SUPABASE_URL = 'https://fifurqlitkywtmhgtzeu.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZpZnVycWxpdGt5d3RtaGd0emV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3MDIyMjQsImV4cCI6MjA5MjI3ODIyNH0.KPVPj1qwbSJJMyLR_-AhDcRs0vi2sUU6qbFQ-kH53C0';
+  const CAP_MAX = 95_500_000;
+
+  // slug → NHL 3-letter abbreviation for logo CDN
+  const TEAM_ABBR = {
+    'anaheim-ducks':'ANA','boston-bruins':'BOS','buffalo-sabres':'BUF',
+    'calgary-flames':'CGY','carolina-hurricanes':'CAR','chicago-blackhawks':'CHI',
+    'colorado-avalanche':'COL','columbus-blue-jackets':'CBJ','dallas-stars':'DAL',
+    'detroit-red-wings':'DET','edmonton-oilers':'EDM','florida-panthers':'FLA',
+    'los-angeles-kings':'LAK','minnesota-wild':'MIN','montreal-canadiens':'MTL',
+    'nashville-predators':'NSH','new-jersey-devils':'NJD','new-york-islanders':'NYI',
+    'new-york-rangers':'NYR','ottawa-senators':'OTT','philadelphia-flyers':'PHI',
+    'pittsburgh-penguins':'PIT','san-jose-sharks':'SJS','seattle-kraken':'SEA',
+    'st-louis-blues':'STL','tampa-bay-lightning':'TBL','toronto-maple-leafs':'TOR',
+    'utah-hockey-club':'UTA','vancouver-canucks':'VAN','vegas-golden-knights':'VGK',
+    'washington-capitals':'WSH','winnipeg-jets':'WPG',
+  };
+
+  // Short display name for the pill label
+  const TEAM_SHORT = {
+    'anaheim-ducks':'ANA','boston-bruins':'BOS','buffalo-sabres':'BUF',
+    'calgary-flames':'CGY','carolina-hurricanes':'CAR','chicago-blackhawks':'CHI',
+    'colorado-avalanche':'COL','columbus-blue-jackets':'CBJ','dallas-stars':'DAL',
+    'detroit-red-wings':'DET','edmonton-oilers':'EDM','florida-panthers':'FLA',
+    'los-angeles-kings':'LAK','minnesota-wild':'MIN','montreal-canadiens':'MTL',
+    'nashville-predators':'NSH','new-jersey-devils':'NJD','new-york-islanders':'NYI',
+    'new-york-rangers':'NYR','ottawa-senators':'OTT','philadelphia-flyers':'PHI',
+    'pittsburgh-penguins':'PIT','san-jose-sharks':'SJS','seattle-kraken':'SEA',
+    'st-louis-blues':'STL','tampa-bay-lightning':'TBL','toronto-maple-leafs':'TOR',
+    'utah-hockey-club':'UTA','vancouver-canucks':'VAN','vegas-golden-knights':'VGK',
+    'washington-capitals':'WSH','winnipeg-jets':'WPG',
+  };
+
+  let allPlayers = [];
+  // Fixed-length slot arrays — null = empty
+  let roster = { F: Array(12).fill(null), D: Array(6).fill(null), G: Array(2).fill(null) };
+  const SLOT_CFG = {
+    F: { containerId: 'slots-F', max: 12, countId: 'fwd-count' },
+    D: { containerId: 'slots-D', max: 6,  countId: 'def-count' },
+    G: { containerId: 'slots-G', max: 2,  countId: 'gol-count' },
+  };
+  let activeFilter = 'ALL';
+  let activeTeam = 'ALL';
+  let dragSrc = null; // { slug, pos, fromGroup, fromIndex }
+
+  // ── Fetch ──────────────────────────────────────────────────────────────────
+  async function loadPlayers() {
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/nhl_players?select=puckpedia_slug,player_name,position,cap_hit,team&order=cap_hit.desc&limit=1000`,
+      { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
+    );
+    if (!res.ok) { document.getElementById('pool-list').innerHTML = '<div class="empty-msg">Failed to load players.</div>'; return; }
+    allPlayers = await res.json();
+    buildTeamStrip();
+    renderPool();
+  }
+
+  // ── Helpers ────────────────────────────────────────────────────────────────
+  function normalizePos(pos) {
+    if (!pos) return 'F';
+    const p = pos.toUpperCase();
+    if (p.includes('G')) return 'G';
+    if (p === 'D' || p.includes('LD') || p.includes('RD')) return 'D';
+    return 'F';
+  }
+
+  function formatName(name) {
+    if (!name) return '';
+    if (name.includes(',')) {
+      const [last, first] = name.split(',').map(s => s.trim());
+      return `${first} ${last}`;
+    }
+    return name;
+  }
+
+  function groupLabel(g) { return g === 'F' ? 'Forward' : g === 'D' ? 'Defence' : 'Goalie'; }
+
+  // ── Team strip ─────────────────────────────────────────────────────────────
+  function buildTeamStrip() {
+    const teams = [...new Set(allPlayers.map(p => p.team).filter(Boolean))].sort();
+    const strip = document.getElementById('team-strip');
+    strip.innerHTML = '';
+
+    // "All" pill
+    const all = document.createElement('div');
+    all.className = 'team-pill team-pill-all active';
+    all.textContent = 'ALL';
+    all.addEventListener('click', () => setTeam('ALL', all));
+    strip.appendChild(all);
+
+    for (const slug of teams) {
+      const abbr = TEAM_ABBR[slug];
+      if (!abbr) continue;
+      const pill = document.createElement('div');
+      pill.className = 'team-pill';
+      pill.dataset.team = slug;
+      pill.innerHTML = `<img src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}"><span>${abbr}</span>`;
+      pill.addEventListener('click', () => setTeam(slug, pill));
+      strip.appendChild(pill);
+    }
+  }
+
+  function setTeam(slug, el) {
+    activeTeam = slug;
+    document.querySelectorAll('.team-pill').forEach(p => p.classList.remove('active'));
+    el.classList.add('active');
+    renderPool();
+  }
+
+  // ── Render pool ────────────────────────────────────────────────────────────
+  function renderPool() {
+    const query = document.getElementById('search-input').value.toLowerCase().trim();
+    const added = new Set([...roster.F, ...roster.D, ...roster.G].filter(Boolean).map(p => p.puckpedia_slug));
+    const filtered = allPlayers.filter(p => {
+      if (!p.player_name) return false;
+      if (activeFilter !== 'ALL' && normalizePos(p.position) !== activeFilter) return false;
+      if (activeTeam !== 'ALL' && p.team !== activeTeam) return false;
+      if (query && !p.player_name.toLowerCase().includes(query)) return false;
+      return true;
+    });
+    const list = document.getElementById('pool-list');
+    if (!filtered.length) { list.innerHTML = '<div class="empty-msg">No players found.</div>'; return; }
+    list.innerHTML = '';
+    filtered.forEach(p => list.appendChild(makeCard(p, normalizePos(p.position), false, added.has(p.puckpedia_slug))));
+  }
+
+  // ── Make card ──────────────────────────────────────────────────────────────
+  function makeCard(player, pos, inRoster = false, disabled = false, group = null, index = null) {
+    const el = document.createElement('div');
+    el.className = 'player-card' + (inRoster ? ' in-roster' : '') + (disabled ? ' already-added' : '');
+    el.dataset.slug = player.puckpedia_slug;
+    el.dataset.pos = pos;
+    const salary = player.cap_hit ? '$' + player.cap_hit.toLocaleString() : 'No contract';
+    el.innerHTML = `
+      <span class="pos-badge ${pos}">${pos}</span>
+      <div class="player-info">
+        <div class="player-name">${formatName(player.player_name)}</div>
+        <div class="player-salary">${salary}</div>
+      </div>
+      ${inRoster ? `<button class="remove-btn" title="Remove">✕</button>` : ''}`;
+    if (!disabled) {
+      makeMouseHandler(el, player, inRoster, group, index);
+      makeTouchHandler(el, player, inRoster, group, index);
+    }
+    if (inRoster) {
+      el.querySelector('.remove-btn').addEventListener('click', e => { e.stopPropagation(); removeFromRoster(group, index); });
+    }
+    return el;
+  }
+
+  // ── Filter ─────────────────────────────────────────────────────────────────
+  function setFilter(pos, btn) {
+    activeFilter = pos;
+    document.querySelectorAll('.pos-filter button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderPool();
+  }
+
+  // ── Slot hit-test (same pattern: hide clone, elementsFromPoint) ──────────────
+  function getSlotAt(x, y, exclude) {
+    if (exclude) exclude.style.display = 'none';
+    const els = document.elementsFromPoint(x, y);
+    if (exclude) exclude.style.display = '';
+    for (const el of els) { const s = el.closest('.roster-slot'); if (s) return s; }
+    return null;
+  }
+
+  function clearHL() { document.querySelectorAll('.roster-slot.drag-over').forEach(s => s.classList.remove('drag-over')); }
+
+  // ── Mouse drag (picks-2026 pattern) ───────────────────────────────────────
+  let activeMouseDrag = null;
+
+  function makeMouseHandler(el, player, inRoster, group, index) {
+    el.addEventListener('mousedown', e => {
+      if (e.button !== 0 || e.target.closest('.remove-btn')) return;
+      e.preventDefault();
+      dragSrc = {
+        slug: player.puckpedia_slug,
+        pos: normalizePos(player.position),
+        fromGroup: inRoster ? group : null,
+        fromIndex: inRoster ? index : null,
+      };
+      const rect = el.getBoundingClientRect();
+      const offsetX = e.clientX - rect.left, offsetY = e.clientY - rect.top;
+      const clone = el.cloneNode(true);
+      clone.style.cssText = `position:fixed;left:${rect.left}px;top:${rect.top}px;width:${rect.width}px;
+        opacity:0.9;z-index:9999;pointer-events:none;transition:none;margin:0;
+        box-shadow:0 8px 32px rgba(0,0,0,0.5);transform:scale(1.03);`;
+      document.body.appendChild(clone);
+      el.classList.add('dragging');
+      document.body.style.cursor = 'grabbing';
+      activeMouseDrag = { clone, el, offsetX, offsetY };
+
+      function onMove(e) {
+        if (!activeMouseDrag) return;
+        clone.style.left = (e.clientX - offsetX) + 'px';
+        clone.style.top  = (e.clientY - offsetY) + 'px';
+        clearHL();
+        const s = getSlotAt(e.clientX, e.clientY, clone);
+        if (s) s.classList.add('drag-over');
+      }
+      function onUp(e) {
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+        if (!activeMouseDrag) return;
+        const s = getSlotAt(e.clientX, e.clientY, clone);
+        clone.remove();
+        el.classList.remove('dragging');
+        activeMouseDrag = null;
+        document.body.style.cursor = '';
+        clearHL();
+        if (s) handleDrop(s);
+        else dragSrc = null;
+      }
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+    });
+  }
+
+  // ── Touch drag (picks-2026 long-press pattern) ────────────────────────────
+  const LONG_PRESS_MS = 150;
+  let activeTouchDrag = null;
+
+  function makeTouchHandler(el, player, inRoster, group, index) {
+    let startX = 0, startY = 0, timer = null;
+    const cancel = () => { clearTimeout(timer); timer = null; };
+
+    function activate(cx, cy) {
+      cancel();
+      if (activeTouchDrag) return;
+      dragSrc = {
+        slug: player.puckpedia_slug,
+        pos: normalizePos(player.position),
+        fromGroup: inRoster ? group : null,
+        fromIndex: inRoster ? index : null,
+      };
+      const rect = el.getBoundingClientRect();
+      const clone = el.cloneNode(true);
+      clone.style.cssText = `position:fixed;left:${rect.left}px;top:${rect.top}px;width:${rect.width}px;
+        opacity:0.9;z-index:9999;pointer-events:none;transition:none;margin:0;
+        box-shadow:0 8px 32px rgba(0,0,0,0.5);transform:scale(1.03);`;
+      document.body.appendChild(clone);
+      el.style.opacity = '0.3';
+      if (navigator.vibrate) navigator.vibrate(40);
+      activeTouchDrag = { clone, el, offsetX: cx - rect.left, offsetY: cy - rect.top };
+    }
+
+    el.addEventListener('touchstart', e => {
+      const t = e.touches[0]; startX = t.clientX; startY = t.clientY;
+      timer = setTimeout(() => activate(t.clientX, t.clientY), LONG_PRESS_MS);
+    }, { passive: true });
+
+    el.addEventListener('touchmove', e => {
+      const t = e.touches[0];
+      if (!activeTouchDrag) {
+        if (Math.hypot(t.clientX - startX, t.clientY - startY) > 8) cancel();
+        return;
+      }
+      e.preventDefault();
+      const { clone } = activeTouchDrag;
+      clone.style.left = (t.clientX - activeTouchDrag.offsetX) + 'px';
+      clone.style.top  = (t.clientY - activeTouchDrag.offsetY) + 'px';
+      clearHL();
+      const z = getSlotAt(t.clientX, t.clientY, clone);
+      if (z) z.classList.add('drag-over');
+    }, { passive: false });
+
+    function endTouch(cx, cy) {
+      cancel();
+      if (!activeTouchDrag) return;
+      const { clone, el: dragEl } = activeTouchDrag;
+      const z = getSlotAt(cx, cy, clone);
+      clone.remove(); dragEl.style.opacity = ''; activeTouchDrag = null; clearHL();
+      if (z) handleDrop(z); else dragSrc = null;
+    }
+    el.addEventListener('touchend', e => { const t = e.changedTouches[0]; endTouch(t.clientX, t.clientY); });
+    el.addEventListener('touchcancel', () => {
+      cancel();
+      if (activeTouchDrag) { activeTouchDrag.clone.remove(); activeTouchDrag.el.style.opacity = ''; activeTouchDrag = null; }
+      clearHL(); dragSrc = null;
+    });
+  }
+
+  // ── Handle drop onto a slot ────────────────────────────────────────────────
+  function handleDrop(slotEl) {
+    if (!dragSrc) return;
+    const group = slotEl.dataset.group;
+    const idx   = parseInt(slotEl.dataset.index);
+
+    if (dragSrc.pos !== group) { toast('Wrong position for this slot'); dragSrc = null; return; }
+
+    const player = allPlayers.find(p => p.puckpedia_slug === dragSrc.slug);
+    if (!player) { dragSrc = null; return; }
+
+    // Already in this exact slot — no-op
+    if (dragSrc.fromGroup === group && dragSrc.fromIndex === idx) { dragSrc = null; return; }
+
+    // Target slot already occupied by a different player — swap not supported, just block
+    if (roster[group][idx] && roster[group][idx].puckpedia_slug !== dragSrc.slug) {
+      toast('Slot already occupied'); dragSrc = null; return;
+    }
+
+    // Cap check (exclude source if moving within roster)
+    const capExcludeSlug = dragSrc.fromGroup ? dragSrc.slug : null;
+    const cap = [...roster.F, ...roster.D, ...roster.G]
+      .filter(p => p && p.puckpedia_slug !== capExcludeSlug)
+      .reduce((s, p) => s + (p.cap_hit || 0), 0);
+    if (cap + (player.cap_hit || 0) > CAP_MAX) {
+      toast(`Over cap — $${(CAP_MAX - cap).toLocaleString()} remaining`);
+      dragSrc = null; return;
+    }
+
+    // Clear source slot if moving within roster
+    if (dragSrc.fromGroup !== null && dragSrc.fromIndex !== null) {
+      roster[dragSrc.fromGroup][dragSrc.fromIndex] = null;
+    }
+
+    roster[group][idx] = player;
+    dragSrc = null;
+    refreshRoster();
+    renderPool();
+  }
+
+  // ── Remove from slot ───────────────────────────────────────────────────────
+  function removeFromRoster(group, index) {
+    roster[group][index] = null;
+    refreshRoster();
+    renderPool();
+  }
+
+  // ── Refresh roster UI (fixed slots) ───────────────────────────────────────
+  function refreshRoster() {
+    for (const [group, { containerId, max, countId }] of Object.entries(SLOT_CFG)) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = '';
+      let filled = 0;
+      for (let i = 0; i < max; i++) {
+        const player = roster[group][i];
+        const slot = document.createElement('div');
+        slot.className = 'roster-slot' + (player ? '' : ' empty');
+        slot.dataset.group = group;
+        slot.dataset.index = i;
+        if (player) {
+          filled++;
+          const card = makeCard(player, group, true, false, group, i);
+          slot.appendChild(card);
+        } else {
+          slot.innerHTML = `<span class="slot-num">${i + 1}</span><span class="slot-hint">Drop here</span>`;
+        }
+        container.appendChild(slot);
+      }
+      const countEl = document.getElementById(countId);
+      countEl.textContent = `${filled} / ${max}`;
+      countEl.className = 'count' + (filled >= max ? ' full' : '');
+    }
+    updateCapBar();
+  }
+
+  // ── Cap bar ────────────────────────────────────────────────────────────────
+  function updateCapBar() {
+    const total = [...roster.F,...roster.D,...roster.G].filter(Boolean).reduce((s,p) => s+(p.cap_hit||0), 0);
+    document.getElementById('cap-used').textContent = '$' + total.toLocaleString();
+    const fill = document.getElementById('cap-fill');
+    fill.style.width = Math.min(total/CAP_MAX*100, 100) + '%';
+    fill.classList.toggle('over', total > CAP_MAX);
+    document.getElementById('cap-over').style.display = total > CAP_MAX ? '' : 'none';
+  }
+
+  // ── Toast ──────────────────────────────────────────────────────────────────
+  let _tt;
+  function toast(msg) {
+    const el = document.getElementById('toast');
+    el.textContent = msg; el.classList.add('show');
+    clearTimeout(_tt); _tt = setTimeout(() => el.classList.remove('show'), 2200);
+  }
+
+  refreshRoster(); // render empty slots immediately
+  loadPlayers();
+</script>
+
+</body>
+</html>
