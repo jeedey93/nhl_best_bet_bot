@@ -151,6 +151,7 @@
     }
     .btn-generate-team:hover { background: rgba(255,184,28,0.2); border-color: rgba(255,184,28,0.6); }
     .btn-generate-team:disabled { opacity: 0.4; cursor: default; }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
     .btn-clear-team {
       font-family: 'Bebas Neue', cursive; font-size: 0.8rem; letter-spacing: 1.5px;
@@ -160,6 +161,7 @@
       transition: background 0.15s, color 0.15s, border-color 0.15s;
     }
     .btn-clear-team:hover { background: rgba(200,16,46,0.12); color: var(--red); border-color: rgba(200,16,46,0.5); }
+    .panel-title {
       font-family: 'Bebas Neue', cursive;
       font-size: 1.1rem; letter-spacing: 4px;
       color: white; margin-bottom: 0.6rem; flex-shrink: 0;
@@ -584,6 +586,7 @@
       .card-team-logo { width: 22px; height: 22px; }
     }
   </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
 
@@ -626,7 +629,7 @@
     <div class="your-team-header">
       <h2>Your <span>Team</span></h2>
       <div style="display:flex;gap:6px;align-items:center;">
-        <button class="btn-generate-team" id="btn-generate-team" onclick="generateUltimateTeam()">⚡ Ultimate Team</button>
+        <button class="btn-generate-team" id="btn-generate-team" onclick="generateUltimateTeam()"><span id="btn-generate-team-label">⚡ Ultimate Team</span></button>
         <button class="btn-clear-team" onclick="clearTeam()">✕ Clear</button>
       </div>
     </div>
@@ -1263,8 +1266,17 @@
   function generateUltimateTeam() {
     if (!allPlayers.length) { toast('Players not loaded yet'); return; }
 
-    const btn = document.getElementById('btn-generate-team');
+    const btn   = document.getElementById('btn-generate-team');
+    const label = document.getElementById('btn-generate-team-label');
     btn.disabled = true;
+    label.innerHTML = '<span style="display:inline-flex;align-items:center;gap:6px;"><svg style="animation:spin .7s linear infinite;width:14px;height:14px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg> Building…</span>';
+
+    setTimeout(() => {
+      _runUltimateTeam(btn, label);
+    }, 30);
+  }
+
+  function _runUltimateTeam(btn, label) {
 
     // Locked = already in the roster
     const locked = {
@@ -1347,7 +1359,7 @@
       if (!best || totalPts > best.totalPts) best = { picked, totalPts, capUsed };
     }
 
-    if (!best) { toast('Could not fill team — try again'); btn.disabled = false; return; }
+    if (!best) { toast('Could not fill team — try again'); label.textContent = '⚡ Ultimate Team'; btn.disabled = false; return; }
 
     roster = { F: best.picked.F, D: best.picked.D, G: best.picked.G };
     refreshRoster();
@@ -1355,6 +1367,7 @@
     const lockedCount = locked.F.length + locked.D.length + locked.G.length;
     const verb = lockedCount > 0 ? `Filled ${20 - lockedCount} spots` : 'Ultimate Team built';
     toast(`⚡ ${verb} · ${best.totalPts} pts · $${(best.capUsed/1_000_000).toFixed(1)}M used`);
+    label.textContent = '⚡ Ultimate Team';
     btn.disabled = false;
   }
   let _tt;
@@ -1369,7 +1382,6 @@
   loadPlayers();
 </script>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 </body>
 </html>
