@@ -461,7 +461,7 @@
     .eff-legend-text strong { color: rgba(255,255,255,0.65); font-weight: 600; }
 
     /* ── Team strip ── */
-    .team-strip-wrap { margin-bottom: 0.6rem; flex-shrink: 0; }
+    .team-strip-wrap { margin-bottom: 0.6rem; flex-shrink: 0; overflow: hidden; }
     .team-strip {
       display: flex; flex-wrap: wrap; gap: 4px;
     }
@@ -473,6 +473,7 @@
       cursor: pointer;
       transition: background 0.15s, border-color 0.15s;
       min-width: 44px;
+      flex-shrink: 0;
     }
     .team-pill:hover { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.14); }
     .team-pill.active { background: rgba(255,184,28,0.1); border-color: rgba(255,184,28,0.3); }
@@ -485,6 +486,7 @@
     .team-pill-all {
       font-family: 'Bebas Neue', cursive; font-size: 0.72rem;
       letter-spacing: 2px; color: var(--silver); justify-content: center;
+      min-height: 46px;
     }
     .team-pill-all.active { color: var(--gold); }
 
@@ -593,8 +595,14 @@
       /* Pool controls: filter rows side by side, search below */
       .pool-controls { flex-direction: column; gap: 6px; }
       .pool-controls > .pos-filter { flex: none; }
-      .pool-controls-filters { display: flex; gap: 6px; }
+      .pool-controls-filters { display: flex; gap: 6px; flex-wrap: wrap; }
+      .pool-controls-filters .pos-filter { flex: 1; min-width: 0; }
+      .pool-controls-filters .pos-filter button { flex: 1; padding: 0.35rem 0.4rem; font-size: 0.82rem; letter-spacing: 1px; }
       .search-input { width: 100%; min-width: 0; }
+
+      /* Team strip: horizontal scroll on mobile instead of wrapping */
+      .team-strip-wrap { overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; }
+      .team-strip { flex-wrap: nowrap; padding-bottom: 4px; }
 
       /* Player cards: hide GP box and EFF in pool list to keep cards readable */
       .pool-list .stat-box-gp { display: none; }
@@ -900,6 +908,7 @@
     activeTeam = slug;
     document.querySelectorAll('.team-pill').forEach(p => p.classList.remove('active'));
     el.classList.add('active');
+    el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
     renderPool();
   }
 
