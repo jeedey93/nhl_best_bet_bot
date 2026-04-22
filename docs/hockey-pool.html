@@ -631,6 +631,22 @@
       </div>
     </div>
 
+    <!-- Scoring legend -->
+    <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:0.6rem;flex-shrink:0;">
+      <div style="display:flex;align-items:center;gap:5px;background:rgba(255,122,138,0.07);border:1px solid rgba(255,122,138,0.18);border-radius:5px;padding:3px 8px;flex:1;min-width:0;">
+        <span style="font-family:'Bebas Neue',cursive;font-size:0.65rem;letter-spacing:1.5px;color:#ff7a8a;white-space:nowrap;">F</span>
+        <span style="font-size:0.68rem;color:rgba(255,255,255,0.4);white-space:nowrap;">G=1pt · A=1pt</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:5px;background:rgba(125,180,255,0.07);border:1px solid rgba(125,180,255,0.18);border-radius:5px;padding:3px 8px;flex:1;min-width:0;">
+        <span style="font-family:'Bebas Neue',cursive;font-size:0.65rem;letter-spacing:1.5px;color:#7db4ff;white-space:nowrap;">D</span>
+        <span style="font-size:0.68rem;color:rgba(255,255,255,0.4);white-space:nowrap;">G=2pts · A=1pt</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:5px;background:rgba(255,184,28,0.07);border:1px solid rgba(255,184,28,0.18);border-radius:5px;padding:3px 8px;flex:1;min-width:0;">
+        <span style="font-family:'Bebas Neue',cursive;font-size:0.65rem;letter-spacing:1.5px;color:var(--gold);white-space:nowrap;">G</span>
+        <span style="font-size:0.68rem;color:rgba(255,255,255,0.4);white-space:nowrap;">W=2pts · SO=3pts</span>
+      </div>
+    </div>
+
     <div class="cap-bar-wrap" id="cap-bar-wrap">
       <div class="cap-remaining-row">
         <span class="cap-remaining-label">Remaining</span>
@@ -986,20 +1002,26 @@
     renderPool();
   }
 
-  function effScore(p) {
+  // ── Pool scoring rules ─────────────────────────────────────────────────────
+  // F:  G=1pt,  A=1pt  (= regular points total)
+  // D:  G=2pts, A=1pt  (= goals + points)
+  // G:  W=2pts         (shutouts excluded until DB column added)
+  function poolScore(p) {
     const pos = normalizePos(p.position);
-    const stat = pos === 'G' ? (p.wins ?? 0) : (p.points ?? 0);
+    if (pos === 'G') return (p.wins ?? 0) * 2;
+    if (pos === 'D') return (p.goals ?? 0) + (p.points ?? 0); // goals counted twice
+    return p.points ?? 0; // F: goals + assists = points
+  }
+
+  function effScore(p) {
     const capM = (p.cap_hit || 1) / 1_000_000;
-    return stat / Math.sqrt(capM);
+    return poolScore(p) / Math.sqrt(capM);
   }
 
   function playerSortKey(p) {
-    const pos = normalizePos(p.position);
-    const stat = pos === 'G' ? (p.wins ?? 0) : (p.points ?? 0);
-    const capM = (p.cap_hit || 1) / 1_000_000;
-    if (activeSort === 'points') return stat;
+    if (activeSort === 'points') return poolScore(p);
     if (activeSort === 'value')  return effScore(p);
-    return p.cap_hit || 0; // salary
+    return p.cap_hit || 0;
   }
 
   // ── Remove from slot ───────────────────────────────────────────────────────
@@ -1066,10 +1088,7 @@
     fill.classList.toggle('warning', isWarning);
 
     // Total points
-    const totalPts = players.reduce((s,p) => {
-      const pos = normalizePos(p.position);
-      return s + (pos === 'G' ? (p.wins ?? 0) : (p.points ?? 0));
-    }, 0);
+    const totalPts = players.reduce((s,p) => s + poolScore(p), 0);
     document.getElementById('roster-total-pts').textContent = totalPts;
 
     // Wrap state
@@ -1248,7 +1267,7 @@
     const lockedSlugs = new Set([...locked.F, ...locked.D, ...locked.G].map(p => p.puckpedia_slug));
     const lockedCap   = [...locked.F, ...locked.D, ...locked.G].reduce((s, p) => s + (p.cap_hit || 0), 0);
 
-    const stat = p => normalizePos(p.position) === 'G' ? (p.wins ?? 0) : (p.points ?? 0);
+    const stat = poolScore;
 
     // Candidate pool per position, excluding locked players, sorted by stat desc
     const byPos = { F: [], D: [], G: [] };
