@@ -4,27 +4,22 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Hockey Pool | Parieur Discipliné</title>
-
-  <!-- Open Graph / Facebook / Messenger -->
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://parieurdiscipline.com/hockey-pool.html">
   <meta property="og:title" content="Hockey Pool — Parieur Discipliné">
-  <meta property="og:description" content="Build your dream NHL playoff team. Pick 12 forwards, 6 defencemen and 2 goalies under the salary cap and share your lineup.">
+  <meta property="og:description" content="Build your dream NHL team. Pick 12 forwards, 6 defencemen and 2 goalies under the salary cap.">
   <meta property="og:image" content="https://parieurdiscipline.com/parieur_discipline_icon_1024.png">
   <meta property="og:image:width" content="1024">
   <meta property="og:image:height" content="1024">
   <meta property="og:site_name" content="Parieur Discipliné">
-
-  <!-- Twitter / X card (also used by some messengers) -->
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Hockey Pool — Parieur Discipliné">
-  <meta name="twitter:description" content="Build your dream NHL playoff team. Pick 12 forwards, 6 defencemen and 2 goalies under the salary cap and share your lineup.">
+  <meta name="twitter:description" content="Build your dream NHL team. Pick 12 forwards, 6 defencemen and 2 goalies under the salary cap.">
   <meta name="twitter:image" content="https://parieurdiscipline.com/parieur_discipline_icon_1024.png">
   <link rel="icon" type="image/png" href="parieur_discipline_icon_1024.png">
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700;900&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
       --rink: #07111f;
       --red: #c8102e;
@@ -35,7 +30,6 @@
       --line: rgba(255,255,255,0.08);
       --nav-h: 44px;
     }
-
     body {
       background: var(--rink);
       background-image: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(26,58,110,0.6) 0%, transparent 70%);
@@ -43,9 +37,7 @@
       font-family: 'Barlow Condensed', sans-serif;
       color: white;
       padding-top: var(--nav-h);
-      /* Full-height layout — no page scroll on desktop */
-      display: flex;
-      flex-direction: column;
+      display: flex; flex-direction: column;
     }
 
     /* ── Nav ── */
@@ -53,81 +45,111 @@
       position: fixed; top: 0; left: 0; right: 0; z-index: 100;
       background: rgba(7,17,31,0.92);
       border-bottom: 1px solid var(--line);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
     }
     .site-nav-inner {
       max-width: 1100px; margin: 0 auto;
       display: flex; align-items: center; justify-content: space-between;
       height: var(--nav-h); padding: 0 1.5rem;
     }
-    .site-nav-brand {
-      font-family: 'Bebas Neue', cursive; font-size: 1.5rem;
-      color: var(--gold); letter-spacing: 4px; text-decoration: none;
-    }
+    .site-nav-brand { font-family: 'Bebas Neue', cursive; font-size: 1.5rem; color: var(--gold); letter-spacing: 4px; text-decoration: none; }
     .site-nav-links { display: flex; align-items: center; gap: 0.5rem; }
-    .site-nav-links a {
-      font-family: 'Barlow Condensed', sans-serif; font-size: 1rem;
-      font-weight: 600; color: var(--silver); text-decoration: none;
-      padding: 0.3rem 0.8rem; border-radius: 5px; letter-spacing: 1.5px;
-      transition: color 0.15s, background 0.15s;
-    }
+    .site-nav-links a { font-family: 'Barlow Condensed', sans-serif; font-size: 1rem; font-weight: 600; color: var(--silver); text-decoration: none; padding: 0.3rem 0.8rem; border-radius: 5px; letter-spacing: 1.5px; transition: color 0.15s, background 0.15s; }
     .site-nav-links a:hover { color: white; background: rgba(255,255,255,0.07); }
     .site-nav-links a.active { color: var(--gold); background: rgba(255,184,28,0.1); }
 
-    /* ── Compact header ── */
-    header {
-      text-align: center;
-      padding: 1rem 1rem 0.75rem;
+    /* ── Header ── */
+    header { text-align: center; padding: 1rem 1rem 0.75rem; flex-shrink: 0; }
+    header h1 { font-family: 'Bebas Neue', cursive; font-size: clamp(1.6rem, 3vw, 2.4rem); letter-spacing: 5px; text-shadow: 0 0 30px rgba(200,16,46,0.4), 0 2px 8px rgba(0,0,0,0.8); line-height: 1; }
+    header h1 span { color: var(--gold); }
+    header p { color: var(--silver); font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase; margin-top: 0.2rem; }
+
+    /* ── Team switcher strip ── */
+    .team-switcher-wrap {
+      max-width: 1100px; width: 100%; margin: 0 auto;
+      padding: 0.5rem 1.25rem 0;
       flex-shrink: 0;
     }
-    header h1 {
-      font-family: 'Bebas Neue', cursive;
-      font-size: clamp(1.6rem, 3vw, 2.4rem);
-      letter-spacing: 5px;
-      text-shadow: 0 0 30px rgba(200,16,46,0.4), 0 2px 8px rgba(0,0,0,0.8);
-      line-height: 1;
+    .team-switcher {
+      display: flex; align-items: center; gap: 5px;
+      overflow-x: auto; padding-bottom: 4px;
+      scrollbar-width: none;
     }
-    header h1 span { color: var(--gold); }
-    header p {
-      color: var(--silver); font-size: 0.8rem;
-      letter-spacing: 2px; text-transform: uppercase; margin-top: 0.2rem;
-    }
+    .team-switcher::-webkit-scrollbar { display: none; }
 
-    /* ── Full-height two-column layout ── */
+    .team-pill-switcher {
+      display: flex; flex-direction: column; align-items: center;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 7px; padding: 5px 10px 4px;
+      cursor: pointer; flex-shrink: 0;
+      transition: background 0.15s, border-color 0.15s;
+      position: relative; min-width: 80px;
+    }
+    .team-pill-switcher:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.18); }
+    .team-pill-switcher.active {
+      background: rgba(255,184,28,0.1);
+      border-color: rgba(255,184,28,0.4);
+    }
+    .team-pill-name {
+      font-family: 'Bebas Neue', cursive; font-size: 0.85rem;
+      letter-spacing: 2px; color: var(--silver);
+      white-space: nowrap; max-width: 120px;
+      overflow: hidden; text-overflow: ellipsis;
+    }
+    .team-pill-switcher.active .team-pill-name { color: var(--gold); }
+    .team-pill-progress {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.65rem;
+      font-weight: 700; color: rgba(255,255,255,0.3);
+      letter-spacing: 0.5px; margin-top: 1px;
+    }
+    .team-pill-switcher.active .team-pill-progress { color: rgba(255,184,28,0.6); }
+    .team-pill-progress.full { color: var(--green) !important; }
+
+    .team-pill-actions {
+      display: flex; gap: 3px; margin-top: 4px;
+    }
+    .team-pill-btn {
+      font-family: 'Bebas Neue', cursive; font-size: 0.65rem; letter-spacing: 1px;
+      background: none; border: 1px solid rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.35); border-radius: 3px;
+      padding: 1px 5px; cursor: pointer;
+      transition: color 0.15s, border-color 0.15s, background 0.15s;
+    }
+    .team-pill-btn:hover { color: white; border-color: rgba(255,255,255,0.35); background: rgba(255,255,255,0.07); }
+    .team-pill-btn.delete:hover { color: var(--red); border-color: rgba(200,16,46,0.4); background: rgba(200,16,46,0.08); }
+
+    .btn-add-team {
+      display: flex; align-items: center; justify-content: center; gap: 5px;
+      font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 2px;
+      background: rgba(255,184,28,0.06); border: 1px dashed rgba(255,184,28,0.25);
+      color: rgba(255,184,28,0.6); border-radius: 7px;
+      padding: 5px 14px; cursor: pointer; flex-shrink: 0;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+      min-width: 100px; height: 100%;
+    }
+    .btn-add-team:hover { background: rgba(255,184,28,0.12); color: var(--gold); border-color: rgba(255,184,28,0.5); }
+
+    /* ── Pool layout ── */
     .pool-layout {
-      display: grid;
-      grid-template-columns: 320px 1fr;
-      gap: 1rem;
-      max-width: 1100px;
-      width: 100%;
-      margin: 0 auto;
-      padding: 0.75rem 1.25rem 0;
-      flex: 1;
-      min-height: 0;
-      /* Each column scrolls independently */
+      display: grid; grid-template-columns: 320px 1fr;
+      gap: 1rem; max-width: 1100px; width: 100%; margin: 0 auto;
+      padding: 0.75rem 1.25rem 0; flex: 1; min-height: 0;
       align-items: stretch;
     }
 
     /* ── Section labels ── */
     .section-label {
-      font-family: 'Bebas Neue', cursive;
-      font-size: 0.85rem;
-      letter-spacing: 3px;
-      color: var(--silver);
-      margin-bottom: 4px;
+      font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 3px;
+      color: var(--silver); margin-bottom: 4px;
       display: flex; align-items: center; justify-content: space-between;
     }
     .section-label .count {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 0.7rem; font-weight: 700;
-      background: rgba(255,255,255,0.07);
-      border-radius: 20px; padding: 1px 8px;
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem; font-weight: 700;
+      background: rgba(255,255,255,0.07); border-radius: 20px; padding: 1px 8px;
       color: var(--silver); letter-spacing: 1px;
     }
-    .section-label .count.full {
-      background: rgba(34,197,94,0.2); color: var(--green);
-    }
+    .section-label .count.full { background: rgba(34,197,94,0.2); color: var(--green); }
 
     /* ── Left panel ── */
     .your-team-panel {
@@ -138,120 +160,65 @@
     .your-team-panel::-webkit-scrollbar-track { background: transparent; }
     .your-team-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
 
-    .your-team-header {
-      display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 0.6rem; flex-shrink: 0;
-    }
+    .your-team-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.6rem; flex-shrink: 0; }
     .btn-generate-team {
       font-family: 'Bebas Neue', cursive; font-size: 0.8rem; letter-spacing: 1.5px;
       background: rgba(255,184,28,0.08); border: 1px solid rgba(255,184,28,0.3);
-      color: var(--gold); border-radius: 5px;
-      padding: 3px 10px; cursor: pointer;
+      color: var(--gold); border-radius: 5px; padding: 3px 10px; cursor: pointer;
       transition: background 0.15s, color 0.15s, border-color 0.15s;
     }
     .btn-generate-team:hover { background: rgba(255,184,28,0.2); border-color: rgba(255,184,28,0.6); }
     .btn-generate-team:disabled { opacity: 0.4; cursor: default; }
     .btn-generate-team:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
     @keyframes spin { to { transform: rotate(360deg); } }
-
     .btn-clear-team {
       font-family: 'Bebas Neue', cursive; font-size: 0.8rem; letter-spacing: 1.5px;
       background: none; border: 1px solid rgba(200,16,46,0.25);
-      color: rgba(200,16,46,0.6); border-radius: 5px;
-      padding: 3px 10px; cursor: pointer;
+      color: rgba(200,16,46,0.6); border-radius: 5px; padding: 3px 10px; cursor: pointer;
       transition: background 0.15s, color 0.15s, border-color 0.15s;
     }
     .btn-clear-team:hover { background: rgba(200,16,46,0.12); color: var(--red); border-color: rgba(200,16,46,0.5); }
-    .btn-clear-team:focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
-    .panel-title {
-      font-family: 'Bebas Neue', cursive;
-      font-size: 1.1rem; letter-spacing: 4px;
-      color: white; margin-bottom: 0.6rem; flex-shrink: 0;
-    }
-    .panel-title span { color: var(--gold); }
 
-    .your-team-header h2,
-    .pool-panel > h2 {
-      font-family: 'Bebas Neue', cursive;
-      font-size: 1.1rem; letter-spacing: 4px; color: white;
-    }
-    .your-team-header h2 span,
-    .pool-panel > h2 span { color: var(--gold); }
-    .pool-panel > h2 { margin-bottom: 0.6rem; flex-shrink: 0; }
-
+    .your-team-header h2 { font-family: 'Bebas Neue', cursive; font-size: 1.1rem; letter-spacing: 4px; color: white; }
+    .your-team-header h2 span { color: var(--gold); }
     .roster-section { margin-bottom: 0.5rem; flex-shrink: 0; }
-
-    /* ── Fixed slots (one per position) ── */
     .roster-slots { display: flex; flex-direction: column; gap: 3px; }
-
-    .roster-slot {
-      border-radius: 5px;
-      transition: border-color 0.15s, background 0.15s;
-    }
-
-    /* Empty placeholder — dashed, like picks-2026 rank-slot-empty */
-    .roster-slot.empty {
-      display: flex; align-items: center; gap: 8px;
-      border: 1px dashed rgba(255,255,255,0.1);
-      border-radius: 5px;
-      padding: 7px 10px;
-      cursor: default;
-      min-height: 50px;
-    }
-
-    .slot-num {
-      font-family: 'Bebas Neue', cursive; font-size: 1rem;
-      color: rgba(255,255,255,0.15); width: 20px; text-align: center; flex-shrink: 0;
-    }
-    .slot-hint { font-size: 0.85rem; color: rgba(255,255,255,0.18); letter-spacing: 1px; }
+    .roster-slot { border-radius: 5px; transition: border-color 0.15s, background 0.15s; }
+    .roster-slot.empty { display: flex; align-items: center; gap: 8px; border: 1px dashed rgba(255,255,255,0.1); border-radius: 5px; padding: 7px 10px; cursor: default; min-height: 50px; }
+    .slot-num { font-family: 'Bebas Neue', cursive; font-size: 1rem; color: rgba(255,255,255,0.15); width: 20px; text-align: center; flex-shrink: 0; }
 
     /* ── Player cards ── */
     .player-card {
       display: flex; align-items: center; gap: 8px;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.07);
-      border-radius: 5px;
-      padding: 5px 8px 5px 10px;
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 5px; padding: 5px 8px 5px 10px;
       cursor: default; user-select: none;
       transition: background 0.15s, border-color 0.15s;
     }
     .player-card:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.14); }
-    .player-card.in-roster {
-      background: rgba(255,184,28,0.05);
-      border-color: rgba(255,184,28,0.15);
-      cursor: pointer;
-    }
+    .player-card.in-roster { background: rgba(255,184,28,0.05); border-color: rgba(255,184,28,0.15); cursor: pointer; }
     .player-card.in-roster:hover { background: rgba(255,184,28,0.1); }
-    .player-card.swap-source {
-      border-color: #60a5fa !important;
-      background: rgba(96,165,250,0.12) !important;
-      box-shadow: 0 0 0 2px rgba(96,165,250,0.35);
+    .player-card.swap-source { border-color: #60a5fa !important; background: rgba(96,165,250,0.12) !important; box-shadow: 0 0 0 2px rgba(96,165,250,0.35); }
+    /* Claimed by another team */
+    .player-card.claimed-other { opacity: 0.38; pointer-events: none; }
+    .claimed-badge {
+      font-family: 'Bebas Neue', cursive; font-size: 0.6rem; letter-spacing: 1px;
+      background: rgba(200,16,46,0.15); border: 1px solid rgba(200,16,46,0.25);
+      color: rgba(255,122,138,0.8); border-radius: 3px; padding: 1px 5px;
+      flex-shrink: 0; white-space: nowrap; max-width: 72px;
+      overflow: hidden; text-overflow: ellipsis;
     }
+
     .swap-banner {
-      display: none;
-      background: rgba(96,165,250,0.12);
-      border: 1px solid rgba(96,165,250,0.35);
-      border-radius: 7px;
-      padding: 7px 12px;
-      font-size: 0.82rem;
-      color: #93c5fd;
-      margin-bottom: 0.5rem;
-      flex-shrink: 0;
-      align-items: center;
-      gap: 8px;
+      display: none; background: rgba(96,165,250,0.12); border: 1px solid rgba(96,165,250,0.35);
+      border-radius: 7px; padding: 7px 12px; font-size: 0.82rem; color: #93c5fd;
+      margin-bottom: 0.5rem; flex-shrink: 0; align-items: center; gap: 8px;
     }
     .swap-banner.active { display: flex; }
-    .swap-banner-cancel {
-      margin-left: auto; cursor: pointer;
-      background: none; border: none;
-      color: #93c5fd; font-size: 1rem; line-height: 1;
-      padding: 0 2px;
-    }
-    .swap-banner-cancel:focus-visible { outline: 2px solid #60a5fa; outline-offset: 2px; }
+    .swap-banner-cancel { margin-left: auto; cursor: pointer; background: none; border: none; color: #93c5fd; font-size: 1rem; line-height: 1; padding: 0 2px; }
 
     .pos-badge {
-      font-family: 'Bebas Neue', cursive;
-      font-size: 0.7rem; letter-spacing: 1px;
+      font-family: 'Bebas Neue', cursive; font-size: 0.7rem; letter-spacing: 1px;
       padding: 1px 5px; border-radius: 3px;
       background: rgba(255,255,255,0.07); color: var(--silver);
       min-width: 26px; text-align: center; flex-shrink: 0;
@@ -262,405 +229,201 @@
 
     .player-info { flex: 1; min-width: 0; }
     .card-team-logo { width: 28px; height: 28px; object-fit: contain; flex-shrink: 0; opacity: 0.85; }
-    .player-name {
-      font-weight: 700; font-size: 0.95rem;
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: white;
-    }
+    .player-name { font-weight: 700; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: white; }
     .player-salary { font-size: 0.75rem; color: var(--silver); letter-spacing: 0.3px; font-weight: 600; margin-top: 1px; }
 
-    /* ── Stat boxes (right side of card) ── */
-    .stat-boxes {
-      display: flex; gap: 5px; flex-shrink: 0;
-    }
-    .stat-box {
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      border-radius: 5px; padding: 3px 7px; min-width: 44px; text-align: center;
-    }
-    .stat-box-pts {
-      background: rgba(255,184,28,0.08);
-      border: 1px solid rgba(255,184,28,0.2);
-    }
-    .stat-box-goals {
-      background: rgba(200,16,46,0.08);
-      border: 1px solid rgba(200,16,46,0.2);
-    }
-    .stat-box-assists {
-      background: rgba(100,140,255,0.08);
-      border: 1px solid rgba(100,140,255,0.2);
-    }
-    .stat-box-eff {
-      background: rgba(34,197,94,0.07);
-      border: 1px solid rgba(34,197,94,0.2);
-    }
-    .stat-box-main {
-      font-family: 'Bebas Neue', cursive; font-size: 1.2rem; line-height: 1;
-      letter-spacing: 1px;
-    }
+    /* ── Stat boxes ── */
+    .stat-boxes { display: flex; gap: 5px; flex-shrink: 0; }
+    .stat-box { display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 5px; padding: 3px 7px; min-width: 44px; text-align: center; }
+    .stat-box-pts { background: rgba(255,184,28,0.08); border: 1px solid rgba(255,184,28,0.2); }
+    .stat-box-goals { background: rgba(200,16,46,0.08); border: 1px solid rgba(200,16,46,0.2); }
+    .stat-box-assists { background: rgba(100,140,255,0.08); border: 1px solid rgba(100,140,255,0.2); }
+    .stat-box-eff { background: rgba(34,197,94,0.07); border: 1px solid rgba(34,197,94,0.2); }
+    .stat-box-gp { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); }
+    .stat-box-main { font-family: 'Bebas Neue', cursive; font-size: 1.2rem; line-height: 1; letter-spacing: 1px; }
     .stat-box-pts .stat-box-main    { color: var(--gold); }
     .stat-box-goals .stat-box-main  { color: #ff7a8a; }
     .stat-box-assists .stat-box-main{ color: #7db4ff; }
     .stat-box-eff .stat-box-main    { color: #22c55e; }
-    .stat-box-label {
-      font-family: 'Bebas Neue', cursive; font-size: 0.65rem; letter-spacing: 2px;
-      margin-top: 1px;
-    }
+    .stat-box-gp .stat-box-main     { color: rgba(255,255,255,0.55); }
+    .stat-box-label { font-family: 'Bebas Neue', cursive; font-size: 0.65rem; letter-spacing: 2px; margin-top: 1px; }
     .stat-box-pts .stat-box-label     { color: rgba(255,184,28,0.5); }
     .stat-box-goals .stat-box-label   { color: rgba(255,122,138,0.5); }
     .stat-box-assists .stat-box-label { color: rgba(125,180,255,0.5); }
     .stat-box-eff .stat-box-label     { color: rgba(34,197,94,0.5); }
-    .stat-box-gp {
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.1);
-    }
-    .stat-box-gp .stat-box-main  { color: rgba(255,255,255,0.55); }
-    .stat-box-gp .stat-box-label { color: rgba(255,255,255,0.25); }
-    .stat-box-sub {
-      font-size: 0.68rem; color: rgba(255,255,255,0.3);
-      white-space: nowrap; margin-top: 2px; letter-spacing: 0.2px;
-    }
-    .stat-box.no-stats { display: none; }
+    .stat-box-gp .stat-box-label      { color: rgba(255,255,255,0.25); }
 
-    .remove-btn {
-      background: none; border: none;
-      color: rgba(255,255,255,0.2); cursor: pointer;
-      font-size: 0.9rem; line-height: 1;
-      padding: 2px 3px; border-radius: 3px;
-      transition: color 0.15s; flex-shrink: 0;
-    }
+    .remove-btn { background: none; border: none; color: rgba(255,255,255,0.2); cursor: pointer; font-size: 0.9rem; line-height: 1; padding: 2px 3px; border-radius: 3px; transition: color 0.15s; flex-shrink: 0; }
     .remove-btn:hover { color: var(--red); }
-    .remove-btn:focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
-
-    .add-btn {
-      background: none; border: 1px solid rgba(255,184,28,0.25);
-      border-radius: 4px; cursor: pointer;
-      font-size: 1.1rem; font-weight: 700; line-height: 1;
-      color: var(--gold); flex-shrink: 0; padding: 2px 7px;
-      transition: background 0.15s, border-color 0.15s;
-    }
+    .add-btn { background: none; border: 1px solid rgba(255,184,28,0.25); border-radius: 4px; cursor: pointer; font-size: 1.1rem; font-weight: 700; line-height: 1; color: var(--gold); flex-shrink: 0; padding: 2px 7px; transition: background 0.15s, border-color 0.15s; }
     .add-btn:hover { background: rgba(255,184,28,0.15); border-color: rgba(255,184,28,0.5); }
-    .add-btn:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 
     /* ── Cap bar ── */
     .cap-bar-wrap {
       margin-bottom: 0.7rem; flex-shrink: 0;
-      background: rgba(255,255,255,0.03);
-      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.03); border: 1px solid var(--line);
       border-radius: 7px; padding: 0.55rem 0.85rem;
       transition: border-color 0.3s, background 0.3s;
     }
-    .cap-bar-wrap.warning {
-      border-color: rgba(245,158,11,0.4);
-      background: rgba(245,158,11,0.04);
-    }
-    .cap-bar-wrap.over {
-      border-color: rgba(200,16,46,0.4);
-      background: rgba(200,16,46,0.04);
-    }
-    .cap-remaining-row {
-      display: flex; align-items: baseline; justify-content: space-between;
-      margin-bottom: 2px;
-    }
-    .cap-remaining-label {
-      font-family: 'Bebas Neue', cursive; font-size: 0.7rem;
-      letter-spacing: 2px; color: var(--silver);
-    }
-    .cap-remaining-amount {
-      font-family: 'Bebas Neue', cursive; font-size: 1.5rem;
-      letter-spacing: 1px; color: var(--green);
-      transition: color 0.3s;
-    }
+    .cap-bar-wrap.warning { border-color: rgba(245,158,11,0.4); background: rgba(245,158,11,0.04); }
+    .cap-bar-wrap.over    { border-color: rgba(200,16,46,0.4); background: rgba(200,16,46,0.04); }
+    .cap-remaining-row { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 2px; }
+    .cap-remaining-label { font-family: 'Bebas Neue', cursive; font-size: 0.7rem; letter-spacing: 2px; color: var(--silver); }
+    .cap-remaining-amount { font-family: 'Bebas Neue', cursive; font-size: 1.5rem; letter-spacing: 1px; color: var(--green); transition: color 0.3s; }
     .cap-bar-wrap.warning .cap-remaining-amount { color: #f59e0b; }
     .cap-bar-wrap.over    .cap-remaining-amount { color: var(--red); }
     #cap-status-icon { color: var(--green); font-size: 0.65rem; }
     .cap-bar-wrap.warning #cap-status-icon { color: #f59e0b; }
     .cap-bar-wrap.over    #cap-status-icon { color: var(--red); }
-    .cap-used-row {
-      display: flex; gap: 4px; align-items: center;
-      font-size: 0.68rem; color: rgba(255,255,255,0.3);
-      margin-bottom: 0.35rem;
-    }
+    .cap-used-row { display: flex; gap: 4px; align-items: center; font-size: 0.68rem; color: rgba(255,255,255,0.3); margin-bottom: 0.35rem; }
     .cap-used-row #cap-used { color: rgba(255,255,255,0.55); font-weight: 600; }
-    .cap-used-sep { color: rgba(255,255,255,0.2); }
-    .cap-bar-label .over { color: var(--red); }
     .over { color: var(--red); font-weight: 700; }
-    .cap-track {
-      height: 5px; background: rgba(255,255,255,0.07);
-      border-radius: 3px; overflow: hidden;
-    }
-    .cap-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--green), #16a34a);
-      border-radius: 3px; transition: width 0.3s ease, background 0.3s ease;
-    }
+    .cap-track { height: 5px; background: rgba(255,255,255,0.07); border-radius: 3px; overflow: hidden; }
+    .cap-fill { height: 100%; background: linear-gradient(90deg, var(--green), #16a34a); border-radius: 3px; transition: width 0.3s ease, background 0.3s ease; }
     .cap-fill.warning { background: linear-gradient(90deg, #f59e0b, #d97706); }
     .cap-fill.over    { background: linear-gradient(90deg, var(--red), #8b0a1e); }
 
     /* ── Right panel ── */
-    .pool-panel {
-      display: flex; flex-direction: column; min-height: 0;
-      padding-bottom: 1rem;
-    }
-
-    .panel-title-row {
-      display: flex; align-items: center;
-      justify-content: space-between;
-      margin-bottom: 0.6rem; flex-shrink: 0;
-    }
-
-    .pool-controls {
-      display: flex; gap: 0.5rem;
-      margin-bottom: 0.6rem; flex-shrink: 0;
-      flex-wrap: wrap;
-    }
-    .pool-controls-filters {
-      display: flex; gap: 0.5rem; flex-wrap: wrap;
-    }
-
-    .pos-filter {
-      display: flex; gap: 0;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid var(--line);
-      border-radius: 6px; overflow: hidden;
-    }
-    .pos-filter button {
-      font-family: 'Bebas Neue', cursive;
-      font-size: 0.9rem; letter-spacing: 2px;
-      padding: 0.35rem 0.9rem;
-      background: none; border: none; color: var(--silver);
-      cursor: pointer; transition: background 0.15s, color 0.15s;
-    }
+    .pool-panel { display: flex; flex-direction: column; min-height: 0; padding-bottom: 1rem; }
+    .pool-controls { display: flex; gap: 0.5rem; margin-bottom: 0.6rem; flex-shrink: 0; flex-wrap: wrap; }
+    .pool-controls-filters { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .pos-filter { display: flex; gap: 0; background: rgba(255,255,255,0.04); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+    .pos-filter button { font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 2px; padding: 0.35rem 0.9rem; background: none; border: none; color: var(--silver); cursor: pointer; transition: background 0.15s, color 0.15s; }
     .pos-filter button.active { background: rgba(255,255,255,0.09); color: white; }
     .pos-filter button:hover:not(.active) { color: rgba(255,255,255,0.7); }
-
-    .search-input {
-      flex: 1; min-width: 140px;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid var(--line); border-radius: 6px;
-      padding: 0.35rem 0.8rem; color: white;
-      font-family: 'Barlow Condensed', sans-serif; font-size: 0.95rem;
-      outline: none; transition: border-color 0.15s;
-    }
+    .search-input { flex: 1; min-width: 140px; background: rgba(255,255,255,0.05); border: 1px solid var(--line); border-radius: 6px; padding: 0.35rem 0.8rem; color: white; font-family: 'Barlow Condensed', sans-serif; font-size: 0.95rem; outline: none; transition: border-color 0.15s; }
     .search-input::placeholder { color: rgba(168,178,190,0.35); }
     .search-input:focus { border-color: rgba(255,255,255,0.22); }
 
-    .eff-legend {
-      display: flex; align-items: center; gap: 8px;
-      background: rgba(34,197,94,0.06);
-      border: 1px solid rgba(34,197,94,0.15);
-      border-radius: 6px; padding: 6px 10px;
-      margin-bottom: 0.6rem; flex-shrink: 0;
-    }
-    .eff-legend-badge {
-      font-family: 'Bebas Neue', cursive; font-size: 0.72rem; letter-spacing: 1.5px;
-      color: #22c55e; background: rgba(34,197,94,0.12);
-      border-radius: 3px; padding: 1px 6px; flex-shrink: 0;
-    }
-    .eff-legend-text {
-      font-size: 0.75rem; color: rgba(255,255,255,0.4); letter-spacing: 0.2px;
-    }
+    .eff-legend { display: flex; align-items: center; gap: 8px; background: rgba(34,197,94,0.06); border: 1px solid rgba(34,197,94,0.15); border-radius: 6px; padding: 6px 10px; margin-bottom: 0.6rem; flex-shrink: 0; }
+    .eff-legend-badge { font-family: 'Bebas Neue', cursive; font-size: 0.72rem; letter-spacing: 1.5px; color: #22c55e; background: rgba(34,197,94,0.12); border-radius: 3px; padding: 1px 6px; flex-shrink: 0; }
+    .eff-legend-text { font-size: 0.75rem; color: rgba(255,255,255,0.4); letter-spacing: 0.2px; }
     .eff-legend-text strong { color: rgba(255,255,255,0.65); font-weight: 600; }
 
-    /* ── Team strip ── */
-    .team-strip-wrap { margin-bottom: 0.6rem; flex-shrink: 0; overflow: hidden; }
-    .team-strip {
-      display: flex; flex-wrap: wrap; gap: 4px;
-    }
-    .team-pill {
-      display: flex; flex-direction: column; align-items: center; gap: 2px;
-      padding: 4px 5px; border-radius: 6px;
-      border: 1px solid var(--line);
-      background: rgba(255,255,255,0.03);
-      cursor: pointer;
-      transition: background 0.15s, border-color 0.15s;
-      min-width: 44px;
-      flex-shrink: 0;
-    }
-    .team-pill:hover { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.14); }
-    .team-pill.active { background: rgba(255,184,28,0.1); border-color: rgba(255,184,28,0.3); }
-    .team-pill img { width: 22px; height: 22px; object-fit: contain; }
-    .team-pill span {
-      font-family: 'Bebas Neue', cursive; font-size: 0.58rem;
-      letter-spacing: 1px; color: var(--silver); white-space: nowrap;
-    }
-    .team-pill.active span { color: var(--gold); }
-    .team-pill-all {
-      font-family: 'Bebas Neue', cursive; font-size: 0.72rem;
-      letter-spacing: 2px; color: var(--silver); justify-content: center;
-      min-height: 46px;
-    }
-    .team-pill-all.active { color: var(--gold); }
+    /* ── NHL Team strip ── */
+    .nhl-team-strip-wrap { margin-bottom: 0.6rem; flex-shrink: 0; }
+    .nhl-team-strip { display: flex; flex-wrap: wrap; gap: 4px; }
+    .nhl-team-pill { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 4px 5px; border-radius: 6px; border: 1px solid var(--line); background: rgba(255,255,255,0.03); cursor: pointer; transition: background 0.15s, border-color 0.15s; min-width: 44px; flex-shrink: 0; }
+    .nhl-team-pill:hover { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.14); }
+    .nhl-team-pill.active { background: rgba(255,184,28,0.1); border-color: rgba(255,184,28,0.3); }
+    .nhl-team-pill img { width: 22px; height: 22px; object-fit: contain; }
+    .nhl-team-pill span { font-family: 'Bebas Neue', cursive; font-size: 0.58rem; letter-spacing: 1px; color: var(--silver); white-space: nowrap; }
+    .nhl-team-pill.active span { color: var(--gold); }
+    .nhl-team-pill-all { font-family: 'Bebas Neue', cursive; font-size: 0.72rem; letter-spacing: 2px; color: var(--silver); justify-content: center; min-height: 46px; }
+    .nhl-team-pill-all.active { color: var(--gold); }
 
     /* ── Pool list ── */
-    .pool-list {
-      flex: 1; min-height: 0;
-      display: flex; flex-direction: column; gap: 4px;
-      overflow-y: auto; padding-right: 4px;
-    }
+    .pool-list { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 4px; overflow-y: auto; padding-right: 4px; }
     .pool-list::-webkit-scrollbar { width: 3px; }
     .pool-list::-webkit-scrollbar-track { background: transparent; }
     .pool-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
-    .pool-list .player-card.already-added {
-      opacity: 0.3; cursor: not-allowed; pointer-events: none;
-    }
-
-    .loading-msg, .empty-msg {
-      text-align: center; color: var(--silver);
-      font-size: 0.9rem; padding: 2rem 0; letter-spacing: 1px;
-    }
-    .load-more-btn {
-      width: 100%; margin-top: 4px;
-      font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 2px;
-      background: rgba(255,184,28,0.06); border: 1px solid rgba(255,184,28,0.2);
-      color: var(--gold); border-radius: 6px; padding: 0.5rem;
-      cursor: pointer; transition: background 0.15s;
-    }
+    .loading-msg, .empty-msg { text-align: center; color: var(--silver); font-size: 0.9rem; padding: 2rem 0; letter-spacing: 1px; }
+    .load-more-btn { width: 100%; margin-top: 4px; font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 2px; background: rgba(255,184,28,0.06); border: 1px solid rgba(255,184,28,0.2); color: var(--gold); border-radius: 6px; padding: 0.5rem; cursor: pointer; transition: background 0.15s; }
     .load-more-btn:hover { background: rgba(255,184,28,0.14); }
-    .retry-btn {
-      font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 1.5px;
-      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15);
-      color: white; border-radius: 5px; padding: 2px 12px;
-      cursor: pointer; margin-left: 8px; transition: background 0.15s;
-    }
+    .retry-btn { font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 1.5px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: white; border-radius: 5px; padding: 2px 12px; cursor: pointer; margin-left: 8px; transition: background 0.15s; }
     .retry-btn:hover { background: rgba(255,255,255,0.12); }
 
-    /* ── Share button ── */
-    .share-row {
-      display: flex; align-items: center; gap: 8px; margin-top: 0.4rem; flex-wrap: wrap; justify-content: center;
-    }
-    .team-name-input {
-      font-family: 'Barlow Condensed', sans-serif; font-size: 0.9rem;
-      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15);
-      color: white; border-radius: 6px; padding: 0.3rem 0.75rem;
-      outline: none; width: 200px; transition: border-color 0.15s;
-    }
-    .team-name-input::placeholder { color: rgba(255,255,255,0.3); }
-    .team-name-input:focus { border-color: rgba(255,184,28,0.4); }
-    .btn-share-pool {
-      font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 2px;
-      background: rgba(255,184,28,0.1); border: 1px solid rgba(255,184,28,0.3);
-      color: var(--gold); border-radius: 6px; padding: 0.35rem 1rem;
-      cursor: pointer; transition: background 0.15s;
-    }
+    /* ── Share ── */
+    .share-row { display: flex; align-items: center; gap: 8px; margin-top: 0.4rem; flex-wrap: wrap; justify-content: center; }
+    .team-name-display { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 3px; color: var(--gold); }
+    .btn-share-pool { font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 2px; background: rgba(255,184,28,0.1); border: 1px solid rgba(255,184,28,0.3); color: var(--gold); border-radius: 6px; padding: 0.35rem 1rem; cursor: pointer; transition: background 0.15s; }
     .btn-share-pool:hover { background: rgba(255,184,28,0.2); }
     .btn-share-pool:disabled { opacity: 0.4; cursor: default; }
 
-    /* ── Share card (off-screen) ── */
-    #pool-share-card {
-      position: fixed; left: -9999px; top: 0;
-      width: 680px;
-      font-family: 'Barlow Condensed', sans-serif;
-      background: linear-gradient(160deg,#0d1b2e 0%,#111827 60%,#0f172a 100%);
+    /* ── Pool overview panel ── */
+    .pool-overview {
+      max-width: 1100px; width: 100%; margin: 0 auto;
+      padding: 0.75rem 1.25rem 1rem; flex: 1;
     }
+    .pool-overview h2 { font-family: 'Bebas Neue', cursive; font-size: 1.1rem; letter-spacing: 4px; color: white; margin-bottom: 0.75rem; }
+    .pool-overview h2 span { color: var(--gold); }
+    .overview-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+    .overview-card {
+      background: rgba(255,255,255,0.03); border: 1px solid var(--line);
+      border-radius: 8px; padding: 12px 14px; cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .overview-card:hover { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.16); }
+    .overview-card-name { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 3px; color: white; margin-bottom: 6px; }
+    .overview-card-stats { display: flex; gap: 8px; flex-wrap: wrap; }
+    .overview-stat { font-size: 0.72rem; color: rgba(255,255,255,0.4); letter-spacing: 0.5px; }
+    .overview-stat strong { color: white; font-weight: 700; }
+    .overview-progress-bar { height: 3px; background: rgba(255,255,255,0.07); border-radius: 2px; margin-top: 8px; overflow: hidden; }
+    .overview-progress-fill { height: 100%; border-radius: 2px; background: linear-gradient(90deg, var(--gold), #e6a800); transition: width 0.3s; }
+
+    /* ── Share card ── */
+    #pool-share-card { position: fixed; left: -9999px; top: 0; width: 680px; font-family: 'Barlow Condensed', sans-serif; background: linear-gradient(160deg,#0d1b2e 0%,#111827 60%,#0f172a 100%); }
+
+    /* ── Modal ── */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+    .modal-overlay.hidden { display: none; }
+    .modal-box { background: #0d1b2e; border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; padding: 1.5rem; width: 100%; max-width: 360px; }
+    .modal-title { font-family: 'Bebas Neue', cursive; font-size: 1.2rem; letter-spacing: 3px; color: white; margin-bottom: 1rem; }
+    .modal-title span { color: var(--gold); }
+    .modal-input { width: 100%; font-family: 'Barlow Condensed', sans-serif; font-size: 1rem; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: white; border-radius: 6px; padding: 0.5rem 0.85rem; outline: none; margin-bottom: 1rem; transition: border-color 0.15s; }
+    .modal-input:focus { border-color: rgba(255,184,28,0.5); }
+    .modal-input::placeholder { color: rgba(255,255,255,0.3); }
+    .modal-btns { display: flex; gap: 8px; justify-content: flex-end; }
+    .modal-btn { font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 2px; border-radius: 5px; padding: 5px 18px; cursor: pointer; border: 1px solid; transition: background 0.15s; }
+    .modal-btn-confirm { background: rgba(255,184,28,0.12); border-color: rgba(255,184,28,0.35); color: var(--gold); }
+    .modal-btn-confirm:hover { background: rgba(255,184,28,0.22); }
+    .modal-btn-cancel { background: none; border-color: rgba(255,255,255,0.12); color: var(--silver); }
+    .modal-btn-cancel:hover { background: rgba(255,255,255,0.06); }
 
     /* ── Toast ── */
-    .toast {
-      position: fixed; bottom: 1.5rem; left: 50%;
-      transform: translateX(-50%) translateY(80px);
-      background: var(--gold); color: var(--rink);
-      font-family: 'Bebas Neue', cursive; font-size: 1.1rem;
-      letter-spacing: 2px; padding: 0.5rem 1.8rem;
-      border-radius: 4px; box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-      transition: transform 0.3s ease; pointer-events: none; z-index: 9999;
-    }
+    .toast { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--gold); color: var(--rink); font-family: 'Bebas Neue', cursive; font-size: 1.1rem; letter-spacing: 2px; padding: 0.5rem 1.8rem; border-radius: 4px; box-shadow: 0 4px 20px rgba(0,0,0,0.4); transition: transform 0.3s ease; pointer-events: none; z-index: 9999; }
     .toast.show { transform: translateX(-50%) translateY(0); }
 
+    /* ── Mobile ── */
     @media (max-width: 860px) {
       body { display: block; overflow-x: hidden; }
-      .pool-layout {
-        grid-template-columns: 1fr;
-        height: auto;
-        padding: 0;
-      }
-      /* Mobile tab switcher */
-      .mobile-tabs {
-        display: flex;
-        border-bottom: 1px solid var(--line);
-        background: rgba(7,17,31,0.95);
-        position: sticky; top: var(--nav-h); z-index: 50;
-        flex-shrink: 0;
-      }
-      .mobile-tab {
-        flex: 1; padding: 0.7rem 0.5rem;
-        font-family: 'Bebas Neue', cursive; font-size: 1rem;
-        letter-spacing: 2px; text-align: center;
-        color: var(--silver); cursor: pointer;
-        border-bottom: 2px solid transparent;
-        transition: color 0.15s, border-color 0.15s;
-        display: flex; align-items: center; justify-content: center; gap: 6px;
-      }
+      .pool-layout { grid-template-columns: 1fr; height: auto; padding: 0; }
+      .team-switcher-wrap { padding: 0.5rem 0.75rem 0; }
+      .mobile-tabs { display: flex; border-bottom: 1px solid var(--line); background: rgba(7,17,31,0.95); position: sticky; top: var(--nav-h); z-index: 50; flex-shrink: 0; }
+      .mobile-tab { flex: 1; padding: 0.7rem 0.5rem; font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 2px; text-align: center; color: var(--silver); cursor: pointer; border-bottom: 2px solid transparent; transition: color 0.15s, border-color 0.15s; display: flex; align-items: center; justify-content: center; gap: 6px; }
       .mobile-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
-      .mobile-tab-badge {
-        background: var(--gold); color: var(--rink);
-        font-family: 'Barlow Condensed', sans-serif; font-size: 0.65rem;
-        font-weight: 700; border-radius: 10px; padding: 1px 6px; line-height: 1.4;
-      }
-      /* Hide inactive panel */
+      .mobile-tab-badge { background: var(--gold); color: var(--rink); font-family: 'Barlow Condensed', sans-serif; font-size: 0.65rem; font-weight: 700; border-radius: 10px; padding: 1px 6px; line-height: 1.4; }
       .your-team-panel { overflow-y: visible; }
-      .your-team-panel,
-      .pool-panel { padding: 0.75rem 1rem 1rem; }
-      .your-team-panel.mobile-hidden,
-      .pool-panel.mobile-hidden { display: none; }
+      .your-team-panel, .pool-panel { padding: 0.75rem 1rem 1rem; }
+      .your-team-panel.mobile-hidden, .pool-panel.mobile-hidden { display: none; }
       .pool-list { max-height: none; }
-
-      /* Share row stacks on mobile */
-      .share-row { flex-direction: column; align-items: stretch; gap: 6px; padding: 0 1rem; }
-      .team-name-input { width: 100%; }
-      .btn-share-pool { width: 100%; }
-
-      /* Pool controls: filter rows side by side, search below */
       .pool-controls { flex-direction: column; gap: 6px; }
-      .pool-controls > .pos-filter { flex: none; }
       .pool-controls-filters { display: flex; gap: 6px; flex-wrap: wrap; }
       .pool-controls-filters .pos-filter { flex: 1; min-width: 0; }
       .pool-controls-filters .pos-filter button { flex: 1; padding: 0.35rem 0.4rem; font-size: 0.82rem; letter-spacing: 1px; }
       .search-input { width: 100%; min-width: 0; }
-
-      /* Team strip: wrap to multiple rows on mobile */
-      .team-strip-wrap { overflow: visible; width: 100%; }
-      .team-strip { flex-wrap: wrap; }
-      /* Compact team pills on mobile */
-      .team-pill { min-width: 36px; padding: 3px 4px; }
-      .team-pill img { width: 18px; height: 18px; }
-      .team-pill span { font-size: 0.52rem; }
-      .team-pill-all { min-height: 38px; font-size: 0.65rem; }
-
-      /* Player cards: hide GP, Goals, Assists boxes in pool list — keep only PTS + EFF */
+      .nhl-team-strip-wrap { overflow: visible; width: 100%; }
+      .nhl-team-strip { flex-wrap: wrap; }
+      .nhl-team-pill { min-width: 36px; padding: 3px 4px; }
+      .nhl-team-pill img { width: 18px; height: 18px; }
+      .nhl-team-pill span { font-size: 0.52rem; }
+      .nhl-team-pill-all { min-height: 38px; font-size: 0.65rem; }
       .pool-list .stat-box-gp { display: none; }
       .pool-list .stat-box-goals { display: none; }
       .pool-list .stat-box-assists { display: none; }
-
-      /* EFF legend font size */
-      .eff-legend-text { font-size: 0.7rem; }
-
-      /* Prevent cards from overflowing viewport */
       .player-card { overflow: hidden; flex-wrap: wrap; padding: 5px 8px; }
-      /* Top row: badge + logo + name/salary + button */
       .player-card .pos-badge { order: 1; }
       .player-card .card-team-logo { order: 2; }
       .player-card .player-info { order: 3; }
-      .player-card .add-btn,
-      .player-card .remove-btn { order: 4; }
-      /* Stat boxes drop to second row, full width */
+      .player-card .add-btn, .player-card .remove-btn { order: 4; }
       .player-card .stat-boxes { order: 5; width: 100%; padding-top: 4px; gap: 4px; flex-shrink: 1; }
       .stat-box { min-width: 40px; flex: 1; max-width: 70px; }
+      .share-row { flex-direction: column; align-items: stretch; gap: 6px; padding: 0 1rem; }
+      .btn-share-pool { width: 100%; }
+      .overview-grid { grid-template-columns: 1fr 1fr; }
     }
-    @media (min-width: 861px) {
-      .mobile-tabs { display: none; }
-    }
+    @media (min-width: 861px) { .mobile-tabs { display: none; } }
     @media (max-width: 500px) {
       .site-nav-brand { font-size: 1.2rem; letter-spacing: 3px; }
-      .site-nav-links a { font-size: 0.9rem; padding: 0.3rem 0.6rem; }
-      header { padding: 0.75rem 0.75rem 0.5rem; }
       .stat-box-main { font-size: 1rem; }
       .pos-badge { font-size: 0.65rem; padding: 1px 4px; min-width: 22px; }
       .card-team-logo { width: 20px; height: 20px; }
       .player-name { font-size: 0.85rem; }
       .player-salary { font-size: 0.7rem; }
-      /* Collapse EFF legend on very narrow screens */
-      .eff-legend-text { white-space: normal; }
+      .overview-grid { grid-template-columns: 1fr; }
     }
   </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
 
@@ -677,29 +440,44 @@
 
 <header>
   <h1>Hockey <span>Pool</span></h1>
-  <p>Build your team · Click + to add players</p>
-  <div class="share-row">
-    <input class="team-name-input" id="team-name-input" type="text" maxlength="32" placeholder="My Team Name (optional)">
-    <button class="btn-share-pool" id="btn-share-pool" onclick="sharePool()">📸 Share My Team</button>
+  <p>2025–26 Season · Build your team · Click + to add players</p>
+  <div class="share-row" id="share-row">
+    <span class="team-name-display" id="active-team-label">—</span>
+    <button class="btn-share-pool" id="btn-share-pool" onclick="sharePool()">📸 Share Team</button>
   </div>
 </header>
 
+<!-- Team switcher strip -->
+<div class="team-switcher-wrap">
+  <div class="team-switcher" id="team-switcher"></div>
+</div>
+
 <div id="pool-share-card"></div>
 
-<!-- Mobile tab switcher (hidden on desktop via CSS) -->
-<div class="mobile-tabs">
-  <div class="mobile-tab active" id="mob-tab-team" onclick="switchMobileTab('team')">
-    Your Team <span class="mobile-tab-badge" id="mob-roster-count">0/20</span>
-  </div>
-  <div class="mobile-tab" id="mob-tab-pool" onclick="switchMobileTab('pool')">
-    Player Pool
+<!-- Modal -->
+<div class="modal-overlay hidden" id="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-title" id="modal-title">Add <span>Team</span></div>
+    <input class="modal-input" id="modal-input" type="text" maxlength="24" placeholder="Team name…" autocomplete="off">
+    <div class="modal-btns">
+      <button class="modal-btn modal-btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="modal-btn modal-btn-confirm" id="modal-confirm-btn" onclick="confirmModal()">Add</button>
+    </div>
   </div>
 </div>
 
-<div class="pool-layout">
+<!-- Mobile tabs -->
+<div class="mobile-tabs" id="mobile-tabs" style="display:none;">
+  <div class="mobile-tab active" id="mob-tab-team" onclick="switchMobileTab('team')">
+    Your Team <span class="mobile-tab-badge" id="mob-roster-count">0/20</span>
+  </div>
+  <div class="mobile-tab" id="mob-tab-pool" onclick="switchMobileTab('pool')">Player Pool</div>
+  <div class="mobile-tab" id="mob-tab-overview" onclick="switchMobileTab('overview')">All Teams</div>
+</div>
 
+<div class="pool-layout" id="pool-layout">
   <!-- LEFT: Your Team -->
-  <div class="your-team-panel">
+  <div class="your-team-panel" id="your-team-panel">
     <div class="your-team-header">
       <h2>Your <span>Team</span></h2>
       <div style="display:flex;gap:6px;align-items:center;">
@@ -726,12 +504,12 @@
 
     <div class="cap-bar-wrap" id="cap-bar-wrap">
       <div class="cap-remaining-row">
-        <span class="cap-remaining-label">Remaining <span id="cap-status-icon" aria-hidden="true">✓</span></span>
-        <span class="cap-remaining-amount" id="cap-remaining" aria-live="polite">$95.5M</span>
+        <span class="cap-remaining-label">Remaining <span id="cap-status-icon">✓</span></span>
+        <span class="cap-remaining-amount" id="cap-remaining">$95.5M</span>
       </div>
       <div class="cap-used-row">
         <span id="cap-used">$0</span>
-        <span class="cap-used-sep">used of</span>
+        <span style="color:rgba(255,255,255,0.2);">used of</span>
         <span>$95,500,000</span>
         <span id="cap-over" class="over" style="display:none;">— OVER CAP</span>
       </div>
@@ -743,34 +521,22 @@
     </div>
 
     <div class="roster-section">
-      <div class="section-label">
-        Forwards
-        <span class="count" id="fwd-count">0 / 12</span>
-      </div>
+      <div class="section-label">Forwards <span class="count" id="fwd-count">0 / 12</span></div>
       <div class="roster-slots" id="slots-F"></div>
     </div>
-
     <div class="roster-section">
-      <div class="section-label">
-        Defensemen
-        <span class="count" id="def-count">0 / 6</span>
-      </div>
+      <div class="section-label">Defensemen <span class="count" id="def-count">0 / 6</span></div>
       <div class="roster-slots" id="slots-D"></div>
     </div>
-
     <div class="roster-section">
-      <div class="section-label">
-        Goalies
-        <span class="count" id="gol-count">0 / 2</span>
-      </div>
+      <div class="section-label">Goalies <span class="count" id="gol-count">0 / 2</span></div>
       <div class="roster-slots" id="slots-G"></div>
     </div>
   </div>
 
   <!-- RIGHT: Player Pool -->
-  <div class="pool-panel">
-    <h2>Player <span>Pool</span></h2>
-
+  <div class="pool-panel" id="pool-panel">
+    <h2 style="font-family:'Bebas Neue',cursive;font-size:1.1rem;letter-spacing:4px;color:white;margin-bottom:0.6rem;flex-shrink:0;">Player <span style="color:var(--gold);">Pool</span></h2>
     <div class="pool-controls">
       <div class="pool-controls-filters">
         <div class="pos-filter">
@@ -787,26 +553,27 @@
       </div>
       <input class="search-input" id="search-input" type="text" placeholder="🔍 Search player…" oninput="debouncedRenderPool()" autocomplete="off">
     </div>
-
     <div class="eff-legend">
       <span class="eff-legend-badge">EFF</span>
       <span class="eff-legend-text">Efficiency Score — <strong>Points ÷ √(Cap in $M)</strong> · Rewards elite production, not just cheap contracts</span>
     </div>
-
-    <div class="team-strip-wrap">
-      <div class="team-strip" id="team-strip"></div>
+    <div class="nhl-team-strip-wrap">
+      <div class="nhl-team-strip" id="nhl-team-strip"></div>
     </div>
-
     <div class="swap-banner" id="swap-banner" role="status">
       <span>🔄 Select a replacement from the list below</span>
       <button class="swap-banner-cancel" onclick="cancelSwap()" aria-label="Cancel swap">✕</button>
     </div>
-
     <div class="pool-list" id="pool-list">
       <div class="loading-msg">Loading players…</div>
     </div>
   </div>
+</div>
 
+<!-- Pool overview (all teams) -->
+<div class="pool-overview" id="pool-overview" style="display:none;">
+  <h2>All <span>Teams</span></h2>
+  <div class="overview-grid" id="overview-grid"></div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -815,8 +582,8 @@
   const SUPABASE_URL = 'https://fifurqlitkywtmhgtzeu.supabase.co';
   const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZpZnVycWxpdGt5d3RtaGd0emV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3MDIyMjQsImV4cCI6MjA5MjI3ODIyNH0.KPVPj1qwbSJJMyLR_-AhDcRs0vi2sUU6qbFQ-kH53C0';
   const CAP_MAX = 95_500_000;
+  const MAX_TEAMS = 12;
 
-  // slug → NHL 3-letter abbreviation for logo CDN
   const TEAM_ABBR = {
     'anaheim-ducks':'ANA','boston-bruins':'BOS','buffalo-sabres':'BUF',
     'calgary-flames':'CGY','carolina-hurricanes':'CAR','chicago-blackhawks':'CHI',
@@ -831,58 +598,128 @@
     'washington-capitals':'WSH','winnipeg-jets':'WPG',
   };
 
-  // Short display name for the pill label
-  const TEAM_SHORT = {
-    'anaheim-ducks':'ANA','boston-bruins':'BOS','buffalo-sabres':'BUF',
-    'calgary-flames':'CGY','carolina-hurricanes':'CAR','chicago-blackhawks':'CHI',
-    'colorado-avalanche':'COL','columbus-blue-jackets':'CBJ','dallas-stars':'DAL',
-    'detroit-red-wings':'DET','edmonton-oilers':'EDM','florida-panthers':'FLA',
-    'los-angeles-kings':'LAK','minnesota-wild':'MIN','montreal-canadiens':'MTL',
-    'nashville-predators':'NSH','new-jersey-devils':'NJD','new-york-islanders':'NYI',
-    'new-york-rangers':'NYR','ottawa-senators':'OTT','philadelphia-flyers':'PHI',
-    'pittsburgh-penguins':'PIT','san-jose-sharks':'SJS','seattle-kraken':'SEA',
-    'st-louis-blues':'STL','tampa-bay-lightning':'TBL','toronto-maple-leafs':'TOR',
-    'utah-hockey-club':'UTA','vancouver-canucks':'VAN','vegas-golden-knights':'VGK',
-    'washington-capitals':'WSH','winnipeg-jets':'WPG',
-  };
-
+  // ── State ──────────────────────────────────────────────────────────────────
   let allPlayers = [];
-  // Fixed-length slot arrays — null = empty
-  let roster = { F: Array(12).fill(null), D: Array(6).fill(null), G: Array(2).fill(null) };
-  let _clearPending = false;
-  let _clearTimer = null;
-  let _undoSnapshot = null;
-  let _poolPage = 0;
-  const PAGE_SIZE = 50;
+  let teams = [];         // [{ id, name, roster: { F:[slug|null,...], D:[...], G:[...] } }]
+  let activeTeamId = null;
+
   const SLOT_CFG = {
     F: { containerId: 'slots-F', max: 12, countId: 'fwd-count' },
     D: { containerId: 'slots-D', max: 6,  countId: 'def-count' },
     G: { containerId: 'slots-G', max: 2,  countId: 'gol-count' },
   };
+
   let activeFilter = 'ALL';
-  let activeTeam   = 'ALL';
+  let activeNHLTeam = 'ALL';
   let activeSort   = 'salary';
-  let swapMode     = null; // { group, index } when active
+  let swapMode     = null;
+  let _poolPage    = 0;
+  const PAGE_SIZE  = 50;
+  let _clearPending = false;
+  let _clearTimer   = null;
+  let _undoSnapshot = null;
 
-  // ── Mobile tab switcher ────────────────────────────────────────────────────
-  let _mobileTab = 'team';
-  function switchMobileTab(tab) {
-    _mobileTab = tab;
-    document.getElementById('mob-tab-team').classList.toggle('active', tab === 'team');
-    document.getElementById('mob-tab-pool').classList.toggle('active', tab === 'pool');
-    document.querySelector('.your-team-panel').classList.toggle('mobile-hidden', tab !== 'team');
-    document.querySelector('.pool-panel').classList.toggle('mobile-hidden', tab !== 'pool');
-  }
-  // Start with pool visible on mobile so users find players first
-  function initMobileTabs() {
-    if (window.innerWidth <= 860) switchMobileTab('pool');
+  // Modal state
+  let _modalMode = null; // 'add' | 'rename'
+  let _modalTargetId = null;
+
+  // ── Getters ────────────────────────────────────────────────────────────────
+  function activeTeam() { return teams.find(t => t.id === activeTeamId) || null; }
+
+  function activeRoster() {
+    const t = activeTeam();
+    if (!t) return { F: Array(12).fill(null), D: Array(6).fill(null), G: Array(2).fill(null) };
+    return rosterFromSlugs(t.roster);
   }
 
-  // ── Mobile roster badge ────────────────────────────────────────────────────
-  function updateMobileRosterCount() {
-    const filled = [...roster.F, ...roster.D, ...roster.G].filter(Boolean).length;
-    const badge = document.getElementById('mob-roster-count');
-    if (badge) badge.textContent = `${filled}/20`;
+  function rosterFromSlugs(rosterSlugs) {
+    const bySlug = slugMap();
+    return {
+      F: rosterSlugs.F.map(s => (s && bySlug[s]) ? bySlug[s] : null),
+      D: rosterSlugs.D.map(s => (s && bySlug[s]) ? bySlug[s] : null),
+      G: rosterSlugs.G.map(s => (s && bySlug[s]) ? bySlug[s] : null),
+    };
+  }
+
+  function slugMap() {
+    if (!slugMap._cache) slugMap._cache = Object.fromEntries(allPlayers.map(p => [p.puckpedia_slug, p]));
+    return slugMap._cache;
+  }
+
+  // All slugs claimed across ALL teams (for pool dimming)
+  function allClaimedSlugs() {
+    const set = new Set();
+    for (const t of teams) {
+      [...t.roster.F, ...t.roster.D, ...t.roster.G].forEach(s => { if (s) set.add(s); });
+    }
+    return set;
+  }
+
+  // Map slug → team name (for claimed badge)
+  function claimedByMap() {
+    const map = {};
+    for (const t of teams) {
+      [...t.roster.F, ...t.roster.D, ...t.roster.G].forEach(s => { if (s) map[s] = t.name; });
+    }
+    return map;
+  }
+
+  // Slugs in active team's roster
+  function activeRosterSlugs() {
+    const t = activeTeam();
+    if (!t) return new Set();
+    return new Set([...t.roster.F, ...t.roster.D, ...t.roster.G].filter(Boolean));
+  }
+
+  // ── ID generator ──────────────────────────────────────────────────────────
+  function uid() { return 't' + Math.random().toString(36).slice(2, 9); }
+
+  function emptyRosterSlugs() {
+    return { F: Array(12).fill(null), D: Array(6).fill(null), G: Array(2).fill(null) };
+  }
+
+  // ── Persistence ────────────────────────────────────────────────────────────
+  function savePool() {
+    localStorage.setItem('hp_pool_v2', JSON.stringify({ teams, activeTeamId }));
+  }
+
+  function loadPool() {
+    try {
+      const raw = localStorage.getItem('hp_pool_v2');
+      if (!raw) return false;
+      const saved = JSON.parse(raw);
+      if (!Array.isArray(saved.teams) || !saved.teams.length) return false;
+      teams = saved.teams.map(t => ({
+        id: t.id || uid(),
+        name: t.name || 'Team',
+        roster: {
+          F: Array.isArray(t.roster?.F) ? t.roster.F : Array(12).fill(null),
+          D: Array.isArray(t.roster?.D) ? t.roster.D : Array(6).fill(null),
+          G: Array.isArray(t.roster?.G) ? t.roster.G : Array(2).fill(null),
+        }
+      }));
+      activeTeamId = saved.activeTeamId && teams.find(t => t.id === saved.activeTeamId)
+        ? saved.activeTeamId : teams[0].id;
+      return true;
+    } catch(e) { return false; }
+  }
+
+  // Migrate old single-roster save
+  function migrateOldSave() {
+    try {
+      const raw = localStorage.getItem('hp_roster');
+      if (!raw) return;
+      const saved = JSON.parse(raw);
+      const id = uid();
+      teams = [{ id, name: 'My Team', roster: {
+        F: Array.isArray(saved.F) ? saved.F : Array(12).fill(null),
+        D: Array.isArray(saved.D) ? saved.D : Array(6).fill(null),
+        G: Array.isArray(saved.G) ? saved.G : Array(2).fill(null),
+      }}];
+      activeTeamId = id;
+      savePool();
+      localStorage.removeItem('hp_roster');
+    } catch(e) {}
   }
 
   // ── Fetch ──────────────────────────────────────────────────────────────────
@@ -900,13 +737,243 @@
         allPlayers = await res.json();
         sessionStorage.setItem('hp_players', JSON.stringify(allPlayers));
       }
-      buildTeamStrip();
-      renderPool();
-      restoreRoster();
+      slugMap._cache = null; // invalidate after load
+      buildNHLTeamStrip();
+      // Restore or initialise pool
+      if (!loadPool()) {
+        migrateOldSave();
+        if (!teams.length) addTeam('Team 1', false);
+      }
+      renderAll();
     } catch(e) {
       document.getElementById('pool-list').innerHTML =
         '<div class="empty-msg">Failed to load players. <button class="retry-btn" onclick="loadPlayers()">Retry</button></div>';
     }
+  }
+
+  // ── Add / delete / rename team ─────────────────────────────────────────────
+  function addTeam(name, save = true) {
+    if (teams.length >= MAX_TEAMS) { toast(`Max ${MAX_TEAMS} teams`); return; }
+    const id = uid();
+    teams.push({ id, name: name || `Team ${teams.length + 1}`, roster: emptyRosterSlugs() });
+    activeTeamId = id;
+    if (save) { savePool(); renderAll(); }
+  }
+
+  function deleteTeam(id) {
+    if (teams.length <= 1) { toast('Need at least 1 team'); return; }
+    teams = teams.filter(t => t.id !== id);
+    if (activeTeamId === id) activeTeamId = teams[0].id;
+    savePool(); renderAll();
+  }
+
+  function renameTeam(id, name) {
+    const t = teams.find(t => t.id === id);
+    if (t) { t.name = name.trim() || t.name; savePool(); renderAll(); }
+  }
+
+  function switchTeam(id) {
+    if (swapMode) cancelSwap();
+    activeTeamId = id;
+    savePool(); renderAll();
+  }
+
+  // ── Modal ──────────────────────────────────────────────────────────────────
+  function openAddTeamModal() {
+    _modalMode = 'add'; _modalTargetId = null;
+    document.getElementById('modal-title').innerHTML = 'Add <span>Team</span>';
+    document.getElementById('modal-input').value = '';
+    document.getElementById('modal-input').placeholder = `Team ${teams.length + 1}`;
+    document.getElementById('modal-confirm-btn').textContent = 'Add';
+    document.getElementById('modal-overlay').classList.remove('hidden');
+    setTimeout(() => document.getElementById('modal-input').focus(), 50);
+  }
+
+  function openRenameModal(id) {
+    _modalMode = 'rename'; _modalTargetId = id;
+    const t = teams.find(t => t.id === id);
+    document.getElementById('modal-title').innerHTML = 'Rename <span>Team</span>';
+    document.getElementById('modal-input').value = t ? t.name : '';
+    document.getElementById('modal-input').placeholder = 'Team name…';
+    document.getElementById('modal-confirm-btn').textContent = 'Save';
+    document.getElementById('modal-overlay').classList.remove('hidden');
+    setTimeout(() => { const inp = document.getElementById('modal-input'); inp.focus(); inp.select(); }, 50);
+  }
+
+  function closeModal() { document.getElementById('modal-overlay').classList.add('hidden'); }
+
+  function confirmModal() {
+    const val = document.getElementById('modal-input').value.trim();
+    if (_modalMode === 'add') addTeam(val || `Team ${teams.length + 1}`);
+    else if (_modalMode === 'rename' && _modalTargetId) renameTeam(_modalTargetId, val);
+    closeModal();
+  }
+
+  // ── Render all ─────────────────────────────────────────────────────────────
+  function renderAll() {
+    renderTeamSwitcher();
+    refreshRoster();
+    renderPool();
+    renderOverview();
+    updateActiveTeamLabel();
+  }
+
+  // ── Team switcher ──────────────────────────────────────────────────────────
+  function renderTeamSwitcher() {
+    const el = document.getElementById('team-switcher');
+    el.innerHTML = '';
+    for (const t of teams) {
+      const roster = rosterFromSlugs(t.roster);
+      const filled = [...roster.F, ...roster.D, ...roster.G].filter(Boolean).length;
+      const isFull = filled >= 20;
+      const pill = document.createElement('div');
+      pill.className = 'team-pill-switcher' + (t.id === activeTeamId ? ' active' : '');
+      pill.innerHTML = `
+        <div class="team-pill-name">${t.name}</div>
+        <div class="team-pill-progress ${isFull ? 'full' : ''}">${filled}/20</div>
+        <div class="team-pill-actions">
+          <button class="team-pill-btn" onclick="event.stopPropagation();openRenameModal('${t.id}')">Rename</button>
+          <button class="team-pill-btn delete" onclick="event.stopPropagation();confirmDeleteTeam('${t.id}')">✕</button>
+        </div>`;
+      pill.addEventListener('click', () => switchTeam(t.id));
+      el.appendChild(pill);
+    }
+    // Add team button
+    if (teams.length < MAX_TEAMS) {
+      const add = document.createElement('button');
+      add.className = 'btn-add-team';
+      add.innerHTML = '＋ Add Team';
+      add.onclick = openAddTeamModal;
+      el.appendChild(add);
+    }
+  }
+
+  function updateActiveTeamLabel() {
+    const t = activeTeam();
+    const el = document.getElementById('active-team-label');
+    if (el) el.textContent = t ? t.name : '—';
+  }
+
+  // Delete with confirm
+  let _deleteTarget = null, _deleteTimer = null;
+  function confirmDeleteTeam(id) {
+    if (_deleteTarget === id) {
+      clearTimeout(_deleteTimer); _deleteTarget = null;
+      deleteTeam(id); return;
+    }
+    _deleteTarget = id;
+    toast('Click ✕ again to delete team');
+    clearTimeout(_deleteTimer);
+    _deleteTimer = setTimeout(() => { _deleteTarget = null; }, 3000);
+  }
+
+  // ── Overview ──────────────────────────────────────────────────────────────
+  function renderOverview() {
+    const grid = document.getElementById('overview-grid');
+    grid.innerHTML = '';
+    for (const t of teams) {
+      const roster = rosterFromSlugs(t.roster);
+      const players = [...roster.F, ...roster.D, ...roster.G].filter(Boolean);
+      const filled = players.length;
+      const pts = players.reduce((s, p) => s + poolScore(p), 0);
+      const cap = players.reduce((s, p) => s + (p.cap_hit || 0), 0);
+      const pct = (filled / 20) * 100;
+      const card = document.createElement('div');
+      card.className = 'overview-card';
+      card.innerHTML = `
+        <div class="overview-card-name">${t.name}</div>
+        <div class="overview-card-stats">
+          <span class="overview-stat"><strong>${filled}</strong>/20 players</span>
+          <span class="overview-stat"><strong>${pts}</strong> pts</span>
+          <span class="overview-stat"><strong>$${(cap/1_000_000).toFixed(1)}M</strong> used</span>
+        </div>
+        <div class="overview-progress-bar"><div class="overview-progress-fill" style="width:${pct}%"></div></div>`;
+      card.addEventListener('click', () => {
+        switchTeam(t.id);
+        if (window.innerWidth <= 860) switchMobileTab('team');
+        else showView('draft');
+      });
+      grid.appendChild(card);
+    }
+  }
+
+  // ── View toggling (desktop overview) ──────────────────────────────────────
+  let _currentView = 'draft';
+  function showView(view) {
+    _currentView = view;
+    const layout = document.getElementById('pool-layout');
+    const overview = document.getElementById('pool-overview');
+    if (view === 'overview') {
+      layout.style.display = 'none';
+      overview.style.display = '';
+    } else {
+      layout.style.display = '';
+      overview.style.display = 'none';
+    }
+  }
+
+  // ── Mobile tabs ────────────────────────────────────────────────────────────
+  let _mobileTab = 'pool';
+  function switchMobileTab(tab) {
+    _mobileTab = tab;
+    ['team','pool','overview'].forEach(t => {
+      document.getElementById(`mob-tab-${t}`)?.classList.toggle('active', t === tab);
+    });
+    document.getElementById('your-team-panel').classList.toggle('mobile-hidden', tab !== 'team');
+    document.getElementById('pool-panel').classList.toggle('mobile-hidden', tab !== 'pool');
+    const layout = document.getElementById('pool-layout');
+    const overview = document.getElementById('pool-overview');
+    if (tab === 'overview') {
+      layout.style.display = 'none';
+      overview.style.display = '';
+      renderOverview();
+    } else {
+      layout.style.display = '';
+      overview.style.display = 'none';
+    }
+  }
+
+  function initMobileTabs() {
+    if (window.innerWidth <= 860) {
+      document.getElementById('mobile-tabs').style.display = 'flex';
+      switchMobileTab('pool');
+    }
+  }
+
+  function updateMobileRosterCount() {
+    const t = activeTeam();
+    if (!t) return;
+    const filled = [...t.roster.F, ...t.roster.D, ...t.roster.G].filter(Boolean).length;
+    const badge = document.getElementById('mob-roster-count');
+    if (badge) badge.textContent = `${filled}/20`;
+  }
+
+  // ── NHL Team strip ─────────────────────────────────────────────────────────
+  function buildNHLTeamStrip() {
+    const nhlTeams = [...new Set(allPlayers.map(p => p.team).filter(Boolean))].sort();
+    const strip = document.getElementById('nhl-team-strip');
+    strip.innerHTML = '';
+    const all = document.createElement('div');
+    all.className = 'nhl-team-pill nhl-team-pill-all active';
+    all.textContent = 'ALL';
+    all.addEventListener('click', () => setNHLTeam('ALL', all));
+    strip.appendChild(all);
+    for (const slug of nhlTeams) {
+      const abbr = TEAM_ABBR[slug]; if (!abbr) continue;
+      const pill = document.createElement('div');
+      pill.className = 'nhl-team-pill'; pill.dataset.team = slug;
+      pill.innerHTML = `<img src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}"><span>${abbr}</span>`;
+      pill.addEventListener('click', () => setNHLTeam(slug, pill));
+      strip.appendChild(pill);
+    }
+  }
+
+  function setNHLTeam(slug, el) {
+    activeNHLTeam = slug;
+    document.querySelectorAll('.nhl-team-pill').forEach(p => p.classList.remove('active'));
+    el.classList.add('active');
+    el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+    renderPool();
   }
 
   // ── Helpers ────────────────────────────────────────────────────────────────
@@ -917,72 +984,40 @@
     if (p === 'D' || p.includes('LD') || p.includes('RD')) return 'D';
     return 'F';
   }
-
   function formatName(name) {
     if (!name) return '';
-    if (name.includes(',')) {
-      const [last, first] = name.split(',').map(s => s.trim());
-      return `${first} ${last}`;
-    }
+    if (name.includes(',')) { const [last, first] = name.split(',').map(s => s.trim()); return `${first} ${last}`; }
     return name;
   }
-
   function groupLabel(g) { return g === 'F' ? 'Forward' : g === 'D' ? 'Defence' : 'Goalie'; }
 
-  // ── Team strip ─────────────────────────────────────────────────────────────
-  function buildTeamStrip() {
-    const teams = [...new Set(allPlayers.map(p => p.team).filter(Boolean))].sort();
-    const strip = document.getElementById('team-strip');
-    strip.innerHTML = '';
-
-    // "All" pill
-    const all = document.createElement('div');
-    all.className = 'team-pill team-pill-all active';
-    all.textContent = 'ALL';
-    all.addEventListener('click', () => setTeam('ALL', all));
-    strip.appendChild(all);
-
-    for (const slug of teams) {
-      const abbr = TEAM_ABBR[slug];
-      if (!abbr) continue;
-      const pill = document.createElement('div');
-      pill.className = 'team-pill';
-      pill.dataset.team = slug;
-      pill.innerHTML = `<img src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}"><span>${abbr}</span>`;
-      pill.addEventListener('click', () => setTeam(slug, pill));
-      strip.appendChild(pill);
-    }
-  }
-
-  function setTeam(slug, el) {
-    activeTeam = slug;
-    document.querySelectorAll('.team-pill').forEach(p => p.classList.remove('active'));
-    el.classList.add('active');
-    el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
-    renderPool();
-  }
-
-  // ── Render pool ────────────────────────────────────────────────────────────
-  function renderPool() {
-    _poolPage = 0;
-    _renderPoolPage();
-  }
+  // ── Pool render ────────────────────────────────────────────────────────────
+  function renderPool() { _poolPage = 0; _renderPoolPage(); }
 
   function _renderPoolPage() {
     const query = document.getElementById('search-input').value.toLowerCase().trim();
-    const added = new Set([...roster.F, ...roster.D, ...roster.G].filter(Boolean).map(p => p.puckpedia_slug));
+    const claimed = allClaimedSlugs();
+    const activeSlugs = activeRosterSlugs();
+    const claimedBy = claimedByMap();
+
     const filtered = allPlayers.filter(p => {
       if (!p.player_name) return false;
       if (activeFilter !== 'ALL' && normalizePos(p.position) !== activeFilter) return false;
-      if (activeTeam !== 'ALL' && p.team !== activeTeam) return false;
+      if (activeNHLTeam !== 'ALL' && p.team !== activeNHLTeam) return false;
       if (query && !p.player_name.toLowerCase().includes(query)) return false;
       return true;
     }).slice().sort((a, b) => playerSortKey(b) - playerSortKey(a));
+
     const list = document.getElementById('pool-list');
     if (!filtered.length) { list.innerHTML = '<div class="empty-msg">No players found.</div>'; return; }
     const visible = filtered.slice(0, (_poolPage + 1) * PAGE_SIZE);
     list.innerHTML = '';
-    visible.forEach(p => list.appendChild(makeCard(p, normalizePos(p.position), false, added.has(p.puckpedia_slug))));
+    visible.forEach(p => {
+      const slug = p.puckpedia_slug;
+      const inActiveRoster = activeSlugs.has(slug);
+      const claimedByOther = !inActiveRoster && claimed.has(slug);
+      list.appendChild(makePoolCard(p, normalizePos(p.position), claimedByOther, claimedByOther ? claimedBy[slug] : null));
+    });
     if (filtered.length > visible.length) {
       const remaining = filtered.length - visible.length;
       const btn = document.createElement('button');
@@ -993,119 +1028,58 @@
     }
   }
 
-  // ── Make card ──────────────────────────────────────────────────────────────
-  function makeCard(player, pos, inRoster = false, disabled = false, group = null, index = null) {
+  // ── Make pool card ─────────────────────────────────────────────────────────
+  function makePoolCard(player, pos, claimedByOther = false, claimedTeamName = null) {
     const el = document.createElement('div');
-    el.className = 'player-card' + (inRoster ? ' in-roster' : '') + (disabled ? ' already-added' : '');
+    el.className = 'player-card' + (claimedByOther ? ' claimed-other' : '');
     el.dataset.slug = player.puckpedia_slug;
-    el.dataset.pos = pos;
     const salary = player.cap_hit ? '$' + player.cap_hit.toLocaleString() : 'No contract';
     const eff = player.cap_hit ? effScore(player).toFixed(1) : null;
-    const effBox = eff ? `<div class="stat-box stat-box-eff">
-      <div class="stat-box-main">${eff}</div>
-      <div class="stat-box-label">EFF</div>
-    </div>` : '';
-    const gpBox = player.games_played != null
-      ? `<div class="stat-box stat-box-gp">
-           <div class="stat-box-main">${player.games_played}</div>
-           <div class="stat-box-label">GP</div>
-         </div>` : '';
+    const effBox = eff ? `<div class="stat-box stat-box-eff"><div class="stat-box-main">${eff}</div><div class="stat-box-label">EFF</div></div>` : '';
+    const gpBox = player.games_played != null ? `<div class="stat-box stat-box-gp"><div class="stat-box-main">${player.games_played}</div><div class="stat-box-label">GP</div></div>` : '';
     let statBoxHtml;
-    if (inRoster) {
-      // Roster panel: compact — GP + PTS for skaters, GP + W for goalies
-      statBoxHtml = pos === 'G'
-        ? (player.wins != null
-            ? `<div class="stat-boxes">
-                 ${gpBox}
-                 <div class="stat-box stat-box-pts">
-                   <div class="stat-box-main">${player.wins}</div>
-                   <div class="stat-box-label">W</div>
-                 </div>
-                 ${player.shutouts ? `<div class="stat-box stat-box-pts">
-                   <div class="stat-box-main">${player.shutouts}</div>
-                   <div class="stat-box-label">SO</div>
-                 </div>` : ''}
-               </div>` : '')
-        : (player.points != null
-            ? `<div class="stat-boxes">
-                 ${gpBox}
-                 <div class="stat-box stat-box-pts">
-                   <div class="stat-box-main">${player.points}</div>
-                   <div class="stat-box-label">PTS</div>
-                 </div>
-               </div>` : '');
+    if (pos === 'G') {
+      statBoxHtml = player.wins != null ? `<div class="stat-boxes">${gpBox}<div class="stat-box stat-box-pts"><div class="stat-box-main">${player.wins}</div><div class="stat-box-label">WINS</div></div>${player.shutouts ? `<div class="stat-box stat-box-pts"><div class="stat-box-main">${player.shutouts}</div><div class="stat-box-label">SO</div></div>` : ''}${effBox}</div>` : '';
     } else {
-      // Pool panel: full stats
-      statBoxHtml = pos === 'G'
-        ? (player.wins != null
-            ? `<div class="stat-boxes">
-                 ${gpBox}
-                 <div class="stat-box stat-box-pts">
-                   <div class="stat-box-main">${player.wins}</div>
-                   <div class="stat-box-label">WINS</div>
-                 </div>
-                 ${player.shutouts ? `<div class="stat-box stat-box-pts">
-                   <div class="stat-box-main">${player.shutouts}</div>
-                   <div class="stat-box-label">SO</div>
-                 </div>` : ''}
-                 ${effBox}
-               </div>` : '')
-        : (player.points != null
-            ? `<div class="stat-boxes">
-                 ${gpBox}
-                 <div class="stat-box stat-box-goals">
-                   <div class="stat-box-main">${player.goals}</div>
-                   <div class="stat-box-label">G</div>
-                 </div>
-                 <div class="stat-box stat-box-assists">
-                   <div class="stat-box-main">${player.assists}</div>
-                   <div class="stat-box-label">A</div>
-                 </div>
-                 <div class="stat-box stat-box-pts">
-                   <div class="stat-box-main">${player.points}</div>
-                   <div class="stat-box-label">PTS</div>
-                 </div>
-                 ${effBox}
-               </div>` : '');
+      statBoxHtml = player.points != null ? `<div class="stat-boxes">${gpBox}<div class="stat-box stat-box-goals"><div class="stat-box-main">${player.goals}</div><div class="stat-box-label">G</div></div><div class="stat-box stat-box-assists"><div class="stat-box-main">${player.assists}</div><div class="stat-box-label">A</div></div><div class="stat-box stat-box-pts"><div class="stat-box-main">${player.points}</div><div class="stat-box-label">PTS</div></div>${effBox}</div>` : '';
     }
-    const cardAbbr = TEAM_ABBR[player.team];
-    const cardLogoHtml = cardAbbr
-      ? `<img class="card-team-logo" src="https://assets.nhle.com/logos/nhl/svg/${cardAbbr}_dark.svg" alt="${cardAbbr}">`
-      : '';
-    el.innerHTML = `
-      <span class="pos-badge ${pos}">${pos}</span>
-      ${cardLogoHtml}
-      <div class="player-info">
-        <div class="player-name">${formatName(player.player_name)}</div>
-        <div class="player-salary">${salary}</div>
-      </div>
-      ${statBoxHtml}
-      ${inRoster
-        ? `<button class="remove-btn" aria-label="Remove ${player.player_name} from roster">✕</button>`
-        : `<button class="add-btn" aria-label="Add ${player.player_name} to team">+</button>`}`;
-    if (!disabled) {
-      if (!inRoster) {
-        el.querySelector('.add-btn').addEventListener('click', e => { e.stopPropagation(); tapAddPlayer(player, pos); });
-      }
+    const abbr = TEAM_ABBR[player.team];
+    const logoHtml = abbr ? `<img class="card-team-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}">` : '';
+    const claimedBadge = claimedTeamName ? `<span class="claimed-badge">${claimedTeamName}</span>` : '';
+    const actionBtn = claimedByOther ? '' : `<button class="add-btn" aria-label="Add ${player.player_name}">+</button>`;
+    el.innerHTML = `<span class="pos-badge ${pos}">${pos}</span>${logoHtml}<div class="player-info"><div class="player-name">${formatName(player.player_name)}</div><div class="player-salary">${salary}</div></div>${statBoxHtml}${claimedBadge}${actionBtn}`;
+    if (!claimedByOther) {
+      el.querySelector('.add-btn').addEventListener('click', e => { e.stopPropagation(); tapAddPlayer(player, pos); });
     }
-    if (inRoster) {
-      el.querySelector('.remove-btn').addEventListener('click', e => { e.stopPropagation(); removeFromRoster(group, index); });
+    return el;
+  }
+
+  // ── Make roster card ───────────────────────────────────────────────────────
+  function makeRosterCard(player, group, index) {
+    const el = document.createElement('div');
+    el.className = 'player-card in-roster' + (swapMode && swapMode.group === group && swapMode.index === index ? ' swap-source' : '');
+    const salary = player.cap_hit ? '$' + player.cap_hit.toLocaleString() : '';
+    const gpBox = player.games_played != null ? `<div class="stat-box stat-box-gp"><div class="stat-box-main">${player.games_played}</div><div class="stat-box-label">GP</div></div>` : '';
+    let statBoxHtml;
+    if (group === 'G') {
+      statBoxHtml = player.wins != null ? `<div class="stat-boxes">${gpBox}<div class="stat-box stat-box-pts"><div class="stat-box-main">${player.wins}</div><div class="stat-box-label">W</div></div>${player.shutouts ? `<div class="stat-box stat-box-pts"><div class="stat-box-main">${player.shutouts}</div><div class="stat-box-label">SO</div></div>` : ''}</div>` : '';
+    } else {
+      statBoxHtml = player.points != null ? `<div class="stat-boxes">${gpBox}<div class="stat-box stat-box-pts"><div class="stat-box-main">${player.points}</div><div class="stat-box-label">PTS</div></div></div>` : '';
     }
+    const abbr = TEAM_ABBR[player.team];
+    const logoHtml = abbr ? `<img class="card-team-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}">` : '';
+    el.innerHTML = `<span class="pos-badge ${group}">${group}</span>${logoHtml}<div class="player-info"><div class="player-name">${formatName(player.player_name)}</div><div class="player-salary">${salary}</div></div>${statBoxHtml}<button class="remove-btn" aria-label="Remove">✕</button>`;
+    el.querySelector('.remove-btn').addEventListener('click', e => { e.stopPropagation(); removeFromRoster(group, index); });
+    el.addEventListener('click', () => enterSwap(group, index));
     return el;
   }
 
   // ── Swap mode ──────────────────────────────────────────────────────────────
   function enterSwap(group, index) {
-    // Toggle off if clicking the same slot again
-    if (swapMode && swapMode.group === group && swapMode.index === index) {
-      cancelSwap(); return;
-    }
+    if (swapMode && swapMode.group === group && swapMode.index === index) { cancelSwap(); return; }
     swapMode = { group, index };
-    // Show banner
     document.getElementById('swap-banner').classList.add('active');
-    // Highlight source card
     refreshRoster();
-    // Auto-filter pool to matching position and scroll into view
     if (activeFilter !== group) {
       activeFilter = group;
       document.querySelectorAll('[data-pos]').forEach(b => b.classList.toggle('active', b.dataset.pos === group));
@@ -1117,98 +1091,59 @@
   function cancelSwap() {
     swapMode = null;
     document.getElementById('swap-banner').classList.remove('active');
-    refreshRoster();
-    renderPool();
+    refreshRoster(); renderPool();
   }
 
   // ── Tap-to-add ─────────────────────────────────────────────────────────────
   function tapAddPlayer(player, pos) {
+    const t = activeTeam(); if (!t) return;
     const group = pos;
+    const slug = player.puckpedia_slug;
 
-    // Swap mode: replace the selected roster slot
+    // Can't add if claimed by another team
+    const claimed = allClaimedSlugs();
+    if (claimed.has(slug) && !activeRosterSlugs().has(slug)) return;
+
     if (swapMode && swapMode.group === group) {
-      const outgoing = roster[group][swapMode.index];
-      // Cap check: replace outgoing cap with incoming
+      const outSlug = t.roster[group][swapMode.index];
+      const roster = activeRoster();
       const currentCap = [...roster.F,...roster.D,...roster.G].filter(Boolean).reduce((s,p) => s+(p.cap_hit||0), 0);
+      const outgoing = outSlug ? slugMap()[outSlug] : null;
       const capWithSwap = currentCap - (outgoing?.cap_hit || 0) + (player.cap_hit || 0);
-      if (capWithSwap > CAP_MAX) {
-        toast(`Over cap — can't fit $${(player.cap_hit/1_000_000).toFixed(1)}M here`); return;
-      }
-      // Don't allow adding a player already in another slot
-      const otherSlots = [...roster.F,...roster.D,...roster.G].filter((p,_) => p && p !== outgoing);
-      if (otherSlots.find(p => p.puckpedia_slug === player.puckpedia_slug)) return;
-      roster[group][swapMode.index] = player;
-      const swapped = outgoing ? outgoing.player_name : 'slot';
+      if (capWithSwap > CAP_MAX) { toast(`Over cap — can't fit $${(player.cap_hit/1_000_000).toFixed(1)}M`); return; }
+      // Prevent adding a player already in another slot of this team
+      const otherSlugs = [...t.roster.F,...t.roster.D,...t.roster.G].filter((s,_) => s && s !== outSlug);
+      if (otherSlugs.includes(slug)) return;
+      t.roster[group][swapMode.index] = slug;
       swapMode = null;
       document.getElementById('swap-banner').classList.remove('active');
-      refreshRoster();
-      renderPool();
+      refreshRoster(); renderPool(); renderTeamSwitcher(); renderOverview();
       toast(`🔄 Swapped in ${formatName(player.player_name)}`);
-      saveRoster();
-      return;
+      savePool(); return;
     }
 
-    const slots = roster[group];
-    const emptyIdx = slots.findIndex(s => s === null);
+    const emptyIdx = t.roster[group].findIndex(s => s === null);
     if (emptyIdx === -1) { toast(`${groupLabel(group)} slots full`); return; }
-    if (slots.find(p => p && p.puckpedia_slug === player.puckpedia_slug)) return;
-    const cap = [...roster.F, ...roster.D, ...roster.G].filter(Boolean).reduce((s, p) => s + (p.cap_hit || 0), 0);
-    if (cap + (player.cap_hit || 0) > CAP_MAX) {
-      toast(`Over cap — $${(CAP_MAX - cap).toLocaleString()} remaining`); return;
-    }
-    roster[group][emptyIdx] = player;
-    refreshRoster();
-    renderPool();
-    saveRoster();
-  }
-  function setFilter(pos, btn) {
-    activeFilter = pos;
-    document.querySelectorAll('[data-pos]').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    renderPool();
+    if ([...t.roster.F,...t.roster.D,...t.roster.G].includes(slug)) return;
+    const roster = activeRoster();
+    const cap = [...roster.F,...roster.D,...roster.G].filter(Boolean).reduce((s,p) => s+(p.cap_hit||0), 0);
+    if (cap + (player.cap_hit || 0) > CAP_MAX) { toast(`Over cap — $${(CAP_MAX - cap).toLocaleString()} remaining`); return; }
+    t.roster[group][emptyIdx] = slug;
+    refreshRoster(); renderPool(); renderTeamSwitcher(); renderOverview();
+    savePool();
   }
 
-  function setSort(sort, btn) {
-    activeSort = sort;
-    document.querySelectorAll('[data-sort]').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    renderPool();
-  }
-
-  // ── Pool scoring rules ─────────────────────────────────────────────────────
-  // F:  G=1pt,  A=1pt  (= regular points total)
-  // D:  G=2pts, A=1pt  (= goals + points)
-  // G:  W=2pts · SO=3pts
-  function poolScore(p) {
-    const pos = normalizePos(p.position);
-    if (pos === 'G') return (p.wins ?? 0) * 2 + (p.shutouts ?? 0) * 3;
-    if (pos === 'D') return (p.goals ?? 0) + (p.points ?? 0); // goals counted twice
-    return p.points ?? 0; // F: goals + assists = points
-  }
-
-  function effScore(p) {
-    if (p._eff !== undefined) return p._eff;
-    const capM = (p.cap_hit || 1) / 1_000_000;
-    p._eff = poolScore(p) / Math.sqrt(capM);
-    return p._eff;
-  }
-
-  function playerSortKey(p) {
-    if (activeSort === 'points') return poolScore(p);
-    if (activeSort === 'value')  return effScore(p);
-    return p.cap_hit || 0;
-  }
-
-  // ── Remove from slot ───────────────────────────────────────────────────────
+  // ── Remove ─────────────────────────────────────────────────────────────────
   function removeFromRoster(group, index) {
-    roster[group][index] = null;
-    refreshRoster();
-    renderPool();
-    saveRoster();
+    const t = activeTeam(); if (!t) return;
+    t.roster[group][index] = null;
+    refreshRoster(); renderPool(); renderTeamSwitcher(); renderOverview();
+    savePool();
   }
 
-  // ── Refresh roster UI (fixed slots) ───────────────────────────────────────
+  // ── Refresh roster UI ──────────────────────────────────────────────────────
   function refreshRoster() {
+    const roster = activeRoster();
     for (const [group, { containerId, max, countId }] of Object.entries(SLOT_CFG)) {
       const container = document.getElementById(containerId);
       container.innerHTML = '';
@@ -1217,20 +1152,11 @@
         const player = roster[group][i];
         const slot = document.createElement('div');
         slot.className = 'roster-slot' + (player ? '' : ' empty');
-        slot.dataset.group = group;
-        slot.dataset.index = i;
         if (player) {
           filled++;
-          const card = makeCard(player, group, true, false, group, i);
-          if (swapMode && swapMode.group === group && swapMode.index === i) {
-            card.classList.add('swap-source');
-          }
-          // Click the card body (not remove btn) to enter swap mode
-          card.addEventListener('click', () => enterSwap(group, i));
-          slot.appendChild(card);
+          slot.appendChild(makeRosterCard(player, group, i));
         } else {
           slot.innerHTML = `<span class="slot-num">${i + 1}</span>`;
-          // Clicking an empty slot while in swap mode for this group cancels it
           slot.addEventListener('click', () => { if (swapMode) cancelSwap(); });
         }
         container.appendChild(slot);
@@ -1245,70 +1171,56 @@
 
   // ── Cap bar ────────────────────────────────────────────────────────────────
   function updateCapBar() {
+    const roster = activeRoster();
     const players = [...roster.F,...roster.D,...roster.G].filter(Boolean);
     const total = players.reduce((s,p) => s+(p.cap_hit||0), 0);
     const remaining = CAP_MAX - total;
     const pct = Math.min(total / CAP_MAX * 100, 100);
-    const isOver    = total > CAP_MAX;
+    const isOver = total > CAP_MAX;
     const isWarning = !isOver && total > CAP_MAX * 0.95;
 
-    // Remaining amount
     const remEl = document.getElementById('cap-remaining');
-    if (remaining >= 0) {
-      remEl.textContent = '$' + (remaining / 1_000_000).toFixed(1) + 'M left';
-    } else {
-      remEl.textContent = '-$' + (Math.abs(remaining) / 1_000_000).toFixed(1) + 'M over';
-    }
-
-    // Used line
+    remEl.textContent = remaining >= 0
+      ? '$' + (remaining / 1_000_000).toFixed(1) + 'M left'
+      : '-$' + (Math.abs(remaining) / 1_000_000).toFixed(1) + 'M over';
     document.getElementById('cap-used').textContent = '$' + total.toLocaleString();
     document.getElementById('cap-over').style.display = isOver ? '' : 'none';
 
-    // Bar fill
     const fill = document.getElementById('cap-fill');
     fill.style.width = pct + '%';
     fill.classList.toggle('over', isOver);
     fill.classList.toggle('warning', isWarning);
 
-    // Total points
     const totalPts = players.reduce((s,p) => s + poolScore(p), 0);
     document.getElementById('roster-total-pts').textContent = totalPts;
 
-    // Wrap state + status icon
     const wrap = document.getElementById('cap-bar-wrap');
     wrap.classList.toggle('over', isOver);
     wrap.classList.toggle('warning', isWarning);
-    const iconEl = document.getElementById('cap-status-icon');
-    if (iconEl) iconEl.textContent = isOver ? '✕' : isWarning ? '⚠' : '✓';
+    const icon = document.getElementById('cap-status-icon');
+    if (icon) icon.textContent = isOver ? '✕' : isWarning ? '⚠' : '✓';
   }
 
-  // ── Clear team ─────────────────────────────────────────────────────────────
+  // ── Clear active team ──────────────────────────────────────────────────────
   function clearTeam() {
     if (!_clearPending) {
       _clearPending = true;
       const btn = document.querySelector('.btn-clear-team');
-      btn.textContent = '✕ Sure?';
-      btn.style.borderColor = 'rgba(200,16,46,0.6)';
-      btn.style.color = 'var(--red)';
+      btn.textContent = '✕ Sure?'; btn.style.borderColor = 'rgba(200,16,46,0.6)'; btn.style.color = 'var(--red)';
       _clearTimer = setTimeout(() => {
-        _clearPending = false;
-        btn.textContent = '✕ Clear';
-        btn.style.borderColor = '';
-        btn.style.color = '';
+        _clearPending = false; btn.textContent = '✕ Clear'; btn.style.borderColor = ''; btn.style.color = '';
       }, 3000);
       return;
     }
-    clearTimeout(_clearTimer);
-    _clearPending = false;
+    clearTimeout(_clearTimer); _clearPending = false;
     const btn = document.querySelector('.btn-clear-team');
-    btn.textContent = '✕ Clear';
-    btn.style.borderColor = '';
-    btn.style.color = '';
-    _undoSnapshot = { F: [...roster.F], D: [...roster.D], G: [...roster.G] };
-    roster = { F: Array(12).fill(null), D: Array(6).fill(null), G: Array(2).fill(null) };
-    refreshRoster();
-    renderPool();
-    saveRoster();
+    btn.textContent = '✕ Clear'; btn.style.borderColor = ''; btn.style.color = '';
+    const t = activeTeam(); if (!t) return;
+    _undoSnapshot = { id: t.id, roster: {
+      F: [...t.roster.F], D: [...t.roster.D], G: [...t.roster.G]
+    }};
+    t.roster = emptyRosterSlugs();
+    renderAll(); savePool();
     toastWithUndo('Team cleared');
   }
 
@@ -1316,300 +1228,219 @@
     const el = document.getElementById('toast');
     el.innerHTML = `${msg} <button onclick="undoClear()" style="background:none;border:1px solid rgba(7,17,31,0.4);border-radius:3px;color:var(--rink);font-family:'Bebas Neue',cursive;font-size:0.85rem;letter-spacing:1px;cursor:pointer;padding:1px 8px;margin-left:8px;">Undo</button>`;
     el.classList.add('show');
-    clearTimeout(_tt);
-    _tt = setTimeout(() => { el.classList.remove('show'); _undoSnapshot = null; }, 5000);
+    clearTimeout(_tt); _tt = setTimeout(() => { el.classList.remove('show'); _undoSnapshot = null; }, 5000);
   }
 
   function undoClear() {
     if (!_undoSnapshot) return;
-    roster = _undoSnapshot;
-    _undoSnapshot = null;
-    refreshRoster();
-    renderPool();
-    saveRoster();
-    toast('✓ Restored');
+    const t = teams.find(t => t.id === _undoSnapshot.id);
+    if (t) { t.roster = _undoSnapshot.roster; _undoSnapshot = null; renderAll(); savePool(); toast('✓ Restored'); }
   }
 
-  // ── Logo cache — fetch SVG as text → base64 data URL (avoids canvas taint) ──
-  const _logoCache = {};
-  async function fetchLogoDataUrl(url) {
-    if (_logoCache[url]) return _logoCache[url];
-    try {
-      const res = await fetch(url);
-      if (!res.ok) throw new Error(res.status);
-      const svg = await res.text();
-      const b64 = btoa(unescape(encodeURIComponent(svg)));
-      _logoCache[url] = `data:image/svg+xml;base64,${b64}`;
-    } catch(e) { _logoCache[url] = url; }
-    return _logoCache[url];
+  // ── Scoring ────────────────────────────────────────────────────────────────
+  function poolScore(p) {
+    const pos = normalizePos(p.position);
+    if (pos === 'G') return (p.wins ?? 0) * 2 + (p.shutouts ?? 0) * 3;
+    if (pos === 'D') return (p.goals ?? 0) + (p.points ?? 0);
+    return p.points ?? 0;
   }
-  function logoDataUrl(teamSlug) {
-    const abbr = TEAM_ABBR[teamSlug];
-    if (!abbr) return '';
-    const url = `https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg`;
-    return _logoCache[url] || url;
+  function effScore(p) {
+    if (p._eff !== undefined) return p._eff;
+    const capM = (p.cap_hit || 1) / 1_000_000;
+    p._eff = poolScore(p) / Math.sqrt(capM);
+    return p._eff;
   }
-  async function resolveRosterLogos() {
-    const slugs = [...roster.F, ...roster.D, ...roster.G].filter(Boolean).map(p => p.team).filter(Boolean);
-    const urls = [...new Set(slugs.map(s => { const a = TEAM_ABBR[s]; return a ? `https://assets.nhle.com/logos/nhl/svg/${a}_dark.svg` : null; }).filter(Boolean))];
-    await Promise.all(urls.map(fetchLogoDataUrl));
+  function playerSortKey(p) {
+    if (activeSort === 'points') return poolScore(p);
+    if (activeSort === 'value')  return effScore(p);
+    return p.cap_hit || 0;
   }
 
-  // ── Build share card HTML ──────────────────────────────────────────────────
-  function buildPoolShareCard(teamName) {
-    const total = [...roster.F, ...roster.D, ...roster.G].filter(Boolean).reduce((s, p) => s + (p.cap_hit || 0), 0);
-    const capPct = Math.min(total / CAP_MAX * 100, 100);
-    const capColor = total > CAP_MAX ? '#c8102e' : total > CAP_MAX * 0.9 ? '#f59e0b' : '#22c55e';
-    const date = new Date().toLocaleDateString('en-CA');
-    const teamLabel = teamName ? teamName.trim() : 'My Hockey Pool';
-
-    const sectionHtml = (group, label) => {
-      const players = roster[group].filter(Boolean);
-      if (!players.length) return '';
-      const rows = players.map(p => {
-        const abbr = TEAM_ABBR[p.team] || '';
-        const logoUrl = logoDataUrl(p.team);
-        const logoHtml = logoUrl
-          ? `<img src="${logoUrl}" style="width:22px;height:22px;object-fit:contain;flex-shrink:0;">`
-          : `<span style="width:22px;height:22px;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;font-size:9px;color:rgba(255,255,255,0.4);">${abbr}</span>`;
-        const salary = p.cap_hit ? `$${(p.cap_hit/1_000_000).toFixed(2)}M` : '';
-        const eff = p.cap_hit ? effScore(p).toFixed(1) : null;
-        const effChip = eff ? `<span style="font-family:'Bebas Neue',sans-serif;font-size:12px;color:#22c55e;background:rgba(34,197,94,0.1);padding:1px 5px;border-radius:3px;">EFF ${eff}</span>` : '';
-        const statsHtml = group === 'G'
-          ? (p.wins != null ? `<span style="font-family:'Bebas Neue',sans-serif;font-size:12px;color:#ffb81c;background:rgba(255,184,28,0.1);padding:1px 5px;border-radius:3px;">${p.wins}W${p.shutouts ? ` ${p.shutouts}SO` : ''}</span>${effChip}` : '')
-          : (p.points != null ? `<span style="font-family:'Bebas Neue',sans-serif;font-size:12px;color:rgba(255,255,255,0.5);background:rgba(255,255,255,0.07);padding:1px 5px;border-radius:3px;">${p.goals}G ${p.assists}A</span><span style="font-family:'Bebas Neue',sans-serif;font-size:12px;color:#ffb81c;background:rgba(255,184,28,0.1);padding:1px 5px;border-radius:3px;">${p.points}PTS</span>${effChip}` : '');
-        return `<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:rgba(255,255,255,0.04);border-radius:5px;border:1px solid rgba(255,255,255,0.07);">
-          ${logoHtml}
-          <span style="font-size:15px;font-weight:700;color:white;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${formatName(p.player_name)}</span>
-          ${statsHtml}
-          <span style="font-size:12px;color:rgba(168,178,190,0.6);flex-shrink:0;">${salary}</span>
-        </div>`;
-      }).join('');
-      const posColor = group === 'F' ? '#ff7a8a' : group === 'D' ? '#7db4ff' : '#ffb81c';
-      return `<div style="margin-bottom:14px;">
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:3px;color:${posColor};margin-bottom:6px;">${label} (${players.length})</div>
-        <div style="display:flex;flex-direction:column;gap:4px;">${rows}</div>
-      </div>`;
-    };
-
-    return `<div style="background:linear-gradient(160deg,#0d1b2e 0%,#111827 60%,#0f172a 100%);padding:28px 28px 24px;font-family:'Barlow Condensed',sans-serif;width:100%;box-sizing:border-box;">
-
-      <!-- Header -->
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
-        <div style="display:flex;align-items:center;gap:12px;">
-          <img src="https://parieurdiscipline.com/parieur_discipline_icon_1024.png" style="width:44px;height:44px;border-radius:10px;object-fit:cover;box-shadow:0 3px 12px rgba(0,0,0,0.6);flex-shrink:0;">
-          <div>
-            <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:#ffffff;letter-spacing:4px;line-height:1;">PARIEUR DISCIPLINÉ</div>
-            <div style="font-size:12px;color:#94a3b8;letter-spacing:2px;text-transform:uppercase;margin-top:2px;">${teamLabel} · NHL 2026</div>
-          </div>
-        </div>
-        <div style="font-size:13px;color:rgba(255,255,255,0.35);">${date}</div>
-      </div>
-
-      <!-- Cap bar -->
-      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:12px 16px;margin-bottom:18px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-          <span style="font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;color:#94a3b8;">SALARY CAP</span>
-          <span style="font-size:15px;font-weight:700;color:${capColor};">$${(total/1_000_000).toFixed(2)}M <span style="color:rgba(255,255,255,0.3);font-weight:400;">/ $95.50M</span></span>
-        </div>
-        <div style="height:6px;background:rgba(255,255,255,0.07);border-radius:3px;overflow:hidden;">
-          <div style="height:100%;width:${capPct}%;background:${capColor};border-radius:3px;"></div>
-        </div>
-      </div>
-
-      <!-- Two-column roster -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 20px;">
-        <div>
-          ${sectionHtml('F', 'FORWARDS')}
-        </div>
-        <div>
-          ${sectionHtml('D', 'DEFENCE')}
-          ${sectionHtml('G', 'GOALIES')}
-        </div>
-      </div>
-
-      <!-- Footer -->
-      <div style="margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.07);display:flex;justify-content:space-between;align-items:center;">
-        <span style="font-size:12px;color:rgba(255,255,255,0.25);letter-spacing:1px;">parieurdiscipline.com</span>
-        <span style="font-family:'Bebas Neue',sans-serif;font-size:13px;color:#ffb81c;letter-spacing:2px;">NHL PLAYOFFS 2026</span>
-      </div>
-    </div>`;
+  function setFilter(pos, btn) {
+    activeFilter = pos;
+    document.querySelectorAll('[data-pos]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active'); renderPool();
+  }
+  function setSort(sort, btn) {
+    activeSort = sort;
+    document.querySelectorAll('[data-sort]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active'); renderPool();
   }
 
-  // ── Share ──────────────────────────────────────────────────────────────────
-  async function sharePool() {
-    const fFilled = roster.F.filter(Boolean).length;
-    const dFilled = roster.D.filter(Boolean).length;
-    const gFilled = roster.G.filter(Boolean).length;
-    const missing = [];
-    if (fFilled < 12) missing.push(`${12 - fFilled} forward${12 - fFilled > 1 ? 's' : ''}`);
-    if (dFilled < 6)  missing.push(`${6  - dFilled} ${6 - dFilled > 1 ? 'defencemen' : 'defenceman'}`);
-    if (gFilled < 2)  missing.push(`${2  - gFilled} goalie${2 - gFilled > 1 ? 's' : ''}`);
-    if (missing.length) { toast(`Team incomplete — missing ${missing.join(', ')}`); return; }
-    const teamName = document.getElementById('team-name-input').value;
-    const btn = document.getElementById('btn-share-pool');
-    const origText = btn.textContent;
-    btn.textContent = '⏳'; btn.disabled = true;
-    await resolveRosterLogos();
-    const card = document.getElementById('pool-share-card');
-    card.innerHTML = buildPoolShareCard(teamName);
-    await new Promise(r => setTimeout(r, 150));
-    try {
-      const canvas = await html2canvas(card, { scale: 2, useCORS: true, backgroundColor: '#0d1b2e', logging: false });
-      const date = new Date().toLocaleDateString('en-CA');
-      if (navigator.share && navigator.canShare) {
-        const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
-        const file = new File([blob], `hockey-pool-${date}.png`, { type: 'image/png' });
-        if (navigator.canShare({ files: [file] })) { await navigator.share({ files: [file] }); return; }
-      }
-      const link = document.createElement('a');
-      link.download = `hockey-pool-${date}.png`;
-      link.href = canvas.toDataURL('image/png');
-      link.click();
-    } catch(e) {
-      if (e.name !== 'AbortError') { toast('Could not generate image.'); console.error(e); }
-    } finally {
-      btn.textContent = origText; btn.disabled = false;
-    }
-  }
-
-  // ── Generate Ultimate Team ─────────────────────────────────────────────────
-  // Fills the roster to maximise total points while staying under the cap.
-  // Uses a randomised greedy knapsack so each click produces a different
-  // high-scoring team: players within 20% of the top scorer at each pick are
-  // shuffled before selection, ensuring variety without sacrificing quality.
+  // ── Ultimate Team ──────────────────────────────────────────────────────────
   function generateUltimateTeam() {
     if (!allPlayers.length) { toast('Players not loaded yet'); return; }
-
-    const btn   = document.getElementById('btn-generate-team');
+    const btn = document.getElementById('btn-generate-team');
     const label = document.getElementById('btn-generate-team-label');
     btn.disabled = true;
     label.innerHTML = '<span style="display:inline-flex;align-items:center;gap:6px;"><svg style="animation:spin .7s linear infinite;width:14px;height:14px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg> Building…</span>';
-
-    setTimeout(() => {
-      _runUltimateTeam(btn, label);
-    }, 30);
+    setTimeout(() => { _runUltimateTeam(btn, label); }, 30);
   }
 
   function _runUltimateTeam(btn, label) {
+    const t = activeTeam(); if (!t) return;
+    // Globally claimed slugs (by any OTHER team)
+    const otherClaimed = new Set();
+    for (const other of teams) {
+      if (other.id === t.id) continue;
+      [...other.roster.F,...other.roster.D,...other.roster.G].forEach(s => { if (s) otherClaimed.add(s); });
+    }
 
-    // Locked = already in the roster
-    const locked = {
-      F: roster.F.filter(Boolean),
-      D: roster.D.filter(Boolean),
-      G: roster.G.filter(Boolean),
-    };
-    const lockedSlugs = new Set([...locked.F, ...locked.D, ...locked.G].map(p => p.puckpedia_slug));
-    const lockedCap   = [...locked.F, ...locked.D, ...locked.G].reduce((s, p) => s + (p.cap_hit || 0), 0);
-
+    const locked = rosterFromSlugs({
+      F: t.roster.F, D: t.roster.D, G: t.roster.G
+    });
+    const lockedSlugs = new Set([...locked.F,...locked.D,...locked.G].filter(Boolean).map(p => p.puckpedia_slug));
+    const lockedCap = [...locked.F,...locked.D,...locked.G].filter(Boolean).reduce((s,p) => s+(p.cap_hit||0), 0);
     const stat = poolScore;
 
-    // Candidate pool per position, excluding locked players, sorted by stat desc
-    const byPos = { F: [], D: [], G: [] };
+    const byPos = { F:[], D:[], G:[] };
     for (const p of allPlayers) {
-      if (!p.cap_hit || lockedSlugs.has(p.puckpedia_slug)) continue;
+      if (!p.cap_hit || lockedSlugs.has(p.puckpedia_slug) || otherClaimed.has(p.puckpedia_slug)) continue;
       byPos[normalizePos(p.position)].push(p);
     }
-    for (const g of ['F','D','G']) byPos[g].sort((a, b) => stat(b) - stat(a));
+    for (const g of ['F','D','G']) byPos[g].sort((a,b) => stat(b)-stat(a));
 
-    // Pre-compute cheapest-N cap for each position to use as a floor reservation
     function cheapestCap(g, n, excludeSlugs) {
-      const avail = byPos[g].filter(p => !excludeSlugs.has(p.puckpedia_slug));
-      return avail.slice(-n).reduce((s, p) => s + p.cap_hit, 0);
+      return byPos[g].filter(p => !excludeSlugs.has(p.puckpedia_slug)).slice(-n).reduce((s,p) => s+p.cap_hit, 0);
     }
 
-    const MAX_ATTEMPTS = 200;
     let best = null;
-
-    for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
-      const picked   = { F: [...locked.F], D: [...locked.D], G: [...locked.G] };
-      let capUsed    = lockedCap;
-
-      let failed = false;
+    for (let attempt = 0; attempt < 200; attempt++) {
+      const picked = { F:[...locked.F.filter(Boolean)], D:[...locked.D.filter(Boolean)], G:[...locked.G.filter(Boolean)] };
+      let capUsed = lockedCap; let failed = false;
       for (const g of ['F','D','G']) {
         const needed = SLOT_CFG[g].max - picked[g].length;
         if (needed <= 0) continue;
-
-        // Build the set of all slugs already picked (locked + picked so far)
-        const usedSlugs = new Set([...picked.F, ...picked.D, ...picked.G].map(p => p.puckpedia_slug));
+        const usedSlugs = new Set([...picked.F,...picked.D,...picked.G].map(p=>p.puckpedia_slug));
         const pool = byPos[g].filter(p => !usedSlugs.has(p.puckpedia_slug));
-
-        // Shuffle within 20% windows for variation
         const shuffled = [...pool];
-        for (let i = 0; i < shuffled.length; ) {
-          const topStat  = stat(shuffled[i]);
-          const threshold = topStat * 0.80;
-          let j = i + 1;
-          while (j < shuffled.length && stat(shuffled[j]) >= threshold) j++;
-          for (let k = j - 1; k > i; k--) {
-            const r = i + Math.floor(Math.random() * (k - i + 1));
-            [shuffled[i], shuffled[r]] = [shuffled[r], shuffled[i]];
-          }
+        for (let i = 0; i < shuffled.length;) {
+          const top = stat(shuffled[i]); const thresh = top * 0.80; let j = i+1;
+          while (j < shuffled.length && stat(shuffled[j]) >= thresh) j++;
+          for (let k = j-1; k > i; k--) { const r = i + Math.floor(Math.random()*(k-i+1)); [shuffled[i],shuffled[r]]=[shuffled[r],shuffled[i]]; }
           i = j;
         }
-
         for (const p of shuffled) {
-          if (picked[g].length - locked[g].length >= needed) break;
-
-          // Reserve cap for groups not yet fully filled
-          const usedNow = new Set([...picked.F, ...picked.D, ...picked.G].map(x => x.puckpedia_slug));
-          usedNow.add(p.puckpedia_slug);
-          const reserve = ['F','D','G'].reduce((s, og) => {
-            const stillNeeded = SLOT_CFG[og].max - picked[og].length - (og === g ? 1 : 0);
-            return stillNeeded > 0 ? s + cheapestCap(og, stillNeeded, usedNow) : s;
+          if (picked[g].length - (locked[g]?.filter(Boolean).length||0) >= needed) break;
+          const usedNow = new Set([...picked.F,...picked.D,...picked.G].map(x=>x.puckpedia_slug)); usedNow.add(p.puckpedia_slug);
+          const reserve = ['F','D','G'].reduce((s,og) => {
+            const still = SLOT_CFG[og].max - picked[og].length - (og===g?1:0);
+            return still > 0 ? s + cheapestCap(og, still, usedNow) : s;
           }, 0);
-
-          if (capUsed + p.cap_hit + reserve <= CAP_MAX) {
-            picked[g].push(p);
-            capUsed += p.cap_hit;
-          }
+          if (capUsed + p.cap_hit + reserve <= CAP_MAX) { picked[g].push(p); capUsed += p.cap_hit; }
         }
-
         if (picked[g].length < SLOT_CFG[g].max) { failed = true; break; }
       }
-
       if (failed) continue;
-
-      const totalPts = [...picked.F, ...picked.D, ...picked.G].reduce((s, p) => s + stat(p), 0);
+      const totalPts = [...picked.F,...picked.D,...picked.G].reduce((s,p)=>s+stat(p),0);
       if (!best || totalPts > best.totalPts) best = { picked, totalPts, capUsed };
     }
 
     if (!best) { toast('Could not fill team — try again'); label.textContent = '⚡ Ultimate Team'; btn.disabled = false; return; }
-
-    roster = { F: best.picked.F, D: best.picked.D, G: best.picked.G };
-    refreshRoster();
-    renderPool();
-    saveRoster();
-    const lockedCount = locked.F.length + locked.D.length + locked.G.length;
-    const verb = lockedCount > 0 ? `Filled ${20 - lockedCount} spots` : 'Ultimate Team built';
-    toast(`⚡ ${verb} · ${best.totalPts} pts · $${(best.capUsed/1_000_000).toFixed(1)}M used`);
-    label.textContent = '⚡ Ultimate Team';
-    btn.disabled = false;
-  }
-  // ── localStorage persistence ───────────────────────────────────────────────
-  function saveRoster() {
-    const slim = g => roster[g].map(p => p ? p.puckpedia_slug : null);
-    localStorage.setItem('hp_roster', JSON.stringify({ F: slim('F'), D: slim('D'), G: slim('G') }));
+    t.roster = {
+      F: Array(12).fill(null).map((_,i) => best.picked.F[i]?.puckpedia_slug || null),
+      D: Array(6).fill(null).map((_,i) => best.picked.D[i]?.puckpedia_slug || null),
+      G: Array(2).fill(null).map((_,i) => best.picked.G[i]?.puckpedia_slug || null),
+    };
+    renderAll(); savePool();
+    toast(`⚡ Built · ${best.totalPts} pts · $${(best.capUsed/1_000_000).toFixed(1)}M used`);
+    label.textContent = '⚡ Ultimate Team'; btn.disabled = false;
   }
 
-  function restoreRoster() {
+  // ── Logo cache + share ─────────────────────────────────────────────────────
+  const _logoCache = {};
+  async function fetchLogoDataUrl(url) {
+    if (_logoCache[url]) return _logoCache[url];
     try {
-      const raw = localStorage.getItem('hp_roster');
-      if (!raw) return;
-      const saved = JSON.parse(raw);
-      const bySlug = Object.fromEntries(allPlayers.map(p => [p.puckpedia_slug, p]));
-      ['F','D','G'].forEach(g => {
-        if (Array.isArray(saved[g])) {
-          roster[g] = saved[g].map(slug => (slug && bySlug[slug]) ? bySlug[slug] : null);
-        }
-      });
-      refreshRoster();
-      renderPool();
-    } catch(e) { /* ignore malformed saved data */ }
+      const res = await fetch(url); if (!res.ok) throw new Error();
+      const svg = await res.text();
+      _logoCache[url] = `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svg)))}`;
+    } catch(e) { _logoCache[url] = url; }
+    return _logoCache[url];
+  }
+  function logoDataUrl(teamSlug) {
+    const abbr = TEAM_ABBR[teamSlug]; if (!abbr) return '';
+    const url = `https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg`;
+    return _logoCache[url] || url;
+  }
+  async function resolveRosterLogos(roster) {
+    const slugs = [...roster.F,...roster.D,...roster.G].filter(Boolean).map(p=>p.team).filter(Boolean);
+    const urls = [...new Set(slugs.map(s=>{const a=TEAM_ABBR[s];return a?`https://assets.nhle.com/logos/nhl/svg/${a}_dark.svg`:null;}).filter(Boolean))];
+    await Promise.all(urls.map(fetchLogoDataUrl));
   }
 
-  const debouncedRenderPool = (() => { let t; return () => { clearTimeout(t); t = setTimeout(renderPool, 150); }; })();
+  function buildPoolShareCard(teamName, roster) {
+    const players = [...roster.F,...roster.D,...roster.G].filter(Boolean);
+    const total = players.reduce((s,p)=>s+(p.cap_hit||0),0);
+    const capPct = Math.min(total/CAP_MAX*100,100);
+    const capColor = total>CAP_MAX?'#c8102e':total>CAP_MAX*0.9?'#f59e0b':'#22c55e';
+    const date = new Date().toLocaleDateString('en-CA');
+    const sectionHtml = (group, label) => {
+      const ps = roster[group].filter(Boolean); if (!ps.length) return '';
+      const rows = ps.map(p => {
+        const abbr = TEAM_ABBR[p.team]||''; const logoUrl = logoDataUrl(p.team);
+        const logoHtml = logoUrl ? `<img src="${logoUrl}" style="width:22px;height:22px;object-fit:contain;flex-shrink:0;">` : `<span style="width:22px;height:22px;flex-shrink:0;"></span>`;
+        const salary = p.cap_hit ? `$${(p.cap_hit/1_000_000).toFixed(2)}M` : '';
+        const eff = p.cap_hit ? effScore(p).toFixed(1) : null;
+        const effChip = eff ? `<span style="font-family:'Bebas Neue',sans-serif;font-size:12px;color:#22c55e;background:rgba(34,197,94,0.1);padding:1px 5px;border-radius:3px;">EFF ${eff}</span>` : '';
+        const statsHtml = group==='G'
+          ? (p.wins!=null?`<span style="font-family:'Bebas Neue',sans-serif;font-size:12px;color:#ffb81c;background:rgba(255,184,28,0.1);padding:1px 5px;border-radius:3px;">${p.wins}W${p.shutouts?` ${p.shutouts}SO`:''}</span>${effChip}`:'')
+          : (p.points!=null?`<span style="font-family:'Bebas Neue',sans-serif;font-size:12px;color:rgba(255,255,255,0.5);background:rgba(255,255,255,0.07);padding:1px 5px;border-radius:3px;">${p.goals}G ${p.assists}A</span><span style="font-family:'Bebas Neue',sans-serif;font-size:12px;color:#ffb81c;background:rgba(255,184,28,0.1);padding:1px 5px;border-radius:3px;">${p.points}PTS</span>${effChip}`:'');
+        return `<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:rgba(255,255,255,0.04);border-radius:5px;border:1px solid rgba(255,255,255,0.07);">${logoHtml}<span style="font-size:15px;font-weight:700;color:white;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${formatName(p.player_name)}</span>${statsHtml}<span style="font-size:12px;color:rgba(168,178,190,0.6);flex-shrink:0;">${salary}</span></div>`;
+      }).join('');
+      const posColor = group==='F'?'#ff7a8a':group==='D'?'#7db4ff':'#ffb81c';
+      return `<div style="margin-bottom:14px;"><div style="font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:3px;color:${posColor};margin-bottom:6px;">${label} (${ps.length})</div><div style="display:flex;flex-direction:column;gap:4px;">${rows}</div></div>`;
+    };
+    return `<div style="background:linear-gradient(160deg,#0d1b2e 0%,#111827 60%,#0f172a 100%);padding:28px 28px 24px;font-family:'Barlow Condensed',sans-serif;width:100%;box-sizing:border-box;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <img src="https://parieurdiscipline.com/parieur_discipline_icon_1024.png" style="width:44px;height:44px;border-radius:10px;object-fit:cover;box-shadow:0 3px 12px rgba(0,0,0,0.6);flex-shrink:0;">
+          <div><div style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:#ffffff;letter-spacing:4px;line-height:1;">PARIEUR DISCIPLINÉ</div><div style="font-size:12px;color:#94a3b8;letter-spacing:2px;text-transform:uppercase;margin-top:2px;">${teamName} · NHL 2025–26</div></div>
+        </div>
+        <div style="font-size:13px;color:rgba(255,255,255,0.35);">${date}</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:12px 16px;margin-bottom:18px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><span style="font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;color:#94a3b8;">SALARY CAP</span><span style="font-size:15px;font-weight:700;color:${capColor};">$${(total/1_000_000).toFixed(2)}M <span style="color:rgba(255,255,255,0.3);font-weight:400;">/ $95.50M</span></span></div>
+        <div style="height:6px;background:rgba(255,255,255,0.07);border-radius:3px;overflow:hidden;"><div style="height:100%;width:${capPct}%;background:${capColor};border-radius:3px;"></div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 20px;"><div>${sectionHtml('F','FORWARDS')}</div><div>${sectionHtml('D','DEFENCE')}${sectionHtml('G','GOALIES')}</div></div>
+      <div style="margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.07);display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:12px;color:rgba(255,255,255,0.25);letter-spacing:1px;">parieurdiscipline.com</span>
+        <span style="font-family:'Bebas Neue',sans-serif;font-size:13px;color:#ffb81c;letter-spacing:2px;">NHL 2025–26 POOL</span>
+      </div>
+    </div>`;
+  }
 
+  async function sharePool() {
+    const t = activeTeam(); if (!t) return;
+    const roster = activeRoster();
+    const fF = roster.F.filter(Boolean).length, dF = roster.D.filter(Boolean).length, gF = roster.G.filter(Boolean).length;
+    const missing = [];
+    if (fF < 12) missing.push(`${12-fF} forward${12-fF>1?'s':''}`);
+    if (dF < 6)  missing.push(`${6-dF} ${6-dF>1?'defencemen':'defenceman'}`);
+    if (gF < 2)  missing.push(`${2-gF} goalie${2-gF>1?'s':''}`);
+    if (missing.length) { toast(`Incomplete — missing ${missing.join(', ')}`); return; }
+    const btn = document.getElementById('btn-share-pool');
+    const orig = btn.textContent; btn.textContent = '⏳'; btn.disabled = true;
+    await resolveRosterLogos(roster);
+    const card = document.getElementById('pool-share-card');
+    card.innerHTML = buildPoolShareCard(t.name, roster);
+    await new Promise(r => setTimeout(r, 150));
+    try {
+      const canvas = await html2canvas(card, { scale:2, useCORS:true, backgroundColor:'#0d1b2e', logging:false });
+      const date = new Date().toLocaleDateString('en-CA');
+      if (navigator.share && navigator.canShare) {
+        const blob = await new Promise(res => canvas.toBlob(res,'image/png'));
+        const file = new File([blob],`hockey-pool-${date}.png`,{type:'image/png'});
+        if (navigator.canShare({files:[file]})) { await navigator.share({files:[file]}); return; }
+      }
+      const link = document.createElement('a');
+      link.download = `hockey-pool-${date}.png`; link.href = canvas.toDataURL('image/png'); link.click();
+    } catch(e) { if (e.name !== 'AbortError') { toast('Could not generate image.'); } }
+    finally { btn.textContent = orig; btn.disabled = false; }
+  }
+
+  // ── Toast ──────────────────────────────────────────────────────────────────
   let _tt;
   function toast(msg) {
     const el = document.getElementById('toast');
@@ -1617,12 +1448,30 @@
     clearTimeout(_tt); _tt = setTimeout(() => el.classList.remove('show'), 2200);
   }
 
+  // ── Modal keyboard ─────────────────────────────────────────────────────────
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      if (swapMode) cancelSwap();
+      closeModal();
+    }
+    if (e.key === 'Enter' && !document.getElementById('modal-overlay').classList.contains('hidden')) {
+      confirmModal();
+    }
+  });
+  document.getElementById('modal-overlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('modal-overlay')) closeModal();
+  });
+
+  // ── Desktop "All Teams" link ───────────────────────────────────────────────
+  // Clicking the pool-overview toggle on desktop via a small nav link in the pool header
+  // We expose it via the h2 in the right panel — clicking it switches view
+  document.querySelector('#pool-panel h2').style.cursor = 'default';
+
+  const debouncedRenderPool = (() => { let t; return () => { clearTimeout(t); t = setTimeout(renderPool, 150); }; })();
+
+  // ── Init ───────────────────────────────────────────────────────────────────
   initMobileTabs();
-  refreshRoster(); // render empty slots immediately
-  document.addEventListener('keydown', e => { if (e.key === 'Escape' && swapMode) cancelSwap(); });
   loadPlayers();
 </script>
-
-
 </body>
 </html>
