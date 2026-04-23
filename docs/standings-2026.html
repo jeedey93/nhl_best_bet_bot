@@ -1244,28 +1244,40 @@ function buildShareCardHTML(rows, title, totalCount, pot, date){
     </div>`;
 }
 
-// ── Logo fetcher — fetches SVG text → base64 data URL (same-origin, no CORS) ─
+// ── Logo fetcher — SVG → PNG data URL so html2canvas can render it ────────────
 const _logoDataCache = {};
 async function fetchLogoDataUrl(url){
   if(_logoDataCache[url]) return _logoDataCache[url];
-  try{
-    const res = await fetch(url);
-    if(!res.ok) throw new Error(res.status);
-    const svg = await res.text();
-    const b64 = btoa(unescape(encodeURIComponent(svg)));
-    const dataUrl = `data:image/svg+xml;base64,${b64}`;
-    _logoDataCache[url] = dataUrl;
-    return dataUrl;
-  }catch(e){
-    _logoDataCache[url] = url;
-    return url;
-  }
+  return new Promise(async resolve=>{
+    try{
+      // Fetch SVG text and build a blob URL
+      const res = await fetch(url);
+      if(!res.ok) throw new Error(res.status);
+      const svg = await res.text();
+      const blob = new Blob([svg],{type:'image/svg+xml'});
+      const blobUrl = URL.createObjectURL(blob);
+      // Draw onto canvas to get a PNG data URL
+      const img = new Image();
+      img.onload = ()=>{
+        const sz = 64;
+        const c = document.createElement('canvas');
+        c.width = sz; c.height = sz;
+        c.getContext('2d').drawImage(img,0,0,sz,sz);
+        URL.revokeObjectURL(blobUrl);
+        const png = c.toDataURL('image/png');
+        _logoDataCache[url] = png;
+        resolve(png);
+      };
+      img.onerror = ()=>{ URL.revokeObjectURL(blobUrl); _logoDataCache[url]=''; resolve(''); };
+      img.src = blobUrl;
+    }catch(e){ _logoDataCache[url]=''; resolve(''); }
+  });
 }
 async function resolveLogos(teams){
   const urls = [...new Set(teams.map(t=>TEAM_LOGO[t]).filter(Boolean))];
   await Promise.all(urls.map(fetchLogoDataUrl));
 }
-function logoSrc(team){ return _logoDataCache[TEAM_LOGO[team]] || TEAM_LOGO[team] || ''; }
+function logoSrc(team){ return _logoDataCache[TEAM_LOGO[team]] || ''; }
 
 // ── Personal share card ───────────────────────────────────────────────────────
 function buildPersonalCardHTML(row, rank, leaderScore, totalCount){
