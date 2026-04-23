@@ -838,6 +838,7 @@
     _isEditing = true;
     document.body.classList.remove('view-only');
     setEditBarStatus('editing', 'You have the edit lock');
+    renderAll();
     _heartbeatTimer = setInterval(sendHeartbeat, 60_000);
   }
 
@@ -858,6 +859,7 @@
     await releaseLock();
     document.body.classList.add('view-only');
     setEditBarStatus('', 'View only — click Edit to make changes');
+    renderAll();
   }
 
   async function cancelEdit() {
