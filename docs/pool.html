@@ -260,6 +260,12 @@
   }
 
   async function createLeague() {
+    const pw = prompt('Enter password to create a league:');
+    if (!pw || pw.trim() !== 'parieur2026') {
+      if (pw !== null) alert('Incorrect password.');
+      return;
+    }
+
     const btn = document.getElementById('btn-create');
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner"></span>Creating…';
