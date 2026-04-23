@@ -465,15 +465,17 @@
     }
     .btn-cancel-edit:hover { background: rgba(200,16,46,0.08); border-color: rgba(200,16,46,0.6); color: var(--red); }
 
+    body.view-only .btn-generate-team,
+    body.view-only .btn-clear-team { display: none; }
+
     /* Dim entire builder when view-only */
     .view-only-mask {
       position: absolute; inset: 0; z-index: 10; cursor: not-allowed;
       border-radius: inherit;
     }
     .pool-layout { position: relative; }
-    body.view-only .pool-layout .your-team-panel { pointer-events: none; opacity: 0.7; }
-    body.view-only .pool-layout .pool-panel { pointer-events: none; opacity: 0.85; }
-    body.view-only .team-switcher-wrap { pointer-events: none; opacity: 0.7; }
+    body.view-only .pool-layout .your-team-panel { opacity: 0.85; }
+    body.view-only .pool-layout .pool-panel { opacity: 0.9; }
 
     @media (min-width: 861px) { .mobile-tabs { display: none; } }
     @media (max-width: 500px) {
@@ -1140,18 +1142,19 @@
       const isFull = filled >= 20;
       const pill = document.createElement('div');
       pill.className = 'team-pill-switcher' + (t.id === activeTeamId ? ' active' : '');
+      const isViewOnly = document.body.classList.contains('view-only');
       pill.innerHTML = `
         <div class="team-pill-name">${t.name}</div>
         <div class="team-pill-progress ${isFull ? 'full' : ''}">${filled}/20</div>
-        <div class="team-pill-actions">
+        ${isViewOnly ? '' : `<div class="team-pill-actions">
           <button class="team-pill-btn" onclick="event.stopPropagation();openRenameModal('${t.id}')">Rename</button>
           <button class="team-pill-btn delete" onclick="event.stopPropagation();confirmDeleteTeam('${t.id}')">✕</button>
-        </div>`;
+        </div>`}`;
       pill.addEventListener('click', () => switchTeam(t.id));
       el.appendChild(pill);
     }
-    // Add team button
-    if (teams.length < MAX_TEAMS) {
+    // Add team button — hidden in view-only mode
+    if (teams.length < MAX_TEAMS && !document.body.classList.contains('view-only')) {
       const add = document.createElement('button');
       add.className = 'btn-add-team';
       add.innerHTML = '＋ Add Team';
@@ -1358,9 +1361,10 @@
     const abbr = TEAM_ABBR[player.team];
     const logoHtml = abbr ? `<img class="card-team-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}">` : '';
     const claimedBadge = claimedTeamName ? `<span class="claimed-badge">${claimedTeamName}</span>` : '';
-    const actionBtn = claimedByOther ? '' : `<button class="add-btn" aria-label="Add ${player.player_name}">+</button>`;
+    const canAdd = !claimedByOther && !document.body.classList.contains('view-only');
+    const actionBtn = canAdd ? `<button class="add-btn" aria-label="Add ${player.player_name}">+</button>` : '';
     el.innerHTML = `<span class="pos-badge ${pos}">${pos}</span>${logoHtml}<div class="player-info"><div class="player-name">${formatName(player.player_name)}</div><div class="player-salary">${salary}</div></div>${statBoxHtml}${claimedBadge}${actionBtn}`;
-    if (!claimedByOther) {
+    if (canAdd) {
       el.querySelector('.add-btn').addEventListener('click', e => { e.stopPropagation(); tapAddPlayer(player, pos); });
     }
     return el;
@@ -1380,9 +1384,14 @@
     }
     const abbr = TEAM_ABBR[player.team];
     const logoHtml = abbr ? `<img class="card-team-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}">` : '';
-    el.innerHTML = `<span class="pos-badge ${group}">${group}</span>${logoHtml}<div class="player-info"><div class="player-name">${formatName(player.player_name)}</div><div class="player-salary">${salary}</div></div>${statBoxHtml}<button class="remove-btn" aria-label="Remove">✕</button>`;
-    el.querySelector('.remove-btn').addEventListener('click', e => { e.stopPropagation(); removeFromRoster(group, index); });
-    el.addEventListener('click', () => enterSwap(group, index));
+    const removeBtn = document.body.classList.contains('view-only') ? '' : `<button class="remove-btn" aria-label="Remove">✕</button>`;
+    el.innerHTML = `<span class="pos-badge ${group}">${group}</span>${logoHtml}<div class="player-info"><div class="player-name">${formatName(player.player_name)}</div><div class="player-salary">${salary}</div></div>${statBoxHtml}${removeBtn}`;
+    if (!document.body.classList.contains('view-only')) {
+      el.querySelector('.remove-btn').addEventListener('click', e => { e.stopPropagation(); removeFromRoster(group, index); });
+    }
+    if (!document.body.classList.contains('view-only')) {
+      el.addEventListener('click', () => enterSwap(group, index));
+    }
     return el;
   }
 
