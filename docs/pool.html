@@ -165,6 +165,37 @@
       border-radius: 50%; animation: spin 0.7s linear infinite;
       vertical-align: middle; margin-right: 6px;
     }
+
+    /* ── Password modal ── */
+    #pw-overlay {
+      position: fixed; inset: 0; z-index: 999;
+      background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+      display: flex; align-items: center; justify-content: center;
+    }
+    #pw-overlay.hidden { display: none; }
+    .pw-box {
+      background: rgba(15,25,45,0.97); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 14px; padding: 2.5rem 2rem; width: 320px; max-width: 90vw; text-align: center;
+    }
+    .pw-box h2 { font-family: 'Bebas Neue', cursive; font-size: 1.8rem; color: var(--gold); letter-spacing: 3px; margin-bottom: 0.3rem; }
+    .pw-box p { color: var(--silver); font-size: 0.85rem; letter-spacing: 1px; margin-bottom: 1.5rem; }
+    .pw-input {
+      width: 100%; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 8px; padding: 0.7rem 1rem; color: white;
+      font-size: 1rem; font-family: 'Barlow Condensed', sans-serif;
+      letter-spacing: 2px; outline: none; text-align: center; transition: border-color 0.2s;
+    }
+    .pw-input:focus { border-color: rgba(255,184,28,0.5); }
+    .pw-input.error { border-color: rgba(200,16,46,0.7); animation: shake 0.3s; }
+    @keyframes shake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-6px);} 75%{transform:translateX(6px);} }
+    .pw-btn {
+      margin-top: 1rem; width: 100%; background: var(--red); color: white;
+      border: none; border-radius: 8px; padding: 0.75rem;
+      font-family: 'Bebas Neue', cursive; font-size: 1.2rem; letter-spacing: 3px;
+      cursor: pointer; transition: background 0.2s;
+    }
+    .pw-btn:hover { background: #e0122e; }
+    .pw-error { color: rgba(200,16,46,0.8); font-size: 0.8rem; margin-top: 0.5rem; min-height: 1em; letter-spacing: 1px; }
   </style>
 </head>
 <body>
@@ -212,6 +243,16 @@
   </div>
 </div>
 
+<div id="pw-overlay" class="hidden">
+  <div class="pw-box">
+    <h2>🏒 New League</h2>
+    <p>ENTER PASSWORD TO CONTINUE</p>
+    <input id="pw-input" class="pw-input" type="password" placeholder="Password" autocomplete="off">
+    <button class="pw-btn" onclick="submitPw()">CREATE</button>
+    <div class="pw-error" id="pw-error"></div>
+  </div>
+</div>
+
 <script>
   const SUPABASE_URL = 'https://fifurqlitkywtmhgtzeu.supabase.co';
   const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZpZnVycWxpdGt5d3RtaGd0emV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3MDIyMjQsImV4cCI6MjA5MjI3ODIyNH0.KPVPj1qwbSJJMyLR_-AhDcRs0vi2sUU6qbFQ-kH53C0';
@@ -255,12 +296,29 @@
   }
 
   async function createLeague() {
-    const pw = prompt('Enter password to create a league:');
-    if (!pw || pw.trim() !== 'parieur2026') {
-      if (pw !== null) alert('Incorrect password.');
+    const overlay = document.getElementById('pw-overlay');
+    const input = document.getElementById('pw-input');
+    const err = document.getElementById('pw-error');
+    input.value = ''; err.textContent = '';
+    overlay.classList.remove('hidden');
+    setTimeout(() => input.focus(), 50);
+  }
+
+  function submitPw() {
+    const input = document.getElementById('pw-input');
+    const err = document.getElementById('pw-error');
+    if (input.value !== 'parieur2026') {
+      input.classList.add('error');
+      err.textContent = 'Incorrect password.';
+      setTimeout(() => input.classList.remove('error'), 400);
+      input.value = ''; input.focus();
       return;
     }
+    document.getElementById('pw-overlay').classList.add('hidden');
+    doCreateLeague();
+  }
 
+  async function doCreateLeague() {
     const btn = document.getElementById('btn-create');
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner"></span>Creating…';
@@ -316,6 +374,15 @@
   }
 
   renderRecent();
+
+  document.getElementById('pw-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') submitPw();
+    if (e.key === 'Escape') document.getElementById('pw-overlay').classList.add('hidden');
+  });
+  document.getElementById('pw-overlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('pw-overlay'))
+      document.getElementById('pw-overlay').classList.add('hidden');
+  });
 </script>
 </body>
 </html>
