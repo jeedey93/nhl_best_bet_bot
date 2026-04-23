@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pool Standings | Parieur Discipliné</title>
   <link rel="icon" type="image/png" href="../parieur_discipline_icon_1024.png">
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,900;1,400&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -14,6 +14,8 @@
       --gold: #ffb81c;
       --silver: #a8b2be;
       --green: #22c55e;
+      --blue: #7db4ff;
+      --pink: #ff7a8a;
       --line: rgba(255,255,255,0.08);
       --nav-h: 44px;
     }
@@ -45,10 +47,10 @@
     .site-nav-links a.active { color: var(--gold); background: rgba(255,184,28,0.1); }
 
     /* ── Page wrap ── */
-    .page-wrap { max-width: 900px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+    .page-wrap { max-width: 980px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
 
     /* ── Header ── */
-    header { text-align: center; margin-bottom: 1.75rem; }
+    header { text-align: center; margin-bottom: 1.5rem; }
     header h1 { font-family: 'Bebas Neue', cursive; font-size: clamp(1.8rem, 4vw, 2.8rem); letter-spacing: 5px; line-height: 1; text-shadow: 0 0 30px rgba(200,16,46,0.4), 0 2px 8px rgba(0,0,0,0.8); }
     header h1 span { color: var(--gold); }
     .league-code-badge {
@@ -63,27 +65,75 @@
       border-radius: 4px; padding: 1px 10px;
     }
 
-    /* ── Team tabs ── */
-    .team-tabs {
-      display: flex; flex-wrap: wrap; gap: 6px;
-      margin-bottom: 1.5rem;
+    /* ── Podium ── */
+    .podium {
+      display: flex; align-items: flex-end; justify-content: center;
+      gap: 0.75rem; margin-bottom: 2rem;
     }
-    .team-tab {
-      font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 2px;
-      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
-      color: var(--silver); border-radius: 7px; padding: 5px 16px;
-      cursor: pointer; flex-shrink: 0; transition: background 0.15s, border-color 0.15s, color 0.15s;
-      white-space: nowrap;
+    .podium-block {
+      flex: 1; max-width: 220px; text-align: center;
+      background: rgba(255,255,255,0.03); border: 1px solid var(--line);
+      border-radius: 10px; padding: 1rem 0.75rem 0.85rem;
+      cursor: pointer; transition: background 0.15s, transform 0.15s;
+      position: relative; overflow: hidden;
     }
-    .team-tab:hover { background: rgba(255,255,255,0.08); color: white; }
-    .team-tab.active {
-      background: rgba(255,184,28,0.1); border-color: rgba(255,184,28,0.4); color: var(--gold);
+    .podium-block:hover { background: rgba(255,255,255,0.06); transform: translateY(-2px); }
+    .podium-block.first {
+      border-color: rgba(255,184,28,0.35);
+      background: rgba(255,184,28,0.05);
+      box-shadow: 0 0 40px rgba(255,184,28,0.08);
     }
-    .team-tab-pts {
-      font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem; font-weight: 700;
-      color: rgba(255,255,255,0.35); margin-left: 4px;
+    .podium-block.second { border-color: rgba(192,200,212,0.25); }
+    .podium-block.third  { border-color: rgba(205,127,50,0.25); }
+    .podium-crown {
+      font-size: 1.4rem; margin-bottom: 0.3rem; display: block; line-height: 1;
     }
-    .team-tab.active .team-tab-pts { color: rgba(255,184,28,0.6); }
+    .podium-rank {
+      font-family: 'Bebas Neue', cursive; font-size: 2rem; letter-spacing: 2px; line-height: 1;
+    }
+    .podium-block.first  .podium-rank { color: var(--gold); }
+    .podium-block.second .podium-rank { color: #c0c8d4; }
+    .podium-block.third  .podium-rank { color: #cd7f32; }
+    .podium-name {
+      font-family: 'Bebas Neue', cursive; font-size: 1.05rem; letter-spacing: 2px;
+      color: white; margin: 0.2rem 0 0.5rem;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .podium-pts {
+      font-family: 'Bebas Neue', cursive; font-size: 1.75rem; letter-spacing: 2px; color: white; line-height: 1;
+    }
+    .podium-pts-label {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.65rem; font-weight: 700;
+      color: var(--silver); letter-spacing: 2px; margin-top: 1px; display: block;
+    }
+    .podium-gap {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.75rem; font-weight: 700;
+      color: rgba(255,255,255,0.3); margin-top: 0.3rem;
+    }
+    .podium-breakdown {
+      display: flex; justify-content: center; gap: 0.5rem; margin-top: 0.55rem;
+    }
+    .podium-breakdown-item {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem; font-weight: 700;
+      border-radius: 3px; padding: 1px 7px; letter-spacing: 0.5px;
+    }
+    .podium-breakdown-item.F { background: rgba(255,122,138,0.12); color: var(--pink); }
+    .podium-breakdown-item.D { background: rgba(125,180,255,0.12); color: var(--blue); }
+    .podium-breakdown-item.G { background: rgba(255,184,28,0.12); color: var(--gold); }
+
+    /* ── View tabs ── */
+    .view-tabs {
+      display: flex; gap: 4px; margin-bottom: 1.25rem;
+      background: rgba(255,255,255,0.03); border: 1px solid var(--line);
+      border-radius: 8px; padding: 4px;
+    }
+    .view-tab {
+      font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 2px;
+      padding: 5px 14px; border-radius: 5px; cursor: pointer; flex: 1; text-align: center;
+      color: var(--silver); transition: background 0.15s, color 0.15s;
+    }
+    .view-tab:hover { color: white; }
+    .view-tab.active { background: rgba(255,184,28,0.12); color: var(--gold); }
 
     /* ── Leaderboard table ── */
     .leaderboard {
@@ -91,7 +141,7 @@
       border-radius: 12px; overflow: hidden; margin-bottom: 1.75rem;
     }
     .lb-row {
-      display: grid; grid-template-columns: 36px 1fr 80px 80px 80px;
+      display: grid; grid-template-columns: 36px 1fr 60px 60px 70px 70px 70px;
       align-items: center; padding: 0.65rem 1rem; gap: 0.5rem;
       border-bottom: 1px solid rgba(255,255,255,0.05);
       cursor: pointer; transition: background 0.15s;
@@ -121,25 +171,65 @@
     }
     .lb-stat.pts { color: white; font-size: 1rem; }
     .lb-row.active .lb-stat.pts { color: var(--gold); }
+    .lb-stat.gap { color: rgba(255,80,80,0.7); font-size: 0.8rem; }
+    .lb-stat.gap.leader { color: var(--green); }
     .lb-col-label {
       font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem; font-weight: 700;
       color: rgba(255,255,255,0.3); text-align: right; letter-spacing: 2px; text-transform: uppercase;
     }
     .lb-col-label.left { text-align: left; }
 
+    /* ── Sub-score pills in leaderboard ── */
+    .lb-subscore {
+      display: flex; gap: 3px; justify-content: flex-end;
+    }
+    .lb-subscore-pill {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.68rem; font-weight: 700;
+      border-radius: 3px; padding: 1px 5px;
+    }
+    .lb-subscore-pill.F { background: rgba(255,122,138,0.1); color: var(--pink); }
+    .lb-subscore-pill.D { background: rgba(125,180,255,0.1); color: var(--blue); }
+    .lb-subscore-pill.G { background: rgba(255,184,28,0.1); color: var(--gold); }
+
+    /* ── Team tabs ── */
+    .team-tabs {
+      display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 1.25rem;
+    }
+    .team-tab {
+      font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 2px;
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+      color: var(--silver); border-radius: 7px; padding: 5px 16px;
+      cursor: pointer; flex-shrink: 0; transition: background 0.15s, border-color 0.15s, color 0.15s;
+      white-space: nowrap;
+    }
+    .team-tab:hover { background: rgba(255,255,255,0.08); color: white; }
+    .team-tab.active {
+      background: rgba(255,184,28,0.1); border-color: rgba(255,184,28,0.4); color: var(--gold);
+    }
+    .team-tab-pts {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem; font-weight: 700;
+      color: rgba(255,255,255,0.35); margin-left: 4px;
+    }
+    .team-tab.active .team-tab-pts { color: rgba(255,184,28,0.6); }
+
     /* ── Team detail ── */
     .team-detail { display: none; }
     .team-detail.visible { display: block; }
 
     .detail-header {
-      display: flex; align-items: baseline; justify-content: space-between;
+      display: flex; align-items: flex-start; justify-content: space-between;
       margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;
     }
+    .detail-header-left { display: flex; flex-direction: column; gap: 0.3rem; }
     .detail-title {
       font-family: 'Bebas Neue', cursive; font-size: 1.5rem; letter-spacing: 3px; color: white;
     }
+    .detail-rank-label {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.8rem; font-weight: 700;
+      color: var(--silver); letter-spacing: 1px;
+    }
     .detail-summary {
-      display: flex; gap: 1rem; align-items: center;
+      display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap;
     }
     .detail-badge {
       font-family: 'Barlow Condensed', sans-serif; font-size: 0.8rem; font-weight: 700;
@@ -148,6 +238,42 @@
     .detail-badge.pts { background: rgba(255,184,28,0.12); color: var(--gold); border: 1px solid rgba(255,184,28,0.3); }
     .detail-badge.cap { background: rgba(255,255,255,0.06); color: var(--silver); border: 1px solid rgba(255,255,255,0.1); }
     .detail-badge.filled { background: rgba(34,197,94,0.1); color: var(--green); border: 1px solid rgba(34,197,94,0.25); }
+    .detail-badge.eff { background: rgba(125,180,255,0.1); color: var(--blue); border: 1px solid rgba(125,180,255,0.25); }
+
+    /* ── Position sub-scores bar ── */
+    .pos-scores-bar {
+      display: flex; gap: 0.5rem; margin-bottom: 1.25rem;
+    }
+    .pos-score-block {
+      flex: 1; background: rgba(255,255,255,0.03); border: 1px solid var(--line);
+      border-radius: 8px; padding: 0.6rem 0.75rem; text-align: center;
+    }
+    .pos-score-block.F { border-color: rgba(255,122,138,0.2); }
+    .pos-score-block.D { border-color: rgba(125,180,255,0.2); }
+    .pos-score-block.G { border-color: rgba(255,184,28,0.2); }
+    .pos-score-val {
+      font-family: 'Bebas Neue', cursive; font-size: 1.6rem; letter-spacing: 2px; line-height: 1;
+    }
+    .pos-score-block.F .pos-score-val { color: var(--pink); }
+    .pos-score-block.D .pos-score-val { color: var(--blue); }
+    .pos-score-block.G .pos-score-val { color: var(--gold); }
+    .pos-score-label {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.68rem; font-weight: 700;
+      color: var(--silver); letter-spacing: 2px; text-transform: uppercase; margin-top: 2px;
+    }
+
+    /* ── Top scorer callout ── */
+    .top-scorer-callout {
+      display: flex; align-items: center; gap: 0.6rem;
+      background: rgba(255,184,28,0.06); border: 1px solid rgba(255,184,28,0.2);
+      border-radius: 8px; padding: 0.6rem 0.75rem; margin-bottom: 1.25rem;
+    }
+    .top-scorer-icon { font-size: 1.1rem; flex-shrink: 0; }
+    .top-scorer-text {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.85rem; font-weight: 700;
+      color: var(--silver);
+    }
+    .top-scorer-text strong { color: var(--gold); font-size: 0.95rem; }
 
     /* ── Position group ── */
     .pos-group { margin-bottom: 1.25rem; }
@@ -164,7 +290,14 @@
       display: flex; align-items: center; gap: 0.6rem;
       background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
       border-radius: 7px; padding: 0.45rem 0.75rem; margin-bottom: 4px;
+      position: relative; overflow: hidden;
     }
+    .player-row-perf-bar {
+      position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+    }
+    .player-row-perf-bar.above { background: var(--green); }
+    .player-row-perf-bar.below { background: var(--red); }
+    .player-row-perf-bar.avg   { background: var(--silver); opacity: 0.3; }
     .player-row-logo { width: 24px; height: 24px; object-fit: contain; flex-shrink: 0; }
     .player-row-name {
       font-family: 'Barlow Condensed', sans-serif; font-size: 0.95rem; font-weight: 700;
@@ -174,6 +307,16 @@
       font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 1px;
       color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.05);
       border-radius: 3px; padding: 1px 7px; flex-shrink: 0;
+    }
+    .player-row-eff {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem; font-weight: 700;
+      color: var(--blue); background: rgba(125,180,255,0.08);
+      border-radius: 3px; padding: 1px 5px; flex-shrink: 0; white-space: nowrap;
+    }
+    .player-row-pace {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem; font-weight: 700;
+      color: var(--green); background: rgba(34,197,94,0.08);
+      border-radius: 3px; padding: 1px 5px; flex-shrink: 0; white-space: nowrap;
     }
     .player-row-pts {
       font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 1px;
@@ -190,6 +333,98 @@
     .pos-badge.F { background: rgba(255,122,138,0.15); color: #ff7a8a; }
     .pos-badge.D { background: rgba(125,180,255,0.15); color: #7db4ff; }
     .pos-badge.G { background: rgba(255,184,28,0.15); color: var(--gold); }
+    .star-badge {
+      font-size: 0.8rem; flex-shrink: 0;
+    }
+
+    /* ── Pool leaderboards (position & player) ── */
+    .pool-section-title {
+      font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 3px;
+      color: var(--silver); margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;
+    }
+    .pool-section-title span { color: white; }
+
+    .pos-leaders-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin-bottom: 1.75rem;
+    }
+    @media (max-width: 600px) { .pos-leaders-grid { grid-template-columns: 1fr; } }
+
+    .pos-leader-col {
+      background: rgba(255,255,255,0.03); border: 1px solid var(--line);
+      border-radius: 10px; overflow: hidden;
+    }
+    .pos-leader-col-header {
+      padding: 0.5rem 0.75rem;
+      font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 3px;
+      display: flex; justify-content: space-between; align-items: center;
+      border-bottom: 1px solid var(--line);
+    }
+    .pos-leader-col-header.F { color: var(--pink); background: rgba(255,122,138,0.05); }
+    .pos-leader-col-header.D { color: var(--blue); background: rgba(125,180,255,0.05); }
+    .pos-leader-col-header.G { color: var(--gold); background: rgba(255,184,28,0.05); }
+    .pos-leader-col-header small {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.65rem; font-weight: 700;
+      color: rgba(255,255,255,0.25); letter-spacing: 2px;
+    }
+    .pos-leader-row {
+      display: flex; align-items: center; gap: 0.5rem;
+      padding: 0.4rem 0.75rem;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .pos-leader-row:last-child { border-bottom: none; }
+    .pos-leader-rank {
+      font-family: 'Bebas Neue', cursive; font-size: 0.9rem;
+      color: var(--silver); min-width: 16px; text-align: center;
+    }
+    .pos-leader-name {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.85rem; font-weight: 700;
+      color: white; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .pos-leader-team {
+      font-family: 'Bebas Neue', cursive; font-size: 0.75rem; letter-spacing: 1px;
+      color: var(--silver); flex-shrink: 0;
+    }
+    .pos-leader-pts {
+      font-family: 'Bebas Neue', cursive; font-size: 0.95rem; letter-spacing: 1px;
+      color: white; min-width: 28px; text-align: right; flex-shrink: 0;
+    }
+
+    /* ── Top pool players ── */
+    .top-players-list {
+      background: rgba(255,255,255,0.03); border: 1px solid var(--line);
+      border-radius: 12px; overflow: hidden; margin-bottom: 1.75rem;
+    }
+    .top-player-row {
+      display: grid; grid-template-columns: 30px 1fr 80px 80px 60px;
+      align-items: center; padding: 0.55rem 1rem; gap: 0.5rem;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .top-player-row:last-child { border-bottom: none; }
+    .top-player-row.header {
+      background: rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.1);
+      padding: 0.4rem 1rem;
+    }
+    .top-player-rank {
+      font-family: 'Bebas Neue', cursive; font-size: 1rem; color: var(--silver); text-align: center;
+    }
+    .top-player-info { display: flex; align-items: center; gap: 0.5rem; min-width: 0; }
+    .top-player-logo { width: 20px; height: 20px; object-fit: contain; flex-shrink: 0; }
+    .top-player-name {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.9rem; font-weight: 700;
+      color: white; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .top-player-owner {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.75rem; font-weight: 600;
+      color: var(--gold); background: rgba(255,184,28,0.08); border-radius: 3px;
+      padding: 1px 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .top-player-stat {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.8rem; font-weight: 700;
+      color: var(--silver); text-align: right;
+    }
+    .top-player-pts {
+      font-family: 'Bebas Neue', cursive; font-size: 1rem; color: var(--gold); text-align: right;
+    }
 
     /* ── Empty / loading ── */
     .msg { text-align: center; color: var(--silver); font-size: 0.9rem; letter-spacing: 1px; padding: 3rem 0; }
@@ -202,6 +437,15 @@
       transition: background 0.15s, color 0.15s;
     }
     .btn-refresh:hover { background: rgba(255,255,255,0.1); color: white; }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      .lb-row { grid-template-columns: 30px 1fr 50px 60px; }
+      .lb-row .lb-stat:nth-child(3),
+      .lb-row .lb-col-label:nth-child(3) { display: none; }
+      .podium { gap: 0.4rem; }
+      .pos-scores-bar { flex-wrap: wrap; }
+    }
   </style>
 </head>
 <body>
@@ -251,8 +495,8 @@
   let allPlayers = [];
   let teams = [];
   let activeTeamId = null;
+  let activeView = 'standings'; // 'standings' | 'team' | 'pool'
 
-  // ── Nav links ────────────────────────────────────────────────────────────
   document.getElementById('nav-draft').href = `/pool/join?league=${_leagueCode}`;
   document.getElementById('nav-standings').href = `/pool/standings?league=${_leagueCode}`;
   document.getElementById('league-badge').textContent = _leagueCode;
@@ -294,9 +538,18 @@
     };
   }
 
-  function teamTotalPts(rosterSlugs) {
+  function teamSubScores(rosterSlugs) {
     const r = rosterPlayers(rosterSlugs);
-    return [...r.F, ...r.D, ...r.G].filter(Boolean).reduce((s, p) => s + poolScore(p), 0);
+    return {
+      F: r.F.filter(Boolean).reduce((s, p) => s + poolScore(p), 0),
+      D: r.D.filter(Boolean).reduce((s, p) => s + poolScore(p), 0),
+      G: r.G.filter(Boolean).reduce((s, p) => s + poolScore(p), 0),
+    };
+  }
+
+  function teamTotalPts(rosterSlugs) {
+    const sub = teamSubScores(rosterSlugs);
+    return sub.F + sub.D + sub.G;
   }
 
   function teamCapUsed(rosterSlugs) {
@@ -308,10 +561,34 @@
     return [...rosterSlugs.F, ...rosterSlugs.D, ...rosterSlugs.G].filter(Boolean).length;
   }
 
+  // Average pool score per position, across all teams (for color-coding)
+  function computePoolAverages() {
+    const allDrafted = { F: [], D: [], G: [] };
+    teams.forEach(t => {
+      const r = rosterPlayers(t.roster);
+      ['F','D','G'].forEach(pos => r[pos].filter(Boolean).forEach(p => allDrafted[pos].push(poolScore(p))));
+    });
+    const avg = (arr) => arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : 0;
+    return { F: avg(allDrafted.F), D: avg(allDrafted.D), G: avg(allDrafted.G) };
+  }
+
+  // Build a flat list of all drafted players with owner info
+  function allDraftedPlayers() {
+    const list = [];
+    teams.forEach(t => {
+      const r = rosterPlayers(t.roster);
+      ['F','D','G'].forEach(pos => {
+        r[pos].filter(Boolean).forEach(p => {
+          list.push({ player: p, owner: t.name, pos });
+        });
+      });
+    });
+    return list;
+  }
+
   // ── Load ─────────────────────────────────────────────────────────────────
   async function load() {
     try {
-      // Players
       const cached = sessionStorage.getItem('hp_players');
       if (cached) {
         allPlayers = JSON.parse(cached);
@@ -326,7 +603,6 @@
       }
       slugMap._cache = null;
 
-      // Roster
       const rRes = await fetch(
         `${SUPABASE_URL}/rest/v1/pool_rosters?league_code=eq.${_leagueCode}&select=data`,
         { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
@@ -347,7 +623,6 @@
         }
       }));
 
-      // Sort by points desc for initial activeTeam
       const sorted = [...teams].sort((a, b) => teamTotalPts(b.roster) - teamTotalPts(a.roster));
       activeTeamId = sorted[0]?.id || teams[0]?.id;
 
@@ -360,97 +635,215 @@
   // ── Render ────────────────────────────────────────────────────────────────
   function render() {
     const sorted = [...teams].sort((a, b) => teamTotalPts(b.roster) - teamTotalPts(a.roster));
+    const leaderPts = sorted.length ? teamTotalPts(sorted[0].roster) : 0;
+    const avgs = computePoolAverages();
 
-    // ── Tabs ──
-    const tabsHtml = sorted.map(t => {
-      const pts = teamTotalPts(t.roster);
-      return `<div class="team-tab ${t.id === activeTeamId ? 'active' : ''}" onclick="selectTeam('${t.id}')">
-        ${t.name}<span class="team-tab-pts">${pts}pts</span>
-      </div>`;
-    }).join('');
+    // ── Podium (top 3) ──
+    const podiumHtml = buildPodium(sorted, leaderPts);
+
+    // ── View tabs ──
+    const viewTabsHtml = `
+      <div class="view-tabs">
+        <div class="view-tab ${activeView==='standings'?'active':''}" onclick="setView('standings')">Standings</div>
+        <div class="view-tab ${activeView==='team'?'active':''}" onclick="setView('team')">Team Detail</div>
+        <div class="view-tab ${activeView==='pool'?'active':''}" onclick="setView('pool')">Pool Leaders</div>
+      </div>
+    `;
 
     // ── Leaderboard ──
-    const rankClass = (i) => i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
-    const lbRows = sorted.map((t, i) => {
+    const lbHtml = buildLeaderboard(sorted, leaderPts);
+
+    // ── Team tabs ──
+    const tabsHtml = `<div class="team-tabs">${sorted.map(t => {
+      const pts = teamTotalPts(t.roster);
+      return `<div class="team-tab ${t.id===activeTeamId?'active':''}" onclick="selectTeam('${t.id}')">
+        ${t.name}<span class="team-tab-pts">${pts}pts</span>
+      </div>`;
+    }).join('')}</div>`;
+
+    // ── Active team detail ──
+    const activeTeam = teams.find(t => t.id === activeTeamId);
+    const detailHtml = activeTeam ? buildDetail(activeTeam, sorted, leaderPts, avgs) : '';
+
+    // ── Pool leaders ──
+    const poolLeadersHtml = buildPoolLeaders();
+
+    document.getElementById('content').innerHTML = `
+      ${podiumHtml}
+      ${viewTabsHtml}
+      <div id="view-standings" style="display:${activeView==='standings'?'block':'none'}">
+        ${lbHtml}
+      </div>
+      <div id="view-team" style="display:${activeView==='team'?'block':'none'}">
+        ${tabsHtml}
+        <div class="team-detail visible" id="team-detail">${detailHtml}</div>
+      </div>
+      <div id="view-pool" style="display:${activeView==='pool'?'block':'none'}">
+        ${poolLeadersHtml}
+      </div>
+    `;
+  }
+
+  function setView(v) { activeView = v; render(); }
+  function selectTeam(id) { activeTeamId = id; activeView = 'team'; render(); }
+
+  // ── Podium ────────────────────────────────────────────────────────────────
+  function buildPodium(sorted, leaderPts) {
+    const medals = ['🥇','🥈','🥉'];
+    const cls = ['first','second','third'];
+    const order = sorted.length >= 3 ? [sorted[1], sorted[0], sorted[2]] : sorted; // 2nd left, 1st center, 3rd right
+    const orderIdx = sorted.length >= 3 ? [1,0,2] : sorted.map((_,i)=>i);
+
+    return `<div class="podium">
+      ${order.map((t, i) => {
+        if (!t) return '';
+        const realIdx = orderIdx[i];
+        const pts = teamTotalPts(t.roster);
+        const sub = teamSubScores(t.roster);
+        const gap = realIdx === 0 ? '' : `−${leaderPts - pts} from 1st`;
+        return `<div class="podium-block ${cls[realIdx]}" onclick="selectTeam('${t.id}'); setView('team')">
+          <span class="podium-crown">${medals[realIdx]}</span>
+          <div class="podium-rank">#${realIdx+1}</div>
+          <div class="podium-name">${t.name}</div>
+          <div class="podium-pts">${pts}<span class="podium-pts-label">POOL PTS</span></div>
+          ${gap ? `<div class="podium-gap">${gap}</div>` : ''}
+          <div class="podium-breakdown">
+            <span class="podium-breakdown-item F">F ${sub.F}</span>
+            <span class="podium-breakdown-item D">D ${sub.D}</span>
+            <span class="podium-breakdown-item G">G ${sub.G}</span>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }
+
+  // ── Leaderboard ───────────────────────────────────────────────────────────
+  function buildLeaderboard(sorted, leaderPts) {
+    const rankClass = (i) => i===0?'gold':i===1?'silver':i===2?'bronze':'';
+    const rows = sorted.map((t, i) => {
       const pts = teamTotalPts(t.roster);
       const cap = teamCapUsed(t.roster);
       const filled = teamFilled(t.roster);
-      return `<div class="lb-row ${t.id === activeTeamId ? 'active' : ''}" onclick="selectTeam('${t.id}')">
-        <div class="lb-rank ${rankClass(i)}">${i + 1}</div>
-        <div class="lb-name">${t.name}</div>
+      const sub = teamSubScores(t.roster);
+      const gap = i === 0 ? 'Leader' : `−${leaderPts - pts}`;
+      const gapClass = i === 0 ? 'gap leader' : 'gap';
+      const eff = cap > 0 ? (pts / (cap / 1_000_000)).toFixed(1) : '—';
+      return `<div class="lb-row ${t.id===activeTeamId?'active':''}" onclick="selectTeam('${t.id}')">
+        <div class="lb-rank ${rankClass(i)}">${i+1}</div>
+        <div>
+          <div class="lb-name">${t.name}</div>
+          <div class="lb-subscore">
+            <span class="lb-subscore-pill F">F ${sub.F}</span>
+            <span class="lb-subscore-pill D">D ${sub.D}</span>
+            <span class="lb-subscore-pill G">G ${sub.G}</span>
+          </div>
+        </div>
         <div class="lb-stat">${filled}/20</div>
-        <div class="lb-stat">$${(cap / 1_000_000).toFixed(1)}M</div>
+        <div class="lb-stat">$${(cap/1_000_000).toFixed(1)}M</div>
+        <div class="lb-stat">${eff} pt/$M</div>
+        <div class="lb-stat ${gapClass}">${gap}</div>
         <div class="lb-stat pts">${pts}</div>
       </div>`;
     }).join('');
 
-    // ── Active team detail ──
-    const activeTeam = teams.find(t => t.id === activeTeamId);
-    const detailHtml = activeTeam ? buildDetail(activeTeam) : '';
-
-    document.getElementById('content').innerHTML = `
-      <div class="team-tabs">${tabsHtml}</div>
-      <div class="leaderboard">
-        <div class="lb-row header">
-          <div></div>
-          <div class="lb-col-label left">Team</div>
-          <div class="lb-col-label">Players</div>
-          <div class="lb-col-label">Cap</div>
-          <div class="lb-col-label">Pts</div>
-        </div>
-        ${lbRows}
+    return `<div class="leaderboard">
+      <div class="lb-row header" style="grid-template-columns:36px 1fr 60px 60px 70px 70px 70px">
+        <div></div>
+        <div class="lb-col-label left">Team</div>
+        <div class="lb-col-label">Players</div>
+        <div class="lb-col-label">Cap</div>
+        <div class="lb-col-label">Eff.</div>
+        <div class="lb-col-label">Gap</div>
+        <div class="lb-col-label">Pts</div>
       </div>
-      <div class="team-detail visible" id="team-detail">${detailHtml}</div>
-    `;
+      ${rows}
+    </div>`;
   }
 
-  function selectTeam(id) {
-    activeTeamId = id;
-    render();
-  }
-
-  function buildDetail(team) {
+  // ── Team detail ───────────────────────────────────────────────────────────
+  function buildDetail(team, sorted, leaderPts, avgs) {
     const roster = rosterPlayers(team.roster);
     const allP = [...roster.F, ...roster.D, ...roster.G].filter(Boolean);
-    const totalPts = allP.reduce((s, p) => s + poolScore(p), 0);
-    const cap = allP.reduce((s, p) => s + (p.cap_hit || 0), 0);
+    if (!allP.length) return `<div class="msg" style="padding:1.5rem 0;">No players drafted yet.</div>`;
+
+    const totalPts = allP.reduce((s,p) => s+poolScore(p), 0);
+    const cap = allP.reduce((s,p) => s+(p.cap_hit||0), 0);
     const filled = allP.length;
+    const eff = cap > 0 ? (totalPts/(cap/1_000_000)).toFixed(1) : '—';
+    const sub = teamSubScores(team.roster);
+    const rank = sorted.findIndex(t=>t.id===team.id)+1;
+    const gap = rank === 1 ? 'Leading 🏆' : `${leaderPts-totalPts} pts behind 1st`;
+
+    // Top scorer
+    const scored = allP.map(p=>({p, pts:poolScore(p)})).sort((a,b)=>b.pts-a.pts);
+    const topScorer = scored[0];
+    const topScorerHtml = topScorer ? `
+      <div class="top-scorer-callout">
+        <span class="top-scorer-icon">⭐</span>
+        <div class="top-scorer-text">
+          Top contributor: <strong>${formatName(topScorer.p.player_name)}</strong> — ${topScorer.pts} pool pts
+          &nbsp;·&nbsp; ${(topScorer.pts/totalPts*100).toFixed(0)}% of team total
+        </div>
+      </div>` : '';
 
     const groups = [
-      { key: 'F', label: 'Forwards', players: roster.F.filter(Boolean) },
-      { key: 'D', label: 'Defence', players: roster.D.filter(Boolean) },
-      { key: 'G', label: 'Goalies', players: roster.G.filter(Boolean) },
+      { key:'F', label:'Forwards', players: roster.F.filter(Boolean).sort((a,b)=>poolScore(b)-poolScore(a)) },
+      { key:'D', label:'Defence', players: roster.D.filter(Boolean).sort((a,b)=>poolScore(b)-poolScore(a)) },
+      { key:'G', label:'Goalies', players: roster.G.filter(Boolean).sort((a,b)=>poolScore(b)-poolScore(a)) },
     ];
 
-    const groupsHtml = groups.filter(g => g.players.length).map(g => `
+    const groupsHtml = groups.filter(g=>g.players.length).map(g => `
       <div class="pos-group">
         <div class="pos-group-label ${g.key}">${g.label} (${g.players.length})</div>
-        ${g.players.map(p => buildPlayerRow(p, g.key)).join('')}
+        ${g.players.map(p => buildPlayerRow(p, g.key, avgs, topScorer?.p)).join('')}
       </div>
     `).join('');
 
-    if (!filled) return `<div class="msg" style="padding:1.5rem 0;">No players drafted yet.</div>`;
-
     return `
       <div class="detail-header">
-        <div class="detail-title">${team.name}</div>
+        <div class="detail-header-left">
+          <div class="detail-title">${team.name}</div>
+          <div class="detail-rank-label">Rank #${rank} · ${gap}</div>
+        </div>
         <div class="detail-summary">
           <span class="detail-badge pts">${totalPts} PTS</span>
-          <span class="detail-badge cap">$${(cap / 1_000_000).toFixed(1)}M</span>
+          <span class="detail-badge cap">$${(cap/1_000_000).toFixed(1)}M</span>
           <span class="detail-badge filled">${filled}/20</span>
+          <span class="detail-badge eff">${eff} pt/$M</span>
         </div>
       </div>
+      <div class="pos-scores-bar">
+        <div class="pos-score-block F"><div class="pos-score-val">${sub.F}</div><div class="pos-score-label">Forwards</div></div>
+        <div class="pos-score-block D"><div class="pos-score-val">${sub.D}</div><div class="pos-score-label">Defence</div></div>
+        <div class="pos-score-block G"><div class="pos-score-val">${sub.G}</div><div class="pos-score-label">Goalies</div></div>
+      </div>
+      ${topScorerHtml}
       ${groupsHtml}
     `;
   }
 
-  function buildPlayerRow(p, group) {
+  function buildPlayerRow(p, group, avgs, topScorerPlayer) {
     const abbr = TEAM_ABBR[p.team];
     const logoHtml = abbr
       ? `<img class="player-row-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}">`
       : '';
     const pts = poolScore(p);
     const pos = normalizePos(p.position);
+
+    // Performance vs average
+    const avg = avgs[group] ?? 0;
+    const perfClass = pts > avg * 1.15 ? 'above' : pts < avg * 0.7 ? 'below' : 'avg';
+
+    // Cap efficiency
+    const capM = (p.cap_hit || 0) / 1_000_000;
+    const effText = capM > 0 ? `${(pts/capM).toFixed(1)} pt/$M` : '';
+
+    // Projected pace: (pts / GP) × remaining games (82-game season)
+    const GP_SEASON = 82;
+    const gp = p.games_played;
+    const paceHtml = (gp > 0 && pts > 0)
+      ? `<span class="player-row-pace" title="Projected pts for rest of season">~${Math.round((pts/gp)*(GP_SEASON-gp))} proj</span>`
+      : '';
 
     let statText = '';
     if (pos === 'G') {
@@ -468,13 +861,96 @@
       statText = parts.join(' · ');
     }
 
+    const isStar = topScorerPlayer && p.puckpedia_slug === topScorerPlayer.puckpedia_slug;
+
     return `<div class="player-row">
+      <div class="player-row-perf-bar ${perfClass}"></div>
       <span class="pos-badge ${group}">${group}</span>
       ${logoHtml}
       <span class="player-row-name">${formatName(p.player_name)}</span>
+      ${isStar ? `<span class="star-badge" title="Top scorer">⭐</span>` : ''}
       ${statText ? `<span class="player-row-stat">${statText}</span>` : ''}
+      ${paceHtml}
+      ${effText ? `<span class="player-row-eff">${effText}</span>` : ''}
       <span class="player-row-pts">${pts}<span class="player-row-pts-label">PTS</span></span>
     </div>`;
+  }
+
+  // ── Pool leaders ──────────────────────────────────────────────────────────
+  function buildPoolLeaders() {
+    const drafted = allDraftedPlayers();
+
+    // Position breakdown — top 5 per position
+    const byPos = { F: [], D: [], G: [] };
+    drafted.forEach(({player, owner, pos}) => {
+      byPos[pos].push({player, owner, pts: poolScore(player)});
+    });
+    ['F','D','G'].forEach(pos => byPos[pos].sort((a,b)=>b.pts-a.pts));
+
+    const posLabels = { F: 'Forwards', D: 'Defence', G: 'Goalies' };
+    const posScoreLabel = { F: 'Pool Pts', D: 'Pool Pts', G: 'Pool Pts' };
+
+    const posGridHtml = `
+      <div class="pool-section-title">Position <span>Leaders</span></div>
+      <div class="pos-leaders-grid">
+        ${['F','D','G'].map(pos => `
+          <div class="pos-leader-col">
+            <div class="pos-leader-col-header ${pos}">
+              ${posLabels[pos]} <small>${posScoreLabel[pos]}</small>
+            </div>
+            ${byPos[pos].slice(0,8).map((item, i) => {
+              const abbr = TEAM_ABBR[item.player.team];
+              return `<div class="pos-leader-row">
+                <div class="pos-leader-rank">${i+1}</div>
+                <div class="pos-leader-name">${formatName(item.player.player_name)}</div>
+                <div class="pos-leader-team">${abbr||'—'}</div>
+                <div class="pos-leader-pts">${item.pts}</div>
+              </div>`;
+            }).join('')}
+          </div>
+        `).join('')}
+      </div>
+    `;
+
+    // Top 10 players overall
+    const allSorted = drafted.map(({player,owner,pos}) => ({player,owner,pos,pts:poolScore(player)}))
+      .sort((a,b)=>b.pts-a.pts).slice(0,10);
+
+    const topPlayersHtml = `
+      <div class="pool-section-title">Top <span>Pool Players</span></div>
+      <div class="top-players-list">
+        <div class="top-player-row header" style="grid-template-columns:30px 1fr 80px 80px 60px">
+          <div></div>
+          <div class="lb-col-label left">Player</div>
+          <div class="lb-col-label">Owner</div>
+          <div class="lb-col-label">Stats</div>
+          <div class="lb-col-label">Pts</div>
+        </div>
+        ${allSorted.map((item, i) => {
+          const p = item.player;
+          const abbr = TEAM_ABBR[p.team];
+          const logoHtml = abbr ? `<img class="top-player-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}">` : '';
+          const pos = normalizePos(p.position);
+          let stat = '';
+          if (pos==='G') stat = `${p.wins??0}W ${p.shutouts??0}SO`;
+          else stat = `${p.goals??0}G ${p.assists??0}A`;
+          return `<div class="top-player-row">
+            <div class="top-player-rank">${i+1}</div>
+            <div class="top-player-info">
+              ${logoHtml}
+              <div>
+                <div class="top-player-name">${formatName(p.player_name)}</div>
+              </div>
+            </div>
+            <div class="top-player-owner">${item.owner}</div>
+            <div class="top-player-stat">${stat}</div>
+            <div class="top-player-pts">${item.pts}</div>
+          </div>`;
+        }).join('')}
+      </div>
+    `;
+
+    return posGridHtml + topPlayersHtml;
   }
 
   load();
