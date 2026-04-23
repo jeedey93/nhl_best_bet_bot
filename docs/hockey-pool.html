@@ -867,7 +867,6 @@
       try {
         const snap = JSON.parse(_snapshotBeforeEdit);
         teams = snap.teams; activeTeamId = snap.activeTeamId;
-        renderAll();
       } catch(e) {}
     }
     _isEditing = false;
@@ -875,6 +874,7 @@
     await releaseLock();
     document.body.classList.add('view-only');
     setEditBarStatus('', 'View only — click Edit to make changes');
+    renderAll();
     toast('Changes discarded');
   }
 
