@@ -47,10 +47,6 @@
       height: var(--nav-h); padding: 0 1.5rem;
     }
     .site-nav-brand { font-family: 'Bebas Neue', cursive; font-size: 1.5rem; color: var(--gold); letter-spacing: 4px; text-decoration: none; }
-    .site-nav-links { display: flex; align-items: center; gap: 0.5rem; }
-    .site-nav-links a { font-family: 'Barlow Condensed', sans-serif; font-size: 1rem; font-weight: 600; color: var(--silver); text-decoration: none; padding: 0.3rem 0.8rem; border-radius: 5px; letter-spacing: 1.5px; transition: color 0.15s, background 0.15s; }
-    .site-nav-links a:hover { color: white; background: rgba(255,255,255,0.07); }
-    .site-nav-links a.active { color: var(--gold); background: rgba(255,184,28,0.1); }
 
     /* ── Main layout ── */
     .hub-wrap {
@@ -70,13 +66,19 @@
     .hub-title span { color: var(--gold); }
     .hub-sub {
       color: var(--silver); font-size: 0.85rem; letter-spacing: 2.5px;
-      text-transform: uppercase; margin-bottom: 3rem;
+      text-transform: uppercase; margin-bottom: 1.75rem; /* reduced from 3rem */
+    }
+    @media (max-width: 500px) {
+      .hub-sub { margin-bottom: 1.25rem; }
     }
 
     /* ── Cards ── */
     .hub-cards {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;
-      width: 100%; max-width: 620px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+      width: 100%; max-width: 640px;
+      align-items: start; /* so cards can differ in height */
     }
     @media (max-width: 500px) {
       .hub-cards { grid-template-columns: 1fr; }
@@ -85,23 +87,49 @@
     .hub-card {
       background: rgba(255,255,255,0.04);
       border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 14px; padding: 2rem 1.5rem 1.5rem;
-      display: flex; flex-direction: column; align-items: center; gap: 1rem;
+      border-radius: 14px; padding: 1.75rem 1.5rem 1.5rem;
+      display: flex; flex-direction: column; align-items: center; gap: 0.85rem;
       transition: background 0.2s, border-color 0.2s;
     }
     .hub-card:hover { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.18); }
 
-    .hub-card-icon {
-      font-size: 2.4rem; line-height: 1;
+    /* ── Create card — primary, gold-accented ── */
+    .hub-card.primary {
+      border-color: rgba(255,184,28,0.35);
+      background: rgba(255,184,28,0.04);
+      box-shadow: 0 0 40px rgba(255,184,28,0.07), inset 0 1px 0 rgba(255,184,28,0.12);
+      padding: 2.1rem 1.75rem 1.75rem; /* a touch larger */
     }
+    .hub-card.primary:hover {
+      background: rgba(255,184,28,0.08);
+      border-color: rgba(255,184,28,0.55);
+    }
+    .hub-card.primary .hub-card-title { color: var(--gold); }
+
+    .hub-card-icon { font-size: 2.4rem; line-height: 1; }
+    .hub-card.primary .hub-card-icon { font-size: 2.8rem; }
+
     .hub-card-title {
-      font-family: 'Bebas Neue', cursive; font-size: 1.5rem; letter-spacing: 3px;
-      color: white;
+      font-family: 'Bebas Neue', cursive; font-size: 1.5rem; letter-spacing: 3px; color: white;
     }
+    .hub-card.primary .hub-card-title { font-size: 1.7rem; }
+
     .hub-card-desc {
       color: var(--silver); font-size: 0.85rem; letter-spacing: 0.5px;
       text-align: center; line-height: 1.5;
     }
+
+    /* ── League name input (for create card) ── */
+    .league-name-input {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.95rem; font-weight: 600;
+      letter-spacing: 1px;
+      background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15);
+      color: white; border-radius: 7px; padding: 0.5rem 0.8rem;
+      text-align: center; width: 100%;
+      transition: border-color 0.15s;
+    }
+    .league-name-input::placeholder { color: rgba(255,255,255,0.25); }
+    .league-name-input:focus { outline: none; border-color: rgba(255,184,28,0.5); }
 
     /* ── Buttons ── */
     .btn-primary {
@@ -115,6 +143,51 @@
     .btn-primary:active { transform: translateY(0); opacity: 1; }
     .btn-primary:disabled { opacity: 0.4; cursor: default; transform: none; }
 
+    .btn-secondary {
+      font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 2px;
+      background: rgba(255,255,255,0.07); color: white;
+      border: 1px solid rgba(255,255,255,0.15); border-radius: 7px; padding: 0.55rem 1.8rem;
+      cursor: pointer; transition: background 0.15s, border-color 0.15s, transform 0.1s;
+      width: 100%;
+    }
+    .btn-secondary:hover { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.25); transform: translateY(-1px); }
+    .btn-secondary:active { transform: translateY(0); }
+
+    /* ── Success flash (create) ── */
+    .success-flash {
+      display: flex; flex-direction: column; align-items: center; gap: 0.75rem;
+      width: 100%; animation: fadeIn 0.25s ease;
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+    .success-icon { font-size: 1.8rem; }
+    .success-msg {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.9rem; font-weight: 700;
+      color: var(--green); letter-spacing: 1px; text-align: center;
+    }
+    .success-code {
+      font-family: 'Bebas Neue', cursive; font-size: 1.4rem; letter-spacing: 6px;
+      color: var(--gold);
+    }
+    .invite-row {
+      display: flex; gap: 0.4rem; width: 100%; align-items: center;
+    }
+    .invite-url {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.78rem; font-weight: 600;
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+      color: var(--silver); border-radius: 6px; padding: 0.4rem 0.6rem;
+      flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      letter-spacing: 0.3px;
+    }
+    .btn-copy {
+      font-family: 'Bebas Neue', cursive; font-size: 0.8rem; letter-spacing: 1.5px;
+      background: rgba(255,184,28,0.12); border: 1px solid rgba(255,184,28,0.3);
+      color: var(--gold); border-radius: 6px; padding: 0.4rem 0.75rem;
+      cursor: pointer; flex-shrink: 0; transition: background 0.15s;
+      white-space: nowrap;
+    }
+    .btn-copy:hover { background: rgba(255,184,28,0.22); }
+    .btn-copy.copied { background: rgba(34,197,94,0.12); border-color: rgba(34,197,94,0.3); color: var(--green); }
+
     /* ── Join form ── */
     .join-form { display: flex; flex-direction: column; gap: 0.6rem; width: 100%; }
     .join-input {
@@ -126,30 +199,6 @@
     }
     .join-input::placeholder { color: rgba(255,255,255,0.25); letter-spacing: 3px; }
     .join-input:focus { outline: none; border-color: rgba(255,184,28,0.5); }
-
-    /* ── Recent leagues ── */
-    .recent-wrap { width: 100%; max-width: 620px; margin-top: 2.5rem; }
-    .recent-title {
-      font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 3px;
-      color: var(--silver); margin-bottom: 0.7rem;
-    }
-    .recent-list { display: flex; flex-direction: column; gap: 0.4rem; }
-    .recent-item {
-      display: flex; align-items: center; justify-content: space-between;
-      background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07);
-      border-radius: 8px; padding: 0.55rem 0.9rem;
-      cursor: pointer; transition: background 0.15s, border-color 0.15s;
-    }
-    .recent-item:hover { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.14); }
-    .recent-item-name {
-      font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 2px; color: white;
-    }
-    .recent-item-code {
-      font-family: 'Barlow Condensed', sans-serif; font-size: 0.75rem; font-weight: 700;
-      color: var(--gold); letter-spacing: 2px; background: rgba(255,184,28,0.1);
-      border-radius: 4px; padding: 2px 8px;
-    }
-    .recent-item-arrow { color: var(--silver); font-size: 1rem; margin-left: 0.5rem; }
 
     /* ── Error message ── */
     .error-msg {
@@ -165,6 +214,54 @@
       border-radius: 50%; animation: spin 0.7s linear infinite;
       vertical-align: middle; margin-right: 6px;
     }
+
+    /* ── Recent leagues ── */
+    .recent-wrap { width: 100%; max-width: 640px; margin-top: 2rem; }
+    .recent-title {
+      font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 3px;
+      color: var(--silver); margin-bottom: 0.7rem;
+    }
+    .recent-list { display: flex; flex-direction: column; gap: 0.4rem; }
+
+    /* empty state */
+    .recent-empty {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.8rem; font-weight: 600;
+      color: rgba(255,255,255,0.2); letter-spacing: 1px; padding: 0.5rem 0;
+    }
+
+    .recent-item {
+      background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 8px; padding: 0.55rem 0.9rem;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .recent-item:hover { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.14); }
+    .recent-item-top {
+      display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.45rem;
+    }
+    .recent-item-name {
+      font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 2px; color: white;
+    }
+    .recent-item-code {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.75rem; font-weight: 700;
+      color: var(--gold); letter-spacing: 2px; background: rgba(255,184,28,0.1);
+      border-radius: 4px; padding: 2px 8px;
+    }
+    .recent-item-actions {
+      display: flex; gap: 0.4rem;
+    }
+    .recent-btn {
+      font-family: 'Bebas Neue', cursive; font-size: 0.75rem; letter-spacing: 1.5px;
+      border-radius: 5px; padding: 3px 10px; cursor: pointer; border: 1px solid;
+      transition: background 0.15s, color 0.15s;
+    }
+    .recent-btn.draft {
+      background: rgba(255,184,28,0.1); border-color: rgba(255,184,28,0.3); color: var(--gold);
+    }
+    .recent-btn.draft:hover { background: rgba(255,184,28,0.22); }
+    .recent-btn.standings {
+      background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.12); color: var(--silver);
+    }
+    .recent-btn.standings:hover { background: rgba(255,255,255,0.1); color: white; }
 
     /* ── Password modal ── */
     #pw-overlay {
@@ -195,6 +292,13 @@
       cursor: pointer; transition: background 0.2s;
     }
     .pw-btn:hover { background: #e0122e; }
+    .pw-cancel {
+      margin-top: 0.6rem; width: 100%; background: transparent; color: var(--silver);
+      border: none; padding: 0.4rem;
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.85rem; font-weight: 600;
+      letter-spacing: 1px; cursor: pointer; transition: color 0.15s;
+    }
+    .pw-cancel:hover { color: white; }
     .pw-error { color: rgba(200,16,46,0.8); font-size: 0.8rem; margin-top: 0.5rem; min-height: 1em; letter-spacing: 1px; }
   </style>
 </head>
@@ -212,12 +316,23 @@
 
   <div class="hub-cards">
 
-    <!-- Create league -->
-    <div class="hub-card">
+    <!-- Create league — PRIMARY card -->
+    <div class="hub-card primary">
       <div class="hub-card-icon">🏒</div>
       <div class="hub-card-title">New League</div>
       <p class="hub-card-desc">Generate a league code and start building your team under the salary cap.</p>
-      <button class="btn-primary" id="btn-create" onclick="createLeague()">Create League</button>
+      <div id="create-form" style="width:100%;display:flex;flex-direction:column;gap:0.6rem;">
+        <input
+          class="league-name-input"
+          id="league-name-input"
+          type="text"
+          maxlength="32"
+          placeholder="League name (optional)"
+          autocomplete="off"
+        >
+        <button class="btn-primary" id="btn-create" onclick="createLeague()">Create League</button>
+      </div>
+      <div id="create-success" style="display:none;width:100%"></div>
     </div>
 
     <!-- Join league -->
@@ -229,7 +344,7 @@
         <input class="join-input" id="join-code" type="text" maxlength="8" placeholder="XXXXXXXX"
           oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')"
           onkeydown="if(event.key==='Enter') joinLeague()">
-        <button class="btn-primary" onclick="joinLeague()">Join League</button>
+        <button class="btn-secondary" onclick="joinLeague()">Join League</button>
         <div class="error-msg" id="join-error"></div>
       </div>
     </div>
@@ -237,18 +352,20 @@
   </div>
 
   <!-- Recently visited leagues -->
-  <div class="recent-wrap" id="recent-wrap" style="display:none">
+  <div class="recent-wrap" id="recent-wrap">
     <div class="recent-title">Recent Leagues</div>
     <div class="recent-list" id="recent-list"></div>
   </div>
 </div>
 
-<div id="pw-overlay" class="hidden">
+<!-- Password modal (create only) -->
+<div id="pw-overlay" class="hidden" role="dialog" aria-modal="true" aria-labelledby="pw-title">
   <div class="pw-box">
     <h2 id="pw-title">🏒 New League</h2>
     <p>ENTER PASSWORD TO CONTINUE</p>
     <input id="pw-input" class="pw-input" type="password" placeholder="Password" autocomplete="off">
     <button class="pw-btn" id="pw-btn" onclick="submitPw()">CREATE</button>
+    <button class="pw-cancel" onclick="closePwModal()">Cancel</button>
     <div class="pw-error" id="pw-error"></div>
   </div>
 </div>
@@ -265,42 +382,60 @@
     return c;
   }
 
-  function saveRecent(code) {
+  // ── Recent leagues (store {code, name}) ───────────────────────────────────
+  function saveRecent(code, name) {
     let list = [];
     try { list = JSON.parse(localStorage.getItem(RECENT_KEY) || '[]'); } catch(e) {}
-    list = [code, ...list.filter(c => c !== code)].slice(0, 5);
+    // Normalize old entries (plain strings → objects)
+    list = list.map(e => typeof e === 'string' ? { code: e, name: 'League' } : e);
+    list = [{ code, name: name || 'League' }, ...list.filter(e => e.code !== code)].slice(0, 5);
     localStorage.setItem(RECENT_KEY, JSON.stringify(list));
   }
 
   function renderRecent() {
     let list = [];
     try { list = JSON.parse(localStorage.getItem(RECENT_KEY) || '[]'); } catch(e) {}
-    if (!list.length) return;
-    const wrap = document.getElementById('recent-wrap');
+    // Normalize old entries
+    list = list.map(e => typeof e === 'string' ? { code: e, name: 'League' } : e);
+
     const ul = document.getElementById('recent-list');
-    wrap.style.display = '';
-    ul.innerHTML = list.map(code => `
-      <div class="recent-item" onclick="goToLeague('${code}')">
-        <span class="recent-item-name">League</span>
-        <div style="display:flex;align-items:center;gap:0.5rem">
+
+    if (!list.length) {
+      ul.innerHTML = '<div class="recent-empty">No recent leagues — create or join one above.</div>';
+      return;
+    }
+
+    ul.innerHTML = list.map(({ code, name }) => `
+      <div class="recent-item">
+        <div class="recent-item-top">
+          <span class="recent-item-name">${escHtml(name)}</span>
           <span class="recent-item-code">${code}</span>
-          <span class="recent-item-arrow">›</span>
+        </div>
+        <div class="recent-item-actions">
+          <button class="recent-btn draft" onclick="goToLeague('${code}', '${escHtml(name)}')">✏️ Draft</button>
+          <button class="recent-btn standings" onclick="goToStandings('${code}')">📊 Standings</button>
         </div>
       </div>
     `).join('');
   }
 
-  function goToLeague(code) {
-    saveRecent(code);
+  function escHtml(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+
+  function goToLeague(code, name) {
+    saveRecent(code, name);
     window.location.href = `/pool/join?league=${code}`;
   }
 
-  let _pwAction = null; // 'create' or 'join'
+  function goToStandings(code) {
+    window.location.href = `/pool/standings?league=${code}`;
+  }
 
-  function openPwModal(action) {
-    _pwAction = action;
-    document.getElementById('pw-title').textContent = action === 'create' ? '🏒 New League' : '🔗 Join League';
-    document.getElementById('pw-btn').textContent = action === 'create' ? 'CREATE' : 'JOIN';
+  // ── Password modal (create only) ──────────────────────────────────────────
+  const FOCUSABLE = 'button:not([disabled]), input, [tabindex]:not([tabindex="-1"])';
+
+  function openPwModal() {
     const input = document.getElementById('pw-input');
     const err = document.getElementById('pw-error');
     input.value = ''; err.textContent = '';
@@ -308,9 +443,34 @@
     setTimeout(() => input.focus(), 50);
   }
 
-  async function createLeague() {
-    openPwModal('create');
+  function closePwModal() {
+    document.getElementById('pw-overlay').classList.add('hidden');
+    document.getElementById('btn-create').focus();
   }
+
+  // Keyboard trap inside modal
+  document.getElementById('pw-overlay').addEventListener('keydown', e => {
+    if (e.key === 'Escape') { closePwModal(); return; }
+    if (e.key !== 'Tab') return;
+    const box = document.querySelector('.pw-box');
+    const focusable = [...box.querySelectorAll(FOCUSABLE)];
+    if (!focusable.length) { e.preventDefault(); return; }
+    const first = focusable[0], last = focusable[focusable.length - 1];
+    if (e.shiftKey) {
+      if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+    } else {
+      if (document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
+  });
+
+  // Click backdrop to close
+  document.getElementById('pw-overlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('pw-overlay')) closePwModal();
+  });
+
+  document.getElementById('pw-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') submitPw();
+  });
 
   function submitPw() {
     const input = document.getElementById('pw-input');
@@ -322,13 +482,20 @@
       input.value = ''; input.focus();
       return;
     }
-    document.getElementById('pw-overlay').classList.add('hidden');
-    if (_pwAction === 'create') doCreateLeague();
-    else if (_pwAction === 'join') doJoinLeague();
+    closePwModal();
+    doCreateLeague();
+  }
+
+  // ── Create ────────────────────────────────────────────────────────────────
+  function createLeague() {
+    openPwModal();
   }
 
   async function doCreateLeague() {
     const btn = document.getElementById('btn-create');
+    const nameInput = document.getElementById('league-name-input');
+    const leagueName = nameInput.value.trim() || 'League';
+
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner"></span>Creating…';
 
@@ -343,61 +510,98 @@
           'Content-Type': 'application/json',
           'Prefer': 'return=minimal',
         },
-        body: JSON.stringify({ code }),
+        body: JSON.stringify({ code, name: leagueName }),
       });
       if (!res.ok && res.status !== 409) throw new Error(res.status);
     } catch(e) {
-      // If the table doesn't exist yet, still proceed — the pool page works locally
+      // Proceed even if DB call fails — offline-friendly
     }
 
-    goToLeague(code);
+    saveRecent(code, leagueName);
+    renderRecent();
+    showSuccess(code, leagueName);
   }
 
+  function showSuccess(code, leagueName) {
+    const form = document.getElementById('create-form');
+    const successEl = document.getElementById('create-success');
+    const inviteUrl = `${window.location.origin}/pool?join=${code}`;
+
+    form.style.display = 'none';
+    successEl.style.display = 'block';
+    successEl.innerHTML = `
+      <div class="success-flash">
+        <div class="success-icon">✅</div>
+        <div class="success-msg">League created!</div>
+        <div class="success-code">${code}</div>
+        <div class="invite-row">
+          <div class="invite-url" title="${inviteUrl}">${inviteUrl}</div>
+          <button class="btn-copy" id="btn-copy" onclick="copyInvite('${inviteUrl}')">Copy</button>
+        </div>
+        <button class="btn-primary" onclick="goToLeague('${code}', '${escHtml(leagueName)}')">Go to Draft →</button>
+        <button class="btn-secondary" onclick="goToStandings('${code}')">View Standings</button>
+      </div>
+    `;
+  }
+
+  function copyInvite(url) {
+    navigator.clipboard.writeText(url).then(() => {
+      const btn = document.getElementById('btn-copy');
+      if (!btn) return;
+      btn.textContent = '✓ Copied';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+    }).catch(() => {
+      // Fallback for older browsers
+      const ta = document.createElement('textarea');
+      ta.value = url; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      const btn = document.getElementById('btn-copy');
+      if (btn) { btn.textContent = '✓ Copied'; btn.classList.add('copied'); setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000); }
+    });
+  }
+
+  // ── Join (no password required) ───────────────────────────────────────────
   async function joinLeague() {
     const input = document.getElementById('join-code');
     const errEl = document.getElementById('join-error');
     const code = input.value.trim().toUpperCase();
     errEl.textContent = '';
+
     if (code.length < 6) { errEl.textContent = 'Enter a valid league code.'; return; }
-    openPwModal('join');
-  }
 
-  async function doJoinLeague() {
-    const input = document.getElementById('join-code');
-    const errEl = document.getElementById('join-error');
-    const code = input.value.trim().toUpperCase();
-
-    // Verify the league exists
+    // Optionally verify league exists
     try {
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/pool_leagues?code=eq.${code}&select=code`, {
-        headers: {
-          'apikey': SUPABASE_KEY,
-          'Authorization': `Bearer ${SUPABASE_KEY}`,
-        },
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/pool_leagues?code=eq.${code}&select=code,name`, {
+        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` },
       });
       if (res.ok) {
         const rows = await res.json();
-        if (!rows.length) {
-          errEl.textContent = 'League not found. Check your code.';
-          return;
-        }
+        if (!rows.length) { errEl.textContent = 'League not found. Check your code.'; return; }
+        const name = rows[0].name || 'League';
+        saveRecent(code, name);
+        renderRecent();
+        window.location.href = `/pool/join?league=${code}`;
+        return;
       }
-      // If table doesn't exist (404/error), let them in anyway — offline-friendly
     } catch(e) {}
 
-    goToLeague(code);
+    // Offline fallback
+    saveRecent(code, 'League');
+    renderRecent();
+    window.location.href = `/pool/join?league=${code}`;
   }
 
+  // ── Init ──────────────────────────────────────────────────────────────────
   renderRecent();
 
-  document.getElementById('pw-input').addEventListener('keydown', e => {
-    if (e.key === 'Enter') submitPw();
-    if (e.key === 'Escape') document.getElementById('pw-overlay').classList.add('hidden');
-  });
-  document.getElementById('pw-overlay').addEventListener('click', e => {
-    if (e.target === document.getElementById('pw-overlay'))
-      document.getElementById('pw-overlay').classList.add('hidden');
-  });
+  // Pre-fill join input if ?join=CODE in URL (from invite link)
+  const joinParam = new URLSearchParams(window.location.search).get('join');
+  if (joinParam) {
+    document.getElementById('join-code').value = joinParam.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8);
+  }
 </script>
 </body>
 </html>
