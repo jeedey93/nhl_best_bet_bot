@@ -496,8 +496,7 @@
   <div class="site-nav-inner">
     <a class="site-nav-brand" href="../index.html">Parieur Discipliné</a>
     <div class="site-nav-links">
-      <a href="../standings-2026.html">Standings</a>
-      <a href="../picks-2026.html">Picks</a>
+      <a href="" id="nav-standings">Standings</a>
       <a href="/pool" class="active">Pool</a>
     </div>
   </div>
@@ -675,6 +674,8 @@
     const row = document.getElementById('league-badge-row');
     if (badge) badge.textContent = _leagueCode;
     if (row) row.style.display = '';
+    const navStandings = document.getElementById('nav-standings');
+    if (navStandings) navStandings.href = `/pool/standings?league=${_leagueCode}`;
     // Save to recent
     try {
       const k = 'hp_recent_leagues';

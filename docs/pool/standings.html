@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pool Standings | Parieur Discipliné</title>
+  <link rel="icon" type="image/png" href="../parieur_discipline_icon_1024.png">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --rink: #07111f;
+      --red: #c8102e;
+      --gold: #ffb81c;
+      --silver: #a8b2be;
+      --green: #22c55e;
+      --line: rgba(255,255,255,0.08);
+      --nav-h: 44px;
+    }
+    body {
+      background: var(--rink);
+      background-image: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(26,58,110,0.6) 0%, transparent 70%);
+      min-height: 100vh;
+      font-family: 'Barlow Condensed', sans-serif;
+      color: white;
+      padding-top: var(--nav-h);
+    }
+
+    /* ── Nav ── */
+    .site-nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(7,17,31,0.92);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    }
+    .site-nav-inner {
+      max-width: 1100px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      height: var(--nav-h); padding: 0 1.5rem;
+    }
+    .site-nav-brand { font-family: 'Bebas Neue', cursive; font-size: 1.5rem; color: var(--gold); letter-spacing: 4px; text-decoration: none; }
+    .site-nav-links { display: flex; align-items: center; gap: 0.5rem; }
+    .site-nav-links a { font-family: 'Barlow Condensed', sans-serif; font-size: 1rem; font-weight: 600; color: var(--silver); text-decoration: none; padding: 0.3rem 0.8rem; border-radius: 5px; letter-spacing: 1.5px; transition: color 0.15s, background 0.15s; }
+    .site-nav-links a:hover { color: white; background: rgba(255,255,255,0.07); }
+    .site-nav-links a.active { color: var(--gold); background: rgba(255,184,28,0.1); }
+
+    /* ── Page wrap ── */
+    .page-wrap { max-width: 900px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+
+    /* ── Header ── */
+    header { text-align: center; margin-bottom: 1.75rem; }
+    header h1 { font-family: 'Bebas Neue', cursive; font-size: clamp(1.8rem, 4vw, 2.8rem); letter-spacing: 5px; line-height: 1; text-shadow: 0 0 30px rgba(200,16,46,0.4), 0 2px 8px rgba(0,0,0,0.8); }
+    header h1 span { color: var(--gold); }
+    .league-code-badge {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      margin-top: 0.4rem;
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.75rem; font-weight: 700;
+      color: var(--silver); letter-spacing: 2px; text-transform: uppercase;
+    }
+    .league-code-badge span {
+      font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 3px;
+      color: var(--gold); background: rgba(255,184,28,0.1); border: 1px solid rgba(255,184,28,0.3);
+      border-radius: 4px; padding: 1px 10px;
+    }
+
+    /* ── Team tabs ── */
+    .team-tabs {
+      display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px;
+      margin-bottom: 1.5rem; scrollbar-width: none;
+    }
+    .team-tabs::-webkit-scrollbar { display: none; }
+    .team-tab {
+      font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 2px;
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+      color: var(--silver); border-radius: 7px; padding: 5px 16px;
+      cursor: pointer; flex-shrink: 0; transition: background 0.15s, border-color 0.15s, color 0.15s;
+      white-space: nowrap;
+    }
+    .team-tab:hover { background: rgba(255,255,255,0.08); color: white; }
+    .team-tab.active {
+      background: rgba(255,184,28,0.1); border-color: rgba(255,184,28,0.4); color: var(--gold);
+    }
+    .team-tab-pts {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem; font-weight: 700;
+      color: rgba(255,255,255,0.35); margin-left: 4px;
+    }
+    .team-tab.active .team-tab-pts { color: rgba(255,184,28,0.6); }
+
+    /* ── Leaderboard table ── */
+    .leaderboard {
+      background: rgba(255,255,255,0.03); border: 1px solid var(--line);
+      border-radius: 12px; overflow: hidden; margin-bottom: 1.75rem;
+    }
+    .lb-row {
+      display: grid; grid-template-columns: 36px 1fr 80px 80px 80px;
+      align-items: center; padding: 0.65rem 1rem; gap: 0.5rem;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      cursor: pointer; transition: background 0.15s;
+    }
+    .lb-row:last-child { border-bottom: none; }
+    .lb-row:hover { background: rgba(255,255,255,0.04); }
+    .lb-row.active { background: rgba(255,184,28,0.07); border-left: 2px solid var(--gold); }
+    .lb-row.header {
+      background: rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.1);
+      cursor: default; padding: 0.45rem 1rem;
+    }
+    .lb-row.header:hover { background: rgba(255,255,255,0.03); }
+    .lb-rank {
+      font-family: 'Bebas Neue', cursive; font-size: 1.1rem; letter-spacing: 1px;
+      color: var(--silver); text-align: center;
+    }
+    .lb-rank.gold { color: var(--gold); }
+    .lb-rank.silver { color: #c0c8d4; }
+    .lb-rank.bronze { color: #cd7f32; }
+    .lb-name {
+      font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 2px; color: white;
+    }
+    .lb-row.active .lb-name { color: var(--gold); }
+    .lb-stat {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.85rem; font-weight: 700;
+      color: var(--silver); text-align: right; letter-spacing: 0.5px;
+    }
+    .lb-stat.pts { color: white; font-size: 1rem; }
+    .lb-row.active .lb-stat.pts { color: var(--gold); }
+    .lb-col-label {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem; font-weight: 700;
+      color: rgba(255,255,255,0.3); text-align: right; letter-spacing: 2px; text-transform: uppercase;
+    }
+    .lb-col-label.left { text-align: left; }
+
+    /* ── Team detail ── */
+    .team-detail { display: none; }
+    .team-detail.visible { display: block; }
+
+    .detail-header {
+      display: flex; align-items: baseline; justify-content: space-between;
+      margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;
+    }
+    .detail-title {
+      font-family: 'Bebas Neue', cursive; font-size: 1.5rem; letter-spacing: 3px; color: white;
+    }
+    .detail-summary {
+      display: flex; gap: 1rem; align-items: center;
+    }
+    .detail-badge {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.8rem; font-weight: 700;
+      letter-spacing: 1px; padding: 2px 10px; border-radius: 4px;
+    }
+    .detail-badge.pts { background: rgba(255,184,28,0.12); color: var(--gold); border: 1px solid rgba(255,184,28,0.3); }
+    .detail-badge.cap { background: rgba(255,255,255,0.06); color: var(--silver); border: 1px solid rgba(255,255,255,0.1); }
+    .detail-badge.filled { background: rgba(34,197,94,0.1); color: var(--green); border: 1px solid rgba(34,197,94,0.25); }
+
+    /* ── Position group ── */
+    .pos-group { margin-bottom: 1.25rem; }
+    .pos-group-label {
+      font-family: 'Bebas Neue', cursive; font-size: 0.8rem; letter-spacing: 3px;
+      margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;
+    }
+    .pos-group-label.F { color: #ff7a8a; }
+    .pos-group-label.D { color: #7db4ff; }
+    .pos-group-label.G { color: var(--gold); }
+
+    /* ── Player row ── */
+    .player-row {
+      display: flex; align-items: center; gap: 0.6rem;
+      background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 7px; padding: 0.45rem 0.75rem; margin-bottom: 4px;
+    }
+    .player-row-logo { width: 24px; height: 24px; object-fit: contain; flex-shrink: 0; }
+    .player-row-name {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.95rem; font-weight: 700;
+      color: white; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .player-row-stat {
+      font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 1px;
+      color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.05);
+      border-radius: 3px; padding: 1px 7px; flex-shrink: 0;
+    }
+    .player-row-pts {
+      font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 1px;
+      color: var(--gold); min-width: 40px; text-align: right; flex-shrink: 0;
+    }
+    .player-row-pts-label {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.65rem; font-weight: 700;
+      color: rgba(255,184,28,0.5); margin-left: 2px;
+    }
+    .pos-badge {
+      font-family: 'Bebas Neue', cursive; font-size: 0.7rem; letter-spacing: 1px;
+      border-radius: 3px; padding: 1px 5px; flex-shrink: 0; min-width: 22px; text-align: center;
+    }
+    .pos-badge.F { background: rgba(255,122,138,0.15); color: #ff7a8a; }
+    .pos-badge.D { background: rgba(125,180,255,0.15); color: #7db4ff; }
+    .pos-badge.G { background: rgba(255,184,28,0.15); color: var(--gold); }
+
+    /* ── Empty / loading ── */
+    .msg { text-align: center; color: var(--silver); font-size: 0.9rem; letter-spacing: 1px; padding: 3rem 0; }
+
+    /* ── Refresh button ── */
+    .btn-refresh {
+      font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 2px;
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12);
+      color: var(--silver); border-radius: 6px; padding: 4px 14px; cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+    .btn-refresh:hover { background: rgba(255,255,255,0.1); color: white; }
+  </style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="site-nav-inner">
+    <a class="site-nav-brand" href="../index.html">Parieur Discipliné</a>
+    <div class="site-nav-links">
+      <a href="" id="nav-pool">Pool</a>
+      <a href="" id="nav-standings" class="active">Standings</a>
+    </div>
+  </div>
+</nav>
+
+<div class="page-wrap">
+  <header>
+    <h1>Pool <span>Standings</span></h1>
+    <div class="league-code-badge" id="league-badge-row" style="display:none">
+      League <span id="league-badge">—</span>
+    </div>
+  </header>
+
+  <div id="content"><div class="msg">Loading…</div></div>
+</div>
+
+<script>
+  const SUPABASE_URL = 'https://fifurqlitkywtmhgtzeu.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZpZnVycWxpdGt5d3RtaGd0emV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3MDIyMjQsImV4cCI6MjA5MjI3ODIyNH0.KPVPj1qwbSJJMyLR_-AhDcRs0vi2sUU6qbFQ-kH53C0';
+
+  const TEAM_ABBR = {
+    'anaheim-ducks':'ANA','boston-bruins':'BOS','buffalo-sabres':'BUF',
+    'calgary-flames':'CGY','carolina-hurricanes':'CAR','chicago-blackhawks':'CHI',
+    'colorado-avalanche':'COL','columbus-blue-jackets':'CBJ','dallas-stars':'DAL',
+    'detroit-red-wings':'DET','edmonton-oilers':'EDM','florida-panthers':'FLA',
+    'los-angeles-kings':'LAK','minnesota-wild':'MIN','montreal-canadiens':'MTL',
+    'nashville-predators':'NSH','new-jersey-devils':'NJD','new-york-islanders':'NYI',
+    'new-york-rangers':'NYR','ottawa-senators':'OTT','philadelphia-flyers':'PHI',
+    'pittsburgh-penguins':'PIT','san-jose-sharks':'SJS','seattle-kraken':'SEA',
+    'st-louis-blues':'STL','tampa-bay-lightning':'TBL','toronto-maple-leafs':'TOR',
+    'utah-hockey-club':'UTA','vancouver-canucks':'VAN','vegas-golden-knights':'VGK',
+    'washington-capitals':'WSH','winnipeg-jets':'WPG',
+  };
+
+  const _leagueCode = new URLSearchParams(window.location.search).get('league') || null;
+  if (!_leagueCode) window.location.replace('/pool');
+
+  let allPlayers = [];
+  let teams = [];
+  let activeTeamId = null;
+
+  // ── Nav links ────────────────────────────────────────────────────────────
+  document.getElementById('nav-pool').href = `/pool/join?league=${_leagueCode}`;
+  document.getElementById('nav-standings').href = `/pool/standings?league=${_leagueCode}`;
+  document.getElementById('league-badge').textContent = _leagueCode;
+  document.getElementById('league-badge-row').style.display = '';
+
+  // ── Scoring ──────────────────────────────────────────────────────────────
+  function normalizePos(pos) {
+    if (!pos) return 'F';
+    const p = pos.toUpperCase();
+    if (p.includes('G')) return 'G';
+    if (p === 'D' || p.includes('LD') || p.includes('RD')) return 'D';
+    return 'F';
+  }
+
+  function poolScore(p) {
+    const pos = normalizePos(p.position);
+    if (pos === 'G') return (p.wins ?? 0) * 2 + (p.shutouts ?? 0) * 3;
+    if (pos === 'D') return (p.goals ?? 0) + (p.points ?? 0);
+    return p.points ?? 0;
+  }
+
+  function formatName(name) {
+    if (!name) return '';
+    if (name.includes(',')) { const [last, first] = name.split(',').map(s => s.trim()); return `${first} ${last}`; }
+    return name;
+  }
+
+  function slugMap() {
+    if (!slugMap._cache) slugMap._cache = Object.fromEntries(allPlayers.map(p => [p.puckpedia_slug, p]));
+    return slugMap._cache;
+  }
+
+  function rosterPlayers(rosterSlugs) {
+    const bySlug = slugMap();
+    return {
+      F: rosterSlugs.F.map(s => (s && bySlug[s]) ? bySlug[s] : null),
+      D: rosterSlugs.D.map(s => (s && bySlug[s]) ? bySlug[s] : null),
+      G: rosterSlugs.G.map(s => (s && bySlug[s]) ? bySlug[s] : null),
+    };
+  }
+
+  function teamTotalPts(rosterSlugs) {
+    const r = rosterPlayers(rosterSlugs);
+    return [...r.F, ...r.D, ...r.G].filter(Boolean).reduce((s, p) => s + poolScore(p), 0);
+  }
+
+  function teamCapUsed(rosterSlugs) {
+    const r = rosterPlayers(rosterSlugs);
+    return [...r.F, ...r.D, ...r.G].filter(Boolean).reduce((s, p) => s + (p.cap_hit || 0), 0);
+  }
+
+  function teamFilled(rosterSlugs) {
+    return [...rosterSlugs.F, ...rosterSlugs.D, ...rosterSlugs.G].filter(Boolean).length;
+  }
+
+  // ── Load ─────────────────────────────────────────────────────────────────
+  async function load() {
+    try {
+      // Players
+      const cached = sessionStorage.getItem('hp_players');
+      if (cached) {
+        allPlayers = JSON.parse(cached);
+      } else {
+        const res = await fetch(
+          `${SUPABASE_URL}/rest/v1/nhl_players?select=puckpedia_slug,player_name,position,cap_hit,team,goals,assists,points,wins,shutouts,games_played&order=cap_hit.desc&limit=1000`,
+          { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
+        );
+        if (!res.ok) throw new Error(res.status);
+        allPlayers = await res.json();
+        sessionStorage.setItem('hp_players', JSON.stringify(allPlayers));
+      }
+      slugMap._cache = null;
+
+      // Roster
+      const rRes = await fetch(
+        `${SUPABASE_URL}/rest/v1/pool_rosters?league_code=eq.${_leagueCode}&select=data`,
+        { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
+      );
+      if (!rRes.ok) throw new Error(rRes.status);
+      const rows = await rRes.json();
+      if (!rows.length || !rows[0].data?.teams?.length) {
+        document.getElementById('content').innerHTML = '<div class="msg">No teams saved yet. Go build your pool!</div>';
+        return;
+      }
+      teams = rows[0].data.teams.map(t => ({
+        id: t.id,
+        name: t.name || 'Team',
+        roster: {
+          F: Array.isArray(t.roster?.F) ? t.roster.F : Array(12).fill(null),
+          D: Array.isArray(t.roster?.D) ? t.roster.D : Array(6).fill(null),
+          G: Array.isArray(t.roster?.G) ? t.roster.G : Array(2).fill(null),
+        }
+      }));
+
+      // Sort by points desc for initial activeTeam
+      const sorted = [...teams].sort((a, b) => teamTotalPts(b.roster) - teamTotalPts(a.roster));
+      activeTeamId = sorted[0]?.id || teams[0]?.id;
+
+      render();
+    } catch(e) {
+      document.getElementById('content').innerHTML = `<div class="msg">Failed to load. <button class="btn-refresh" onclick="load()">Retry</button></div>`;
+    }
+  }
+
+  // ── Render ────────────────────────────────────────────────────────────────
+  function render() {
+    const sorted = [...teams].sort((a, b) => teamTotalPts(b.roster) - teamTotalPts(a.roster));
+
+    // ── Tabs ──
+    const tabsHtml = sorted.map(t => {
+      const pts = teamTotalPts(t.roster);
+      return `<div class="team-tab ${t.id === activeTeamId ? 'active' : ''}" onclick="selectTeam('${t.id}')">
+        ${t.name}<span class="team-tab-pts">${pts}pts</span>
+      </div>`;
+    }).join('');
+
+    // ── Leaderboard ──
+    const rankClass = (i) => i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
+    const lbRows = sorted.map((t, i) => {
+      const pts = teamTotalPts(t.roster);
+      const cap = teamCapUsed(t.roster);
+      const filled = teamFilled(t.roster);
+      return `<div class="lb-row ${t.id === activeTeamId ? 'active' : ''}" onclick="selectTeam('${t.id}')">
+        <div class="lb-rank ${rankClass(i)}">${i + 1}</div>
+        <div class="lb-name">${t.name}</div>
+        <div class="lb-stat">${filled}/20</div>
+        <div class="lb-stat">$${(cap / 1_000_000).toFixed(1)}M</div>
+        <div class="lb-stat pts">${pts}</div>
+      </div>`;
+    }).join('');
+
+    // ── Active team detail ──
+    const activeTeam = teams.find(t => t.id === activeTeamId);
+    const detailHtml = activeTeam ? buildDetail(activeTeam) : '';
+
+    document.getElementById('content').innerHTML = `
+      <div class="team-tabs">${tabsHtml}</div>
+      <div class="leaderboard">
+        <div class="lb-row header">
+          <div></div>
+          <div class="lb-col-label left">Team</div>
+          <div class="lb-col-label">Players</div>
+          <div class="lb-col-label">Cap</div>
+          <div class="lb-col-label">Pts</div>
+        </div>
+        ${lbRows}
+      </div>
+      <div class="team-detail visible" id="team-detail">${detailHtml}</div>
+    `;
+  }
+
+  function selectTeam(id) {
+    activeTeamId = id;
+    render();
+  }
+
+  function buildDetail(team) {
+    const roster = rosterPlayers(team.roster);
+    const allP = [...roster.F, ...roster.D, ...roster.G].filter(Boolean);
+    const totalPts = allP.reduce((s, p) => s + poolScore(p), 0);
+    const cap = allP.reduce((s, p) => s + (p.cap_hit || 0), 0);
+    const filled = allP.length;
+
+    const groups = [
+      { key: 'F', label: 'Forwards', players: roster.F.filter(Boolean) },
+      { key: 'D', label: 'Defence', players: roster.D.filter(Boolean) },
+      { key: 'G', label: 'Goalies', players: roster.G.filter(Boolean) },
+    ];
+
+    const groupsHtml = groups.filter(g => g.players.length).map(g => `
+      <div class="pos-group">
+        <div class="pos-group-label ${g.key}">${g.label} (${g.players.length})</div>
+        ${g.players.map(p => buildPlayerRow(p, g.key)).join('')}
+      </div>
+    `).join('');
+
+    if (!filled) return `<div class="msg" style="padding:1.5rem 0;">No players drafted yet.</div>`;
+
+    return `
+      <div class="detail-header">
+        <div class="detail-title">${team.name}</div>
+        <div class="detail-summary">
+          <span class="detail-badge pts">${totalPts} PTS</span>
+          <span class="detail-badge cap">$${(cap / 1_000_000).toFixed(1)}M</span>
+          <span class="detail-badge filled">${filled}/20</span>
+        </div>
+      </div>
+      ${groupsHtml}
+    `;
+  }
+
+  function buildPlayerRow(p, group) {
+    const abbr = TEAM_ABBR[p.team];
+    const logoHtml = abbr
+      ? `<img class="player-row-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}">`
+      : '';
+    const pts = poolScore(p);
+    const pos = normalizePos(p.position);
+
+    let statText = '';
+    if (pos === 'G') {
+      const parts = [];
+      if (p.wins != null) parts.push(`${p.wins}W`);
+      if (p.shutouts) parts.push(`${p.shutouts}SO`);
+      if (p.games_played != null) parts.push(`${p.games_played}GP`);
+      statText = parts.join(' · ');
+    } else {
+      const parts = [];
+      if (p.goals != null) parts.push(`${p.goals}G`);
+      if (p.assists != null) parts.push(`${p.assists}A`);
+      if (p.points != null) parts.push(`${p.points}PTS`);
+      if (p.games_played != null) parts.push(`${p.games_played}GP`);
+      statText = parts.join(' · ');
+    }
+
+    return `<div class="player-row">
+      <span class="pos-badge ${group}">${group}</span>
+      ${logoHtml}
+      <span class="player-row-name">${formatName(p.player_name)}</span>
+      ${statText ? `<span class="player-row-stat">${statText}</span>` : ''}
+      <span class="player-row-pts">${pts}<span class="player-row-pts-label">PTS</span></span>
+    </div>`;
+  }
+
+  load();
+</script>
+</body>
+</html>
