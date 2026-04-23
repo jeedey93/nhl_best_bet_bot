@@ -875,22 +875,22 @@ function render(){
 // ── Bracket ──────────────────────────────────────────────────────────────────
 // NHL team logos from official CDN (by team ID)
 const TEAM_LOGO={
-  "Buffalo Sabres":        "https://assets.nhle.com/logos/nhl/svg/BUF_dark.svg",
-  "Boston Bruins":         "https://assets.nhle.com/logos/nhl/svg/BOS_dark.svg",
-  "Montreal Canadiens":    "https://assets.nhle.com/logos/nhl/svg/MTL_dark.svg",
-  "Tampa Bay Lightning":   "https://assets.nhle.com/logos/nhl/svg/TBL_dark.svg",
-  "Carolina Hurricanes":   "https://assets.nhle.com/logos/nhl/svg/CAR_dark.svg",
-  "Ottawa Senators":       "https://assets.nhle.com/logos/nhl/svg/OTT_dark.svg",
-  "Pittsburgh Penguins":   "https://assets.nhle.com/logos/nhl/svg/PIT_dark.svg",
-  "Philadelphia Flyers":   "https://assets.nhle.com/logos/nhl/svg/PHI_dark.svg",
-  "Colorado Avalanche":    "https://assets.nhle.com/logos/nhl/svg/COL_dark.svg",
-  "Los Angeles Kings":     "https://assets.nhle.com/logos/nhl/svg/LAK_dark.svg",
-  "Dallas Stars":          "https://assets.nhle.com/logos/nhl/svg/DAL_dark.svg",
-  "Minnesota Wild":        "https://assets.nhle.com/logos/nhl/svg/MIN_dark.svg",
-  "Edmonton Oilers":       "https://assets.nhle.com/logos/nhl/svg/EDM_dark.svg",
-  "Utah Hockey Club":      "https://assets.nhle.com/logos/nhl/svg/UTA_dark.svg",
-  "Vegas Golden Knights":  "https://assets.nhle.com/logos/nhl/svg/VGK_dark.svg",
-  "Anaheim Ducks":         "https://assets.nhle.com/logos/nhl/svg/ANA_dark.svg",
+  "Buffalo Sabres":        "/logos/nhl/BUF_dark.svg",
+  "Boston Bruins":         "/logos/nhl/BOS_dark.svg",
+  "Montreal Canadiens":    "/logos/nhl/MTL_dark.svg",
+  "Tampa Bay Lightning":   "/logos/nhl/TBL_dark.svg",
+  "Carolina Hurricanes":   "/logos/nhl/CAR_dark.svg",
+  "Ottawa Senators":       "/logos/nhl/OTT_dark.svg",
+  "Pittsburgh Penguins":   "/logos/nhl/PIT_dark.svg",
+  "Philadelphia Flyers":   "/logos/nhl/PHI_dark.svg",
+  "Colorado Avalanche":    "/logos/nhl/COL_dark.svg",
+  "Los Angeles Kings":     "/logos/nhl/LAK_dark.svg",
+  "Dallas Stars":          "/logos/nhl/DAL_dark.svg",
+  "Minnesota Wild":        "/logos/nhl/MIN_dark.svg",
+  "Edmonton Oilers":       "/logos/nhl/EDM_dark.svg",
+  "Utah Hockey Club":      "/logos/nhl/UTA_dark.svg",
+  "Vegas Golden Knights":  "/logos/nhl/VGK_dark.svg",
+  "Anaheim Ducks":         "/logos/nhl/ANA_dark.svg",
 };
 // rounds[0]=R1, [1]=R2, [2]=CF, [3]=SCF
 // Each round has east[], west[], and round 3 has final[]
@@ -1291,26 +1291,22 @@ function buildShareCardHTML(rows, title, totalCount, pot, date){
     </div>`;
 }
 
-// ── Logo fetcher — loads SVG via Image (crossOrigin+?cors) → PNG data URL ────
+// ── Logo fetcher — fetches SVG text → base64 data URL (same-origin, no CORS) ─
 const _logoDataCache = {};
 async function fetchLogoDataUrl(url){
   if(_logoDataCache[url]) return _logoDataCache[url];
-  return new Promise(resolve=>{
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.onload = ()=>{
-      try{
-        const c = document.createElement('canvas');
-        c.width = img.naturalWidth || 64; c.height = img.naturalHeight || 64;
-        c.getContext('2d').drawImage(img,0,0);
-        const dataUrl = c.toDataURL('image/png');
-        _logoDataCache[url] = dataUrl;
-        resolve(dataUrl);
-      }catch(e){ _logoDataCache[url] = url; resolve(url); }
-    };
-    img.onerror = ()=>{ _logoDataCache[url] = url; resolve(url); };
-    img.src = url + '?cors';
-  });
+  try{
+    const res = await fetch(url);
+    if(!res.ok) throw new Error(res.status);
+    const svg = await res.text();
+    const b64 = btoa(unescape(encodeURIComponent(svg)));
+    const dataUrl = `data:image/svg+xml;base64,${b64}`;
+    _logoDataCache[url] = dataUrl;
+    return dataUrl;
+  }catch(e){
+    _logoDataCache[url] = url;
+    return url;
+  }
 }
 async function resolveLogos(teams){
   const urls = [...new Set(teams.map(t=>TEAM_LOGO[t]).filter(Boolean))];
