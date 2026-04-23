@@ -666,6 +666,7 @@
 
   // ── League ────────────────────────────────────────────────────────────────
   const _leagueCode = new URLSearchParams(window.location.search).get('league') || null;
+  if (!_leagueCode) { window.location.replace('../pool.html'); }
   const POOL_KEY = _leagueCode ? `hp_pool_v2_${_leagueCode}` : 'hp_pool_v2';
 
   function initLeagueBadge() {
