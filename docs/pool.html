@@ -245,10 +245,10 @@
 
 <div id="pw-overlay" class="hidden">
   <div class="pw-box">
-    <h2>🏒 New League</h2>
+    <h2 id="pw-title">🏒 New League</h2>
     <p>ENTER PASSWORD TO CONTINUE</p>
     <input id="pw-input" class="pw-input" type="password" placeholder="Password" autocomplete="off">
-    <button class="pw-btn" onclick="submitPw()">CREATE</button>
+    <button class="pw-btn" id="pw-btn" onclick="submitPw()">CREATE</button>
     <div class="pw-error" id="pw-error"></div>
   </div>
 </div>
@@ -295,13 +295,21 @@
     window.location.href = `/pool/join?league=${code}`;
   }
 
-  async function createLeague() {
-    const overlay = document.getElementById('pw-overlay');
+  let _pwAction = null; // 'create' or 'join'
+
+  function openPwModal(action) {
+    _pwAction = action;
+    document.getElementById('pw-title').textContent = action === 'create' ? '🏒 New League' : '🔗 Join League';
+    document.getElementById('pw-btn').textContent = action === 'create' ? 'CREATE' : 'JOIN';
     const input = document.getElementById('pw-input');
     const err = document.getElementById('pw-error');
     input.value = ''; err.textContent = '';
-    overlay.classList.remove('hidden');
+    document.getElementById('pw-overlay').classList.remove('hidden');
     setTimeout(() => input.focus(), 50);
+  }
+
+  async function createLeague() {
+    openPwModal('create');
   }
 
   function submitPw() {
@@ -315,7 +323,8 @@
       return;
     }
     document.getElementById('pw-overlay').classList.add('hidden');
-    doCreateLeague();
+    if (_pwAction === 'create') doCreateLeague();
+    else if (_pwAction === 'join') doJoinLeague();
   }
 
   async function doCreateLeague() {
@@ -348,9 +357,15 @@
     const input = document.getElementById('join-code');
     const errEl = document.getElementById('join-error');
     const code = input.value.trim().toUpperCase();
-
     errEl.textContent = '';
     if (code.length < 6) { errEl.textContent = 'Enter a valid league code.'; return; }
+    openPwModal('join');
+  }
+
+  async function doJoinLeague() {
+    const input = document.getElementById('join-code');
+    const errEl = document.getElementById('join-error');
+    const code = input.value.trim().toUpperCase();
 
     // Verify the league exists
     try {
