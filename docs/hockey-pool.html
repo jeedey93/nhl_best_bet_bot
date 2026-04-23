@@ -64,6 +64,17 @@
     header h1 span { color: var(--gold); }
     header p { color: var(--silver); font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase; margin-top: 0.2rem; }
 
+    /* ── League badge ── */
+    .league-badge-row { display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin-top: 0.55rem; }
+    .league-badge-label { font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem; font-weight: 700; color: var(--silver); letter-spacing: 2px; text-transform: uppercase; }
+    .league-badge-code {
+      font-family: 'Bebas Neue', cursive; font-size: 0.95rem; letter-spacing: 3px;
+      color: var(--gold); background: rgba(255,184,28,0.1); border: 1px solid rgba(255,184,28,0.3);
+      border-radius: 5px; padding: 2px 12px; cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .league-badge-code:hover { background: rgba(255,184,28,0.2); border-color: rgba(255,184,28,0.55); }
+
     /* ── Team switcher strip ── */
     .team-switcher-wrap {
       max-width: 1100px; width: 100%; margin: 0 auto;
@@ -412,6 +423,58 @@
       .btn-share-pool { width: 100%; }
       .overview-grid { grid-template-columns: 1fr 1fr; }
     }
+    /* ── Edit/Save/Lock bar ── */
+    .edit-bar {
+      max-width: 1100px; width: 100%; margin: 0 auto;
+      padding: 0.4rem 1.25rem;
+      display: flex; align-items: center; justify-content: space-between; gap: 0.75rem;
+      flex-shrink: 0;
+    }
+    .edit-bar-status {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.8rem; font-weight: 600;
+      color: var(--silver); letter-spacing: 1px; display: flex; align-items: center; gap: 0.4rem;
+    }
+    .edit-bar-status .dot {
+      width: 7px; height: 7px; border-radius: 50%; background: var(--silver); flex-shrink: 0;
+    }
+    .edit-bar-status.locked .dot { background: var(--red); }
+    .edit-bar-status.editing .dot { background: var(--green); animation: pulse 1.4s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.35} }
+    .edit-bar-btns { display: flex; gap: 0.5rem; }
+    .btn-edit-mode {
+      font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 2px;
+      background: rgba(255,184,28,0.1); border: 1px solid rgba(255,184,28,0.35);
+      color: var(--gold); border-radius: 6px; padding: 4px 16px; cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .btn-edit-mode:hover { background: rgba(255,184,28,0.2); border-color: rgba(255,184,28,0.6); }
+    .btn-edit-mode:disabled { opacity: 0.35; cursor: default; }
+    .btn-save-pool {
+      font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 2px;
+      background: var(--gold); border: none;
+      color: var(--rink); border-radius: 6px; padding: 4px 20px; cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+    .btn-save-pool:hover { opacity: 0.88; transform: translateY(-1px); }
+    .btn-save-pool:disabled { opacity: 0.35; cursor: default; transform: none; }
+    .btn-cancel-edit {
+      font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 2px;
+      background: none; border: 1px solid rgba(200,16,46,0.3);
+      color: rgba(200,16,46,0.7); border-radius: 6px; padding: 4px 14px; cursor: pointer;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+    }
+    .btn-cancel-edit:hover { background: rgba(200,16,46,0.08); border-color: rgba(200,16,46,0.6); color: var(--red); }
+
+    /* Dim entire builder when view-only */
+    .view-only-mask {
+      position: absolute; inset: 0; z-index: 10; cursor: not-allowed;
+      border-radius: inherit;
+    }
+    .pool-layout { position: relative; }
+    body.view-only .pool-layout .your-team-panel { pointer-events: none; opacity: 0.7; }
+    body.view-only .pool-layout .pool-panel { pointer-events: none; opacity: 0.85; }
+    body.view-only .team-switcher-wrap { pointer-events: none; opacity: 0.7; }
+
     @media (min-width: 861px) { .mobile-tabs { display: none; } }
     @media (max-width: 500px) {
       .site-nav-brand { font-size: 1.2rem; letter-spacing: 3px; }
@@ -433,7 +496,7 @@
     <div class="site-nav-links">
       <a href="standings-2026.html">Standings</a>
       <a href="picks-2026.html">Picks</a>
-      <a href="hockey-pool.html" class="active">Pool</a>
+      <a href="pool.html" class="active">Pool</a>
     </div>
   </div>
 </nav>
@@ -441,6 +504,10 @@
 <header>
   <h1>Hockey <span>Pool</span></h1>
   <p>2025–26 Season · Build your team · Click + to add players</p>
+  <div class="league-badge-row" id="league-badge-row" style="display:none">
+    <span class="league-badge-label">League</span>
+    <button class="league-badge-code" id="league-badge" onclick="copyLeagueLink()" title="Copy league link">—</button>
+  </div>
   <div class="share-row" id="share-row">
     <span class="team-name-display" id="active-team-label">—</span>
     <button class="btn-share-pool" id="btn-share-pool" onclick="sharePool()">📸 Share Team</button>
@@ -450,6 +517,17 @@
 <!-- Team switcher strip -->
 <div class="team-switcher-wrap">
   <div class="team-switcher" id="team-switcher"></div>
+</div>
+
+<!-- Edit / Save bar (only shown when in a league) -->
+<div class="edit-bar" id="edit-bar" style="display:none">
+  <div class="edit-bar-status" id="edit-bar-status">
+    <span class="dot"></span>
+    <span id="edit-bar-msg">Loading…</span>
+  </div>
+  <div class="edit-bar-btns" id="edit-bar-btns">
+    <button class="btn-edit-mode" id="btn-edit" onclick="startEdit()">✏ Edit</button>
+  </div>
 </div>
 
 <div id="pool-share-card"></div>
@@ -584,6 +662,223 @@
   const CAP_MAX = 95_500_000;
   const MAX_TEAMS = 12;
 
+  // ── League ────────────────────────────────────────────────────────────────
+  const _leagueCode = new URLSearchParams(window.location.search).get('league') || null;
+  const POOL_KEY = _leagueCode ? `hp_pool_v2_${_leagueCode}` : 'hp_pool_v2';
+
+  function initLeagueBadge() {
+    if (!_leagueCode) return;
+    const badge = document.getElementById('league-badge');
+    const row = document.getElementById('league-badge-row');
+    if (badge) badge.textContent = _leagueCode;
+    if (row) row.style.display = '';
+    // Save to recent
+    try {
+      const k = 'hp_recent_leagues';
+      let list = JSON.parse(localStorage.getItem(k) || '[]');
+      list = [_leagueCode, ...list.filter(c => c !== _leagueCode)].slice(0, 5);
+      localStorage.setItem(k, JSON.stringify(list));
+    } catch(e) {}
+  }
+
+  function copyLeagueLink() {
+    if (!_leagueCode) return;
+    const url = `${location.origin}${location.pathname}?league=${_leagueCode}`;
+    navigator.clipboard.writeText(url).then(() => toast('✓ League link copied')).catch(() => toast(url));
+  }
+
+  // ── Supabase sync + lock ──────────────────────────────────────────────────
+  const SESSION_ID = Math.random().toString(36).slice(2);
+  const LOCK_TTL_MS = 5 * 60 * 1000; // 5 min
+  let _isEditing = false;
+  let _heartbeatTimer = null;
+  let _snapshotBeforeEdit = null;
+
+  function sbHeaders(extra = {}) {
+    return {
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${SUPABASE_KEY}`,
+      'Content-Type': 'application/json',
+      ...extra,
+    };
+  }
+
+  // Load shared roster from Supabase, return true if data found
+  async function loadFromSupabase() {
+    if (!_leagueCode) return false;
+    try {
+      const res = await fetch(
+        `${SUPABASE_URL}/rest/v1/pool_rosters?league_code=eq.${_leagueCode}&select=data`,
+        { headers: sbHeaders() }
+      );
+      if (!res.ok) return false;
+      const rows = await res.json();
+      if (!rows.length || !rows[0].data) return false;
+      const saved = rows[0].data;
+      if (!Array.isArray(saved.teams) || !saved.teams.length) return false;
+      teams = saved.teams.map(t => ({
+        id: t.id || uid(),
+        name: t.name || 'Team',
+        roster: {
+          F: Array.isArray(t.roster?.F) ? t.roster.F : Array(12).fill(null),
+          D: Array.isArray(t.roster?.D) ? t.roster.D : Array(6).fill(null),
+          G: Array.isArray(t.roster?.G) ? t.roster.G : Array(2).fill(null),
+        }
+      }));
+      activeTeamId = saved.activeTeamId && teams.find(t => t.id === saved.activeTeamId)
+        ? saved.activeTeamId : teams[0].id;
+      return true;
+    } catch(e) { return false; }
+  }
+
+  async function saveToSupabase() {
+    if (!_leagueCode) return;
+    const data = { teams, activeTeamId };
+    // Upsert: insert or update by primary key
+    await fetch(`${SUPABASE_URL}/rest/v1/pool_rosters`, {
+      method: 'POST',
+      headers: sbHeaders({ 'Prefer': 'resolution=merge-duplicates,return=minimal' }),
+      body: JSON.stringify({ league_code: _leagueCode, data, updated_at: new Date().toISOString() }),
+    });
+  }
+
+  // Returns null if lock acquired, or { lockedBy, expiresAt } if held by someone else
+  async function tryAcquireLock() {
+    if (!_leagueCode) return null;
+    try {
+      // Check existing lock
+      const checkRes = await fetch(
+        `${SUPABASE_URL}/rest/v1/pool_locks?league_code=eq.${_leagueCode}&select=session_id,heartbeat_at`,
+        { headers: sbHeaders() }
+      );
+      if (checkRes.ok) {
+        const rows = await checkRes.json();
+        if (rows.length) {
+          const lock = rows[0];
+          const age = Date.now() - new Date(lock.heartbeat_at).getTime();
+          if (age < LOCK_TTL_MS && lock.session_id !== SESSION_ID) {
+            const expiresIn = Math.ceil((LOCK_TTL_MS - age) / 1000 / 60);
+            return { lockedBy: 'someone else', expiresIn };
+          }
+          // Expired or our own lock — update it
+          await fetch(`${SUPABASE_URL}/rest/v1/pool_locks?league_code=eq.${_leagueCode}`, {
+            method: 'PATCH',
+            headers: sbHeaders({ 'Prefer': 'return=minimal' }),
+            body: JSON.stringify({ session_id: SESSION_ID, heartbeat_at: new Date().toISOString() }),
+          });
+          return null;
+        }
+      }
+      // No lock — insert
+      await fetch(`${SUPABASE_URL}/rest/v1/pool_locks`, {
+        method: 'POST',
+        headers: sbHeaders({ 'Prefer': 'return=minimal' }),
+        body: JSON.stringify({ league_code: _leagueCode, session_id: SESSION_ID, heartbeat_at: new Date().toISOString() }),
+      });
+      return null;
+    } catch(e) { return null; }
+  }
+
+  async function releaseLock() {
+    if (!_leagueCode) return;
+    try {
+      await fetch(`${SUPABASE_URL}/rest/v1/pool_locks?league_code=eq.${_leagueCode}&session_id=eq.${SESSION_ID}`, {
+        method: 'DELETE',
+        headers: sbHeaders(),
+      });
+    } catch(e) {}
+  }
+
+  async function sendHeartbeat() {
+    if (!_leagueCode || !_isEditing) return;
+    try {
+      await fetch(`${SUPABASE_URL}/rest/v1/pool_locks?league_code=eq.${_leagueCode}&session_id=eq.${SESSION_ID}`, {
+        method: 'PATCH',
+        headers: sbHeaders({ 'Prefer': 'return=minimal' }),
+        body: JSON.stringify({ heartbeat_at: new Date().toISOString() }),
+      });
+    } catch(e) {}
+  }
+
+  function setEditBarStatus(mode, msg) {
+    const bar = document.getElementById('edit-bar');
+    const status = document.getElementById('edit-bar-status');
+    const msgEl = document.getElementById('edit-bar-msg');
+    const btns = document.getElementById('edit-bar-btns');
+    if (!bar) return;
+
+    status.className = 'edit-bar-status ' + mode; // 'locked', 'editing', or ''
+    msgEl.textContent = msg;
+
+    if (mode === 'editing') {
+      btns.innerHTML = `
+        <button class="btn-save-pool" id="btn-save" onclick="commitSave()">💾 Save</button>
+        <button class="btn-cancel-edit" onclick="cancelEdit()">Cancel</button>`;
+    } else {
+      btns.innerHTML = `<button class="btn-edit-mode" id="btn-edit" onclick="startEdit()" ${mode === 'locked' ? 'disabled' : ''}>✏ Edit</button>`;
+    }
+  }
+
+  async function startEdit() {
+    if (!_leagueCode) return;
+    const btn = document.getElementById('btn-edit');
+    if (btn) { btn.disabled = true; btn.textContent = '…'; }
+
+    const conflict = await tryAcquireLock();
+    if (conflict) {
+      setEditBarStatus('locked', `Locked by another editor (~${conflict.expiresIn}m left)`);
+      toast('Someone else is editing. Try again soon.');
+      return;
+    }
+
+    // Snapshot in case of cancel
+    _snapshotBeforeEdit = JSON.stringify({ teams, activeTeamId });
+    _isEditing = true;
+    document.body.classList.remove('view-only');
+    setEditBarStatus('editing', 'You have the edit lock');
+    _heartbeatTimer = setInterval(sendHeartbeat, 60_000);
+  }
+
+  async function commitSave() {
+    const saveBtn = document.getElementById('btn-save');
+    if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = '…'; }
+    try {
+      await saveToSupabase();
+      savePool(); // also persist locally as cache
+      toast('✓ Saved for everyone');
+    } catch(e) {
+      toast('Save failed — check connection');
+      if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = '💾 Save'; }
+      return;
+    }
+    _isEditing = false;
+    clearInterval(_heartbeatTimer);
+    await releaseLock();
+    document.body.classList.add('view-only');
+    setEditBarStatus('', 'View only — click Edit to make changes');
+  }
+
+  async function cancelEdit() {
+    if (_snapshotBeforeEdit) {
+      try {
+        const snap = JSON.parse(_snapshotBeforeEdit);
+        teams = snap.teams; activeTeamId = snap.activeTeamId;
+        renderAll();
+      } catch(e) {}
+    }
+    _isEditing = false;
+    clearInterval(_heartbeatTimer);
+    await releaseLock();
+    document.body.classList.add('view-only');
+    setEditBarStatus('', 'View only — click Edit to make changes');
+    toast('Changes discarded');
+  }
+
+  // Release lock when tab closes
+  window.addEventListener('beforeunload', () => {
+    if (_isEditing && _leagueCode) releaseLock();
+  });
+
   const TEAM_ABBR = {
     'anaheim-ducks':'ANA','boston-bruins':'BOS','buffalo-sabres':'BUF',
     'calgary-flames':'CGY','carolina-hurricanes':'CAR','chicago-blackhawks':'CHI',
@@ -680,12 +975,12 @@
 
   // ── Persistence ────────────────────────────────────────────────────────────
   function savePool() {
-    localStorage.setItem('hp_pool_v2', JSON.stringify({ teams, activeTeamId }));
+    localStorage.setItem(POOL_KEY, JSON.stringify({ teams, activeTeamId }));
   }
 
   function loadPool() {
     try {
-      const raw = localStorage.getItem('hp_pool_v2');
+      const raw = localStorage.getItem(POOL_KEY);
       if (!raw) return false;
       const saved = JSON.parse(raw);
       if (!Array.isArray(saved.teams) || !saved.teams.length) return false;
@@ -739,12 +1034,29 @@
       }
       slugMap._cache = null; // invalidate after load
       buildNHLTeamStrip();
-      // Restore or initialise pool
-      if (!loadPool()) {
-        migrateOldSave();
-        if (!teams.length) addTeam('Team 1', false);
+
+      if (_leagueCode) {
+        // League mode: load from Supabase, fall back to local cache, then blank slate
+        document.body.classList.add('view-only');
+        document.getElementById('edit-bar').style.display = '';
+        setEditBarStatus('', 'Loading league…');
+        const loaded = await loadFromSupabase();
+        if (!loaded) {
+          // First time — nothing saved yet, start with one team
+          if (!loadPool()) addTeam('Team 1', false);
+        }
+        initLeagueBadge();
+        renderAll();
+        setEditBarStatus('', 'View only — click Edit to make changes');
+      } else {
+        // Solo mode: load from localStorage as before
+        if (!loadPool()) {
+          migrateOldSave();
+          if (!teams.length) addTeam('Team 1', false);
+        }
+        initLeagueBadge();
+        renderAll();
       }
-      renderAll();
     } catch(e) {
       document.getElementById('pool-list').innerHTML =
         '<div class="empty-msg">Failed to load players. <button class="retry-btn" onclick="loadPlayers()">Retry</button></div>';

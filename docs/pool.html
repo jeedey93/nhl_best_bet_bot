@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hockey Pool Hub | Parieur Discipliné</title>
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://parieurdiscipline.com/pool.html">
+  <meta property="og:title" content="Hockey Pool Hub — Parieur Discipliné">
+  <meta property="og:description" content="Create or join a hockey pool league.">
+  <meta property="og:image" content="https://parieurdiscipline.com/parieur_discipline_icon_1024.png">
+  <meta property="og:site_name" content="Parieur Discipliné">
+  <link rel="icon" type="image/png" href="parieur_discipline_icon_1024.png">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --rink: #07111f;
+      --red: #c8102e;
+      --gold: #ffb81c;
+      --silver: #a8b2be;
+      --ice: #e8f4fd;
+      --green: #22c55e;
+      --line: rgba(255,255,255,0.08);
+      --nav-h: 44px;
+    }
+    body {
+      background: var(--rink);
+      background-image: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(26,58,110,0.6) 0%, transparent 70%);
+      min-height: 100vh;
+      font-family: 'Barlow Condensed', sans-serif;
+      color: white;
+      padding-top: var(--nav-h);
+      display: flex; flex-direction: column;
+    }
+
+    /* ── Nav ── */
+    .site-nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(7,17,31,0.92);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    }
+    .site-nav-inner {
+      max-width: 1100px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      height: var(--nav-h); padding: 0 1.5rem;
+    }
+    .site-nav-brand { font-family: 'Bebas Neue', cursive; font-size: 1.5rem; color: var(--gold); letter-spacing: 4px; text-decoration: none; }
+    .site-nav-links { display: flex; align-items: center; gap: 0.5rem; }
+    .site-nav-links a { font-family: 'Barlow Condensed', sans-serif; font-size: 1rem; font-weight: 600; color: var(--silver); text-decoration: none; padding: 0.3rem 0.8rem; border-radius: 5px; letter-spacing: 1.5px; transition: color 0.15s, background 0.15s; }
+    .site-nav-links a:hover { color: white; background: rgba(255,255,255,0.07); }
+    .site-nav-links a.active { color: var(--gold); background: rgba(255,184,28,0.1); }
+
+    /* ── Main layout ── */
+    .hub-wrap {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 2rem 1.25rem 3rem;
+    }
+
+    /* ── Title ── */
+    .hub-title {
+      font-family: 'Bebas Neue', cursive;
+      font-size: clamp(2.2rem, 6vw, 3.6rem);
+      letter-spacing: 6px;
+      text-shadow: 0 0 40px rgba(200,16,46,0.35), 0 2px 12px rgba(0,0,0,0.8);
+      line-height: 1; margin-bottom: 0.3rem;
+    }
+    .hub-title span { color: var(--gold); }
+    .hub-sub {
+      color: var(--silver); font-size: 0.85rem; letter-spacing: 2.5px;
+      text-transform: uppercase; margin-bottom: 3rem;
+    }
+
+    /* ── Cards ── */
+    .hub-cards {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;
+      width: 100%; max-width: 620px;
+    }
+    @media (max-width: 500px) {
+      .hub-cards { grid-template-columns: 1fr; }
+    }
+
+    .hub-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 14px; padding: 2rem 1.5rem 1.5rem;
+      display: flex; flex-direction: column; align-items: center; gap: 1rem;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .hub-card:hover { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.18); }
+
+    .hub-card-icon {
+      font-size: 2.4rem; line-height: 1;
+    }
+    .hub-card-title {
+      font-family: 'Bebas Neue', cursive; font-size: 1.5rem; letter-spacing: 3px;
+      color: white;
+    }
+    .hub-card-desc {
+      color: var(--silver); font-size: 0.85rem; letter-spacing: 0.5px;
+      text-align: center; line-height: 1.5;
+    }
+
+    /* ── Buttons ── */
+    .btn-primary {
+      font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 2px;
+      background: var(--gold); color: var(--rink);
+      border: none; border-radius: 7px; padding: 0.55rem 1.8rem;
+      cursor: pointer; transition: opacity 0.15s, transform 0.1s;
+      width: 100%;
+    }
+    .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn-primary:active { transform: translateY(0); opacity: 1; }
+    .btn-primary:disabled { opacity: 0.4; cursor: default; transform: none; }
+
+    /* ── Join form ── */
+    .join-form { display: flex; flex-direction: column; gap: 0.6rem; width: 100%; }
+    .join-input {
+      font-family: 'Bebas Neue', cursive; font-size: 1.2rem; letter-spacing: 4px;
+      background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15);
+      color: white; border-radius: 7px; padding: 0.5rem 0.8rem;
+      text-align: center; text-transform: uppercase; width: 100%;
+      transition: border-color 0.15s;
+    }
+    .join-input::placeholder { color: rgba(255,255,255,0.25); letter-spacing: 3px; }
+    .join-input:focus { outline: none; border-color: rgba(255,184,28,0.5); }
+
+    /* ── Recent leagues ── */
+    .recent-wrap { width: 100%; max-width: 620px; margin-top: 2.5rem; }
+    .recent-title {
+      font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 3px;
+      color: var(--silver); margin-bottom: 0.7rem;
+    }
+    .recent-list { display: flex; flex-direction: column; gap: 0.4rem; }
+    .recent-item {
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 8px; padding: 0.55rem 0.9rem;
+      cursor: pointer; transition: background 0.15s, border-color 0.15s;
+    }
+    .recent-item:hover { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.14); }
+    .recent-item-name {
+      font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 2px; color: white;
+    }
+    .recent-item-code {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.75rem; font-weight: 700;
+      color: var(--gold); letter-spacing: 2px; background: rgba(255,184,28,0.1);
+      border-radius: 4px; padding: 2px 8px;
+    }
+    .recent-item-arrow { color: var(--silver); font-size: 1rem; margin-left: 0.5rem; }
+
+    /* ── Error message ── */
+    .error-msg {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.8rem; font-weight: 600;
+      color: var(--red); letter-spacing: 1px; text-align: center; min-height: 1.1em;
+    }
+
+    /* ── Spinner ── */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner {
+      display: inline-block; width: 14px; height: 14px;
+      border: 2px solid rgba(7,17,31,0.3); border-top-color: var(--rink);
+      border-radius: 50%; animation: spin 0.7s linear infinite;
+      vertical-align: middle; margin-right: 6px;
+    }
+  </style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="site-nav-inner">
+    <a class="site-nav-brand" href="index.html">Parieur Discipliné</a>
+    <div class="site-nav-links">
+      <a href="standings-2026.html">Standings</a>
+      <a href="picks-2026.html">Picks</a>
+      <a href="pool.html" class="active">Pool</a>
+    </div>
+  </div>
+</nav>
+
+<div class="hub-wrap">
+  <h1 class="hub-title">Hockey <span>Pool</span></h1>
+  <p class="hub-sub">2025–26 Season</p>
+
+  <div class="hub-cards">
+
+    <!-- Create league -->
+    <div class="hub-card">
+      <div class="hub-card-icon">🏒</div>
+      <div class="hub-card-title">New League</div>
+      <p class="hub-card-desc">Generate a league code and start building your team under the salary cap.</p>
+      <button class="btn-primary" id="btn-create" onclick="createLeague()">Create League</button>
+    </div>
+
+    <!-- Join league -->
+    <div class="hub-card">
+      <div class="hub-card-icon">🔗</div>
+      <div class="hub-card-title">Join League</div>
+      <p class="hub-card-desc">Have a code? Enter it below to join a friend's league.</p>
+      <div class="join-form">
+        <input class="join-input" id="join-code" type="text" maxlength="8" placeholder="XXXXXXXX"
+          oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')"
+          onkeydown="if(event.key==='Enter') joinLeague()">
+        <button class="btn-primary" onclick="joinLeague()">Join League</button>
+        <div class="error-msg" id="join-error"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Recently visited leagues -->
+  <div class="recent-wrap" id="recent-wrap" style="display:none">
+    <div class="recent-title">Recent Leagues</div>
+    <div class="recent-list" id="recent-list"></div>
+  </div>
+</div>
+
+<script>
+  const SUPABASE_URL = 'https://fifurqlitkywtmhgtzeu.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZpZnVycWxpdGt5d3RtaGd0emV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3MDIyMjQsImV4cCI6MjA5MjI3ODIyNH0.KPVPj1qwbSJJMyLR_-AhDcRs0vi2sUU6qbFQ-kH53C0';
+  const RECENT_KEY = 'hp_recent_leagues';
+
+  function genCode() {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let c = '';
+    for (let i = 0; i < 8; i++) c += chars[Math.floor(Math.random() * chars.length)];
+    return c;
+  }
+
+  function saveRecent(code) {
+    let list = [];
+    try { list = JSON.parse(localStorage.getItem(RECENT_KEY) || '[]'); } catch(e) {}
+    list = [code, ...list.filter(c => c !== code)].slice(0, 5);
+    localStorage.setItem(RECENT_KEY, JSON.stringify(list));
+  }
+
+  function renderRecent() {
+    let list = [];
+    try { list = JSON.parse(localStorage.getItem(RECENT_KEY) || '[]'); } catch(e) {}
+    if (!list.length) return;
+    const wrap = document.getElementById('recent-wrap');
+    const ul = document.getElementById('recent-list');
+    wrap.style.display = '';
+    ul.innerHTML = list.map(code => `
+      <div class="recent-item" onclick="goToLeague('${code}')">
+        <span class="recent-item-name">League</span>
+        <div style="display:flex;align-items:center;gap:0.5rem">
+          <span class="recent-item-code">${code}</span>
+          <span class="recent-item-arrow">›</span>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function goToLeague(code) {
+    saveRecent(code);
+    window.location.href = `hockey-pool.html?league=${code}`;
+  }
+
+  async function createLeague() {
+    const btn = document.getElementById('btn-create');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Creating…';
+
+    const code = genCode();
+
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/pool_leagues`, {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${SUPABASE_KEY}`,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal',
+        },
+        body: JSON.stringify({ code }),
+      });
+      if (!res.ok && res.status !== 409) throw new Error(res.status);
+    } catch(e) {
+      // If the table doesn't exist yet, still proceed — the pool page works locally
+    }
+
+    goToLeague(code);
+  }
+
+  async function joinLeague() {
+    const input = document.getElementById('join-code');
+    const errEl = document.getElementById('join-error');
+    const code = input.value.trim().toUpperCase();
+
+    errEl.textContent = '';
+    if (code.length < 6) { errEl.textContent = 'Enter a valid league code.'; return; }
+
+    // Verify the league exists
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/pool_leagues?code=eq.${code}&select=code`, {
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${SUPABASE_KEY}`,
+        },
+      });
+      if (res.ok) {
+        const rows = await res.json();
+        if (!rows.length) {
+          errEl.textContent = 'League not found. Check your code.';
+          return;
+        }
+      }
+      // If table doesn't exist (404/error), let them in anyway — offline-friendly
+    } catch(e) {}
+
+    goToLeague(code);
+  }
+
+  renderRecent();
+</script>
+</body>
+</html>
