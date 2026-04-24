@@ -305,6 +305,22 @@
     }
     .pw-cancel:hover { color: white; }
     .pw-error { color: rgba(200,16,46,0.8); font-size: 0.8rem; margin-top: 0.5rem; min-height: 1em; letter-spacing: 1px; }
+
+    /* ── Deleted toast ── */
+    .deleted-toast {
+      position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%);
+      z-index: 9999;
+      background: rgba(15,25,45,0.97); border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 10px; padding: 0.75rem 1.25rem;
+      display: flex; align-items: center; gap: 0.6rem;
+      font-size: 0.9rem; font-weight: 600; letter-spacing: 1px; color: white;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.5);
+      animation: toastIn 0.25s ease, toastOut 0.3s ease 3s forwards;
+      white-space: nowrap;
+    }
+    .deleted-toast-icon { font-size: 1rem; }
+    @keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(10px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+    @keyframes toastOut { to { opacity: 0; transform: translateX(-50%) translateY(10px); pointer-events: none; } }
   </style>
 </head>
 <body>
@@ -314,6 +330,20 @@
     <a class="site-nav-brand" href="index.html">Parieur Discipliné</a>
   </div>
 </nav>
+
+<div id="deleted-toast" class="deleted-toast" style="display:none;">
+  <span class="deleted-toast-icon">🗑</span> League deleted successfully.
+</div>
+<script>
+(function(){
+  if (new URLSearchParams(window.location.search).get('deleted') === '1') {
+    const t = document.getElementById('deleted-toast');
+    t.style.display = 'flex';
+    setTimeout(() => t.remove(), 3400);
+    history.replaceState(null, '', window.location.pathname);
+  }
+})();
+</script>
 
 <div class="hub-wrap">
   <h1 class="hub-title">Hockey <span>Pool</span></h1>
