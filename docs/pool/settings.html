@@ -541,12 +541,18 @@ function checkPoolPw(){
     btn.textContent = 'Deleting…';
 
     try {
-      await Promise.all([
-        fetch(`${SUPABASE_URL}/rest/v1/pool_leagues?code=eq.${_leagueCode}`, { method: 'DELETE', headers: sbHeaders() }),
-        fetch(`${SUPABASE_URL}/rest/v1/pool_rosters?league_code=eq.${_leagueCode}`, { method: 'DELETE', headers: sbHeaders() }),
-        fetch(`${SUPABASE_URL}/rest/v1/pool_settings?league_code=eq.${_leagueCode}`, { method: 'DELETE', headers: sbHeaders() }),
-        fetch(`${SUPABASE_URL}/rest/v1/pool_locks?league_code=eq.${_leagueCode}`, { method: 'DELETE', headers: sbHeaders() }),
+      const deleteHeaders = { ...sbHeaders(), 'Prefer': 'return=minimal' };
+      const results = await Promise.all([
+        fetch(`${SUPABASE_URL}/rest/v1/pool_leagues?code=eq.${_leagueCode}`, { method: 'DELETE', headers: deleteHeaders }),
+        fetch(`${SUPABASE_URL}/rest/v1/pool_rosters?league_code=eq.${_leagueCode}`, { method: 'DELETE', headers: deleteHeaders }),
+        fetch(`${SUPABASE_URL}/rest/v1/pool_settings?league_code=eq.${_leagueCode}`, { method: 'DELETE', headers: deleteHeaders }),
+        fetch(`${SUPABASE_URL}/rest/v1/pool_locks?league_code=eq.${_leagueCode}`, { method: 'DELETE', headers: deleteHeaders }),
       ]);
+      const failed = results.find(r => !r.ok);
+      if (failed) {
+        const body = await failed.text();
+        throw new Error(`HTTP ${failed.status}: ${body}`);
+      }
       // Remove from recent leagues in localStorage
       try {
         const key = 'hp_recent_leagues';
@@ -555,9 +561,10 @@ function checkPoolPw(){
       } catch(e) {}
       window.location.replace('/pool');
     } catch(e) {
+      console.error('doDelete error:', e);
       btn.disabled = false;
       btn.textContent = 'Delete League';
-      alert('Failed to delete. Please try again.');
+      alert(`Failed to delete: ${e.message}`);
     }
   }
 
