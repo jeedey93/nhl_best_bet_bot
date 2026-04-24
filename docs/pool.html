@@ -617,28 +617,43 @@
   }
 
   async function doDelete(code) {
-    const btn = document.getElementById(`del-btn-${code}`);
-    if (btn) { btn.disabled = true; btn.textContent = 'Deleting…'; }
+  const btn = document.getElementById(`del-btn-${code}`);
+  if (btn) { btn.disabled = true; btn.textContent = 'Deleting…'; }
 
-    try {
-      await Promise.all([
-        fetch(`${SUPABASE_URL}/rest/v1/pool_leagues?code=eq.${code}`, { method: 'DELETE', headers: sbHeaders() }),
-        fetch(`${SUPABASE_URL}/rest/v1/pool_rosters?league_code=eq.${code}`, { method: 'DELETE', headers: sbHeaders() }),
-        fetch(`${SUPABASE_URL}/rest/v1/pool_settings?league_code=eq.${code}`, { method: 'DELETE', headers: sbHeaders() }),
-        fetch(`${SUPABASE_URL}/rest/v1/pool_locks?league_code=eq.${code}`, { method: 'DELETE', headers: sbHeaders() }),
-      ]);
-      removeRecent(code);
-      const row = document.getElementById(`league-row-${code}`);
-      if (row) row.remove();
-      const ul = document.getElementById('recent-list');
-      if (ul && !ul.querySelector('.recent-item')) {
-        ul.innerHTML = '<div class="recent-empty">No leagues yet — create one above.</div>';
-      }
-    } catch(e) {
-      if (btn) { btn.disabled = false; btn.textContent = '🗑 Delete'; }
-      alert('Failed to delete. Please try again.');
+  try {
+    const headers = {
+      ...sbHeaders(),
+      'Prefer': 'return=minimal',
+    };
+
+    const results = await Promise.all([
+      fetch(`${SUPABASE_URL}/rest/v1/pool_leagues?code=eq.${code}`, { method: 'DELETE', headers }),
+      fetch(`${SUPABASE_URL}/rest/v1/pool_rosters?league_code=eq.${code}`, { method: 'DELETE', headers }),
+      fetch(`${SUPABASE_URL}/rest/v1/pool_settings?league_code=eq.${code}`, { method: 'DELETE', headers }),
+      fetch(`${SUPABASE_URL}/rest/v1/pool_locks?league_code=eq.${code}`, { method: 'DELETE', headers }),
+    ]);
+
+    // Check if any request failed
+    const failed = results.find(r => !r.ok);
+    if (failed) {
+      const body = await failed.text();
+      console.error('Delete failed:', failed.status, body);
+      throw new Error(`HTTP ${failed.status}: ${body}`);
     }
+
+    removeRecent(code);
+    const row = document.getElementById(`league-row-${code}`);
+    if (row) row.remove();
+    const ul = document.getElementById('recent-list');
+    if (ul && !ul.querySelector('.recent-item')) {
+      ul.innerHTML = '<div class="recent-empty">No leagues yet — create one above.</div>';
+    }
+  } catch(e) {
+    console.error('doDelete error:', e);
+    if (btn) { btn.disabled = false; btn.textContent = '🗑 Delete'; }
+    alert(`Failed to delete: ${e.message}`);
   }
+}
 
   // ── Join (no password required) ───────────────────────────────────────────
   async function joinLeague() {
