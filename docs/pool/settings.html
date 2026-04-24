@@ -194,6 +194,34 @@
       border-radius: 50%; animation: spin 0.7s linear infinite;
       vertical-align: middle; margin-right: 6px;
     }
+
+    /* ── Danger zone ── */
+    .danger-zone {
+      margin-top: 2.5rem;
+      border: 1px solid rgba(200,16,46,0.25); border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      background: rgba(200,16,46,0.04);
+    }
+    .danger-zone-title {
+      font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 3px;
+      color: rgba(200,16,46,0.7); margin-bottom: 1rem;
+    }
+    .danger-zone-row {
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    }
+    .danger-zone-desc { display: flex; flex-direction: column; gap: 3px; }
+    .danger-zone-label { font-size: 0.95rem; font-weight: 700; color: white; }
+    .danger-zone-sub { font-size: 0.78rem; color: var(--silver); line-height: 1.4; max-width: 280px; }
+    .btn-delete {
+      font-family: 'Bebas Neue', cursive; font-size: 0.95rem; letter-spacing: 2px;
+      background: none; color: var(--red);
+      border: 1px solid rgba(200,16,46,0.4); border-radius: 7px;
+      padding: 0.5rem 1.2rem; cursor: pointer; white-space: nowrap;
+      transition: background 0.15s, border-color 0.15s;
+      flex-shrink: 0;
+    }
+    .btn-delete:hover { background: rgba(200,16,46,0.1); border-color: rgba(200,16,46,0.7); }
+    .btn-delete:disabled { opacity: 0.4; cursor: default; }
   </style>
 </head>
 <body>
@@ -253,6 +281,17 @@ function checkPoolPw(){
     <input id="pw-input" class="pw-input" type="password" placeholder="Password" autocomplete="off">
     <button class="pw-btn" onclick="confirmSave()">SAVE</button>
     <div class="pw-error" id="pw-error"></div>
+  </div>
+</div>
+
+<!-- Delete confirmation modal -->
+<div id="delete-overlay" class="hidden">
+  <div class="pw-box">
+    <h2 style="color:var(--red);">🗑 Delete League</h2>
+    <p>This will permanently delete the league and all its data. Enter the password to confirm.</p>
+    <input id="del-pw-input" class="pw-input" type="password" placeholder="Password" autocomplete="off">
+    <button class="pw-btn" style="background:var(--red);" onclick="confirmDelete()">DELETE LEAGUE</button>
+    <div class="pw-error" id="del-pw-error"></div>
   </div>
 </div>
 
@@ -334,6 +373,18 @@ function checkPoolPw(){
     <div class="formula-line" id="formula-f"></div>
     <div class="formula-line" id="formula-d"></div>
     <div class="formula-line" id="formula-g"></div>
+  </div>
+
+  <!-- Danger zone -->
+  <div class="danger-zone">
+    <div class="danger-zone-title">⚠ Danger Zone</div>
+    <div class="danger-zone-row">
+      <div class="danger-zone-desc">
+        <span class="danger-zone-label">Delete this league</span>
+        <span class="danger-zone-sub">Permanently removes the league, all rosters and settings from the server. This cannot be undone.</span>
+      </div>
+      <button class="btn-delete" onclick="promptDelete()">Delete League</button>
+    </div>
   </div>
 </div>
 
@@ -454,6 +505,63 @@ function checkPoolPw(){
   document.getElementById('save-overlay').addEventListener('click', e => {
     if (e.target === document.getElementById('save-overlay'))
       document.getElementById('save-overlay').classList.add('hidden');
+  });
+
+  // ── Delete league ──────────────────────────────────────────────────────────
+  function promptDelete() {
+    document.getElementById('del-pw-input').value = '';
+    document.getElementById('del-pw-error').textContent = '';
+    document.getElementById('delete-overlay').classList.remove('hidden');
+    setTimeout(() => document.getElementById('del-pw-input').focus(), 50);
+  }
+
+  async function confirmDelete() {
+    const input = document.getElementById('del-pw-input');
+    const err = document.getElementById('del-pw-error');
+    if (input.value !== 'parieur2026') {
+      input.classList.add('error');
+      err.textContent = 'Incorrect password.';
+      setTimeout(() => input.classList.remove('error'), 400);
+      input.value = ''; input.focus();
+      return;
+    }
+    document.getElementById('delete-overlay').classList.add('hidden');
+    await doDelete();
+  }
+
+  async function doDelete() {
+    const btn = document.getElementById('btn-delete') || document.querySelector('.btn-delete');
+    btn.disabled = true;
+    btn.textContent = 'Deleting…';
+
+    try {
+      await Promise.all([
+        fetch(`${SUPABASE_URL}/rest/v1/pool_leagues?code=eq.${_leagueCode}`, { method: 'DELETE', headers: sbHeaders() }),
+        fetch(`${SUPABASE_URL}/rest/v1/pool_rosters?league_code=eq.${_leagueCode}`, { method: 'DELETE', headers: sbHeaders() }),
+        fetch(`${SUPABASE_URL}/rest/v1/pool_settings?league_code=eq.${_leagueCode}`, { method: 'DELETE', headers: sbHeaders() }),
+        fetch(`${SUPABASE_URL}/rest/v1/pool_locks?league_code=eq.${_leagueCode}`, { method: 'DELETE', headers: sbHeaders() }),
+      ]);
+      // Remove from recent leagues in localStorage
+      try {
+        const key = 'hp_recent_leagues';
+        const list = JSON.parse(localStorage.getItem(key) || '[]');
+        localStorage.setItem(key, JSON.stringify(list.filter(c => c !== _leagueCode)));
+      } catch(e) {}
+      window.location.replace('/pool');
+    } catch(e) {
+      btn.disabled = false;
+      btn.textContent = 'Delete League';
+      alert('Failed to delete. Please try again.');
+    }
+  }
+
+  document.getElementById('del-pw-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') confirmDelete();
+    if (e.key === 'Escape') document.getElementById('delete-overlay').classList.add('hidden');
+  });
+  document.getElementById('delete-overlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('delete-overlay'))
+      document.getElementById('delete-overlay').classList.add('hidden');
   });
 
   loadSettings();
