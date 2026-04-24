@@ -208,7 +208,7 @@
       flex: 1; display: flex; flex-direction: row;
       min-height: 0; overflow: hidden;
     }
-    .draft-board-wrap { flex-shrink: 0; min-width: 160px; max-width: 70%; }
+    .draft-board-wrap { flex-shrink: 0; min-width: 160px; max-width: 70%; overflow: auto; padding: 1rem; display: flex; flex-direction: column; gap: 0.75rem; }
     .drag-handle {
       width: 6px; flex-shrink: 0; background: rgba(255,255,255,0.05);
       cursor: col-resize; transition: background 0.15s;
@@ -222,7 +222,6 @@
       width: 2px; height: 32px;
       background: rgba(255,255,255,0.15); border-radius: 2px;
     }
-    .player-pool { flex: 1 1 0; min-width: 0; }
     @media (max-width: 768px) {
       .draft-main { flex-direction: column; }
       .drag-handle { width: 100%; height: 6px; cursor: row-resize; }
@@ -232,10 +231,6 @@
     }
 
     /* ── Draft board ── */
-    .draft-board-wrap {
-      overflow: auto; padding: 1rem;
-      display: flex; flex-direction: column; gap: 0.75rem;
-    }
     .board-round {
       display: flex; flex-direction: column; gap: 0;
     }
@@ -286,6 +281,7 @@
 
     /* ── Player pool ── */
     .player-pool {
+      flex: 1 1 0; min-width: 0;
       border-left: 1px solid var(--line);
       display: flex; flex-direction: column; overflow: hidden; padding: 0.65rem 0.85rem 0.5rem;
     }
