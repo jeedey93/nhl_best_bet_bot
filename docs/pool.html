@@ -386,7 +386,6 @@
   function saveRecent(code, name) {
     let list = [];
     try { list = JSON.parse(localStorage.getItem(RECENT_KEY) || '[]'); } catch(e) {}
-    // Normalize old entries (plain strings → objects)
     list = list.map(e => typeof e === 'string' ? { code: e, name: 'League' } : e);
     list = [{ code, name: name || 'League' }, ...list.filter(e => e.code !== code)].slice(0, 5);
     localStorage.setItem(RECENT_KEY, JSON.stringify(list));
@@ -395,8 +394,11 @@
   function renderRecent() {
     let list = [];
     try { list = JSON.parse(localStorage.getItem(RECENT_KEY) || '[]'); } catch(e) {}
-    // Normalize old entries
+    // Normalize old string entries and dedup by code
     list = list.map(e => typeof e === 'string' ? { code: e, name: 'League' } : e);
+    list = list.filter((e, i, a) => a.findIndex(x => x.code === e.code) === i);
+    // Write back cleaned list
+    localStorage.setItem(RECENT_KEY, JSON.stringify(list));
 
     const ul = document.getElementById('recent-list');
 
