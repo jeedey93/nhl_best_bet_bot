@@ -1252,6 +1252,7 @@ async function doResetDraft() {
 
 // ── Finalize ──────────────────────────────────────────────────────
 async function finalizeDraft() {
+  try {
     await Promise.all([
       dbPatch('pool_draft_settings', `league_code=eq.${LEAGUE_CODE}`, { status: 'done' }),
       // Write rosters to pool_rosters
