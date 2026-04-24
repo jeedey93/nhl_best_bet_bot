@@ -1218,7 +1218,7 @@ async function draftPlayer(playerName, rawPos, normalizedPos) {
 
   // Persist to DB
   try {
-    await dbUpsert('pool_draft_picks', {
+    const res = await dbUpsert('pool_draft_picks', {
       league_code: LEAGUE_CODE,
       round: pick.round,
       pick_in_round: pick.pickInRound,
@@ -1227,9 +1227,15 @@ async function draftPlayer(playerName, rawPos, normalizedPos) {
       player_name: pick.playerName,
       player_pos: pick.playerRawPos,
     });
+    if (!res.ok) {
+      const err = await res.text();
+      console.error('draftPlayer DB error:', res.status, err);
+      alert('Pick failed to save: ' + err);
+      return;
+    }
     lastPickCount = draftState.picks.length;
     syncRosterToJoinFormat().catch(() => {});
-  } catch(e) { console.warn('draftPlayer DB error:', e); }
+  } catch(e) { console.error('draftPlayer DB error:', e); alert('Pick failed: ' + e.message); }
 }
 
 function showPickToast(manager, player, pos, overall) {
