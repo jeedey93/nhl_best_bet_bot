@@ -1408,8 +1408,9 @@ function checkPw(){
     visible.forEach(p => {
       const slug = p.puckpedia_slug;
       const inActiveRoster = activeSlugs.has(slug);
-      const claimedByOther = !inActiveRoster && claimed.has(slug);
-      list.appendChild(makePoolCard(p, normalizePos(p.position), claimedByOther, claimedByOther ? claimedBy[slug] : null));
+      const claimedByLiveDraft = liveDraftedSlugs.has(slug);
+      const claimedByOther = claimedByLiveDraft || (!inActiveRoster && claimed.has(slug));
+      list.appendChild(makePoolCard(p, normalizePos(p.position), claimedByOther, claimedByOther ? (claimedBy[slug] || 'Live Draft') : null));
     });
     if (filtered.length > visible.length) {
       const remaining = filtered.length - visible.length;
@@ -1499,8 +1500,9 @@ function checkPw(){
     const group = pos;
     const slug = player.puckpedia_slug;
 
-    // Can't add if claimed by another team
+    // Can't add if claimed by live-draft or by another team
     const claimed = allClaimedSlugs();
+    if (liveDraftedSlugs.has(slug)) return;
     if (claimed.has(slug) && !activeRosterSlugs().has(slug)) return;
 
     if (swapMode && swapMode.group === group) {
