@@ -1237,15 +1237,22 @@ async function draftPlayer(playerName, rawPos, normalizedPos) {
 
   // Persist to DB
   try {
-    const res = await dbUpsert('pool_draft_picks', {
-      league_code: LEAGUE_CODE,
-      round: pick.round,
-      pick_in_round: pick.pickInRound,
-      overall_pick: pick.overallPick,
-      manager_name: pick.managerName,
-      player_name: pick.playerName,
-      player_pos: pick.playerRawPos,
-    });
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/pool_draft_picks?on_conflict=league_code,overall_pick`,
+      {
+        method: 'POST',
+        headers: sbH({ 'Prefer': 'resolution=merge-duplicates,return=minimal' }),
+        body: JSON.stringify({
+          league_code: LEAGUE_CODE,
+          round: pick.round,
+          pick_in_round: pick.pickInRound,
+          overall_pick: pick.overallPick,
+          manager_name: pick.managerName,
+          player_name: pick.playerName,
+          player_pos: pick.playerRawPos,
+        }),
+      }
+    );
     if (!res.ok) {
       const err = await res.text();
       console.error('draftPlayer DB error:', res.status, err);
