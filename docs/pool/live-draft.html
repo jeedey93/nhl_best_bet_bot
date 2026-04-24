@@ -1427,10 +1427,15 @@ async function finalizeDraft() {
 // Writes pool_rosters in the exact format join.html expects so drafted
 // players appear on the draft page immediately.
 async function syncRosterToJoinFormat() {
-  // Build slug lookup from loaded players
-  const slugByName = {};
+  // Build slug lookup: prefer matching by name+normalizedPos to handle duplicate names
+  const slugByNamePos = {};
   for (const p of allPlayers) {
-    if (p.player_name && p.puckpedia_slug) slugByName[p.player_name] = p.puckpedia_slug;
+    if (p.player_name && p.puckpedia_slug) {
+      const key = p.player_name + '|' + normalizePos(p.position);
+      slugByNamePos[key] = p.puckpedia_slug;
+      // Also store plain name as fallback
+      if (!slugByNamePos[p.player_name]) slugByNamePos[p.player_name] = p.puckpedia_slug;
+    }
   }
 
   const SLOTS = { F: 12, D: 6, G: 2 };
@@ -1448,7 +1453,7 @@ async function syncRosterToJoinFormat() {
     const picked = byManager[m.name] || { F: [], D: [], G: [] };
     const roster = {};
     for (const [grp, max] of Object.entries(SLOTS)) {
-      const slugs = picked[grp].map(name => slugByName[name] || null);
+      const slugs = picked[grp].map(name => slugByNamePos[name + '|' + grp] || slugByNamePos[name] || null);
       // Pad to max slots with nulls
       while (slugs.length < max) slugs.push(null);
       roster[grp] = slugs.slice(0, max);

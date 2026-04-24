@@ -1023,10 +1023,14 @@ function checkPw(){
       if (!res.ok) return;
       const picks = await res.json();
       if (!picks.length) return;
-      // Build name→slug map from allPlayers
-      const slugByName = {};
-      for (const p of allPlayers) { if (p.player_name && p.puckpedia_slug) slugByName[p.player_name] = p.puckpedia_slug; }
-      liveDraftedSlugs = new Set(picks.map(p => slugByName[p.player_name]).filter(Boolean));
+      // Build name→[slugs] map — handles duplicate names (e.g. two "Pettersson, Elias")
+      const slugsByName = {};
+      for (const p of allPlayers) {
+        if (p.player_name && p.puckpedia_slug) {
+          (slugsByName[p.player_name] = slugsByName[p.player_name] || []).push(p.puckpedia_slug);
+        }
+      }
+      liveDraftedSlugs = new Set(picks.flatMap(p => slugsByName[p.player_name] || []));
     } catch(e) {}
   }
 
