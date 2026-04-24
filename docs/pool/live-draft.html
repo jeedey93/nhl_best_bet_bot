@@ -269,66 +269,88 @@
     /* ── Player pool ── */
     .player-pool {
       border-left: 1px solid var(--line);
-      display: flex; flex-direction: column; overflow: hidden;
+      display: flex; flex-direction: column; overflow: hidden; padding: 0.65rem 0.85rem 0.5rem;
     }
     @media (max-width: 768px) {
-      .player-pool { border-left: none; border-top: 1px solid var(--line); max-height: 300px; }
+      .player-pool { border-left: none; border-top: 1px solid var(--line); max-height: 340px; }
     }
-    .pool-header {
-      padding: 0.65rem 0.85rem; background: rgba(255,255,255,0.02);
-      border-bottom: 1px solid var(--line); flex-shrink: 0;
-      display: flex; flex-direction: column; gap: 0.45rem;
-    }
-    .pool-title {
-      font-family: 'Bebas Neue', cursive; font-size: 0.8rem; letter-spacing: 3px; color: var(--silver);
-    }
-    .pool-search {
-      font-family: 'Barlow Condensed', sans-serif; font-size: 0.9rem; font-weight: 600;
-      background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 6px; padding: 0.38rem 0.65rem; color: white; width: 100%;
-      letter-spacing: 0.5px;
-    }
-    .pool-search:focus { outline: none; border-color: rgba(255,184,28,0.4); }
-    .pool-search::placeholder { color: rgba(255,255,255,0.2); }
-    .pool-filters { display: flex; gap: 0.3rem; flex-wrap: wrap; }
-    .filter-btn {
-      font-family: 'Bebas Neue', cursive; font-size: 0.7rem; letter-spacing: 1.5px;
-      background: rgba(255,255,255,0.05); border: 1px solid var(--line);
-      border-radius: 4px; padding: 2px 8px; color: var(--silver); cursor: pointer;
-      transition: background 0.15s, color 0.15s, border-color 0.15s;
-    }
-    .filter-btn.active { background: rgba(255,184,28,0.12); border-color: rgba(255,184,28,0.35); color: var(--gold); }
-
-    .pool-list { flex: 1; overflow-y: auto; }
-    .pool-list::-webkit-scrollbar { width: 4px; }
+    .pool-controls { display: flex; gap: 0.5rem; margin-bottom: 0.6rem; flex-shrink: 0; flex-wrap: wrap; }
+    .pool-controls-filters { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .pos-filter { display: flex; gap: 0; background: rgba(255,255,255,0.04); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+    .pos-filter button { font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 2px; padding: 0.35rem 0.9rem; background: none; border: none; color: var(--silver); cursor: pointer; transition: background 0.15s, color 0.15s; }
+    .pos-filter button.active { background: rgba(255,255,255,0.09); color: white; }
+    .pos-filter button:hover:not(.active) { color: rgba(255,255,255,0.7); }
+    .search-input { flex: 1; min-width: 140px; background: rgba(255,255,255,0.05); border: 1px solid var(--line); border-radius: 6px; padding: 0.35rem 0.8rem; color: white; font-family: 'Barlow Condensed', sans-serif; font-size: 0.95rem; outline: none; transition: border-color 0.15s; }
+    .search-input::placeholder { color: rgba(168,178,190,0.35); }
+    .search-input:focus { border-color: rgba(255,255,255,0.22); }
+    .eff-legend { display: flex; align-items: center; gap: 8px; background: rgba(34,197,94,0.06); border: 1px solid rgba(34,197,94,0.15); border-radius: 6px; padding: 6px 10px; margin-bottom: 0.6rem; flex-shrink: 0; }
+    .eff-legend-badge { font-family: 'Bebas Neue', cursive; font-size: 0.72rem; letter-spacing: 1.5px; color: #22c55e; background: rgba(34,197,94,0.12); border-radius: 3px; padding: 1px 6px; flex-shrink: 0; }
+    .eff-legend-text { font-size: 0.75rem; color: rgba(255,255,255,0.4); letter-spacing: 0.2px; }
+    .eff-legend-text strong { color: rgba(255,255,255,0.65); font-weight: 600; }
+    .nhl-team-strip-wrap { margin-bottom: 0.6rem; flex-shrink: 0; }
+    .nhl-team-strip { display: flex; flex-wrap: wrap; gap: 4px; }
+    .nhl-team-pill { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 4px 5px; border-radius: 6px; border: 1px solid var(--line); background: rgba(255,255,255,0.03); cursor: pointer; transition: background 0.15s, border-color 0.15s; min-width: 44px; flex-shrink: 0; }
+    .nhl-team-pill:hover { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.14); }
+    .nhl-team-pill.active { background: rgba(255,184,28,0.1); border-color: rgba(255,184,28,0.3); }
+    .nhl-team-pill img { width: 22px; height: 22px; object-fit: contain; }
+    .nhl-team-pill span { font-family: 'Bebas Neue', cursive; font-size: 0.58rem; letter-spacing: 1px; color: var(--silver); white-space: nowrap; }
+    .nhl-team-pill.active span { color: var(--gold); }
+    .nhl-team-pill-all { font-family: 'Bebas Neue', cursive; font-size: 0.72rem; letter-spacing: 2px; color: var(--silver); justify-content: center; min-height: 46px; }
+    .nhl-team-pill-all.active { color: var(--gold); }
+    .pool-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; padding-right: 4px; }
+    .pool-list::-webkit-scrollbar { width: 3px; }
     .pool-list::-webkit-scrollbar-track { background: transparent; }
     .pool-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+    .loading-msg, .empty-msg { text-align: center; color: var(--silver); font-size: 0.9rem; padding: 2rem 0; letter-spacing: 1px; }
+    .load-more-btn { width: 100%; margin-top: 4px; font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 2px; background: rgba(255,184,28,0.06); border: 1px solid rgba(255,184,28,0.2); color: var(--gold); border-radius: 6px; padding: 0.5rem; cursor: pointer; transition: background 0.15s; }
+    .load-more-btn:hover { background: rgba(255,184,28,0.14); }
 
-    .player-row {
-      display: flex; align-items: center; gap: 0.5rem;
-      padding: 0.45rem 0.85rem; border-bottom: 1px solid var(--line2);
-      transition: background 0.12s;
+    /* ── Player cards ── */
+    .player-card {
+      display: flex; align-items: center; gap: 8px;
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 5px; padding: 5px 8px 5px 10px;
+      cursor: default; user-select: none;
+      transition: background 0.15s, border-color 0.15s;
     }
-    .player-row:hover { background: rgba(255,255,255,0.04); }
-    .player-row.drafted { opacity: 0.3; pointer-events: none; }
-    .pr-pos {
-      font-family: 'Bebas Neue', cursive; font-size: 0.7rem; letter-spacing: 1px;
-      border-radius: 3px; padding: 1px 5px; flex-shrink: 0; min-width: 26px; text-align: center;
-    }
-    .pr-info { flex: 1; min-width: 0; }
-    .pr-name {
-      font-family: 'Barlow Condensed', sans-serif; font-size: 0.9rem; font-weight: 700;
-      color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    }
-    .pr-team { font-size: 0.72rem; font-weight: 600; color: var(--silver); letter-spacing: 0.5px; }
+    .player-card:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.14); }
+    .player-card.drafted { opacity: 0.3; pointer-events: none; }
+    .pos-badge { font-family: 'Bebas Neue', cursive; font-size: 0.7rem; letter-spacing: 1px; padding: 1px 5px; border-radius: 3px; background: rgba(255,255,255,0.07); color: var(--silver); min-width: 26px; text-align: center; flex-shrink: 0; }
+    .pos-badge.F { background: rgba(200,16,46,0.18); color: #ff7a8a; }
+    .pos-badge.D { background: rgba(26,58,110,0.45); color: #7db4ff; }
+    .pos-badge.G { background: rgba(255,184,28,0.14); color: var(--gold); }
+    .card-team-logo { width: 28px; height: 28px; object-fit: contain; flex-shrink: 0; opacity: 0.85; }
+    .player-info { flex: 1; min-width: 0; }
+    .player-name { font-weight: 700; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: white; }
+    .player-salary { font-size: 0.75rem; color: var(--silver); letter-spacing: 0.3px; font-weight: 600; margin-top: 1px; }
+    .stat-boxes { display: flex; gap: 5px; flex-shrink: 0; }
+    .stat-box { display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 5px; padding: 3px 7px; min-width: 44px; text-align: center; }
+    .stat-box-pts { background: rgba(255,184,28,0.08); border: 1px solid rgba(255,184,28,0.2); }
+    .stat-box-goals { background: rgba(200,16,46,0.08); border: 1px solid rgba(200,16,46,0.2); }
+    .stat-box-assists { background: rgba(100,140,255,0.08); border: 1px solid rgba(100,140,255,0.2); }
+    .stat-box-eff { background: rgba(34,197,94,0.07); border: 1px solid rgba(34,197,94,0.2); }
+    .stat-box-gp { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); }
+    .stat-box-main { font-family: 'Bebas Neue', cursive; font-size: 1.2rem; line-height: 1; letter-spacing: 1px; }
+    .stat-box-pts .stat-box-main { color: var(--gold); }
+    .stat-box-goals .stat-box-main { color: #ff7a8a; }
+    .stat-box-assists .stat-box-main { color: #7db4ff; }
+    .stat-box-eff .stat-box-main { color: #22c55e; }
+    .stat-box-gp .stat-box-main { color: rgba(255,255,255,0.55); }
+    .stat-box-label { font-family: 'Bebas Neue', cursive; font-size: 0.65rem; letter-spacing: 2px; margin-top: 1px; }
+    .stat-box-pts .stat-box-label { color: rgba(255,184,28,0.5); }
+    .stat-box-goals .stat-box-label { color: rgba(255,122,138,0.5); }
+    .stat-box-assists .stat-box-label { color: rgba(125,180,255,0.5); }
+    .stat-box-eff .stat-box-label { color: rgba(34,197,94,0.5); }
+    .stat-box-gp .stat-box-label { color: rgba(255,255,255,0.25); }
     .btn-draft-player {
-      font-family: 'Bebas Neue', cursive; font-size: 0.75rem; letter-spacing: 1.5px;
+      font-family: 'Bebas Neue', cursive; font-size: 0.8rem; letter-spacing: 1.5px;
       background: rgba(200,16,46,0.1); border: 1px solid rgba(200,16,46,0.3); color: var(--red);
-      border-radius: 5px; padding: 3px 10px; cursor: pointer; flex-shrink: 0;
+      border-radius: 5px; padding: 4px 12px; cursor: pointer; flex-shrink: 0;
       transition: background 0.15s, color 0.15s; white-space: nowrap;
     }
-    .btn-draft-player:hover { background: rgba(200,16,46,0.22); color: #ff4d6a; }
+    .btn-draft-player:not(:disabled):hover { background: rgba(200,16,46,0.22); color: #ff4d6a; }
     .btn-draft-player:disabled { opacity: 0.25; cursor: default; }
+
 
     /* ── Done screen ── */
     #done-screen {
@@ -457,7 +479,6 @@
         <button class="btn-randomize" style="margin-left:0.6rem;" onclick="randomizeOrder()">🎲 Randomize Order</button>
       </div>
       <div class="manager-list" id="setup-manager-list"></div>
-      <button class="btn-add-manager" style="margin-top:0.45rem;" onclick="addManagerInput()">+ Add Manager</button>
     </div>
 
     <div id="setup-error" style="color:var(--red);font-size:0.8rem;font-weight:700;letter-spacing:1px;text-align:center;min-height:1.1em;"></div>
@@ -501,19 +522,30 @@
 
     <!-- Player pool -->
     <div class="player-pool">
-      <div class="pool-header">
-        <div class="pool-title">Available Players</div>
-        <input class="pool-search" id="pool-search" type="text" placeholder="Search players…" oninput="filterPlayers()">
-        <div class="pool-filters" id="pool-filters">
-          <button class="filter-btn active" data-pos="ALL" onclick="setFilter('ALL',this)">ALL</button>
-          <button class="filter-btn" data-pos="C" onclick="setFilter('C',this)">C</button>
-          <button class="filter-btn" data-pos="LW" onclick="setFilter('LW',this)">LW</button>
-          <button class="filter-btn" data-pos="RW" onclick="setFilter('RW',this)">RW</button>
-          <button class="filter-btn" data-pos="D" onclick="setFilter('D',this)">D</button>
-          <button class="filter-btn" data-pos="G" onclick="setFilter('G',this)">G</button>
+      <div class="pool-controls">
+        <div class="pool-controls-filters">
+          <div class="pos-filter">
+            <button class="active" data-pos="ALL" onclick="setFilter('ALL',this)">All</button>
+            <button data-pos="F" onclick="setFilter('F',this)">Forwards</button>
+            <button data-pos="D" onclick="setFilter('D',this)">Defence</button>
+            <button data-pos="G" onclick="setFilter('G',this)">Goalies</button>
+          </div>
+          <div class="pos-filter">
+            <button class="active" data-sort="salary" onclick="setSort('salary',this)">Salary</button>
+            <button data-sort="points" onclick="setSort('points',this)">Points</button>
+            <button data-sort="value" onclick="setSort('value',this)">EFF</button>
+          </div>
         </div>
+        <input class="search-input" id="pool-search" type="text" placeholder="🔍 Search player…" oninput="debouncedRenderPool()" autocomplete="off">
       </div>
-      <div class="pool-list" id="pool-list"></div>
+      <div class="eff-legend">
+        <span class="eff-legend-badge">EFF</span>
+        <span class="eff-legend-text">Efficiency Score — <strong>Points ÷ √(Cap in $M)</strong></span>
+      </div>
+      <div class="nhl-team-strip-wrap">
+        <div class="nhl-team-strip" id="nhl-team-strip"></div>
+      </div>
+      <div class="pool-list" id="pool-list"><div class="loading-msg">Loading players…</div></div>
     </div>
   </div>
 </div>
@@ -542,78 +574,33 @@ function sbH(extra={}) {
 }
 
 // ══════════════════════════════════════════════════════════════════
-//  NHL PLAYER POOL  (top ~200 players for 2025-26)
+//  TEAM ABBR MAP
 // ══════════════════════════════════════════════════════════════════
-const PLAYERS = [
-  // Centers
-  {name:'Connor McDavid',pos:'C',team:'EDM'},{name:'Nathan MacKinnon',pos:'C',team:'COL'},
-  {name:'Sidney Crosby',pos:'C',team:'PIT'},{name:'Auston Matthews',pos:'C',team:'TOR'},
-  {name:'Jack Hughes',pos:'C',team:'NJD'},{name:'Elias Pettersson',pos:'C',team:'VAN'},
-  {name:'Anze Kopitar',pos:'C',team:'LAK'},{name:'Ryan O\'Reilly',pos:'C',team:'STL'},
-  {name:'Brayden Point',pos:'C',team:'TBL'},{name:'Sebastian Aho',pos:'C',team:'CAR'},
-  {name:'Dylan Larkin',pos:'C',team:'DET'},{name:'Aleksander Barkov',pos:'C',team:'FLA'},
-  {name:'Kyle Connor',pos:'C',team:'WPG'},{name:'Pierre-Luc Dubois',pos:'C',team:'WSH'},
-  {name:'Logan Couture',pos:'C',team:'SJS'},{name:'Tage Thompson',pos:'C',team:'BUF'},
-  {name:'Sam Reinhart',pos:'C',team:'FLA'},{name:'Chandler Stephenson',pos:'C',team:'VGK'},
-  {name:'Ryan Nugent-Hopkins',pos:'C',team:'EDM'},{name:'Mikko Rantanen',pos:'C',team:'CAR'},
-  {name:'Bo Horvat',pos:'C',team:'NYI'},{name:'Nicklas Backstrom',pos:'C',team:'WSH'},
-  {name:'Mark Scheifele',pos:'C',team:'WPG'},{name:'Nazem Kadri',pos:'C',team:'CGY'},
-  {name:'Patrice Bergeron',pos:'C',team:'BOS'},{name:'David Pastrnak',pos:'C',team:'BOS'},
-  // Left Wings
-  {name:'Leon Draisaitl',pos:'LW',team:'EDM'},{name:'Brad Marchand',pos:'LW',team:'BOS'},
-  {name:'Artemi Panarin',pos:'LW',team:'NYR'},{name:'Alex Ovechkin',pos:'LW',team:'WSH'},
-  {name:'Jonathan Huberdeau',pos:'LW',team:'CGY'},{name:'Timo Meier',pos:'LW',team:'NJD'},
-  {name:'Brady Tkachuk',pos:'LW',team:'OTT'},{name:'Jonathan Drouin',pos:'LW',team:'COL'},
-  {name:'Kirill Kaprizov',pos:'LW',team:'MIN'},{name:'Jake Guentzel',pos:'LW',team:'CAR'},
-  {name:'Roope Hintz',pos:'LW',team:'DAL'},{name:'Andrew Mangiapane',pos:'LW',team:'CGY'},
-  {name:'Anthony Duclair',pos:'LW',team:'TBL'},{name:'Brock Boeser',pos:'LW',team:'VAN'},
-  {name:'Evander Kane',pos:'LW',team:'EDM'},{name:'Zach Hyman',pos:'LW',team:'EDM'},
-  {name:'Filip Forsberg',pos:'LW',team:'NSH'},{name:'Jason Robertson',pos:'LW',team:'DAL'},
-  {name:'Nikolaj Ehlers',pos:'LW',team:'WPG'},{name:'Taylor Hall',pos:'LW',team:'BOS'},
-  // Right Wings
-  {name:'Mitch Marner',pos:'RW',team:'TOR'},{name:'Patrick Kane',pos:'RW',team:'DET'},
-  {name:'William Nylander',pos:'RW',team:'TOR'},{name:'Nikita Kucherov',pos:'RW',team:'TBL'},
-  {name:'Mark Scheifele',pos:'RW',team:'WPG'},{name:'Matthew Tkachuk',pos:'RW',team:'FLA'},
-  {name:'Claude Giroux',pos:'RW',team:'OTT'},{name:'Brayden Schenn',pos:'RW',team:'STL'},
-  {name:'Jakob Silfverberg',pos:'RW',team:'ANA'},{name:'Jordan Eberle',pos:'RW',team:'SEA'},
-  {name:'Max Pacioretty',pos:'RW',team:'WSH'},{name:'Rickard Rakell',pos:'RW',team:'PIT'},
-  {name:'JT Miller',pos:'RW',team:'VAN'},{name:'Jakub Vrana',pos:'RW',team:'STL'},
-  {name:'Vladimir Tarasenko',pos:'RW',team:'OTT'},{name:'Noah Hanifin',pos:'RW',team:'CGY'},
-  {name:'Elias Lindholm',pos:'RW',team:'BOS'},{name:'Andrei Svechnikov',pos:'RW',team:'CAR'},
-  {name:'Drake Batherson',pos:'RW',team:'OTT'},{name:'Joonas Donskoi',pos:'RW',team:'COL'},
-  // Defensemen
-  {name:'Cale Makar',pos:'D',team:'COL'},{name:'Victor Hedman',pos:'D',team:'TBL'},
-  {name:'Roman Josi',pos:'D',team:'NSH'},{name:'Adam Fox',pos:'D',team:'NYR'},
-  {name:'Dougie Hamilton',pos:'D',team:'NJD'},{name:'Quinn Hughes',pos:'D',team:'VAN'},
-  {name:'Miro Heiskanen',pos:'D',team:'DAL'},{name:'Rasmus Dahlin',pos:'D',team:'BUF'},
-  {name:'Devon Toews',pos:'D',team:'COL'},{name:'Morgan Rielly',pos:'D',team:'TOR'},
-  {name:'Jake Sanderson',pos:'D',team:'OTT'},{name:'Shea Theodore',pos:'D',team:'VGK'},
-  {name:'Brent Burns',pos:'D',team:'CAR'},{name:'Mark Giordano',pos:'D',team:'TOR'},
-  {name:'Seth Jones',pos:'D',team:'CHI'},{name:'Darnell Nurse',pos:'D',team:'EDM'},
-  {name:'Zach Werenski',pos:'D',team:'CBJ'},{name:'Kris Letang',pos:'D',team:'PIT'},
-  {name:'John Carlson',pos:'D',team:'WSH'},{name:'Ryan Ellis',pos:'D',team:'PHI'},
-  {name:'Kevin Shattenkirk',pos:'D',team:'ANA'},{name:'Jared Spurgeon',pos:'D',team:'MIN'},
-  {name:'Ivan Provorov',pos:'D',team:'CBJ'},{name:'Travis Hamonic',pos:'D',team:'VAN'},
-  {name:'Aaron Ekblad',pos:'D',team:'FLA'},{name:'Jake Muzzin',pos:'D',team:'TOR'},
-  {name:'Alex Pietrangelo',pos:'D',team:'VGK'},{name:'Drew Doughty',pos:'D',team:'LAK'},
-  {name:'Marc-Edouard Vlasic',pos:'D',team:'SJS'},{name:'Thomas Chabot',pos:'D',team:'OTT'},
-  // Goalies
-  {name:'Connor Hellebuyck',pos:'G',team:'WPG'},{name:'Igor Shesterkin',pos:'G',team:'NYR'},
-  {name:'Andrei Vasilevskiy',pos:'G',team:'TBL'},{name:'Frederik Andersen',pos:'G',team:'CAR'},
-  {name:'Jake Oettinger',pos:'G',team:'DAL'},{name:'Thatcher Demko',pos:'G',team:'VAN'},
-  {name:'Juuse Saros',pos:'G',team:'NSH'},{name:'Darcy Kuemper',pos:'G',team:'WSH'},
-  {name:'Tristan Jarry',pos:'G',team:'PIT'},{name:'Jonathan Quick',pos:'G',team:'NYR'},
-  {name:'Tuukka Rask',pos:'G',team:'BOS'},{name:'Carter Hart',pos:'G',team:'PHI'},
-  {name:'Jacob Markstrom',pos:'G',team:'CGY'},{name:'Cam Talbot',pos:'G',team:'MIN'},
-  {name:'Jordan Binnington',pos:'G',team:'STL'},{name:'Marc-Andre Fleury',pos:'G',team:'MIN'},
-  {name:'Semyon Varlamov',pos:'G',team:'NYI'},{name:'Alexandar Georgiev',pos:'G',team:'COL'},
-  {name:'Ilya Sorokin',pos:'G',team:'NYI'},{name:'Adin Hill',pos:'G',team:'VGK'},
-];
+const TEAM_ABBR = {
+  'anaheim-ducks':'ANA','boston-bruins':'BOS','buffalo-sabres':'BUF',
+  'calgary-flames':'CGY','carolina-hurricanes':'CAR','chicago-blackhawks':'CHI',
+  'colorado-avalanche':'COL','columbus-blue-jackets':'CBJ','dallas-stars':'DAL',
+  'detroit-red-wings':'DET','edmonton-oilers':'EDM','florida-panthers':'FLA',
+  'los-angeles-kings':'LAK','minnesota-wild':'MIN','montreal-canadiens':'MTL',
+  'nashville-predators':'NSH','new-jersey-devils':'NJD','new-york-islanders':'NYI',
+  'new-york-rangers':'NYR','ottawa-senators':'OTT','philadelphia-flyers':'PHI',
+  'pittsburgh-penguins':'PIT','san-jose-sharks':'SJS','seattle-kraken':'SEA',
+  'st-louis-blues':'STL','tampa-bay-lightning':'TBL','toronto-maple-leafs':'TOR',
+  'utah-hockey-club':'UTA','vancouver-canucks':'VAN','vegas-golden-knights':'VGK',
+  'washington-capitals':'WSH','winnipeg-jets':'WPG',
+};
+
 
 // ══════════════════════════════════════════════════════════════════
 //  STATE
 // ══════════════════════════════════════════════════════════════════
 let LEAGUE_CODE = '';
+let allPlayers = [];
+let activeFilter = 'ALL';
+let activeSort   = 'salary';
+let activeNHLTeam = 'ALL';
+let _poolPage = 0;
+const PAGE_SIZE = 50;
 let draftState = {
   mode: 'snake',
   rounds: 15,
@@ -624,7 +611,6 @@ let draftState = {
 };
 let myName = '';
 let isCommish = false;
-let filterPos = 'ALL';
 let timerInterval = null;
 let timerRemaining = 0;
 let realtimeChannel = null;
@@ -655,6 +641,9 @@ let lastPickCount = 0;
   if (draftState.status === 'pending') {
     await prefillManagersFromRoster();
   }
+
+  // Load player pool from Supabase
+  await loadPlayers();
 })();
 
 // ── Prefill managers from roster teams ───────────────────────────
@@ -755,8 +744,7 @@ function addManagerInput(name='') {
   div.dataset.slot = slot;
   div.innerHTML = `
     <span class="manager-slot">${slot}</span>
-    <input class="manager-name-input" type="text" placeholder="Manager ${slot}" maxlength="24" value="${escHtml(name)}" autocomplete="off">
-    <button class="btn-remove-manager" title="Remove" onclick="removeManagerInput(this)">✕</button>
+    <input class="manager-name-input" type="text" placeholder="Manager ${slot}" maxlength="24" value="${escHtml(name)}" autocomplete="off" readonly style="opacity:0.7;cursor:default;">
   `;
   list.appendChild(div);
 }
@@ -1006,52 +994,159 @@ function updateClock() {
 }
 
 // ── Player pool ───────────────────────────────────────────────────
-function renderPlayerPool() {
-  filterPlayers();
+async function loadPlayers() {
+  try {
+    const cached = sessionStorage.getItem('hp_players');
+    if (cached) {
+      allPlayers = JSON.parse(cached);
+    } else {
+      const res = await fetch(
+        `${SUPABASE_URL}/rest/v1/nhl_players?select=puckpedia_slug,player_name,position,cap_hit,team,goals,assists,points,wins,shutouts,games_played&order=cap_hit.desc&limit=1000`,
+        { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
+      );
+      if (!res.ok) throw new Error(res.status);
+      allPlayers = await res.json();
+      sessionStorage.setItem('hp_players', JSON.stringify(allPlayers));
+    }
+    buildNHLTeamStrip();
+    renderPlayerPool();
+  } catch(e) {
+    document.getElementById('pool-list').innerHTML = '<div class="empty-msg">Failed to load players.</div>';
+  }
+}
+
+function buildNHLTeamStrip() {
+  const nhlTeams = [...new Set(allPlayers.map(p => p.team).filter(Boolean))].sort();
+  const strip = document.getElementById('nhl-team-strip');
+  strip.innerHTML = '';
+  const all = document.createElement('div');
+  all.className = 'nhl-team-pill nhl-team-pill-all active';
+  all.textContent = 'ALL';
+  all.addEventListener('click', () => setNHLTeam('ALL', all));
+  strip.appendChild(all);
+  for (const slug of nhlTeams) {
+    const abbr = TEAM_ABBR[slug]; if (!abbr) continue;
+    const pill = document.createElement('div');
+    pill.className = 'nhl-team-pill'; pill.dataset.team = slug;
+    pill.innerHTML = `<img src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}"><span>${abbr}</span>`;
+    pill.addEventListener('click', () => setNHLTeam(slug, pill));
+    strip.appendChild(pill);
+  }
+}
+
+function setNHLTeam(slug, el) {
+  activeNHLTeam = slug;
+  document.querySelectorAll('.nhl-team-pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  renderPlayerPool();
 }
 
 function setFilter(pos, btn) {
-  filterPos = pos;
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  activeFilter = pos;
+  document.querySelectorAll('[data-pos]').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  filterPlayers();
+  renderPlayerPool();
 }
 
-function filterPlayers() {
-  const search = document.getElementById('pool-search').value.toLowerCase();
+function setSort(sort, btn) {
+  activeSort = sort;
+  document.querySelectorAll('[data-sort]').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderPlayerPool();
+}
+
+function normalizePos(pos) {
+  if (!pos) return 'F';
+  const p = pos.toUpperCase();
+  if (p.includes('G')) return 'G';
+  if (p === 'D' || p.includes('LD') || p.includes('RD')) return 'D';
+  return 'F';
+}
+
+function formatName(name) {
+  if (!name) return '';
+  if (name.includes(',')) { const [last, first] = name.split(',').map(s => s.trim()); return `${first} ${last}`; }
+  return name;
+}
+
+function poolScore(p) {
+  const pos = normalizePos(p.position);
+  if (pos === 'G') return (p.wins ?? 0) * 2 + (p.shutouts ?? 0) * 3;
+  if (pos === 'D') return (p.goals ?? 0) + (p.assists ?? 0);
+  return (p.points ?? 0);
+}
+
+function effScore(p) {
+  if (p._eff !== undefined) return p._eff;
+  const capM = (p.cap_hit || 1) / 1_000_000;
+  p._eff = poolScore(p) / Math.sqrt(capM);
+  return p._eff;
+}
+
+function playerSortKey(p) {
+  if (activeSort === 'points') return poolScore(p);
+  if (activeSort === 'value')  return effScore(p);
+  return p.cap_hit || 0;
+}
+
+function renderPlayerPool() { _poolPage = 0; _renderPoolPage(); }
+
+function _renderPoolPage() {
+  const query = (document.getElementById('pool-search')?.value || '').toLowerCase().trim();
   const drafted = new Set(draftState.picks.map(p => p.playerName));
   const current = getCurrentPick();
   const isMyTurn = current && (current.managerName === myName || isCommish);
 
-  const filtered = PLAYERS.filter(p => {
-    if (filterPos !== 'ALL' && p.pos !== filterPos) return false;
-    if (search && !p.name.toLowerCase().includes(search) && !p.team.toLowerCase().includes(search)) return false;
+  const filtered = allPlayers.filter(p => {
+    if (!p.player_name) return false;
+    if (activeFilter !== 'ALL' && normalizePos(p.position) !== activeFilter) return false;
+    if (activeNHLTeam !== 'ALL' && p.team !== activeNHLTeam) return false;
+    if (query && !p.player_name.toLowerCase().includes(query)) return false;
     return true;
-  });
+  }).slice().sort((a, b) => playerSortKey(b) - playerSortKey(a));
 
   const list = document.getElementById('pool-list');
-  if (!filtered.length) {
-    list.innerHTML = '<div style="padding:1rem;color:var(--silver);font-size:0.85rem;font-weight:600;letter-spacing:1px;text-align:center;">No players found</div>';
-    return;
-  }
+  if (!filtered.length) { list.innerHTML = '<div class="empty-msg">No players found.</div>'; return; }
 
-  list.innerHTML = filtered.map(p => {
-    const isDrafted = drafted.has(p.name);
-    const posClass = `pos-${p.pos}`;
-    return `<div class="player-row ${isDrafted ? 'drafted' : ''}">
-      <span class="pr-pos pick-pos ${posClass}">${p.pos}</span>
-      <div class="pr-info">
-        <div class="pr-name">${escHtml(p.name)}</div>
-        <div class="pr-team">${p.team}</div>
-      </div>
-      <button class="btn-draft-player"
-        onclick="draftPlayer('${escHtml(p.name)}', '${p.pos}')"
-        ${!isMyTurn || isDrafted ? 'disabled' : ''}>
-        DRAFT
-      </button>
-    </div>`;
-  }).join('');
+  const visible = filtered.slice(0, (_poolPage + 1) * PAGE_SIZE);
+  list.innerHTML = '';
+  visible.forEach(p => {
+    const pos = normalizePos(p.position);
+    const isDrafted = drafted.has(p.player_name);
+    list.appendChild(makePoolCard(p, pos, isDrafted, isMyTurn));
+  });
+
+  if (filtered.length > visible.length) {
+    const remaining = filtered.length - visible.length;
+    const btn = document.createElement('button');
+    btn.className = 'load-more-btn';
+    btn.textContent = `Load more (${remaining} remaining)`;
+    btn.onclick = () => { _poolPage++; _renderPoolPage(); };
+    list.appendChild(btn);
+  }
 }
+
+function makePoolCard(player, pos, isDrafted, isMyTurn) {
+  const el = document.createElement('div');
+  el.className = 'player-card' + (isDrafted ? ' drafted' : '');
+  const salary = player.cap_hit ? '$' + player.cap_hit.toLocaleString() : 'No contract';
+  const eff = player.cap_hit ? effScore(player).toFixed(1) : null;
+  const effBox = eff ? `<div class="stat-box stat-box-eff"><div class="stat-box-main">${eff}</div><div class="stat-box-label">EFF</div></div>` : '';
+  const gpBox = player.games_played != null ? `<div class="stat-box stat-box-gp"><div class="stat-box-main">${player.games_played}</div><div class="stat-box-label">GP</div></div>` : '';
+  let statBoxHtml;
+  if (pos === 'G') {
+    statBoxHtml = player.wins != null ? `<div class="stat-boxes">${gpBox}<div class="stat-box stat-box-pts"><div class="stat-box-main">${player.wins}</div><div class="stat-box-label">WINS</div></div>${player.shutouts ? `<div class="stat-box stat-box-pts"><div class="stat-box-main">${player.shutouts}</div><div class="stat-box-label">SO</div></div>` : ''}${effBox}</div>` : '';
+  } else {
+    statBoxHtml = player.points != null ? `<div class="stat-boxes">${gpBox}<div class="stat-box stat-box-goals"><div class="stat-box-main">${player.goals}</div><div class="stat-box-label">G</div></div><div class="stat-box stat-box-assists"><div class="stat-box-main">${player.assists}</div><div class="stat-box-label">A</div></div><div class="stat-box stat-box-pts"><div class="stat-box-main">${player.points}</div><div class="stat-box-label">PTS</div></div>${effBox}</div>` : '';
+  }
+  const abbr = TEAM_ABBR[player.team];
+  const logoHtml = abbr ? `<img class="card-team-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}">` : '';
+  const draftBtn = `<button class="btn-draft-player" onclick="draftPlayer(${JSON.stringify(player.player_name)}, '${pos}')" ${!isMyTurn || isDrafted ? 'disabled' : ''}>DRAFT</button>`;
+  el.innerHTML = `<span class="pos-badge ${pos}">${pos}</span>${logoHtml}<div class="player-info"><div class="player-name">${formatName(player.player_name)}</div><div class="player-salary">${salary}</div></div>${statBoxHtml}${draftBtn}`;
+  return el;
+}
+
+const debouncedRenderPool = (() => { let t; return () => { clearTimeout(t); t = setTimeout(renderPlayerPool, 150); }; })();
 
 // ── Make a pick ───────────────────────────────────────────────────
 async function draftPlayer(playerName, playerPos) {
@@ -1148,8 +1243,8 @@ function updateTimerDisplay() {
 async function autoSkip() {
   // Auto-pick: pick the first available player in pool
   const drafted = new Set(draftState.picks.map(p => p.playerName));
-  const available = PLAYERS.find(p => !drafted.has(p.name));
-  if (available) await draftPlayer(available.name, available.pos);
+  const available = allPlayers.find(p => !drafted.has(p.player_name));
+  if (available) await draftPlayer(available.player_name, normalizePos(available.position));
 }
 
 // ── Realtime / Polling ────────────────────────────────────────────
