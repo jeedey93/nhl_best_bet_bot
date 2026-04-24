@@ -540,6 +540,7 @@ function checkPw(){
       <a href="/pool">Home</a>
       <a href="" id="nav-draft" class="active">Draft</a>
       <a href="" id="nav-standings">Standings</a>
+      <a href="" id="nav-settings">Settings</a>
     </div>
   </div>
 </nav>
@@ -720,6 +721,8 @@ function checkPw(){
     if (navDraft) navDraft.href = `/pool/join?league=${_leagueCode}`;
     const navStandings = document.getElementById('nav-standings');
     if (navStandings) navStandings.href = `/pool/standings?league=${_leagueCode}`;
+    const navSettings = document.getElementById('nav-settings');
+    if (navSettings) navSettings.href = `/pool/settings?league=${_leagueCode}`;
     // Save to recent
     try {
       const k = 'hp_recent_leagues';
@@ -1607,11 +1610,26 @@ function checkPw(){
   }
 
   // ── Scoring ────────────────────────────────────────────────────────────────
+  let _scoring = { f_points: 1, d_goals: 1, d_assists: 1, g_wins: 2, g_shutouts: 3 };
+
+  async function loadScoringSettings() {
+    if (!_leagueCode) return;
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/pool_settings?league_code=eq.${_leagueCode}&select=f_points,d_goals,d_assists,g_wins,g_shutouts`, {
+        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` },
+      });
+      if (res.ok) {
+        const rows = await res.json();
+        if (rows.length) _scoring = { ..._scoring, ...rows[0] };
+      }
+    } catch(e) {}
+  }
+
   function poolScore(p) {
     const pos = normalizePos(p.position);
-    if (pos === 'G') return (p.wins ?? 0) * 2 + (p.shutouts ?? 0) * 3;
-    if (pos === 'D') return (p.goals ?? 0) + (p.points ?? 0);
-    return p.points ?? 0;
+    if (pos === 'G') return (p.wins ?? 0) * _scoring.g_wins + (p.shutouts ?? 0) * _scoring.g_shutouts;
+    if (pos === 'D') return (p.goals ?? 0) * _scoring.d_goals + (p.assists ?? 0) * _scoring.d_assists;
+    return (p.points ?? 0) * _scoring.f_points;
   }
   function effScore(p) {
     if (p._eff !== undefined) return p._eff;
@@ -1840,7 +1858,7 @@ function checkPw(){
 
   // ── Init ───────────────────────────────────────────────────────────────────
   initMobileTabs();
-  loadPlayers();
+  loadScoringSettings().then(() => loadPlayers());
 </script>
 </body>
 </html>

@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>League Settings | Parieur Discipliné</title>
+  <link rel="icon" type="image/png" href="../parieur_discipline_icon_1024.png">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --rink: #07111f;
+      --red: #c8102e;
+      --gold: #ffb81c;
+      --silver: #a8b2be;
+      --green: #22c55e;
+      --line: rgba(255,255,255,0.08);
+      --nav-h: 44px;
+    }
+    body {
+      background: var(--rink);
+      background-image: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(26,58,110,0.6) 0%, transparent 70%);
+      min-height: 100vh;
+      font-family: 'Barlow Condensed', sans-serif;
+      color: white;
+      padding-top: var(--nav-h);
+    }
+
+    /* ── Nav ── */
+    .site-nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(7,17,31,0.92);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    }
+    .site-nav-inner {
+      max-width: 900px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      height: var(--nav-h); padding: 0 1.5rem;
+    }
+    .site-nav-brand { font-family: 'Bebas Neue', cursive; font-size: 1.5rem; color: var(--gold); letter-spacing: 4px; text-decoration: none; }
+    .site-nav-links { display: flex; align-items: center; gap: 0.5rem; }
+    .site-nav-links a { font-family: 'Barlow Condensed', sans-serif; font-size: 1rem; font-weight: 600; color: var(--silver); text-decoration: none; padding: 0.3rem 0.8rem; border-radius: 5px; letter-spacing: 1.5px; transition: color 0.15s, background 0.15s; }
+    .site-nav-links a:hover { color: white; background: rgba(255,255,255,0.07); }
+    .site-nav-links a.active { color: var(--gold); background: rgba(255,184,28,0.1); }
+
+    /* ── Page ── */
+    .page-wrap {
+      max-width: 540px; margin: 0 auto;
+      padding: 2.5rem 1.25rem 4rem;
+    }
+    .page-title {
+      font-family: 'Bebas Neue', cursive; font-size: 2rem; letter-spacing: 5px;
+      margin-bottom: 0.25rem;
+    }
+    .page-title span { color: var(--gold); }
+    .page-sub { color: var(--silver); font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 2rem; }
+
+    /* ── Settings card ── */
+    .settings-card {
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 14px; padding: 1.75rem 1.75rem 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+    .settings-card-title {
+      font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 3px;
+      color: var(--silver); margin-bottom: 1.25rem;
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .settings-card-title span { color: white; }
+
+    /* ── Scoring rows ── */
+    .score-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.6rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .score-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .score-label {
+      display: flex; flex-direction: column; gap: 1px;
+    }
+    .score-label-main {
+      font-size: 1rem; font-weight: 700; color: white; letter-spacing: 0.5px;
+    }
+    .score-label-sub {
+      font-size: 0.75rem; color: var(--silver); letter-spacing: 0.5px;
+    }
+    .pos-badge {
+      font-family: 'Bebas Neue', cursive; font-size: 0.7rem; letter-spacing: 1.5px;
+      padding: 1px 6px; border-radius: 4px; margin-right: 6px;
+    }
+    .pos-badge.F { background: rgba(255,122,138,0.15); color: #ff7a8a; }
+    .pos-badge.D { background: rgba(125,180,255,0.15); color: #7db4ff; }
+    .pos-badge.G { background: rgba(34,197,94,0.15); color: #22c55e; }
+
+    .score-input-wrap { display: flex; align-items: center; gap: 0.5rem; }
+    .score-unit { font-size: 0.75rem; color: var(--silver); letter-spacing: 1px; }
+    .score-input {
+      width: 64px; text-align: center;
+      font-family: 'Bebas Neue', cursive; font-size: 1.3rem; letter-spacing: 2px;
+      background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15);
+      color: white; border-radius: 7px; padding: 0.35rem 0.5rem;
+      outline: none; transition: border-color 0.15s;
+      -moz-appearance: textfield;
+    }
+    .score-input::-webkit-outer-spin-button,
+    .score-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    .score-input:focus { border-color: rgba(255,184,28,0.5); }
+
+    /* ── Save button ── */
+    .btn-save {
+      font-family: 'Bebas Neue', cursive; font-size: 1.1rem; letter-spacing: 3px;
+      background: var(--gold); color: var(--rink);
+      border: none; border-radius: 8px; padding: 0.7rem 2rem;
+      cursor: pointer; transition: opacity 0.15s, transform 0.1s;
+      width: 100%; margin-top: 0.5rem;
+    }
+    .btn-save:hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn-save:active { transform: translateY(0); opacity: 1; }
+    .btn-save:disabled { opacity: 0.4; cursor: default; transform: none; }
+
+    .save-status {
+      text-align: center; font-size: 0.8rem; letter-spacing: 1.5px;
+      min-height: 1.2em; margin-top: 0.6rem;
+      color: var(--green); opacity: 0; transition: opacity 0.3s;
+    }
+    .save-status.show { opacity: 1; }
+    .save-status.error { color: var(--red); }
+
+    /* ── Formula preview ── */
+    .formula-box {
+      background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 10px; padding: 1rem 1.25rem; margin-top: 1.25rem;
+    }
+    .formula-title {
+      font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 2.5px;
+      color: var(--silver); margin-bottom: 0.6rem;
+    }
+    .formula-line {
+      font-size: 0.82rem; color: rgba(255,255,255,0.6); letter-spacing: 0.5px;
+      margin-bottom: 3px; line-height: 1.5;
+    }
+    .formula-line strong { color: white; }
+    .formula-line .hl { color: var(--gold); }
+
+    /* ── Password modal ── */
+    #save-overlay {
+      position: fixed; inset: 0; z-index: 999;
+      background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+      display: flex; align-items: center; justify-content: center;
+    }
+    #save-overlay.hidden { display: none; }
+    .pw-box {
+      background: rgba(15,25,45,0.97); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 14px; padding: 2.5rem 2rem; width: 320px; max-width: 90vw; text-align: center;
+    }
+    .pw-box h2 { font-family: 'Bebas Neue', cursive; font-size: 1.8rem; color: var(--gold); letter-spacing: 3px; margin-bottom: 0.3rem; }
+    .pw-box p { color: var(--silver); font-size: 0.85rem; letter-spacing: 1px; margin-bottom: 1.5rem; }
+    .pw-input {
+      width: 100%; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 8px; padding: 0.7rem 1rem; color: white;
+      font-size: 1rem; font-family: 'Barlow Condensed', sans-serif;
+      letter-spacing: 2px; outline: none; text-align: center; transition: border-color 0.2s;
+    }
+    .pw-input:focus { border-color: rgba(255,184,28,0.5); }
+    .pw-input.error { border-color: rgba(200,16,46,0.7); animation: pw-shake 0.3s; }
+    @keyframes pw-shake { 0%,100%{transform:translateX(0);}25%{transform:translateX(-6px);}75%{transform:translateX(6px);} }
+    .pw-btn {
+      margin-top: 1rem; width: 100%; background: var(--gold); color: var(--rink);
+      border: none; border-radius: 8px; padding: 0.75rem;
+      font-family: 'Bebas Neue', cursive; font-size: 1.2rem; letter-spacing: 3px;
+      cursor: pointer; transition: background 0.2s;
+    }
+    .pw-btn:hover { opacity: 0.9; }
+    .pw-error { color: rgba(200,16,46,0.8); font-size: 0.8rem; margin-top: 0.5rem; min-height: 1em; letter-spacing: 1px; }
+
+    /* ── Pool password gate ── */
+    #pw-gate { position:fixed;inset:0;z-index:9999;background:var(--rink);display:flex;align-items:center;justify-content:center;background-image:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(26,58,110,0.6) 0%,transparent 70%); }
+    .pg-box { background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:2.5rem 2rem;width:320px;max-width:90vw;text-align:center; }
+    .pg-box h2 { font-family:'Bebas Neue',cursive;font-size:1.8rem;color:var(--gold);letter-spacing:3px;margin-bottom:0.3rem; }
+    .pg-box p { color:var(--silver);font-size:0.85rem;letter-spacing:1px;margin-bottom:1.5rem; }
+    .pg-input { width:100%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:0.7rem 1rem;color:white;font-size:1rem;font-family:'Barlow Condensed',sans-serif;letter-spacing:2px;outline:none;text-align:center;transition:border-color 0.2s; }
+    .pg-input:focus { border-color:rgba(255,184,28,0.5); }
+    .pg-input.error { border-color:rgba(200,16,46,0.7);animation:pg-shake 0.3s; }
+    @keyframes pg-shake { 0%,100%{transform:translateX(0);}25%{transform:translateX(-6px);}75%{transform:translateX(6px);} }
+    .pg-btn { margin-top:1rem;width:100%;background:var(--red);color:white;border:none;border-radius:8px;padding:0.75rem;font-family:'Bebas Neue',cursive;font-size:1.2rem;letter-spacing:3px;cursor:pointer;transition:background 0.2s; }
+    .pg-btn:hover { background:#e0122e; }
+    .pg-error { color:rgba(200,16,46,0.8);font-size:0.8rem;margin-top:0.5rem;min-height:1em;letter-spacing:1px; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner {
+      display: inline-block; width: 14px; height: 14px;
+      border: 2px solid rgba(7,17,31,0.4); border-top-color: var(--rink);
+      border-radius: 50%; animation: spin 0.7s linear infinite;
+      vertical-align: middle; margin-right: 6px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Pool password gate -->
+<div id="pw-gate">
+  <div class="pg-box">
+    <h2>🏒 Hockey Pool</h2>
+    <p>ENTER PASSWORD TO CONTINUE</p>
+    <input id="pg-input" class="pg-input" type="password" placeholder="Password" autocomplete="off">
+    <button class="pg-btn" onclick="checkPoolPw()">ENTER</button>
+    <div class="pg-error" id="pg-error"></div>
+  </div>
+</div>
+<script>
+(function(){
+  if(sessionStorage.getItem('pool_auth')==='1'){
+    document.getElementById('pw-gate').style.display='none';
+  }
+  document.getElementById('pg-input').addEventListener('keydown',function(e){
+    if(e.key==='Enter') checkPoolPw();
+  });
+})();
+function checkPoolPw(){
+  const input=document.getElementById('pg-input');
+  const err=document.getElementById('pg-error');
+  if(input.value==='parieur2026'){
+    sessionStorage.setItem('pool_auth','1');
+    document.getElementById('pw-gate').style.display='none';
+  }else{
+    input.classList.add('error');
+    err.textContent='Incorrect password.';
+    setTimeout(()=>input.classList.remove('error'),400);
+    input.value='';
+    input.focus();
+  }
+}
+</script>
+
+<nav class="site-nav">
+  <div class="site-nav-inner">
+    <a class="site-nav-brand" href="../index.html">Parieur Discipliné</a>
+    <div class="site-nav-links">
+      <a href="/pool">Home</a>
+      <a href="" id="nav-draft">Draft</a>
+      <a href="" id="nav-standings">Standings</a>
+      <a href="" id="nav-settings" class="active">Settings</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Save password modal -->
+<div id="save-overlay" class="hidden">
+  <div class="pw-box">
+    <h2>⚙️ Save Settings</h2>
+    <p>CONFIRM PASSWORD TO SAVE</p>
+    <input id="pw-input" class="pw-input" type="password" placeholder="Password" autocomplete="off">
+    <button class="pw-btn" onclick="confirmSave()">SAVE</button>
+    <div class="pw-error" id="pw-error"></div>
+  </div>
+</div>
+
+<div class="page-wrap">
+  <h1 class="page-title">League <span>Settings</span></h1>
+  <p class="page-sub" id="league-sub">Loading…</p>
+
+  <!-- Forwards -->
+  <div class="settings-card">
+    <div class="settings-card-title"><span class="pos-badge F">F</span> <span>Forwards</span></div>
+    <div class="score-row">
+      <div class="score-label">
+        <span class="score-label-main">Point (G or A)</span>
+        <span class="score-label-sub">Each goal or assist scored</span>
+      </div>
+      <div class="score-input-wrap">
+        <input class="score-input" id="f_points" type="number" min="0" max="99" value="1">
+        <span class="score-unit">pts</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Defencemen -->
+  <div class="settings-card">
+    <div class="settings-card-title"><span class="pos-badge D">D</span> <span>Defencemen</span></div>
+    <div class="score-row">
+      <div class="score-label">
+        <span class="score-label-main">Goal</span>
+        <span class="score-label-sub">Each goal scored</span>
+      </div>
+      <div class="score-input-wrap">
+        <input class="score-input" id="d_goals" type="number" min="0" max="99" value="1">
+        <span class="score-unit">pts</span>
+      </div>
+    </div>
+    <div class="score-row">
+      <div class="score-label">
+        <span class="score-label-main">Assist</span>
+        <span class="score-label-sub">Each assist recorded</span>
+      </div>
+      <div class="score-input-wrap">
+        <input class="score-input" id="d_assists" type="number" min="0" max="99" value="1">
+        <span class="score-unit">pts</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Goalies -->
+  <div class="settings-card">
+    <div class="settings-card-title"><span class="pos-badge G">G</span> <span>Goalies</span></div>
+    <div class="score-row">
+      <div class="score-label">
+        <span class="score-label-main">Win</span>
+        <span class="score-label-sub">Each regular-season win</span>
+      </div>
+      <div class="score-input-wrap">
+        <input class="score-input" id="g_wins" type="number" min="0" max="99" value="2">
+        <span class="score-unit">pts</span>
+      </div>
+    </div>
+    <div class="score-row">
+      <div class="score-label">
+        <span class="score-label-main">Shutout</span>
+        <span class="score-label-sub">Each shutout recorded</span>
+      </div>
+      <div class="score-input-wrap">
+        <input class="score-input" id="g_shutouts" type="number" min="0" max="99" value="3">
+        <span class="score-unit">pts</span>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn-save" id="btn-save" onclick="promptSave()">💾 Save Settings</button>
+  <div class="save-status" id="save-status"></div>
+
+  <!-- Formula preview -->
+  <div class="formula-box">
+    <div class="formula-title">Scoring Formula Preview</div>
+    <div class="formula-line" id="formula-f"></div>
+    <div class="formula-line" id="formula-d"></div>
+    <div class="formula-line" id="formula-g"></div>
+  </div>
+</div>
+
+<script>
+  const SUPABASE_URL = 'https://fifurqlitkywtmhgtzeu.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZpZnVycWxpdGt5d3RtaGd0emV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3MDIyMjQsImV4cCI6MjA5MjI3ODIyNH0.KPVPj1qwbSJJMyLR_-AhDcRs0vi2sUU6qbFQ-kH53C0';
+
+  const _leagueCode = new URLSearchParams(window.location.search).get('league') || null;
+  if (!_leagueCode) window.location.replace('/pool');
+
+  // Wire nav links
+  document.getElementById('nav-draft').href = `/pool/join?league=${_leagueCode}`;
+  document.getElementById('nav-standings').href = `/pool/standings?league=${_leagueCode}`;
+  document.getElementById('nav-settings').href = `/pool/settings?league=${_leagueCode}`;
+  document.getElementById('league-sub').textContent = `League ${_leagueCode}`;
+
+  function sbHeaders(extra = {}) {
+    return { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', ...extra };
+  }
+
+  // Load settings from Supabase
+  async function loadSettings() {
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/pool_settings?league_code=eq.${_leagueCode}&select=f_points,d_goals,d_assists,g_wins,g_shutouts`, { headers: sbHeaders() });
+      if (res.ok) {
+        const rows = await res.json();
+        if (rows.length) {
+          const s = rows[0];
+          document.getElementById('f_points').value = s.f_points ?? 1;
+          document.getElementById('d_goals').value = s.d_goals ?? 1;
+          document.getElementById('d_assists').value = s.d_assists ?? 1;
+          document.getElementById('g_wins').value = s.g_wins ?? 2;
+          document.getElementById('g_shutouts').value = s.g_shutouts ?? 3;
+        }
+      }
+    } catch(e) {}
+    updateFormula();
+  }
+
+  function getValues() {
+    return {
+      f_points:   parseInt(document.getElementById('f_points').value) || 1,
+      d_goals:    parseInt(document.getElementById('d_goals').value) || 1,
+      d_assists:  parseInt(document.getElementById('d_assists').value) || 1,
+      g_wins:     parseInt(document.getElementById('g_wins').value) || 2,
+      g_shutouts: parseInt(document.getElementById('g_shutouts').value) || 3,
+    };
+  }
+
+  function updateFormula() {
+    const v = getValues();
+    document.getElementById('formula-f').innerHTML =
+      `<strong><span class="pos-badge F" style="font-size:0.65rem;padding:1px 5px;border-radius:3px;background:rgba(255,122,138,0.15);color:#ff7a8a;">F</span> Forward</strong> = Points × <span class="hl">${v.f_points}</span>`;
+    document.getElementById('formula-d').innerHTML =
+      `<strong><span class="pos-badge D" style="font-size:0.65rem;padding:1px 5px;border-radius:3px;background:rgba(125,180,255,0.15);color:#7db4ff;">D</span> Defence</strong> = Goals × <span class="hl">${v.d_goals}</span> + Assists × <span class="hl">${v.d_assists}</span>`;
+    document.getElementById('formula-g').innerHTML =
+      `<strong><span class="pos-badge G" style="font-size:0.65rem;padding:1px 5px;border-radius:3px;background:rgba(34,197,94,0.15);color:#22c55e;">G</span> Goalie</strong> = Wins × <span class="hl">${v.g_wins}</span> + Shutouts × <span class="hl">${v.g_shutouts}</span>`;
+  }
+
+  // Update formula preview live as user types
+  ['f_points','d_goals','d_assists','g_wins','g_shutouts'].forEach(id => {
+    document.getElementById(id).addEventListener('input', updateFormula);
+  });
+
+  function promptSave() {
+    const overlay = document.getElementById('save-overlay');
+    document.getElementById('pw-input').value = '';
+    document.getElementById('pw-error').textContent = '';
+    overlay.classList.remove('hidden');
+    setTimeout(() => document.getElementById('pw-input').focus(), 50);
+  }
+
+  async function confirmSave() {
+    const input = document.getElementById('pw-input');
+    const err = document.getElementById('pw-error');
+    if (input.value !== 'parieur2026') {
+      input.classList.add('error');
+      err.textContent = 'Incorrect password.';
+      setTimeout(() => input.classList.remove('error'), 400);
+      input.value = ''; input.focus();
+      return;
+    }
+    document.getElementById('save-overlay').classList.add('hidden');
+    await doSave();
+  }
+
+  async function doSave() {
+    const btn = document.getElementById('btn-save');
+    const status = document.getElementById('save-status');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Saving…';
+    status.className = 'save-status';
+
+    const v = getValues();
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/pool_settings`, {
+        method: 'POST',
+        headers: sbHeaders({ 'Prefer': 'resolution=merge-duplicates,return=minimal' }),
+        body: JSON.stringify({ league_code: _leagueCode, ...v, updated_at: new Date().toISOString() }),
+      });
+      if (!res.ok) throw new Error(res.status);
+      status.textContent = '✓ Settings saved';
+      status.className = 'save-status show';
+      setTimeout(() => status.classList.remove('show'), 3000);
+    } catch(e) {
+      status.textContent = 'Failed to save. Please try again.';
+      status.className = 'save-status show error';
+    }
+
+    btn.disabled = false;
+    btn.textContent = '💾 Save Settings';
+  }
+
+  document.getElementById('pw-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') confirmSave();
+    if (e.key === 'Escape') document.getElementById('save-overlay').classList.add('hidden');
+  });
+  document.getElementById('save-overlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('save-overlay'))
+      document.getElementById('save-overlay').classList.add('hidden');
+  });
+
+  loadSettings();
+</script>
+</body>
+</html>
