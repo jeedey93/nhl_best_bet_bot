@@ -208,7 +208,7 @@
       flex: 1; display: flex; flex-direction: row;
       min-height: 0; overflow: hidden;
     }
-    .draft-board-wrap { flex-shrink: 0; width: 340px; min-width: 160px; max-width: 700px; }
+    .draft-board-wrap { flex-shrink: 0; min-width: 160px; max-width: 70%; }
     .drag-handle {
       width: 6px; flex-shrink: 0; background: rgba(255,255,255,0.05);
       cursor: col-resize; transition: background 0.15s;
@@ -244,12 +244,12 @@
       color: rgba(255,255,255,0.25); margin-bottom: 0.35rem; padding-left: 2px;
     }
     .board-picks-row {
-      display: flex; flex-wrap: wrap; gap: 0.3rem;
+      display: flex; flex-wrap: nowrap; gap: 0.3rem;
     }
     .pick-cell {
       background: rgba(255,255,255,0.04); border: 1px solid var(--line2);
       border-radius: 6px; padding: 0.35rem 0.55rem;
-      min-width: 120px; flex: 1 1 120px; max-width: 200px;
+      width: 120px; flex-shrink: 0;
       position: relative; transition: background 0.2s;
     }
     .pick-cell.filled {
@@ -876,6 +876,7 @@ function showDraftScreen(isReturn = false) {
   renderModeBadge();
   renderBoard();
   renderManagerStrip();
+  autosizeBoardPanel();
   renderPlayerPool();
   updateClock();
   if (!isReturn) startTimer();
@@ -1170,7 +1171,20 @@ function makePoolCard(player, pos, isDrafted, isMyTurn) {
 
 const debouncedRenderPool = (() => { let t; return () => { clearTimeout(t); t = setTimeout(renderPlayerPool, 150); }; })();
 
-// ── Make a pick ───────────────────────────────────────────────────
+function autosizeBoardPanel() {
+  const board = document.getElementById('draft-board');
+  const wrap = board.parentElement;
+  // Measure the natural width of the first picks row (one round = all managers)
+  const firstRow = board.querySelector('.board-picks-row');
+  if (!firstRow) return;
+  const rowW = firstRow.scrollWidth;
+  const padding = 32; // 1rem padding each side
+  const natural = rowW + padding;
+  const maxW = Math.floor(window.innerWidth * 0.7);
+  wrap.style.width = Math.min(natural, maxW) + 'px';
+}
+
+
 async function draftPlayer(playerName, rawPos, normalizedPos) {
   const current = getCurrentPick();
   if (!current) return;
