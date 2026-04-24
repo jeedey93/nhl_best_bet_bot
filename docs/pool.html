@@ -562,9 +562,11 @@
       input.value = ''; input.focus();
       return;
     }
+    const action = _pwAction;
+    const deleteCode = _deleteCode;
     closePwModal();
-    if (_pwAction === 'create') doCreateLeague();
-    else if (_pwAction === 'delete') doDelete(_deleteCode);
+    if (action === 'create') doCreateLeague();
+    else if (action === 'delete') doDelete(deleteCode);
   }
 
   // ── Create ────────────────────────────────────────────────────────────────
@@ -678,6 +680,8 @@
     if (ul && !ul.querySelector('.recent-item')) {
       ul.innerHTML = '<div class="recent-empty">No leagues yet — create one above.</div>';
     }
+    const t = document.getElementById('deleted-toast');
+    if (t) { t.style.display = 'flex'; setTimeout(() => t.remove(), 3400); }
   } catch(e) {
     console.error('doDelete error:', e);
     if (btn) { btn.disabled = false; btn.textContent = '🗑 Delete'; }
