@@ -262,6 +262,11 @@
       background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.12); color: var(--silver);
     }
     .recent-btn.standings:hover { background: rgba(255,255,255,0.1); color: white; }
+    .recent-btn.delete {
+      background: rgba(200,16,46,0.08); border-color: rgba(200,16,46,0.25); color: rgba(200,16,46,0.7);
+      margin-left: auto;
+    }
+    .recent-btn.delete:hover { background: rgba(200,16,46,0.18); color: var(--red); }
 
     /* ── Password modal ── */
     #pw-overlay {
@@ -351,18 +356,18 @@
 
   </div>
 
-  <!-- Recently visited leagues -->
+  <!-- All leagues -->
   <div class="recent-wrap" id="recent-wrap">
-    <div class="recent-title">Recent Leagues</div>
+    <div class="recent-title">All Leagues</div>
     <div class="recent-list" id="recent-list"></div>
   </div>
 </div>
 
-<!-- Password modal (create only) -->
+<!-- Password modal -->
 <div id="pw-overlay" class="hidden" role="dialog" aria-modal="true" aria-labelledby="pw-title">
   <div class="pw-box">
     <h2 id="pw-title">🏒 New League</h2>
-    <p>ENTER PASSWORD TO CONTINUE</p>
+    <p id="pw-desc">ENTER PASSWORD TO CONTINUE</p>
     <input id="pw-input" class="pw-input" type="password" placeholder="Password" autocomplete="off">
     <button class="pw-btn" id="pw-btn" onclick="submitPw()">CREATE</button>
     <button class="pw-cancel" onclick="closePwModal()">Cancel</button>
@@ -375,6 +380,14 @@
   const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZpZnVycWxpdGt5d3RtaGd0emV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3MDIyMjQsImV4cCI6MjA5MjI3ODIyNH0.KPVPj1qwbSJJMyLR_-AhDcRs0vi2sUU6qbFQ-kH53C0';
   const RECENT_KEY = 'hp_recent_leagues';
 
+  function sbHeaders() {
+    return {
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${SUPABASE_KEY}`,
+      'Content-Type': 'application/json',
+    };
+  }
+
   function genCode() {
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
     let c = '';
@@ -382,33 +395,48 @@
     return c;
   }
 
-  // ── Recent leagues (store {code, name}) ───────────────────────────────────
   function saveRecent(code, name) {
     let list = [];
     try { list = JSON.parse(localStorage.getItem(RECENT_KEY) || '[]'); } catch(e) {}
     list = list.map(e => typeof e === 'string' ? { code: e, name: 'League' } : e);
-    list = [{ code, name: name || 'League' }, ...list.filter(e => e.code !== code)].slice(0, 5);
+    list = [{ code, name: name || 'League' }, ...list.filter(e => e.code !== code)].slice(0, 20);
     localStorage.setItem(RECENT_KEY, JSON.stringify(list));
   }
 
-  function renderRecent() {
+  function removeRecent(code) {
     let list = [];
     try { list = JSON.parse(localStorage.getItem(RECENT_KEY) || '[]'); } catch(e) {}
-    // Normalize old string entries and dedup by code
-    list = list.map(e => typeof e === 'string' ? { code: e, name: 'League' } : e);
-    list = list.filter((e, i, a) => a.findIndex(x => x.code === e.code) === i);
-    // Write back cleaned list
+    list = list.filter(e => (typeof e === 'string' ? e : e.code) !== code);
     localStorage.setItem(RECENT_KEY, JSON.stringify(list));
+  }
 
+  // ── Load all leagues from Supabase ────────────────────────────────────────
+  async function loadAllLeagues() {
+    const ul = document.getElementById('recent-list');
+    ul.innerHTML = '<div class="recent-empty">Loading leagues…</div>';
+
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/pool_leagues?select=code,name&order=name.asc`, {
+        headers: sbHeaders(),
+      });
+      if (!res.ok) throw new Error(res.status);
+      const leagues = await res.json();
+      renderLeagues(leagues);
+    } catch(e) {
+      ul.innerHTML = '<div class="recent-empty">Could not load leagues.</div>';
+    }
+  }
+
+  function renderLeagues(list) {
     const ul = document.getElementById('recent-list');
 
     if (!list.length) {
-      ul.innerHTML = '<div class="recent-empty">No recent leagues — create or join one above.</div>';
+      ul.innerHTML = '<div class="recent-empty">No leagues yet — create one above.</div>';
       return;
     }
 
     ul.innerHTML = list.map(({ code, name }) => `
-      <div class="recent-item">
+      <div class="recent-item" id="league-row-${code}">
         <div class="recent-item-top">
           <span class="recent-item-name">${escHtml(name)}</span>
           <span class="recent-item-code">${code}</span>
@@ -416,6 +444,7 @@
         <div class="recent-item-actions">
           <button class="recent-btn draft" onclick="goToLeague('${code}', '${escHtml(name)}')">✏️ Draft</button>
           <button class="recent-btn standings" onclick="goToStandings('${code}')">📊 Standings</button>
+          <button class="recent-btn delete" id="del-btn-${code}" onclick="promptDelete('${code}', '${escHtml(name)}')">🗑 Delete</button>
         </div>
       </div>
     `).join('');
@@ -434,23 +463,30 @@
     window.location.href = `/pool/standings?league=${code}`;
   }
 
-  // ── Password modal (create only) ──────────────────────────────────────────
+  // ── Password modal (shared for create & delete) ───────────────────────────
+  let _pwAction = null; // 'create' | 'delete'
+  let _deleteCode = null;
   const FOCUSABLE = 'button:not([disabled]), input, [tabindex]:not([tabindex="-1"])';
 
-  function openPwModal() {
+  function openPwModal(action, title, btnLabel) {
+    _pwAction = action;
     const input = document.getElementById('pw-input');
     const err = document.getElementById('pw-error');
     input.value = ''; err.textContent = '';
+    document.getElementById('pw-title').textContent = title;
+    document.getElementById('pw-btn').textContent = btnLabel;
+    document.getElementById('pw-btn').style.background = action === 'delete' ? 'var(--red)' : 'var(--red)';
     document.getElementById('pw-overlay').classList.remove('hidden');
     setTimeout(() => input.focus(), 50);
   }
 
   function closePwModal() {
     document.getElementById('pw-overlay').classList.add('hidden');
+    _pwAction = null;
+    _deleteCode = null;
     document.getElementById('btn-create').focus();
   }
 
-  // Keyboard trap inside modal
   document.getElementById('pw-overlay').addEventListener('keydown', e => {
     if (e.key === 'Escape') { closePwModal(); return; }
     if (e.key !== 'Tab') return;
@@ -465,7 +501,6 @@
     }
   });
 
-  // Click backdrop to close
   document.getElementById('pw-overlay').addEventListener('click', e => {
     if (e.target === document.getElementById('pw-overlay')) closePwModal();
   });
@@ -485,12 +520,14 @@
       return;
     }
     closePwModal();
-    doCreateLeague();
+    if (_pwAction === 'create') doCreateLeague();
+    else if (_pwAction === 'delete') doDelete(_deleteCode);
   }
 
   // ── Create ────────────────────────────────────────────────────────────────
   function createLeague() {
-    openPwModal();
+    _pwAction = 'create';
+    openPwModal('create', '🏒 New League', 'CREATE');
   }
 
   async function doCreateLeague() {
@@ -506,12 +543,7 @@
     try {
       const res = await fetch(`${SUPABASE_URL}/rest/v1/pool_leagues`, {
         method: 'POST',
-        headers: {
-          'apikey': SUPABASE_KEY,
-          'Authorization': `Bearer ${SUPABASE_KEY}`,
-          'Content-Type': 'application/json',
-          'Prefer': 'return=minimal',
-        },
+        headers: sbHeaders(),
         body: JSON.stringify({ code, name: leagueName }),
       });
       if (!res.ok && res.status !== 409) throw new Error(res.status);
@@ -520,7 +552,7 @@
     }
 
     saveRecent(code, leagueName);
-    renderRecent();
+    loadAllLeagues();
     showSuccess(code, leagueName);
   }
 
@@ -554,7 +586,6 @@
       btn.classList.add('copied');
       setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
     }).catch(() => {
-      // Fallback for older browsers
       const ta = document.createElement('textarea');
       ta.value = url; ta.style.position = 'fixed'; ta.style.opacity = '0';
       document.body.appendChild(ta); ta.select();
@@ -563,6 +594,37 @@
       const btn = document.getElementById('btn-copy');
       if (btn) { btn.textContent = '✓ Copied'; btn.classList.add('copied'); setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000); }
     });
+  }
+
+  // ── Delete ────────────────────────────────────────────────────────────────
+  function promptDelete(code, name) {
+    _deleteCode = code;
+    openPwModal('delete', `🗑 Delete League`, 'DELETE');
+    document.getElementById('pw-btn').style.background = 'var(--red)';
+  }
+
+  async function doDelete(code) {
+    const btn = document.getElementById(`del-btn-${code}`);
+    if (btn) { btn.disabled = true; btn.textContent = 'Deleting…'; }
+
+    try {
+      await Promise.all([
+        fetch(`${SUPABASE_URL}/rest/v1/pool_leagues?code=eq.${code}`, { method: 'DELETE', headers: sbHeaders() }),
+        fetch(`${SUPABASE_URL}/rest/v1/pool_rosters?league_code=eq.${code}`, { method: 'DELETE', headers: sbHeaders() }),
+        fetch(`${SUPABASE_URL}/rest/v1/pool_settings?league_code=eq.${code}`, { method: 'DELETE', headers: sbHeaders() }),
+        fetch(`${SUPABASE_URL}/rest/v1/pool_locks?league_code=eq.${code}`, { method: 'DELETE', headers: sbHeaders() }),
+      ]);
+      removeRecent(code);
+      const row = document.getElementById(`league-row-${code}`);
+      if (row) row.remove();
+      const ul = document.getElementById('recent-list');
+      if (ul && !ul.querySelector('.recent-item')) {
+        ul.innerHTML = '<div class="recent-empty">No leagues yet — create one above.</div>';
+      }
+    } catch(e) {
+      if (btn) { btn.disabled = false; btn.textContent = '🗑 Delete'; }
+      alert('Failed to delete. Please try again.');
+    }
   }
 
   // ── Join (no password required) ───────────────────────────────────────────
@@ -574,17 +636,15 @@
 
     if (code.length < 6) { errEl.textContent = 'Enter a valid league code.'; return; }
 
-    // Optionally verify league exists
     try {
       const res = await fetch(`${SUPABASE_URL}/rest/v1/pool_leagues?code=eq.${code}&select=code,name`, {
-        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` },
+        headers: sbHeaders(),
       });
       if (res.ok) {
         const rows = await res.json();
         if (!rows.length) { errEl.textContent = 'League not found. Check your code.'; return; }
         const name = rows[0].name || 'League';
         saveRecent(code, name);
-        renderRecent();
         window.location.href = `/pool/join?league=${code}`;
         return;
       }
@@ -592,14 +652,12 @@
 
     // Offline fallback
     saveRecent(code, 'League');
-    renderRecent();
     window.location.href = `/pool/join?league=${code}`;
   }
 
   // ── Init ──────────────────────────────────────────────────────────────────
-  renderRecent();
+  loadAllLeagues();
 
-  // Pre-fill join input if ?join=CODE in URL (from invite link)
   const joinParam = new URLSearchParams(window.location.search).get('join');
   if (joinParam) {
     document.getElementById('join-code').value = joinParam.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8);
