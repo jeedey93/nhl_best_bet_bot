@@ -376,7 +376,7 @@
       <div class="hub-card-title">Join League</div>
       <p class="hub-card-desc">Have a code? Enter it below to join a friend's league.</p>
       <div class="join-form">
-        <input class="join-input" id="join-code" type="text" maxlength="8" placeholder="XXXXXXXX"
+        <input class="join-input" id="join-code" type="text" maxlength="4" placeholder="XXXX"
           oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')"
           onkeydown="if(event.key==='Enter') joinLeague()">
         <button class="btn-secondary" onclick="joinLeague()">Join League</button>
@@ -421,7 +421,7 @@
   function genCode() {
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
     let c = '';
-    for (let i = 0; i < 8; i++) c += chars[Math.floor(Math.random() * chars.length)];
+    for (let i = 0; i < 4; i++) c += chars[Math.floor(Math.random() * chars.length)];
     return c;
   }
 
@@ -690,7 +690,7 @@
     const code = input.value.trim().toUpperCase();
     errEl.textContent = '';
 
-    if (code.length < 6) { errEl.textContent = 'Enter a valid league code.'; return; }
+    if (code.length < 4) { errEl.textContent = 'Enter a valid league code.'; return; }
 
     try {
       const res = await fetch(`${SUPABASE_URL}/rest/v1/pool_leagues?code=eq.${code}&select=code`, {
@@ -715,7 +715,7 @@
 
   const joinParam = new URLSearchParams(window.location.search).get('join');
   if (joinParam) {
-    document.getElementById('join-code').value = joinParam.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8);
+    document.getElementById('join-code').value = joinParam.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4);
   }
 </script>
 </body>
