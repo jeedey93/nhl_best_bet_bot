@@ -1168,16 +1168,14 @@ function makePoolCard(player, pos, isDrafted, isMyTurn) {
 const debouncedRenderPool = (() => { let t; return () => { clearTimeout(t); t = setTimeout(renderPlayerPool, 150); }; })();
 
 function autosizeBoardPanel() {
-  const board = document.getElementById('draft-board');
-  const wrap = board.parentElement;
-  // Measure the natural width of the first picks row (one round = all managers)
-  const firstRow = board.querySelector('.board-picks-row');
+  const boardWrap = document.querySelector('.draft-board-wrap');
+  const firstRow = boardWrap?.querySelector('.board-picks-row');
   if (!firstRow) return;
   const rowW = firstRow.scrollWidth;
-  const padding = 32; // 1rem padding each side
+  const padding = 32;
   const natural = rowW + padding;
   const maxW = Math.floor(window.innerWidth * 0.7);
-  wrap.style.width = Math.min(natural, maxW) + 'px';
+  boardWrap.style.width = Math.min(natural, maxW) + 'px';
 }
 
 
