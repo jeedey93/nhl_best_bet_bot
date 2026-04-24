@@ -1158,8 +1158,11 @@ function makePoolCard(player, pos, isDrafted, isMyTurn) {
   }
   const abbr = TEAM_ABBR[player.team];
   const logoHtml = abbr ? `<img class="card-team-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}">` : '';
-  const draftBtn = `<button class="btn-draft-player" onclick="draftPlayer(${JSON.stringify(player.player_name)}, '${pos}')" ${!isMyTurn || isDrafted ? 'disabled' : ''}>DRAFT</button>`;
-  el.innerHTML = `<span class="pos-badge ${pos}">${pos}</span>${logoHtml}<div class="player-info"><div class="player-name">${formatName(player.player_name)}</div><div class="player-salary">${salary}</div></div>${statBoxHtml}${draftBtn}`;
+  el.innerHTML = `<span class="pos-badge ${pos}">${pos}</span>${logoHtml}<div class="player-info"><div class="player-name">${formatName(player.player_name)}</div><div class="player-salary">${salary}</div></div>${statBoxHtml}<button class="btn-draft-player" ${!isMyTurn || isDrafted ? 'disabled' : ''}>DRAFT</button>`;
+  const btn = el.querySelector('.btn-draft-player');
+  if (btn && !isDrafted && isMyTurn) {
+    btn.addEventListener('click', () => draftPlayer(player.player_name, pos));
+  }
   return el;
 }
 
@@ -1337,7 +1340,6 @@ async function doResetDraft() {
       fetch(`${SUPABASE_URL}/rest/v1/pool_draft_picks?league_code=eq.${LEAGUE_CODE}`, { method: 'DELETE', headers: sbH() }),
       fetch(`${SUPABASE_URL}/rest/v1/pool_draft_order?league_code=eq.${LEAGUE_CODE}`, { method: 'DELETE', headers: sbH() }),
       fetch(`${SUPABASE_URL}/rest/v1/pool_draft_settings?league_code=eq.${LEAGUE_CODE}`, { method: 'DELETE', headers: sbH() }),
-      fetch(`${SUPABASE_URL}/rest/v1/pool_rosters?league_code=eq.${LEAGUE_CODE}`, { method: 'DELETE', headers: sbH() }),
     ]);
   } catch(e) { console.warn('doResetDraft error:', e); }
 
