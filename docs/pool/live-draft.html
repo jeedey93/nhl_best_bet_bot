@@ -1373,6 +1373,25 @@ async function pollForNewPicks() {
   } catch(e) {}
 }
 
+async function clearRosterSlugs() {
+  const rows = await dbGet('pool_rosters', `league_code=eq.${LEAGUE_CODE}&select=data`);
+  if (!rows || !rows.length) return;
+  const teams = (rows[0].data?.teams || []).map(t => ({
+    ...t,
+    roster: {
+      F: Array(12).fill(null),
+      D: Array(6).fill(null),
+      G: Array(2).fill(null),
+    },
+  }));
+  const data = { teams, activeTeamId: rows[0].data?.activeTeamId || teams[0]?.id || null };
+  await fetch(`${SUPABASE_URL}/rest/v1/pool_rosters?on_conflict=league_code`, {
+    method: 'POST',
+    headers: sbH({ 'Prefer': 'resolution=merge-duplicates,return=minimal' }),
+    body: JSON.stringify({ league_code: LEAGUE_CODE, data, updated_at: new Date().toISOString() }),
+  });
+}
+
 // ── Reset ─────────────────────────────────────────────────────────
 function promptResetDraft() {
   if (!confirm('Reset the draft? This will delete all picks and return to the setup screen. This cannot be undone.')) return;
@@ -1390,6 +1409,8 @@ async function doResetDraft() {
       fetch(`${SUPABASE_URL}/rest/v1/pool_draft_order?league_code=eq.${LEAGUE_CODE}`, { method: 'DELETE', headers: sbH() }),
       fetch(`${SUPABASE_URL}/rest/v1/pool_draft_settings?league_code=eq.${LEAGUE_CODE}`, { method: 'DELETE', headers: sbH() }),
     ]);
+    // Clear roster slugs but keep team names so join.html shows empty rosters
+    await clearRosterSlugs();
   } catch(e) { console.warn('doResetDraft error:', e); }
 
   draftState = { mode: 'snake', rounds: 15, timerSecs: 90, managers: [], picks: [], status: 'pending' };
