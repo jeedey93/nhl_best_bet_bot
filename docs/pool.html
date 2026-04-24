@@ -419,10 +419,15 @@
       const res = await fetch(`${SUPABASE_URL}/rest/v1/pool_leagues?select=code,name&order=name.asc`, {
         headers: sbHeaders(),
       });
-      if (!res.ok) throw new Error(res.status);
+      if (!res.ok) {
+        const body = await res.text();
+        console.error('loadAllLeagues HTTP', res.status, body);
+        throw new Error(res.status);
+      }
       const leagues = await res.json();
       renderLeagues(leagues);
     } catch(e) {
+      console.error('loadAllLeagues error:', e);
       ul.innerHTML = '<div class="recent-empty">Could not load leagues.</div>';
     }
   }
