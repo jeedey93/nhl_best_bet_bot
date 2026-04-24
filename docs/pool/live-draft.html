@@ -681,7 +681,7 @@ async function dbPatch(table, filter, body) {
 // ══════════════════════════════════════════════════════════════════
 //  LOAD DRAFT FROM DB
 // ══════════════════════════════════════════════════════════════════
-async function loadDraftFromDB() {
+async function loadDraftFromDB(isReturn = false) {
   try {
     const [settings, order, picks, league] = await Promise.all([
       dbGet('pool_draft_settings', `league_code=eq.${LEAGUE_CODE}&select=*`),
@@ -714,7 +714,7 @@ async function loadDraftFromDB() {
     }
 
     if (draftState.status === 'active' || draftState.status === 'done') {
-      showDraftScreen();
+      showDraftScreen(true);
     }
     // else stay on setup screen
   } catch(e) {
@@ -816,7 +816,7 @@ async function startDraft() {
 // ══════════════════════════════════════════════════════════════════
 //  DRAFT SCREEN
 // ══════════════════════════════════════════════════════════════════
-function showDraftScreen() {
+function showDraftScreen(isReturn = false) {
   document.getElementById('setup-screen').style.display = 'none';
   document.getElementById('setup-screen').classList.add('hidden');
 
@@ -833,7 +833,10 @@ function showDraftScreen() {
   const saved = localStorage.getItem(`hp_myname_${LEAGUE_CODE}`);
   if (saved) myName = saved;
   const commish = localStorage.getItem(`hp_commish_${LEAGUE_CODE}`);
-  isCommish = commish && commish === myName;
+  isCommish = !!(commish && commish === myName);
+  // If no name saved, default to commish or first manager so picks aren't locked out
+  if (!myName && commish) { myName = commish; isCommish = true; }
+  else if (!myName && draftState.managers.length) { myName = draftState.managers[0].name; }
 
   // My name selector
   populateMyNameSelect();
@@ -844,7 +847,7 @@ function showDraftScreen() {
   renderManagerStrip();
   renderPlayerPool();
   updateClock();
-  startTimer();
+  if (!isReturn) startTimer();
 
   // Realtime subscription + polling fallback
   subscribeRealtime();
