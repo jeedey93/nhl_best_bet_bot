@@ -738,7 +738,9 @@ async function loadDraftFromDB(isReturn = false) {
       draftState.picks = picks.map(r => ({
         round: r.round, pickInRound: r.pick_in_round,
         overallPick: r.overall_pick, managerName: r.manager_name,
-        playerName: r.player_name, playerPos: r.player_pos,
+        playerName: r.player_name,
+        playerPos: normalizePos(r.player_pos),
+        playerRawPos: r.player_pos,
       }));
       lastPickCount = draftState.picks.length;
     }
@@ -1161,7 +1163,7 @@ function makePoolCard(player, pos, isDrafted, isMyTurn) {
   el.innerHTML = `<span class="pos-badge ${pos}">${pos}</span>${logoHtml}<div class="player-info"><div class="player-name">${formatName(player.player_name)}</div><div class="player-salary">${salary}</div></div>${statBoxHtml}<button class="btn-draft-player" ${!isMyTurn || isDrafted ? 'disabled' : ''}>DRAFT</button>`;
   const btn = el.querySelector('.btn-draft-player');
   if (btn && !isDrafted && isMyTurn) {
-    btn.addEventListener('click', () => draftPlayer(player.player_name, pos));
+    btn.addEventListener('click', () => draftPlayer(player.player_name, player.position || pos, pos));
   }
   return el;
 }
@@ -1169,7 +1171,7 @@ function makePoolCard(player, pos, isDrafted, isMyTurn) {
 const debouncedRenderPool = (() => { let t; return () => { clearTimeout(t); t = setTimeout(renderPlayerPool, 150); }; })();
 
 // ── Make a pick ───────────────────────────────────────────────────
-async function draftPlayer(playerName, playerPos) {
+async function draftPlayer(playerName, rawPos, normalizedPos) {
   const current = getCurrentPick();
   if (!current) return;
   const drafted = new Set(draftState.picks.map(p => p.playerName));
@@ -1177,13 +1179,18 @@ async function draftPlayer(playerName, playerPos) {
 
   stopTimer();
 
+  // Store raw pos for DB (satisfies check constraint), normalized for grouping
+  const dbPos = (rawPos || '').toUpperCase() || 'C';
+  const grpPos = normalizedPos || normalizePos(rawPos);
+
   const pick = {
     round: current.round,
     pickInRound: current.pickInRound,
     overallPick: current.overallPick,
     managerName: current.managerName,
     playerName,
-    playerPos,
+    playerPos: grpPos,   // F/D/G used locally for grouping
+    playerRawPos: dbPos, // real pos stored in DB
   };
   draftState.picks.push(pick);
 
@@ -1210,7 +1217,7 @@ async function draftPlayer(playerName, playerPos) {
       overall_pick: pick.overallPick,
       manager_name: pick.managerName,
       player_name: pick.playerName,
-      player_pos: pick.playerPos,
+      player_pos: pick.playerRawPos,
     });
     lastPickCount = draftState.picks.length;
     syncRosterToJoinFormat().catch(() => {});
@@ -1297,7 +1304,9 @@ function handleRemotePick(record) {
   draftState.picks.push({
     round: record.round, pickInRound: record.pick_in_round,
     overallPick: record.overall_pick, managerName: record.manager_name,
-    playerName: record.player_name, playerPos: record.player_pos,
+    playerName: record.player_name,
+    playerPos: normalizePos(record.player_pos),
+    playerRawPos: record.player_pos,
   });
   draftState.picks.sort((a,b) => a.overallPick - b.overallPick);
   lastPickCount = draftState.picks.length;
