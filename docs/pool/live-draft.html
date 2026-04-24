@@ -1187,8 +1187,8 @@ async function draftPlayer(playerName, rawPos, normalizedPos) {
 
   stopTimer();
 
-  // Store raw pos for DB (satisfies check constraint), normalized for grouping
-  const dbPos = (rawPos || '').toUpperCase() || 'C';
+  // Store raw pos for DB: take first value only (e.g. "C,LW" → "C") to satisfy check constraint
+  const dbPos = ((rawPos || '').split(',')[0].trim().toUpperCase()) || 'C';
   const grpPos = normalizedPos || normalizePos(rawPos);
 
   const pick = {
