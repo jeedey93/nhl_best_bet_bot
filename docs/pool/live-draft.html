@@ -489,6 +489,7 @@
     <span class="my-name-label">You are:</span>
     <select class="my-name-select" id="my-name-select" onchange="saveMyName()"></select>
     <span class="commish-badge" id="commish-badge-strip">COMMISH</span>
+    <button id="btn-reset-draft" onclick="promptResetDraft()" style="display:none;margin-left:auto;font-family:'Bebas Neue',cursive;font-size:0.85rem;letter-spacing:2px;background:none;color:rgba(200,16,46,0.7);border:1px solid rgba(200,16,46,0.3);border-radius:6px;padding:0.3rem 0.8rem;cursor:pointer;transition:background 0.15s,border-color 0.15s;" onmouseover="this.style.background='rgba(200,16,46,0.1)';this.style.borderColor='rgba(200,16,46,0.7)'" onmouseout="this.style.background='none';this.style.borderColor='rgba(200,16,46,0.3)'">⟳ Reset Draft</button>
   </div>
 
   <!-- Manager strip -->
@@ -525,6 +526,7 @@
     <div class="done-sub" id="done-sub">All rounds have been completed. Rosters are set.</div>
     <button class="btn-done-action" onclick="goStandings()">View Standings →</button>
     <button class="btn-done-action" style="background:rgba(255,255,255,0.1);color:white;margin-top:-0.5rem;" onclick="viewRosters()">View Rosters</button>
+    <button class="btn-done-action" style="background:rgba(200,16,46,0.15);color:rgba(200,16,46,0.9);border:1px solid rgba(200,16,46,0.3);margin-top:-0.5rem;" onclick="promptResetDraft()">⟳ Reset Draft</button>
   </div>
 </div>
 
@@ -876,6 +878,8 @@ function saveMyName() {
 function updateCommishBadge() {
   const badge = document.getElementById('commish-badge-strip');
   badge.style.display = isCommish ? 'inline' : 'none';
+  const resetBtn = document.getElementById('btn-reset-draft');
+  if (resetBtn) resetBtn.style.display = isCommish ? 'inline-block' : 'none';
 }
 
 // ── Pick order logic ──────────────────────────────────────────────
@@ -1185,9 +1189,49 @@ async function pollForNewPicks() {
   } catch(e) {}
 }
 
+// ── Reset ─────────────────────────────────────────────────────────
+function promptResetDraft() {
+  if (!confirm('Reset the draft? This will delete all picks and return to the setup screen. This cannot be undone.')) return;
+  doResetDraft();
+}
+
+async function doResetDraft() {
+  stopTimer();
+  clearInterval(pollingInterval);
+  if (realtimeChannel) { try { realtimeChannel.close(); } catch(e) {} realtimeChannel = null; }
+
+  try {
+    await Promise.all([
+      fetch(`${SUPABASE_URL}/rest/v1/pool_draft_picks?league_code=eq.${LEAGUE_CODE}`, { method: 'DELETE', headers: sbH() }),
+      fetch(`${SUPABASE_URL}/rest/v1/pool_draft_order?league_code=eq.${LEAGUE_CODE}`, { method: 'DELETE', headers: sbH() }),
+      fetch(`${SUPABASE_URL}/rest/v1/pool_draft_settings?league_code=eq.${LEAGUE_CODE}`, { method: 'DELETE', headers: sbH() }),
+      fetch(`${SUPABASE_URL}/rest/v1/pool_rosters?league_code=eq.${LEAGUE_CODE}`, { method: 'DELETE', headers: sbH() }),
+    ]);
+  } catch(e) { console.warn('doResetDraft error:', e); }
+
+  draftState = { mode: 'snake', rounds: 15, timerSecs: 90, managers: [], picks: [], status: 'pending' };
+  lastPickCount = 0;
+  myName = '';
+  isCommish = false;
+
+  document.getElementById('setup-manager-list').innerHTML = '';
+  for (let i = 0; i < 4; i++) addManagerInput();
+  const commishName = localStorage.getItem(`hp_commish_${LEAGUE_CODE}`) || '';
+  document.getElementById('commish-name').value = commishName;
+  document.getElementById('setup-error').textContent = '';
+  const btn = document.getElementById('btn-start');
+  btn.disabled = false; btn.textContent = '🚨 Start Draft';
+
+  document.getElementById('draft-screen').style.display = 'none';
+  document.getElementById('draft-screen').classList.add('hidden');
+  document.getElementById('done-screen').style.display = 'none';
+  document.getElementById('done-screen').classList.add('hidden');
+  document.getElementById('setup-screen').style.display = '';
+  document.getElementById('setup-screen').classList.remove('hidden');
+}
+
 // ── Finalize ──────────────────────────────────────────────────────
 async function finalizeDraft() {
-  try {
     await Promise.all([
       dbPatch('pool_draft_settings', `league_code=eq.${LEAGUE_CODE}`, { status: 'done' }),
       // Write rosters to pool_rosters
