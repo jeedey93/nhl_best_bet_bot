@@ -611,6 +611,7 @@ const TEAM_ABBR = {
 // ══════════════════════════════════════════════════════════════════
 let LEAGUE_CODE = '';
 let allPlayers = [];
+let rosterDraftedNames = new Set(); // names picked via join.html draft page
 let activeFilter = 'ALL';
 let activeSort   = 'salary';
 let activeNHLTeam = 'ALL';
@@ -659,6 +660,7 @@ let lastPickCount = 0;
 
   // Load player pool from Supabase
   await loadPlayers();
+  await loadRosterDraftedNames();
 })();
 
 // ── Prefill managers from roster teams ───────────────────────────
@@ -680,6 +682,23 @@ function fallbackManagerInputs() {
   if (!document.getElementById('setup-manager-list').children.length) {
     for (let i = 0; i < 4; i++) addManagerInput();
   }
+}
+
+async function loadRosterDraftedNames() {
+  try {
+    const rows = await dbGet('pool_rosters', `league_code=eq.${LEAGUE_CODE}&select=data`);
+    if (!rows || !rows.length) return;
+    const data = rows[0].data;
+    const allSlugs = new Set();
+    for (const t of (data?.teams || [])) {
+      [...(t.roster?.F||[]), ...(t.roster?.D||[]), ...(t.roster?.G||[])].forEach(s => { if (s) allSlugs.add(s); });
+    }
+    // Convert slugs → player names using allPlayers
+    const nameBySlug = {};
+    for (const p of allPlayers) { if (p.puckpedia_slug && p.player_name) nameBySlug[p.puckpedia_slug] = p.player_name; }
+    rosterDraftedNames = new Set([...allSlugs].map(s => nameBySlug[s]).filter(Boolean));
+    renderPlayerPool();
+  } catch(e) {}
 }
 // ══════════════════════════════════════════════════════════════════
 async function dbGet(table, filter='') {
@@ -1109,7 +1128,7 @@ function renderPlayerPool() { _poolPage = 0; _renderPoolPage(); }
 
 function _renderPoolPage() {
   const query = (document.getElementById('pool-search')?.value || '').toLowerCase().trim();
-  const drafted = new Set(draftState.picks.map(p => p.playerName));
+  const drafted = new Set([...draftState.picks.map(p => p.playerName), ...rosterDraftedNames]);
   const current = getCurrentPick();
   const isMyTurn = !!current;
 
@@ -1182,7 +1201,7 @@ function autosizeBoardPanel() {
 async function draftPlayer(playerName, rawPos, normalizedPos) {
   const current = getCurrentPick();
   if (!current) return;
-  const drafted = new Set(draftState.picks.map(p => p.playerName));
+  const drafted = new Set([...draftState.picks.map(p => p.playerName), ...rosterDraftedNames]);
   if (drafted.has(playerName)) return;
 
   stopTimer();
@@ -1283,7 +1302,7 @@ function updateTimerDisplay() {
 
 async function autoSkip() {
   // Auto-pick: pick the first available player in pool
-  const drafted = new Set(draftState.picks.map(p => p.playerName));
+  const drafted = new Set([...draftState.picks.map(p => p.playerName), ...rosterDraftedNames]);
   const available = allPlayers.find(p => !drafted.has(p.player_name));
   if (available) await draftPlayer(available.player_name, normalizePos(available.position));
 }

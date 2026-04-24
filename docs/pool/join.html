@@ -959,6 +959,7 @@ function checkPw(){
   let allPlayers = [];
   let teams = [];         // [{ id, name, roster: { F:[slug|null,...], D:[...], G:[...] } }]
   let activeTeamId = null;
+  let liveDraftedSlugs = new Set(); // slugs picked in live-draft
 
   const SLOT_CFG = {
     F: { containerId: 'slots-F', max: 12, countId: 'fwd-count' },
@@ -1005,11 +1006,28 @@ function checkPw(){
 
   // All slugs claimed across ALL teams (for pool dimming)
   function allClaimedSlugs() {
-    const set = new Set();
+    const set = new Set(liveDraftedSlugs);
     for (const t of teams) {
       [...t.roster.F, ...t.roster.D, ...t.roster.G].forEach(s => { if (s) set.add(s); });
     }
     return set;
+  }
+
+  async function loadLiveDraftedSlugs() {
+    if (!_leagueCode) return;
+    try {
+      const res = await fetch(
+        `${SUPABASE_URL}/rest/v1/pool_draft_picks?league_code=eq.${_leagueCode}&select=player_name`,
+        { headers: sbHeaders() }
+      );
+      if (!res.ok) return;
+      const picks = await res.json();
+      if (!picks.length) return;
+      // Build name→slug map from allPlayers
+      const slugByName = {};
+      for (const p of allPlayers) { if (p.player_name && p.puckpedia_slug) slugByName[p.player_name] = p.puckpedia_slug; }
+      liveDraftedSlugs = new Set(picks.map(p => slugByName[p.player_name]).filter(Boolean));
+    } catch(e) {}
   }
 
   // Map slug → team name (for claimed badge)
@@ -1104,9 +1122,9 @@ function checkPw(){
         setEditBarStatus('', 'Loading league…');
         const loaded = await loadFromSupabase();
         if (!loaded) {
-          // First time — nothing saved yet, start with one team
           if (!loadPool()) addTeam('Team 1', false);
         }
+        await loadLiveDraftedSlugs();
         initLeagueBadge();
         renderAll();
         setEditBarStatus('', 'View only — click Edit to make changes');
