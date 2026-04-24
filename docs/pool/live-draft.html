@@ -648,15 +648,35 @@ let lastPickCount = 0;
   const saved = localStorage.getItem(`hp_commish_${LEAGUE_CODE}`);
   if (saved) document.getElementById('commish-name').value = saved;
 
-  // Add default manager inputs
-  for (let i = 0; i < 4; i++) addManagerInput();
-
   // Check if draft already exists in Supabase
   await loadDraftFromDB();
+
+  // If still on setup screen, pre-populate managers from draft page teams
+  if (draftState.status === 'pending') {
+    await prefillManagersFromRoster();
+  }
 })();
 
-// ══════════════════════════════════════════════════════════════════
-//  SUPABASE HELPERS
+// ── Prefill managers from roster teams ───────────────────────────
+async function prefillManagersFromRoster() {
+  try {
+    const rows = await dbGet('pool_rosters', `league_code=eq.${LEAGUE_CODE}&select=data`);
+    if (!rows || !rows.length) { fallbackManagerInputs(); return; }
+    const data = rows[0].data;
+    const teamNames = (data?.teams || []).map(t => t.name).filter(Boolean);
+    if (!teamNames.length) { fallbackManagerInputs(); return; }
+    document.getElementById('setup-manager-list').innerHTML = '';
+    teamNames.forEach(name => addManagerInput(name));
+  } catch(e) {
+    fallbackManagerInputs();
+  }
+}
+
+function fallbackManagerInputs() {
+  if (!document.getElementById('setup-manager-list').children.length) {
+    for (let i = 0; i < 4; i++) addManagerInput();
+  }
+}
 // ══════════════════════════════════════════════════════════════════
 async function dbGet(table, filter='') {
   const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${filter}`, { headers: sbH() });
@@ -1215,7 +1235,7 @@ async function doResetDraft() {
   isCommish = false;
 
   document.getElementById('setup-manager-list').innerHTML = '';
-  for (let i = 0; i < 4; i++) addManagerInput();
+  await prefillManagersFromRoster();
   const commishName = localStorage.getItem(`hp_commish_${LEAGUE_CODE}`) || '';
   document.getElementById('commish-name').value = commishName;
   document.getElementById('setup-error').textContent = '';
