@@ -1194,6 +1194,7 @@ async function draftPlayer(playerName, playerPos) {
       player_pos: pick.playerPos,
     });
     lastPickCount = draftState.picks.length;
+    syncRosterToJoinFormat().catch(() => {});
   } catch(e) { console.warn('draftPlayer DB error:', e); }
 }
 
@@ -1350,24 +1351,51 @@ async function finalizeDraft() {
   try {
     await Promise.all([
       dbPatch('pool_draft_settings', `league_code=eq.${LEAGUE_CODE}`, { status: 'done' }),
-      // Write rosters to pool_rosters
-      ...draftState.picks.map(p =>
-        fetch(`${SUPABASE_URL}/rest/v1/pool_rosters`, {
-          method: 'POST',
-          headers: sbH({ 'Prefer': 'resolution=merge-duplicates,return=minimal' }),
-          body: JSON.stringify({
-            league_code: LEAGUE_CODE,
-            manager_name: p.managerName,
-            player_name: p.playerName,
-            player_pos: p.playerPos,
-            pick_round: p.round,
-            overall_pick: p.overallPick,
-          }),
-        })
-      ),
+      syncRosterToJoinFormat(),
     ]);
   } catch(e) { console.warn('finalizeDraft error:', e); }
   showDoneScreen();
+}
+
+// Writes pool_rosters in the exact format join.html expects so drafted
+// players appear on the draft page immediately.
+async function syncRosterToJoinFormat() {
+  // Build slug lookup from loaded players
+  const slugByName = {};
+  for (const p of allPlayers) {
+    if (p.player_name && p.puckpedia_slug) slugByName[p.player_name] = p.puckpedia_slug;
+  }
+
+  const SLOTS = { F: 12, D: 6, G: 2 };
+
+  // Group picks by manager
+  const byManager = {};
+  for (const m of draftState.managers) byManager[m.name] = { F: [], D: [], G: [] };
+  for (const pick of draftState.picks) {
+    const group = pick.playerPos === 'D' ? 'D' : pick.playerPos === 'G' ? 'G' : 'F';
+    if (byManager[pick.managerName]) byManager[pick.managerName][group].push(pick.playerName);
+  }
+
+  // Build teams array matching join.html format
+  const teams = draftState.managers.map(m => {
+    const picked = byManager[m.name] || { F: [], D: [], G: [] };
+    const roster = {};
+    for (const [grp, max] of Object.entries(SLOTS)) {
+      const slugs = picked[grp].map(name => slugByName[name] || null);
+      // Pad to max slots with nulls
+      while (slugs.length < max) slugs.push(null);
+      roster[grp] = slugs.slice(0, max);
+    }
+    return { id: m.name, name: m.name, roster };
+  });
+
+  const data = { teams, activeTeamId: teams[0]?.id || null };
+
+  await fetch(`${SUPABASE_URL}/rest/v1/pool_rosters`, {
+    method: 'POST',
+    headers: sbH({ 'Prefer': 'resolution=merge-duplicates,return=minimal' }),
+    body: JSON.stringify({ league_code: LEAGUE_CODE, data, updated_at: new Date().toISOString() }),
+  });
 }
 
 function showDoneScreen() {
