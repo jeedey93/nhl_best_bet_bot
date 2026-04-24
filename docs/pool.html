@@ -416,7 +416,7 @@
     ul.innerHTML = '<div class="recent-empty">Loading leagues…</div>';
 
     try {
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/pool_leagues?select=code,name&order=name.asc`, {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/pool_leagues?select=code,created_at&order=created_at.desc`, {
         headers: sbHeaders(),
       });
       if (!res.ok) {
@@ -440,7 +440,15 @@
       return;
     }
 
-    ul.innerHTML = list.map(({ code, name }) => `
+    // Build a name lookup from localStorage
+    let recent = [];
+    try { recent = JSON.parse(localStorage.getItem(RECENT_KEY) || '[]'); } catch(e) {}
+    recent = recent.map(e => typeof e === 'string' ? { code: e, name: 'League' } : e);
+    const nameMap = Object.fromEntries(recent.map(e => [e.code, e.name]));
+
+    ul.innerHTML = list.map(({ code }) => {
+      const name = nameMap[code] || code;
+      return `
       <div class="recent-item" id="league-row-${code}">
         <div class="recent-item-top">
           <span class="recent-item-name">${escHtml(name)}</span>
@@ -452,7 +460,7 @@
           <button class="recent-btn delete" id="del-btn-${code}" onclick="promptDelete('${code}', '${escHtml(name)}')">🗑 Delete</button>
         </div>
       </div>
-    `).join('');
+    `}).join('');
   }
 
   function escHtml(str) {
@@ -549,7 +557,7 @@
       const res = await fetch(`${SUPABASE_URL}/rest/v1/pool_leagues`, {
         method: 'POST',
         headers: sbHeaders(),
-        body: JSON.stringify({ code, name: leagueName }),
+        body: JSON.stringify({ code }),
       });
       if (!res.ok && res.status !== 409) throw new Error(res.status);
     } catch(e) {
@@ -642,14 +650,13 @@
     if (code.length < 6) { errEl.textContent = 'Enter a valid league code.'; return; }
 
     try {
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/pool_leagues?code=eq.${code}&select=code,name`, {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/pool_leagues?code=eq.${code}&select=code`, {
         headers: sbHeaders(),
       });
       if (res.ok) {
         const rows = await res.json();
         if (!rows.length) { errEl.textContent = 'League not found. Check your code.'; return; }
-        const name = rows[0].name || 'League';
-        saveRecent(code, name);
+        saveRecent(code, code);
         window.location.href = `/pool/join?league=${code}`;
         return;
       }
