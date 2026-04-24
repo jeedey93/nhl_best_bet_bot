@@ -446,7 +446,7 @@
     ul.innerHTML = '<div class="recent-empty">Loading leagues…</div>';
 
     try {
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/pool_leagues?select=code,created_at&order=created_at.desc`, {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/pool_leagues?select=code,name,created_at&order=created_at.desc`, {
         headers: sbHeaders(),
       });
       if (!res.ok) {
@@ -470,24 +470,18 @@
       return;
     }
 
-    // Build a name lookup from localStorage
-    let recent = [];
-    try { recent = JSON.parse(localStorage.getItem(RECENT_KEY) || '[]'); } catch(e) {}
-    recent = recent.map(e => typeof e === 'string' ? { code: e, name: 'League' } : e);
-    const nameMap = Object.fromEntries(recent.map(e => [e.code, e.name]));
-
-    ul.innerHTML = list.map(({ code }) => {
-      const name = nameMap[code] || code;
+    ul.innerHTML = list.map(({ code, name }) => {
+      const displayName = name || code;
       return `
       <div class="recent-item" id="league-row-${code}">
         <div class="recent-item-top">
-          <span class="recent-item-name">${escHtml(name)}</span>
+          <span class="recent-item-name">${escHtml(displayName)}</span>
           <span class="recent-item-code">${code}</span>
         </div>
         <div class="recent-item-actions">
-          <button class="recent-btn draft" onclick="goToLeague('${code}', '${escHtml(name)}')">✏️ Draft</button>
+          <button class="recent-btn draft" onclick="goToLeague('${code}', '${escHtml(displayName)}')">✏️ Draft</button>
           <button class="recent-btn standings" onclick="goToStandings('${code}')">📊 Standings</button>
-          <button class="recent-btn delete" id="del-btn-${code}" onclick="promptDelete('${code}', '${escHtml(name)}')">🗑 Delete</button>
+          <button class="recent-btn delete" id="del-btn-${code}" onclick="promptDelete('${code}', '${escHtml(displayName)}')">🗑 Delete</button>
         </div>
       </div>
     `}).join('');
@@ -589,7 +583,7 @@
       const res = await fetch(`${SUPABASE_URL}/rest/v1/pool_leagues`, {
         method: 'POST',
         headers: sbHeaders(),
-        body: JSON.stringify({ code }),
+        body: JSON.stringify({ code, name: leagueName }),
       });
       if (!res.ok && res.status !== 409) throw new Error(res.status);
     } catch(e) {

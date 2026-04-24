@@ -730,6 +730,12 @@ function checkPw(){
       list = [_leagueCode, ...list.filter(c => c !== _leagueCode)].slice(0, 5);
       localStorage.setItem(k, JSON.stringify(list));
     } catch(e) {}
+    // Fetch and show league name
+    fetch(`${SUPABASE_URL}/rest/v1/pool_leagues?code=eq.${_leagueCode}&select=name`, { headers: sbHeaders() })
+      .then(r => r.json()).then(rows => {
+        const name = rows[0]?.name;
+        if (name && badge) badge.textContent = `${name} · ${_leagueCode}`;
+      }).catch(() => {});
   }
 
   function copyLeagueLink() {

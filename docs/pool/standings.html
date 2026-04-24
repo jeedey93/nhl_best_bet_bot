@@ -624,6 +624,11 @@ function checkPw(){
   document.getElementById('nav-settings').href = `/pool/settings?league=${_leagueCode}`;
   document.getElementById('league-badge').textContent = _leagueCode;
   document.getElementById('league-badge-row').style.display = '';
+  fetch(`${SUPABASE_URL}/rest/v1/pool_leagues?code=eq.${_leagueCode}&select=name`, { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } })
+    .then(r => r.json()).then(rows => {
+      const name = rows[0]?.name;
+      if (name) document.getElementById('league-badge').textContent = `${name} · ${_leagueCode}`;
+    }).catch(() => {});
 
   // ── Scoring ──────────────────────────────────────────────────────────────
   let _scoring = { f_points: 1, d_goals: 1, d_assists: 1, g_wins: 2, g_shutouts: 3 };
