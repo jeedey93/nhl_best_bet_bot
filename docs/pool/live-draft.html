@@ -205,12 +205,30 @@
 
     /* Main content area */
     .draft-main {
-      flex: 1; display: grid;
-      grid-template-columns: 1fr 340px;
+      flex: 1; display: flex; flex-direction: row;
       min-height: 0; overflow: hidden;
     }
+    .draft-board-wrap { flex: 1 1 0; min-width: 0; }
+    .drag-handle {
+      width: 6px; flex-shrink: 0; background: rgba(255,255,255,0.05);
+      cursor: col-resize; transition: background 0.15s;
+      position: relative; z-index: 10;
+    }
+    .drag-handle:hover, .drag-handle.dragging { background: rgba(255,184,28,0.35); }
+    .drag-handle::after {
+      content: '';
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%,-50%);
+      width: 2px; height: 32px;
+      background: rgba(255,255,255,0.15); border-radius: 2px;
+    }
+    .player-pool { flex-shrink: 0; width: 340px; min-width: 200px; max-width: 700px; }
     @media (max-width: 768px) {
-      .draft-main { grid-template-columns: 1fr; grid-template-rows: 1fr auto; }
+      .draft-main { flex-direction: column; }
+      .drag-handle { width: 100%; height: 6px; cursor: row-resize; }
+      .drag-handle::after { width: 32px; height: 2px; }
+      .player-pool { width: 100% !important; min-width: unset; max-width: unset; max-height: 340px; }
+      .draft-board-wrap { flex: none; }
     }
 
     /* ── Draft board ── */
@@ -517,8 +535,9 @@
   <div class="manager-strip" id="manager-strip"></div>
 
   <!-- Main draft area -->
-  <div class="draft-main">
+  <div class="draft-main" id="draft-main">
     <div class="draft-board-wrap" id="draft-board"></div>
+    <div class="drag-handle" id="drag-handle"></div>
 
     <!-- Player pool -->
     <div class="player-pool">
@@ -1093,7 +1112,7 @@ function _renderPoolPage() {
   const query = (document.getElementById('pool-search')?.value || '').toLowerCase().trim();
   const drafted = new Set(draftState.picks.map(p => p.playerName));
   const current = getCurrentPick();
-  const isMyTurn = current && (current.managerName === myName || isCommish);
+  const isMyTurn = !!current;
 
   const filtered = allPlayers.filter(p => {
     if (!p.player_name) return false;
@@ -1150,7 +1169,6 @@ const debouncedRenderPool = (() => { let t; return () => { clearTimeout(t); t = 
 async function draftPlayer(playerName, playerPos) {
   const current = getCurrentPick();
   if (!current) return;
-  if (current.managerName !== myName && !isCommish) return;
   const drafted = new Set(draftState.picks.map(p => p.playerName));
   if (drafted.has(playerName)) return;
 
@@ -1413,7 +1431,65 @@ function viewRosters() { window.location.href = `/pool/join?league=${LEAGUE_CODE
 // ══════════════════════════════════════════════════════════════════
 //  UTILS
 // ══════════════════════════════════════════════════════════════════
-function escHtml(str) {
+// ══════════════════════════════════════════════════════════════════
+//  DRAG RESIZE
+// ══════════════════════════════════════════════════════════════════
+(function initDragResize() {
+  const handle = document.getElementById('drag-handle');
+  const pool   = document.querySelector('.player-pool');
+  const main   = document.getElementById('draft-main');
+  if (!handle || !pool || !main) return;
+
+  const isMobile = () => window.innerWidth <= 768;
+  let dragging = false, startX, startY, startW, startH;
+
+  handle.addEventListener('mousedown', e => {
+    if (isMobile()) return;
+    dragging = true;
+    startX = e.clientX;
+    startW = pool.getBoundingClientRect().width;
+    handle.classList.add('dragging');
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+    e.preventDefault();
+  });
+
+  handle.addEventListener('touchstart', e => {
+    if (!isMobile()) return;
+    dragging = true;
+    startY = e.touches[0].clientY;
+    startH = pool.getBoundingClientRect().height;
+    handle.classList.add('dragging');
+    e.preventDefault();
+  }, { passive: false });
+
+  document.addEventListener('mousemove', e => {
+    if (!dragging) return;
+    const dx = startX - e.clientX;
+    const newW = Math.max(200, Math.min(700, startW + dx));
+    pool.style.width = newW + 'px';
+  });
+
+  document.addEventListener('touchmove', e => {
+    if (!dragging) return;
+    const dy = startY - e.touches[0].clientY;
+    const newH = Math.max(200, Math.min(600, startH + dy));
+    pool.style.maxHeight = newH + 'px';
+    pool.style.height = newH + 'px';
+  }, { passive: false });
+
+  function stopDrag() {
+    if (!dragging) return;
+    dragging = false;
+    handle.classList.remove('dragging');
+    document.body.style.cursor = '';
+    document.body.style.userSelect = '';
+  }
+  document.addEventListener('mouseup', stopDrag);
+  document.addEventListener('touchend', stopDrag);
+})();
+
+
   return String(str)
     .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
     .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
