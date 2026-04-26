@@ -470,9 +470,8 @@
     // ── HEAD row 1: team banners ──
     let h1='<tr class="at-head-row">';
     sorted.forEach((t,i)=>{
-      const pts=teamTotalPts(t.roster),cap=teamCapUsed(t.roster),sub=teamSubScores(t.roster);
       const r=i<3?rl[i]:`#${i+1}`,c=i<3?rc[i]:'rn';
-      h1+=`<th colspan="2"><div class="at-th-inner"><div class="at-th-rank ${c}">${r}</div><div class="at-th-name">${t.name}</div><div class="at-th-pts">${pts} pts · $${(cap/1e6).toFixed(1)}M</div><div class="at-th-subs"><span class="at-th-sub F">F ${sub.F}</span><span class="at-th-sub D">D ${sub.D}</span><span class="at-th-sub G">G ${sub.G}</span></div></div></th>`;
+      h1+=`<th colspan="2"><div class="at-th-inner"><div class="at-th-rank ${c}">${r}</div><div class="at-th-name">${t.name}</div></div></th>`;
       if(i<N-1)h1+=div(true);
     });
     h1+='</tr>';
