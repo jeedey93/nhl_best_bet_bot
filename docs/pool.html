@@ -21,6 +21,7 @@
       --silver: #a8b2be;
       --ice: #e8f4fd;
       --green: #22c55e;
+      --blue: #7db4ff;
       --line: rgba(255,255,255,0.08);
       --nav-h: 44px;
     }
@@ -66,11 +67,9 @@
     .hub-title span { color: var(--gold); }
     .hub-sub {
       color: var(--silver); font-size: 0.85rem; letter-spacing: 2.5px;
-      text-transform: uppercase; margin-bottom: 1.75rem; /* reduced from 3rem */
+      text-transform: uppercase; margin-bottom: 1.75rem;
     }
-    @media (max-width: 500px) {
-      .hub-sub { margin-bottom: 1.25rem; }
-    }
+    @media (max-width: 500px) { .hub-sub { margin-bottom: 1.25rem; } }
 
     /* ── Cards ── */
     .hub-cards {
@@ -78,11 +77,9 @@
       grid-template-columns: 1fr 1fr;
       gap: 1.25rem;
       width: 100%; max-width: 640px;
-      align-items: start; /* so cards can differ in height */
+      align-items: start;
     }
-    @media (max-width: 500px) {
-      .hub-cards { grid-template-columns: 1fr; }
-    }
+    @media (max-width: 500px) { .hub-cards { grid-template-columns: 1fr; } }
 
     .hub-card {
       background: rgba(255,255,255,0.04);
@@ -92,52 +89,36 @@
       transition: background 0.2s, border-color 0.2s;
     }
     .hub-card:hover { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.18); }
-
-    /* ── Create card — primary, gold-accented ── */
     .hub-card.primary {
       border-color: rgba(255,184,28,0.35);
       background: rgba(255,184,28,0.04);
       box-shadow: 0 0 40px rgba(255,184,28,0.07), inset 0 1px 0 rgba(255,184,28,0.12);
-      padding: 2.1rem 1.75rem 1.75rem; /* a touch larger */
+      padding: 2.1rem 1.75rem 1.75rem;
     }
-    .hub-card.primary:hover {
-      background: rgba(255,184,28,0.08);
-      border-color: rgba(255,184,28,0.55);
-    }
+    .hub-card.primary:hover { background: rgba(255,184,28,0.08); border-color: rgba(255,184,28,0.55); }
     .hub-card.primary .hub-card-title { color: var(--gold); }
 
     .hub-card-icon { font-size: 2.4rem; line-height: 1; }
     .hub-card.primary .hub-card-icon { font-size: 2.8rem; }
-
-    .hub-card-title {
-      font-family: 'Bebas Neue', cursive; font-size: 1.5rem; letter-spacing: 3px; color: white;
-    }
+    .hub-card-title { font-family: 'Bebas Neue', cursive; font-size: 1.5rem; letter-spacing: 3px; color: white; }
     .hub-card.primary .hub-card-title { font-size: 1.7rem; }
+    .hub-card-desc { color: var(--silver); font-size: 0.85rem; letter-spacing: 0.5px; text-align: center; line-height: 1.5; }
 
-    .hub-card-desc {
-      color: var(--silver); font-size: 0.85rem; letter-spacing: 0.5px;
-      text-align: center; line-height: 1.5;
-    }
-
-    /* ── League name input (for create card) ── */
     .league-name-input {
       font-family: 'Barlow Condensed', sans-serif; font-size: 0.95rem; font-weight: 600;
       letter-spacing: 1px;
       background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15);
       color: white; border-radius: 7px; padding: 0.5rem 0.8rem;
-      text-align: center; width: 100%;
-      transition: border-color 0.15s;
+      text-align: center; width: 100%; transition: border-color 0.15s;
     }
     .league-name-input::placeholder { color: rgba(255,255,255,0.25); }
     .league-name-input:focus { outline: none; border-color: rgba(255,184,28,0.5); }
 
-    /* ── Buttons ── */
     .btn-primary {
       font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 2px;
       background: var(--gold); color: var(--rink);
       border: none; border-radius: 7px; padding: 0.55rem 1.8rem;
-      cursor: pointer; transition: opacity 0.15s, transform 0.1s;
-      width: 100%;
+      cursor: pointer; transition: opacity 0.15s, transform 0.1s; width: 100%;
     }
     .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
     .btn-primary:active { transform: translateY(0); opacity: 1; }
@@ -147,177 +128,138 @@
       font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 2px;
       background: rgba(255,255,255,0.07); color: white;
       border: 1px solid rgba(255,255,255,0.15); border-radius: 7px; padding: 0.55rem 1.8rem;
-      cursor: pointer; transition: background 0.15s, border-color 0.15s, transform 0.1s;
-      width: 100%;
+      cursor: pointer; transition: background 0.15s, border-color 0.15s, transform 0.1s; width: 100%;
     }
     .btn-secondary:hover { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.25); transform: translateY(-1px); }
     .btn-secondary:active { transform: translateY(0); }
 
-    /* ── Success flash (create) ── */
-    .success-flash {
-      display: flex; flex-direction: column; align-items: center; gap: 0.75rem;
-      width: 100%; animation: fadeIn 0.25s ease;
-    }
+    .success-flash { display: flex; flex-direction: column; align-items: center; gap: 0.75rem; width: 100%; animation: fadeIn 0.25s ease; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
     .success-icon { font-size: 1.8rem; }
-    .success-msg {
-      font-family: 'Barlow Condensed', sans-serif; font-size: 0.9rem; font-weight: 700;
-      color: var(--green); letter-spacing: 1px; text-align: center;
-    }
-    .success-code {
-      font-family: 'Bebas Neue', cursive; font-size: 1.4rem; letter-spacing: 6px;
-      color: var(--gold);
-    }
-    .invite-row {
-      display: flex; gap: 0.4rem; width: 100%; align-items: center;
-    }
-    .invite-url {
-      font-family: 'Barlow Condensed', sans-serif; font-size: 0.78rem; font-weight: 600;
-      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
-      color: var(--silver); border-radius: 6px; padding: 0.4rem 0.6rem;
-      flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-      letter-spacing: 0.3px;
-    }
-    .btn-copy {
-      font-family: 'Bebas Neue', cursive; font-size: 0.8rem; letter-spacing: 1.5px;
-      background: rgba(255,184,28,0.12); border: 1px solid rgba(255,184,28,0.3);
-      color: var(--gold); border-radius: 6px; padding: 0.4rem 0.75rem;
-      cursor: pointer; flex-shrink: 0; transition: background 0.15s;
-      white-space: nowrap;
-    }
+    .success-msg { font-family: 'Barlow Condensed', sans-serif; font-size: 0.9rem; font-weight: 700; color: var(--green); letter-spacing: 1px; text-align: center; }
+    .success-code { font-family: 'Bebas Neue', cursive; font-size: 1.4rem; letter-spacing: 6px; color: var(--gold); }
+    .invite-row { display: flex; gap: 0.4rem; width: 100%; align-items: center; }
+    .invite-url { font-family: 'Barlow Condensed', sans-serif; font-size: 0.78rem; font-weight: 600; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: var(--silver); border-radius: 6px; padding: 0.4rem 0.6rem; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; letter-spacing: 0.3px; }
+    .btn-copy { font-family: 'Bebas Neue', cursive; font-size: 0.8rem; letter-spacing: 1.5px; background: rgba(255,184,28,0.12); border: 1px solid rgba(255,184,28,0.3); color: var(--gold); border-radius: 6px; padding: 0.4rem 0.75rem; cursor: pointer; flex-shrink: 0; transition: background 0.15s; white-space: nowrap; }
     .btn-copy:hover { background: rgba(255,184,28,0.22); }
     .btn-copy.copied { background: rgba(34,197,94,0.12); border-color: rgba(34,197,94,0.3); color: var(--green); }
 
-    /* ── Join form ── */
     .join-form { display: flex; flex-direction: column; gap: 0.6rem; width: 100%; }
-    .join-input {
-      font-family: 'Bebas Neue', cursive; font-size: 1.2rem; letter-spacing: 4px;
-      background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15);
-      color: white; border-radius: 7px; padding: 0.5rem 0.8rem;
-      text-align: center; text-transform: uppercase; width: 100%;
-      transition: border-color 0.15s;
-    }
+    .join-input { font-family: 'Bebas Neue', cursive; font-size: 1.2rem; letter-spacing: 4px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15); color: white; border-radius: 7px; padding: 0.5rem 0.8rem; text-align: center; text-transform: uppercase; width: 100%; transition: border-color 0.15s; }
     .join-input::placeholder { color: rgba(255,255,255,0.25); letter-spacing: 3px; }
     .join-input:focus { outline: none; border-color: rgba(255,184,28,0.5); }
 
-    /* ── Error message ── */
-    .error-msg {
-      font-family: 'Barlow Condensed', sans-serif; font-size: 0.8rem; font-weight: 600;
-      color: var(--red); letter-spacing: 1px; text-align: center; min-height: 1.1em;
-    }
+    .error-msg { font-family: 'Barlow Condensed', sans-serif; font-size: 0.8rem; font-weight: 600; color: var(--red); letter-spacing: 1px; text-align: center; min-height: 1.1em; }
 
-    /* ── Spinner ── */
     @keyframes spin { to { transform: rotate(360deg); } }
-    .spinner {
-      display: inline-block; width: 14px; height: 14px;
-      border: 2px solid rgba(7,17,31,0.3); border-top-color: var(--rink);
-      border-radius: 50%; animation: spin 0.7s linear infinite;
-      vertical-align: middle; margin-right: 6px;
-    }
+    .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(7,17,31,0.3); border-top-color: var(--rink); border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
 
-    /* ── Recent leagues ── */
+    /* ══════════════════════════════════════
+       LEAGUE LIST — updated section
+    ══════════════════════════════════════ */
     .recent-wrap { width: 100%; max-width: 640px; margin-top: 2rem; }
-    .recent-title {
-      font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 3px;
-      color: var(--silver); margin-bottom: 0.7rem;
-    }
-    .recent-list { display: flex; flex-direction: column; gap: 0.4rem; }
-
-    /* empty state */
-    .recent-empty {
-      font-family: 'Barlow Condensed', sans-serif; font-size: 0.8rem; font-weight: 600;
-      color: rgba(255,255,255,0.2); letter-spacing: 1px; padding: 0.5rem 0;
-    }
+    .recent-title { font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 3px; color: var(--silver); margin-bottom: 0.7rem; }
+    .recent-list { display: flex; flex-direction: column; gap: 0.5rem; }
+    .recent-empty { font-family: 'Barlow Condensed', sans-serif; font-size: 0.8rem; font-weight: 600; color: rgba(255,255,255,0.2); letter-spacing: 1px; padding: 0.5rem 0; }
 
     .recent-item {
       background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07);
-      border-radius: 8px; padding: 0.55rem 0.9rem;
+      border-radius: 10px; padding: 0.65rem 0.9rem 0.6rem;
       transition: background 0.15s, border-color 0.15s;
     }
-    .recent-item:hover { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.14); }
+    .recent-item:hover { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.13); }
+
+    /* Top row: name + code + date */
     .recent-item-top {
-      display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.45rem;
+      display: flex; align-items: center; gap: 0.5rem;
+      margin-bottom: 0.5rem; flex-wrap: wrap;
     }
     .recent-item-name {
       font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 2px; color: white;
+      flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     }
     .recent-item-code {
-      font-family: 'Barlow Condensed', sans-serif; font-size: 0.75rem; font-weight: 700;
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem; font-weight: 700;
       color: var(--gold); letter-spacing: 2px; background: rgba(255,184,28,0.1);
-      border-radius: 4px; padding: 2px 8px;
+      border-radius: 4px; padding: 2px 8px; flex-shrink: 0;
     }
+    /* ── NEW: creation date badge ── */
+    .recent-item-date {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem; font-weight: 600;
+      color: rgba(255,255,255,0.28); letter-spacing: 0.5px; flex-shrink: 0;
+      display: flex; align-items: center; gap: 3px;
+    }
+    .recent-item-date::before {
+      content: '·'; color: rgba(255,255,255,0.15); font-size: 0.8rem;
+    }
+
+    /* Action buttons row — now two rows: primary actions + secondary */
     .recent-item-actions {
-      display: flex; gap: 0.4rem;
+      display: flex; gap: 0.35rem; flex-wrap: wrap; align-items: center;
     }
+
     .recent-btn {
-      font-family: 'Bebas Neue', cursive; font-size: 0.75rem; letter-spacing: 1.5px;
+      font-family: 'Bebas Neue', cursive; font-size: 0.72rem; letter-spacing: 1.5px;
       border-radius: 5px; padding: 3px 10px; cursor: pointer; border: 1px solid;
-      transition: background 0.15s, color 0.15s;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+      white-space: nowrap; line-height: 1.6;
     }
+
+    /* Draft — gold, most prominent */
     .recent-btn.draft {
       background: rgba(255,184,28,0.1); border-color: rgba(255,184,28,0.3); color: var(--gold);
     }
-    .recent-btn.draft:hover { background: rgba(255,184,28,0.22); }
+    .recent-btn.draft:hover { background: rgba(255,184,28,0.22); border-color: rgba(255,184,28,0.5); }
+
+    /* Live Draft — blue/teal accent */
+    .recent-btn.live-draft {
+      background: rgba(125,180,255,0.08); border-color: rgba(125,180,255,0.25); color: var(--blue);
+    }
+    .recent-btn.live-draft:hover { background: rgba(125,180,255,0.18); border-color: rgba(125,180,255,0.45); }
+
+    /* Standings — neutral */
     .recent-btn.standings {
       background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.12); color: var(--silver);
     }
-    .recent-btn.standings:hover { background: rgba(255,255,255,0.1); color: white; }
+    .recent-btn.standings:hover { background: rgba(255,255,255,0.1); color: white; border-color: rgba(255,255,255,0.25); }
+
+    /* Settings — subtle */
+    .recent-btn.settings {
+      background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.09); color: rgba(255,255,255,0.4);
+    }
+    .recent-btn.settings:hover { background: rgba(255,255,255,0.08); color: var(--silver); border-color: rgba(255,255,255,0.2); }
+
+    /* Delete — danger, pushed to the right */
     .recent-btn.delete {
-      background: rgba(200,16,46,0.08); border-color: rgba(200,16,46,0.25); color: rgba(200,16,46,0.7);
+      background: rgba(200,16,46,0.07); border-color: rgba(200,16,46,0.2); color: rgba(200,16,46,0.6);
       margin-left: auto;
     }
-    .recent-btn.delete:hover { background: rgba(200,16,46,0.18); color: var(--red); }
+    .recent-btn.delete:hover { background: rgba(200,16,46,0.18); color: var(--red); border-color: rgba(200,16,46,0.45); }
+
+    /* Divider between action groups */
+    .recent-btn-divider {
+      width: 1px; height: 16px; background: rgba(255,255,255,0.08); flex-shrink: 0;
+      align-self: center;
+    }
 
     /* ── Password modal ── */
-    #pw-overlay {
-      position: fixed; inset: 0; z-index: 999;
-      background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
-      display: flex; align-items: center; justify-content: center;
-    }
+    #pw-overlay { position: fixed; inset: 0; z-index: 999; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; }
     #pw-overlay.hidden { display: none; }
-    .pw-box {
-      background: rgba(15,25,45,0.97); border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 14px; padding: 2.5rem 2rem; width: 320px; max-width: 90vw; text-align: center;
-    }
+    .pw-box { background: rgba(15,25,45,0.97); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 2.5rem 2rem; width: 320px; max-width: 90vw; text-align: center; }
     .pw-box h2 { font-family: 'Bebas Neue', cursive; font-size: 1.8rem; color: var(--gold); letter-spacing: 3px; margin-bottom: 0.3rem; }
     .pw-box p { color: var(--silver); font-size: 0.85rem; letter-spacing: 1px; margin-bottom: 1.5rem; }
-    .pw-input {
-      width: 100%; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15);
-      border-radius: 8px; padding: 0.7rem 1rem; color: white;
-      font-size: 1rem; font-family: 'Barlow Condensed', sans-serif;
-      letter-spacing: 2px; outline: none; text-align: center; transition: border-color 0.2s;
-    }
+    .pw-input { width: 100%; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.7rem 1rem; color: white; font-size: 1rem; font-family: 'Barlow Condensed', sans-serif; letter-spacing: 2px; outline: none; text-align: center; transition: border-color 0.2s; }
     .pw-input:focus { border-color: rgba(255,184,28,0.5); }
     .pw-input.error { border-color: rgba(200,16,46,0.7); animation: shake 0.3s; }
     @keyframes shake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-6px);} 75%{transform:translateX(6px);} }
-    .pw-btn {
-      margin-top: 1rem; width: 100%; background: var(--red); color: white;
-      border: none; border-radius: 8px; padding: 0.75rem;
-      font-family: 'Bebas Neue', cursive; font-size: 1.2rem; letter-spacing: 3px;
-      cursor: pointer; transition: background 0.2s;
-    }
+    .pw-btn { margin-top: 1rem; width: 100%; background: var(--red); color: white; border: none; border-radius: 8px; padding: 0.75rem; font-family: 'Bebas Neue', cursive; font-size: 1.2rem; letter-spacing: 3px; cursor: pointer; transition: background 0.2s; }
     .pw-btn:hover { background: #e0122e; }
-    .pw-cancel {
-      margin-top: 0.6rem; width: 100%; background: transparent; color: var(--silver);
-      border: none; padding: 0.4rem;
-      font-family: 'Barlow Condensed', sans-serif; font-size: 0.85rem; font-weight: 600;
-      letter-spacing: 1px; cursor: pointer; transition: color 0.15s;
-    }
+    .pw-cancel { margin-top: 0.6rem; width: 100%; background: transparent; color: var(--silver); border: none; padding: 0.4rem; font-family: 'Barlow Condensed', sans-serif; font-size: 0.85rem; font-weight: 600; letter-spacing: 1px; cursor: pointer; transition: color 0.15s; }
     .pw-cancel:hover { color: white; }
     .pw-error { color: rgba(200,16,46,0.8); font-size: 0.8rem; margin-top: 0.5rem; min-height: 1em; letter-spacing: 1px; }
 
-    /* ── Deleted toast ── */
-    .deleted-toast {
-      position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%);
-      z-index: 9999;
-      background: rgba(15,25,45,0.97); border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 10px; padding: 0.75rem 1.25rem;
-      display: flex; align-items: center; gap: 0.6rem;
-      font-size: 0.9rem; font-weight: 600; letter-spacing: 1px; color: white;
-      box-shadow: 0 4px 24px rgba(0,0,0,0.5);
-      animation: toastIn 0.25s ease, toastOut 0.3s ease 3s forwards;
-      white-space: nowrap;
-    }
+    /* ── Toast ── */
+    .deleted-toast { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%); z-index: 9999; background: rgba(15,25,45,0.97); border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; padding: 0.75rem 1.25rem; display: flex; align-items: center; gap: 0.6rem; font-size: 0.9rem; font-weight: 600; letter-spacing: 1px; color: white; box-shadow: 0 4px 24px rgba(0,0,0,0.5); animation: toastIn 0.25s ease, toastOut 0.3s ease 3s forwards; white-space: nowrap; }
     .deleted-toast-icon { font-size: 1rem; }
     @keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(10px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
     @keyframes toastOut { to { opacity: 0; transform: translateX(-50%) translateY(10px); pointer-events: none; } }
@@ -335,14 +277,14 @@
   <span class="deleted-toast-icon">🗑</span> League deleted successfully.
 </div>
 <script>
-(function(){
-  if (new URLSearchParams(window.location.search).get('deleted') === '1') {
-    const t = document.getElementById('deleted-toast');
-    t.style.display = 'flex';
-    setTimeout(() => t.remove(), 3400);
-    history.replaceState(null, '', window.location.pathname);
-  }
-})();
+  (function(){
+    if (new URLSearchParams(window.location.search).get('deleted') === '1') {
+      const t = document.getElementById('deleted-toast');
+      t.style.display = 'flex';
+      setTimeout(() => t.remove(), 3400);
+      history.replaceState(null, '', window.location.pathname);
+    }
+  })();
 </script>
 
 <div class="hub-wrap">
@@ -350,21 +292,13 @@
   <p class="hub-sub">2025–26 Season</p>
 
   <div class="hub-cards">
-
-    <!-- Create league — PRIMARY card -->
+    <!-- Create league -->
     <div class="hub-card primary">
       <div class="hub-card-icon">🏒</div>
       <div class="hub-card-title">New League</div>
       <p class="hub-card-desc">Generate a league code and start building your team under the salary cap.</p>
       <div id="create-form" style="width:100%;display:flex;flex-direction:column;gap:0.6rem;">
-        <input
-          class="league-name-input"
-          id="league-name-input"
-          type="text"
-          maxlength="32"
-          placeholder="League name (optional)"
-          autocomplete="off"
-        >
+        <input class="league-name-input" id="league-name-input" type="text" maxlength="32" placeholder="League name (optional)" autocomplete="off">
         <button class="btn-primary" id="btn-create" onclick="createLeague()">Create League</button>
       </div>
       <div id="create-success" style="display:none;width:100%"></div>
@@ -377,13 +311,12 @@
       <p class="hub-card-desc">Have a code? Enter it below to join a friend's league.</p>
       <div class="join-form">
         <input class="join-input" id="join-code" type="text" maxlength="4" placeholder="XXXX"
-          oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')"
-          onkeydown="if(event.key==='Enter') joinLeague()">
+               oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')"
+               onkeydown="if(event.key==='Enter') joinLeague()">
         <button class="btn-secondary" onclick="joinLeague()">Join League</button>
         <div class="error-msg" id="join-error"></div>
       </div>
     </div>
-
   </div>
 
   <!-- All leagues -->
@@ -440,102 +373,112 @@
     localStorage.setItem(RECENT_KEY, JSON.stringify(list));
   }
 
-  // ── Load all leagues from Supabase ────────────────────────────────────────
+  // ── Format creation date ──────────────────────────────────────────────────
+  function formatDate(isoString) {
+    if (!isoString) return '';
+    const d = new Date(isoString);
+    if (isNaN(d)) return '';
+    const now = new Date();
+    const diffMs = now - d;
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 0) return 'Created today';
+    if (diffDays === 1) return 'Created yesterday';
+    if (diffDays < 7)  return `Created ${diffDays}d ago`;
+    if (diffDays < 30) return `Created ${Math.floor(diffDays / 7)}w ago`;
+
+    // Older: show actual date
+    return 'Created ' + d.toLocaleDateString('en-CA', { month: 'short', day: 'numeric', year: diffDays > 365 ? 'numeric' : undefined });
+  }
+
+  // ── Load all leagues ──────────────────────────────────────────────────────
   async function loadAllLeagues() {
     const ul = document.getElementById('recent-list');
     ul.innerHTML = '<div class="recent-empty">Loading leagues…</div>';
-
     try {
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/pool_leagues?select=code,name,created_at&order=created_at.desc`, {
-        headers: sbHeaders(),
-      });
-      if (!res.ok) {
-        const body = await res.text();
-        console.error('loadAllLeagues HTTP', res.status, body);
-        throw new Error(res.status);
-      }
+      const res = await fetch(
+        `${SUPABASE_URL}/rest/v1/pool_leagues?select=code,name,created_at&order=created_at.desc`,
+        { headers: sbHeaders() }
+      );
+      if (!res.ok) throw new Error(res.status);
       const leagues = await res.json();
       renderLeagues(leagues);
     } catch(e) {
-      console.error('loadAllLeagues error:', e);
       ul.innerHTML = '<div class="recent-empty">Could not load leagues.</div>';
     }
   }
 
   function renderLeagues(list) {
     const ul = document.getElementById('recent-list');
-
     if (!list.length) {
       ul.innerHTML = '<div class="recent-empty">No leagues yet — create one above.</div>';
       return;
     }
 
-    ul.innerHTML = list.map(({ code, name }) => {
+    ul.innerHTML = list.map(({ code, name, created_at }) => {
       const displayName = name || code;
+      const dateLabel   = formatDate(created_at);
       return `
       <div class="recent-item" id="league-row-${code}">
         <div class="recent-item-top">
           <span class="recent-item-name">${escHtml(displayName)}</span>
           <span class="recent-item-code">${code}</span>
+          ${dateLabel ? `<span class="recent-item-date">${escHtml(dateLabel)}</span>` : ''}
         </div>
         <div class="recent-item-actions">
-          <button class="recent-btn draft" onclick="goToLeague('${code}', '${escHtml(displayName)}')">✏️ Draft</button>
-          <button class="recent-btn standings" onclick="goToStandings('${code}')">📊 Standings</button>
+          <button class="recent-btn draft"      onclick="goToDraft('${code}', '${escHtml(displayName)}')">✏️ Draft</button>
+          <button class="recent-btn live-draft" onclick="goToLiveDraft('${code}')">🟢 Live Draft</button>
+          <button class="recent-btn standings"  onclick="goToStandings('${code}')">📊 Standings</button>
+          <button class="recent-btn settings"   onclick="goToSettings('${code}')">⚙️ Settings</button>
+          <div class="recent-btn-divider"></div>
           <button class="recent-btn delete" id="del-btn-${code}" onclick="promptDelete('${code}', '${escHtml(displayName)}')">🗑 Delete</button>
         </div>
-      </div>
-    `}).join('');
+      </div>`;
+    }).join('');
   }
 
   function escHtml(str) {
-    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+    return String(str)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
   }
 
-  function goToLeague(code, name) {
-    saveRecent(code, name);
-    window.location.href = `/pool/join?league=${code}`;
-  }
+  function goToDraft(code, name)    { saveRecent(code, name); window.location.href = `/pool/join?league=${code}`; }
+  function goToLiveDraft(code)      { window.location.href = `/pool/live-draft?league=${code}`; }
+  function goToStandings(code)      { window.location.href = `/pool/standings?league=${code}`; }
+  function goToSettings(code)       { window.location.href = `/pool/settings?league=${code}`; }
 
-  function goToStandings(code) {
-    window.location.href = `/pool/standings?league=${code}`;
-  }
-
-  // ── Password modal (shared for create & delete) ───────────────────────────
-  let _pwAction = null; // 'create' | 'delete'
+  // ── Password modal ────────────────────────────────────────────────────────
+  let _pwAction = null;
   let _deleteCode = null;
   const FOCUSABLE = 'button:not([disabled]), input, [tabindex]:not([tabindex="-1"])';
 
   function openPwModal(action, title, btnLabel) {
     _pwAction = action;
     const input = document.getElementById('pw-input');
-    const err = document.getElementById('pw-error');
+    const err   = document.getElementById('pw-error');
     input.value = ''; err.textContent = '';
     document.getElementById('pw-title').textContent = title;
-    document.getElementById('pw-btn').textContent = btnLabel;
-    document.getElementById('pw-btn').style.background = action === 'delete' ? 'var(--red)' : 'var(--red)';
+    document.getElementById('pw-btn').textContent   = btnLabel;
     document.getElementById('pw-overlay').classList.remove('hidden');
     setTimeout(() => input.focus(), 50);
   }
 
   function closePwModal() {
     document.getElementById('pw-overlay').classList.add('hidden');
-    _pwAction = null;
-    _deleteCode = null;
+    _pwAction = null; _deleteCode = null;
     document.getElementById('btn-create').focus();
   }
 
   document.getElementById('pw-overlay').addEventListener('keydown', e => {
     if (e.key === 'Escape') { closePwModal(); return; }
     if (e.key !== 'Tab') return;
-    const box = document.querySelector('.pw-box');
+    const box      = document.querySelector('.pw-box');
     const focusable = [...box.querySelectorAll(FOCUSABLE)];
     if (!focusable.length) { e.preventDefault(); return; }
     const first = focusable[0], last = focusable[focusable.length - 1];
-    if (e.shiftKey) {
-      if (document.activeElement === first) { e.preventDefault(); last.focus(); }
-    } else {
-      if (document.activeElement === last) { e.preventDefault(); first.focus(); }
-    }
+    if (e.shiftKey) { if (document.activeElement === first) { e.preventDefault(); last.focus(); } }
+    else            { if (document.activeElement === last)  { e.preventDefault(); first.focus(); } }
   });
 
   document.getElementById('pw-overlay').addEventListener('click', e => {
@@ -548,7 +491,7 @@
 
   function submitPw() {
     const input = document.getElementById('pw-input');
-    const err = document.getElementById('pw-error');
+    const err   = document.getElementById('pw-error');
     if (input.value !== 'parieur2026') {
       input.classList.add('error');
       err.textContent = 'Incorrect password.';
@@ -556,8 +499,7 @@
       input.value = ''; input.focus();
       return;
     }
-    const action = _pwAction;
-    const deleteCode = _deleteCode;
+    const action = _pwAction, deleteCode = _deleteCode;
     closePwModal();
     if (action === 'create') doCreateLeague();
     else if (action === 'delete') doDelete(deleteCode);
@@ -570,7 +512,7 @@
   }
 
   async function doCreateLeague() {
-    const btn = document.getElementById('btn-create');
+    const btn       = document.getElementById('btn-create');
     const nameInput = document.getElementById('league-name-input');
     const leagueName = nameInput.value.trim() || 'League';
 
@@ -578,17 +520,13 @@
     btn.innerHTML = '<span class="spinner"></span>Creating…';
 
     const code = genCode();
-
     try {
       const res = await fetch(`${SUPABASE_URL}/rest/v1/pool_leagues`, {
-        method: 'POST',
-        headers: sbHeaders(),
+        method: 'POST', headers: sbHeaders(),
         body: JSON.stringify({ code, name: leagueName }),
       });
       if (!res.ok && res.status !== 409) throw new Error(res.status);
-    } catch(e) {
-      // Proceed even if DB call fails — offline-friendly
-    }
+    } catch(e) {}
 
     saveRecent(code, leagueName);
     loadAllLeagues();
@@ -596,11 +534,9 @@
   }
 
   function showSuccess(code, leagueName) {
-    const form = document.getElementById('create-form');
+    document.getElementById('create-form').style.display = 'none';
     const successEl = document.getElementById('create-success');
     const inviteUrl = `${window.location.origin}/pool?join=${code}`;
-
-    form.style.display = 'none';
     successEl.style.display = 'block';
     successEl.innerHTML = `
       <div class="success-flash">
@@ -611,25 +547,21 @@
           <div class="invite-url" title="${inviteUrl}">${inviteUrl}</div>
           <button class="btn-copy" id="btn-copy" onclick="copyInvite('${inviteUrl}')">Copy</button>
         </div>
-        <button class="btn-primary" onclick="goToLeague('${code}', '${escHtml(leagueName)}')">Go to Draft →</button>
+        <button class="btn-primary" onclick="goToDraft('${code}', '${escHtml(leagueName)}')">Go to Draft →</button>
         <button class="btn-secondary" onclick="goToStandings('${code}')">View Standings</button>
-      </div>
-    `;
+      </div>`;
   }
 
   function copyInvite(url) {
     navigator.clipboard.writeText(url).then(() => {
       const btn = document.getElementById('btn-copy');
       if (!btn) return;
-      btn.textContent = '✓ Copied';
-      btn.classList.add('copied');
+      btn.textContent = '✓ Copied'; btn.classList.add('copied');
       setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
     }).catch(() => {
       const ta = document.createElement('textarea');
       ta.value = url; ta.style.position = 'fixed'; ta.style.opacity = '0';
-      document.body.appendChild(ta); ta.select();
-      document.execCommand('copy');
-      document.body.removeChild(ta);
+      document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
       const btn = document.getElementById('btn-copy');
       if (btn) { btn.textContent = '✓ Copied'; btn.classList.add('copied'); setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000); }
     });
@@ -639,63 +571,46 @@
   function promptDelete(code, name) {
     _deleteCode = code;
     openPwModal('delete', `🗑 Delete League`, 'DELETE');
-    document.getElementById('pw-btn').style.background = 'var(--red)';
   }
 
   async function doDelete(code) {
-  const btn = document.getElementById(`del-btn-${code}`);
-  if (btn) { btn.disabled = true; btn.textContent = 'Deleting…'; }
+    const btn = document.getElementById(`del-btn-${code}`);
+    if (btn) { btn.disabled = true; btn.textContent = 'Deleting…'; }
+    try {
+      const headers = { ...sbHeaders(), 'Prefer': 'return=minimal' };
+      const results = await Promise.all([
+        fetch(`${SUPABASE_URL}/rest/v1/pool_leagues?code=eq.${code}`,        { method: 'DELETE', headers }),
+        fetch(`${SUPABASE_URL}/rest/v1/pool_rosters?league_code=eq.${code}`, { method: 'DELETE', headers }),
+        fetch(`${SUPABASE_URL}/rest/v1/pool_settings?league_code=eq.${code}`,{ method: 'DELETE', headers }),
+        fetch(`${SUPABASE_URL}/rest/v1/pool_locks?league_code=eq.${code}`,   { method: 'DELETE', headers }),
+      ]);
+      const failed = results.find(r => !r.ok);
+      if (failed) { const body = await failed.text(); throw new Error(`HTTP ${failed.status}: ${body}`); }
 
-  try {
-    const headers = {
-      ...sbHeaders(),
-      'Prefer': 'return=minimal',
-    };
-
-    const results = await Promise.all([
-      fetch(`${SUPABASE_URL}/rest/v1/pool_leagues?code=eq.${code}`, { method: 'DELETE', headers }),
-      fetch(`${SUPABASE_URL}/rest/v1/pool_rosters?league_code=eq.${code}`, { method: 'DELETE', headers }),
-      fetch(`${SUPABASE_URL}/rest/v1/pool_settings?league_code=eq.${code}`, { method: 'DELETE', headers }),
-      fetch(`${SUPABASE_URL}/rest/v1/pool_locks?league_code=eq.${code}`, { method: 'DELETE', headers }),
-    ]);
-
-    // Check if any request failed
-    const failed = results.find(r => !r.ok);
-    if (failed) {
-      const body = await failed.text();
-      console.error('Delete failed:', failed.status, body);
-      throw new Error(`HTTP ${failed.status}: ${body}`);
+      removeRecent(code);
+      const row = document.getElementById(`league-row-${code}`);
+      if (row) row.remove();
+      const ul = document.getElementById('recent-list');
+      if (ul && !ul.querySelector('.recent-item')) {
+        ul.innerHTML = '<div class="recent-empty">No leagues yet — create one above.</div>';
+      }
+      const t = document.getElementById('deleted-toast');
+      if (t) { t.style.display = 'flex'; setTimeout(() => t.remove(), 3400); }
+    } catch(e) {
+      if (btn) { btn.disabled = false; btn.textContent = '🗑 Delete'; }
+      alert(`Failed to delete: ${e.message}`);
     }
-
-    removeRecent(code);
-    const row = document.getElementById(`league-row-${code}`);
-    if (row) row.remove();
-    const ul = document.getElementById('recent-list');
-    if (ul && !ul.querySelector('.recent-item')) {
-      ul.innerHTML = '<div class="recent-empty">No leagues yet — create one above.</div>';
-    }
-    const t = document.getElementById('deleted-toast');
-    if (t) { t.style.display = 'flex'; setTimeout(() => t.remove(), 3400); }
-  } catch(e) {
-    console.error('doDelete error:', e);
-    if (btn) { btn.disabled = false; btn.textContent = '🗑 Delete'; }
-    alert(`Failed to delete: ${e.message}`);
   }
-}
 
-  // ── Join (no password required) ───────────────────────────────────────────
+  // ── Join ──────────────────────────────────────────────────────────────────
   async function joinLeague() {
     const input = document.getElementById('join-code');
     const errEl = document.getElementById('join-error');
-    const code = input.value.trim().toUpperCase();
+    const code  = input.value.trim().toUpperCase();
     errEl.textContent = '';
-
     if (code.length < 4) { errEl.textContent = 'Enter a valid league code.'; return; }
-
     try {
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/pool_leagues?code=eq.${code}&select=code`, {
-        headers: sbHeaders(),
-      });
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/pool_leagues?code=eq.${code}&select=code`, { headers: sbHeaders() });
       if (res.ok) {
         const rows = await res.json();
         if (!rows.length) { errEl.textContent = 'League not found. Check your code.'; return; }
@@ -704,8 +619,6 @@
         return;
       }
     } catch(e) {}
-
-    // Offline fallback
     saveRecent(code, 'League');
     window.location.href = `/pool/join?league=${code}`;
   }
