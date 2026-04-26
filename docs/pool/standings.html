@@ -419,7 +419,7 @@
         <div class="view-tab ${activeView==='pool'?'active':''}" onclick="setView('pool')">Pool Leaders</div>
       </div>
       <div id="view-standings" style="display:${activeView==='standings'?'block':'none'}">${buildLeaderboard(sorted,leaderPts)}</div>
-      <div id="view-allteams"  style="display:${activeView==='allteams'?'block':'none'}">${buildAllTeams(sorted)}</div>
+      <div id="view-allteams"  style="display:${activeView==='allteams'?'block':'none'}">${buildAllTeams(teams)}</div>
       <div id="view-team"      style="display:${activeView==='team'?'block':'none'}">
         <div class="team-tabs">${sorted.map(t=>`<div class="team-tab ${t.id===activeTeamId?'active':''}" onclick="selectTeam('${t.id}')">${t.name}<span class="team-tab-pts">${teamTotalPts(t.roster)}pts</span></div>`).join('')}</div>
         <div class="team-detail visible">${activeTeam?buildDetail(activeTeam,sorted,leaderPts,avgs):''}</div>
@@ -460,7 +460,6 @@
       return{F:r.F.filter(Boolean).sort((a,b)=>poolScore(b)-poolScore(a)),D:r.D.filter(Boolean).sort((a,b)=>poolScore(b)-poolScore(a)),G:r.G.filter(Boolean).sort((a,b)=>poolScore(b)-poolScore(a))};
     });
 
-    const rl=['#1','#2','#3'],rc=['r1','r2','r3'];
     const SALARY_CAP=95500000;
     // total cols per team = 2 (name+salary), divider between teams
     const totalCols=N*2+(N-1);
@@ -470,8 +469,7 @@
     // ── HEAD row 1: team banners ──
     let h1='<tr class="at-head-row">';
     sorted.forEach((t,i)=>{
-      const r=i<3?rl[i]:`#${i+1}`,c=i<3?rc[i]:'rn';
-      h1+=`<th colspan="2"><div class="at-th-inner"><div class="at-th-rank ${c}">${r}</div><div class="at-th-name">${t.name}</div></div></th>`;
+      h1+=`<th colspan="2"><div class="at-th-inner"><div class="at-th-name">${t.name}</div></div></th>`;
       if(i<N-1)h1+=div(true);
     });
     h1+='</tr>';
