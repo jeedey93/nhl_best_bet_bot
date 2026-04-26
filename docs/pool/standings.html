@@ -386,10 +386,10 @@
   function poolScore(p){const pos=normalizePos(p.position);if(pos==='G')return(p.wins??0)*_scoring.g_wins+(p.shutouts??0)*_scoring.g_shutouts;if(pos==='D')return(p.goals??0)*_scoring.d_goals+(p.assists??0)*_scoring.d_assists;return(p.points??0)*_scoring.f_points;}
   function formatName(n){if(!n)return'';if(n.includes(',')){const[l,f]=n.split(',').map(s=>s.trim());return`${f} ${l}`;}return n;}
   function slugMap(){if(!slugMap._c)slugMap._c=Object.fromEntries(allPlayers.map(p=>[p.puckpedia_slug,p]));return slugMap._c;}
-  function rosterPlayers(rs){const m=slugMap();return{F:rs.F.map(s=>(s&&m[s])?m[s]:null),D:rs.D.map(s=>(s&&m[s])?m[s]:null),G:rs.G.map(s=>(s&&m[s])?m[s]:null),B:(rs.B||Array(6).fill(null)).map(s=>(s&&m[s])?m[s]:null)};}
+  function rosterPlayers(rs){const m=slugMap();return{F:rs.F.map(s=>(s&&m[s])?m[s]:null),D:rs.D.map(s=>(s&&m[s])?m[s]:null),G:rs.G.map(s=>(s&&m[s])?m[s]:null),B:(rs.B||[]).map(s=>(s&&m[s])?m[s]:null)};}
   function teamSubScores(rs){const r=rosterPlayers(rs);return{F:r.F.filter(Boolean).reduce((s,p)=>s+poolScore(p),0),D:r.D.filter(Boolean).reduce((s,p)=>s+poolScore(p),0),G:r.G.filter(Boolean).reduce((s,p)=>s+poolScore(p),0),B:r.B.filter(Boolean).reduce((s,p)=>s+poolScore(p),0)};}
   function teamTotalPts(rs){const s=teamSubScores(rs);return s.F+s.D+s.G+s.B;}
-  function teamCapUsed(rs){const r=rosterPlayers(rs);return[...r.F,...r.D,...r.G,...r.B].filter(Boolean).reduce((s,p)=>s+(p.cap_hit||0),0);}
+  function teamCapUsed(rs){const r=rosterPlayers(rs);return[...r.F,...r.D,...r.G,...(r.B||[])].filter(Boolean).reduce((s,p)=>s+(p.cap_hit||0),0);}
   function teamFilled(rs){return[...rs.F,...rs.D,...rs.G,...(rs.B||[])].filter(Boolean).length;}
   function computePoolAverages(){const a={F:[],D:[],G:[],B:[]};teams.forEach(t=>{const r=rosterPlayers(t.roster);['F','D','G','B'].forEach(pos=>r[pos].filter(Boolean).forEach(p=>a[pos].push(poolScore(p))));});const avg=arr=>arr.length?arr.reduce((a,b)=>a+b,0)/arr.length:0;return{F:avg(a.F),D:avg(a.D),G:avg(a.G),B:avg(a.B)};}
   function allDraftedPlayers(){const l=[];teams.forEach(t=>{const r=rosterPlayers(t.roster);['F','D','G','B'].forEach(pos=>r[pos].filter(Boolean).forEach(p=>l.push({player:p,owner:t.name,pos})));});return l;}
@@ -558,7 +558,7 @@
 
   function buildDetail(team,sorted,leaderPts,avgs){
     const roster=rosterPlayers(team.roster);
-    const allP=[...roster.F,...roster.D,...roster.G,...roster.B].filter(Boolean);
+    const allP=[...roster.F,...roster.D,...roster.G,...(roster.B||[])].filter(Boolean);
     if(!allP.length)return`<div class="msg" style="padding:1.5rem 0;">No players drafted yet.</div>`;
     const totalPts=allP.reduce((s,p)=>s+poolScore(p),0),cap=allP.reduce((s,p)=>s+(p.cap_hit||0),0),filled=allP.length;
     const eff=cap>0?(totalPts/(cap/1e6)).toFixed(1):'—',sub=teamSubScores(team.roster);
