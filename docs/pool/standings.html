@@ -18,71 +18,33 @@
       --pink: #ff7a8a;
       --line: rgba(255,255,255,0.08);
       --nav-h: 44px;
+      --row-f:   rgba(255, 100, 120, 0.13);
+      --row-d:   rgba(80,  160, 255, 0.13);
+      --row-g:   rgba(255, 184,  28, 0.13);
+      --row-sum: rgba(255, 255, 255, 0.06);
     }
-    body {
-      background: var(--rink);
-      background-image: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(26,58,110,0.6) 0%, transparent 70%);
-      min-height: 100vh;
-      font-family: 'Barlow Condensed', sans-serif;
-      color: white;
-      padding-top: var(--nav-h);
-    }
+    body { background: var(--rink); background-image: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(26,58,110,0.6) 0%, transparent 70%); min-height: 100vh; font-family: 'Barlow Condensed', sans-serif; color: white; padding-top: var(--nav-h); }
 
-    /* ── Nav ── */
-    .site-nav {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-      background: rgba(7,17,31,0.92);
-      border-bottom: 1px solid var(--line);
-      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-    }
-    .site-nav-inner {
-      max-width: 1100px; margin: 0 auto;
-      display: flex; align-items: center; justify-content: space-between;
-      height: var(--nav-h); padding: 0 1.5rem;
-    }
+    .site-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(7,17,31,0.92); border-bottom: 1px solid var(--line); backdrop-filter: blur(12px); }
+    .site-nav-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: var(--nav-h); padding: 0 1.5rem; }
     .site-nav-brand { font-family: 'Bebas Neue', cursive; font-size: 1.5rem; color: var(--gold); letter-spacing: 4px; text-decoration: none; }
     .site-nav-links { display: flex; align-items: center; gap: 0.5rem; }
     .site-nav-links a { font-family: 'Barlow Condensed', sans-serif; font-size: 1rem; font-weight: 600; color: var(--silver); text-decoration: none; padding: 0.3rem 0.8rem; border-radius: 5px; letter-spacing: 1.5px; transition: color 0.15s, background 0.15s; }
     .site-nav-links a:hover { color: white; background: rgba(255,255,255,0.07); }
     .site-nav-links a.active { color: var(--gold); background: rgba(255,184,28,0.1); }
 
-    /* ── Page wrap ── */
     .page-wrap { max-width: 980px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
 
-    /* ── Header ── */
     header { text-align: center; margin-bottom: 1.5rem; }
     header h1 { font-family: 'Bebas Neue', cursive; font-size: clamp(1.8rem, 4vw, 2.8rem); letter-spacing: 5px; line-height: 1; text-shadow: 0 0 30px rgba(200,16,46,0.4), 0 2px 8px rgba(0,0,0,0.8); }
     header h1 span { color: var(--gold); }
-    .league-code-badge {
-      display: inline-flex; align-items: center; gap: 0.4rem;
-      margin-top: 0.4rem;
-      font-family: 'Barlow Condensed', sans-serif; font-size: 0.75rem; font-weight: 700;
-      color: var(--silver); letter-spacing: 2px; text-transform: uppercase;
-    }
-    .league-code-badge span {
-      font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 3px;
-      color: var(--gold); background: rgba(255,184,28,0.1); border: 1px solid rgba(255,184,28,0.3);
-      border-radius: 4px; padding: 1px 10px;
-    }
+    .league-code-badge { display: inline-flex; align-items: center; gap: 0.4rem; margin-top: 0.4rem; font-family: 'Barlow Condensed', sans-serif; font-size: 0.75rem; font-weight: 700; color: var(--silver); letter-spacing: 2px; text-transform: uppercase; }
+    .league-code-badge span { font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 3px; color: var(--gold); background: rgba(255,184,28,0.1); border: 1px solid rgba(255,184,28,0.3); border-radius: 4px; padding: 1px 10px; }
 
-    /* ── Podium ── */
-    .podium {
-      display: flex; align-items: flex-end; justify-content: center;
-      gap: 0.75rem; margin-bottom: 2rem;
-    }
-    .podium-block {
-      flex: 1; max-width: 220px; text-align: center;
-      background: rgba(255,255,255,0.03); border: 1px solid var(--line);
-      border-radius: 10px; padding: 1rem 0.75rem 0.85rem;
-      cursor: pointer; transition: background 0.15s, transform 0.15s;
-      position: relative; overflow: hidden;
-    }
+    .podium { display: flex; align-items: flex-end; justify-content: center; gap: 0.75rem; margin-bottom: 2rem; }
+    .podium-block { flex: 1; max-width: 220px; text-align: center; background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 10px; padding: 1rem 0.75rem 0.85rem; cursor: pointer; transition: background 0.15s, transform 0.15s; }
     .podium-block:hover { background: rgba(255,255,255,0.06); transform: translateY(-2px); }
-    .podium-block.first {
-      border-color: rgba(255,184,28,0.35);
-      background: rgba(255,184,28,0.05);
-      box-shadow: 0 0 40px rgba(255,184,28,0.08);
-    }
+    .podium-block.first { border-color: rgba(255,184,28,0.35); background: rgba(255,184,28,0.05); box-shadow: 0 0 40px rgba(255,184,28,0.08); }
     .podium-block.second { border-color: rgba(192,200,212,0.25); }
     .podium-block.third  { border-color: rgba(205,127,50,0.25); }
     .podium-crown { font-size: 1.4rem; margin-bottom: 0.3rem; display: block; line-height: 1; }
@@ -95,18 +57,16 @@
     .podium-pts-label { font-family: 'Barlow Condensed', sans-serif; font-size: 0.65rem; font-weight: 700; color: var(--silver); letter-spacing: 2px; margin-top: 1px; display: block; }
     .podium-gap { font-family: 'Barlow Condensed', sans-serif; font-size: 0.75rem; font-weight: 700; color: rgba(255,255,255,0.3); margin-top: 0.3rem; }
     .podium-breakdown { display: flex; justify-content: center; gap: 0.5rem; margin-top: 0.55rem; }
-    .podium-breakdown-item { font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem; font-weight: 700; border-radius: 3px; padding: 1px 7px; letter-spacing: 0.5px; }
+    .podium-breakdown-item { font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem; font-weight: 700; border-radius: 3px; padding: 1px 7px; }
     .podium-breakdown-item.F { background: rgba(255,122,138,0.12); color: var(--pink); }
     .podium-breakdown-item.D { background: rgba(125,180,255,0.12); color: var(--blue); }
     .podium-breakdown-item.G { background: rgba(255,184,28,0.12); color: var(--gold); }
 
-    /* ── View tabs ── */
     .view-tabs { display: flex; gap: 4px; margin-bottom: 1.25rem; background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 8px; padding: 4px; }
     .view-tab { font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 2px; padding: 5px 14px; border-radius: 5px; cursor: pointer; flex: 1; text-align: center; color: var(--silver); transition: background 0.15s, color 0.15s; }
     .view-tab:hover { color: white; }
     .view-tab.active { background: rgba(255,184,28,0.12); color: var(--gold); }
 
-    /* ── Leaderboard table ── */
     .leaderboard { background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; margin-bottom: 1.75rem; }
     .lb-row { display: grid; grid-template-columns: 36px 1fr 60px 60px 70px 70px 70px; align-items: center; padding: 0.65rem 1rem; gap: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; transition: background 0.15s; }
     .lb-row:last-child { border-bottom: none; }
@@ -115,16 +75,12 @@
     .lb-row.header { background: rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.1); cursor: default; padding: 0.45rem 1rem; }
     .lb-row.header:hover { background: rgba(255,255,255,0.03); }
     .lb-rank { font-family: 'Bebas Neue', cursive; font-size: 1.1rem; letter-spacing: 1px; color: var(--silver); text-align: center; }
-    .lb-rank.gold { color: var(--gold); }
-    .lb-rank.silver { color: #c0c8d4; }
-    .lb-rank.bronze { color: #cd7f32; }
+    .lb-rank.gold { color: var(--gold); } .lb-rank.silver { color: #c0c8d4; } .lb-rank.bronze { color: #cd7f32; }
     .lb-name { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 2px; color: white; }
     .lb-row.active .lb-name { color: var(--gold); }
-    .lb-stat { font-family: 'Barlow Condensed', sans-serif; font-size: 0.85rem; font-weight: 700; color: var(--silver); text-align: right; letter-spacing: 0.5px; }
-    .lb-stat.pts { color: white; font-size: 1rem; }
-    .lb-row.active .lb-stat.pts { color: var(--gold); }
-    .lb-stat.gap { color: rgba(255,80,80,0.7); font-size: 0.8rem; }
-    .lb-stat.gap.leader { color: var(--green); }
+    .lb-stat { font-family: 'Barlow Condensed', sans-serif; font-size: 0.85rem; font-weight: 700; color: var(--silver); text-align: right; }
+    .lb-stat.pts { color: white; font-size: 1rem; } .lb-row.active .lb-stat.pts { color: var(--gold); }
+    .lb-stat.gap { color: rgba(255,80,80,0.7); font-size: 0.8rem; } .lb-stat.gap.leader { color: var(--green); }
     .lb-col-label { font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem; font-weight: 700; color: rgba(255,255,255,0.3); text-align: right; letter-spacing: 2px; text-transform: uppercase; }
     .lb-col-label.left { text-align: left; }
     .lb-subscore { display: flex; gap: 3px; justify-content: flex-end; }
@@ -133,7 +89,6 @@
     .lb-subscore-pill.D { background: rgba(125,180,255,0.1); color: var(--blue); }
     .lb-subscore-pill.G { background: rgba(255,184,28,0.1); color: var(--gold); }
 
-    /* ── Team tabs ── */
     .team-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 1.25rem; }
     .team-tab { font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 2px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); color: var(--silver); border-radius: 7px; padding: 5px 16px; cursor: pointer; flex-shrink: 0; transition: background 0.15s, border-color 0.15s, color 0.15s; white-space: nowrap; }
     .team-tab:hover { background: rgba(255,255,255,0.08); color: white; }
@@ -141,9 +96,7 @@
     .team-tab-pts { font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem; font-weight: 700; color: rgba(255,255,255,0.35); margin-left: 4px; }
     .team-tab.active .team-tab-pts { color: rgba(255,184,28,0.6); }
 
-    /* ── Team detail ── */
-    .team-detail { display: none; }
-    .team-detail.visible { display: block; }
+    .team-detail { display: none; } .team-detail.visible { display: block; }
     .detail-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem; }
     .detail-header-left { display: flex; flex-direction: column; gap: 0.3rem; }
     .detail-title { font-family: 'Bebas Neue', cursive; font-size: 1.5rem; letter-spacing: 3px; color: white; }
@@ -156,13 +109,9 @@
     .detail-badge.eff { background: rgba(125,180,255,0.1); color: var(--blue); border: 1px solid rgba(125,180,255,0.25); }
     .pos-scores-bar { display: flex; gap: 0.5rem; margin-bottom: 1.25rem; }
     .pos-score-block { flex: 1; background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 8px; padding: 0.6rem 0.75rem; text-align: center; }
-    .pos-score-block.F { border-color: rgba(255,122,138,0.2); }
-    .pos-score-block.D { border-color: rgba(125,180,255,0.2); }
-    .pos-score-block.G { border-color: rgba(255,184,28,0.2); }
+    .pos-score-block.F { border-color: rgba(255,122,138,0.2); } .pos-score-block.D { border-color: rgba(125,180,255,0.2); } .pos-score-block.G { border-color: rgba(255,184,28,0.2); }
     .pos-score-val { font-family: 'Bebas Neue', cursive; font-size: 1.6rem; letter-spacing: 2px; line-height: 1; }
-    .pos-score-block.F .pos-score-val { color: var(--pink); }
-    .pos-score-block.D .pos-score-val { color: var(--blue); }
-    .pos-score-block.G .pos-score-val { color: var(--gold); }
+    .pos-score-block.F .pos-score-val { color: var(--pink); } .pos-score-block.D .pos-score-val { color: var(--blue); } .pos-score-block.G .pos-score-val { color: var(--gold); }
     .pos-score-label { font-family: 'Barlow Condensed', sans-serif; font-size: 0.68rem; font-weight: 700; color: var(--silver); letter-spacing: 2px; text-transform: uppercase; margin-top: 2px; }
     .top-scorer-callout { display: flex; align-items: center; gap: 0.6rem; background: rgba(255,184,28,0.06); border: 1px solid rgba(255,184,28,0.2); border-radius: 8px; padding: 0.6rem 0.75rem; margin-bottom: 1.25rem; }
     .top-scorer-icon { font-size: 1.1rem; flex-shrink: 0; }
@@ -170,16 +119,11 @@
     .top-scorer-text strong { color: var(--gold); font-size: 0.95rem; }
     .pos-group { margin-bottom: 1.25rem; }
     .pos-group-label { font-family: 'Bebas Neue', cursive; font-size: 0.8rem; letter-spacing: 3px; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
-    .pos-group-label.F { color: #ff7a8a; }
-    .pos-group-label.D { color: #7db4ff; }
-    .pos-group-label.G { color: var(--gold); }
+    .pos-group-label.F { color: #ff7a8a; } .pos-group-label.D { color: #7db4ff; } .pos-group-label.G { color: var(--gold); }
 
-    /* ── Player row ── */
     .player-row { display: flex; align-items: center; gap: 0.6rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 7px; padding: 0.45rem 0.75rem; margin-bottom: 4px; position: relative; overflow: hidden; }
     .player-row-perf-bar { position: absolute; left: 0; top: 0; bottom: 0; width: 3px; }
-    .player-row-perf-bar.above { background: var(--green); }
-    .player-row-perf-bar.below { background: var(--red); }
-    .player-row-perf-bar.avg   { background: var(--silver); opacity: 0.3; }
+    .player-row-perf-bar.above { background: var(--green); } .player-row-perf-bar.below { background: var(--red); } .player-row-perf-bar.avg { background: var(--silver); opacity: 0.3; }
     .player-row-logo { width: 24px; height: 24px; object-fit: contain; flex-shrink: 0; }
     .player-row-name { font-family: 'Barlow Condensed', sans-serif; font-size: 0.95rem; font-weight: 700; color: white; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .player-row-stat { font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 1px; color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.05); border-radius: 3px; padding: 1px 7px; flex-shrink: 0; }
@@ -188,12 +132,9 @@
     .player-row-pts { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 1px; color: var(--gold); min-width: 40px; text-align: right; flex-shrink: 0; }
     .player-row-pts-label { font-family: 'Barlow Condensed', sans-serif; font-size: 0.65rem; font-weight: 700; color: rgba(255,184,28,0.5); margin-left: 2px; }
     .pos-badge { font-family: 'Bebas Neue', cursive; font-size: 0.7rem; letter-spacing: 1px; border-radius: 3px; padding: 1px 5px; flex-shrink: 0; min-width: 22px; text-align: center; }
-    .pos-badge.F { background: rgba(255,122,138,0.15); color: #ff7a8a; }
-    .pos-badge.D { background: rgba(125,180,255,0.15); color: #7db4ff; }
-    .pos-badge.G { background: rgba(255,184,28,0.15); color: var(--gold); }
+    .pos-badge.F { background: rgba(255,122,138,0.15); color: #ff7a8a; } .pos-badge.D { background: rgba(125,180,255,0.15); color: #7db4ff; } .pos-badge.G { background: rgba(255,184,28,0.15); color: var(--gold); }
     .star-badge { font-size: 0.8rem; flex-shrink: 0; }
 
-    /* ── Pool leaderboards ── */
     .pool-section-title { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 3px; color: var(--silver); margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem; }
     .pool-section-title span { color: white; }
     .pos-leaders-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin-bottom: 1.75rem; }
@@ -204,10 +145,11 @@
     .pos-leader-col-header.D { color: var(--blue); background: rgba(125,180,255,0.05); }
     .pos-leader-col-header.G { color: var(--gold); background: rgba(255,184,28,0.05); }
     .pos-leader-col-header small { font-family: 'Barlow Condensed', sans-serif; font-size: 0.65rem; font-weight: 700; color: rgba(255,255,255,0.25); letter-spacing: 2px; }
-    .pos-leader-row { display: flex; align-items: center; gap: 0.5rem; padding: 0.4rem 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .pos-leader-row { display: flex; align-items: center; gap: 0.4rem; padding: 0.4rem 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.04); }
     .pos-leader-row:last-child { border-bottom: none; }
     .pos-leader-rank { font-family: 'Bebas Neue', cursive; font-size: 0.9rem; color: var(--silver); min-width: 16px; text-align: center; }
     .pos-leader-name { font-family: 'Barlow Condensed', sans-serif; font-size: 0.85rem; font-weight: 700; color: white; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .pos-leader-owner { font-family: 'Barlow Condensed', sans-serif; font-size: 0.68rem; font-weight: 700; color: var(--gold); background: rgba(255,184,28,0.08); border-radius: 3px; padding: 1px 5px; flex-shrink: 0; white-space: nowrap; max-width: 70px; overflow: hidden; text-overflow: ellipsis; }
     .pos-leader-team { font-family: 'Bebas Neue', cursive; font-size: 0.75rem; letter-spacing: 1px; color: var(--silver); flex-shrink: 0; }
     .pos-leader-pts { font-family: 'Bebas Neue', cursive; font-size: 0.95rem; letter-spacing: 1px; color: white; min-width: 28px; text-align: right; flex-shrink: 0; }
     .top-players-list { background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; margin-bottom: 1.75rem; }
@@ -218,96 +160,118 @@
     .top-player-info { display: flex; align-items: center; gap: 0.5rem; min-width: 0; }
     .top-player-logo { width: 20px; height: 20px; object-fit: contain; flex-shrink: 0; }
     .top-player-name { font-family: 'Barlow Condensed', sans-serif; font-size: 0.9rem; font-weight: 700; color: white; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .top-player-owner { font-family: 'Barlow Condensed', sans-serif; font-size: 0.75rem; font-weight: 600; color: var(--gold); background: rgba(255,184,28,0.08); border-radius: 3px; padding: 1px 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .top-player-owner { font-family: 'Barlow Condensed', sans-serif; font-size: 0.75rem; font-weight: 600; color: var(--gold); background: rgba(255,184,28,0.08); border-radius: 3px; padding: 1px 6px; white-space: nowrap; }
     .top-player-stat { font-family: 'Barlow Condensed', sans-serif; font-size: 0.8rem; font-weight: 700; color: var(--silver); text-align: right; }
     .top-player-pts { font-family: 'Bebas Neue', cursive; font-size: 1rem; color: var(--gold); text-align: right; }
 
-    /* ── All Teams Side-by-Side ── */
-    .all-teams-grid-wrap { overflow-x: auto; padding-bottom: 6px; border-radius: 12px; border: 1px solid var(--line); }
-    .roster-grid { display: grid; min-width: max-content; }
-    .rg-team-header {
-      padding: 10px 12px 8px; background: rgba(13,27,50,0.95);
-      border-bottom: 1px solid rgba(255,255,255,0.1);
+    /* ════════ ALL TEAMS SPREADSHEET ════════ */
+    .at-wrap { border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; overflow: hidden; margin-bottom: 1.75rem; }
+    .at-scroll { overflow-x: auto; overflow-y: auto; max-height: 78vh; }
+    .at-table { border-collapse: collapse; min-width: 100%; font-family: 'Barlow Condensed', sans-serif; }
+
+    /* sticky double header */
+    .at-table thead { position: sticky; top: 0; z-index: 10; }
+    .at-table thead tr.at-head-row th {
+      background: #0c1d32;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      border-right: 1px solid rgba(255,255,255,0.07);
+      padding: 0; vertical-align: bottom;
+    }
+    .at-table thead tr.at-head-row th:last-child { border-right: none; }
+    .at-table thead tr.at-subhead-row th {
+      background: #0a1828;
+      border-bottom: 2px solid rgba(255,255,255,0.12);
       border-right: 1px solid rgba(255,255,255,0.06);
-      text-align: center; position: sticky; top: 0; z-index: 2;
+      padding: 3px 8px 4px;
+      font-size: 0.6rem; font-weight: 700; letter-spacing: 1.5px;
+      color: rgba(255,255,255,0.25); text-transform: uppercase; white-space: nowrap;
     }
-    .rg-team-header:last-child { border-right: none; }
-    .rg-team-name { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 2px; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px; }
-    .rg-team-pts { font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem; font-weight: 700; color: var(--silver); margin-top: 1px; letter-spacing: 0.5px; }
-    .rg-team-rank { font-family: 'Bebas Neue', cursive; font-size: 0.7rem; letter-spacing: 1px; margin-bottom: 2px; }
-    .rg-team-rank.r1 { color: var(--gold); }
-    .rg-team-rank.r2 { color: #c0c8d4; }
-    .rg-team-rank.r3 { color: #cd7f32; }
-    .rg-team-rank.rn { color: var(--silver); opacity: 0.5; }
-    .rg-sec-span {
-      grid-column: 1 / -1; padding: 5px 12px;
-      background: rgba(0,0,0,0.4);
-      border-top: 1px solid rgba(255,255,255,0.08);
-      border-bottom: 1px solid rgba(255,255,255,0.05);
-      font-family: 'Bebas Neue', cursive; font-size: 0.7rem; letter-spacing: 3px;
-    }
-    .rg-sec-span.F { color: var(--pink); }
-    .rg-sec-span.D { color: var(--blue); }
-    .rg-sec-span.G { color: var(--gold); }
-    .rg-cell {
-      padding: 5px 10px; min-width: 150px; max-width: 180px;
-      border-right: 1px solid rgba(255,255,255,0.04);
-      border-bottom: 1px solid rgba(255,255,255,0.04);
-    }
-    .rg-cell:last-child { border-right: none; }
-    .rg-cell.section-start { border-top: 1px solid rgba(255,255,255,0.06); }
-    .rg-cell.empty-slot { background: rgba(255,255,255,0.01); }
-    .rg-player-name { font-family: 'Barlow Condensed', sans-serif; font-size: 0.88rem; font-weight: 700; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .rg-player-nhl { font-family: 'Bebas Neue', cursive; font-size: 0.68rem; letter-spacing: 1px; color: rgba(255,255,255,0.3); margin-top: 1px; }
-    .rg-player-meta { display: flex; align-items: center; gap: 4px; margin-top: 3px; flex-wrap: wrap; }
-    .rg-sal { font-family: 'Barlow Condensed', sans-serif; font-size: 0.68rem; font-weight: 700; color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.05); border-radius: 3px; padding: 1px 5px; }
-    .rg-pts { font-family: 'Bebas Neue', cursive; font-size: 0.72rem; letter-spacing: 1px; color: var(--gold); background: rgba(255,184,28,0.1); border-radius: 3px; padding: 1px 5px; }
-    .rg-empty { font-family: 'Barlow Condensed', sans-serif; font-size: 0.75rem; color: rgba(255,255,255,0.12); font-style: italic; padding: 3px 0; }
+    .at-table thead tr.at-subhead-row th.r { text-align: right; }
+    .at-table thead tr.at-subhead-row th:last-child { border-right: none; }
 
-    /* ── Empty / loading ── */
+    .at-th-inner { padding: 8px 10px 7px; text-align: center; }
+    .at-th-rank { font-family: 'Bebas Neue', cursive; font-size: 0.65rem; letter-spacing: 1px; margin-bottom: 1px; }
+    .at-th-rank.r1 { color: var(--gold); } .at-th-rank.r2 { color: #b8c4d0; } .at-th-rank.r3 { color: #cd7f32; } .at-th-rank.rn { color: rgba(255,255,255,0.22); }
+    .at-th-name { font-family: 'Bebas Neue', cursive; font-size: 0.95rem; letter-spacing: 2px; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 140px; }
+    .at-th-pts { font-family: 'Barlow Condensed', sans-serif; font-size: 0.62rem; font-weight: 700; color: rgba(255,255,255,0.32); letter-spacing: 0.5px; margin-top: 1px; }
+    .at-th-subs { display: flex; justify-content: center; gap: 3px; margin-top: 3px; }
+    .at-th-sub { font-family: 'Barlow Condensed', sans-serif; font-size: 0.58rem; font-weight: 700; border-radius: 2px; padding: 1px 4px; }
+    .at-th-sub.F { background: rgba(255,122,138,0.12); color: #ff7a8a; }
+    .at-th-sub.D { background: rgba(125,180,255,0.12); color: #7db4ff; }
+    .at-th-sub.G { background: rgba(255,184,28,0.12); color: #ffb81c; }
+
+    /* divider column */
+    .at-table th.at-div, .at-table td.at-div { width: 2px; min-width: 2px; max-width: 2px; background: rgba(255,255,255,0.08) !important; padding: 0; border: none !important; }
+
+    /* body */
+    .at-table tbody tr { border-bottom: 1px solid rgba(255,255,255,0.03); transition: filter 0.1s; }
+    .at-table tbody tr:hover { filter: brightness(1.14); }
+
+    /* section header */
+    .at-table tbody tr.at-sec td { padding: 4px 12px 3px; font-family: 'Bebas Neue', cursive; font-size: 0.65rem; letter-spacing: 3px; border-top: 1px solid rgba(255,255,255,0.08); border-bottom: 1px solid rgba(255,255,255,0.06); background: rgba(0,0,0,0.4) !important; }
+    .at-table tbody tr.at-sec.F td { color: var(--pink); }
+    .at-table tbody tr.at-sec.D td { color: var(--blue); }
+    .at-table tbody tr.at-sec.G td { color: var(--gold); }
+
+    /* totals */
+    .at-table tbody tr.at-tot td { background: var(--row-sum) !important; border-top: 1px solid rgba(255,255,255,0.1); }
+    .at-table tbody tr.at-tot td.lbl { font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem; font-weight: 700; letter-spacing: 1px; color: rgba(255,255,255,0.35); padding: 5px 6px 5px 10px; white-space: nowrap; }
+    .at-table tbody tr.at-tot td.val { font-family: 'Bebas Neue', cursive; font-size: 0.82rem; letter-spacing: 1px; color: white; text-align: right; padding: 5px 10px 5px 4px; white-space: nowrap; }
+    .at-table tbody tr.at-tot td.val.g { color: var(--gold); }
+
+    /* position-tinted rows */
+    tr.rF td { background-color: var(--row-f); }
+    tr.rD td { background-color: var(--row-d); }
+    tr.rG td { background-color: var(--row-g); }
+
+    /* player cells */
+    td.pn { /* name */
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.82rem; font-weight: 700;
+      color: white; padding: 4px 6px 4px 10px;
+      white-space: nowrap; max-width: 148px; overflow: hidden; text-overflow: ellipsis;
+    }
+    td.ps { /* salary */
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.78rem; font-weight: 700;
+      color: rgba(255,255,255,0.38); text-align: right;
+      padding: 4px 8px 4px 2px; white-space: nowrap;
+    }
+    td.pp { /* pool pts */
+      font-family: 'Bebas Neue', cursive; font-size: 0.8rem; letter-spacing: 1px;
+      color: var(--gold); text-align: right;
+      padding: 4px 10px 4px 2px; white-space: nowrap;
+    }
+    td.pe { /* empty */
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem;
+      color: rgba(255,255,255,0.1); font-style: italic; padding: 4px 10px;
+    }
+    td.pn .nhl { opacity: 0.32; font-size: 0.72em; }
+
     .msg { text-align: center; color: var(--silver); font-size: 0.9rem; letter-spacing: 1px; padding: 3rem 0; }
-
-    /* ── Refresh button ── */
-    .btn-refresh { font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 2px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); color: var(--silver); border-radius: 6px; padding: 4px 14px; cursor: pointer; transition: background 0.15s, color 0.15s; }
+    .btn-refresh { font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 2px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); color: var(--silver); border-radius: 6px; padding: 4px 14px; cursor: pointer; }
     .btn-refresh:hover { background: rgba(255,255,255,0.1); color: white; }
 
-    /* ── Responsive ── */
     @media (max-width: 600px) {
       .lb-row { grid-template-columns: 30px 1fr 50px 60px; }
-      .lb-row .lb-stat:nth-child(3), .lb-row .lb-col-label:nth-child(3) { display: none; }
       .podium { gap: 0.4rem; }
       .pos-scores-bar { flex-wrap: wrap; }
-      .view-tab { font-size: 0.7rem; letter-spacing: 1px; padding: 5px 6px; }
+      .view-tab { font-size: 0.68rem; letter-spacing: 1px; padding: 5px 5px; }
     }
-
-    /* ── Desktop scale-up ── */
     @media (min-width: 861px) {
       .page-wrap { padding: 2rem 1.5rem 4rem; }
       header h1 { font-size: clamp(2.4rem, 4vw, 3.4rem); }
       .podium-block { padding: 1.4rem 1rem 1.1rem; }
-      .podium-crown { font-size: 1.8rem; }
-      .podium-rank { font-size: 2.6rem; }
-      .podium-name { font-size: 1.25rem; }
-      .podium-pts { font-size: 2.4rem; }
+      .podium-rank { font-size: 2.6rem; } .podium-name { font-size: 1.25rem; } .podium-pts { font-size: 2.4rem; }
       .view-tab { font-size: 1rem; padding: 7px 20px; }
-      .lb-row { padding: 0.85rem 1.25rem; gap: 0.75rem; }
-      .lb-row.header { padding: 0.55rem 1.25rem; }
-      .lb-rank { font-size: 1.3rem; }
-      .lb-name { font-size: 1.15rem; }
-      .lb-stat { font-size: 1rem; }
-      .lb-stat.pts { font-size: 1.2rem; }
+      .lb-row { padding: 0.85rem 1.25rem; } .lb-rank { font-size: 1.3rem; } .lb-name { font-size: 1.15rem; }
+      .lb-stat { font-size: 1rem; } .lb-stat.pts { font-size: 1.2rem; }
       .team-tab { font-size: 1rem; padding: 7px 20px; }
-      .detail-title { font-size: 1.9rem; }
-      .pos-score-val { font-size: 2rem; }
-      .player-row { padding: 0.6rem 1rem; gap: 0.75rem; margin-bottom: 6px; }
-      .player-row-logo { width: 30px; height: 30px; }
-      .player-row-name { font-size: 1.1rem; }
-      .rg-cell { min-width: 165px; max-width: 200px; padding: 6px 12px; }
-      .rg-player-name { font-size: 0.95rem; }
-      .rg-team-name { font-size: 1.1rem; }
+      .detail-title { font-size: 1.9rem; } .pos-score-val { font-size: 2rem; }
+      .player-row { padding: 0.6rem 1rem; } .player-row-logo { width: 30px; height: 30px; } .player-row-name { font-size: 1.1rem; }
+      td.pn { font-size: 0.9rem; max-width: 165px; padding: 5px 6px 5px 12px; }
+      td.ps { font-size: 0.85rem; } td.pp { font-size: 0.88rem; }
+      .at-th-name { font-size: 1.05rem; }
     }
 
-    /* ── Password gate ── */
     #pw-gate { position:fixed;inset:0;z-index:9999;background:var(--rink);display:flex;align-items:center;justify-content:center;background-image:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(26,58,110,0.6) 0%,transparent 70%); }
     .pw-box { background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:2.5rem 2rem;width:320px;max-width:90vw;text-align:center; }
     .pw-box h2 { font-family:'Bebas Neue',cursive;font-size:1.8rem;color:var(--gold);letter-spacing:3px;margin-bottom:0.3rem; }
@@ -334,26 +298,13 @@
 </div>
 <script>
   (function(){
-    if(sessionStorage.getItem('pool_auth')==='1'){
-      document.getElementById('pw-gate').style.display='none';
-    }
-    document.getElementById('pw-input').addEventListener('keydown',function(e){
-      if(e.key==='Enter') checkPw();
-    });
+    if(sessionStorage.getItem('pool_auth')==='1') document.getElementById('pw-gate').style.display='none';
+    document.getElementById('pw-input').addEventListener('keydown',e=>{ if(e.key==='Enter') checkPw(); });
   })();
   function checkPw(){
-    const input=document.getElementById('pw-input');
-    const err=document.getElementById('pw-error');
-    if(input.value==='parieur2026'){
-      sessionStorage.setItem('pool_auth','1');
-      document.getElementById('pw-gate').style.display='none';
-    }else{
-      input.classList.add('error');
-      err.textContent='Incorrect password.';
-      setTimeout(()=>input.classList.remove('error'),400);
-      input.value='';
-      input.focus();
-    }
+    const i=document.getElementById('pw-input'),e=document.getElementById('pw-error');
+    if(i.value==='parieur2026'){ sessionStorage.setItem('pool_auth','1'); document.getElementById('pw-gate').style.display='none'; }
+    else { i.classList.add('error'); e.textContent='Incorrect password.'; setTimeout(()=>i.classList.remove('error'),400); i.value=''; i.focus(); }
   }
 </script>
 
@@ -373,9 +324,7 @@
 <div class="page-wrap">
   <header>
     <h1>Pool <span>Standings</span></h1>
-    <div class="league-code-badge" id="league-badge-row" style="display:none">
-      League <span id="league-badge">—</span>
-    </div>
+    <div class="league-code-badge" id="league-badge-row" style="display:none">League <span id="league-badge">—</span></div>
   </header>
   <div id="content"><div class="msg">Loading…</div></div>
 </div>
@@ -385,561 +334,248 @@
   const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZpZnVycWxpdGt5d3RtaGd0emV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3MDIyMjQsImV4cCI6MjA5MjI3ODIyNH0.KPVPj1qwbSJJMyLR_-AhDcRs0vi2sUU6qbFQ-kH53C0';
 
   const TEAM_ABBR = {
-    'anaheim-ducks':'ANA','boston-bruins':'BOS','buffalo-sabres':'BUF',
-    'calgary-flames':'CGY','carolina-hurricanes':'CAR','chicago-blackhawks':'CHI',
-    'colorado-avalanche':'COL','columbus-blue-jackets':'CBJ','dallas-stars':'DAL',
-    'detroit-red-wings':'DET','edmonton-oilers':'EDM','florida-panthers':'FLA',
-    'los-angeles-kings':'LAK','minnesota-wild':'MIN','montreal-canadiens':'MTL',
-    'nashville-predators':'NSH','new-jersey-devils':'NJD','new-york-islanders':'NYI',
-    'new-york-rangers':'NYR','ottawa-senators':'OTT','philadelphia-flyers':'PHI',
-    'pittsburgh-penguins':'PIT','san-jose-sharks':'SJS','seattle-kraken':'SEA',
-    'st-louis-blues':'STL','tampa-bay-lightning':'TBL','toronto-maple-leafs':'TOR',
-    'utah-hockey-club':'UTA','vancouver-canucks':'VAN','vegas-golden-knights':'VGK',
-    'washington-capitals':'WSH','winnipeg-jets':'WPG',
+    'anaheim-ducks':'ANA','boston-bruins':'BOS','buffalo-sabres':'BUF','calgary-flames':'CGY',
+    'carolina-hurricanes':'CAR','chicago-blackhawks':'CHI','colorado-avalanche':'COL',
+    'columbus-blue-jackets':'CBJ','dallas-stars':'DAL','detroit-red-wings':'DET',
+    'edmonton-oilers':'EDM','florida-panthers':'FLA','los-angeles-kings':'LAK',
+    'minnesota-wild':'MIN','montreal-canadiens':'MTL','nashville-predators':'NSH',
+    'new-jersey-devils':'NJD','new-york-islanders':'NYI','new-york-rangers':'NYR',
+    'ottawa-senators':'OTT','philadelphia-flyers':'PHI','pittsburgh-penguins':'PIT',
+    'san-jose-sharks':'SJS','seattle-kraken':'SEA','st-louis-blues':'STL',
+    'tampa-bay-lightning':'TBL','toronto-maple-leafs':'TOR','utah-hockey-club':'UTA',
+    'vancouver-canucks':'VAN','vegas-golden-knights':'VGK','washington-capitals':'WSH','winnipeg-jets':'WPG',
   };
 
-  const _leagueCode = new URLSearchParams(window.location.search).get('league') || null;
+  const _leagueCode = new URLSearchParams(window.location.search).get('league')||null;
   if (!_leagueCode) window.location.replace('/pool');
 
-  let allPlayers = [];
-  let teams = [];
-  let activeTeamId = null;
-  let activeView = 'standings'; // 'standings' | 'team' | 'pool' | 'allteams'
+  let allPlayers=[], teams=[], activeTeamId=null;
+  let activeView = sessionStorage.getItem('pool_view')||'standings';
 
-  document.getElementById('nav-draft').href = `/pool/join?league=${_leagueCode}`;
-  document.getElementById('nav-live-draft').href = `/pool/live-draft?league=${_leagueCode}`;
-  document.getElementById('nav-standings').href = `/pool/standings?league=${_leagueCode}`;
-  document.getElementById('nav-settings').href = `/pool/settings?league=${_leagueCode}`;
+  document.getElementById('nav-draft').href       = `/pool/join?league=${_leagueCode}`;
+  document.getElementById('nav-live-draft').href  = `/pool/live-draft?league=${_leagueCode}`;
+  document.getElementById('nav-standings').href   = `/pool/standings?league=${_leagueCode}`;
+  document.getElementById('nav-settings').href    = `/pool/settings?league=${_leagueCode}`;
   document.getElementById('league-badge').textContent = _leagueCode;
-  document.getElementById('league-badge-row').style.display = '';
+  document.getElementById('league-badge-row').style.display='';
 
-  fetch(`${SUPABASE_URL}/rest/v1/pool_leagues?code=eq.${_leagueCode}&select=name`, {
-    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
-  }).then(r => r.json()).then(rows => {
-    const name = rows[0]?.name;
-    if (name) document.getElementById('league-badge').textContent = `${name} · ${_leagueCode}`;
-  }).catch(() => {});
+  fetch(`${SUPABASE_URL}/rest/v1/pool_leagues?code=eq.${_leagueCode}&select=name`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}})
+    .then(r=>r.json()).then(rows=>{ const n=rows[0]?.name; if(n) document.getElementById('league-badge').textContent=`${n} · ${_leagueCode}`; }).catch(()=>{});
 
-  // ── Scoring ──────────────────────────────────────────────────────────────
-  let _scoring = { f_points: 1, d_goals: 1, d_assists: 1, g_wins: 2, g_shutouts: 3 };
-
-  async function loadScoringSettings() {
-    try {
-      const res = await fetch(
-        `${SUPABASE_URL}/rest/v1/pool_settings?league_code=eq.${_leagueCode}&select=f_points,d_goals,d_assists,g_wins,g_shutouts`,
-        { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
-      );
-      if (res.ok) {
-        const rows = await res.json();
-        if (rows.length) _scoring = { ..._scoring, ...rows[0] };
-      }
-    } catch(e) {}
+  let _scoring={f_points:1,d_goals:1,d_assists:1,g_wins:2,g_shutouts:3};
+  async function loadScoringSettings(){
+    try{
+      const r=await fetch(`${SUPABASE_URL}/rest/v1/pool_settings?league_code=eq.${_leagueCode}&select=f_points,d_goals,d_assists,g_wins,g_shutouts`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
+      if(r.ok){const rows=await r.json();if(rows.length)_scoring={..._scoring,...rows[0]};}
+    }catch(e){}
   }
 
-  function normalizePos(pos) {
-    if (!pos) return 'F';
-    const p = pos.toUpperCase();
-    if (p.includes('G')) return 'G';
-    if (p === 'D' || p.includes('LD') || p.includes('RD')) return 'D';
-    return 'F';
-  }
+  function normalizePos(pos){if(!pos)return'F';const p=pos.toUpperCase();if(p.includes('G'))return'G';if(p==='D'||p.includes('LD')||p.includes('RD'))return'D';return'F';}
+  function poolScore(p){const pos=normalizePos(p.position);if(pos==='G')return(p.wins??0)*_scoring.g_wins+(p.shutouts??0)*_scoring.g_shutouts;if(pos==='D')return(p.goals??0)*_scoring.d_goals+(p.assists??0)*_scoring.d_assists;return(p.points??0)*_scoring.f_points;}
+  function formatName(n){if(!n)return'';if(n.includes(',')){const[l,f]=n.split(',').map(s=>s.trim());return`${f} ${l}`;}return n;}
+  function slugMap(){if(!slugMap._c)slugMap._c=Object.fromEntries(allPlayers.map(p=>[p.puckpedia_slug,p]));return slugMap._c;}
+  function rosterPlayers(rs){const m=slugMap();return{F:rs.F.map(s=>(s&&m[s])?m[s]:null),D:rs.D.map(s=>(s&&m[s])?m[s]:null),G:rs.G.map(s=>(s&&m[s])?m[s]:null)};}
+  function teamSubScores(rs){const r=rosterPlayers(rs);return{F:r.F.filter(Boolean).reduce((s,p)=>s+poolScore(p),0),D:r.D.filter(Boolean).reduce((s,p)=>s+poolScore(p),0),G:r.G.filter(Boolean).reduce((s,p)=>s+poolScore(p),0)};}
+  function teamTotalPts(rs){const s=teamSubScores(rs);return s.F+s.D+s.G;}
+  function teamCapUsed(rs){const r=rosterPlayers(rs);return[...r.F,...r.D,...r.G].filter(Boolean).reduce((s,p)=>s+(p.cap_hit||0),0);}
+  function teamFilled(rs){return[...rs.F,...rs.D,...rs.G].filter(Boolean).length;}
+  function computePoolAverages(){const a={F:[],D:[],G:[]};teams.forEach(t=>{const r=rosterPlayers(t.roster);['F','D','G'].forEach(pos=>r[pos].filter(Boolean).forEach(p=>a[pos].push(poolScore(p))));});const avg=arr=>arr.length?arr.reduce((a,b)=>a+b,0)/arr.length:0;return{F:avg(a.F),D:avg(a.D),G:avg(a.G)};}
+  function allDraftedPlayers(){const l=[];teams.forEach(t=>{const r=rosterPlayers(t.roster);['F','D','G'].forEach(pos=>r[pos].filter(Boolean).forEach(p=>l.push({player:p,owner:t.name,pos})));});return l;}
 
-  function poolScore(p) {
-    const pos = normalizePos(p.position);
-    if (pos === 'G') return (p.wins ?? 0) * _scoring.g_wins + (p.shutouts ?? 0) * _scoring.g_shutouts;
-    if (pos === 'D') return (p.goals ?? 0) * _scoring.d_goals + (p.assists ?? 0) * _scoring.d_assists;
-    return (p.points ?? 0) * _scoring.f_points;
-  }
-
-  function formatName(name) {
-    if (!name) return '';
-    if (name.includes(',')) {
-      const [last, first] = name.split(',').map(s => s.trim());
-      return `${first} ${last}`;
-    }
-    return name;
-  }
-
-  function slugMap() {
-    if (!slugMap._cache) slugMap._cache = Object.fromEntries(allPlayers.map(p => [p.puckpedia_slug, p]));
-    return slugMap._cache;
-  }
-
-  function rosterPlayers(rosterSlugs) {
-    const bySlug = slugMap();
-    return {
-      F: rosterSlugs.F.map(s => (s && bySlug[s]) ? bySlug[s] : null),
-      D: rosterSlugs.D.map(s => (s && bySlug[s]) ? bySlug[s] : null),
-      G: rosterSlugs.G.map(s => (s && bySlug[s]) ? bySlug[s] : null),
-    };
-  }
-
-  function teamSubScores(rosterSlugs) {
-    const r = rosterPlayers(rosterSlugs);
-    return {
-      F: r.F.filter(Boolean).reduce((s, p) => s + poolScore(p), 0),
-      D: r.D.filter(Boolean).reduce((s, p) => s + poolScore(p), 0),
-      G: r.G.filter(Boolean).reduce((s, p) => s + poolScore(p), 0),
-    };
-  }
-
-  function teamTotalPts(rosterSlugs) {
-    const sub = teamSubScores(rosterSlugs);
-    return sub.F + sub.D + sub.G;
-  }
-
-  function teamCapUsed(rosterSlugs) {
-    const r = rosterPlayers(rosterSlugs);
-    return [...r.F, ...r.D, ...r.G].filter(Boolean).reduce((s, p) => s + (p.cap_hit || 0), 0);
-  }
-
-  function teamFilled(rosterSlugs) {
-    return [...rosterSlugs.F, ...rosterSlugs.D, ...rosterSlugs.G].filter(Boolean).length;
-  }
-
-  function computePoolAverages() {
-    const allDrafted = { F: [], D: [], G: [] };
-    teams.forEach(t => {
-      const r = rosterPlayers(t.roster);
-      ['F','D','G'].forEach(pos => r[pos].filter(Boolean).forEach(p => allDrafted[pos].push(poolScore(p))));
-    });
-    const avg = (arr) => arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : 0;
-    return { F: avg(allDrafted.F), D: avg(allDrafted.D), G: avg(allDrafted.G) };
-  }
-
-  function allDraftedPlayers() {
-    const list = [];
-    teams.forEach(t => {
-      const r = rosterPlayers(t.roster);
-      ['F','D','G'].forEach(pos => {
-        r[pos].filter(Boolean).forEach(p => { list.push({ player: p, owner: t.name, pos }); });
-      });
-    });
-    return list;
-  }
-
-  // ── Load ─────────────────────────────────────────────────────────────────
-  async function load() {
+  async function load(){
     await loadScoringSettings();
-    try {
-      const cached = sessionStorage.getItem('hp_players');
-      if (cached) {
-        allPlayers = JSON.parse(cached);
-      } else {
-        const res = await fetch(
-          `${SUPABASE_URL}/rest/v1/nhl_players?select=puckpedia_slug,player_name,position,cap_hit,team,goals,assists,points,wins,shutouts,games_played&order=cap_hit.desc&limit=1000`,
-          { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
-        );
-        if (!res.ok) throw new Error(res.status);
-        allPlayers = await res.json();
-        sessionStorage.setItem('hp_players', JSON.stringify(allPlayers));
+    try{
+      const cached=sessionStorage.getItem('hp_players');
+      if(cached){allPlayers=JSON.parse(cached);}
+      else{
+        const res=await fetch(`${SUPABASE_URL}/rest/v1/nhl_players?select=puckpedia_slug,player_name,position,cap_hit,team,goals,assists,points,wins,shutouts,games_played&order=cap_hit.desc&limit=1000`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
+        if(!res.ok)throw new Error(res.status);
+        allPlayers=await res.json();
+        sessionStorage.setItem('hp_players',JSON.stringify(allPlayers));
       }
-      slugMap._cache = null;
-
-      const rRes = await fetch(
-        `${SUPABASE_URL}/rest/v1/pool_rosters?league_code=eq.${_leagueCode}&select=data`,
-        { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
-      );
-      if (!rRes.ok) throw new Error(rRes.status);
-      const rows = await rRes.json();
-      if (!rows.length || !rows[0].data?.teams?.length) {
-        document.getElementById('content').innerHTML = '<div class="msg">No teams saved yet. Go build your pool!</div>';
-        return;
-      }
-      teams = rows[0].data.teams.map(t => ({
-        id: t.id,
-        name: t.name || 'Team',
-        roster: {
-          F: Array.isArray(t.roster?.F) ? t.roster.F : Array(12).fill(null),
-          D: Array.isArray(t.roster?.D) ? t.roster.D : Array(6).fill(null),
-          G: Array.isArray(t.roster?.G) ? t.roster.G : Array(2).fill(null),
-        }
-      }));
-
-      const sorted = [...teams].sort((a, b) => teamTotalPts(b.roster) - teamTotalPts(a.roster));
-      activeTeamId = sorted[0]?.id || teams[0]?.id;
+      slugMap._c=null;
+      const rRes=await fetch(`${SUPABASE_URL}/rest/v1/pool_rosters?league_code=eq.${_leagueCode}&select=data`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
+      if(!rRes.ok)throw new Error(rRes.status);
+      const rows=await rRes.json();
+      if(!rows.length||!rows[0].data?.teams?.length){document.getElementById('content').innerHTML='<div class="msg">No teams saved yet. Go build your pool!</div>';return;}
+      teams=rows[0].data.teams.map(t=>({id:t.id,name:t.name||'Team',roster:{F:Array.isArray(t.roster?.F)?t.roster.F:Array(12).fill(null),D:Array.isArray(t.roster?.D)?t.roster.D:Array(6).fill(null),G:Array.isArray(t.roster?.G)?t.roster.G:Array(2).fill(null)}}));
+      const sorted=[...teams].sort((a,b)=>teamTotalPts(b.roster)-teamTotalPts(a.roster));
+      activeTeamId=sorted[0]?.id||teams[0]?.id;
       render();
-    } catch(e) {
-      document.getElementById('content').innerHTML = `<div class="msg">Failed to load. <button class="btn-refresh" onclick="load()">Retry</button></div>`;
-    }
+    }catch(e){document.getElementById('content').innerHTML=`<div class="msg">Failed to load. <button class="btn-refresh" onclick="load()">Retry</button></div>`;}
   }
 
-  // ── Render ────────────────────────────────────────────────────────────────
-  function render() {
-    const sorted = [...teams].sort((a, b) => teamTotalPts(b.roster) - teamTotalPts(a.roster));
-    const leaderPts = sorted.length ? teamTotalPts(sorted[0].roster) : 0;
-    const avgs = computePoolAverages();
-
-    const podiumHtml = buildPodium(sorted, leaderPts);
-
-    const viewTabsHtml = `
+  function render(){
+    const sorted=[...teams].sort((a,b)=>teamTotalPts(b.roster)-teamTotalPts(a.roster));
+    const leaderPts=sorted.length?teamTotalPts(sorted[0].roster):0;
+    const avgs=computePoolAverages();
+    const activeTeam=teams.find(t=>t.id===activeTeamId);
+    document.getElementById('content').innerHTML=`
+      ${buildPodium(sorted,leaderPts)}
       <div class="view-tabs">
         <div class="view-tab ${activeView==='standings'?'active':''}" onclick="setView('standings')">Standings</div>
         <div class="view-tab ${activeView==='allteams'?'active':''}" onclick="setView('allteams')">All Teams</div>
         <div class="view-tab ${activeView==='team'?'active':''}" onclick="setView('team')">Team Detail</div>
         <div class="view-tab ${activeView==='pool'?'active':''}" onclick="setView('pool')">Pool Leaders</div>
       </div>
-    `;
-
-    const lbHtml = buildLeaderboard(sorted, leaderPts);
-
-    const tabsHtml = `<div class="team-tabs">${sorted.map(t => {
-      const pts = teamTotalPts(t.roster);
-      return `<div class="team-tab ${t.id===activeTeamId?'active':''}" onclick="selectTeam('${t.id}')">
-        ${t.name}<span class="team-tab-pts">${pts}pts</span>
-      </div>`;
-    }).join('')}</div>`;
-
-    const activeTeam = teams.find(t => t.id === activeTeamId);
-    const detailHtml = activeTeam ? buildDetail(activeTeam, sorted, leaderPts, avgs) : '';
-
-    const poolLeadersHtml = buildPoolLeaders();
-    const allTeamsHtml = buildAllTeams(sorted);
-
-    document.getElementById('content').innerHTML = `
-      ${podiumHtml}
-      ${viewTabsHtml}
-      <div id="view-standings" style="display:${activeView==='standings'?'block':'none'}">
-        ${lbHtml}
+      <div id="view-standings" style="display:${activeView==='standings'?'block':'none'}">${buildLeaderboard(sorted,leaderPts)}</div>
+      <div id="view-allteams"  style="display:${activeView==='allteams'?'block':'none'}">${buildAllTeams(sorted)}</div>
+      <div id="view-team"      style="display:${activeView==='team'?'block':'none'}">
+        <div class="team-tabs">${sorted.map(t=>`<div class="team-tab ${t.id===activeTeamId?'active':''}" onclick="selectTeam('${t.id}')">${t.name}<span class="team-tab-pts">${teamTotalPts(t.roster)}pts</span></div>`).join('')}</div>
+        <div class="team-detail visible">${activeTeam?buildDetail(activeTeam,sorted,leaderPts,avgs):''}</div>
       </div>
-      <div id="view-allteams" style="display:${activeView==='allteams'?'block':'none'}">
-        ${allTeamsHtml}
-      </div>
-      <div id="view-team" style="display:${activeView==='team'?'block':'none'}">
-        ${tabsHtml}
-        <div class="team-detail visible" id="team-detail">${detailHtml}</div>
-      </div>
-      <div id="view-pool" style="display:${activeView==='pool'?'block':'none'}">
-        ${poolLeadersHtml}
-      </div>
+      <div id="view-pool" style="display:${activeView==='pool'?'block':'none'}">${buildPoolLeaders()}</div>
     `;
   }
+  function setView(v){activeView=v;sessionStorage.setItem('pool_view',v);render();}
+  function selectTeam(id){activeTeamId=id;activeView='team';sessionStorage.setItem('pool_view','team');render();}
 
-  function setView(v) { activeView = v; render(); }
-  function selectTeam(id) { activeTeamId = id; activeView = 'team'; render(); }
+  function buildPodium(sorted,leaderPts){
+    const medals=['🥇','🥈','🥉'],cls=['first','second','third'];
+    const order=sorted.length>=3?[sorted[1],sorted[0],sorted[2]]:sorted;
+    const oi=sorted.length>=3?[1,0,2]:sorted.map((_,i)=>i);
+    return`<div class="podium">${order.map((t,i)=>{if(!t)return'';const ri=oi[i],pts=teamTotalPts(t.roster),sub=teamSubScores(t.roster),gap=ri===0?'':`−${leaderPts-pts} from 1st`;
+      return`<div class="podium-block ${cls[ri]}" onclick="selectTeam('${t.id}');setView('team')"><span class="podium-crown">${medals[ri]}</span><div class="podium-rank">#${ri+1}</div><div class="podium-name">${t.name}</div><div class="podium-pts">${pts}<span class="podium-pts-label">POOL PTS</span></div>${gap?`<div class="podium-gap">${gap}</div>`:''}<div class="podium-breakdown"><span class="podium-breakdown-item F">F ${sub.F}</span><span class="podium-breakdown-item D">D ${sub.D}</span><span class="podium-breakdown-item G">G ${sub.G}</span></div></div>`;
+    }).join('')}</div>`;}
 
-  // ── Podium ────────────────────────────────────────────────────────────────
-  function buildPodium(sorted, leaderPts) {
-    const medals = ['🥇','🥈','🥉'];
-    const cls = ['first','second','third'];
-    const order = sorted.length >= 3 ? [sorted[1], sorted[0], sorted[2]] : sorted;
-    const orderIdx = sorted.length >= 3 ? [1,0,2] : sorted.map((_,i)=>i);
-
-    return `<div class="podium">
-      ${order.map((t, i) => {
-        if (!t) return '';
-        const realIdx = orderIdx[i];
-        const pts = teamTotalPts(t.roster);
-        const sub = teamSubScores(t.roster);
-        const gap = realIdx === 0 ? '' : `−${leaderPts - pts} from 1st`;
-        return `<div class="podium-block ${cls[realIdx]}" onclick="selectTeam('${t.id}'); setView('team')">
-          <span class="podium-crown">${medals[realIdx]}</span>
-          <div class="podium-rank">#${realIdx+1}</div>
-          <div class="podium-name">${t.name}</div>
-          <div class="podium-pts">${pts}<span class="podium-pts-label">POOL PTS</span></div>
-          ${gap ? `<div class="podium-gap">${gap}</div>` : ''}
-          <div class="podium-breakdown">
-            <span class="podium-breakdown-item F">F ${sub.F}</span>
-            <span class="podium-breakdown-item D">D ${sub.D}</span>
-            <span class="podium-breakdown-item G">G ${sub.G}</span>
-          </div>
-        </div>`;
-      }).join('')}
-    </div>`;
-  }
-
-  // ── Leaderboard ───────────────────────────────────────────────────────────
-  function buildLeaderboard(sorted, leaderPts) {
-    const rankClass = (i) => i===0?'gold':i===1?'silver':i===2?'bronze':'';
-    const rows = sorted.map((t, i) => {
-      const pts = teamTotalPts(t.roster);
-      const cap = teamCapUsed(t.roster);
-      const filled = teamFilled(t.roster);
-      const sub = teamSubScores(t.roster);
-      const gap = i === 0 ? 'Leader' : `−${leaderPts - pts}`;
-      const gapClass = i === 0 ? 'gap leader' : 'gap';
-      const eff = cap > 0 ? (pts / (cap / 1_000_000)).toFixed(1) : '—';
-      return `<div class="lb-row ${t.id===activeTeamId?'active':''}" onclick="selectTeam('${t.id}')">
-        <div class="lb-rank ${rankClass(i)}">${i+1}</div>
-        <div>
-          <div class="lb-name">${t.name}</div>
-          <div class="lb-subscore">
-            <span class="lb-subscore-pill F">F ${sub.F}</span>
-            <span class="lb-subscore-pill D">D ${sub.D}</span>
-            <span class="lb-subscore-pill G">G ${sub.G}</span>
-          </div>
-        </div>
-        <div class="lb-stat">${filled}/20</div>
-        <div class="lb-stat">$${(cap/1_000_000).toFixed(1)}M</div>
-        <div class="lb-stat">${eff} pt/$M</div>
-        <div class="lb-stat ${gapClass}">${gap}</div>
-        <div class="lb-stat pts">${pts}</div>
-      </div>`;
+  function buildLeaderboard(sorted,leaderPts){
+    const rc=i=>i===0?'gold':i===1?'silver':i===2?'bronze':'';
+    const rows=sorted.map((t,i)=>{
+      const pts=teamTotalPts(t.roster),cap=teamCapUsed(t.roster),filled=teamFilled(t.roster),sub=teamSubScores(t.roster);
+      const gap=i===0?'Leader':`−${leaderPts-pts}`,eff=cap>0?(pts/(cap/1e6)).toFixed(1):'—';
+      return`<div class="lb-row ${t.id===activeTeamId?'active':''}" onclick="selectTeam('${t.id}')"><div class="lb-rank ${rc(i)}">${i+1}</div><div><div class="lb-name">${t.name}</div><div class="lb-subscore"><span class="lb-subscore-pill F">F ${sub.F}</span><span class="lb-subscore-pill D">D ${sub.D}</span><span class="lb-subscore-pill G">G ${sub.G}</span></div></div><div class="lb-stat">${filled}/20</div><div class="lb-stat">$${(cap/1e6).toFixed(1)}M</div><div class="lb-stat">${eff} pt/$M</div><div class="lb-stat ${i===0?'gap leader':'gap'}">${gap}</div><div class="lb-stat pts">${pts}</div></div>`;
     }).join('');
+    return`<div class="leaderboard"><div class="lb-row header" style="grid-template-columns:36px 1fr 60px 60px 70px 70px 70px"><div></div><div class="lb-col-label left">Team</div><div class="lb-col-label">Players</div><div class="lb-col-label">Cap</div><div class="lb-col-label">Eff.</div><div class="lb-col-label">Gap</div><div class="lb-col-label">Pts</div></div>${rows}</div>`;}
 
-    return `<div class="leaderboard">
-      <div class="lb-row header" style="grid-template-columns:36px 1fr 60px 60px 70px 70px 70px">
-        <div></div>
-        <div class="lb-col-label left">Team</div>
-        <div class="lb-col-label">Players</div>
-        <div class="lb-col-label">Cap</div>
-        <div class="lb-col-label">Eff.</div>
-        <div class="lb-col-label">Gap</div>
-        <div class="lb-col-label">Pts</div>
-      </div>
-      ${rows}
-    </div>`;
-  }
+  // ════════ ALL TEAMS SPREADSHEET ════════
+  function buildAllTeams(sorted){
+    if(!sorted.length) return '<div class="msg">No teams yet.</div>';
 
-  // ── All Teams Side-by-Side ─────────────────────────────────────────────────
-  function buildAllTeams(sorted) {
-    if (!sorted.length) return '<div class="msg">No teams yet.</div>';
+    const SECS=[{key:'F',label:'FORWARDS',slots:12},{key:'D',label:'DEFENCE',slots:6},{key:'G',label:'GOALIES',slots:2}];
+    const N=sorted.length;
 
-    const SECTIONS = [
-      { key: 'F', label: 'FORWARDS',  slots: 12 },
-      { key: 'D', label: 'DEFENCE',   slots: 6  },
-      { key: 'G', label: 'GOALIES',   slots: 2  },
-    ];
-
-    const NCOLS = sorted.length;
-    const rosters = sorted.map(t => rosterPlayers(t.roster));
-    const rankLabels = ['#1','#2','#3'];
-    const rankCls = ['r1','r2','r3'];
-
-    let html = `<div class="all-teams-grid-wrap"><div class="roster-grid" style="grid-template-columns:repeat(${NCOLS},minmax(150px,1fr))">`;
-
-    // Sticky team headers
-    sorted.forEach((t, i) => {
-      const pts = teamTotalPts(t.roster);
-      const sub = teamSubScores(t.roster);
-      const cap = teamCapUsed(t.roster);
-      const rlbl = i < 3 ? rankLabels[i] : `#${i+1}`;
-      const rcls = i < 3 ? rankCls[i] : 'rn';
-      html += `<div class="rg-team-header">
-        <div class="rg-team-rank ${rcls}">${rlbl}</div>
-        <div class="rg-team-name">${t.name}</div>
-        <div class="rg-team-pts">${pts} pts &nbsp;·&nbsp; $${(cap/1_000_000).toFixed(1)}M</div>
-        <div style="display:flex;justify-content:center;gap:4px;margin-top:3px">
-          <span style="font-family:'Barlow Condensed',sans-serif;font-size:0.63rem;font-weight:700;background:rgba(255,122,138,0.1);color:#ff7a8a;border-radius:3px;padding:1px 5px">F ${sub.F}</span>
-          <span style="font-family:'Barlow Condensed',sans-serif;font-size:0.63rem;font-weight:700;background:rgba(125,180,255,0.1);color:#7db4ff;border-radius:3px;padding:1px 5px">D ${sub.D}</span>
-          <span style="font-family:'Barlow Condensed',sans-serif;font-size:0.63rem;font-weight:700;background:rgba(255,184,28,0.1);color:#ffb81c;border-radius:3px;padding:1px 5px">G ${sub.G}</span>
-        </div>
-      </div>`;
+    // Rosters sorted by pts descending within each pos
+    const rosters=sorted.map(t=>{
+      const r=rosterPlayers(t.roster);
+      return{F:r.F.filter(Boolean).sort((a,b)=>poolScore(b)-poolScore(a)),D:r.D.filter(Boolean).sort((a,b)=>poolScore(b)-poolScore(a)),G:r.G.filter(Boolean).sort((a,b)=>poolScore(b)-poolScore(a))};
     });
 
-    // Sections and player rows
-    SECTIONS.forEach(({ key, label, slots }) => {
-      html += `<div class="rg-sec-span ${key}">${label}</div>`;
+    const rl=['#1','#2','#3'],rc=['r1','r2','r3'];
+    // total cols per team = 3 (name+salary+pts), divider between teams
+    const totalCols=N*3+(N-1);
 
-      for (let i = 0; i < slots; i++) {
-        rosters.forEach((r) => {
-          const p = (r[key] && r[key][i]) ? r[key][i] : null;
-          const isFirst = i === 0;
-          if (p) {
-            const pts = poolScore(p);
-            const abbr = TEAM_ABBR[p.team] || '—';
-            const sal = p.cap_hit ? `$${(p.cap_hit / 1_000_000).toFixed(2)}M` : '—';
-            // Short name: first initial + last name
-            const full = formatName(p.player_name);
-            const parts = full.split(' ');
-            const shortName = parts.length > 1 ? `${parts[0][0]}. ${parts.slice(1).join(' ')}` : full;
-            html += `<div class="rg-cell${isFirst?' section-start':''}">
-              <div class="rg-player-name" title="${full}">${shortName}</div>
-              <div class="rg-player-nhl">${abbr}</div>
-              <div class="rg-player-meta">
-                <span class="rg-sal">${sal}</span>
-                <span class="rg-pts">${pts}pts</span>
-              </div>
-            </div>`;
+    const div=(isTh)=>isTh?'<th class="at-div"></th>':'<td class="at-div"></td>';
+
+    // ── HEAD row 1: team banners ──
+    let h1='<tr class="at-head-row">';
+    sorted.forEach((t,i)=>{
+      const pts=teamTotalPts(t.roster),cap=teamCapUsed(t.roster),sub=teamSubScores(t.roster);
+      const r=i<3?rl[i]:`#${i+1}`,c=i<3?rc[i]:'rn';
+      h1+=`<th colspan="3"><div class="at-th-inner"><div class="at-th-rank ${c}">${r}</div><div class="at-th-name">${t.name}</div><div class="at-th-pts">${pts} pts · $${(cap/1e6).toFixed(1)}M</div><div class="at-th-subs"><span class="at-th-sub F">F ${sub.F}</span><span class="at-th-sub D">D ${sub.D}</span><span class="at-th-sub G">G ${sub.G}</span></div></div></th>`;
+      if(i<N-1)h1+=div(true);
+    });
+    h1+='</tr>';
+
+    // ── HEAD row 2: col labels ──
+    let h2='<tr class="at-subhead-row">';
+    sorted.forEach((t,i)=>{
+      h2+='<th>Player</th><th class="r">Salary</th><th class="r">Pts</th>';
+      if(i<N-1)h2+=div(true);
+    });
+    h2+='</tr>';
+
+    // ── BODY ──
+    let body='';
+    SECS.forEach(({key,label,slots})=>{
+      body+=`<tr class="at-sec ${key}"><td colspan="${totalCols}">${label}</td></tr>`;
+      for(let i=0;i<slots;i++){
+        const rc2=`r${key}`;
+        body+=`<tr class="${rc2}">`;
+        rosters.forEach((r,ti)=>{
+          const p=r[key][i]||null;
+          if(p){
+            const pts=poolScore(p),sal=p.cap_hit?`$${(p.cap_hit/1e6).toFixed(3)}M`:'—';
+            const full=formatName(p.player_name),nhl=TEAM_ABBR[p.team]||'';
+            body+=`<td class="pn" title="${full}">${full}${nhl?` <span class="nhl">${nhl}</span>`:''}</td><td class="ps">${sal}</td><td class="pp">${pts}</td>`;
           } else {
-            html += `<div class="rg-cell empty-slot${isFirst?' section-start':''}"><div class="rg-empty">— empty —</div></div>`;
+            body+=`<td class="pe">—</td><td class="ps"></td><td class="pp"></td>`;
           }
+          if(ti<N-1)body+=div(false);
         });
+        body+='</tr>';
       }
     });
 
-    html += '</div></div>';
-    return html;
-  }
-
-  // ── Team detail ───────────────────────────────────────────────────────────
-  function buildDetail(team, sorted, leaderPts, avgs) {
-    const roster = rosterPlayers(team.roster);
-    const allP = [...roster.F, ...roster.D, ...roster.G].filter(Boolean);
-    if (!allP.length) return `<div class="msg" style="padding:1.5rem 0;">No players drafted yet.</div>`;
-
-    const totalPts = allP.reduce((s,p) => s+poolScore(p), 0);
-    const cap = allP.reduce((s,p) => s+(p.cap_hit||0), 0);
-    const filled = allP.length;
-    const eff = cap > 0 ? (totalPts/(cap/1_000_000)).toFixed(1) : '—';
-    const sub = teamSubScores(team.roster);
-    const rank = sorted.findIndex(t=>t.id===team.id)+1;
-    const gap = rank === 1 ? 'Leading 🏆' : `${leaderPts-totalPts} pts behind 1st`;
-
-    const scored = allP.map(p=>({p, pts:poolScore(p)})).sort((a,b)=>b.pts-a.pts);
-    const topScorer = scored[0];
-    const topScorerHtml = topScorer ? `
-      <div class="top-scorer-callout">
-        <span class="top-scorer-icon">⭐</span>
-        <div class="top-scorer-text">
-          Top contributor: <strong>${formatName(topScorer.p.player_name)}</strong> — ${topScorer.pts} pool pts
-          &nbsp;·&nbsp; ${(topScorer.pts/totalPts*100).toFixed(0)}% of team total
-        </div>
-      </div>` : '';
-
-    const groups = [
-      { key:'F', label:'Forwards', players: roster.F.filter(Boolean).sort((a,b)=>poolScore(b)-poolScore(a)) },
-      { key:'D', label:'Defence',  players: roster.D.filter(Boolean).sort((a,b)=>poolScore(b)-poolScore(a)) },
-      { key:'G', label:'Goalies',  players: roster.G.filter(Boolean).sort((a,b)=>poolScore(b)-poolScore(a)) },
-    ];
-
-    const groupsHtml = groups.filter(g=>g.players.length).map(g => `
-      <div class="pos-group">
-        <div class="pos-group-label ${g.key}">${g.label} (${g.players.length})</div>
-        ${g.players.map(p => buildPlayerRow(p, g.key, avgs, topScorer?.p)).join('')}
-      </div>
-    `).join('');
-
-    return `
-      <div class="detail-header">
-        <div class="detail-header-left">
-          <div class="detail-title">${team.name}</div>
-          <div class="detail-rank-label">Rank #${rank} · ${gap}</div>
-        </div>
-        <div class="detail-summary">
-          <span class="detail-badge pts">${totalPts} PTS</span>
-          <span class="detail-badge cap">$${(cap/1_000_000).toFixed(1)}M</span>
-          <span class="detail-badge filled">${filled}/20</span>
-          <span class="detail-badge eff">${eff} pt/$M</span>
-        </div>
-      </div>
-      <div class="pos-scores-bar">
-        <div class="pos-score-block F"><div class="pos-score-val">${sub.F}</div><div class="pos-score-label">Forwards</div></div>
-        <div class="pos-score-block D"><div class="pos-score-val">${sub.D}</div><div class="pos-score-label">Defence</div></div>
-        <div class="pos-score-block G"><div class="pos-score-val">${sub.G}</div><div class="pos-score-label">Goalies</div></div>
-      </div>
-      ${topScorerHtml}
-      ${groupsHtml}
-    `;
-  }
-
-  function buildPlayerRow(p, group, avgs, topScorerPlayer) {
-    const abbr = TEAM_ABBR[p.team];
-    const logoHtml = abbr
-      ? `<img class="player-row-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}">`
-      : '';
-    const pts = poolScore(p);
-    const pos = normalizePos(p.position);
-    const avg = avgs[group] ?? 0;
-    const perfClass = pts > avg * 1.15 ? 'above' : pts < avg * 0.7 ? 'below' : 'avg';
-    const capM = (p.cap_hit || 0) / 1_000_000;
-    const effText = capM > 0 ? `${(pts/capM).toFixed(1)} pt/$M` : '';
-    const GP_SEASON = 82;
-    const gp = p.games_played;
-    const paceHtml = (gp > 0 && pts > 0)
-      ? `<span class="player-row-pace" title="Projected pts for rest of season">~${Math.round((pts/gp)*(GP_SEASON-gp))} proj</span>`
-      : '';
-
-    let statText = '';
-    if (pos === 'G') {
-      const parts = [];
-      if (p.wins != null) parts.push(`${p.wins}W`);
-      if (p.shutouts) parts.push(`${p.shutouts}SO`);
-      if (p.games_played != null) parts.push(`${p.games_played}GP`);
-      statText = parts.join(' · ');
-    } else {
-      const parts = [];
-      if (p.goals != null) parts.push(`${p.goals}G`);
-      if (p.assists != null) parts.push(`${p.assists}A`);
-      if (p.points != null) parts.push(`${p.points}PTS`);
-      if (p.games_played != null) parts.push(`${p.games_played}GP`);
-      statText = parts.join(' · ');
-    }
-
-    const isStar = topScorerPlayer && p.puckpedia_slug === topScorerPlayer.puckpedia_slug;
-
-    return `<div class="player-row">
-      <div class="player-row-perf-bar ${perfClass}"></div>
-      <span class="pos-badge ${group}">${group}</span>
-      ${logoHtml}
-      <span class="player-row-name">${formatName(p.player_name)}</span>
-      ${isStar ? `<span class="star-badge" title="Top scorer">⭐</span>` : ''}
-      ${statText ? `<span class="player-row-stat">${statText}</span>` : ''}
-      ${paceHtml}
-      ${effText ? `<span class="player-row-eff">${effText}</span>` : ''}
-      <span class="player-row-pts">${pts}<span class="player-row-pts-label">PTS</span></span>
-    </div>`;
-  }
-
-  // ── Pool Leaders ──────────────────────────────────────────────────────────
-  function buildPoolLeaders() {
-    const drafted = allDraftedPlayers();
-    const byPos = { F: [], D: [], G: [] };
-    drafted.forEach(({player, owner, pos}) => {
-      byPos[pos].push({player, owner, pts: poolScore(player)});
+    // ── TOTALS ──
+    // Row: Total Pool Pts
+    body+=`<tr class="at-tot">`;
+    sorted.forEach((t,ti)=>{
+      const pts=teamTotalPts(t.roster);
+      body+=`<td class="lbl" colspan="2">Total Pool Pts</td><td class="val g">${pts}</td>`;
+      if(ti<N-1)body+=div(false);
     });
-    ['F','D','G'].forEach(pos => byPos[pos].sort((a,b)=>b.pts-a.pts));
+    body+='</tr>';
 
-    const posLabels = { F: 'Forwards', D: 'Defence', G: 'Goalies' };
+    // Row: Total Salary
+    body+=`<tr class="at-tot">`;
+    sorted.forEach((t,ti)=>{
+      const cap=teamCapUsed(t.roster);
+      body+=`<td class="lbl" colspan="2">Total Salary</td><td class="val">$${(cap/1e6).toFixed(2)}M</td>`;
+      if(ti<N-1)body+=div(false);
+    });
+    body+='</tr>';
 
-    const posGridHtml = `
-      <div class="pool-section-title">Position <span>Leaders</span></div>
-      <div class="pos-leaders-grid">
-        ${['F','D','G'].map(pos => `
-          <div class="pos-leader-col">
-            <div class="pos-leader-col-header ${pos}">
-              ${posLabels[pos]} <small>POOL PTS</small>
-            </div>
-            ${byPos[pos].slice(0,8).map((item, i) => {
-              const abbr = TEAM_ABBR[item.player.team];
-              return `<div class="pos-leader-row">
-                <div class="pos-leader-rank">${i+1}</div>
-                <div class="pos-leader-name">${formatName(item.player.player_name)}</div>
-                <div class="pos-leader-team">${abbr||'—'}</div>
-                <div class="pos-leader-pts">${item.pts}</div>
-              </div>`;
-            }).join('')}
-          </div>
-        `).join('')}
-      </div>
-    `;
+    // Row: Salary / Player
+    body+=`<tr class="at-tot">`;
+    sorted.forEach((t,ti)=>{
+      const cap=teamCapUsed(t.roster),filled=teamFilled(t.roster);
+      const avg=filled>0?`$${(cap/1e6/filled).toFixed(2)}M`:'—';
+      body+=`<td class="lbl" colspan="2">Avg Salary / Player</td><td class="val">${avg}</td>`;
+      if(ti<N-1)body+=div(false);
+    });
+    body+='</tr>';
 
-    const allSorted = drafted.map(({player,owner,pos}) => ({player,owner,pos,pts:poolScore(player)}))
-      .sort((a,b)=>b.pts-a.pts).slice(0,10);
+    return`<div class="at-wrap"><div class="at-scroll"><table class="at-table"><thead>${h1}${h2}</thead><tbody>${body}</tbody></table></div></div>`;
+  }
 
-    const topPlayersHtml = `
-      <div class="pool-section-title">Top <span>Pool Players</span></div>
-      <div class="top-players-list">
-        <div class="top-player-row header" style="grid-template-columns:30px 1fr 80px 80px 60px">
-          <div></div>
-          <div class="lb-col-label left">Player</div>
-          <div class="lb-col-label">Owner</div>
-          <div class="lb-col-label">Stats</div>
-          <div class="lb-col-label">Pts</div>
-        </div>
-        ${allSorted.map((item, i) => {
-          const p = item.player;
-          const abbr = TEAM_ABBR[p.team];
-          const logoHtml = abbr ? `<img class="top-player-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}">` : '';
-          const pos = normalizePos(p.position);
-          let stat = '';
-          if (pos==='G') stat = `${p.wins??0}W ${p.shutouts??0}SO`;
-          else stat = `${p.goals??0}G ${p.assists??0}A`;
-          return `<div class="top-player-row">
-            <div class="top-player-rank">${i+1}</div>
-            <div class="top-player-info">
-              ${logoHtml}
-              <div><div class="top-player-name">${formatName(p.player_name)}</div></div>
-            </div>
-            <div class="top-player-owner">${item.owner}</div>
-            <div class="top-player-stat">${stat}</div>
-            <div class="top-player-pts">${item.pts}</div>
-          </div>`;
-        }).join('')}
-      </div>
-    `;
+  function buildDetail(team,sorted,leaderPts,avgs){
+    const roster=rosterPlayers(team.roster);
+    const allP=[...roster.F,...roster.D,...roster.G].filter(Boolean);
+    if(!allP.length)return`<div class="msg" style="padding:1.5rem 0;">No players drafted yet.</div>`;
+    const totalPts=allP.reduce((s,p)=>s+poolScore(p),0),cap=allP.reduce((s,p)=>s+(p.cap_hit||0),0),filled=allP.length;
+    const eff=cap>0?(totalPts/(cap/1e6)).toFixed(1):'—',sub=teamSubScores(team.roster);
+    const rank=sorted.findIndex(t=>t.id===team.id)+1,gap=rank===1?'Leading 🏆':`${leaderPts-totalPts} pts behind 1st`;
+    const scored=allP.map(p=>({p,pts:poolScore(p)})).sort((a,b)=>b.pts-a.pts),topScorer=scored[0];
+    const groups=[{key:'F',label:'Forwards',players:roster.F.filter(Boolean).sort((a,b)=>poolScore(b)-poolScore(a))},{key:'D',label:'Defence',players:roster.D.filter(Boolean).sort((a,b)=>poolScore(b)-poolScore(a))},{key:'G',label:'Goalies',players:roster.G.filter(Boolean).sort((a,b)=>poolScore(b)-poolScore(a))}];
+    return`
+      <div class="detail-header"><div class="detail-header-left"><div class="detail-title">${team.name}</div><div class="detail-rank-label">Rank #${rank} · ${gap}</div></div>
+      <div class="detail-summary"><span class="detail-badge pts">${totalPts} PTS</span><span class="detail-badge cap">$${(cap/1e6).toFixed(1)}M</span><span class="detail-badge filled">${filled}/20</span><span class="detail-badge eff">${eff} pt/$M</span></div></div>
+      <div class="pos-scores-bar"><div class="pos-score-block F"><div class="pos-score-val">${sub.F}</div><div class="pos-score-label">Forwards</div></div><div class="pos-score-block D"><div class="pos-score-val">${sub.D}</div><div class="pos-score-label">Defence</div></div><div class="pos-score-block G"><div class="pos-score-val">${sub.G}</div><div class="pos-score-label">Goalies</div></div></div>
+      ${topScorer?`<div class="top-scorer-callout"><span class="top-scorer-icon">⭐</span><div class="top-scorer-text">Top contributor: <strong>${formatName(topScorer.p.player_name)}</strong> — ${topScorer.pts} pool pts &nbsp;·&nbsp; ${(topScorer.pts/totalPts*100).toFixed(0)}% of team total</div></div>`:''}
+      ${groups.filter(g=>g.players.length).map(g=>`<div class="pos-group"><div class="pos-group-label ${g.key}">${g.label} (${g.players.length})</div>${g.players.map(p=>buildPlayerRow(p,g.key,avgs,topScorer?.p)).join('')}</div>`).join('')}
+    `;}
 
-    return posGridHtml + topPlayersHtml;
+  function buildPlayerRow(p,group,avgs,topScorerPlayer){
+    const abbr=TEAM_ABBR[p.team],logo=abbr?`<img class="player-row-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}">`:'' ;
+    const pts=poolScore(p),pos=normalizePos(p.position),avg=avgs[group]??0;
+    const perf=pts>avg*1.15?'above':pts<avg*0.7?'below':'avg';
+    const capM=(p.cap_hit||0)/1e6,eff=capM>0?`${(pts/capM).toFixed(1)} pt/$M`:'';
+    const gp=p.games_played,pace=(gp>0&&pts>0)?`<span class="player-row-pace">~${Math.round((pts/gp)*(82-gp))} proj</span>`:'';
+    const isStar=topScorerPlayer&&p.puckpedia_slug===topScorerPlayer.puckpedia_slug;
+    let stat='';
+    if(pos==='G'){const a=[];if(p.wins!=null)a.push(`${p.wins}W`);if(p.shutouts)a.push(`${p.shutouts}SO`);if(p.games_played!=null)a.push(`${p.games_played}GP`);stat=a.join(' · ');}
+    else{const a=[];if(p.goals!=null)a.push(`${p.goals}G`);if(p.assists!=null)a.push(`${p.assists}A`);if(p.points!=null)a.push(`${p.points}PTS`);if(p.games_played!=null)a.push(`${p.games_played}GP`);stat=a.join(' · ');}
+    return`<div class="player-row"><div class="player-row-perf-bar ${perf}"></div><span class="pos-badge ${group}">${group}</span>${logo}<span class="player-row-name">${formatName(p.player_name)}</span>${isStar?'<span class="star-badge">⭐</span>':''}${stat?`<span class="player-row-stat">${stat}</span>`:''}${pace}${eff?`<span class="player-row-eff">${eff}</span>`:''}<span class="player-row-pts">${pts}<span class="player-row-pts-label">PTS</span></span></div>`;}
+
+  function buildPoolLeaders(){
+    const drafted=allDraftedPlayers(),byPos={F:[],D:[],G:[]};
+    drafted.forEach(({player,owner,pos})=>byPos[pos].push({player,owner,pts:poolScore(player)}));
+    ['F','D','G'].forEach(pos=>byPos[pos].sort((a,b)=>b.pts-a.pts));
+    const pL={F:'Forwards',D:'Defence',G:'Goalies'};
+    const grid=`<div class="pool-section-title">Position <span>Leaders</span></div><div class="pos-leaders-grid">${['F','D','G'].map(pos=>`<div class="pos-leader-col"><div class="pos-leader-col-header ${pos}">${pL[pos]} <small>POOL PTS</small></div>${byPos[pos].slice(0,8).map((item,i)=>{const abbr=TEAM_ABBR[item.player.team];return`<div class="pos-leader-row"><div class="pos-leader-rank">${i+1}</div><div class="pos-leader-name">${formatName(item.player.player_name)}</div><div class="pos-leader-team">${abbr||'—'}</div><div class="pos-leader-owner">${item.owner}</div><div class="pos-leader-pts">${item.pts}</div></div>`;}).join('')}</div>`).join('')}</div>`;
+    const allS=drafted.map(({player,owner,pos})=>({player,owner,pos,pts:poolScore(player)})).sort((a,b)=>b.pts-a.pts).slice(0,10);
+    const top=`<div class="pool-section-title">Top <span>Pool Players</span></div><div class="top-players-list"><div class="top-player-row header" style="grid-template-columns:30px 1fr 80px 80px 60px"><div></div><div class="lb-col-label left">Player</div><div class="lb-col-label">Owner</div><div class="lb-col-label">Stats</div><div class="lb-col-label">Pts</div></div>${allS.map((item,i)=>{const p=item.player,abbr=TEAM_ABBR[p.team],logo=abbr?`<img class="top-player-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}">`:'' ;const pos=normalizePos(p.position),stat=pos==='G'?`${p.wins??0}W ${p.shutouts??0}SO`:`${p.goals??0}G ${p.assists??0}A`;return`<div class="top-player-row"><div class="top-player-rank">${i+1}</div><div class="top-player-info">${logo}<div><div class="top-player-name">${formatName(p.player_name)}</div></div></div><div class="top-player-owner">${item.owner}</div><div class="top-player-stat">${stat}</div><div class="top-player-pts">${item.pts}</div></div>`;}).join('')}</div>`;
+    return grid+top;
   }
 
   load();
