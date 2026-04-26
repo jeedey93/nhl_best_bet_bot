@@ -9,13 +9,7 @@
   <meta property="og:title" content="Hockey Pool — Parieur Discipliné">
   <meta property="og:description" content="Build your dream NHL team. Pick 12 forwards, 6 defencemen and 2 goalies under the salary cap.">
   <meta property="og:image" content="https://parieurdiscipline.com/parieur_discipline_icon_1024.png">
-  <meta property="og:image:width" content="1024">
-  <meta property="og:image:height" content="1024">
   <meta property="og:site_name" content="Parieur Discipliné">
-  <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="Hockey Pool — Parieur Discipliné">
-  <meta name="twitter:description" content="Build your dream NHL team. Pick 12 forwards, 6 defencemen and 2 goalies under the salary cap.">
-  <meta name="twitter:image" content="https://parieurdiscipline.com/parieur_discipline_icon_1024.png">
   <link rel="icon" type="image/png" href="../parieur_discipline_icon_1024.png">
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700;900&display=swap" rel="stylesheet">
   <style>
@@ -41,17 +35,8 @@
     }
 
     /* ── Nav ── */
-    .site-nav {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-      background: rgba(7,17,31,0.92);
-      border-bottom: 1px solid var(--line);
-      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-    }
-    .site-nav-inner {
-      max-width: 1100px; margin: 0 auto;
-      display: flex; align-items: center; justify-content: space-between;
-      height: var(--nav-h); padding: 0 1.5rem;
-    }
+    .site-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(7,17,31,0.92); border-bottom: 1px solid var(--line); backdrop-filter: blur(12px); }
+    .site-nav-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: var(--nav-h); padding: 0 1.5rem; }
     .site-nav-brand { font-family: 'Bebas Neue', cursive; font-size: 1.5rem; color: var(--gold); letter-spacing: 4px; text-decoration: none; }
     .site-nav-links { display: flex; align-items: center; gap: 0.5rem; }
     .site-nav-links a { font-family: 'Barlow Condensed', sans-serif; font-size: 1rem; font-weight: 600; color: var(--silver); text-decoration: none; padding: 0.3rem 0.8rem; border-radius: 5px; letter-spacing: 1.5px; transition: color 0.15s, background 0.15s; }
@@ -63,200 +48,168 @@
     header h1 { font-family: 'Bebas Neue', cursive; font-size: clamp(1.6rem, 3vw, 2.4rem); letter-spacing: 5px; text-shadow: 0 0 30px rgba(200,16,46,0.4), 0 2px 8px rgba(0,0,0,0.8); line-height: 1; }
     header h1 span { color: var(--gold); }
     header p { color: var(--silver); font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase; margin-top: 0.2rem; }
-
-    /* ── League badge ── */
     .league-badge-row { display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin-top: 0.55rem; }
     .league-badge-label { font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem; font-weight: 700; color: var(--silver); letter-spacing: 2px; text-transform: uppercase; }
-    .league-badge-code {
-      font-family: 'Bebas Neue', cursive; font-size: 0.95rem; letter-spacing: 3px;
-      color: var(--gold); background: rgba(255,184,28,0.1); border: 1px solid rgba(255,184,28,0.3);
-      border-radius: 5px; padding: 2px 12px; cursor: pointer;
-      transition: background 0.15s, border-color 0.15s;
-    }
+    .league-badge-code { font-family: 'Bebas Neue', cursive; font-size: 0.95rem; letter-spacing: 3px; color: var(--gold); background: rgba(255,184,28,0.1); border: 1px solid rgba(255,184,28,0.3); border-radius: 5px; padding: 2px 12px; cursor: pointer; transition: background 0.15s, border-color 0.15s; }
     .league-badge-code:hover { background: rgba(255,184,28,0.2); border-color: rgba(255,184,28,0.55); }
+    .share-row { display: flex; align-items: center; gap: 8px; margin-top: 0.4rem; flex-wrap: wrap; justify-content: center; }
+    .team-name-display { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 3px; color: var(--gold); }
+    .btn-share-pool { font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 2px; background: rgba(255,184,28,0.1); border: 1px solid rgba(255,184,28,0.3); color: var(--gold); border-radius: 6px; padding: 0.35rem 1rem; cursor: pointer; transition: background 0.15s; }
+    .btn-share-pool:hover { background: rgba(255,184,28,0.2); }
+    .btn-share-pool:disabled { opacity: 0.4; cursor: default; }
 
-    /* ── Team switcher strip ── */
-    .team-switcher-wrap {
-      max-width: 1100px; width: 100%; margin: 0 auto;
-      padding: 0.5rem 1.25rem 0;
-      flex-shrink: 0;
-    }
-    .team-switcher {
-      display: flex; align-items: center; gap: 5px;
-      overflow-x: auto; padding-bottom: 4px;
-      scrollbar-width: none;
-    }
+    /* ── Team switcher ── */
+    .team-switcher-wrap { max-width: 1100px; width: 100%; margin: 0 auto; padding: 0.5rem 1.25rem 0; flex-shrink: 0; }
+    .team-switcher { display: flex; align-items: center; gap: 5px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
     .team-switcher::-webkit-scrollbar { display: none; }
-
-    .team-pill-switcher {
-      display: flex; flex-direction: column; align-items: center;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 7px; padding: 5px 10px 4px;
-      cursor: pointer; flex-shrink: 0;
-      transition: background 0.15s, border-color 0.15s;
-      position: relative; min-width: 80px;
-    }
+    .team-pill-switcher { display: flex; flex-direction: column; align-items: center; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 7px; padding: 5px 10px 4px; cursor: pointer; flex-shrink: 0; transition: background 0.15s, border-color 0.15s; position: relative; min-width: 80px; }
     .team-pill-switcher:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.18); }
-    .team-pill-switcher.active {
-      background: rgba(255,184,28,0.1);
-      border-color: rgba(255,184,28,0.4);
-    }
-    .team-pill-name {
-      font-family: 'Bebas Neue', cursive; font-size: 0.85rem;
-      letter-spacing: 2px; color: var(--silver);
-      white-space: nowrap; max-width: 120px;
-      overflow: hidden; text-overflow: ellipsis;
-    }
+    .team-pill-switcher.active { background: rgba(255,184,28,0.1); border-color: rgba(255,184,28,0.4); }
+    .team-pill-name { font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 2px; color: var(--silver); white-space: nowrap; max-width: 120px; overflow: hidden; text-overflow: ellipsis; }
     .team-pill-switcher.active .team-pill-name { color: var(--gold); }
-    .team-pill-progress {
-      font-family: 'Barlow Condensed', sans-serif; font-size: 0.65rem;
-      font-weight: 700; color: rgba(255,255,255,0.3);
-      letter-spacing: 0.5px; margin-top: 1px;
-    }
+    .team-pill-progress { font-family: 'Barlow Condensed', sans-serif; font-size: 0.65rem; font-weight: 700; color: rgba(255,255,255,0.3); letter-spacing: 0.5px; margin-top: 1px; }
     .team-pill-switcher.active .team-pill-progress { color: rgba(255,184,28,0.6); }
     .team-pill-progress.full { color: var(--green) !important; }
-
-    .team-pill-actions {
-      display: flex; gap: 3px; margin-top: 4px;
-    }
-    .team-pill-btn {
-      font-family: 'Bebas Neue', cursive; font-size: 0.65rem; letter-spacing: 1px;
-      background: none; border: 1px solid rgba(255,255,255,0.1);
-      color: rgba(255,255,255,0.35); border-radius: 3px;
-      padding: 1px 5px; cursor: pointer;
-      transition: color 0.15s, border-color 0.15s, background 0.15s;
-    }
+    .team-pill-actions { display: flex; gap: 3px; margin-top: 4px; }
+    .team-pill-btn { font-family: 'Bebas Neue', cursive; font-size: 0.65rem; letter-spacing: 1px; background: none; border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.35); border-radius: 3px; padding: 1px 5px; cursor: pointer; transition: color 0.15s, border-color 0.15s, background 0.15s; }
     .team-pill-btn:hover { color: white; border-color: rgba(255,255,255,0.35); background: rgba(255,255,255,0.07); }
     .team-pill-btn.delete:hover { color: var(--red); border-color: rgba(200,16,46,0.4); background: rgba(200,16,46,0.08); }
-
-    .btn-add-team {
-      display: flex; align-items: center; justify-content: center; gap: 5px;
-      font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 2px;
-      background: rgba(255,184,28,0.06); border: 1px dashed rgba(255,184,28,0.25);
-      color: rgba(255,184,28,0.6); border-radius: 7px;
-      padding: 5px 14px; cursor: pointer; flex-shrink: 0;
-      transition: background 0.15s, color 0.15s, border-color 0.15s;
-      min-width: 100px; height: 100%;
-    }
+    .btn-add-team { display: flex; align-items: center; justify-content: center; gap: 5px; font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 2px; background: rgba(255,184,28,0.06); border: 1px dashed rgba(255,184,28,0.25); color: rgba(255,184,28,0.6); border-radius: 7px; padding: 5px 14px; cursor: pointer; flex-shrink: 0; transition: background 0.15s, color 0.15s, border-color 0.15s; min-width: 100px; height: 100%; }
     .btn-add-team:hover { background: rgba(255,184,28,0.12); color: var(--gold); border-color: rgba(255,184,28,0.5); }
 
     /* ── Pool layout ── */
-    .pool-layout {
-      display: grid; grid-template-columns: 320px 1fr;
-      gap: 1rem; max-width: 1100px; width: 100%; margin: 0 auto;
-      padding: 0.75rem 1.25rem 0; flex: 1; min-height: 0;
-      align-items: stretch;
-    }
-
-    /* ── Section labels ── */
-    .section-label {
-      font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 3px;
-      color: var(--silver); margin-bottom: 4px;
-      display: flex; align-items: center; justify-content: space-between;
-    }
-    .section-label .count {
-      font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem; font-weight: 700;
-      background: rgba(255,255,255,0.07); border-radius: 20px; padding: 1px 8px;
-      color: var(--silver); letter-spacing: 1px;
-    }
+    .pool-layout { display: grid; grid-template-columns: 320px 1fr; gap: 1rem; max-width: 1100px; width: 100%; margin: 0 auto; padding: 0.75rem 1.25rem 0; flex: 1; min-height: 0; align-items: stretch; }
+    .section-label { font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 3px; color: var(--silver); margin-bottom: 4px; display: flex; align-items: center; justify-content: space-between; }
+    .section-label .count { font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem; font-weight: 700; background: rgba(255,255,255,0.07); border-radius: 20px; padding: 1px 8px; color: var(--silver); letter-spacing: 1px; }
     .section-label .count.full { background: rgba(34,197,94,0.2); color: var(--green); }
 
     /* ── Left panel ── */
-    .your-team-panel {
-      display: flex; flex-direction: column; min-height: 0;
-      overflow-y: auto; padding-right: 4px; padding-bottom: 1rem;
-    }
+    .your-team-panel { display: flex; flex-direction: column; min-height: 0; overflow-y: auto; padding-right: 4px; padding-bottom: 1rem; }
     .your-team-panel::-webkit-scrollbar { width: 3px; }
-    .your-team-panel::-webkit-scrollbar-track { background: transparent; }
     .your-team-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
-
     .your-team-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.6rem; flex-shrink: 0; }
-    .btn-generate-team {
-      font-family: 'Bebas Neue', cursive; font-size: 0.8rem; letter-spacing: 1.5px;
-      background: rgba(255,184,28,0.08); border: 1px solid rgba(255,184,28,0.3);
-      color: var(--gold); border-radius: 5px; padding: 3px 10px; cursor: pointer;
-      transition: background 0.15s, color 0.15s, border-color 0.15s;
-    }
-    .btn-generate-team:hover { background: rgba(255,184,28,0.2); border-color: rgba(255,184,28,0.6); }
-    .btn-generate-team:disabled { opacity: 0.4; cursor: default; }
-    .btn-generate-team:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .btn-clear-team {
-      font-family: 'Bebas Neue', cursive; font-size: 0.8rem; letter-spacing: 1.5px;
-      background: none; border: 1px solid rgba(200,16,46,0.25);
-      color: rgba(200,16,46,0.6); border-radius: 5px; padding: 3px 10px; cursor: pointer;
-      transition: background 0.15s, color 0.15s, border-color 0.15s;
-    }
-    .btn-clear-team:hover { background: rgba(200,16,46,0.12); color: var(--red); border-color: rgba(200,16,46,0.5); }
-
     .your-team-header h2 { font-family: 'Bebas Neue', cursive; font-size: 1.1rem; letter-spacing: 4px; color: white; }
     .your-team-header h2 span { color: var(--gold); }
+    .btn-generate-team { font-family: 'Bebas Neue', cursive; font-size: 0.8rem; letter-spacing: 1.5px; background: rgba(255,184,28,0.08); border: 1px solid rgba(255,184,28,0.3); color: var(--gold); border-radius: 5px; padding: 3px 10px; cursor: pointer; transition: background 0.15s, color 0.15s, border-color 0.15s; }
+    .btn-generate-team:hover { background: rgba(255,184,28,0.2); border-color: rgba(255,184,28,0.6); }
+    .btn-generate-team:disabled { opacity: 0.4; cursor: default; }
+    .btn-clear-team { font-family: 'Bebas Neue', cursive; font-size: 0.8rem; letter-spacing: 1.5px; background: none; border: 1px solid rgba(200,16,46,0.25); color: rgba(200,16,46,0.6); border-radius: 5px; padding: 3px 10px; cursor: pointer; transition: background 0.15s, color 0.15s, border-color 0.15s; }
+    .btn-clear-team:hover { background: rgba(200,16,46,0.12); color: var(--red); border-color: rgba(200,16,46,0.5); }
+
+    /* ── IMPROVED: Dynamic scoring legend ── */
+    .scoring-legend { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 0.6rem; flex-shrink: 0; }
+    .scoring-legend-pill { display: flex; align-items: center; gap: 5px; border-radius: 5px; padding: 3px 8px; flex: 1; min-width: 0; }
+    .scoring-legend-pill.F { background: rgba(255,122,138,0.07); border: 1px solid rgba(255,122,138,0.18); }
+    .scoring-legend-pill.D { background: rgba(125,180,255,0.07); border: 1px solid rgba(125,180,255,0.18); }
+    .scoring-legend-pill.G { background: rgba(255,184,28,0.07); border: 1px solid rgba(255,184,28,0.18); }
+    .scoring-legend-pos { font-family: 'Bebas Neue', cursive; font-size: 0.65rem; letter-spacing: 1.5px; white-space: nowrap; }
+    .scoring-legend-pill.F .scoring-legend-pos { color: #ff7a8a; }
+    .scoring-legend-pill.D .scoring-legend-pos { color: #7db4ff; }
+    .scoring-legend-pill.G .scoring-legend-pos { color: var(--gold); }
+    .scoring-legend-rules { font-size: 0.68rem; color: rgba(255,255,255,0.4); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* ── Cap bar ── */
+    .cap-bar-wrap { margin-bottom: 0.7rem; flex-shrink: 0; background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 7px; padding: 0.55rem 0.85rem; transition: border-color 0.3s, background 0.3s; }
+    .cap-bar-wrap.warning { border-color: rgba(245,158,11,0.4); background: rgba(245,158,11,0.04); }
+    .cap-bar-wrap.over { border-color: rgba(200,16,46,0.4); background: rgba(200,16,46,0.04); }
+    .cap-remaining-row { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 2px; }
+    .cap-remaining-label { font-family: 'Bebas Neue', cursive; font-size: 0.7rem; letter-spacing: 2px; color: var(--silver); }
+    .cap-remaining-amount { font-family: 'Bebas Neue', cursive; font-size: 1.5rem; letter-spacing: 1px; color: var(--green); transition: color 0.3s; }
+    .cap-bar-wrap.warning .cap-remaining-amount { color: #f59e0b; }
+    .cap-bar-wrap.over .cap-remaining-amount { color: var(--red); }
+    #cap-status-icon { color: var(--green); font-size: 0.65rem; }
+    .cap-bar-wrap.warning #cap-status-icon { color: #f59e0b; }
+    .cap-bar-wrap.over #cap-status-icon { color: var(--red); }
+    .cap-used-row { display: flex; gap: 4px; align-items: center; font-size: 0.68rem; color: rgba(255,255,255,0.3); margin-bottom: 0.35rem; }
+    .cap-used-row #cap-used { color: rgba(255,255,255,0.55); font-weight: 600; }
+    .over-label { color: var(--red); font-weight: 700; }
+    .cap-track { height: 5px; background: rgba(255,255,255,0.07); border-radius: 3px; overflow: hidden; }
+    .cap-fill { height: 100%; background: linear-gradient(90deg, var(--green), #16a34a); border-radius: 3px; transition: width 0.3s ease, background 0.3s ease; }
+    .cap-fill.warning { background: linear-gradient(90deg, #f59e0b, #d97706); }
+    .cap-fill.over { background: linear-gradient(90deg, var(--red), #8b0a1e); }
+
+    /* ── IMPROVED: Over-cap drop hint ── */
+    .cap-drop-hint {
+      display: none; margin-top: 6px; padding: 5px 8px;
+      background: rgba(200,16,46,0.08); border: 1px solid rgba(200,16,46,0.2);
+      border-radius: 5px;
+    }
+    .cap-bar-wrap.over .cap-drop-hint { display: block; }
+    .cap-drop-hint-label { font-family: 'Bebas Neue', cursive; font-size: 0.62rem; letter-spacing: 2px; color: rgba(200,16,46,0.7); margin-bottom: 3px; }
+    .cap-drop-hint-player { font-family: 'Barlow Condensed', sans-serif; font-size: 0.78rem; font-weight: 700; color: white; display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+    .cap-drop-hint-salary { color: rgba(200,16,46,0.8); font-size: 0.72rem; font-weight: 700; white-space: nowrap; }
+
+    /* ── Roster sections ── */
     .roster-section { margin-bottom: 0.5rem; flex-shrink: 0; }
     .roster-slots { display: flex; flex-direction: column; gap: 3px; }
     .roster-slot { border-radius: 5px; transition: border-color 0.15s, background 0.15s; }
     .roster-slot.empty { display: flex; align-items: center; gap: 8px; border: 1px dashed rgba(255,255,255,0.1); border-radius: 5px; padding: 7px 10px; cursor: default; min-height: 50px; }
     .slot-num { font-family: 'Bebas Neue', cursive; font-size: 1rem; color: rgba(255,255,255,0.15); width: 20px; text-align: center; flex-shrink: 0; }
 
+    /* ── IMPROVED: Empty roster state ── */
+    .roster-empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1.5rem 1rem; text-align: center; gap: 0.5rem; background: rgba(255,255,255,0.02); border: 1px dashed rgba(255,255,255,0.07); border-radius: 8px; margin-bottom: 0.5rem; }
+    .roster-empty-icon { font-size: 1.8rem; opacity: 0.4; }
+    .roster-empty-title { font-family: 'Bebas Neue', cursive; font-size: 0.95rem; letter-spacing: 3px; color: rgba(255,255,255,0.3); }
+    .roster-empty-hint { font-size: 0.75rem; color: rgba(255,255,255,0.2); letter-spacing: 0.5px; line-height: 1.5; }
+    .roster-empty-hint strong { color: rgba(255,184,28,0.5); }
+
     /* ── Player cards ── */
-    .player-card {
-      display: flex; align-items: center; gap: 8px;
-      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07);
-      border-radius: 5px; padding: 5px 8px 5px 10px;
-      cursor: default; user-select: none;
-      transition: background 0.15s, border-color 0.15s;
-    }
+    .player-card { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); border-radius: 5px; padding: 5px 8px 5px 10px; cursor: default; user-select: none; transition: background 0.15s, border-color 0.15s; }
     .player-card:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.14); }
-    .player-card.in-roster { background: rgba(255,184,28,0.05); border-color: rgba(255,184,28,0.15); cursor: pointer; }
+
+    /* ── IMPROVED: Swap hint on roster cards ── */
+    .player-card.in-roster { background: rgba(255,184,28,0.05); border-color: rgba(255,184,28,0.15); cursor: pointer; position: relative; }
     .player-card.in-roster:hover { background: rgba(255,184,28,0.1); }
+    .player-card.in-roster::after {
+      content: '⇄ swap';
+      position: absolute; right: 6px; bottom: 3px;
+      font-family: 'Bebas Neue', cursive; font-size: 0.58rem; letter-spacing: 1px;
+      color: rgba(255,184,28,0.35);
+      opacity: 0; transition: opacity 0.15s;
+      pointer-events: none;
+    }
+    .player-card.in-roster:hover::after { opacity: 1; }
+    body.view-only .player-card.in-roster::after { display: none; }
+
     .player-card.swap-source { border-color: #60a5fa !important; background: rgba(96,165,250,0.12) !important; box-shadow: 0 0 0 2px rgba(96,165,250,0.35); }
-    /* Claimed by another team */
     .player-card.claimed-other { opacity: 0.38; pointer-events: none; }
-    .claimed-badge {
-      font-family: 'Bebas Neue', cursive; font-size: 0.6rem; letter-spacing: 1px;
-      background: rgba(200,16,46,0.15); border: 1px solid rgba(200,16,46,0.25);
-      color: rgba(255,122,138,0.8); border-radius: 3px; padding: 1px 5px;
-      flex-shrink: 0; white-space: nowrap; max-width: 72px;
-      overflow: hidden; text-overflow: ellipsis;
+    .claimed-badge { font-family: 'Bebas Neue', cursive; font-size: 0.6rem; letter-spacing: 1px; background: rgba(200,16,46,0.15); border: 1px solid rgba(200,16,46,0.25); color: rgba(255,122,138,0.8); border-radius: 3px; padding: 1px 5px; flex-shrink: 0; white-space: nowrap; max-width: 72px; overflow: hidden; text-overflow: ellipsis; }
+
+    /* ── IMPROVED: Zero-GP / Injury flag ── */
+    .inj-flag {
+      font-family: 'Bebas Neue', cursive; font-size: 0.58rem; letter-spacing: 1px;
+      background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.3);
+      color: #f59e0b; border-radius: 3px; padding: 1px 5px;
+      flex-shrink: 0; white-space: nowrap;
+      cursor: help;
     }
 
-    .swap-banner {
-      display: none; background: rgba(96,165,250,0.12); border: 1px solid rgba(96,165,250,0.35);
-      border-radius: 7px; padding: 7px 12px; font-size: 0.82rem; color: #93c5fd;
-      margin-bottom: 0.5rem; flex-shrink: 0; align-items: center; gap: 8px;
-    }
+    .swap-banner { display: none; background: rgba(96,165,250,0.12); border: 1px solid rgba(96,165,250,0.35); border-radius: 7px; padding: 7px 12px; font-size: 0.82rem; color: #93c5fd; margin-bottom: 0.5rem; flex-shrink: 0; align-items: center; gap: 8px; }
     .swap-banner.active { display: flex; }
     .swap-banner-cancel { margin-left: auto; cursor: pointer; background: none; border: none; color: #93c5fd; font-size: 1rem; line-height: 1; padding: 0 2px; }
 
-    .pos-badge {
-      font-family: 'Bebas Neue', cursive; font-size: 0.7rem; letter-spacing: 1px;
-      padding: 1px 5px; border-radius: 3px;
-      background: rgba(255,255,255,0.07); color: var(--silver);
-      min-width: 26px; text-align: center; flex-shrink: 0;
-    }
+    .pos-badge { font-family: 'Bebas Neue', cursive; font-size: 0.7rem; letter-spacing: 1px; padding: 1px 5px; border-radius: 3px; background: rgba(255,255,255,0.07); color: var(--silver); min-width: 26px; text-align: center; flex-shrink: 0; }
     .pos-badge.F { background: rgba(200,16,46,0.18); color: #ff7a8a; }
     .pos-badge.D { background: rgba(26,58,110,0.45); color: #7db4ff; }
     .pos-badge.G { background: rgba(255,184,28,0.14); color: var(--gold); }
-
     .player-info { flex: 1; min-width: 0; }
     .card-team-logo { width: 28px; height: 28px; object-fit: contain; flex-shrink: 0; opacity: 0.85; }
     .player-name { font-weight: 700; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: white; }
     .player-salary { font-size: 0.75rem; color: var(--silver); letter-spacing: 0.3px; font-weight: 600; margin-top: 1px; }
 
-    /* ── Stat boxes ── */
     .stat-boxes { display: flex; gap: 5px; flex-shrink: 0; }
     .stat-box { display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 5px; padding: 3px 7px; min-width: 44px; text-align: center; }
-    .stat-box-pts { background: rgba(255,184,28,0.08); border: 1px solid rgba(255,184,28,0.2); }
-    .stat-box-goals { background: rgba(200,16,46,0.08); border: 1px solid rgba(200,16,46,0.2); }
-    .stat-box-assists { background: rgba(100,140,255,0.08); border: 1px solid rgba(100,140,255,0.2); }
-    .stat-box-eff { background: rgba(34,197,94,0.07); border: 1px solid rgba(34,197,94,0.2); }
-    .stat-box-gp { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); }
+    .stat-box-pts    { background: rgba(255,184,28,0.08); border: 1px solid rgba(255,184,28,0.2); }
+    .stat-box-goals  { background: rgba(200,16,46,0.08); border: 1px solid rgba(200,16,46,0.2); }
+    .stat-box-assists{ background: rgba(100,140,255,0.08); border: 1px solid rgba(100,140,255,0.2); }
+    .stat-box-eff    { background: rgba(34,197,94,0.07); border: 1px solid rgba(34,197,94,0.2); }
+    .stat-box-gp     { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); }
     .stat-box-main { font-family: 'Bebas Neue', cursive; font-size: 1.2rem; line-height: 1; letter-spacing: 1px; }
-    .stat-box-pts .stat-box-main    { color: var(--gold); }
-    .stat-box-goals .stat-box-main  { color: #ff7a8a; }
-    .stat-box-assists .stat-box-main{ color: #7db4ff; }
-    .stat-box-eff .stat-box-main    { color: #22c55e; }
-    .stat-box-gp .stat-box-main     { color: rgba(255,255,255,0.55); }
+    .stat-box-pts .stat-box-main     { color: var(--gold); }
+    .stat-box-goals .stat-box-main   { color: #ff7a8a; }
+    .stat-box-assists .stat-box-main { color: #7db4ff; }
+    .stat-box-eff .stat-box-main     { color: #22c55e; }
+    .stat-box-gp .stat-box-main      { color: rgba(255,255,255,0.55); }
     .stat-box-label { font-family: 'Bebas Neue', cursive; font-size: 0.65rem; letter-spacing: 2px; margin-top: 1px; }
     .stat-box-pts .stat-box-label     { color: rgba(255,184,28,0.5); }
     .stat-box-goals .stat-box-label   { color: rgba(255,122,138,0.5); }
@@ -269,30 +222,8 @@
     .add-btn { background: none; border: 1px solid rgba(255,184,28,0.25); border-radius: 4px; cursor: pointer; font-size: 1.1rem; font-weight: 700; line-height: 1; color: var(--gold); flex-shrink: 0; padding: 2px 7px; transition: background 0.15s, border-color 0.15s; }
     .add-btn:hover { background: rgba(255,184,28,0.15); border-color: rgba(255,184,28,0.5); }
 
-    /* ── Cap bar ── */
-    .cap-bar-wrap {
-      margin-bottom: 0.7rem; flex-shrink: 0;
-      background: rgba(255,255,255,0.03); border: 1px solid var(--line);
-      border-radius: 7px; padding: 0.55rem 0.85rem;
-      transition: border-color 0.3s, background 0.3s;
-    }
-    .cap-bar-wrap.warning { border-color: rgba(245,158,11,0.4); background: rgba(245,158,11,0.04); }
-    .cap-bar-wrap.over    { border-color: rgba(200,16,46,0.4); background: rgba(200,16,46,0.04); }
-    .cap-remaining-row { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 2px; }
-    .cap-remaining-label { font-family: 'Bebas Neue', cursive; font-size: 0.7rem; letter-spacing: 2px; color: var(--silver); }
-    .cap-remaining-amount { font-family: 'Bebas Neue', cursive; font-size: 1.5rem; letter-spacing: 1px; color: var(--green); transition: color 0.3s; }
-    .cap-bar-wrap.warning .cap-remaining-amount { color: #f59e0b; }
-    .cap-bar-wrap.over    .cap-remaining-amount { color: var(--red); }
-    #cap-status-icon { color: var(--green); font-size: 0.65rem; }
-    .cap-bar-wrap.warning #cap-status-icon { color: #f59e0b; }
-    .cap-bar-wrap.over    #cap-status-icon { color: var(--red); }
-    .cap-used-row { display: flex; gap: 4px; align-items: center; font-size: 0.68rem; color: rgba(255,255,255,0.3); margin-bottom: 0.35rem; }
-    .cap-used-row #cap-used { color: rgba(255,255,255,0.55); font-weight: 600; }
-    .over { color: var(--red); font-weight: 700; }
-    .cap-track { height: 5px; background: rgba(255,255,255,0.07); border-radius: 3px; overflow: hidden; }
-    .cap-fill { height: 100%; background: linear-gradient(90deg, var(--green), #16a34a); border-radius: 3px; transition: width 0.3s ease, background 0.3s ease; }
-    .cap-fill.warning { background: linear-gradient(90deg, #f59e0b, #d97706); }
-    .cap-fill.over    { background: linear-gradient(90deg, var(--red), #8b0a1e); }
+    /* ── IMPROVED: Bench section note ── */
+    .bench-note { font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem; font-weight: 600; color: rgba(255,255,255,0.25); letter-spacing: 0.5px; margin-bottom: 4px; }
 
     /* ── Right panel ── */
     .pool-panel { display: flex; flex-direction: column; min-height: 0; padding-bottom: 1rem; }
@@ -305,15 +236,26 @@
     .search-input { flex: 1; min-width: 140px; background: rgba(255,255,255,0.05); border: 1px solid var(--line); border-radius: 6px; padding: 0.35rem 0.8rem; color: white; font-family: 'Barlow Condensed', sans-serif; font-size: 0.95rem; outline: none; transition: border-color 0.15s; }
     .search-input::placeholder { color: rgba(168,178,190,0.35); }
     .search-input:focus { border-color: rgba(255,255,255,0.22); }
-
     .eff-legend { display: flex; align-items: center; gap: 8px; background: rgba(34,197,94,0.06); border: 1px solid rgba(34,197,94,0.15); border-radius: 6px; padding: 6px 10px; margin-bottom: 0.6rem; flex-shrink: 0; }
     .eff-legend-badge { font-family: 'Bebas Neue', cursive; font-size: 0.72rem; letter-spacing: 1.5px; color: #22c55e; background: rgba(34,197,94,0.12); border-radius: 3px; padding: 1px 6px; flex-shrink: 0; }
     .eff-legend-text { font-size: 0.75rem; color: rgba(255,255,255,0.4); letter-spacing: 0.2px; }
     .eff-legend-text strong { color: rgba(255,255,255,0.65); font-weight: 600; }
 
-    /* ── NHL Team strip ── */
-    .nhl-team-strip-wrap { margin-bottom: 0.6rem; flex-shrink: 0; }
-    .nhl-team-strip { display: flex; flex-wrap: wrap; gap: 4px; }
+    /* ── IMPROVED: NHL team strip — single horizontal scroll row ── */
+    .nhl-team-strip-wrap { margin-bottom: 0.6rem; flex-shrink: 0; position: relative; }
+    .nhl-team-strip-wrap::after {
+      content: ''; position: absolute; right: 0; top: 0; bottom: 4px;
+      width: 32px; pointer-events: none;
+      background: linear-gradient(to right, transparent, var(--rink));
+    }
+    .nhl-team-strip {
+      display: flex; gap: 4px;
+      overflow-x: auto; overflow-y: hidden;
+      padding-bottom: 4px;
+      scrollbar-width: none; -webkit-overflow-scrolling: touch;
+      flex-wrap: nowrap; /* KEY: single row */
+    }
+    .nhl-team-strip::-webkit-scrollbar { display: none; }
     .nhl-team-pill { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 4px 5px; border-radius: 6px; border: 1px solid var(--line); background: rgba(255,255,255,0.03); cursor: pointer; transition: background 0.15s, border-color 0.15s; min-width: 44px; flex-shrink: 0; }
     .nhl-team-pill:hover { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.14); }
     .nhl-team-pill.active { background: rgba(255,184,28,0.1); border-color: rgba(255,184,28,0.3); }
@@ -326,7 +268,6 @@
     /* ── Pool list ── */
     .pool-list { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 4px; overflow-y: auto; padding-right: 4px; }
     .pool-list::-webkit-scrollbar { width: 3px; }
-    .pool-list::-webkit-scrollbar-track { background: transparent; }
     .pool-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
     .loading-msg, .empty-msg { text-align: center; color: var(--silver); font-size: 0.9rem; padding: 2rem 0; letter-spacing: 1px; }
     .load-more-btn { width: 100%; margin-top: 4px; font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 2px; background: rgba(255,184,28,0.06); border: 1px solid rgba(255,184,28,0.2); color: var(--gold); border-radius: 6px; padding: 0.5rem; cursor: pointer; transition: background 0.15s; }
@@ -334,26 +275,12 @@
     .retry-btn { font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 1.5px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: white; border-radius: 5px; padding: 2px 12px; cursor: pointer; margin-left: 8px; transition: background 0.15s; }
     .retry-btn:hover { background: rgba(255,255,255,0.12); }
 
-    /* ── Share ── */
-    .share-row { display: flex; align-items: center; gap: 8px; margin-top: 0.4rem; flex-wrap: wrap; justify-content: center; }
-    .team-name-display { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 3px; color: var(--gold); }
-    .btn-share-pool { font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 2px; background: rgba(255,184,28,0.1); border: 1px solid rgba(255,184,28,0.3); color: var(--gold); border-radius: 6px; padding: 0.35rem 1rem; cursor: pointer; transition: background 0.15s; }
-    .btn-share-pool:hover { background: rgba(255,184,28,0.2); }
-    .btn-share-pool:disabled { opacity: 0.4; cursor: default; }
-
-    /* ── Pool overview panel ── */
-    .pool-overview {
-      max-width: 1100px; width: 100%; margin: 0 auto;
-      padding: 0.75rem 1.25rem 1rem; flex: 1;
-    }
+    /* ── Overview ── */
+    .pool-overview { max-width: 1100px; width: 100%; margin: 0 auto; padding: 0.75rem 1.25rem 1rem; flex: 1; }
     .pool-overview h2 { font-family: 'Bebas Neue', cursive; font-size: 1.1rem; letter-spacing: 4px; color: white; margin-bottom: 0.75rem; }
     .pool-overview h2 span { color: var(--gold); }
     .overview-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
-    .overview-card {
-      background: rgba(255,255,255,0.03); border: 1px solid var(--line);
-      border-radius: 8px; padding: 12px 14px; cursor: pointer;
-      transition: background 0.15s, border-color 0.15s;
-    }
+    .overview-card { background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; cursor: pointer; transition: background 0.15s, border-color 0.15s; }
     .overview-card:hover { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.16); }
     .overview-card-name { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 3px; color: white; margin-bottom: 6px; }
     .overview-card-stats { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -362,8 +289,27 @@
     .overview-progress-bar { height: 3px; background: rgba(255,255,255,0.07); border-radius: 2px; margin-top: 8px; overflow: hidden; }
     .overview-progress-fill { height: 100%; border-radius: 2px; background: linear-gradient(90deg, var(--gold), #e6a800); transition: width 0.3s; }
 
-    /* ── Share card ── */
-    #pool-share-card { position: fixed; left: -9999px; top: 0; width: 680px; font-family: 'Barlow Condensed', sans-serif; background: linear-gradient(160deg,#0d1b2e 0%,#111827 60%,#0f172a 100%); }
+    /* ── Edit bar ── */
+    .edit-bar { max-width: 1100px; width: 100%; margin: 0 auto; padding: 0.4rem 1.25rem; display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; flex-shrink: 0; }
+    .edit-bar-status { font-family: 'Barlow Condensed', sans-serif; font-size: 0.8rem; font-weight: 600; color: var(--silver); letter-spacing: 1px; display: flex; align-items: center; gap: 0.4rem; }
+    .edit-bar-status .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--silver); flex-shrink: 0; }
+    .edit-bar-status.locked .dot { background: var(--red); }
+    .edit-bar-status.editing .dot { background: var(--green); animation: pulse 1.4s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.35} }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .edit-bar-btns { display: flex; gap: 0.5rem; }
+    .btn-edit-mode { font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 2px; background: rgba(255,184,28,0.1); border: 1px solid rgba(255,184,28,0.35); color: var(--gold); border-radius: 6px; padding: 4px 16px; cursor: pointer; transition: background 0.15s, border-color 0.15s; }
+    .btn-edit-mode:hover { background: rgba(255,184,28,0.2); border-color: rgba(255,184,28,0.6); }
+    .btn-edit-mode:disabled { opacity: 0.35; cursor: default; }
+    .btn-save-pool { font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 2px; background: var(--gold); border: none; color: var(--rink); border-radius: 6px; padding: 4px 20px; cursor: pointer; transition: opacity 0.15s, transform 0.1s; }
+    .btn-save-pool:hover { opacity: 0.88; transform: translateY(-1px); }
+    .btn-save-pool:disabled { opacity: 0.35; cursor: default; transform: none; }
+    .btn-cancel-edit { font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 2px; background: none; border: 1px solid rgba(200,16,46,0.3); color: rgba(200,16,46,0.7); border-radius: 6px; padding: 4px 14px; cursor: pointer; transition: background 0.15s, border-color 0.15s, color 0.15s; }
+    .btn-cancel-edit:hover { background: rgba(200,16,46,0.08); border-color: rgba(200,16,46,0.6); color: var(--red); }
+
+    /* ── Toast ── */
+    .toast { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--gold); color: var(--rink); font-family: 'Bebas Neue', cursive; font-size: 1.1rem; letter-spacing: 2px; padding: 0.5rem 1.8rem; border-radius: 4px; box-shadow: 0 4px 20px rgba(0,0,0,0.4); transition: transform 0.3s ease; pointer-events: none; z-index: 9999; }
+    .toast.show { transform: translateX(-50%) translateY(0); }
 
     /* ── Modal ── */
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 1rem; }
@@ -381,9 +327,21 @@
     .modal-btn-cancel { background: none; border-color: rgba(255,255,255,0.12); color: var(--silver); }
     .modal-btn-cancel:hover { background: rgba(255,255,255,0.06); }
 
-    /* ── Toast ── */
-    .toast { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--gold); color: var(--rink); font-family: 'Bebas Neue', cursive; font-size: 1.1rem; letter-spacing: 2px; padding: 0.5rem 1.8rem; border-radius: 4px; box-shadow: 0 4px 20px rgba(0,0,0,0.4); transition: transform 0.3s ease; pointer-events: none; z-index: 9999; }
-    .toast.show { transform: translateX(-50%) translateY(0); }
+    /* ── Password gate ── */
+    #pw-gate { position:fixed;inset:0;z-index:9999;background:var(--rink);display:flex;align-items:center;justify-content:center;background-image:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(26,58,110,0.6) 0%,transparent 70%); }
+    .pw-box { background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:2.5rem 2rem;width:320px;max-width:90vw;text-align:center; }
+    .pw-box h2 { font-family:'Bebas Neue',cursive;font-size:1.8rem;color:var(--gold);letter-spacing:3px;margin-bottom:0.3rem; }
+    .pw-box p { color:var(--silver);font-size:0.85rem;letter-spacing:1px;margin-bottom:1.5rem; }
+    .pw-input { width:100%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:0.7rem 1rem;color:white;font-size:1rem;font-family:'Barlow Condensed',sans-serif;letter-spacing:2px;outline:none;text-align:center;transition:border-color 0.2s; }
+    .pw-input:focus { border-color:rgba(255,184,28,0.5); }
+    .pw-input.error { border-color:rgba(200,16,46,0.7);animation:pw-shake 0.3s; }
+    @keyframes pw-shake { 0%,100%{transform:translateX(0);}25%{transform:translateX(-6px);}75%{transform:translateX(6px);} }
+    .pw-btn { margin-top:1rem;width:100%;background:var(--red);color:white;border:none;border-radius:8px;padding:0.75rem;font-family:'Bebas Neue',cursive;font-size:1.2rem;letter-spacing:3px;cursor:pointer;transition:background 0.2s; }
+    .pw-btn:hover { background:#e0122e; }
+    .pw-error { color:rgba(200,16,46,0.8);font-size:0.8rem;margin-top:0.5rem;min-height:1em;letter-spacing:1px; }
+
+    body.view-only .btn-generate-team,
+    body.view-only .btn-clear-team { display: none; }
 
     /* ── Mobile ── */
     @media (max-width: 860px) {
@@ -393,7 +351,9 @@
       .mobile-tabs { display: flex; border-bottom: 1px solid var(--line); background: rgba(7,17,31,0.95); position: sticky; top: var(--nav-h); z-index: 50; flex-shrink: 0; }
       .mobile-tab { flex: 1; padding: 0.7rem 0.5rem; font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 2px; text-align: center; color: var(--silver); cursor: pointer; border-bottom: 2px solid transparent; transition: color 0.15s, border-color 0.15s; display: flex; align-items: center; justify-content: center; gap: 6px; }
       .mobile-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+      /* IMPROVED: mobile tab badge shows cap info */
       .mobile-tab-badge { background: var(--gold); color: var(--rink); font-family: 'Barlow Condensed', sans-serif; font-size: 0.65rem; font-weight: 700; border-radius: 10px; padding: 1px 6px; line-height: 1.4; }
+      .mobile-tab-badge.over-cap { background: var(--red); color: white; }
       .your-team-panel { overflow-y: visible; }
       .your-team-panel, .pool-panel { padding: 0.75rem 1rem 1rem; }
       .your-team-panel.mobile-hidden, .pool-panel.mobile-hidden { display: none; }
@@ -403,8 +363,8 @@
       .pool-controls-filters .pos-filter { flex: 1; min-width: 0; }
       .pool-controls-filters .pos-filter button { flex: 1; padding: 0.35rem 0.4rem; font-size: 0.82rem; letter-spacing: 1px; }
       .search-input { width: 100%; min-width: 0; }
+      /* IMPROVED: NHL strip always single-row on mobile too */
       .nhl-team-strip-wrap { overflow: visible; width: 100%; }
-      .nhl-team-strip { flex-wrap: wrap; }
       .nhl-team-pill { min-width: 36px; padding: 3px 4px; }
       .nhl-team-pill img { width: 18px; height: 18px; }
       .nhl-team-pill span { font-size: 0.52rem; }
@@ -423,67 +383,6 @@
       .btn-share-pool { width: 100%; }
       .overview-grid { grid-template-columns: 1fr 1fr; }
     }
-    /* ── Edit/Save/Lock bar ── */
-    .edit-bar {
-      max-width: 1100px; width: 100%; margin: 0 auto;
-      padding: 0.4rem 1.25rem;
-      display: flex; align-items: center; justify-content: space-between; gap: 0.75rem;
-      flex-shrink: 0;
-    }
-    .edit-bar-status {
-      font-family: 'Barlow Condensed', sans-serif; font-size: 0.8rem; font-weight: 600;
-      color: var(--silver); letter-spacing: 1px; display: flex; align-items: center; gap: 0.4rem;
-    }
-    .edit-bar-status .dot {
-      width: 7px; height: 7px; border-radius: 50%; background: var(--silver); flex-shrink: 0;
-    }
-    .edit-bar-status.locked .dot { background: var(--red); }
-    .edit-bar-status.editing .dot { background: var(--green); animation: pulse 1.4s ease-in-out infinite; }
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.35} }
-
-    /* ── Password gate ── */
-    #pw-gate { position:fixed;inset:0;z-index:9999;background:var(--rink);display:flex;align-items:center;justify-content:center;background-image:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(26,58,110,0.6) 0%,transparent 70%); }
-    .pw-box { background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:2.5rem 2rem;width:320px;max-width:90vw;text-align:center; }
-    .pw-box h2 { font-family:'Bebas Neue',cursive;font-size:1.8rem;color:var(--gold);letter-spacing:3px;margin-bottom:0.3rem; }
-    .pw-box p { color:var(--silver);font-size:0.85rem;letter-spacing:1px;margin-bottom:1.5rem; }
-    .pw-input { width:100%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:0.7rem 1rem;color:white;font-size:1rem;font-family:'Barlow Condensed',sans-serif;letter-spacing:2px;outline:none;text-align:center;transition:border-color 0.2s; }
-    .pw-input:focus { border-color:rgba(255,184,28,0.5); }
-    .pw-input.error { border-color:rgba(200,16,46,0.7);animation:pw-shake 0.3s; }
-    @keyframes pw-shake { 0%,100%{transform:translateX(0);}25%{transform:translateX(-6px);}75%{transform:translateX(6px);} }
-    .pw-btn { margin-top:1rem;width:100%;background:var(--red);color:white;border:none;border-radius:8px;padding:0.75rem;font-family:'Bebas Neue',cursive;font-size:1.2rem;letter-spacing:3px;cursor:pointer;transition:background 0.2s; }
-    .pw-btn:hover { background:#e0122e; }
-    .pw-error { color:rgba(200,16,46,0.8);font-size:0.8rem;margin-top:0.5rem;min-height:1em;letter-spacing:1px; }
-    .edit-bar-btns { display: flex; gap: 0.5rem; }
-    .btn-edit-mode {
-      font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 2px;
-      background: rgba(255,184,28,0.1); border: 1px solid rgba(255,184,28,0.35);
-      color: var(--gold); border-radius: 6px; padding: 4px 16px; cursor: pointer;
-      transition: background 0.15s, border-color 0.15s;
-    }
-    .btn-edit-mode:hover { background: rgba(255,184,28,0.2); border-color: rgba(255,184,28,0.6); }
-    .btn-edit-mode:disabled { opacity: 0.35; cursor: default; }
-    .btn-save-pool {
-      font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 2px;
-      background: var(--gold); border: none;
-      color: var(--rink); border-radius: 6px; padding: 4px 20px; cursor: pointer;
-      transition: opacity 0.15s, transform 0.1s;
-    }
-    .btn-save-pool:hover { opacity: 0.88; transform: translateY(-1px); }
-    .btn-save-pool:disabled { opacity: 0.35; cursor: default; transform: none; }
-    .btn-cancel-edit {
-      font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 2px;
-      background: none; border: 1px solid rgba(200,16,46,0.3);
-      color: rgba(200,16,46,0.7); border-radius: 6px; padding: 4px 14px; cursor: pointer;
-      transition: background 0.15s, border-color 0.15s, color 0.15s;
-    }
-    .btn-cancel-edit:hover { background: rgba(200,16,46,0.08); border-color: rgba(200,16,46,0.6); color: var(--red); }
-
-    body.view-only .btn-generate-team,
-    body.view-only .btn-clear-team { display: none; }
-
-    body.view-only .pool-layout .your-team-panel { opacity: 0.85; }
-    body.view-only .pool-layout .pool-panel { opacity: 0.9; }
-
     @media (min-width: 861px) { .mobile-tabs { display: none; } }
     @media (max-width: 500px) {
       .site-nav-brand { font-size: 1.2rem; letter-spacing: 3px; }
@@ -494,6 +393,9 @@
       .player-salary { font-size: 0.7rem; }
       .overview-grid { grid-template-columns: 1fr; }
     }
+
+    /* ── Share card (off-screen) ── */
+    #pool-share-card { position: fixed; left: -9999px; top: 0; width: 680px; font-family: 'Barlow Condensed', sans-serif; background: linear-gradient(160deg,#0d1b2e 0%,#111827 60%,#0f172a 100%); }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
@@ -509,28 +411,15 @@
   </div>
 </div>
 <script>
-(function(){
-  if(sessionStorage.getItem('pool_auth')==='1'){
-    document.getElementById('pw-gate').style.display='none';
+  (function(){
+    if(sessionStorage.getItem('pool_auth')==='1') document.getElementById('pw-gate').style.display='none';
+    document.getElementById('pw-input').addEventListener('keydown',e=>{ if(e.key==='Enter') checkPw(); });
+  })();
+  function checkPw(){
+    const input=document.getElementById('pw-input'), err=document.getElementById('pw-error');
+    if(input.value==='parieur2026'){ sessionStorage.setItem('pool_auth','1'); document.getElementById('pw-gate').style.display='none'; }
+    else { input.classList.add('error'); err.textContent='Incorrect password.'; setTimeout(()=>input.classList.remove('error'),400); input.value=''; input.focus(); }
   }
-  document.getElementById('pw-input').addEventListener('keydown',function(e){
-    if(e.key==='Enter') checkPw();
-  });
-})();
-function checkPw(){
-  const input=document.getElementById('pw-input');
-  const err=document.getElementById('pw-error');
-  if(input.value==='parieur2026'){
-    sessionStorage.setItem('pool_auth','1');
-    document.getElementById('pw-gate').style.display='none';
-  }else{
-    input.classList.add('error');
-    err.textContent='Incorrect password.';
-    setTimeout(()=>input.classList.remove('error'),400);
-    input.value='';
-    input.focus();
-  }
-}
 </script>
 
 <nav class="site-nav">
@@ -559,12 +448,10 @@ function checkPw(){
   </div>
 </header>
 
-<!-- Team switcher strip -->
 <div class="team-switcher-wrap">
   <div class="team-switcher" id="team-switcher"></div>
 </div>
 
-<!-- Edit / Save bar (only shown when in a league) -->
 <div class="edit-bar" id="edit-bar" style="display:none">
   <div class="edit-bar-status" id="edit-bar-status">
     <span class="dot"></span>
@@ -577,7 +464,6 @@ function checkPw(){
 
 <div id="pool-share-card"></div>
 
-<!-- Modal -->
 <div class="modal-overlay hidden" id="modal-overlay">
   <div class="modal-box">
     <div class="modal-title" id="modal-title">Add <span>Team</span></div>
@@ -589,10 +475,9 @@ function checkPw(){
   </div>
 </div>
 
-<!-- Mobile tabs -->
 <div class="mobile-tabs" id="mobile-tabs" style="display:none;">
   <div class="mobile-tab active" id="mob-tab-team" onclick="switchMobileTab('team')">
-    Your Team <span class="mobile-tab-badge" id="mob-roster-count">0/26</span>
+    Your Team <span class="mobile-tab-badge" id="mob-roster-badge">0/26</span>
   </div>
   <div class="mobile-tab" id="mob-tab-pool" onclick="switchMobileTab('pool')">Player Pool</div>
   <div class="mobile-tab" id="mob-tab-overview" onclick="switchMobileTab('overview')">All Teams</div>
@@ -609,20 +494,11 @@ function checkPw(){
       </div>
     </div>
 
-    <!-- Scoring legend -->
-    <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:0.6rem;flex-shrink:0;">
-      <div style="display:flex;align-items:center;gap:5px;background:rgba(255,122,138,0.07);border:1px solid rgba(255,122,138,0.18);border-radius:5px;padding:3px 8px;flex:1;min-width:0;">
-        <span style="font-family:'Bebas Neue',cursive;font-size:0.65rem;letter-spacing:1.5px;color:#ff7a8a;white-space:nowrap;">F</span>
-        <span style="font-size:0.68rem;color:rgba(255,255,255,0.4);white-space:nowrap;">G=1pt · A=1pt</span>
-      </div>
-      <div style="display:flex;align-items:center;gap:5px;background:rgba(125,180,255,0.07);border:1px solid rgba(125,180,255,0.18);border-radius:5px;padding:3px 8px;flex:1;min-width:0;">
-        <span style="font-family:'Bebas Neue',cursive;font-size:0.65rem;letter-spacing:1.5px;color:#7db4ff;white-space:nowrap;">D</span>
-        <span style="font-size:0.68rem;color:rgba(255,255,255,0.4);white-space:nowrap;">G=2pts · A=1pt</span>
-      </div>
-      <div style="display:flex;align-items:center;gap:5px;background:rgba(255,184,28,0.07);border:1px solid rgba(255,184,28,0.18);border-radius:5px;padding:3px 8px;flex:1;min-width:0;">
-        <span style="font-family:'Bebas Neue',cursive;font-size:0.65rem;letter-spacing:1.5px;color:var(--gold);white-space:nowrap;">G</span>
-        <span style="font-size:0.68rem;color:rgba(255,255,255,0.4);white-space:nowrap;">W=2pts · SO=3pts</span>
-      </div>
+    <!-- IMPROVED: Dynamic scoring legend (populated by JS after _scoring loads) -->
+    <div class="scoring-legend" id="scoring-legend">
+      <div class="scoring-legend-pill F"><span class="scoring-legend-pos">F</span><span class="scoring-legend-rules" id="legend-f">G=1pt · A=1pt</span></div>
+      <div class="scoring-legend-pill D"><span class="scoring-legend-pos">D</span><span class="scoring-legend-rules" id="legend-d">G=2pts · A=1pt</span></div>
+      <div class="scoring-legend-pill G"><span class="scoring-legend-pos">G</span><span class="scoring-legend-rules" id="legend-g">W=2pts · SO=3pts</span></div>
     </div>
 
     <div class="cap-bar-wrap" id="cap-bar-wrap">
@@ -634,12 +510,17 @@ function checkPw(){
         <span id="cap-used">$0</span>
         <span style="color:rgba(255,255,255,0.2);">used of</span>
         <span>$95,500,000</span>
-        <span id="cap-over" class="over" style="display:none;">— OVER CAP</span>
+        <span id="cap-over" class="over-label" style="display:none;">— OVER CAP</span>
       </div>
       <div class="cap-track"><div class="cap-fill" id="cap-fill" style="width:0%"></div></div>
       <div style="margin-top:6px;display:flex;align-items:baseline;justify-content:space-between;">
         <span style="font-family:'Bebas Neue',cursive;font-size:0.7rem;letter-spacing:2px;color:var(--silver);">Total Pool Points</span>
         <span id="roster-total-pts" style="font-family:'Bebas Neue',cursive;font-size:1.3rem;letter-spacing:1px;color:var(--gold);">0</span>
+      </div>
+      <!-- IMPROVED: Over-cap drop hint -->
+      <div class="cap-drop-hint" id="cap-drop-hint">
+        <div class="cap-drop-hint-label">💡 Drop to get under cap</div>
+        <div class="cap-drop-hint-player" id="cap-drop-hint-player">—</div>
       </div>
     </div>
 
@@ -657,6 +538,8 @@ function checkPw(){
     </div>
     <div class="roster-section">
       <div class="section-label">Bench <span class="count" id="bench-count">0 / 6</span></div>
+      <!-- IMPROVED: Bench explanation note -->
+      <div class="bench-note" id="bench-note">Bench counts toward cap but not scoring. Any position.</div>
       <div class="roster-slots" id="slots-B"></div>
     </div>
   </div>
@@ -697,7 +580,6 @@ function checkPw(){
   </div>
 </div>
 
-<!-- Pool overview (all teams) -->
 <div class="pool-overview" id="pool-overview" style="display:none;">
   <h2>All <span>Teams</span></h2>
   <div class="overview-grid" id="overview-grid"></div>
@@ -711,86 +593,120 @@ function checkPw(){
   const CAP_MAX = 95_500_000;
   const MAX_TEAMS = 12;
 
-  // ── League ────────────────────────────────────────────────────────────────
   const _leagueCode = new URLSearchParams(window.location.search).get('league') || null;
-  if (!_leagueCode) { window.location.replace('/pool'); }
+  if (!_leagueCode) window.location.replace('/pool');
   const POOL_KEY = _leagueCode ? `hp_pool_v2_${_leagueCode}` : 'hp_pool_v2';
+
+  const TEAM_ABBR = {
+    'anaheim-ducks':'ANA','boston-bruins':'BOS','buffalo-sabres':'BUF','calgary-flames':'CGY',
+    'carolina-hurricanes':'CAR','chicago-blackhawks':'CHI','colorado-avalanche':'COL',
+    'columbus-blue-jackets':'CBJ','dallas-stars':'DAL','detroit-red-wings':'DET',
+    'edmonton-oilers':'EDM','florida-panthers':'FLA','los-angeles-kings':'LAK',
+    'minnesota-wild':'MIN','montreal-canadiens':'MTL','nashville-predators':'NSH',
+    'new-jersey-devils':'NJD','new-york-islanders':'NYI','new-york-rangers':'NYR',
+    'ottawa-senators':'OTT','philadelphia-flyers':'PHI','pittsburgh-penguins':'PIT',
+    'san-jose-sharks':'SJS','seattle-kraken':'SEA','st-louis-blues':'STL',
+    'tampa-bay-lightning':'TBL','toronto-maple-leafs':'TOR','utah-hockey-club':'UTA',
+    'vancouver-canucks':'VAN','vegas-golden-knights':'VGK','washington-capitals':'WSH','winnipeg-jets':'WPG',
+  };
+
+  // ── State ──────────────────────────────────────────────────────────────────
+  let allPlayers = [];
+  let teams = [];
+  let activeTeamId = null;
+  let liveDraftedSlugs = new Set();
+  const SESSION_ID = Math.random().toString(36).slice(2);
+  const LOCK_TTL_MS = 5 * 60 * 1000;
+  let _isEditing = false;
+  let _heartbeatTimer = null;
+  let _snapshotBeforeEdit = null;
+  let activeFilter = 'ALL', activeNHLTeam = 'ALL', activeSort = 'salary';
+  let swapMode = null;
+  let _poolPage = 0;
+  const PAGE_SIZE = 50;
+  let _clearPending = false, _clearTimer = null, _undoSnapshot = null;
+  let _modalMode = null, _modalTargetId = null;
+
+  // ── IMPROVED: Scoring — loaded from Supabase, then legend updated ──────────
+  let _scoring = { f_points:1, d_goals:1, d_assists:1, g_wins:2, g_shutouts:3 };
+
+  function updateScoringLegend() {
+    const fRules = [];
+    if (_scoring.f_points) fRules.push(`G=${_scoring.f_points}pt`, `A=${_scoring.f_points}pt`);
+    document.getElementById('legend-f').textContent = fRules.join(' · ') || 'Pts only';
+
+    const dRules = [];
+    if (_scoring.d_goals)   dRules.push(`G=${_scoring.d_goals}pt${_scoring.d_goals>1?'s':''}`);
+    if (_scoring.d_assists) dRules.push(`A=${_scoring.d_assists}pt${_scoring.d_assists>1?'s':''}`);
+    document.getElementById('legend-d').textContent = dRules.join(' · ') || 'No scoring';
+
+    const gRules = [];
+    if (_scoring.g_wins)     gRules.push(`W=${_scoring.g_wins}pts`);
+    if (_scoring.g_shutouts) gRules.push(`SO=${_scoring.g_shutouts}pts`);
+    document.getElementById('legend-g').textContent = gRules.join(' · ') || 'No scoring';
+  }
+
+  async function loadScoringSettings() {
+    if (!_leagueCode) return;
+    try {
+      const res = await fetch(
+        `${SUPABASE_URL}/rest/v1/pool_settings?league_code=eq.${_leagueCode}&select=f_points,d_goals,d_assists,g_wins,g_shutouts`,
+        { headers: sbHeaders() }
+      );
+      if (res.ok) {
+        const rows = await res.json();
+        if (rows.length) _scoring = { ..._scoring, ...rows[0] };
+      }
+    } catch(e) {}
+    updateScoringLegend();
+  }
+
+  // ── Supabase helpers ──────────────────────────────────────────────────────
+  function sbHeaders(extra={}) {
+    return { 'apikey':SUPABASE_KEY, 'Authorization':`Bearer ${SUPABASE_KEY}`, 'Content-Type':'application/json', ...extra };
+  }
 
   function initLeagueBadge() {
     if (!_leagueCode) return;
     const badge = document.getElementById('league-badge');
-    const row = document.getElementById('league-badge-row');
+    const row   = document.getElementById('league-badge-row');
     if (badge) badge.textContent = _leagueCode;
-    if (row) row.style.display = '';
-    const navDraft = document.getElementById('nav-draft');
-    if (navDraft) navDraft.href = `/pool/join?league=${_leagueCode}`;
-    const navLiveDraft = document.getElementById('nav-live-draft');
-    if (navLiveDraft) navLiveDraft.href = `/pool/live-draft?league=${_leagueCode}`;
-    const navStandings = document.getElementById('nav-standings');
-    if (navStandings) navStandings.href = `/pool/standings?league=${_leagueCode}`;
-    const navSettings = document.getElementById('nav-settings');
-    if (navSettings) navSettings.href = `/pool/settings?league=${_leagueCode}`;
-    // Save to recent
+    if (row)   row.style.display = '';
+    document.getElementById('nav-draft').href       = `/pool/join?league=${_leagueCode}`;
+    document.getElementById('nav-live-draft').href  = `/pool/live-draft?league=${_leagueCode}`;
+    document.getElementById('nav-standings').href   = `/pool/standings?league=${_leagueCode}`;
+    document.getElementById('nav-settings').href    = `/pool/settings?league=${_leagueCode}`;
     try {
-      const k = 'hp_recent_leagues';
-      let list = JSON.parse(localStorage.getItem(k) || '[]');
-      list = [_leagueCode, ...list.filter(c => c !== _leagueCode)].slice(0, 5);
-      localStorage.setItem(k, JSON.stringify(list));
+      const k='hp_recent_leagues'; let list=JSON.parse(localStorage.getItem(k)||'[]');
+      list=[_leagueCode,...list.filter(c=>c!==_leagueCode)].slice(0,5);
+      localStorage.setItem(k,JSON.stringify(list));
     } catch(e) {}
-    // Fetch and show league name
-    fetch(`${SUPABASE_URL}/rest/v1/pool_leagues?code=eq.${_leagueCode}&select=name`, { headers: sbHeaders() })
-      .then(r => r.json()).then(rows => {
-        const name = rows[0]?.name;
-        if (name && badge) badge.textContent = `${name} · ${_leagueCode}`;
-      }).catch(() => {});
+    fetch(`${SUPABASE_URL}/rest/v1/pool_leagues?code=eq.${_leagueCode}&select=name`,{headers:sbHeaders()})
+      .then(r=>r.json()).then(rows=>{ const n=rows[0]?.name; if(n&&badge) badge.textContent=`${n} · ${_leagueCode}`; }).catch(()=>{});
   }
 
   function copyLeagueLink() {
     if (!_leagueCode) return;
-    const url = `${location.origin}${location.pathname}?league=${_leagueCode}`;
-    navigator.clipboard.writeText(url).then(() => toast('✓ League link copied')).catch(() => toast(url));
+    const url=`${location.origin}${location.pathname}?league=${_leagueCode}`;
+    navigator.clipboard.writeText(url).then(()=>toast('✓ League link copied')).catch(()=>toast(url));
   }
 
-  // ── Supabase sync + lock ──────────────────────────────────────────────────
-  const SESSION_ID = Math.random().toString(36).slice(2);
-  const LOCK_TTL_MS = 5 * 60 * 1000; // 5 min
-  let _isEditing = false;
-  let _heartbeatTimer = null;
-  let _snapshotBeforeEdit = null;
-
-  function sbHeaders(extra = {}) {
-    return {
-      'apikey': SUPABASE_KEY,
-      'Authorization': `Bearer ${SUPABASE_KEY}`,
-      'Content-Type': 'application/json',
-      ...extra,
-    };
-  }
-
-  // Load shared roster from Supabase, return true if data found
   async function loadFromSupabase() {
     if (!_leagueCode) return false;
     try {
-      const res = await fetch(
-        `${SUPABASE_URL}/rest/v1/pool_rosters?league_code=eq.${_leagueCode}&select=data`,
-        { headers: sbHeaders() }
-      );
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/pool_rosters?league_code=eq.${_leagueCode}&select=data`,{headers:sbHeaders()});
       if (!res.ok) return false;
       const rows = await res.json();
-      if (!rows.length || !rows[0].data) return false;
+      if (!rows.length||!rows[0].data) return false;
       const saved = rows[0].data;
-      if (!Array.isArray(saved.teams) || !saved.teams.length) return false;
-      teams = saved.teams.map(t => ({
-        id: t.id || uid(),
-        name: t.name || 'Team',
-        roster: {
-          F: Array.isArray(t.roster?.F) ? t.roster.F : Array(12).fill(null),
-          D: Array.isArray(t.roster?.D) ? t.roster.D : Array(6).fill(null),
-          G: Array.isArray(t.roster?.G) ? t.roster.G : Array(2).fill(null),
-        }
-      }));
-      activeTeamId = saved.activeTeamId && teams.find(t => t.id === saved.activeTeamId)
-        ? saved.activeTeamId : teams[0].id;
+      if (!Array.isArray(saved.teams)||!saved.teams.length) return false;
+      teams = saved.teams.map(t=>({ id:t.id||uid(), name:t.name||'Team', roster:{
+        F:Array.isArray(t.roster?.F)?t.roster.F:Array(12).fill(null),
+        D:Array.isArray(t.roster?.D)?t.roster.D:Array(6).fill(null),
+        G:Array.isArray(t.roster?.G)?t.roster.G:Array(2).fill(null),
+        B:Array.isArray(t.roster?.B)?t.roster.B:Array(6).fill(null),
+      }}));
+      activeTeamId = saved.activeTeamId&&teams.find(t=>t.id===saved.activeTeamId) ? saved.activeTeamId : teams[0].id;
       return true;
     } catch(e) { return false; }
   }
@@ -798,46 +714,33 @@ function checkPw(){
   async function saveToSupabase() {
     if (!_leagueCode) return;
     const data = { teams, activeTeamId };
-    // Upsert: insert or update by primary key
-    await fetch(`${SUPABASE_URL}/rest/v1/pool_rosters`, {
-      method: 'POST',
-      headers: sbHeaders({ 'Prefer': 'resolution=merge-duplicates,return=minimal' }),
-      body: JSON.stringify({ league_code: _leagueCode, data, updated_at: new Date().toISOString() }),
+    await fetch(`${SUPABASE_URL}/rest/v1/pool_rosters`,{
+      method:'POST', headers:sbHeaders({'Prefer':'resolution=merge-duplicates,return=minimal'}),
+      body: JSON.stringify({league_code:_leagueCode,data,updated_at:new Date().toISOString()}),
     });
   }
 
-  // Returns null if lock acquired, or { lockedBy, expiresAt } if held by someone else
   async function tryAcquireLock() {
     if (!_leagueCode) return null;
     try {
-      // Check existing lock
-      const checkRes = await fetch(
-        `${SUPABASE_URL}/rest/v1/pool_locks?league_code=eq.${_leagueCode}&select=session_id,heartbeat_at`,
-        { headers: sbHeaders() }
-      );
+      const checkRes = await fetch(`${SUPABASE_URL}/rest/v1/pool_locks?league_code=eq.${_leagueCode}&select=session_id,heartbeat_at`,{headers:sbHeaders()});
       if (checkRes.ok) {
         const rows = await checkRes.json();
         if (rows.length) {
-          const lock = rows[0];
-          const age = Date.now() - new Date(lock.heartbeat_at).getTime();
+          const lock = rows[0], age = Date.now() - new Date(lock.heartbeat_at).getTime();
           if (age < LOCK_TTL_MS && lock.session_id !== SESSION_ID) {
-            const expiresIn = Math.ceil((LOCK_TTL_MS - age) / 1000 / 60);
-            return { lockedBy: 'someone else', expiresIn };
+            return { lockedBy:'someone else', expiresIn: Math.ceil((LOCK_TTL_MS-age)/1000/60) };
           }
-          // Expired or our own lock — update it
-          await fetch(`${SUPABASE_URL}/rest/v1/pool_locks?league_code=eq.${_leagueCode}`, {
-            method: 'PATCH',
-            headers: sbHeaders({ 'Prefer': 'return=minimal' }),
-            body: JSON.stringify({ session_id: SESSION_ID, heartbeat_at: new Date().toISOString() }),
+          await fetch(`${SUPABASE_URL}/rest/v1/pool_locks?league_code=eq.${_leagueCode}`,{
+            method:'PATCH', headers:sbHeaders({'Prefer':'return=minimal'}),
+            body:JSON.stringify({session_id:SESSION_ID,heartbeat_at:new Date().toISOString()}),
           });
           return null;
         }
       }
-      // No lock — insert
-      await fetch(`${SUPABASE_URL}/rest/v1/pool_locks`, {
-        method: 'POST',
-        headers: sbHeaders({ 'Prefer': 'return=minimal' }),
-        body: JSON.stringify({ league_code: _leagueCode, session_id: SESSION_ID, heartbeat_at: new Date().toISOString() }),
+      await fetch(`${SUPABASE_URL}/rest/v1/pool_locks`,{
+        method:'POST', headers:sbHeaders({'Prefer':'return=minimal'}),
+        body:JSON.stringify({league_code:_leagueCode,session_id:SESSION_ID,heartbeat_at:new Date().toISOString()}),
       });
       return null;
     } catch(e) { return null; }
@@ -845,386 +748,302 @@ function checkPw(){
 
   async function releaseLock() {
     if (!_leagueCode) return;
-    try {
-      await fetch(`${SUPABASE_URL}/rest/v1/pool_locks?league_code=eq.${_leagueCode}&session_id=eq.${SESSION_ID}`, {
-        method: 'DELETE',
-        headers: sbHeaders(),
-      });
-    } catch(e) {}
+    try { await fetch(`${SUPABASE_URL}/rest/v1/pool_locks?league_code=eq.${_leagueCode}&session_id=eq.${SESSION_ID}`,{method:'DELETE',headers:sbHeaders()}); } catch(e){}
   }
 
   async function sendHeartbeat() {
-    if (!_leagueCode || !_isEditing) return;
+    if (!_leagueCode||!_isEditing) return;
     try {
-      await fetch(`${SUPABASE_URL}/rest/v1/pool_locks?league_code=eq.${_leagueCode}&session_id=eq.${SESSION_ID}`, {
-        method: 'PATCH',
-        headers: sbHeaders({ 'Prefer': 'return=minimal' }),
-        body: JSON.stringify({ heartbeat_at: new Date().toISOString() }),
+      await fetch(`${SUPABASE_URL}/rest/v1/pool_locks?league_code=eq.${_leagueCode}&session_id=eq.${SESSION_ID}`,{
+        method:'PATCH', headers:sbHeaders({'Prefer':'return=minimal'}),
+        body:JSON.stringify({heartbeat_at:new Date().toISOString()}),
       });
-    } catch(e) {}
+    } catch(e){}
   }
 
   function setEditBarStatus(mode, msg) {
-    const bar = document.getElementById('edit-bar');
-    const status = document.getElementById('edit-bar-status');
-    const msgEl = document.getElementById('edit-bar-msg');
-    const btns = document.getElementById('edit-bar-btns');
+    const bar=document.getElementById('edit-bar'), status=document.getElementById('edit-bar-status');
+    const msgEl=document.getElementById('edit-bar-msg'), btns=document.getElementById('edit-bar-btns');
     if (!bar) return;
-
-    status.className = 'edit-bar-status ' + mode; // 'locked', 'editing', or ''
-    msgEl.textContent = msg;
-
-    if (mode === 'editing') {
-      btns.innerHTML = `
-        <button class="btn-save-pool" id="btn-save" onclick="commitSave()">💾 Save</button>
-        <button class="btn-cancel-edit" onclick="cancelEdit()">Cancel</button>`;
+    status.className='edit-bar-status '+mode;
+    msgEl.textContent=msg;
+    if (mode==='editing') {
+      btns.innerHTML=`<button class="btn-save-pool" id="btn-save" onclick="commitSave()">💾 Save</button><button class="btn-cancel-edit" onclick="cancelEdit()">Cancel</button>`;
     } else {
-      btns.innerHTML = `<button class="btn-edit-mode" id="btn-edit" onclick="startEdit()" ${mode === 'locked' ? 'disabled' : ''}>✏ Edit</button>`;
+      btns.innerHTML=`<button class="btn-edit-mode" id="btn-edit" onclick="startEdit()" ${mode==='locked'?'disabled':''}>✏ Edit</button>`;
     }
   }
 
   async function startEdit() {
     if (!_leagueCode) return;
-    const btn = document.getElementById('btn-edit');
-    if (btn) { btn.disabled = true; btn.textContent = '…'; }
-
+    const btn=document.getElementById('btn-edit');
+    if (btn) { btn.disabled=true; btn.textContent='…'; }
     const conflict = await tryAcquireLock();
     if (conflict) {
-      setEditBarStatus('locked', `Locked by another editor (~${conflict.expiresIn}m left)`);
+      setEditBarStatus('locked',`Locked by another editor (~${conflict.expiresIn}m left)`);
       toast('Someone else is editing. Try again soon.');
       return;
     }
-
-    // Snapshot in case of cancel
-    _snapshotBeforeEdit = JSON.stringify({ teams, activeTeamId });
+    _snapshotBeforeEdit = JSON.stringify({teams,activeTeamId});
     _isEditing = true;
     document.body.classList.remove('view-only');
-    setEditBarStatus('editing', 'You have the edit lock');
+    setEditBarStatus('editing','You have the edit lock');
+    // IMPROVED: toast confirming lock acquired
+    toast('✓ Edit lock acquired — you can now make changes');
     renderAll();
     _heartbeatTimer = setInterval(sendHeartbeat, 60_000);
   }
 
   async function commitSave() {
-    const saveBtn = document.getElementById('btn-save');
-    if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = '…'; }
+    const saveBtn=document.getElementById('btn-save');
+    if (saveBtn) { saveBtn.disabled=true; saveBtn.textContent='…'; }
     try {
       await saveToSupabase();
-      savePool(); // also persist locally as cache
+      savePool();
       toast('✓ Saved for everyone');
     } catch(e) {
       toast('Save failed — check connection');
-      if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = '💾 Save'; }
+      if (saveBtn) { saveBtn.disabled=false; saveBtn.textContent='💾 Save'; }
       return;
     }
-    _isEditing = false;
-    clearInterval(_heartbeatTimer);
+    _isEditing=false; clearInterval(_heartbeatTimer);
     await releaseLock();
     document.body.classList.add('view-only');
-    setEditBarStatus('', 'View only — click Edit to make changes');
+    setEditBarStatus('','View only — click Edit to make changes');
     renderAll();
   }
 
   async function cancelEdit() {
     if (_snapshotBeforeEdit) {
-      try {
-        const snap = JSON.parse(_snapshotBeforeEdit);
-        teams = snap.teams; activeTeamId = snap.activeTeamId;
-      } catch(e) {}
+      try { const s=JSON.parse(_snapshotBeforeEdit); teams=s.teams; activeTeamId=s.activeTeamId; } catch(e){}
     }
-    _isEditing = false;
-    clearInterval(_heartbeatTimer);
+    _isEditing=false; clearInterval(_heartbeatTimer);
     await releaseLock();
     document.body.classList.add('view-only');
-    setEditBarStatus('', 'View only — click Edit to make changes');
-    renderAll();
-    toast('Changes discarded');
+    setEditBarStatus('','View only — click Edit to make changes');
+    renderAll(); toast('Changes discarded');
   }
 
-  // Release lock when tab closes
-  window.addEventListener('beforeunload', () => {
-    if (_isEditing && _leagueCode) releaseLock();
-  });
+  window.addEventListener('beforeunload',()=>{ if(_isEditing&&_leagueCode) releaseLock(); });
 
-  const TEAM_ABBR = {
-    'anaheim-ducks':'ANA','boston-bruins':'BOS','buffalo-sabres':'BUF',
-    'calgary-flames':'CGY','carolina-hurricanes':'CAR','chicago-blackhawks':'CHI',
-    'colorado-avalanche':'COL','columbus-blue-jackets':'CBJ','dallas-stars':'DAL',
-    'detroit-red-wings':'DET','edmonton-oilers':'EDM','florida-panthers':'FLA',
-    'los-angeles-kings':'LAK','minnesota-wild':'MIN','montreal-canadiens':'MTL',
-    'nashville-predators':'NSH','new-jersey-devils':'NJD','new-york-islanders':'NYI',
-    'new-york-rangers':'NYR','ottawa-senators':'OTT','philadelphia-flyers':'PHI',
-    'pittsburgh-penguins':'PIT','san-jose-sharks':'SJS','seattle-kraken':'SEA',
-    'st-louis-blues':'STL','tampa-bay-lightning':'TBL','toronto-maple-leafs':'TOR',
-    'utah-hockey-club':'UTA','vancouver-canucks':'VAN','vegas-golden-knights':'VGK',
-    'washington-capitals':'WSH','winnipeg-jets':'WPG',
-  };
-
-  // ── State ──────────────────────────────────────────────────────────────────
-  let allPlayers = [];
-  let teams = [];         // [{ id, name, roster: { F:[slug|null,...], D:[...], G:[...], B:[...] } }]
-  let activeTeamId = null;
-  let liveDraftedSlugs = new Set(); // slugs picked in live-draft
-
-  const SLOT_CFG = {
-    F: { containerId: 'slots-F', max: 12, countId: 'fwd-count' },
-    D: { containerId: 'slots-D', max: 6,  countId: 'def-count' },
-    G: { containerId: 'slots-G', max: 2,  countId: 'gol-count' },
-    B: { containerId: 'slots-B', max: 6,  countId: 'bench-count' },
-  };
-
-  let activeFilter = 'ALL';
-  let activeNHLTeam = 'ALL';
-  let activeSort   = 'salary';
-  let swapMode     = null;
-  let _poolPage    = 0;
-  const PAGE_SIZE  = 50;
-  let _clearPending = false;
-  let _clearTimer   = null;
-  let _undoSnapshot = null;
-
-  // Modal state
-  let _modalMode = null; // 'add' | 'rename'
-  let _modalTargetId = null;
-
-  // ── Getters ────────────────────────────────────────────────────────────────
-  function activeTeam() { return teams.find(t => t.id === activeTeamId) || null; }
-
-  function activeRoster() {
-    const t = activeTeam();
-    if (!t) return { F: Array(12).fill(null), D: Array(6).fill(null), G: Array(2).fill(null), B: Array(6).fill(null) };
-    return rosterFromSlugs(t.roster);
+  // ── Helpers ──────────────────────────────────────────────────────────────
+  function normalizePos(pos) {
+    if (!pos) return 'F';
+    const p=pos.toUpperCase();
+    if (p.includes('G')) return 'G';
+    if (p==='D'||p.includes('LD')||p.includes('RD')) return 'D';
+    return 'F';
   }
-
-  function rosterFromSlugs(rosterSlugs) {
-    const bySlug = slugMap();
-    return {
-      F: rosterSlugs.F.map(s => (s && bySlug[s]) ? bySlug[s] : null),
-      D: rosterSlugs.D.map(s => (s && bySlug[s]) ? bySlug[s] : null),
-      G: rosterSlugs.G.map(s => (s && bySlug[s]) ? bySlug[s] : null),
-      B: (rosterSlugs.B || Array(6).fill(null)).map(s => (s && bySlug[s]) ? bySlug[s] : null),
-    };
+  function formatName(name) {
+    if (!name) return '';
+    if (name.includes(',')) { const [last,first]=name.split(',').map(s=>s.trim()); return `${first} ${last}`; }
+    return name;
   }
+  function groupLabel(g) { return g==='F'?'Forward':g==='D'?'Defence':g==='B'?'Bench':'Goalie'; }
+  function uid() { return 't'+Math.random().toString(36).slice(2,9); }
+  function emptyRosterSlugs() { return {F:Array(12).fill(null),D:Array(6).fill(null),G:Array(2).fill(null),B:Array(6).fill(null)}; }
 
   function slugMap() {
-    if (!slugMap._cache) slugMap._cache = Object.fromEntries(allPlayers.map(p => [p.puckpedia_slug, p]));
+    if (!slugMap._cache) slugMap._cache=Object.fromEntries(allPlayers.map(p=>[p.puckpedia_slug,p]));
     return slugMap._cache;
   }
-
-  // All slugs claimed across ALL teams (for pool dimming)
+  function rosterFromSlugs(rs) {
+    const m=slugMap();
+    return {
+      F:rs.F.map(s=>(s&&m[s])?m[s]:null),
+      D:rs.D.map(s=>(s&&m[s])?m[s]:null),
+      G:rs.G.map(s=>(s&&m[s])?m[s]:null),
+      B:(rs.B||Array(6).fill(null)).map(s=>(s&&m[s])?m[s]:null),
+    };
+  }
+  function activeTeam() { return teams.find(t=>t.id===activeTeamId)||null; }
+  function activeRoster() {
+    const t=activeTeam();
+    if (!t) return {F:Array(12).fill(null),D:Array(6).fill(null),G:Array(2).fill(null),B:Array(6).fill(null)};
+    return rosterFromSlugs(t.roster);
+  }
   function allClaimedSlugs() {
-    const set = new Set(liveDraftedSlugs);
-    for (const t of teams) {
-      [...t.roster.F, ...t.roster.D, ...t.roster.G, ...(t.roster.B||[])].forEach(s => { if (s) set.add(s); });
-    }
+    const set=new Set(liveDraftedSlugs);
+    for (const t of teams) [...t.roster.F,...t.roster.D,...t.roster.G,...(t.roster.B||[])].forEach(s=>{ if(s) set.add(s); });
     return set;
+  }
+  function claimedByMap() {
+    const map={};
+    for (const t of teams) [...t.roster.F,...t.roster.D,...t.roster.G,...(t.roster.B||[])].forEach(s=>{ if(s) map[s]=t.name; });
+    return map;
+  }
+  function activeRosterSlugs() {
+    const t=activeTeam(); if (!t) return new Set();
+    return new Set([...t.roster.F,...t.roster.D,...t.roster.G,...(t.roster.B||[])].filter(Boolean));
+  }
+
+  // ── Scoring ───────────────────────────────────────────────────────────────
+  function poolScore(p) {
+    const pos=normalizePos(p.position);
+    if (pos==='G') return (p.wins??0)*_scoring.g_wins+(p.shutouts??0)*_scoring.g_shutouts;
+    if (pos==='D') return (p.goals??0)*_scoring.d_goals+(p.assists??0)*_scoring.d_assists;
+    return (p.points??0)*_scoring.f_points;
+  }
+  function effScore(p) {
+    if (p._eff!==undefined) return p._eff;
+    const capM=(p.cap_hit||1)/1_000_000;
+    p._eff=poolScore(p)/Math.sqrt(capM);
+    return p._eff;
+  }
+  function playerSortKey(p) {
+    if (activeSort==='points') return poolScore(p);
+    if (activeSort==='value')  return effScore(p);
+    return p.cap_hit||0;
+  }
+
+  // ── IMPROVED: Zero-GP / Injury detection ─────────────────────────────────
+  // A player is flagged if they have 0 GP and a non-trivial cap hit (>$1M)
+  // — suggests injured or scratched, contributing 0 pool points
+  function isLikelyInactive(p) {
+    return (p.games_played === 0 || p.games_played === null) && (p.cap_hit||0) > 1_000_000;
+  }
+
+  // ── IMPROVED: Cap drop hint — biggest salary in active roster ─────────────
+  function updateCapDropHint() {
+    const roster=activeRoster();
+    const players=[...roster.F,...roster.D,...roster.G,...(roster.B||[])].filter(Boolean);
+    const sorted=[...players].sort((a,b)=>(b.cap_hit||0)-(a.cap_hit||0));
+    const top=sorted[0];
+    const el=document.getElementById('cap-drop-hint-player');
+    if (el && top) {
+      const sal=top.cap_hit?`$${(top.cap_hit/1_000_000).toFixed(2)}M`:'';
+      el.innerHTML=`<span>${formatName(top.player_name)}</span><span class="cap-drop-hint-salary">${sal}</span>`;
+    }
+  }
+
+  // ── Persistence ───────────────────────────────────────────────────────────
+  function savePool() { localStorage.setItem(POOL_KEY,JSON.stringify({teams,activeTeamId})); }
+  function loadPool() {
+    try {
+      const raw=localStorage.getItem(POOL_KEY); if (!raw) return false;
+      const saved=JSON.parse(raw);
+      if (!Array.isArray(saved.teams)||!saved.teams.length) return false;
+      teams=saved.teams.map(t=>({id:t.id||uid(),name:t.name||'Team',roster:{
+        F:Array.isArray(t.roster?.F)?t.roster.F:Array(12).fill(null),
+        D:Array.isArray(t.roster?.D)?t.roster.D:Array(6).fill(null),
+        G:Array.isArray(t.roster?.G)?t.roster.G:Array(2).fill(null),
+        B:Array.isArray(t.roster?.B)?t.roster.B:Array(6).fill(null),
+      }}));
+      activeTeamId=saved.activeTeamId&&teams.find(t=>t.id===saved.activeTeamId)?saved.activeTeamId:teams[0].id;
+      return true;
+    } catch(e) { return false; }
+  }
+  function migrateOldSave() {
+    try {
+      const raw=localStorage.getItem('hp_roster'); if (!raw) return;
+      const saved=JSON.parse(raw), id=uid();
+      teams=[{id,name:'My Team',roster:{F:Array.isArray(saved.F)?saved.F:Array(12).fill(null),D:Array.isArray(saved.D)?saved.D:Array(6).fill(null),G:Array.isArray(saved.G)?saved.G:Array(2).fill(null),B:Array.isArray(saved.B)?saved.B:Array(6).fill(null)}}];
+      activeTeamId=id; savePool(); localStorage.removeItem('hp_roster');
+    } catch(e) {}
+  }
+
+  // ── Load ──────────────────────────────────────────────────────────────────
+  const PLAYERS_CACHE_KEY='hp_players_v2';
+  async function loadPlayers() {
+    try {
+      sessionStorage.removeItem('hp_players');
+      const cached=sessionStorage.getItem(PLAYERS_CACHE_KEY);
+      if (cached) {
+        try { allPlayers=JSON.parse(cached); if(!Array.isArray(allPlayers)||!allPlayers.length) throw new Error(); }
+        catch(_) { sessionStorage.removeItem(PLAYERS_CACHE_KEY); allPlayers=[]; }
+      }
+      if (!allPlayers.length) {
+        const res=await fetch(`${SUPABASE_URL}/rest/v1/nhl_players?select=puckpedia_slug,player_name,position,cap_hit,team,goals,assists,points,wins,shutouts,games_played&order=cap_hit.desc&limit=1000`,{headers:{apikey:SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
+        if (!res.ok) throw new Error(res.status);
+        allPlayers=await res.json();
+        sessionStorage.setItem(PLAYERS_CACHE_KEY,JSON.stringify(allPlayers));
+      }
+      slugMap._cache=null;
+      buildNHLTeamStrip();
+      if (_leagueCode) {
+        document.body.classList.add('view-only');
+        document.getElementById('edit-bar').style.display='';
+        setEditBarStatus('','Loading league…');
+        const loaded=await loadFromSupabase();
+        if (!loaded) { if (!loadPool()) addTeam('Team 1',false); }
+        await loadLiveDraftedSlugs();
+        initLeagueBadge();
+        renderAll();
+        setEditBarStatus('','View only — click Edit to make changes');
+      } else {
+        if (!loadPool()) { migrateOldSave(); if (!teams.length) addTeam('Team 1',false); }
+        initLeagueBadge();
+        renderAll();
+      }
+    } catch(e) {
+      document.getElementById('pool-list').innerHTML=`<div class="empty-msg">Failed to load players (${e.message}). <button class="retry-btn" onclick="loadPlayers()">Retry</button></div>`;
+    }
   }
 
   async function loadLiveDraftedSlugs() {
     if (!_leagueCode) return;
     try {
-      const res = await fetch(
-        `${SUPABASE_URL}/rest/v1/pool_draft_picks?league_code=eq.${_leagueCode}&select=player_name`,
-        { headers: sbHeaders() }
-      );
+      const res=await fetch(`${SUPABASE_URL}/rest/v1/pool_draft_picks?league_code=eq.${_leagueCode}&select=player_name`,{headers:sbHeaders()});
       if (!res.ok) return;
-      const picks = await res.json();
-      if (!picks.length) return;
-      // Build name→[slugs] map — handles duplicate names (e.g. two "Pettersson, Elias")
-      const slugsByName = {};
-      for (const p of allPlayers) {
-        if (p.player_name && p.puckpedia_slug) {
-          (slugsByName[p.player_name] = slugsByName[p.player_name] || []).push(p.puckpedia_slug);
-        }
-      }
-      liveDraftedSlugs = new Set(picks.flatMap(p => slugsByName[p.player_name] || []));
-    } catch(e) {}
+      const picks=await res.json(); if (!picks.length) return;
+      const slugsByName={};
+      for (const p of allPlayers) { if(p.player_name&&p.puckpedia_slug) (slugsByName[p.player_name]=slugsByName[p.player_name]||[]).push(p.puckpedia_slug); }
+      liveDraftedSlugs=new Set(picks.flatMap(p=>slugsByName[p.player_name]||[]));
+    } catch(e){}
   }
 
-  // Map slug → team name (for claimed badge)
-  function claimedByMap() {
-    const map = {};
-    for (const t of teams) {
-      [...t.roster.F, ...t.roster.D, ...t.roster.G, ...(t.roster.B||[])].forEach(s => { if (s) map[s] = t.name; });
-    }
-    return map;
-  }
-
-  // Slugs in active team's roster
-  function activeRosterSlugs() {
-    const t = activeTeam();
-    if (!t) return new Set();
-    return new Set([...t.roster.F, ...t.roster.D, ...t.roster.G, ...(t.roster.B||[])].filter(Boolean));
-  }
-
-  // ── ID generator ──────────────────────────────────────────────────────────
-  function uid() { return 't' + Math.random().toString(36).slice(2, 9); }
-
-  function emptyRosterSlugs() {
-    return { F: Array(12).fill(null), D: Array(6).fill(null), G: Array(2).fill(null), B: Array(6).fill(null) };
-  }
-
-  // ── Persistence ────────────────────────────────────────────────────────────
-  function savePool() {
-    localStorage.setItem(POOL_KEY, JSON.stringify({ teams, activeTeamId }));
-  }
-
-  function loadPool() {
-    try {
-      const raw = localStorage.getItem(POOL_KEY);
-      if (!raw) return false;
-      const saved = JSON.parse(raw);
-      if (!Array.isArray(saved.teams) || !saved.teams.length) return false;
-      teams = saved.teams.map(t => ({
-        id: t.id || uid(),
-        name: t.name || 'Team',
-        roster: {
-          F: Array.isArray(t.roster?.F) ? t.roster.F : Array(12).fill(null),
-          D: Array.isArray(t.roster?.D) ? t.roster.D : Array(6).fill(null),
-          G: Array.isArray(t.roster?.G) ? t.roster.G : Array(2).fill(null),
-          B: Array.isArray(t.roster?.B) ? t.roster.B : Array(6).fill(null),
-        }
-      }));
-      activeTeamId = saved.activeTeamId && teams.find(t => t.id === saved.activeTeamId)
-        ? saved.activeTeamId : teams[0].id;
-      return true;
-    } catch(e) { return false; }
-  }
-
-  // Migrate old single-roster save
-  function migrateOldSave() {
-    try {
-      const raw = localStorage.getItem('hp_roster');
-      if (!raw) return;
-      const saved = JSON.parse(raw);
-      const id = uid();
-      teams = [{ id, name: 'My Team', roster: {
-        F: Array.isArray(saved.F) ? saved.F : Array(12).fill(null),
-        D: Array.isArray(saved.D) ? saved.D : Array(6).fill(null),
-        G: Array.isArray(saved.G) ? saved.G : Array(2).fill(null),
-        B: Array.isArray(saved.B) ? saved.B : Array(6).fill(null),
-      }}];
-      activeTeamId = id;
-      savePool();
-      localStorage.removeItem('hp_roster');
-    } catch(e) {}
-  }
-
-  // ── Fetch ──────────────────────────────────────────────────────────────────
-  const PLAYERS_CACHE_KEY = 'hp_players_v2';
-  async function loadPlayers() {
-    try {
-      // Always clear the old stale key
-      sessionStorage.removeItem('hp_players');
-      const cached = sessionStorage.getItem(PLAYERS_CACHE_KEY);
-      if (cached) {
-        try {
-          allPlayers = JSON.parse(cached);
-          if (!Array.isArray(allPlayers) || !allPlayers.length) throw new Error('empty');
-        } catch(_) {
-          sessionStorage.removeItem(PLAYERS_CACHE_KEY);
-          allPlayers = [];
-        }
-      }
-      if (!allPlayers.length) {
-        const res = await fetch(
-          `${SUPABASE_URL}/rest/v1/nhl_players?select=puckpedia_slug,player_name,position,cap_hit,team,goals,assists,points,wins,shutouts,games_played&order=cap_hit.desc&limit=1000`,
-          { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
-        );
-        if (!res.ok) throw new Error(res.status);
-        allPlayers = await res.json();
-        sessionStorage.setItem(PLAYERS_CACHE_KEY, JSON.stringify(allPlayers));
-      }
-      slugMap._cache = null; // invalidate after load
-      buildNHLTeamStrip();
-
-      if (_leagueCode) {
-        // League mode: load from Supabase, fall back to local cache, then blank slate
-        document.body.classList.add('view-only');
-        document.getElementById('edit-bar').style.display = '';
-        setEditBarStatus('', 'Loading league…');
-        const loaded = await loadFromSupabase();
-        if (!loaded) {
-          if (!loadPool()) addTeam('Team 1', false);
-        }
-        await loadLiveDraftedSlugs();
-        initLeagueBadge();
-        renderAll();
-        setEditBarStatus('', 'View only — click Edit to make changes');
-      } else {
-        // Solo mode: load from localStorage as before
-        if (!loadPool()) {
-          migrateOldSave();
-          if (!teams.length) addTeam('Team 1', false);
-        }
-        initLeagueBadge();
-        renderAll();
-      }
-    } catch(e) {
-      console.error('loadPlayers error:', e);
-      document.getElementById('pool-list').innerHTML =
-        `<div class="empty-msg">Failed to load players (${e.message}). <button class="retry-btn" onclick="loadPlayers()">Retry</button></div>`;
-    }
-  }
-
-  // ── Add / delete / rename team ─────────────────────────────────────────────
-  function addTeam(name, save = true) {
-    if (teams.length >= MAX_TEAMS) { toast(`Max ${MAX_TEAMS} teams`); return; }
-    const id = uid();
-    teams.push({ id, name: name || `Team ${teams.length + 1}`, roster: emptyRosterSlugs() });
-    activeTeamId = id;
+  // ── Team management ───────────────────────────────────────────────────────
+  function addTeam(name,save=true) {
+    if (teams.length>=MAX_TEAMS) { toast(`Max ${MAX_TEAMS} teams`); return; }
+    const id=uid();
+    teams.push({id,name:name||`Team ${teams.length+1}`,roster:emptyRosterSlugs()});
+    activeTeamId=id;
     if (save) { savePool(); renderAll(); }
   }
-
   function deleteTeam(id) {
-    if (teams.length <= 1) { toast('Need at least 1 team'); return; }
-    teams = teams.filter(t => t.id !== id);
-    if (activeTeamId === id) activeTeamId = teams[0].id;
+    if (teams.length<=1) { toast('Need at least 1 team'); return; }
+    teams=teams.filter(t=>t.id!==id);
+    if (activeTeamId===id) activeTeamId=teams[0].id;
     savePool(); renderAll();
   }
-
-  function renameTeam(id, name) {
-    const t = teams.find(t => t.id === id);
-    if (t) { t.name = name.trim() || t.name; savePool(); renderAll(); }
+  function renameTeam(id,name) {
+    const t=teams.find(t=>t.id===id);
+    if (t) { t.name=name.trim()||t.name; savePool(); renderAll(); }
   }
-
   function switchTeam(id) {
     if (swapMode) cancelSwap();
-    activeTeamId = id;
-    savePool(); renderAll();
+    activeTeamId=id; savePool(); renderAll();
   }
 
-  // ── Modal ──────────────────────────────────────────────────────────────────
+  // ── Modal ─────────────────────────────────────────────────────────────────
   function openAddTeamModal() {
-    _modalMode = 'add'; _modalTargetId = null;
-    document.getElementById('modal-title').innerHTML = 'Add <span>Team</span>';
-    document.getElementById('modal-input').value = '';
-    document.getElementById('modal-input').placeholder = `Team ${teams.length + 1}`;
-    document.getElementById('modal-confirm-btn').textContent = 'Add';
+    _modalMode='add'; _modalTargetId=null;
+    document.getElementById('modal-title').innerHTML='Add <span>Team</span>';
+    document.getElementById('modal-input').value='';
+    document.getElementById('modal-input').placeholder=`Team ${teams.length+1}`;
+    document.getElementById('modal-confirm-btn').textContent='Add';
     document.getElementById('modal-overlay').classList.remove('hidden');
-    setTimeout(() => document.getElementById('modal-input').focus(), 50);
+    setTimeout(()=>document.getElementById('modal-input').focus(),50);
   }
-
   function openRenameModal(id) {
-    _modalMode = 'rename'; _modalTargetId = id;
-    const t = teams.find(t => t.id === id);
-    document.getElementById('modal-title').innerHTML = 'Rename <span>Team</span>';
-    document.getElementById('modal-input').value = t ? t.name : '';
-    document.getElementById('modal-input').placeholder = 'Team name…';
-    document.getElementById('modal-confirm-btn').textContent = 'Save';
+    _modalMode='rename'; _modalTargetId=id;
+    const t=teams.find(t=>t.id===id);
+    document.getElementById('modal-title').innerHTML='Rename <span>Team</span>';
+    document.getElementById('modal-input').value=t?t.name:'';
+    document.getElementById('modal-input').placeholder='Team name…';
+    document.getElementById('modal-confirm-btn').textContent='Save';
     document.getElementById('modal-overlay').classList.remove('hidden');
-    setTimeout(() => { const inp = document.getElementById('modal-input'); inp.focus(); inp.select(); }, 50);
+    setTimeout(()=>{ const inp=document.getElementById('modal-input'); inp.focus(); inp.select(); },50);
   }
-
   function closeModal() { document.getElementById('modal-overlay').classList.add('hidden'); }
-
   function confirmModal() {
-    const val = document.getElementById('modal-input').value.trim();
-    if (_modalMode === 'add') addTeam(val || `Team ${teams.length + 1}`);
-    else if (_modalMode === 'rename' && _modalTargetId) renameTeam(_modalTargetId, val);
+    const val=document.getElementById('modal-input').value.trim();
+    if (_modalMode==='add') addTeam(val||`Team ${teams.length+1}`);
+    else if (_modalMode==='rename'&&_modalTargetId) renameTeam(_modalTargetId,val);
     closeModal();
   }
 
-  // ── Render all ─────────────────────────────────────────────────────────────
+  // ── Render all ────────────────────────────────────────────────────────────
   function renderAll() {
     renderTeamSwitcher();
     refreshRoster();
@@ -1233,704 +1052,532 @@ function checkPw(){
     updateActiveTeamLabel();
   }
 
-  // ── Team switcher ──────────────────────────────────────────────────────────
+  // ── Team switcher ─────────────────────────────────────────────────────────
   function renderTeamSwitcher() {
-    const el = document.getElementById('team-switcher');
-    el.innerHTML = '';
+    const el=document.getElementById('team-switcher');
+    el.innerHTML='';
     for (const t of teams) {
-      const roster = rosterFromSlugs(t.roster);
-      const filled = [...roster.F, ...roster.D, ...roster.G, ...(roster.B||[])].filter(Boolean).length;
-      const isFull = filled >= 26;
-      const pill = document.createElement('div');
-      pill.className = 'team-pill-switcher' + (t.id === activeTeamId ? ' active' : '');
-      const isViewOnly = document.body.classList.contains('view-only');
-      pill.innerHTML = `
-        <div class="team-pill-name">${t.name}</div>
-        <div class="team-pill-progress ${isFull ? 'full' : ''}">${filled}/26</div>
-        ${isViewOnly ? '' : `<div class="team-pill-actions">
-          <button class="team-pill-btn" onclick="event.stopPropagation();openRenameModal('${t.id}')">Rename</button>
-          <button class="team-pill-btn delete" onclick="event.stopPropagation();confirmDeleteTeam('${t.id}')">✕</button>
-        </div>`}`;
-      pill.addEventListener('click', () => switchTeam(t.id));
+      const roster=rosterFromSlugs(t.roster);
+      const filled=[...roster.F,...roster.D,...roster.G,...(roster.B||[])].filter(Boolean).length;
+      const isFull=filled>=26;
+      const pill=document.createElement('div');
+      pill.className='team-pill-switcher'+(t.id===activeTeamId?' active':'');
+      const isViewOnly=document.body.classList.contains('view-only');
+      pill.innerHTML=`<div class="team-pill-name">${t.name}</div><div class="team-pill-progress ${isFull?'full':''}">${filled}/26</div>${isViewOnly?'':
+        `<div class="team-pill-actions"><button class="team-pill-btn" onclick="event.stopPropagation();openRenameModal('${t.id}')">Rename</button><button class="team-pill-btn delete" onclick="event.stopPropagation();confirmDeleteTeam('${t.id}')">✕</button></div>`}`;
+      pill.addEventListener('click',()=>switchTeam(t.id));
       el.appendChild(pill);
     }
-    // Add team button — hidden in view-only mode
-    if (teams.length < MAX_TEAMS && !document.body.classList.contains('view-only')) {
-      const add = document.createElement('button');
-      add.className = 'btn-add-team';
-      add.innerHTML = '＋ Add Team';
-      add.onclick = openAddTeamModal;
+    if (teams.length<MAX_TEAMS&&!document.body.classList.contains('view-only')) {
+      const add=document.createElement('button');
+      add.className='btn-add-team'; add.innerHTML='＋ Add Team'; add.onclick=openAddTeamModal;
       el.appendChild(add);
     }
   }
 
   function updateActiveTeamLabel() {
-    const t = activeTeam();
-    const el = document.getElementById('active-team-label');
-    if (el) el.textContent = t ? t.name : '—';
+    const t=activeTeam(), el=document.getElementById('active-team-label');
+    if (el) el.textContent=t?t.name:'—';
   }
 
-  // Delete with confirm
-  let _deleteTarget = null, _deleteTimer = null;
+  let _deleteTarget=null, _deleteTimer=null;
   function confirmDeleteTeam(id) {
-    if (_deleteTarget === id) {
-      clearTimeout(_deleteTimer); _deleteTarget = null;
-      deleteTeam(id); return;
-    }
-    _deleteTarget = id;
-    toast('Click ✕ again to delete team');
-    clearTimeout(_deleteTimer);
-    _deleteTimer = setTimeout(() => { _deleteTarget = null; }, 3000);
+    if (_deleteTarget===id) { clearTimeout(_deleteTimer); _deleteTarget=null; deleteTeam(id); return; }
+    _deleteTarget=id; toast('Click ✕ again to delete team');
+    clearTimeout(_deleteTimer); _deleteTimer=setTimeout(()=>{ _deleteTarget=null; },3000);
   }
 
   // ── Overview ──────────────────────────────────────────────────────────────
   function renderOverview() {
-    const grid = document.getElementById('overview-grid');
-    grid.innerHTML = '';
+    const grid=document.getElementById('overview-grid'); grid.innerHTML='';
     for (const t of teams) {
-      const roster = rosterFromSlugs(t.roster);
-      const players = [...roster.F, ...roster.D, ...roster.G, ...(roster.B||[])].filter(Boolean);
-      const filled = players.length;
-      const pts = players.reduce((s, p) => s + poolScore(p), 0);
-      const cap = players.reduce((s, p) => s + (p.cap_hit || 0), 0);
-      const pct = (filled / 26) * 100;
-      const card = document.createElement('div');
-      card.className = 'overview-card';
-      card.innerHTML = `
-        <div class="overview-card-name">${t.name}</div>
-        <div class="overview-card-stats">
-          <span class="overview-stat"><strong>${filled}</strong>/26 players</span>
-          <span class="overview-stat"><strong>${pts}</strong> pts</span>
-          <span class="overview-stat"><strong>$${(cap/1_000_000).toFixed(1)}M</strong> used</span>
-        </div>
-        <div class="overview-progress-bar"><div class="overview-progress-fill" style="width:${pct}%"></div></div>`;
-      card.addEventListener('click', () => {
-        switchTeam(t.id);
-        if (window.innerWidth <= 860) switchMobileTab('team');
-        else showView('draft');
-      });
+      const roster=rosterFromSlugs(t.roster);
+      const players=[...roster.F,...roster.D,...roster.G,...(roster.B||[])].filter(Boolean);
+      const filled=players.length, pts=players.reduce((s,p)=>s+poolScore(p),0);
+      const cap=players.reduce((s,p)=>s+(p.cap_hit||0),0), pct=(filled/26)*100;
+      const card=document.createElement('div'); card.className='overview-card';
+      card.innerHTML=`<div class="overview-card-name">${t.name}</div><div class="overview-card-stats"><span class="overview-stat"><strong>${filled}</strong>/26</span><span class="overview-stat"><strong>${pts}</strong> pts</span><span class="overview-stat"><strong>$${(cap/1_000_000).toFixed(1)}M</strong></span></div><div class="overview-progress-bar"><div class="overview-progress-fill" style="width:${pct}%"></div></div>`;
+      card.addEventListener('click',()=>{ switchTeam(t.id); if(window.innerWidth<=860) switchMobileTab('team'); else showView('draft'); });
       grid.appendChild(card);
     }
   }
 
-  // ── View toggling (desktop overview) ──────────────────────────────────────
-  let _currentView = 'draft';
+  let _currentView='draft';
   function showView(view) {
-    _currentView = view;
-    const layout = document.getElementById('pool-layout');
-    const overview = document.getElementById('pool-overview');
-    if (view === 'overview') {
-      layout.style.display = 'none';
-      overview.style.display = '';
-    } else {
-      layout.style.display = '';
-      overview.style.display = 'none';
-    }
+    _currentView=view;
+    document.getElementById('pool-layout').style.display=view==='overview'?'none':'';
+    document.getElementById('pool-overview').style.display=view==='overview'?'':'none';
   }
 
-  // ── Mobile tabs ────────────────────────────────────────────────────────────
-  let _mobileTab = 'pool';
+  // ── Mobile tabs ───────────────────────────────────────────────────────────
+  let _mobileTab='pool';
   function switchMobileTab(tab) {
-    _mobileTab = tab;
-    ['team','pool','overview'].forEach(t => {
-      document.getElementById(`mob-tab-${t}`)?.classList.toggle('active', t === tab);
-    });
-    document.getElementById('your-team-panel').classList.toggle('mobile-hidden', tab !== 'team');
-    document.getElementById('pool-panel').classList.toggle('mobile-hidden', tab !== 'pool');
-    const layout = document.getElementById('pool-layout');
-    const overview = document.getElementById('pool-overview');
-    if (tab === 'overview') {
-      layout.style.display = 'none';
-      overview.style.display = '';
-      renderOverview();
-    } else {
-      layout.style.display = '';
-      overview.style.display = 'none';
-    }
+    _mobileTab=tab;
+    ['team','pool','overview'].forEach(t=>{document.getElementById(`mob-tab-${t}`)?.classList.toggle('active',t===tab);});
+    document.getElementById('your-team-panel').classList.toggle('mobile-hidden',tab!=='team');
+    document.getElementById('pool-panel').classList.toggle('mobile-hidden',tab!=='pool');
+    const layout=document.getElementById('pool-layout'), overview=document.getElementById('pool-overview');
+    if (tab==='overview') { layout.style.display='none'; overview.style.display=''; renderOverview(); }
+    else { layout.style.display=''; overview.style.display='none'; }
   }
-
   function initMobileTabs() {
-    if (window.innerWidth <= 860) {
-      document.getElementById('mobile-tabs').style.display = 'flex';
-      switchMobileTab('pool');
+    if (window.innerWidth<=860) { document.getElementById('mobile-tabs').style.display='flex'; switchMobileTab('pool'); }
+  }
+
+  // IMPROVED: mobile badge shows cap status too
+  function updateMobileRosterBadge() {
+    const t=activeTeam(); if (!t) return;
+    const filled=[...t.roster.F,...t.roster.D,...t.roster.G,...(t.roster.B||[])].filter(Boolean).length;
+    const roster=activeRoster();
+    const cap=[...roster.F,...roster.D,...roster.G,...(roster.B||[])].filter(Boolean).reduce((s,p)=>s+(p.cap_hit||0),0);
+    const isOver=cap>CAP_MAX;
+    const badge=document.getElementById('mob-roster-badge');
+    if (badge) {
+      badge.textContent=`${filled}/26${isOver?' ⚠':''}`;
+      badge.className='mobile-tab-badge'+(isOver?' over-cap':'');
     }
   }
 
-  function updateMobileRosterCount() {
-    const t = activeTeam();
-    if (!t) return;
-    const filled = [...t.roster.F, ...t.roster.D, ...t.roster.G, ...(t.roster.B||[])].filter(Boolean).length;
-    const badge = document.getElementById('mob-roster-count');
-    if (badge) badge.textContent = `${filled}/26`;
-  }
-
-  // ── NHL Team strip ─────────────────────────────────────────────────────────
+  // ── NHL team strip ────────────────────────────────────────────────────────
   function buildNHLTeamStrip() {
-    const nhlTeams = [...new Set(allPlayers.map(p => p.team).filter(Boolean))].sort();
-    const strip = document.getElementById('nhl-team-strip');
-    strip.innerHTML = '';
-    const all = document.createElement('div');
-    all.className = 'nhl-team-pill nhl-team-pill-all active';
-    all.textContent = 'ALL';
-    all.addEventListener('click', () => setNHLTeam('ALL', all));
+    const nhlTeams=[...new Set(allPlayers.map(p=>p.team).filter(Boolean))].sort();
+    const strip=document.getElementById('nhl-team-strip'); strip.innerHTML='';
+    const all=document.createElement('div');
+    all.className='nhl-team-pill nhl-team-pill-all active'; all.textContent='ALL';
+    all.addEventListener('click',()=>setNHLTeam('ALL',all));
     strip.appendChild(all);
     for (const slug of nhlTeams) {
-      const abbr = TEAM_ABBR[slug]; if (!abbr) continue;
-      const pill = document.createElement('div');
-      pill.className = 'nhl-team-pill'; pill.dataset.team = slug;
-      pill.innerHTML = `<img src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}"><span>${abbr}</span>`;
-      pill.addEventListener('click', () => setNHLTeam(slug, pill));
+      const abbr=TEAM_ABBR[slug]; if (!abbr) continue;
+      const pill=document.createElement('div'); pill.className='nhl-team-pill'; pill.dataset.team=slug;
+      pill.innerHTML=`<img src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}"><span>${abbr}</span>`;
+      pill.addEventListener('click',()=>setNHLTeam(slug,pill));
       strip.appendChild(pill);
     }
   }
 
-  function setNHLTeam(slug, el) {
-    activeNHLTeam = slug;
-    document.querySelectorAll('.nhl-team-pill').forEach(p => p.classList.remove('active'));
+  function setNHLTeam(slug,el) {
+    activeNHLTeam=slug;
+    document.querySelectorAll('.nhl-team-pill').forEach(p=>p.classList.remove('active'));
     el.classList.add('active');
-    el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+    el.scrollIntoView({behavior:'smooth',block:'nearest',inline:'nearest'});
     renderPool();
   }
 
-  // ── Helpers ────────────────────────────────────────────────────────────────
-  function normalizePos(pos) {
-    if (!pos) return 'F';
-    const p = pos.toUpperCase();
-    if (p.includes('G')) return 'G';
-    if (p === 'D' || p.includes('LD') || p.includes('RD')) return 'D';
-    return 'F';
-  }
-  function formatName(name) {
-    if (!name) return '';
-    if (name.includes(',')) { const [last, first] = name.split(',').map(s => s.trim()); return `${first} ${last}`; }
-    return name;
-  }
-  function groupLabel(g) { return g === 'F' ? 'Forward' : g === 'D' ? 'Defence' : g === 'B' ? 'Bench' : 'Goalie'; }
-
-  // ── Pool render ────────────────────────────────────────────────────────────
-  function renderPool() { _poolPage = 0; _renderPoolPage(); }
-
+  // ── Pool render ───────────────────────────────────────────────────────────
+  function renderPool() { _poolPage=0; _renderPoolPage(); }
   function _renderPoolPage() {
-    const query = document.getElementById('search-input').value.toLowerCase().trim();
-    const claimed = allClaimedSlugs();
-    const activeSlugs = activeRosterSlugs();
-    const claimedBy = claimedByMap();
-
-    const filtered = allPlayers.filter(p => {
+    const query=document.getElementById('search-input').value.toLowerCase().trim();
+    const claimed=allClaimedSlugs(), activeSlugs=activeRosterSlugs(), claimedBy=claimedByMap();
+    const filtered=allPlayers.filter(p=>{
       if (!p.player_name) return false;
-      if (activeFilter !== 'ALL' && normalizePos(p.position) !== activeFilter) return false;
-      if (activeNHLTeam !== 'ALL' && p.team !== activeNHLTeam) return false;
-      if (query && !p.player_name.toLowerCase().includes(query)) return false;
+      if (activeFilter!=='ALL'&&normalizePos(p.position)!==activeFilter) return false;
+      if (activeNHLTeam!=='ALL'&&p.team!==activeNHLTeam) return false;
+      if (query&&!p.player_name.toLowerCase().includes(query)) return false;
       return true;
-    }).slice().sort((a, b) => playerSortKey(b) - playerSortKey(a));
-
-    const list = document.getElementById('pool-list');
-    if (!filtered.length) { list.innerHTML = '<div class="empty-msg">No players found.</div>'; return; }
-    const visible = filtered.slice(0, (_poolPage + 1) * PAGE_SIZE);
-    list.innerHTML = '';
-    visible.forEach(p => {
-      const slug = p.puckpedia_slug;
-      const inActiveRoster = activeSlugs.has(slug);
-      const claimedByLiveDraft = liveDraftedSlugs.has(slug);
-      const claimedByOther = claimedByLiveDraft || (!inActiveRoster && claimed.has(slug));
-      list.appendChild(makePoolCard(p, normalizePos(p.position), claimedByOther, claimedByOther ? (claimedBy[slug] || 'Live Draft') : null));
+    }).slice().sort((a,b)=>playerSortKey(b)-playerSortKey(a));
+    const list=document.getElementById('pool-list');
+    if (!filtered.length) { list.innerHTML='<div class="empty-msg">No players found.</div>'; return; }
+    const visible=filtered.slice(0,(_poolPage+1)*PAGE_SIZE);
+    list.innerHTML='';
+    visible.forEach(p=>{
+      const slug=p.puckpedia_slug, inActive=activeSlugs.has(slug);
+      const claimedLive=liveDraftedSlugs.has(slug), claimedOther=claimedLive||(!inActive&&claimed.has(slug));
+      list.appendChild(makePoolCard(p,normalizePos(p.position),claimedOther,claimedOther?(claimedBy[slug]||'Live Draft'):null));
     });
-    if (filtered.length > visible.length) {
-      const remaining = filtered.length - visible.length;
-      const btn = document.createElement('button');
-      btn.className = 'load-more-btn';
-      btn.textContent = `Load more (${remaining} remaining)`;
-      btn.onclick = () => { _poolPage++; _renderPoolPage(); };
+    if (filtered.length>visible.length) {
+      const remaining=filtered.length-visible.length;
+      const btn=document.createElement('button'); btn.className='load-more-btn';
+      btn.textContent=`Load more (${remaining} remaining)`;
+      btn.onclick=()=>{ _poolPage++; _renderPoolPage(); };
       list.appendChild(btn);
     }
   }
 
-  // ── Make pool card ─────────────────────────────────────────────────────────
-  function makePoolCard(player, pos, claimedByOther = false, claimedTeamName = null) {
-    const el = document.createElement('div');
-    el.className = 'player-card' + (claimedByOther ? ' claimed-other' : '');
-    el.dataset.slug = player.puckpedia_slug;
-    const salary = player.cap_hit ? '$' + player.cap_hit.toLocaleString() : 'No contract';
-    const eff = player.cap_hit ? effScore(player).toFixed(1) : null;
-    const effBox = eff ? `<div class="stat-box stat-box-eff"><div class="stat-box-main">${eff}</div><div class="stat-box-label">EFF</div></div>` : '';
-    const gpBox = player.games_played != null ? `<div class="stat-box stat-box-gp"><div class="stat-box-main">${player.games_played}</div><div class="stat-box-label">GP</div></div>` : '';
+  // ── Make pool card ────────────────────────────────────────────────────────
+  function makePoolCard(player,pos,claimedByOther=false,claimedTeamName=null) {
+    const el=document.createElement('div');
+    el.className='player-card'+(claimedByOther?' claimed-other':'');
+    el.dataset.slug=player.puckpedia_slug;
+    const salary=player.cap_hit?'$'+player.cap_hit.toLocaleString():'No contract';
+    const eff=player.cap_hit?effScore(player).toFixed(1):null;
+    const effBox=eff?`<div class="stat-box stat-box-eff"><div class="stat-box-main">${eff}</div><div class="stat-box-label">EFF</div></div>`:'';
+    const gpBox=player.games_played!=null?`<div class="stat-box stat-box-gp"><div class="stat-box-main">${player.games_played}</div><div class="stat-box-label">GP</div></div>`:'';
     let statBoxHtml;
-    if (pos === 'G') {
-      statBoxHtml = player.wins != null ? `<div class="stat-boxes">${gpBox}<div class="stat-box stat-box-pts"><div class="stat-box-main">${player.wins}</div><div class="stat-box-label">WINS</div></div>${player.shutouts ? `<div class="stat-box stat-box-pts"><div class="stat-box-main">${player.shutouts}</div><div class="stat-box-label">SO</div></div>` : ''}${effBox}</div>` : '';
+    if (pos==='G') {
+      statBoxHtml=player.wins!=null?`<div class="stat-boxes">${gpBox}<div class="stat-box stat-box-pts"><div class="stat-box-main">${player.wins}</div><div class="stat-box-label">WINS</div></div>${player.shutouts?`<div class="stat-box stat-box-pts"><div class="stat-box-main">${player.shutouts}</div><div class="stat-box-label">SO</div></div>`:''}${effBox}</div>`:'';
     } else {
-      statBoxHtml = player.points != null ? `<div class="stat-boxes">${gpBox}<div class="stat-box stat-box-goals"><div class="stat-box-main">${player.goals}</div><div class="stat-box-label">G</div></div><div class="stat-box stat-box-assists"><div class="stat-box-main">${player.assists}</div><div class="stat-box-label">A</div></div><div class="stat-box stat-box-pts"><div class="stat-box-main">${player.points}</div><div class="stat-box-label">PTS</div></div>${effBox}</div>` : '';
+      statBoxHtml=player.points!=null?`<div class="stat-boxes">${gpBox}<div class="stat-box stat-box-goals"><div class="stat-box-main">${player.goals}</div><div class="stat-box-label">G</div></div><div class="stat-box stat-box-assists"><div class="stat-box-main">${player.assists}</div><div class="stat-box-label">A</div></div><div class="stat-box stat-box-pts"><div class="stat-box-main">${player.points}</div><div class="stat-box-label">PTS</div></div>${effBox}</div>`:'';
     }
-    const abbr = TEAM_ABBR[player.team];
-    const logoHtml = abbr ? `<img class="card-team-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}">` : '';
-    const claimedBadge = claimedTeamName ? `<span class="claimed-badge">${claimedTeamName}</span>` : '';
-    const canAdd = !claimedByOther && !document.body.classList.contains('view-only');
-    const actionBtn = canAdd ? `<button class="add-btn" aria-label="Add ${player.player_name}">+</button>` : '';
-    el.innerHTML = `<span class="pos-badge ${pos}">${pos}</span>${logoHtml}<div class="player-info"><div class="player-name">${formatName(player.player_name)}</div><div class="player-salary">${salary}</div></div>${statBoxHtml}${claimedBadge}${actionBtn}`;
-    if (canAdd) {
-      el.querySelector('.add-btn').addEventListener('click', e => { e.stopPropagation(); tapAddPlayer(player, pos); });
+    const abbr=TEAM_ABBR[player.team];
+    const logoHtml=abbr?`<img class="card-team-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}">`:'';
+    const claimedBadge=claimedTeamName?`<span class="claimed-badge">${claimedTeamName}</span>`:'';
+    // IMPROVED: zero-GP injury flag on pool card
+    const injFlag=isLikelyInactive(player)?`<span class="inj-flag" title="0 games played — may be injured or scratched">0 GP</span>`:'';
+    const canAdd=!claimedByOther&&!document.body.classList.contains('view-only');
+    const actionBtn=canAdd?`<button class="add-btn" aria-label="Add ${player.player_name}">+</button>`:'';
+    el.innerHTML=`<span class="pos-badge ${pos}">${pos}</span>${logoHtml}<div class="player-info"><div class="player-name">${formatName(player.player_name)}</div><div class="player-salary">${salary}</div></div>${statBoxHtml}${injFlag}${claimedBadge}${actionBtn}`;
+    if (canAdd) el.querySelector('.add-btn').addEventListener('click',e=>{ e.stopPropagation(); tapAddPlayer(player,pos); });
+    return el;
+  }
+
+  // ── Make roster card ──────────────────────────────────────────────────────
+  function makeRosterCard(player,group,index) {
+    const el=document.createElement('div');
+    el.className='player-card in-roster'+(swapMode&&swapMode.group===group&&swapMode.index===index?' swap-source':'');
+    const salary=player.cap_hit?'$'+player.cap_hit.toLocaleString():'';
+    const actualPos=normalizePos(player.position), displayPos=group==='B'?actualPos:group;
+    const gpBox=player.games_played!=null?`<div class="stat-box stat-box-gp"><div class="stat-box-main">${player.games_played}</div><div class="stat-box-label">GP</div></div>`:'';
+    let statBoxHtml;
+    if (actualPos==='G') {
+      statBoxHtml=player.wins!=null?`<div class="stat-boxes">${gpBox}<div class="stat-box stat-box-pts"><div class="stat-box-main">${player.wins}</div><div class="stat-box-label">W</div></div>${player.shutouts?`<div class="stat-box stat-box-pts"><div class="stat-box-main">${player.shutouts}</div><div class="stat-box-label">SO</div></div>`:''}</div>`:'';
+    } else {
+      statBoxHtml=player.points!=null?`<div class="stat-boxes">${gpBox}<div class="stat-box stat-box-pts"><div class="stat-box-main">${player.points}</div><div class="stat-box-label">PTS</div></div></div>`:'';
+    }
+    const abbr=TEAM_ABBR[player.team];
+    const logoHtml=abbr?`<img class="card-team-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}">`:'';
+    // IMPROVED: injury flag on roster card too
+    const injFlag=isLikelyInactive(player)?`<span class="inj-flag" title="0 games played — may be injured or scratched">0 GP</span>`:'';
+    const removeBtn=document.body.classList.contains('view-only')?'':`<button class="remove-btn" aria-label="Remove">✕</button>`;
+    el.innerHTML=`<span class="pos-badge ${displayPos}">${displayPos}</span>${logoHtml}<div class="player-info"><div class="player-name">${formatName(player.player_name)}</div><div class="player-salary">${salary}</div></div>${statBoxHtml}${injFlag}${removeBtn}`;
+    if (!document.body.classList.contains('view-only')) {
+      el.querySelector('.remove-btn').addEventListener('click',e=>{ e.stopPropagation(); removeFromRoster(group,index); });
+      el.addEventListener('click',()=>enterSwap(group,index));
     }
     return el;
   }
 
-  // ── Make roster card ───────────────────────────────────────────────────────
-  function makeRosterCard(player, group, index) {
-    const el = document.createElement('div');
-    el.className = 'player-card in-roster' + (swapMode && swapMode.group === group && swapMode.index === index ? ' swap-source' : '');
-    const salary = player.cap_hit ? '$' + player.cap_hit.toLocaleString() : '';
-    const actualPos = normalizePos(player.position);
-    const displayPos = group === 'B' ? actualPos : group;
-    const statGroup = actualPos;
-    const gpBox = player.games_played != null ? `<div class="stat-box stat-box-gp"><div class="stat-box-main">${player.games_played}</div><div class="stat-box-label">GP</div></div>` : '';
-    let statBoxHtml;
-    if (statGroup === 'G') {
-      statBoxHtml = player.wins != null ? `<div class="stat-boxes">${gpBox}<div class="stat-box stat-box-pts"><div class="stat-box-main">${player.wins}</div><div class="stat-box-label">W</div></div>${player.shutouts ? `<div class="stat-box stat-box-pts"><div class="stat-box-main">${player.shutouts}</div><div class="stat-box-label">SO</div></div>` : ''}</div>` : '';
-    } else {
-      statBoxHtml = player.points != null ? `<div class="stat-boxes">${gpBox}<div class="stat-box stat-box-pts"><div class="stat-box-main">${player.points}</div><div class="stat-box-label">PTS</div></div></div>` : '';
-    }
-    const abbr = TEAM_ABBR[player.team];
-    const logoHtml = abbr ? `<img class="card-team-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}">` : '';
-    const removeBtn = document.body.classList.contains('view-only') ? '' : `<button class="remove-btn" aria-label="Remove">✕</button>`;
-    el.innerHTML = `<span class="pos-badge ${displayPos}">${displayPos}</span>${logoHtml}<div class="player-info"><div class="player-name">${formatName(player.player_name)}</div><div class="player-salary">${salary}</div></div>${statBoxHtml}${removeBtn}`;
-    if (!document.body.classList.contains('view-only')) {
-      el.querySelector('.remove-btn').addEventListener('click', e => { e.stopPropagation(); removeFromRoster(group, index); });
-    }
-    if (!document.body.classList.contains('view-only')) {
-      el.addEventListener('click', () => enterSwap(group, index));
-    }
-    return el;
-  }
-
-  // ── Swap mode ──────────────────────────────────────────────────────────────
-  function enterSwap(group, index) {
-    if (swapMode && swapMode.group === group && swapMode.index === index) { cancelSwap(); return; }
-    swapMode = { group, index };
+  // ── Swap mode ─────────────────────────────────────────────────────────────
+  function enterSwap(group,index) {
+    if (swapMode&&swapMode.group===group&&swapMode.index===index) { cancelSwap(); return; }
+    swapMode={group,index};
     document.getElementById('swap-banner').classList.add('active');
     refreshRoster();
-    if (activeFilter !== group && group !== 'B') {
-      activeFilter = group;
-      document.querySelectorAll('[data-pos]').forEach(b => b.classList.toggle('active', b.dataset.pos === group));
-    } else if (group === 'B') {
-      activeFilter = 'ALL';
-      document.querySelectorAll('[data-pos]').forEach(b => b.classList.toggle('active', b.dataset.pos === 'ALL'));
+    if (activeFilter!==group&&group!=='B') {
+      activeFilter=group;
+      document.querySelectorAll('[data-pos]').forEach(b=>b.classList.toggle('active',b.dataset.pos===group));
+    } else if (group==='B') {
+      activeFilter='ALL';
+      document.querySelectorAll('[data-pos]').forEach(b=>b.classList.toggle('active',b.dataset.pos==='ALL'));
     }
     renderPool();
-    document.getElementById('pool-list').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    document.getElementById('pool-list').scrollIntoView({behavior:'smooth',block:'nearest'});
   }
 
   function cancelSwap() {
-    swapMode = null;
+    swapMode=null;
     document.getElementById('swap-banner').classList.remove('active');
     refreshRoster(); renderPool();
   }
 
-  // ── Tap-to-add ─────────────────────────────────────────────────────────────
-  function tapAddPlayer(player, pos) {
-    const t = activeTeam(); if (!t) return;
-    const group = pos;
-    const slug = player.puckpedia_slug;
-
-    // Can't add if claimed by live-draft or by another team
-    const claimed = allClaimedSlugs();
+  // ── Tap-to-add ────────────────────────────────────────────────────────────
+  function tapAddPlayer(player,pos) {
+    const t=activeTeam(); if (!t) return;
+    const group=pos, slug=player.puckpedia_slug;
+    const claimed=allClaimedSlugs();
     if (liveDraftedSlugs.has(slug)) return;
-    if (claimed.has(slug) && !activeRosterSlugs().has(slug)) return;
-
-    if (swapMode && (swapMode.group === group || swapMode.group === 'B')) {
-      const swapGroup = swapMode.group;
-      const outSlug = t.roster[swapGroup][swapMode.index];
-      const roster = activeRoster();
-      const currentCap = [...roster.F,...roster.D,...roster.G,...(roster.B||[])].filter(Boolean).reduce((s,p) => s+(p.cap_hit||0), 0);
-      const outgoing = outSlug ? slugMap()[outSlug] : null;
-      const capWithSwap = currentCap - (outgoing?.cap_hit || 0) + (player.cap_hit || 0);
-      if (capWithSwap > CAP_MAX) { toast(`Over cap — can't fit $${(player.cap_hit/1_000_000).toFixed(1)}M`); return; }
-      // Prevent adding a player already in another slot of this team
-      const otherSlugs = [...t.roster.F,...t.roster.D,...t.roster.G,...(t.roster.B||[])].filter((s,_) => s && s !== outSlug);
+    if (claimed.has(slug)&&!activeRosterSlugs().has(slug)) return;
+    if (swapMode&&(swapMode.group===group||swapMode.group==='B')) {
+      const swapGroup=swapMode.group, outSlug=t.roster[swapGroup][swapMode.index];
+      const roster=activeRoster();
+      const currentCap=[...roster.F,...roster.D,...roster.G,...(roster.B||[])].filter(Boolean).reduce((s,p)=>s+(p.cap_hit||0),0);
+      const outgoing=outSlug?slugMap()[outSlug]:null;
+      const capWithSwap=currentCap-(outgoing?.cap_hit||0)+(player.cap_hit||0);
+      if (capWithSwap>CAP_MAX) { toast(`Over cap — can't fit $${(player.cap_hit/1_000_000).toFixed(1)}M`); return; }
+      const otherSlugs=[...t.roster.F,...t.roster.D,...t.roster.G,...(t.roster.B||[])].filter((s,_)=>s&&s!==outSlug);
       if (otherSlugs.includes(slug)) return;
-      t.roster[swapGroup][swapMode.index] = slug;
-      swapMode = null;
+      t.roster[swapGroup][swapMode.index]=slug;
+      swapMode=null;
       document.getElementById('swap-banner').classList.remove('active');
       refreshRoster(); renderPool(); renderTeamSwitcher(); renderOverview();
       toast(`🔄 Swapped in ${formatName(player.player_name)}`);
       savePool(); return;
     }
-
-    const emptyIdx = t.roster[group].findIndex(s => s === null);
-    if (emptyIdx === -1) {
-      // Position full — try bench
-      const benchIdx = (t.roster.B||[]).findIndex(s => s === null);
-      if (benchIdx === -1) { toast(`${groupLabel(group)} and Bench slots full`); return; }
+    const emptyIdx=t.roster[group].findIndex(s=>s===null);
+    if (emptyIdx===-1) {
+      const benchIdx=(t.roster.B||[]).findIndex(s=>s===null);
+      if (benchIdx===-1) { toast(`${groupLabel(group)} and Bench slots full`); return; }
       if ([...t.roster.F,...t.roster.D,...t.roster.G,...(t.roster.B||[])].includes(slug)) return;
-      const roster = activeRoster();
-      const cap = [...roster.F,...roster.D,...roster.G,...(roster.B||[])].filter(Boolean).reduce((s,p) => s+(p.cap_hit||0), 0);
-      if (cap + (player.cap_hit || 0) > CAP_MAX) { toast(`Over cap — $${(CAP_MAX - cap).toLocaleString()} remaining`); return; }
-      t.roster.B[benchIdx] = slug;
-      refreshRoster(); renderPool(); renderTeamSwitcher(); renderOverview();
-      toast(`Added to Bench`);
-      savePool(); return;
+      const roster=activeRoster();
+      const cap=[...roster.F,...roster.D,...roster.G,...(roster.B||[])].filter(Boolean).reduce((s,p)=>s+(p.cap_hit||0),0);
+      if (cap+(player.cap_hit||0)>CAP_MAX) { toast(`Over cap — $${(CAP_MAX-cap).toLocaleString()} remaining`); return; }
+      t.roster.B[benchIdx]=slug; refreshRoster(); renderPool(); renderTeamSwitcher(); renderOverview();
+      toast(`Added to Bench`); savePool(); return;
     }
     if ([...t.roster.F,...t.roster.D,...t.roster.G,...(t.roster.B||[])].includes(slug)) return;
-    const roster = activeRoster();
-    const cap = [...roster.F,...roster.D,...roster.G,...(roster.B||[])].filter(Boolean).reduce((s,p) => s+(p.cap_hit||0), 0);
-    if (cap + (player.cap_hit || 0) > CAP_MAX) { toast(`Over cap — $${(CAP_MAX - cap).toLocaleString()} remaining`); return; }
-    t.roster[group][emptyIdx] = slug;
+    const roster=activeRoster();
+    const cap=[...roster.F,...roster.D,...roster.G,...(roster.B||[])].filter(Boolean).reduce((s,p)=>s+(p.cap_hit||0),0);
+    if (cap+(player.cap_hit||0)>CAP_MAX) { toast(`Over cap — $${(CAP_MAX-cap).toLocaleString()} remaining`); return; }
+    t.roster[group][emptyIdx]=slug;
     refreshRoster(); renderPool(); renderTeamSwitcher(); renderOverview();
     savePool();
   }
 
-  // ── Remove ─────────────────────────────────────────────────────────────────
-  function removeFromRoster(group, index) {
-    const t = activeTeam(); if (!t) return;
-    t.roster[group][index] = null;
+  // ── Remove ────────────────────────────────────────────────────────────────
+  function removeFromRoster(group,index) {
+    const t=activeTeam(); if (!t) return;
+    t.roster[group][index]=null;
     refreshRoster(); renderPool(); renderTeamSwitcher(); renderOverview();
     savePool();
   }
 
-  // ── Refresh roster UI ──────────────────────────────────────────────────────
+  // ── Refresh roster UI ─────────────────────────────────────────────────────
+  const SLOT_CFG = {
+    F:{containerId:'slots-F',max:12,countId:'fwd-count'},
+    D:{containerId:'slots-D',max:6,countId:'def-count'},
+    G:{containerId:'slots-G',max:2,countId:'gol-count'},
+    B:{containerId:'slots-B',max:6,countId:'bench-count'},
+  };
+
   function refreshRoster() {
-    const roster = activeRoster();
-    for (const [group, { containerId, max, countId }] of Object.entries(SLOT_CFG)) {
-      const container = document.getElementById(containerId);
-      container.innerHTML = '';
-      let filled = 0;
-      for (let i = 0; i < max; i++) {
-        const player = roster[group][i];
-        const slot = document.createElement('div');
-        slot.className = 'roster-slot' + (player ? '' : ' empty');
-        if (player) {
-          filled++;
-          slot.appendChild(makeRosterCard(player, group, i));
-        } else {
-          slot.innerHTML = `<span class="slot-num">${i + 1}</span>`;
-          slot.addEventListener('click', () => { if (swapMode) cancelSwap(); });
-        }
+    const roster=activeRoster();
+
+    // IMPROVED: Show empty-state guide when team is totally empty
+    const totalFilled=[...roster.F,...roster.D,...roster.G,...(roster.B||[])].filter(Boolean).length;
+    const isBlank = totalFilled === 0;
+
+    for (const [group,{containerId,max,countId}] of Object.entries(SLOT_CFG)) {
+      const container=document.getElementById(containerId); container.innerHTML='';
+
+      // Show empty state only for the Forwards section when completely blank
+      if (isBlank && group==='F') {
+        const empty=document.createElement('div'); empty.className='roster-empty-state';
+        empty.innerHTML=`<div class="roster-empty-icon">🏒</div><div class="roster-empty-title">Your roster is empty</div><div class="roster-empty-hint">Search for players on the right and hit <strong>+</strong> to add them,<br>or try <strong>⚡ Ultimate Team</strong> to auto-fill instantly.</div>`;
+        container.appendChild(empty);
+        document.getElementById(countId).textContent=`0 / ${max}`;
+        document.getElementById(countId).className='count';
+        continue;
+      }
+
+      let filled=0;
+      for (let i=0;i<max;i++) {
+        const player=roster[group][i];
+        const slot=document.createElement('div');
+        slot.className='roster-slot'+(player?'':' empty');
+        if (player) { filled++; slot.appendChild(makeRosterCard(player,group,i)); }
+        else { slot.innerHTML=`<span class="slot-num">${i+1}</span>`; slot.addEventListener('click',()=>{ if(swapMode) cancelSwap(); }); }
         container.appendChild(slot);
       }
-      const countEl = document.getElementById(countId);
-      countEl.textContent = `${filled} / ${max}`;
-      countEl.className = 'count' + (filled >= max ? ' full' : '');
+      const countEl=document.getElementById(countId);
+      countEl.textContent=`${filled} / ${max}`;
+      countEl.className='count'+(filled>=max?' full':'');
     }
     updateCapBar();
-    updateMobileRosterCount();
+    updateMobileRosterBadge();
   }
 
-  // ── Cap bar ────────────────────────────────────────────────────────────────
+  // ── Cap bar ───────────────────────────────────────────────────────────────
   function updateCapBar() {
-    const roster = activeRoster();
-    const players = [...roster.F,...roster.D,...roster.G,...(roster.B||[])].filter(Boolean);
-    const total = players.reduce((s,p) => s+(p.cap_hit||0), 0);
-    const remaining = CAP_MAX - total;
-    const pct = Math.min(total / CAP_MAX * 100, 100);
-    const isOver = total > CAP_MAX;
-    const isWarning = !isOver && total > CAP_MAX * 0.95;
-
-    const remEl = document.getElementById('cap-remaining');
-    remEl.textContent = remaining >= 0
-      ? '$' + (remaining / 1_000_000).toFixed(1) + 'M left'
-      : '-$' + (Math.abs(remaining) / 1_000_000).toFixed(1) + 'M over';
-    document.getElementById('cap-used').textContent = '$' + total.toLocaleString();
-    document.getElementById('cap-over').style.display = isOver ? '' : 'none';
-
-    const fill = document.getElementById('cap-fill');
-    fill.style.width = pct + '%';
-    fill.classList.toggle('over', isOver);
-    fill.classList.toggle('warning', isWarning);
-
-    const totalPts = players.reduce((s,p) => s + poolScore(p), 0);
-    document.getElementById('roster-total-pts').textContent = totalPts;
-
-    const wrap = document.getElementById('cap-bar-wrap');
-    wrap.classList.toggle('over', isOver);
-    wrap.classList.toggle('warning', isWarning);
-    const icon = document.getElementById('cap-status-icon');
-    if (icon) icon.textContent = isOver ? '✕' : isWarning ? '⚠' : '✓';
+    const roster=activeRoster();
+    const players=[...roster.F,...roster.D,...roster.G,...(roster.B||[])].filter(Boolean);
+    const total=players.reduce((s,p)=>s+(p.cap_hit||0),0);
+    const remaining=CAP_MAX-total, pct=Math.min(total/CAP_MAX*100,100);
+    const isOver=total>CAP_MAX, isWarning=!isOver&&total>CAP_MAX*0.95;
+    document.getElementById('cap-remaining').textContent=remaining>=0?'$'+(remaining/1_000_000).toFixed(1)+'M left':'-$'+(Math.abs(remaining)/1_000_000).toFixed(1)+'M over';
+    document.getElementById('cap-used').textContent='$'+total.toLocaleString();
+    document.getElementById('cap-over').style.display=isOver?'':'none';
+    const fill=document.getElementById('cap-fill');
+    fill.style.width=pct+'%'; fill.classList.toggle('over',isOver); fill.classList.toggle('warning',isWarning);
+    const totalPts=players.reduce((s,p)=>s+poolScore(p),0);
+    document.getElementById('roster-total-pts').textContent=totalPts;
+    const wrap=document.getElementById('cap-bar-wrap');
+    wrap.classList.toggle('over',isOver); wrap.classList.toggle('warning',isWarning);
+    const icon=document.getElementById('cap-status-icon');
+    if (icon) icon.textContent=isOver?'✕':isWarning?'⚠':'✓';
+    // IMPROVED: update drop hint
+    updateCapDropHint();
   }
 
-  // ── Clear active team ──────────────────────────────────────────────────────
+  // ── Clear team ────────────────────────────────────────────────────────────
   function clearTeam() {
     if (!_clearPending) {
-      _clearPending = true;
-      const btn = document.querySelector('.btn-clear-team');
-      btn.textContent = '✕ Sure?'; btn.style.borderColor = 'rgba(200,16,46,0.6)'; btn.style.color = 'var(--red)';
-      _clearTimer = setTimeout(() => {
-        _clearPending = false; btn.textContent = '✕ Clear'; btn.style.borderColor = ''; btn.style.color = '';
-      }, 3000);
+      _clearPending=true;
+      const btn=document.querySelector('.btn-clear-team');
+      btn.textContent='✕ Sure?'; btn.style.borderColor='rgba(200,16,46,0.6)'; btn.style.color='var(--red)';
+      _clearTimer=setTimeout(()=>{ _clearPending=false; btn.textContent='✕ Clear'; btn.style.borderColor=''; btn.style.color=''; },3000);
       return;
     }
-    clearTimeout(_clearTimer); _clearPending = false;
-    const btn = document.querySelector('.btn-clear-team');
-    btn.textContent = '✕ Clear'; btn.style.borderColor = ''; btn.style.color = '';
-    const t = activeTeam(); if (!t) return;
-    _undoSnapshot = { id: t.id, roster: {
-      F: [...t.roster.F], D: [...t.roster.D], G: [...t.roster.G], B: [...(t.roster.B || [])]
-    }};
-    t.roster = emptyRosterSlugs();
-    renderAll(); savePool();
-    toastWithUndo('Team cleared');
+    clearTimeout(_clearTimer); _clearPending=false;
+    const btn=document.querySelector('.btn-clear-team');
+    btn.textContent='✕ Clear'; btn.style.borderColor=''; btn.style.color='';
+    const t=activeTeam(); if (!t) return;
+    _undoSnapshot={id:t.id,roster:{F:[...t.roster.F],D:[...t.roster.D],G:[...t.roster.G],B:[...(t.roster.B||[])]}};
+    t.roster=emptyRosterSlugs();
+    renderAll(); savePool(); toastWithUndo('Team cleared');
   }
 
   function toastWithUndo(msg) {
-    const el = document.getElementById('toast');
-    el.innerHTML = `${msg} <button onclick="undoClear()" style="background:none;border:1px solid rgba(7,17,31,0.4);border-radius:3px;color:var(--rink);font-family:'Bebas Neue',cursive;font-size:0.85rem;letter-spacing:1px;cursor:pointer;padding:1px 8px;margin-left:8px;">Undo</button>`;
-    el.classList.add('show');
-    clearTimeout(_tt); _tt = setTimeout(() => { el.classList.remove('show'); _undoSnapshot = null; }, 5000);
+    const el=document.getElementById('toast');
+    el.innerHTML=`${msg} <button onclick="undoClear()" style="background:none;border:1px solid rgba(7,17,31,0.4);border-radius:3px;color:var(--rink);font-family:'Bebas Neue',cursive;font-size:0.85rem;letter-spacing:1px;cursor:pointer;padding:1px 8px;margin-left:8px;">Undo</button>`;
+    el.classList.add('show'); clearTimeout(_tt);
+    _tt=setTimeout(()=>{ el.classList.remove('show'); _undoSnapshot=null; },5000);
   }
 
   function undoClear() {
     if (!_undoSnapshot) return;
-    const t = teams.find(t => t.id === _undoSnapshot.id);
-    if (t) { t.roster = _undoSnapshot.roster; _undoSnapshot = null; renderAll(); savePool(); toast('✓ Restored'); }
+    const t=teams.find(t=>t.id===_undoSnapshot.id);
+    if (t) { t.roster=_undoSnapshot.roster; _undoSnapshot=null; renderAll(); savePool(); toast('✓ Restored'); }
   }
 
-  // ── Scoring ────────────────────────────────────────────────────────────────
-  let _scoring = { f_points: 1, d_goals: 1, d_assists: 1, g_wins: 2, g_shutouts: 3 };
-
-  async function loadScoringSettings() {
-    if (!_leagueCode) return;
-    try {
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/pool_settings?league_code=eq.${_leagueCode}&select=f_points,d_goals,d_assists,g_wins,g_shutouts`, {
-        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` },
-      });
-      if (res.ok) {
-        const rows = await res.json();
-        if (rows.length) _scoring = { ..._scoring, ...rows[0] };
-      }
-    } catch(e) {}
-  }
-
-  function poolScore(p) {
-    const pos = normalizePos(p.position);
-    if (pos === 'G') return (p.wins ?? 0) * _scoring.g_wins + (p.shutouts ?? 0) * _scoring.g_shutouts;
-    if (pos === 'D') return (p.goals ?? 0) * _scoring.d_goals + (p.assists ?? 0) * _scoring.d_assists;
-    return (p.points ?? 0) * _scoring.f_points;
-  }
-  function effScore(p) {
-    if (p._eff !== undefined) return p._eff;
-    const capM = (p.cap_hit || 1) / 1_000_000;
-    p._eff = poolScore(p) / Math.sqrt(capM);
-    return p._eff;
-  }
-  function playerSortKey(p) {
-    if (activeSort === 'points') return poolScore(p);
-    if (activeSort === 'value')  return effScore(p);
-    return p.cap_hit || 0;
-  }
-
-  function setFilter(pos, btn) {
-    activeFilter = pos;
-    document.querySelectorAll('[data-pos]').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active'); renderPool();
-  }
-  function setSort(sort, btn) {
-    activeSort = sort;
-    document.querySelectorAll('[data-sort]').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active'); renderPool();
-  }
-
-  // ── Ultimate Team ──────────────────────────────────────────────────────────
+  // ── Ultimate Team ─────────────────────────────────────────────────────────
   function generateUltimateTeam() {
     if (!allPlayers.length) { toast('Players not loaded yet'); return; }
-    const btn = document.getElementById('btn-generate-team');
-    const label = document.getElementById('btn-generate-team-label');
-    btn.disabled = true;
-    label.innerHTML = '<span style="display:inline-flex;align-items:center;gap:6px;"><svg style="animation:spin .7s linear infinite;width:14px;height:14px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg> Building…</span>';
-    setTimeout(() => { _runUltimateTeam(btn, label); }, 30);
+    const btn=document.getElementById('btn-generate-team'), label=document.getElementById('btn-generate-team-label');
+    btn.disabled=true;
+    label.innerHTML='<span style="display:inline-flex;align-items:center;gap:6px;"><svg style="animation:spin .7s linear infinite;width:14px;height:14px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg> Building…</span>';
+    setTimeout(()=>{ _runUltimateTeam(btn,label); },30);
   }
 
-  function _runUltimateTeam(btn, label) {
-    const t = activeTeam(); if (!t) return;
-    // Globally claimed slugs (by any OTHER team)
-    const otherClaimed = new Set();
+  function _runUltimateTeam(btn,label) {
+    const t=activeTeam(); if (!t) return;
+    const otherClaimed=new Set();
     for (const other of teams) {
-      if (other.id === t.id) continue;
-      [...other.roster.F,...other.roster.D,...other.roster.G,...(other.roster.B||[])].forEach(s => { if (s) otherClaimed.add(s); });
+      if (other.id===t.id) continue;
+      [...other.roster.F,...other.roster.D,...other.roster.G,...(other.roster.B||[])].forEach(s=>{ if(s) otherClaimed.add(s); });
     }
-
-    const locked = rosterFromSlugs({
-      F: t.roster.F, D: t.roster.D, G: t.roster.G, B: t.roster.B || Array(6).fill(null)
-    });
-    const lockedSlugs = new Set([...locked.F,...locked.D,...locked.G,...(locked.B||[])].filter(Boolean).map(p => p.puckpedia_slug));
-    const lockedCap = [...locked.F,...locked.D,...locked.G,...(locked.B||[])].filter(Boolean).reduce((s,p) => s+(p.cap_hit||0), 0);
-    const stat = poolScore;
-
-    const byPos = { F:[], D:[], G:[] };
+    const locked=rosterFromSlugs({F:t.roster.F,D:t.roster.D,G:t.roster.G,B:t.roster.B||Array(6).fill(null)});
+    const lockedSlugs=new Set([...locked.F,...locked.D,...locked.G,...(locked.B||[])].filter(Boolean).map(p=>p.puckpedia_slug));
+    const lockedCap=[...locked.F,...locked.D,...locked.G,...(locked.B||[])].filter(Boolean).reduce((s,p)=>s+(p.cap_hit||0),0);
+    const stat=poolScore;
+    const byPos={F:[],D:[],G:[]};
     for (const p of allPlayers) {
-      if (!p.cap_hit || lockedSlugs.has(p.puckpedia_slug) || otherClaimed.has(p.puckpedia_slug)) continue;
+      // IMPROVED: skip live-drafted slugs in Ultimate Team
+      if (!p.cap_hit||lockedSlugs.has(p.puckpedia_slug)||otherClaimed.has(p.puckpedia_slug)||liveDraftedSlugs.has(p.puckpedia_slug)) continue;
       byPos[normalizePos(p.position)].push(p);
     }
-    for (const g of ['F','D','G']) byPos[g].sort((a,b) => stat(b)-stat(a));
-
-    function cheapestCap(g, n, excludeSlugs) {
-      return byPos[g].filter(p => !excludeSlugs.has(p.puckpedia_slug)).slice(-n).reduce((s,p) => s+p.cap_hit, 0);
-    }
-
-    let best = null;
-    for (let attempt = 0; attempt < 200; attempt++) {
-      const picked = { F:[...locked.F.filter(Boolean)], D:[...locked.D.filter(Boolean)], G:[...locked.G.filter(Boolean)] };
-      let capUsed = lockedCap; let failed = false;
+    for (const g of ['F','D','G']) byPos[g].sort((a,b)=>stat(b)-stat(a));
+    function cheapestCap(g,n,excludeSlugs) { return byPos[g].filter(p=>!excludeSlugs.has(p.puckpedia_slug)).slice(-n).reduce((s,p)=>s+p.cap_hit,0); }
+    let best=null;
+    for (let attempt=0;attempt<200;attempt++) {
+      const picked={F:[...locked.F.filter(Boolean)],D:[...locked.D.filter(Boolean)],G:[...locked.G.filter(Boolean)]};
+      let capUsed=lockedCap; let failed=false;
       for (const g of ['F','D','G']) {
-        const needed = SLOT_CFG[g].max - picked[g].length;
-        if (needed <= 0) continue;
-        const usedSlugs = new Set([...picked.F,...picked.D,...picked.G].map(p=>p.puckpedia_slug));
-        const pool = byPos[g].filter(p => !usedSlugs.has(p.puckpedia_slug));
-        const shuffled = [...pool];
-        for (let i = 0; i < shuffled.length;) {
-          const top = stat(shuffled[i]); const thresh = top * 0.80; let j = i+1;
-          while (j < shuffled.length && stat(shuffled[j]) >= thresh) j++;
-          for (let k = j-1; k > i; k--) { const r = i + Math.floor(Math.random()*(k-i+1)); [shuffled[i],shuffled[r]]=[shuffled[r],shuffled[i]]; }
-          i = j;
+        const needed=SLOT_CFG[g].max-picked[g].length; if (needed<=0) continue;
+        const usedSlugs=new Set([...picked.F,...picked.D,...picked.G].map(p=>p.puckpedia_slug));
+        const pool=byPos[g].filter(p=>!usedSlugs.has(p.puckpedia_slug));
+        const shuffled=[...pool];
+        for (let i=0;i<shuffled.length;) {
+          const top=stat(shuffled[i]),thresh=top*0.80; let j=i+1;
+          while (j<shuffled.length&&stat(shuffled[j])>=thresh) j++;
+          for (let k=j-1;k>i;k--) { const r=i+Math.floor(Math.random()*(k-i+1)); [shuffled[i],shuffled[r]]=[shuffled[r],shuffled[i]]; }
+          i=j;
         }
         for (const p of shuffled) {
-          if (picked[g].length - (locked[g]?.filter(Boolean).length||0) >= needed) break;
-          const usedNow = new Set([...picked.F,...picked.D,...picked.G].map(x=>x.puckpedia_slug)); usedNow.add(p.puckpedia_slug);
-          const reserve = ['F','D','G'].reduce((s,og) => {
-            const still = SLOT_CFG[og].max - picked[og].length - (og===g?1:0);
-            return still > 0 ? s + cheapestCap(og, still, usedNow) : s;
-          }, 0);
-          if (capUsed + p.cap_hit + reserve <= CAP_MAX) { picked[g].push(p); capUsed += p.cap_hit; }
+          if (picked[g].length-(locked[g]?.filter(Boolean).length||0)>=needed) break;
+          const usedNow=new Set([...picked.F,...picked.D,...picked.G].map(x=>x.puckpedia_slug)); usedNow.add(p.puckpedia_slug);
+          const reserve=['F','D','G'].reduce((s,og)=>{ const still=SLOT_CFG[og].max-picked[og].length-(og===g?1:0); return still>0?s+cheapestCap(og,still,usedNow):s; },0);
+          if (capUsed+p.cap_hit+reserve<=CAP_MAX) { picked[g].push(p); capUsed+=p.cap_hit; }
         }
-        if (picked[g].length < SLOT_CFG[g].max) { failed = true; break; }
+        if (picked[g].length<SLOT_CFG[g].max) { failed=true; break; }
       }
       if (failed) continue;
-      const totalPts = [...picked.F,...picked.D,...picked.G].reduce((s,p)=>s+stat(p),0);
-      if (!best || totalPts > best.totalPts) best = { picked, totalPts, capUsed };
+      const totalPts=[...picked.F,...picked.D,...picked.G].reduce((s,p)=>s+stat(p),0);
+      if (!best||totalPts>best.totalPts) best={picked,totalPts,capUsed};
     }
-
-    if (!best) { toast('Could not fill team — try again'); label.textContent = '⚡ Ultimate Team'; btn.disabled = false; return; }
-    t.roster = {
-      F: Array(12).fill(null).map((_,i) => best.picked.F[i]?.puckpedia_slug || null),
-      D: Array(6).fill(null).map((_,i) => best.picked.D[i]?.puckpedia_slug || null),
-      G: Array(2).fill(null).map((_,i) => best.picked.G[i]?.puckpedia_slug || null),
-      B: t.roster.B || Array(6).fill(null),
+    if (!best) { toast('Could not fill team — try again'); label.textContent='⚡ Ultimate Team'; btn.disabled=false; return; }
+    t.roster={
+      F:Array(12).fill(null).map((_,i)=>best.picked.F[i]?.puckpedia_slug||null),
+      D:Array(6).fill(null).map((_,i)=>best.picked.D[i]?.puckpedia_slug||null),
+      G:Array(2).fill(null).map((_,i)=>best.picked.G[i]?.puckpedia_slug||null),
+      B:t.roster.B||Array(6).fill(null),
     };
     renderAll(); savePool();
     toast(`⚡ Built · ${best.totalPts} pts · $${(best.capUsed/1_000_000).toFixed(1)}M used`);
-    label.textContent = '⚡ Ultimate Team'; btn.disabled = false;
+    label.textContent='⚡ Ultimate Team'; btn.disabled=false;
   }
 
-  // ── Logo cache + share ─────────────────────────────────────────────────────
-  const _logoCache = {};
+  // ── Share ─────────────────────────────────────────────────────────────────
+  const _logoCache={};
   async function fetchLogoDataUrl(url) {
     if (_logoCache[url]) return _logoCache[url];
-    try {
-      const res = await fetch(url); if (!res.ok) throw new Error();
-      const svg = await res.text();
-      _logoCache[url] = `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svg)))}`;
-    } catch(e) { _logoCache[url] = url; }
+    try { const res=await fetch(url); if(!res.ok) throw new Error(); const svg=await res.text(); _logoCache[url]=`data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svg)))}`; }
+    catch(e) { _logoCache[url]=url; }
     return _logoCache[url];
   }
   function logoDataUrl(teamSlug) {
-    const abbr = TEAM_ABBR[teamSlug]; if (!abbr) return '';
-    const url = `https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg`;
-    return _logoCache[url] || url;
+    const abbr=TEAM_ABBR[teamSlug]; if(!abbr) return '';
+    const url=`https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg`;
+    return _logoCache[url]||url;
   }
   async function resolveRosterLogos(roster) {
-    const slugs = [...roster.F,...roster.D,...roster.G,...(roster.B||[])].filter(Boolean).map(p=>p.team).filter(Boolean);
-    const urls = [...new Set(slugs.map(s=>{const a=TEAM_ABBR[s];return a?`https://assets.nhle.com/logos/nhl/svg/${a}_dark.svg`:null;}).filter(Boolean))];
+    const slugs=[...roster.F,...roster.D,...roster.G,...(roster.B||[])].filter(Boolean).map(p=>p.team).filter(Boolean);
+    const urls=[...new Set(slugs.map(s=>{ const a=TEAM_ABBR[s]; return a?`https://assets.nhle.com/logos/nhl/svg/${a}_dark.svg`:null; }).filter(Boolean))];
     await Promise.all(urls.map(fetchLogoDataUrl));
   }
 
-  function buildPoolShareCard(teamName, roster) {
-    const players = [...roster.F,...roster.D,...roster.G,...(roster.B||[])].filter(Boolean);
-    const total = players.reduce((s,p)=>s+(p.cap_hit||0),0);
-    const capPct = Math.min(total/CAP_MAX*100,100);
-    const capColor = total>CAP_MAX?'#c8102e':total>CAP_MAX*0.9?'#f59e0b':'#22c55e';
-    const date = new Date().toLocaleDateString('en-CA');
-    const sectionHtml = (group, label) => {
-      const ps = roster[group].filter(Boolean); if (!ps.length) return '';
-      const rows = ps.map(p => {
-        const abbr = TEAM_ABBR[p.team]||''; const logoUrl = logoDataUrl(p.team);
-        const logoHtml = logoUrl ? `<img src="${logoUrl}" style="width:22px;height:22px;object-fit:contain;flex-shrink:0;">` : `<span style="width:22px;height:22px;flex-shrink:0;"></span>`;
-        const salary = p.cap_hit ? `$${(p.cap_hit/1_000_000).toFixed(2)}M` : '';
-        const eff = p.cap_hit ? effScore(p).toFixed(1) : null;
-        const effChip = eff ? `<span style="font-family:'Bebas Neue',sans-serif;font-size:12px;color:#22c55e;background:rgba(34,197,94,0.1);padding:1px 5px;border-radius:3px;">EFF ${eff}</span>` : '';
-        const statsHtml = group==='G'
-          ? (p.wins!=null?`<span style="font-family:'Bebas Neue',sans-serif;font-size:12px;color:#ffb81c;background:rgba(255,184,28,0.1);padding:1px 5px;border-radius:3px;">${p.wins}W${p.shutouts?` ${p.shutouts}SO`:''}</span>${effChip}`:'')
-          : (p.points!=null?`<span style="font-family:'Bebas Neue',sans-serif;font-size:12px;color:rgba(255,255,255,0.5);background:rgba(255,255,255,0.07);padding:1px 5px;border-radius:3px;">${p.goals}G ${p.assists}A</span><span style="font-family:'Bebas Neue',sans-serif;font-size:12px;color:#ffb81c;background:rgba(255,184,28,0.1);padding:1px 5px;border-radius:3px;">${p.points}PTS</span>${effChip}`:'');
+  function buildPoolShareCard(teamName,roster) {
+    const players=[...roster.F,...roster.D,...roster.G,...(roster.B||[])].filter(Boolean);
+    const total=players.reduce((s,p)=>s+(p.cap_hit||0),0);
+    const capPct=Math.min(total/CAP_MAX*100,100), capColor=total>CAP_MAX?'#c8102e':total>CAP_MAX*0.9?'#f59e0b':'#22c55e';
+    const date=new Date().toLocaleDateString('en-CA');
+    const sectionHtml=(group,label)=>{
+      const ps=roster[group].filter(Boolean); if(!ps.length) return '';
+      const rows=ps.map(p=>{
+        const logoUrl=logoDataUrl(p.team), logoHtml=logoUrl?`<img src="${logoUrl}" style="width:22px;height:22px;object-fit:contain;flex-shrink:0;">`:`<span style="width:22px;height:22px;flex-shrink:0;"></span>`;
+        const salary=p.cap_hit?`$${(p.cap_hit/1_000_000).toFixed(2)}M`:'';
+        const eff=p.cap_hit?effScore(p).toFixed(1):null;
+        const effChip=eff?`<span style="font-family:'Bebas Neue',sans-serif;font-size:12px;color:#22c55e;background:rgba(34,197,94,0.1);padding:1px 5px;border-radius:3px;">EFF ${eff}</span>`:'';
+        const statsHtml=group==='G'?(p.wins!=null?`<span style="font-family:'Bebas Neue',sans-serif;font-size:12px;color:#ffb81c;background:rgba(255,184,28,0.1);padding:1px 5px;border-radius:3px;">${p.wins}W${p.shutouts?` ${p.shutouts}SO`:''}</span>${effChip}`:''):(p.points!=null?`<span style="font-family:'Bebas Neue',sans-serif;font-size:12px;color:rgba(255,255,255,0.5);background:rgba(255,255,255,0.07);padding:1px 5px;border-radius:3px;">${p.goals}G ${p.assists}A</span><span style="font-family:'Bebas Neue',sans-serif;font-size:12px;color:#ffb81c;background:rgba(255,184,28,0.1);padding:1px 5px;border-radius:3px;">${p.points}PTS</span>${effChip}`:'');
         return `<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:rgba(255,255,255,0.04);border-radius:5px;border:1px solid rgba(255,255,255,0.07);">${logoHtml}<span style="font-size:15px;font-weight:700;color:white;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${formatName(p.player_name)}</span>${statsHtml}<span style="font-size:12px;color:rgba(168,178,190,0.6);flex-shrink:0;">${salary}</span></div>`;
       }).join('');
-      const posColor = group==='F'?'#ff7a8a':group==='D'?'#7db4ff':'#ffb81c';
+      const posColor=group==='F'?'#ff7a8a':group==='D'?'#7db4ff':'#ffb81c';
       return `<div style="margin-bottom:14px;"><div style="font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:3px;color:${posColor};margin-bottom:6px;">${label} (${ps.length})</div><div style="display:flex;flex-direction:column;gap:4px;">${rows}</div></div>`;
     };
-    return `<div style="background:linear-gradient(160deg,#0d1b2e 0%,#111827 60%,#0f172a 100%);padding:28px 28px 24px;font-family:'Barlow Condensed',sans-serif;width:100%;box-sizing:border-box;">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
-        <div style="display:flex;align-items:center;gap:12px;">
-          <img src="https://parieurdiscipline.com/parieur_discipline_icon_1024.png" style="width:44px;height:44px;border-radius:10px;object-fit:cover;box-shadow:0 3px 12px rgba(0,0,0,0.6);flex-shrink:0;">
-          <div><div style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:#ffffff;letter-spacing:4px;line-height:1;">PARIEUR DISCIPLINÉ</div><div style="font-size:12px;color:#94a3b8;letter-spacing:2px;text-transform:uppercase;margin-top:2px;">${teamName} · NHL 2025–26</div></div>
-        </div>
-        <div style="font-size:13px;color:rgba(255,255,255,0.35);">${date}</div>
-      </div>
-      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:12px 16px;margin-bottom:18px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><span style="font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;color:#94a3b8;">SALARY CAP</span><span style="font-size:15px;font-weight:700;color:${capColor};">$${(total/1_000_000).toFixed(2)}M <span style="color:rgba(255,255,255,0.3);font-weight:400;">/ $95.50M</span></span></div>
-        <div style="height:6px;background:rgba(255,255,255,0.07);border-radius:3px;overflow:hidden;"><div style="height:100%;width:${capPct}%;background:${capColor};border-radius:3px;"></div></div>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 20px;"><div>${sectionHtml('F','FORWARDS')}</div><div>${sectionHtml('D','DEFENCE')}${sectionHtml('G','GOALIES')}</div></div>
-      <div style="margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.07);display:flex;justify-content:space-between;align-items:center;">
-        <span style="font-size:12px;color:rgba(255,255,255,0.25);letter-spacing:1px;">parieurdiscipline.com</span>
-        <span style="font-family:'Bebas Neue',cursive;font-size:13px;color:#ffb81c;letter-spacing:2px;">NHL 2025–26 POOL</span>
-      </div>
-    </div>`;
+    return `<div style="background:linear-gradient(160deg,#0d1b2e 0%,#111827 60%,#0f172a 100%);padding:28px 28px 24px;font-family:'Barlow Condensed',sans-serif;width:100%;box-sizing:border-box;"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;"><div style="display:flex;align-items:center;gap:12px;"><img src="https://parieurdiscipline.com/parieur_discipline_icon_1024.png" style="width:44px;height:44px;border-radius:10px;object-fit:cover;box-shadow:0 3px 12px rgba(0,0,0,0.6);flex-shrink:0;"><div><div style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:#ffffff;letter-spacing:4px;line-height:1;">PARIEUR DISCIPLINÉ</div><div style="font-size:12px;color:#94a3b8;letter-spacing:2px;text-transform:uppercase;margin-top:2px;">${teamName} · NHL 2025–26</div></div></div><div style="font-size:13px;color:rgba(255,255,255,0.35);">${date}</div></div><div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:12px 16px;margin-bottom:18px;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><span style="font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;color:#94a3b8;">SALARY CAP</span><span style="font-size:15px;font-weight:700;color:${capColor};">$${(total/1_000_000).toFixed(2)}M <span style="color:rgba(255,255,255,0.3);font-weight:400;">/ $95.50M</span></span></div><div style="height:6px;background:rgba(255,255,255,0.07);border-radius:3px;overflow:hidden;"><div style="height:100%;width:${capPct}%;background:${capColor};border-radius:3px;"></div></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:0 20px;"><div>${sectionHtml('F','FORWARDS')}</div><div>${sectionHtml('D','DEFENCE')}${sectionHtml('G','GOALIES')}</div></div><div style="margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.07);display:flex;justify-content:space-between;align-items:center;"><span style="font-size:12px;color:rgba(255,255,255,0.25);letter-spacing:1px;">parieurdiscipline.com</span><span style="font-family:'Bebas Neue',cursive;font-size:13px;color:#ffb81c;letter-spacing:2px;">NHL 2025–26 POOL</span></div></div>`;
   }
 
   async function sharePool() {
-    const t = activeTeam(); if (!t) return;
-    const roster = activeRoster();
-    const fF = roster.F.filter(Boolean).length, dF = roster.D.filter(Boolean).length, gF = roster.G.filter(Boolean).length;
-    const missing = [];
-    if (fF < 12) missing.push(`${12-fF} forward${12-fF>1?'s':''}`);
-    if (dF < 6)  missing.push(`${6-dF} ${6-dF>1?'defencemen':'defenceman'}`);
-    if (gF < 2)  missing.push(`${2-gF} goalie${2-gF>1?'s':''}`);
-    if (missing.length) { toast(`Incomplete — missing ${missing.join(', ')}`); return; }
-    const btn = document.getElementById('btn-share-pool');
-    const orig = btn.textContent; btn.textContent = '⏳'; btn.disabled = true;
+    const t=activeTeam(); if(!t) return;
+    const roster=activeRoster();
+    const fF=roster.F.filter(Boolean).length, dF=roster.D.filter(Boolean).length, gF=roster.G.filter(Boolean).length;
+    const missing=[];
+    if(fF<12) missing.push(`${12-fF} forward${12-fF>1?'s':''}`);
+    if(dF<6)  missing.push(`${6-dF} ${6-dF>1?'defencemen':'defenceman'}`);
+    if(gF<2)  missing.push(`${2-gF} goalie${2-gF>1?'s':''}`);
+    if(missing.length) { toast(`Incomplete — missing ${missing.join(', ')}`); return; }
+    const btn=document.getElementById('btn-share-pool'), orig=btn.textContent;
+    btn.textContent='⏳'; btn.disabled=true;
     await resolveRosterLogos(roster);
-    const card = document.getElementById('pool-share-card');
-    card.innerHTML = buildPoolShareCard(t.name, roster);
-    await new Promise(r => setTimeout(r, 150));
+    const card=document.getElementById('pool-share-card');
+    card.innerHTML=buildPoolShareCard(t.name,roster);
+    await new Promise(r=>setTimeout(r,150));
     try {
-      const canvas = await html2canvas(card, { scale:2, useCORS:true, backgroundColor:'#0d1b2e', logging:false });
-      const date = new Date().toLocaleDateString('en-CA');
-      if (navigator.share && navigator.canShare) {
-        const blob = await new Promise(res => canvas.toBlob(res,'image/png'));
-        const file = new File([blob],`hockey-pool-${date}.png`,{type:'image/png'});
-        if (navigator.canShare({files:[file]})) { await navigator.share({files:[file]}); return; }
+      const canvas=await html2canvas(card,{scale:2,useCORS:true,backgroundColor:'#0d1b2e',logging:false});
+      const date=new Date().toLocaleDateString('en-CA');
+      if(navigator.share&&navigator.canShare) {
+        const blob=await new Promise(res=>canvas.toBlob(res,'image/png'));
+        const file=new File([blob],`hockey-pool-${date}.png`,{type:'image/png'});
+        if(navigator.canShare({files:[file]})) { await navigator.share({files:[file]}); return; }
       }
-      const link = document.createElement('a');
-      link.download = `hockey-pool-${date}.png`; link.href = canvas.toDataURL('image/png'); link.click();
-    } catch(e) { if (e.name !== 'AbortError') { toast('Could not generate image.'); } }
-    finally { btn.textContent = orig; btn.disabled = false; }
+      const link=document.createElement('a');
+      link.download=`hockey-pool-${date}.png`; link.href=canvas.toDataURL('image/png'); link.click();
+    } catch(e) { if(e.name!=='AbortError') toast('Could not generate image.'); }
+    finally { btn.textContent=orig; btn.disabled=false; }
   }
 
-  // ── Toast ──────────────────────────────────────────────────────────────────
+  // ── Toast ─────────────────────────────────────────────────────────────────
   let _tt;
   function toast(msg) {
-    const el = document.getElementById('toast');
-    el.textContent = msg; el.classList.add('show');
-    clearTimeout(_tt); _tt = setTimeout(() => el.classList.remove('show'), 2200);
+    const el=document.getElementById('toast');
+    el.textContent=msg; el.classList.add('show');
+    clearTimeout(_tt); _tt=setTimeout(()=>el.classList.remove('show'),2200);
   }
 
-  // ── Modal keyboard ─────────────────────────────────────────────────────────
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') {
-      if (swapMode) cancelSwap();
-      closeModal();
-    }
-    if (e.key === 'Enter' && !document.getElementById('modal-overlay').classList.contains('hidden')) {
-      confirmModal();
-    }
+  // ── Filter / sort ─────────────────────────────────────────────────────────
+  function setFilter(pos,btn) { activeFilter=pos; document.querySelectorAll('[data-pos]').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); renderPool(); }
+  function setSort(sort,btn) { activeSort=sort; document.querySelectorAll('[data-sort]').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); renderPool(); }
+
+  // ── Keyboard ──────────────────────────────────────────────────────────────
+  document.addEventListener('keydown',e=>{
+    if(e.key==='Escape') { if(swapMode) cancelSwap(); closeModal(); }
+    if(e.key==='Enter'&&!document.getElementById('modal-overlay').classList.contains('hidden')) confirmModal();
   });
-  document.getElementById('modal-overlay').addEventListener('click', e => {
-    if (e.target === document.getElementById('modal-overlay')) closeModal();
-  });
+  document.getElementById('modal-overlay').addEventListener('click',e=>{ if(e.target===document.getElementById('modal-overlay')) closeModal(); });
 
-  // ── Desktop "All Teams" link ───────────────────────────────────────────────
-  // Clicking the pool-overview toggle on desktop via a small nav link in the pool header
-  // We expose it via the h2 in the right panel — clicking it switches view
-  document.querySelector('#pool-panel h2').style.cursor = 'default';
+  const debouncedRenderPool=(()=>{ let t; return ()=>{ clearTimeout(t); t=setTimeout(renderPool,150); }; })();
 
-  const debouncedRenderPool = (() => { let t; return () => { clearTimeout(t); t = setTimeout(renderPool, 150); }; })();
-
-  // ── Init ───────────────────────────────────────────────────────────────────
+  // ── Init ──────────────────────────────────────────────────────────────────
   initMobileTabs();
-  loadScoringSettings().then(() => loadPlayers());
+  loadScoringSettings().then(()=>loadPlayers());
 </script>
 </body>
 </html>
