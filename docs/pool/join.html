@@ -1110,19 +1110,21 @@ function checkPw(){
   }
 
   // ── Fetch ──────────────────────────────────────────────────────────────────
+  const PLAYERS_CACHE_KEY = 'hp_players_v2';
   async function loadPlayers() {
     try {
-      const cached = sessionStorage.getItem('hp_players');
+      const cached = sessionStorage.getItem(PLAYERS_CACHE_KEY);
       if (cached) {
         allPlayers = JSON.parse(cached);
       } else {
+        sessionStorage.removeItem('hp_players'); // clear old cache key
         const res = await fetch(
           `${SUPABASE_URL}/rest/v1/nhl_players?select=puckpedia_slug,player_name,position,cap_hit,team,goals,assists,points,wins,shutouts,games_played&order=cap_hit.desc&limit=1000`,
           { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
         );
         if (!res.ok) throw new Error(res.status);
         allPlayers = await res.json();
-        sessionStorage.setItem('hp_players', JSON.stringify(allPlayers));
+        sessionStorage.setItem(PLAYERS_CACHE_KEY, JSON.stringify(allPlayers));
       }
       slugMap._cache = null; // invalidate after load
       buildNHLTeamStrip();

@@ -397,13 +397,14 @@
   async function load(){
     await loadScoringSettings();
     try{
-      const cached=sessionStorage.getItem('hp_players');
+      const cached=sessionStorage.getItem('hp_players_v2');
       if(cached){allPlayers=JSON.parse(cached);}
       else{
+        sessionStorage.removeItem('hp_players');
         const res=await fetch(`${SUPABASE_URL}/rest/v1/nhl_players?select=puckpedia_slug,player_name,position,cap_hit,team,goals,assists,points,wins,shutouts,games_played&order=cap_hit.desc&limit=1000`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
         if(!res.ok)throw new Error(res.status);
         allPlayers=await res.json();
-        sessionStorage.setItem('hp_players',JSON.stringify(allPlayers));
+        sessionStorage.setItem('hp_players_v2',JSON.stringify(allPlayers));
       }
       slugMap._c=null;
       const rRes=await fetch(`${SUPABASE_URL}/rest/v1/pool_rosters?league_code=eq.${_leagueCode}&select=data`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
