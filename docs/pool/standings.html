@@ -461,8 +461,9 @@
     });
 
     const rl=['#1','#2','#3'],rc=['r1','r2','r3'];
-    // total cols per team = 3 (name+salary+pts), divider between teams
-    const totalCols=N*3+(N-1);
+    const SALARY_CAP=95500000;
+    // total cols per team = 2 (name+salary), divider between teams
+    const totalCols=N*2+(N-1);
 
     const div=(isTh)=>isTh?'<th class="at-div"></th>':'<td class="at-div"></td>';
 
@@ -471,7 +472,7 @@
     sorted.forEach((t,i)=>{
       const pts=teamTotalPts(t.roster),cap=teamCapUsed(t.roster),sub=teamSubScores(t.roster);
       const r=i<3?rl[i]:`#${i+1}`,c=i<3?rc[i]:'rn';
-      h1+=`<th colspan="3"><div class="at-th-inner"><div class="at-th-rank ${c}">${r}</div><div class="at-th-name">${t.name}</div><div class="at-th-pts">${pts} pts · $${(cap/1e6).toFixed(1)}M</div><div class="at-th-subs"><span class="at-th-sub F">F ${sub.F}</span><span class="at-th-sub D">D ${sub.D}</span><span class="at-th-sub G">G ${sub.G}</span></div></div></th>`;
+      h1+=`<th colspan="2"><div class="at-th-inner"><div class="at-th-rank ${c}">${r}</div><div class="at-th-name">${t.name}</div><div class="at-th-pts">${pts} pts · $${(cap/1e6).toFixed(1)}M</div><div class="at-th-subs"><span class="at-th-sub F">F ${sub.F}</span><span class="at-th-sub D">D ${sub.D}</span><span class="at-th-sub G">G ${sub.G}</span></div></div></th>`;
       if(i<N-1)h1+=div(true);
     });
     h1+='</tr>';
@@ -479,7 +480,7 @@
     // ── HEAD row 2: col labels ──
     let h2='<tr class="at-subhead-row">';
     sorted.forEach((t,i)=>{
-      h2+='<th>Player</th><th class="r">Salary</th><th class="r">Pts</th>';
+      h2+='<th>Player</th><th class="r">Salary</th>';
       if(i<N-1)h2+=div(true);
     });
     h2+='</tr>';
@@ -496,9 +497,9 @@
           if(p){
             const pts=poolScore(p),sal=p.cap_hit?`$${(p.cap_hit/1e6).toFixed(3)}M`:'—';
             const full=formatName(p.player_name),nhl=TEAM_ABBR[p.team]||'';
-            body+=`<td class="pn" title="${full}">${full}${nhl?` <span class="nhl">${nhl}</span>`:''}</td><td class="ps">${sal}</td><td class="pp">${pts}</td>`;
+            body+=`<td class="pn" title="${full}">${full}${nhl?` <span class="nhl">${nhl}</span>`:''}</td><td class="ps">${sal}</td>`;
           } else {
-            body+=`<td class="pe">—</td><td class="ps"></td><td class="pp"></td>`;
+            body+=`<td class="pe">—</td><td class="ps"></td>`;
           }
           if(ti<N-1)body+=div(false);
         });
@@ -507,30 +508,33 @@
     });
 
     // ── TOTALS ──
-    // Row: Total Pool Pts
-    body+=`<tr class="at-tot">`;
-    sorted.forEach((t,ti)=>{
-      const pts=teamTotalPts(t.roster);
-      body+=`<td class="lbl" colspan="2">Total Pool Pts</td><td class="val g">${pts}</td>`;
-      if(ti<N-1)body+=div(false);
-    });
-    body+='</tr>';
-
     // Row: Total Salary
     body+=`<tr class="at-tot">`;
     sorted.forEach((t,ti)=>{
       const cap=teamCapUsed(t.roster);
-      body+=`<td class="lbl" colspan="2">Total Salary</td><td class="val">$${(cap/1e6).toFixed(2)}M</td>`;
+      body+=`<td class="lbl">Total Salary</td><td class="val">$${(cap/1e6).toFixed(2)}M</td>`;
       if(ti<N-1)body+=div(false);
     });
     body+='</tr>';
 
-    // Row: Salary / Player
+    // Row: Cap Space Remaining
+    body+=`<tr class="at-tot">`;
+    sorted.forEach((t,ti)=>{
+      const cap=teamCapUsed(t.roster);
+      const remaining=SALARY_CAP-cap;
+      body+=`<td class="lbl">Cap Space Remaining</td><td class="val g">$${(remaining/1e6).toFixed(2)}M</td>`;
+      if(ti<N-1)body+=div(false);
+    });
+    body+='</tr>';
+
+    // Row: Avg Cap Space / Player Remaining
     body+=`<tr class="at-tot">`;
     sorted.forEach((t,ti)=>{
       const cap=teamCapUsed(t.roster),filled=teamFilled(t.roster);
-      const avg=filled>0?`$${(cap/1e6/filled).toFixed(2)}M`:'—';
-      body+=`<td class="lbl" colspan="2">Avg Salary / Player</td><td class="val">${avg}</td>`;
+      const remaining=SALARY_CAP-cap;
+      const slotsLeft=20-filled;
+      const avg=slotsLeft>0?`$${(remaining/1e6/slotsLeft).toFixed(2)}M`:'—';
+      body+=`<td class="lbl">Avg Cap / Slot Left</td><td class="val">${avg}</td>`;
       if(ti<N-1)body+=div(false);
     });
     body+='</tr>';
