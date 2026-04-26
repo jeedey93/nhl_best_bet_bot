@@ -78,7 +78,7 @@
     .btn-add-team:hover { background: rgba(255,184,28,0.12); color: var(--gold); border-color: rgba(255,184,28,0.5); }
 
     /* ── Pool layout ── */
-    .pool-layout { display: grid; grid-template-columns: 320px 1fr; gap: 1rem; max-width: 1100px; width: 100%; margin: 0 auto; padding: 0.75rem 1.25rem 0; flex: 1; min-height: 0; align-items: stretch; }
+    .pool-layout { display: grid; grid-template-columns: 320px 1fr; gap: 1rem; max-width: 1100px; width: 100%; margin: 0 auto; padding: 0.75rem 1.25rem 0; flex: 1; min-height: 0; height: calc(100vh - var(--nav-h) - 160px); align-items: stretch; }
     .section-label { font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 3px; color: var(--silver); margin-bottom: 4px; display: flex; align-items: center; justify-content: space-between; }
     .section-label .count { font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem; font-weight: 700; background: rgba(255,255,255,0.07); border-radius: 20px; padding: 1px 8px; color: var(--silver); letter-spacing: 1px; }
     .section-label .count.full { background: rgba(34,197,94,0.2); color: var(--green); }
@@ -539,7 +539,7 @@
     <div class="roster-section">
       <div class="section-label">Bench <span class="count" id="bench-count">0 / 6</span></div>
       <!-- IMPROVED: Bench explanation note -->
-      <div class="bench-note" id="bench-note">Bench counts toward cap but not scoring. Any position.</div>
+      <div class="bench-note" id="bench-note">Bench players do not count against the cap and do not contribute to scoring, regardless of position.</div>
       <div class="roster-slots" id="slots-B"></div>
     </div>
   </div>
@@ -1129,7 +1129,8 @@
     const t=activeTeam(); if (!t) return;
     const filled=[...t.roster.F,...t.roster.D,...t.roster.G,...(t.roster.B||[])].filter(Boolean).length;
     const roster=activeRoster();
-    const cap=[...roster.F,...roster.D,...roster.G,...(roster.B||[])].filter(Boolean).reduce((s,p)=>s+(p.cap_hit||0),0);
+    // Bench does NOT count against cap
+    const cap=[...roster.F,...roster.D,...roster.G].filter(Boolean).reduce((s,p)=>s+(p.cap_hit||0),0);
     const isOver=cap>CAP_MAX;
     const badge=document.getElementById('mob-roster-badge');
     if (badge) {
@@ -1279,10 +1280,13 @@
     if (swapMode&&(swapMode.group===group||swapMode.group==='B')) {
       const swapGroup=swapMode.group, outSlug=t.roster[swapGroup][swapMode.index];
       const roster=activeRoster();
-      const currentCap=[...roster.F,...roster.D,...roster.G,...(roster.B||[])].filter(Boolean).reduce((s,p)=>s+(p.cap_hit||0),0);
-      const outgoing=outSlug?slugMap()[outSlug]:null;
-      const capWithSwap=currentCap-(outgoing?.cap_hit||0)+(player.cap_hit||0);
-      if (capWithSwap>CAP_MAX) { toast(`Over cap — can't fit $${(player.cap_hit/1_000_000).toFixed(1)}M`); return; }
+      // Bench swaps don't count against cap
+      if (swapGroup!=='B') {
+        const currentCap=[...roster.F,...roster.D,...roster.G].filter(Boolean).reduce((s,p)=>s+(p.cap_hit||0),0);
+        const outgoing=outSlug?slugMap()[outSlug]:null;
+        const capWithSwap=currentCap-(outgoing?.cap_hit||0)+(player.cap_hit||0);
+        if (capWithSwap>CAP_MAX) { toast(`Over cap — can't fit $${(player.cap_hit/1_000_000).toFixed(1)}M`); return; }
+      }
       const otherSlugs=[...t.roster.F,...t.roster.D,...t.roster.G,...(t.roster.B||[])].filter((s,_)=>s&&s!==outSlug);
       if (otherSlugs.includes(slug)) return;
       t.roster[swapGroup][swapMode.index]=slug;
@@ -1297,15 +1301,14 @@
       const benchIdx=(t.roster.B||[]).findIndex(s=>s===null);
       if (benchIdx===-1) { toast(`${groupLabel(group)} and Bench slots full`); return; }
       if ([...t.roster.F,...t.roster.D,...t.roster.G,...(t.roster.B||[])].includes(slug)) return;
-      const roster=activeRoster();
-      const cap=[...roster.F,...roster.D,...roster.G,...(roster.B||[])].filter(Boolean).reduce((s,p)=>s+(p.cap_hit||0),0);
-      if (cap+(player.cap_hit||0)>CAP_MAX) { toast(`Over cap — $${(CAP_MAX-cap).toLocaleString()} remaining`); return; }
+      // Bench doesn't count against cap — no cap check needed
       t.roster.B[benchIdx]=slug; refreshRoster(); renderPool(); renderTeamSwitcher(); renderOverview();
       toast(`Added to Bench`); savePool(); return;
     }
     if ([...t.roster.F,...t.roster.D,...t.roster.G,...(t.roster.B||[])].includes(slug)) return;
     const roster=activeRoster();
-    const cap=[...roster.F,...roster.D,...roster.G,...(roster.B||[])].filter(Boolean).reduce((s,p)=>s+(p.cap_hit||0),0);
+    // Only F/D/G count against cap
+    const cap=[...roster.F,...roster.D,...roster.G].filter(Boolean).reduce((s,p)=>s+(p.cap_hit||0),0);
     if (cap+(player.cap_hit||0)>CAP_MAX) { toast(`Over cap — $${(CAP_MAX-cap).toLocaleString()} remaining`); return; }
     t.roster[group][emptyIdx]=slug;
     refreshRoster(); renderPool(); renderTeamSwitcher(); renderOverview();
@@ -1368,8 +1371,10 @@
   // ── Cap bar ───────────────────────────────────────────────────────────────
   function updateCapBar() {
     const roster=activeRoster();
-    const players=[...roster.F,...roster.D,...roster.G,...(roster.B||[])].filter(Boolean);
-    const total=players.reduce((s,p)=>s+(p.cap_hit||0),0);
+    // Bench players do NOT count against the cap
+    const capPlayers=[...roster.F,...roster.D,...roster.G].filter(Boolean);
+    const allPlayers_=[...capPlayers,...(roster.B||[])].filter(Boolean);
+    const total=capPlayers.reduce((s,p)=>s+(p.cap_hit||0),0);
     const remaining=CAP_MAX-total, pct=Math.min(total/CAP_MAX*100,100);
     const isOver=total>CAP_MAX, isWarning=!isOver&&total>CAP_MAX*0.95;
     document.getElementById('cap-remaining').textContent=remaining>=0?'$'+(remaining/1_000_000).toFixed(1)+'M left':'-$'+(Math.abs(remaining)/1_000_000).toFixed(1)+'M over';
@@ -1377,7 +1382,7 @@
     document.getElementById('cap-over').style.display=isOver?'':'none';
     const fill=document.getElementById('cap-fill');
     fill.style.width=pct+'%'; fill.classList.toggle('over',isOver); fill.classList.toggle('warning',isWarning);
-    const totalPts=players.reduce((s,p)=>s+poolScore(p),0);
+    const totalPts=capPlayers.reduce((s,p)=>s+poolScore(p),0);
     document.getElementById('roster-total-pts').textContent=totalPts;
     const wrap=document.getElementById('cap-bar-wrap');
     wrap.classList.toggle('over',isOver); wrap.classList.toggle('warning',isWarning);
@@ -1505,8 +1510,9 @@
   }
 
   function buildPoolShareCard(teamName,roster) {
-    const players=[...roster.F,...roster.D,...roster.G,...(roster.B||[])].filter(Boolean);
-    const total=players.reduce((s,p)=>s+(p.cap_hit||0),0);
+    // Bench does NOT count against cap
+    const capPlayers=[...roster.F,...roster.D,...roster.G].filter(Boolean);
+    const total=capPlayers.reduce((s,p)=>s+(p.cap_hit||0),0);
     const capPct=Math.min(total/CAP_MAX*100,100), capColor=total>CAP_MAX?'#c8102e':total>CAP_MAX*0.9?'#f59e0b':'#22c55e';
     const date=new Date().toLocaleDateString('en-CA');
     const sectionHtml=(group,label)=>{
