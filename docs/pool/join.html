@@ -1113,11 +1113,19 @@ function checkPw(){
   const PLAYERS_CACHE_KEY = 'hp_players_v2';
   async function loadPlayers() {
     try {
+      // Always clear the old stale key
+      sessionStorage.removeItem('hp_players');
       const cached = sessionStorage.getItem(PLAYERS_CACHE_KEY);
       if (cached) {
-        allPlayers = JSON.parse(cached);
-      } else {
-        sessionStorage.removeItem('hp_players'); // clear old cache key
+        try {
+          allPlayers = JSON.parse(cached);
+          if (!Array.isArray(allPlayers) || !allPlayers.length) throw new Error('empty');
+        } catch(_) {
+          sessionStorage.removeItem(PLAYERS_CACHE_KEY);
+          allPlayers = [];
+        }
+      }
+      if (!allPlayers.length) {
         const res = await fetch(
           `${SUPABASE_URL}/rest/v1/nhl_players?select=puckpedia_slug,player_name,position,cap_hit,team,goals,assists,points,wins,shutouts,games_played&order=cap_hit.desc&limit=1000`,
           { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
@@ -1152,8 +1160,9 @@ function checkPw(){
         renderAll();
       }
     } catch(e) {
+      console.error('loadPlayers error:', e);
       document.getElementById('pool-list').innerHTML =
-        '<div class="empty-msg">Failed to load players. <button class="retry-btn" onclick="loadPlayers()">Retry</button></div>';
+        `<div class="empty-msg">Failed to load players (${e.message}). <button class="retry-btn" onclick="loadPlayers()">Retry</button></div>`;
     }
   }
 

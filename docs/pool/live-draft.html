@@ -1031,11 +1031,18 @@ function updateClock() {
 // ── Player pool ───────────────────────────────────────────────────
 async function loadPlayers() {
   try {
+    sessionStorage.removeItem('hp_players');
     const cached = sessionStorage.getItem('hp_players_v2');
     if (cached) {
-      allPlayers = JSON.parse(cached);
-    } else {
-      sessionStorage.removeItem('hp_players');
+      try {
+        allPlayers = JSON.parse(cached);
+        if (!Array.isArray(allPlayers) || !allPlayers.length) throw new Error('empty');
+      } catch(_) {
+        sessionStorage.removeItem('hp_players_v2');
+        allPlayers = [];
+      }
+    }
+    if (!allPlayers.length) {
       const res = await fetch(
         `${SUPABASE_URL}/rest/v1/nhl_players?select=puckpedia_slug,player_name,position,cap_hit,team,goals,assists,points,wins,shutouts,games_played&order=cap_hit.desc&limit=1000`,
         { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
@@ -1047,7 +1054,9 @@ async function loadPlayers() {
     buildNHLTeamStrip();
     renderPlayerPool();
   } catch(e) {
-    document.getElementById('pool-list').innerHTML = '<div class="empty-msg">Failed to load players.</div>';
+    console.error('loadPlayers error:', e);
+    const el = document.getElementById('pool-list');
+    if (el) el.innerHTML = `<div class="empty-msg">Failed to load players: ${e.message}</div>`;
   }
 }
 
