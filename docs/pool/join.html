@@ -592,7 +592,7 @@ function checkPw(){
 <!-- Mobile tabs -->
 <div class="mobile-tabs" id="mobile-tabs" style="display:none;">
   <div class="mobile-tab active" id="mob-tab-team" onclick="switchMobileTab('team')">
-    Your Team <span class="mobile-tab-badge" id="mob-roster-count">0/20</span>
+    Your Team <span class="mobile-tab-badge" id="mob-roster-count">0/26</span>
   </div>
   <div class="mobile-tab" id="mob-tab-pool" onclick="switchMobileTab('pool')">Player Pool</div>
   <div class="mobile-tab" id="mob-tab-overview" onclick="switchMobileTab('overview')">All Teams</div>
@@ -654,6 +654,10 @@ function checkPw(){
     <div class="roster-section">
       <div class="section-label">Goalies <span class="count" id="gol-count">0 / 2</span></div>
       <div class="roster-slots" id="slots-G"></div>
+    </div>
+    <div class="roster-section">
+      <div class="section-label">Bench <span class="count" id="bench-count">0 / 6</span></div>
+      <div class="roster-slots" id="slots-B"></div>
     </div>
   </div>
 
@@ -957,7 +961,7 @@ function checkPw(){
 
   // ── State ──────────────────────────────────────────────────────────────────
   let allPlayers = [];
-  let teams = [];         // [{ id, name, roster: { F:[slug|null,...], D:[...], G:[...] } }]
+  let teams = [];         // [{ id, name, roster: { F:[slug|null,...], D:[...], G:[...], B:[...] } }]
   let activeTeamId = null;
   let liveDraftedSlugs = new Set(); // slugs picked in live-draft
 
@@ -965,6 +969,7 @@ function checkPw(){
     F: { containerId: 'slots-F', max: 12, countId: 'fwd-count' },
     D: { containerId: 'slots-D', max: 6,  countId: 'def-count' },
     G: { containerId: 'slots-G', max: 2,  countId: 'gol-count' },
+    B: { containerId: 'slots-B', max: 6,  countId: 'bench-count' },
   };
 
   let activeFilter = 'ALL';
@@ -986,7 +991,7 @@ function checkPw(){
 
   function activeRoster() {
     const t = activeTeam();
-    if (!t) return { F: Array(12).fill(null), D: Array(6).fill(null), G: Array(2).fill(null) };
+    if (!t) return { F: Array(12).fill(null), D: Array(6).fill(null), G: Array(2).fill(null), B: Array(6).fill(null) };
     return rosterFromSlugs(t.roster);
   }
 
@@ -996,6 +1001,7 @@ function checkPw(){
       F: rosterSlugs.F.map(s => (s && bySlug[s]) ? bySlug[s] : null),
       D: rosterSlugs.D.map(s => (s && bySlug[s]) ? bySlug[s] : null),
       G: rosterSlugs.G.map(s => (s && bySlug[s]) ? bySlug[s] : null),
+      B: (rosterSlugs.B || Array(6).fill(null)).map(s => (s && bySlug[s]) ? bySlug[s] : null),
     };
   }
 
@@ -1008,7 +1014,7 @@ function checkPw(){
   function allClaimedSlugs() {
     const set = new Set(liveDraftedSlugs);
     for (const t of teams) {
-      [...t.roster.F, ...t.roster.D, ...t.roster.G].forEach(s => { if (s) set.add(s); });
+      [...t.roster.F, ...t.roster.D, ...t.roster.G, ...t.roster.B].forEach(s => { if (s) set.add(s); });
     }
     return set;
   }
@@ -1038,7 +1044,7 @@ function checkPw(){
   function claimedByMap() {
     const map = {};
     for (const t of teams) {
-      [...t.roster.F, ...t.roster.D, ...t.roster.G].forEach(s => { if (s) map[s] = t.name; });
+      [...t.roster.F, ...t.roster.D, ...t.roster.G, ...t.roster.B].forEach(s => { if (s) map[s] = t.name; });
     }
     return map;
   }
@@ -1047,14 +1053,14 @@ function checkPw(){
   function activeRosterSlugs() {
     const t = activeTeam();
     if (!t) return new Set();
-    return new Set([...t.roster.F, ...t.roster.D, ...t.roster.G].filter(Boolean));
+    return new Set([...t.roster.F, ...t.roster.D, ...t.roster.G, ...t.roster.B].filter(Boolean));
   }
 
   // ── ID generator ──────────────────────────────────────────────────────────
   function uid() { return 't' + Math.random().toString(36).slice(2, 9); }
 
   function emptyRosterSlugs() {
-    return { F: Array(12).fill(null), D: Array(6).fill(null), G: Array(2).fill(null) };
+    return { F: Array(12).fill(null), D: Array(6).fill(null), G: Array(2).fill(null), B: Array(6).fill(null) };
   }
 
   // ── Persistence ────────────────────────────────────────────────────────────
@@ -1075,6 +1081,7 @@ function checkPw(){
           F: Array.isArray(t.roster?.F) ? t.roster.F : Array(12).fill(null),
           D: Array.isArray(t.roster?.D) ? t.roster.D : Array(6).fill(null),
           G: Array.isArray(t.roster?.G) ? t.roster.G : Array(2).fill(null),
+          B: Array.isArray(t.roster?.B) ? t.roster.B : Array(6).fill(null),
         }
       }));
       activeTeamId = saved.activeTeamId && teams.find(t => t.id === saved.activeTeamId)
@@ -1094,6 +1101,7 @@ function checkPw(){
         F: Array.isArray(saved.F) ? saved.F : Array(12).fill(null),
         D: Array.isArray(saved.D) ? saved.D : Array(6).fill(null),
         G: Array.isArray(saved.G) ? saved.G : Array(2).fill(null),
+        B: Array.isArray(saved.B) ? saved.B : Array(6).fill(null),
       }}];
       activeTeamId = id;
       savePool();
@@ -1220,14 +1228,14 @@ function checkPw(){
     el.innerHTML = '';
     for (const t of teams) {
       const roster = rosterFromSlugs(t.roster);
-      const filled = [...roster.F, ...roster.D, ...roster.G].filter(Boolean).length;
-      const isFull = filled >= 20;
+      const filled = [...roster.F, ...roster.D, ...roster.G, ...roster.B].filter(Boolean).length;
+      const isFull = filled >= 26;
       const pill = document.createElement('div');
       pill.className = 'team-pill-switcher' + (t.id === activeTeamId ? ' active' : '');
       const isViewOnly = document.body.classList.contains('view-only');
       pill.innerHTML = `
         <div class="team-pill-name">${t.name}</div>
-        <div class="team-pill-progress ${isFull ? 'full' : ''}">${filled}/20</div>
+        <div class="team-pill-progress ${isFull ? 'full' : ''}">${filled}/26</div>
         ${isViewOnly ? '' : `<div class="team-pill-actions">
           <button class="team-pill-btn" onclick="event.stopPropagation();openRenameModal('${t.id}')">Rename</button>
           <button class="team-pill-btn delete" onclick="event.stopPropagation();confirmDeleteTeam('${t.id}')">✕</button>
@@ -1270,17 +1278,17 @@ function checkPw(){
     grid.innerHTML = '';
     for (const t of teams) {
       const roster = rosterFromSlugs(t.roster);
-      const players = [...roster.F, ...roster.D, ...roster.G].filter(Boolean);
+      const players = [...roster.F, ...roster.D, ...roster.G, ...roster.B].filter(Boolean);
       const filled = players.length;
       const pts = players.reduce((s, p) => s + poolScore(p), 0);
       const cap = players.reduce((s, p) => s + (p.cap_hit || 0), 0);
-      const pct = (filled / 20) * 100;
+      const pct = (filled / 26) * 100;
       const card = document.createElement('div');
       card.className = 'overview-card';
       card.innerHTML = `
         <div class="overview-card-name">${t.name}</div>
         <div class="overview-card-stats">
-          <span class="overview-stat"><strong>${filled}</strong>/20 players</span>
+          <span class="overview-stat"><strong>${filled}</strong>/26 players</span>
           <span class="overview-stat"><strong>${pts}</strong> pts</span>
           <span class="overview-stat"><strong>$${(cap/1_000_000).toFixed(1)}M</strong> used</span>
         </div>
@@ -1340,9 +1348,9 @@ function checkPw(){
   function updateMobileRosterCount() {
     const t = activeTeam();
     if (!t) return;
-    const filled = [...t.roster.F, ...t.roster.D, ...t.roster.G].filter(Boolean).length;
+    const filled = [...t.roster.F, ...t.roster.D, ...t.roster.G, ...t.roster.B].filter(Boolean).length;
     const badge = document.getElementById('mob-roster-count');
-    if (badge) badge.textContent = `${filled}/20`;
+    if (badge) badge.textContent = `${filled}/26`;
   }
 
   // ── NHL Team strip ─────────────────────────────────────────────────────────
@@ -1386,7 +1394,7 @@ function checkPw(){
     if (name.includes(',')) { const [last, first] = name.split(',').map(s => s.trim()); return `${first} ${last}`; }
     return name;
   }
-  function groupLabel(g) { return g === 'F' ? 'Forward' : g === 'D' ? 'Defence' : 'Goalie'; }
+  function groupLabel(g) { return g === 'F' ? 'Forward' : g === 'D' ? 'Defence' : g === 'B' ? 'Bench' : 'Goalie'; }
 
   // ── Pool render ────────────────────────────────────────────────────────────
   function renderPool() { _poolPage = 0; _renderPoolPage(); }
@@ -1458,9 +1466,12 @@ function checkPw(){
     const el = document.createElement('div');
     el.className = 'player-card in-roster' + (swapMode && swapMode.group === group && swapMode.index === index ? ' swap-source' : '');
     const salary = player.cap_hit ? '$' + player.cap_hit.toLocaleString() : '';
+    const actualPos = normalizePos(player.position);
+    const displayPos = group === 'B' ? actualPos : group;
+    const statGroup = actualPos;
     const gpBox = player.games_played != null ? `<div class="stat-box stat-box-gp"><div class="stat-box-main">${player.games_played}</div><div class="stat-box-label">GP</div></div>` : '';
     let statBoxHtml;
-    if (group === 'G') {
+    if (statGroup === 'G') {
       statBoxHtml = player.wins != null ? `<div class="stat-boxes">${gpBox}<div class="stat-box stat-box-pts"><div class="stat-box-main">${player.wins}</div><div class="stat-box-label">W</div></div>${player.shutouts ? `<div class="stat-box stat-box-pts"><div class="stat-box-main">${player.shutouts}</div><div class="stat-box-label">SO</div></div>` : ''}</div>` : '';
     } else {
       statBoxHtml = player.points != null ? `<div class="stat-boxes">${gpBox}<div class="stat-box stat-box-pts"><div class="stat-box-main">${player.points}</div><div class="stat-box-label">PTS</div></div></div>` : '';
@@ -1468,7 +1479,7 @@ function checkPw(){
     const abbr = TEAM_ABBR[player.team];
     const logoHtml = abbr ? `<img class="card-team-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}">` : '';
     const removeBtn = document.body.classList.contains('view-only') ? '' : `<button class="remove-btn" aria-label="Remove">✕</button>`;
-    el.innerHTML = `<span class="pos-badge ${group}">${group}</span>${logoHtml}<div class="player-info"><div class="player-name">${formatName(player.player_name)}</div><div class="player-salary">${salary}</div></div>${statBoxHtml}${removeBtn}`;
+    el.innerHTML = `<span class="pos-badge ${displayPos}">${displayPos}</span>${logoHtml}<div class="player-info"><div class="player-name">${formatName(player.player_name)}</div><div class="player-salary">${salary}</div></div>${statBoxHtml}${removeBtn}`;
     if (!document.body.classList.contains('view-only')) {
       el.querySelector('.remove-btn').addEventListener('click', e => { e.stopPropagation(); removeFromRoster(group, index); });
     }
@@ -1484,9 +1495,12 @@ function checkPw(){
     swapMode = { group, index };
     document.getElementById('swap-banner').classList.add('active');
     refreshRoster();
-    if (activeFilter !== group) {
+    if (activeFilter !== group && group !== 'B') {
       activeFilter = group;
       document.querySelectorAll('[data-pos]').forEach(b => b.classList.toggle('active', b.dataset.pos === group));
+    } else if (group === 'B') {
+      activeFilter = 'ALL';
+      document.querySelectorAll('[data-pos]').forEach(b => b.classList.toggle('active', b.dataset.pos === 'ALL'));
     }
     renderPool();
     document.getElementById('pool-list').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -1509,17 +1523,18 @@ function checkPw(){
     if (liveDraftedSlugs.has(slug)) return;
     if (claimed.has(slug) && !activeRosterSlugs().has(slug)) return;
 
-    if (swapMode && swapMode.group === group) {
-      const outSlug = t.roster[group][swapMode.index];
+    if (swapMode && (swapMode.group === group || swapMode.group === 'B')) {
+      const swapGroup = swapMode.group;
+      const outSlug = t.roster[swapGroup][swapMode.index];
       const roster = activeRoster();
-      const currentCap = [...roster.F,...roster.D,...roster.G].filter(Boolean).reduce((s,p) => s+(p.cap_hit||0), 0);
+      const currentCap = [...roster.F,...roster.D,...roster.G,...roster.B].filter(Boolean).reduce((s,p) => s+(p.cap_hit||0), 0);
       const outgoing = outSlug ? slugMap()[outSlug] : null;
       const capWithSwap = currentCap - (outgoing?.cap_hit || 0) + (player.cap_hit || 0);
       if (capWithSwap > CAP_MAX) { toast(`Over cap — can't fit $${(player.cap_hit/1_000_000).toFixed(1)}M`); return; }
       // Prevent adding a player already in another slot of this team
-      const otherSlugs = [...t.roster.F,...t.roster.D,...t.roster.G].filter((s,_) => s && s !== outSlug);
+      const otherSlugs = [...t.roster.F,...t.roster.D,...t.roster.G,...t.roster.B].filter((s,_) => s && s !== outSlug);
       if (otherSlugs.includes(slug)) return;
-      t.roster[group][swapMode.index] = slug;
+      t.roster[swapGroup][swapMode.index] = slug;
       swapMode = null;
       document.getElementById('swap-banner').classList.remove('active');
       refreshRoster(); renderPool(); renderTeamSwitcher(); renderOverview();
@@ -1528,10 +1543,22 @@ function checkPw(){
     }
 
     const emptyIdx = t.roster[group].findIndex(s => s === null);
-    if (emptyIdx === -1) { toast(`${groupLabel(group)} slots full`); return; }
-    if ([...t.roster.F,...t.roster.D,...t.roster.G].includes(slug)) return;
+    if (emptyIdx === -1) {
+      // Position full — try bench
+      const benchIdx = t.roster.B.findIndex(s => s === null);
+      if (benchIdx === -1) { toast(`${groupLabel(group)} and Bench slots full`); return; }
+      if ([...t.roster.F,...t.roster.D,...t.roster.G,...t.roster.B].includes(slug)) return;
+      const roster = activeRoster();
+      const cap = [...roster.F,...roster.D,...roster.G,...roster.B].filter(Boolean).reduce((s,p) => s+(p.cap_hit||0), 0);
+      if (cap + (player.cap_hit || 0) > CAP_MAX) { toast(`Over cap — $${(CAP_MAX - cap).toLocaleString()} remaining`); return; }
+      t.roster.B[benchIdx] = slug;
+      refreshRoster(); renderPool(); renderTeamSwitcher(); renderOverview();
+      toast(`Added to Bench`);
+      savePool(); return;
+    }
+    if ([...t.roster.F,...t.roster.D,...t.roster.G,...t.roster.B].includes(slug)) return;
     const roster = activeRoster();
-    const cap = [...roster.F,...roster.D,...roster.G].filter(Boolean).reduce((s,p) => s+(p.cap_hit||0), 0);
+    const cap = [...roster.F,...roster.D,...roster.G,...roster.B].filter(Boolean).reduce((s,p) => s+(p.cap_hit||0), 0);
     if (cap + (player.cap_hit || 0) > CAP_MAX) { toast(`Over cap — $${(CAP_MAX - cap).toLocaleString()} remaining`); return; }
     t.roster[group][emptyIdx] = slug;
     refreshRoster(); renderPool(); renderTeamSwitcher(); renderOverview();
@@ -1577,7 +1604,7 @@ function checkPw(){
   // ── Cap bar ────────────────────────────────────────────────────────────────
   function updateCapBar() {
     const roster = activeRoster();
-    const players = [...roster.F,...roster.D,...roster.G].filter(Boolean);
+    const players = [...roster.F,...roster.D,...roster.G,...roster.B].filter(Boolean);
     const total = players.reduce((s,p) => s+(p.cap_hit||0), 0);
     const remaining = CAP_MAX - total;
     const pct = Math.min(total / CAP_MAX * 100, 100);
@@ -1622,7 +1649,7 @@ function checkPw(){
     btn.textContent = '✕ Clear'; btn.style.borderColor = ''; btn.style.color = '';
     const t = activeTeam(); if (!t) return;
     _undoSnapshot = { id: t.id, roster: {
-      F: [...t.roster.F], D: [...t.roster.D], G: [...t.roster.G]
+      F: [...t.roster.F], D: [...t.roster.D], G: [...t.roster.G], B: [...(t.roster.B || [])]
     }};
     t.roster = emptyRosterSlugs();
     renderAll(); savePool();
@@ -1703,14 +1730,14 @@ function checkPw(){
     const otherClaimed = new Set();
     for (const other of teams) {
       if (other.id === t.id) continue;
-      [...other.roster.F,...other.roster.D,...other.roster.G].forEach(s => { if (s) otherClaimed.add(s); });
+      [...other.roster.F,...other.roster.D,...other.roster.G,...other.roster.B].forEach(s => { if (s) otherClaimed.add(s); });
     }
 
     const locked = rosterFromSlugs({
-      F: t.roster.F, D: t.roster.D, G: t.roster.G
+      F: t.roster.F, D: t.roster.D, G: t.roster.G, B: t.roster.B || Array(6).fill(null)
     });
-    const lockedSlugs = new Set([...locked.F,...locked.D,...locked.G].filter(Boolean).map(p => p.puckpedia_slug));
-    const lockedCap = [...locked.F,...locked.D,...locked.G].filter(Boolean).reduce((s,p) => s+(p.cap_hit||0), 0);
+    const lockedSlugs = new Set([...locked.F,...locked.D,...locked.G,...locked.B].filter(Boolean).map(p => p.puckpedia_slug));
+    const lockedCap = [...locked.F,...locked.D,...locked.G,...locked.B].filter(Boolean).reduce((s,p) => s+(p.cap_hit||0), 0);
     const stat = poolScore;
 
     const byPos = { F:[], D:[], G:[] };
@@ -1761,6 +1788,7 @@ function checkPw(){
       F: Array(12).fill(null).map((_,i) => best.picked.F[i]?.puckpedia_slug || null),
       D: Array(6).fill(null).map((_,i) => best.picked.D[i]?.puckpedia_slug || null),
       G: Array(2).fill(null).map((_,i) => best.picked.G[i]?.puckpedia_slug || null),
+      B: t.roster.B || Array(6).fill(null),
     };
     renderAll(); savePool();
     toast(`⚡ Built · ${best.totalPts} pts · $${(best.capUsed/1_000_000).toFixed(1)}M used`);
@@ -1784,13 +1812,13 @@ function checkPw(){
     return _logoCache[url] || url;
   }
   async function resolveRosterLogos(roster) {
-    const slugs = [...roster.F,...roster.D,...roster.G].filter(Boolean).map(p=>p.team).filter(Boolean);
+    const slugs = [...roster.F,...roster.D,...roster.G,...roster.B].filter(Boolean).map(p=>p.team).filter(Boolean);
     const urls = [...new Set(slugs.map(s=>{const a=TEAM_ABBR[s];return a?`https://assets.nhle.com/logos/nhl/svg/${a}_dark.svg`:null;}).filter(Boolean))];
     await Promise.all(urls.map(fetchLogoDataUrl));
   }
 
   function buildPoolShareCard(teamName, roster) {
-    const players = [...roster.F,...roster.D,...roster.G].filter(Boolean);
+    const players = [...roster.F,...roster.D,...roster.G,...roster.B].filter(Boolean);
     const total = players.reduce((s,p)=>s+(p.cap_hit||0),0);
     const capPct = Math.min(total/CAP_MAX*100,100);
     const capColor = total>CAP_MAX?'#c8102e':total>CAP_MAX*0.9?'#f59e0b':'#22c55e';
@@ -1826,7 +1854,7 @@ function checkPw(){
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 20px;"><div>${sectionHtml('F','FORWARDS')}</div><div>${sectionHtml('D','DEFENCE')}${sectionHtml('G','GOALIES')}</div></div>
       <div style="margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.07);display:flex;justify-content:space-between;align-items:center;">
         <span style="font-size:12px;color:rgba(255,255,255,0.25);letter-spacing:1px;">parieurdiscipline.com</span>
-        <span style="font-family:'Bebas Neue',sans-serif;font-size:13px;color:#ffb81c;letter-spacing:2px;">NHL 2025–26 POOL</span>
+        <span style="font-family:'Bebas Neue',cursive;font-size:13px;color:#ffb81c;letter-spacing:2px;">NHL 2025–26 POOL</span>
       </div>
     </div>`;
   }

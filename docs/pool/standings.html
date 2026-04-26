@@ -88,6 +88,7 @@
     .lb-subscore-pill.F { background: rgba(255,122,138,0.1); color: var(--pink); }
     .lb-subscore-pill.D { background: rgba(125,180,255,0.1); color: var(--blue); }
     .lb-subscore-pill.G { background: rgba(255,184,28,0.1); color: var(--gold); }
+    .lb-subscore-pill.B { background: rgba(255,255,255,0.07); color: var(--silver); }
 
     .team-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 1.25rem; }
     .team-tab { font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 2px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); color: var(--silver); border-radius: 7px; padding: 5px 16px; cursor: pointer; flex-shrink: 0; transition: background 0.15s, border-color 0.15s, color 0.15s; white-space: nowrap; }
@@ -109,9 +110,9 @@
     .detail-badge.eff { background: rgba(125,180,255,0.1); color: var(--blue); border: 1px solid rgba(125,180,255,0.25); }
     .pos-scores-bar { display: flex; gap: 0.5rem; margin-bottom: 1.25rem; }
     .pos-score-block { flex: 1; background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 8px; padding: 0.6rem 0.75rem; text-align: center; }
-    .pos-score-block.F { border-color: rgba(255,122,138,0.2); } .pos-score-block.D { border-color: rgba(125,180,255,0.2); } .pos-score-block.G { border-color: rgba(255,184,28,0.2); }
+    .pos-score-block.F { border-color: rgba(255,122,138,0.2); } .pos-score-block.D { border-color: rgba(125,180,255,0.2); } .pos-score-block.G { border-color: rgba(255,184,28,0.2); } .pos-score-block.B { border-color: rgba(255,255,255,0.12); }
     .pos-score-val { font-family: 'Bebas Neue', cursive; font-size: 1.6rem; letter-spacing: 2px; line-height: 1; }
-    .pos-score-block.F .pos-score-val { color: var(--pink); } .pos-score-block.D .pos-score-val { color: var(--blue); } .pos-score-block.G .pos-score-val { color: var(--gold); }
+    .pos-score-block.F .pos-score-val { color: var(--pink); } .pos-score-block.D .pos-score-val { color: var(--blue); } .pos-score-block.G .pos-score-val { color: var(--gold); } .pos-score-block.B .pos-score-val { color: var(--silver); }
     .pos-score-label { font-family: 'Barlow Condensed', sans-serif; font-size: 0.68rem; font-weight: 700; color: var(--silver); letter-spacing: 2px; text-transform: uppercase; margin-top: 2px; }
     .top-scorer-callout { display: flex; align-items: center; gap: 0.6rem; background: rgba(255,184,28,0.06); border: 1px solid rgba(255,184,28,0.2); border-radius: 8px; padding: 0.6rem 0.75rem; margin-bottom: 1.25rem; }
     .top-scorer-icon { font-size: 1.1rem; flex-shrink: 0; }
@@ -212,6 +213,7 @@
     .at-table tbody tr.at-sec.F td { color: var(--pink); }
     .at-table tbody tr.at-sec.D td { color: var(--blue); }
     .at-table tbody tr.at-sec.G td { color: var(--gold); }
+    .at-table tbody tr.at-sec.B td { color: var(--silver); }
 
     /* totals */
     .at-table tbody tr.at-tot td { background: var(--row-sum) !important; border-top: 1px solid rgba(255,255,255,0.1); }
@@ -374,13 +376,13 @@
   function poolScore(p){const pos=normalizePos(p.position);if(pos==='G')return(p.wins??0)*_scoring.g_wins+(p.shutouts??0)*_scoring.g_shutouts;if(pos==='D')return(p.goals??0)*_scoring.d_goals+(p.assists??0)*_scoring.d_assists;return(p.points??0)*_scoring.f_points;}
   function formatName(n){if(!n)return'';if(n.includes(',')){const[l,f]=n.split(',').map(s=>s.trim());return`${f} ${l}`;}return n;}
   function slugMap(){if(!slugMap._c)slugMap._c=Object.fromEntries(allPlayers.map(p=>[p.puckpedia_slug,p]));return slugMap._c;}
-  function rosterPlayers(rs){const m=slugMap();return{F:rs.F.map(s=>(s&&m[s])?m[s]:null),D:rs.D.map(s=>(s&&m[s])?m[s]:null),G:rs.G.map(s=>(s&&m[s])?m[s]:null)};}
-  function teamSubScores(rs){const r=rosterPlayers(rs);return{F:r.F.filter(Boolean).reduce((s,p)=>s+poolScore(p),0),D:r.D.filter(Boolean).reduce((s,p)=>s+poolScore(p),0),G:r.G.filter(Boolean).reduce((s,p)=>s+poolScore(p),0)};}
-  function teamTotalPts(rs){const s=teamSubScores(rs);return s.F+s.D+s.G;}
-  function teamCapUsed(rs){const r=rosterPlayers(rs);return[...r.F,...r.D,...r.G].filter(Boolean).reduce((s,p)=>s+(p.cap_hit||0),0);}
-  function teamFilled(rs){return[...rs.F,...rs.D,...rs.G].filter(Boolean).length;}
-  function computePoolAverages(){const a={F:[],D:[],G:[]};teams.forEach(t=>{const r=rosterPlayers(t.roster);['F','D','G'].forEach(pos=>r[pos].filter(Boolean).forEach(p=>a[pos].push(poolScore(p))));});const avg=arr=>arr.length?arr.reduce((a,b)=>a+b,0)/arr.length:0;return{F:avg(a.F),D:avg(a.D),G:avg(a.G)};}
-  function allDraftedPlayers(){const l=[];teams.forEach(t=>{const r=rosterPlayers(t.roster);['F','D','G'].forEach(pos=>r[pos].filter(Boolean).forEach(p=>l.push({player:p,owner:t.name,pos})));});return l;}
+  function rosterPlayers(rs){const m=slugMap();return{F:rs.F.map(s=>(s&&m[s])?m[s]:null),D:rs.D.map(s=>(s&&m[s])?m[s]:null),G:rs.G.map(s=>(s&&m[s])?m[s]:null),B:(rs.B||Array(6).fill(null)).map(s=>(s&&m[s])?m[s]:null)};}
+  function teamSubScores(rs){const r=rosterPlayers(rs);return{F:r.F.filter(Boolean).reduce((s,p)=>s+poolScore(p),0),D:r.D.filter(Boolean).reduce((s,p)=>s+poolScore(p),0),G:r.G.filter(Boolean).reduce((s,p)=>s+poolScore(p),0),B:r.B.filter(Boolean).reduce((s,p)=>s+poolScore(p),0)};}
+  function teamTotalPts(rs){const s=teamSubScores(rs);return s.F+s.D+s.G+s.B;}
+  function teamCapUsed(rs){const r=rosterPlayers(rs);return[...r.F,...r.D,...r.G,...r.B].filter(Boolean).reduce((s,p)=>s+(p.cap_hit||0),0);}
+  function teamFilled(rs){return[...rs.F,...rs.D,...rs.G,...(rs.B||[])].filter(Boolean).length;}
+  function computePoolAverages(){const a={F:[],D:[],G:[],B:[]};teams.forEach(t=>{const r=rosterPlayers(t.roster);['F','D','G','B'].forEach(pos=>r[pos].filter(Boolean).forEach(p=>a[pos].push(poolScore(p))));});const avg=arr=>arr.length?arr.reduce((a,b)=>a+b,0)/arr.length:0;return{F:avg(a.F),D:avg(a.D),G:avg(a.G),B:avg(a.B)};}
+  function allDraftedPlayers(){const l=[];teams.forEach(t=>{const r=rosterPlayers(t.roster);['F','D','G','B'].forEach(pos=>r[pos].filter(Boolean).forEach(p=>l.push({player:p,owner:t.name,pos})));});return l;}
 
   async function load(){
     await loadScoringSettings();
@@ -398,7 +400,7 @@
       if(!rRes.ok)throw new Error(rRes.status);
       const rows=await rRes.json();
       if(!rows.length||!rows[0].data?.teams?.length){document.getElementById('content').innerHTML='<div class="msg">No teams saved yet. Go build your pool!</div>';return;}
-      teams=rows[0].data.teams.map(t=>({id:t.id,name:t.name||'Team',roster:{F:Array.isArray(t.roster?.F)?t.roster.F:Array(12).fill(null),D:Array.isArray(t.roster?.D)?t.roster.D:Array(6).fill(null),G:Array.isArray(t.roster?.G)?t.roster.G:Array(2).fill(null)}}));
+      teams=rows[0].data.teams.map(t=>({id:t.id,name:t.name||'Team',roster:{F:Array.isArray(t.roster?.F)?t.roster.F:Array(12).fill(null),D:Array.isArray(t.roster?.D)?t.roster.D:Array(6).fill(null),G:Array.isArray(t.roster?.G)?t.roster.G:Array(2).fill(null),B:Array.isArray(t.roster?.B)?t.roster.B:Array(6).fill(null)}}));
       const sorted=[...teams].sort((a,b)=>teamTotalPts(b.roster)-teamTotalPts(a.roster));
       activeTeamId=sorted[0]?.id||teams[0]?.id;
       render();
@@ -435,7 +437,7 @@
     const order=sorted.length>=3?[sorted[1],sorted[0],sorted[2]]:sorted;
     const oi=sorted.length>=3?[1,0,2]:sorted.map((_,i)=>i);
     return`<div class="podium">${order.map((t,i)=>{if(!t)return'';const ri=oi[i],pts=teamTotalPts(t.roster),sub=teamSubScores(t.roster),gap=ri===0?'':`−${leaderPts-pts} from 1st`;
-      return`<div class="podium-block ${cls[ri]}" onclick="selectTeam('${t.id}');setView('team')"><span class="podium-crown">${medals[ri]}</span><div class="podium-rank">#${ri+1}</div><div class="podium-name">${t.name}</div><div class="podium-pts">${pts}<span class="podium-pts-label">POOL PTS</span></div>${gap?`<div class="podium-gap">${gap}</div>`:''}<div class="podium-breakdown"><span class="podium-breakdown-item F">F ${sub.F}</span><span class="podium-breakdown-item D">D ${sub.D}</span><span class="podium-breakdown-item G">G ${sub.G}</span></div></div>`;
+      return`<div class="podium-block ${cls[ri]}" onclick="selectTeam('${t.id}');setView('team')"><span class="podium-crown">${medals[ri]}</span><div class="podium-rank">#${ri+1}</div><div class="podium-name">${t.name}</div><div class="podium-pts">${pts}<span class="podium-pts-label">POOL PTS</span></div>${gap?`<div class="podium-gap">${gap}</div>`:''}<div class="podium-breakdown"><span class="podium-breakdown-item F">F ${sub.F}</span><span class="podium-breakdown-item D">D ${sub.D}</span><span class="podium-breakdown-item G">G ${sub.G}</span><span class="podium-breakdown-item B">B ${sub.B}</span></div></div>`;
     }).join('')}</div>`;}
 
   function buildLeaderboard(sorted,leaderPts){
@@ -443,7 +445,7 @@
     const rows=sorted.map((t,i)=>{
       const pts=teamTotalPts(t.roster),cap=teamCapUsed(t.roster),filled=teamFilled(t.roster),sub=teamSubScores(t.roster);
       const gap=i===0?'Leader':`−${leaderPts-pts}`,eff=cap>0?(pts/(cap/1e6)).toFixed(1):'—';
-      return`<div class="lb-row ${t.id===activeTeamId?'active':''}" onclick="selectTeam('${t.id}')"><div class="lb-rank ${rc(i)}">${i+1}</div><div><div class="lb-name">${t.name}</div><div class="lb-subscore"><span class="lb-subscore-pill F">F ${sub.F}</span><span class="lb-subscore-pill D">D ${sub.D}</span><span class="lb-subscore-pill G">G ${sub.G}</span></div></div><div class="lb-stat">${filled}/20</div><div class="lb-stat">$${(cap/1e6).toFixed(1)}M</div><div class="lb-stat">${eff} pt/$M</div><div class="lb-stat ${i===0?'gap leader':'gap'}">${gap}</div><div class="lb-stat pts">${pts}</div></div>`;
+      return`<div class="lb-row ${t.id===activeTeamId?'active':''}" onclick="selectTeam('${t.id}')"><div class="lb-rank ${rc(i)}">${i+1}</div><div><div class="lb-name">${t.name}</div><div class="lb-subscore"><span class="lb-subscore-pill F">F ${sub.F}</span><span class="lb-subscore-pill D">D ${sub.D}</span><span class="lb-subscore-pill G">G ${sub.G}</span><span class="lb-subscore-pill B">B ${sub.B}</span></div></div><div class="lb-stat">${filled}/26</div><div class="lb-stat">$${(cap/1e6).toFixed(1)}M</div><div class="lb-stat">${eff} pt/$M</div><div class="lb-stat ${i===0?'gap leader':'gap'}">${gap}</div><div class="lb-stat pts">${pts}</div></div>`;
     }).join('');
     return`<div class="leaderboard"><div class="lb-row header" style="grid-template-columns:36px 1fr 60px 60px 70px 70px 70px"><div></div><div class="lb-col-label left">Team</div><div class="lb-col-label">Players</div><div class="lb-col-label">Cap</div><div class="lb-col-label">Eff.</div><div class="lb-col-label">Gap</div><div class="lb-col-label">Pts</div></div>${rows}</div>`;}
 
@@ -451,13 +453,13 @@
   function buildAllTeams(sorted){
     if(!sorted.length) return '<div class="msg">No teams yet.</div>';
 
-    const SECS=[{key:'F',label:'FORWARDS',slots:12},{key:'D',label:'DEFENCE',slots:6},{key:'G',label:'GOALIES',slots:2}];
+    const SECS=[{key:'F',label:'FORWARDS',slots:12},{key:'D',label:'DEFENCE',slots:6},{key:'G',label:'GOALIES',slots:2},{key:'B',label:'BENCH',slots:6}];
     const N=sorted.length;
 
     // Rosters sorted by pts descending within each pos
     const rosters=sorted.map(t=>{
       const r=rosterPlayers(t.roster);
-      return{F:r.F.filter(Boolean).sort((a,b)=>poolScore(b)-poolScore(a)),D:r.D.filter(Boolean).sort((a,b)=>poolScore(b)-poolScore(a)),G:r.G.filter(Boolean).sort((a,b)=>poolScore(b)-poolScore(a))};
+      return{F:r.F.filter(Boolean).sort((a,b)=>poolScore(b)-poolScore(a)),D:r.D.filter(Boolean).sort((a,b)=>poolScore(b)-poolScore(a)),G:r.G.filter(Boolean).sort((a,b)=>poolScore(b)-poolScore(a)),B:r.B.filter(Boolean).sort((a,b)=>poolScore(b)-poolScore(a))};
     });
 
     const SALARY_CAP=95500000;
@@ -529,7 +531,7 @@
     sorted.forEach((t,ti)=>{
       const cap=teamCapUsed(t.roster),filled=teamFilled(t.roster);
       const remaining=SALARY_CAP-cap;
-      const slotsLeft=20-filled;
+      const slotsLeft=26-filled;
       const avg=slotsLeft>0?`$${(remaining/1e6/slotsLeft).toFixed(2)}M`:'—';
       body+=`<td class="lbl">Avg Cap / Slot Left</td><td class="val">${avg}</td>`;
       if(ti<N-1)body+=div(false);
@@ -541,24 +543,24 @@
 
   function buildDetail(team,sorted,leaderPts,avgs){
     const roster=rosterPlayers(team.roster);
-    const allP=[...roster.F,...roster.D,...roster.G].filter(Boolean);
+    const allP=[...roster.F,...roster.D,...roster.G,...roster.B].filter(Boolean);
     if(!allP.length)return`<div class="msg" style="padding:1.5rem 0;">No players drafted yet.</div>`;
     const totalPts=allP.reduce((s,p)=>s+poolScore(p),0),cap=allP.reduce((s,p)=>s+(p.cap_hit||0),0),filled=allP.length;
     const eff=cap>0?(totalPts/(cap/1e6)).toFixed(1):'—',sub=teamSubScores(team.roster);
     const rank=sorted.findIndex(t=>t.id===team.id)+1,gap=rank===1?'Leading 🏆':`${leaderPts-totalPts} pts behind 1st`;
     const scored=allP.map(p=>({p,pts:poolScore(p)})).sort((a,b)=>b.pts-a.pts),topScorer=scored[0];
-    const groups=[{key:'F',label:'Forwards',players:roster.F.filter(Boolean).sort((a,b)=>poolScore(b)-poolScore(a))},{key:'D',label:'Defence',players:roster.D.filter(Boolean).sort((a,b)=>poolScore(b)-poolScore(a))},{key:'G',label:'Goalies',players:roster.G.filter(Boolean).sort((a,b)=>poolScore(b)-poolScore(a))}];
+    const groups=[{key:'F',label:'Forwards',players:roster.F.filter(Boolean).sort((a,b)=>poolScore(b)-poolScore(a))},{key:'D',label:'Defence',players:roster.D.filter(Boolean).sort((a,b)=>poolScore(b)-poolScore(a))},{key:'G',label:'Goalies',players:roster.G.filter(Boolean).sort((a,b)=>poolScore(b)-poolScore(a))},{key:'B',label:'Bench',players:roster.B.filter(Boolean).sort((a,b)=>poolScore(b)-poolScore(a))}];
     return`
       <div class="detail-header"><div class="detail-header-left"><div class="detail-title">${team.name}</div><div class="detail-rank-label">Rank #${rank} · ${gap}</div></div>
-      <div class="detail-summary"><span class="detail-badge pts">${totalPts} PTS</span><span class="detail-badge cap">$${(cap/1e6).toFixed(1)}M</span><span class="detail-badge filled">${filled}/20</span><span class="detail-badge eff">${eff} pt/$M</span></div></div>
-      <div class="pos-scores-bar"><div class="pos-score-block F"><div class="pos-score-val">${sub.F}</div><div class="pos-score-label">Forwards</div></div><div class="pos-score-block D"><div class="pos-score-val">${sub.D}</div><div class="pos-score-label">Defence</div></div><div class="pos-score-block G"><div class="pos-score-val">${sub.G}</div><div class="pos-score-label">Goalies</div></div></div>
+      <div class="detail-summary"><span class="detail-badge pts">${totalPts} PTS</span><span class="detail-badge cap">$${(cap/1e6).toFixed(1)}M</span><span class="detail-badge filled">${filled}/26</span><span class="detail-badge eff">${eff} pt/$M</span></div></div>
+      <div class="pos-scores-bar"><div class="pos-score-block F"><div class="pos-score-val">${sub.F}</div><div class="pos-score-label">Forwards</div></div><div class="pos-score-block D"><div class="pos-score-val">${sub.D}</div><div class="pos-score-label">Defence</div></div><div class="pos-score-block G"><div class="pos-score-val">${sub.G}</div><div class="pos-score-label">Goalies</div></div><div class="pos-score-block B"><div class="pos-score-val">${sub.B}</div><div class="pos-score-label">Bench</div></div></div>
       ${topScorer?`<div class="top-scorer-callout"><span class="top-scorer-icon">⭐</span><div class="top-scorer-text">Top contributor: <strong>${formatName(topScorer.p.player_name)}</strong> — ${topScorer.pts} pool pts &nbsp;·&nbsp; ${(topScorer.pts/totalPts*100).toFixed(0)}% of team total</div></div>`:''}
       ${groups.filter(g=>g.players.length).map(g=>`<div class="pos-group"><div class="pos-group-label ${g.key}">${g.label} (${g.players.length})</div>${g.players.map(p=>buildPlayerRow(p,g.key,avgs,topScorer?.p)).join('')}</div>`).join('')}
     `;}
 
   function buildPlayerRow(p,group,avgs,topScorerPlayer){
     const abbr=TEAM_ABBR[p.team],logo=abbr?`<img class="player-row-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}">`:'' ;
-    const pts=poolScore(p),pos=normalizePos(p.position),avg=avgs[group]??0;
+    const pts=poolScore(p),pos=normalizePos(p.position),displayPos=group==='B'?pos:group,avg=avgs[group]??0;
     const perf=pts>avg*1.15?'above':pts<avg*0.7?'below':'avg';
     const capM=(p.cap_hit||0)/1e6,eff=capM>0?`${(pts/capM).toFixed(1)} pt/$M`:'';
     const gp=p.games_played,pace=(gp>0&&pts>0)?`<span class="player-row-pace">~${Math.round((pts/gp)*(82-gp))} proj</span>`:'';
@@ -566,7 +568,7 @@
     let stat='';
     if(pos==='G'){const a=[];if(p.wins!=null)a.push(`${p.wins}W`);if(p.shutouts)a.push(`${p.shutouts}SO`);if(p.games_played!=null)a.push(`${p.games_played}GP`);stat=a.join(' · ');}
     else{const a=[];if(p.goals!=null)a.push(`${p.goals}G`);if(p.assists!=null)a.push(`${p.assists}A`);if(p.points!=null)a.push(`${p.points}PTS`);if(p.games_played!=null)a.push(`${p.games_played}GP`);stat=a.join(' · ');}
-    return`<div class="player-row"><div class="player-row-perf-bar ${perf}"></div><span class="pos-badge ${group}">${group}</span>${logo}<span class="player-row-name">${formatName(p.player_name)}</span>${isStar?'<span class="star-badge">⭐</span>':''}${stat?`<span class="player-row-stat">${stat}</span>`:''}${pace}${eff?`<span class="player-row-eff">${eff}</span>`:''}<span class="player-row-pts">${pts}<span class="player-row-pts-label">PTS</span></span></div>`;}
+    return`<div class="player-row"><div class="player-row-perf-bar ${perf}"></div><span class="pos-badge ${displayPos}">${displayPos}</span>${logo}<span class="player-row-name">${formatName(p.player_name)}</span>${isStar?'<span class="star-badge">⭐</span>':''}${stat?`<span class="player-row-stat">${stat}</span>`:''}${pace}${eff?`<span class="player-row-eff">${eff}</span>`:''}<span class="player-row-pts">${pts}<span class="player-row-pts-label">PTS</span></span></div>`;}
 
   function buildPoolLeaders(){
     const drafted=allDraftedPlayers(),byPos={F:[],D:[],G:[]};
