@@ -68,8 +68,6 @@
     .action-btns { display: flex; gap: 6px; }
     .btn-small { font-family: 'Bebas Neue', cursive; font-size: 0.8rem; letter-spacing: 1.5px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: var(--silver); border-radius: 5px; padding: 4px 10px; cursor: pointer; transition: background 0.15s, border-color 0.15s; }
     .btn-small:hover { background: rgba(255,255,255,0.1); color: white; border-color: rgba(255,255,255,0.2); }
-    .btn-unlock { background: rgba(255,184,28,0.08); border-color: rgba(255,184,28,0.3); color: var(--gold); }
-    .btn-unlock:hover { background: rgba(255,184,28,0.15); border-color: rgba(255,184,28,0.5); }
     .btn-trade { background: rgba(34,197,94,0.08); border-color: rgba(34,197,94,0.3); color: var(--green); }
     .btn-trade:hover { background: rgba(34,197,94,0.15); border-color: rgba(34,197,94,0.5); }
 
@@ -466,7 +464,25 @@
         </div>
         <div class="hold-actions">
           <button class="btn-small btn-trade" onclick="openTradeModal('${hold.player_slug}')">🔄 Trade</button>
-          <button class="btn-small btn-unlock" onclick="releaseHold('${hold.id}')">↩ Release</button>
+        </div>
+      </div>
+    `;
+  }
+
+  function buildBenchCard(p){
+    const abbr=TEAM_ABBR[p.team]||'';
+    const pts=poolScore(p);
+    return `
+      <div class="hold-card">
+        <div class="hold-player">
+          ${abbr?`<img class="player-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}">`:''}
+          <div class="hold-info">
+            <div class="hold-name">${formatName(p.player_name)}</div>
+            <div class="hold-since">Bench player · Not accumulating while on bench</div>
+          </div>
+        </div>
+        <div class="hold-stats">
+          <div class="hold-stat"><div class="hold-stat-label">Current Pts</div><div class="hold-stat-value">${pts}</div></div>
         </div>
       </div>
     `;
@@ -481,7 +497,7 @@
     const m=slugMap();
 
     let html=`
-      <div class="section-title">Current <span>Holds</span></div>
+      <div class="section-title">Active <span>Roster</span></div>
       <div class="current-holds">
     `;
 
@@ -500,7 +516,25 @@
         html+=`<div class="hold-pos-group"><div class="hold-pos-title ${pos}">${labels[pos]} (${grouped[pos].length})</div>${grouped[pos].map(item=>buildHoldCard(item.hold,item.p)).join('')}</div>`;
       });
     }else{
-      html+='<div class="empty-msg">No active holds. Add one from your roster!</div>';
+      html+='<div class="empty-msg">No active roster players found.</div>';
+    }
+    html+='</div>';
+
+    const benchPlayers=(team.roster.B||[]).filter(Boolean).map(slug=>m[slug]).filter(Boolean);
+    html+=`
+      <div class="section-title">Team <span>Bench</span></div>
+      <div class="current-holds">
+    `;
+    if(benchPlayers.length){
+      const benchGrouped={F:[],D:[],G:[]};
+      benchPlayers.forEach(p=>{ benchGrouped[normalizePos(p.position)].push(p); });
+      const labels={F:'Forwards',D:'Defensemen',G:'Goalies'};
+      ['F','D','G'].forEach(pos=>{
+        if(!benchGrouped[pos].length) return;
+        html+=`<div class="hold-pos-group"><div class="hold-pos-title ${pos}">${labels[pos]} (${benchGrouped[pos].length})</div>${benchGrouped[pos].map(p=>buildBenchCard(p)).join('')}</div>`;
+      });
+    }else{
+      html+='<div class="empty-msg">No bench players.</div>';
     }
     html+='</div>';
 
