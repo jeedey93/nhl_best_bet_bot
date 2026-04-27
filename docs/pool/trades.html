@@ -88,6 +88,15 @@
     .hold-stat-value { font-family: 'Bebas Neue', cursive; font-size: 0.95rem; letter-spacing: 1px; color: var(--gold); margin-top: 2px; }
 
     .hold-actions { display: flex; gap: 6px; }
+    .hold-pos-group { margin-bottom: 1rem; }
+    .hold-pos-group:last-child { margin-bottom: 0; }
+    .hold-pos-title { font-family: 'Bebas Neue', cursive; font-size: 0.82rem; letter-spacing: 2px; margin: 0 0 0.45rem; }
+    .hold-pos-title.F { color: var(--pink); }
+    .hold-pos-title.D { color: var(--blue); }
+    .hold-pos-title.G { color: var(--gold); }
+    .bench-pos-group { margin-bottom: 0.7rem; }
+    .bench-pos-group:last-child { margin-bottom: 0; }
+    .bench-pos-title { font-family: 'Bebas Neue', cursive; font-size: 0.75rem; letter-spacing: 2px; color: var(--silver); margin-bottom: 0.35rem; }
 
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 1rem; }
     .modal-overlay.hidden { display: none; }
@@ -232,6 +241,7 @@
 <script>
   const SUPABASE_URL = 'https://fifurqlitkywtmhgtzeu.supabase.co';
   const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZpZnVycWxpdGt5d3RtaGd0emV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3MDIyMjQsImV4cCI6MjA5MjI3ODIyNH0.KPVPj1qwbSJJMyLR_-AhDcRs0vi2sUU6qbFQ-kH53C0';
+  const CAP_MAX = 95_500_000;
 
   const TEAM_ABBR = {
     'anaheim-ducks':'ANA','boston-bruins':'BOS','buffalo-sabres':'BUF','calgary-flames':'CGY',
@@ -263,6 +273,29 @@
   function poolScore(p){const pos=normalizePos(p.position);if(pos==='G')return(p.wins??0)*_scoring.g_wins+(p.shutouts??0)*_scoring.g_shutouts;if(pos==='D')return(p.goals??0)*_scoring.d_goals+(p.assists??0)*_scoring.d_assists;return(p.points??0)*_scoring.f_points;}
   function formatName(n){if(!n)return'';if(n.includes(',')){const[l,f]=n.split(',').map(s=>s.trim());return`${f} ${l}`;}return n;}
   function slugMap(){if(!slugMap._c)slugMap._c=Object.fromEntries(allPlayers.map(p=>[p.puckpedia_slug,p]));return slugMap._c;}
+  function sbHeaders(extra={}){return{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Content-Type':'application/json',...extra};}
+  function teamMainCap(team){
+    const m=slugMap();
+    return [...(team.roster.F||[]),...(team.roster.D||[]),...(team.roster.G||[])]
+      .filter(Boolean)
+      .reduce((sum,slug)=>sum+(m[slug]?.cap_hit||0),0);
+  }
+  function findPlayerSlot(team,slug){
+    for(const group of ['F','D','G','B']){
+      const idx=(team.roster[group]||[]).findIndex(s=>s===slug);
+      if(idx!==-1) return {group,index:idx};
+    }
+    return null;
+  }
+  async function saveRostersToSupabase(){
+    const data={teams,activeTeamId};
+    const res=await fetch(`${SUPABASE_URL}/rest/v1/pool_rosters`,{
+      method:'POST',
+      headers:sbHeaders({'Prefer':'resolution=merge-duplicates,return=minimal'}),
+      body:JSON.stringify({league_code:_leagueCode,data,updated_at:new Date().toISOString()}),
+    });
+    if(!res.ok) throw new Error(`Failed to persist roster (${res.status})`);
+  }
 
   async function loadScoringSettings(){
     try{
@@ -298,7 +331,7 @@
       if(firstRow.data?.teams){
         firstRow.data.teams.forEach((t,idx)=>{
           teams.push({
-            id:t.name||`Team-${idx}`,
+            id:t.id||`team-${idx}`,
             name:t.name||`Team ${idx+1}`,
             roster:{
               F:Array.isArray(t.roster?.F)?t.roster.F:Array(12).fill(null),
@@ -314,8 +347,8 @@
 
        await loadHolds();
        await loadTrades();
-       // Auto-initialize holds (optional - comment out if causing issues)
-       initializeHoldsForRoster();
+       await initializeHoldsForRoster();
+       await loadHolds();
        renderTeamSelector();
        render();
     }catch(e){console.error(e);document.getElementById('content').innerHTML=`<div class="msg">Failed to load. <button class="btn-refresh" onclick="location.reload()">Retry</button></div>`;}
@@ -340,7 +373,7 @@
     if(!activeTeamId) return; // Safety check
     try{
       const m=slugMap();
-      const existingHoldSlugs=new Set(currentHolds.map(h=>h.player_slug));
+      const existingHoldKeys=new Set(currentHolds.map(h=>`${h.team_name}::${h.player_slug}`));
 
       // Only process active team to avoid duplication issues
       const team=teams.find(t=>t.id===activeTeamId);
@@ -354,12 +387,13 @@
 
       for(const slug of mainRosterPlayers){
         // Skip if already held or player not found
-        if(existingHoldSlugs.has(slug)||!m[slug]) continue;
+        const holdKey=`${team.name}::${slug}`;
+        if(existingHoldKeys.has(holdKey)||!m[slug]) continue;
 
         const now=new Date().toISOString();
         const hold={
           league_code:_leagueCode,
-          team_name:activeTeamId,
+            team_name:team.name,
           player_slug:slug,
           date_acquired:now,
           points_accumulated:0
@@ -377,13 +411,15 @@
               const created=await res.json();
               const holdRecord=Array.isArray(created)?created[0]:created;
               currentHolds.push(holdRecord);
-              existingHoldSlugs.add(slug);
+              existingHoldKeys.add(holdKey);
             }catch(parseErr){
               console.warn('Error parsing response for hold creation',parseErr);
+              // If response is empty, assume it worked (some APIs return empty on success)
+              existingHoldKeys.add(holdKey);
             }
           }else if(res.status===409){
             // Conflict - likely unique constraint, just mark as existing
-            existingHoldSlugs.add(slug);
+            existingHoldKeys.add(holdKey);
           }else{
             const errText=await res.text();
             console.warn(`Failed to create hold for ${slug}: ${res.status}`,errText);
@@ -402,18 +438,46 @@
     document.getElementById('team-selector').innerHTML=html;
   }
 
-  function setActiveTeam(teamId){
+  async function setActiveTeam(teamId){
     activeTeamId=teamId;
+    await initializeHoldsForRoster();
+    await loadHolds();
     renderTeamSelector();
     render();
+  }
+
+  function buildHoldCard(hold,p){
+    const daysHeld=Math.floor((new Date()-new Date(hold.date_acquired))/86400000);
+    const pts=poolScore(p);
+    const abbr=TEAM_ABBR[p.team]||'';
+    return `
+      <div class="hold-card">
+        <div class="hold-player">
+          ${abbr?`<img class="player-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}">`:''}
+          <div class="hold-info">
+            <div class="hold-name">${formatName(p.player_name)}</div>
+            <div class="hold-since">Acquired: ${new Date(hold.date_acquired).toLocaleDateString()}</div>
+          </div>
+        </div>
+        <div class="hold-stats">
+          <div class="hold-stat"><div class="hold-stat-label">Days Held</div><div class="hold-stat-value">${daysHeld}</div></div>
+          <div class="hold-stat"><div class="hold-stat-label">Accumul. Points</div><div class="hold-stat-value">${hold.points_accumulated||0}</div></div>
+          <div class="hold-stat"><div class="hold-stat-label">Current Pts</div><div class="hold-stat-value">${pts}</div></div>
+        </div>
+        <div class="hold-actions">
+          <button class="btn-small btn-trade" onclick="openTradeModal('${hold.player_slug}')">🔄 Trade</button>
+          <button class="btn-small btn-unlock" onclick="releaseHold('${hold.id}')">↩ Release</button>
+        </div>
+      </div>
+    `;
   }
 
   function render(){
     const team=teams.find(t=>t.id===activeTeamId);
     if(!team){document.getElementById('content').innerHTML='<div class="msg">Team not found.</div>';return;}
 
-    const teamHolds=currentHolds.filter(h=>h.team_name===activeTeamId);
-    const teamTrades=currentTrades.filter(t=>t.team_name===activeTeamId);
+    const teamHolds=currentHolds.filter(h=>h.team_name===team.name);
+    const teamTrades=currentTrades.filter(t=>t.team_name===team.name);
     const m=slugMap();
 
     let html=`
@@ -422,32 +486,18 @@
     `;
 
     if(teamHolds.length){
+      const grouped={F:[],D:[],G:[]};
       teamHolds.forEach(hold=>{
         const p=m[hold.player_slug];
-        if(!p)return;
-        const daysHeld=Math.floor((new Date()-new Date(hold.date_acquired))/86400000);
-        const pts=poolScore(p);
-        const abbr=TEAM_ABBR[p.team]||'';
-        html+=`
-          <div class="hold-card">
-            <div class="hold-player">
-              ${abbr?`<img class="player-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}">`:''}
-              <div class="hold-info">
-                <div class="hold-name">${formatName(p.player_name)}</div>
-                <div class="hold-since">Acquired: ${new Date(hold.date_acquired).toLocaleDateString()}</div>
-              </div>
-            </div>
-            <div class="hold-stats">
-              <div class="hold-stat"><div class="hold-stat-label">Days Held</div><div class="hold-stat-value">${daysHeld}</div></div>
-              <div class="hold-stat"><div class="hold-stat-label">Accumul. Points</div><div class="hold-stat-value">${hold.points_accumulated||0}</div></div>
-              <div class="hold-stat"><div class="hold-stat-label">Current Pts</div><div class="hold-stat-value">${pts}</div></div>
-            </div>
-            <div class="hold-actions">
-              <button class="btn-small btn-trade" onclick="openTradeModal('${hold.player_slug}')">🔄 Trade</button>
-              <button class="btn-small btn-unlock" onclick="releaseHold('${hold.id}')">↩ Release</button>
-            </div>
-          </div>
-        `;
+        if(!p) return;
+        const slot=findPlayerSlot(team,hold.player_slug);
+        const pos=slot&&slot.group!=='B'?slot.group:normalizePos(p.position);
+        (grouped[pos]||(grouped[pos]=[])).push({hold,p});
+      });
+      const labels={F:'Forwards',D:'Defensemen',G:'Goalies'};
+      ['F','D','G'].forEach(pos=>{
+        if(!grouped[pos]||!grouped[pos].length) return;
+        html+=`<div class="hold-pos-group"><div class="hold-pos-title ${pos}">${labels[pos]} (${grouped[pos].length})</div>${grouped[pos].map(item=>buildHoldCard(item.hold,item.p)).join('')}</div>`;
       });
     }else{
       html+='<div class="empty-msg">No active holds. Add one from your roster!</div>';
@@ -517,8 +567,11 @@
     const p=m[playerSlug];
     if(!p)return;
 
+    const fromSlot=findPlayerSlot(team,playerSlug);
+    if(!fromSlot||fromSlot.group==='B'){alert('Player must be in active roster to trade.');return;}
     window.tradeFromSlug=playerSlug;
-    window.tradeFromDate=currentHolds.find(h=>h.player_slug===playerSlug)?.date_acquired;
+    window.tradeFromDate=currentHolds.find(h=>h.player_slug===playerSlug&&h.team_name===team.name)?.date_acquired;
+    window.tradeFromSlot=fromSlot;
 
     const fromInfo=document.getElementById('trade-from-info');
     fromInfo.innerHTML=`
@@ -529,10 +582,18 @@
     const benchPlayers=team.roster.B.filter(Boolean);
     const toList=document.getElementById('trade-to-list');
     if(benchPlayers.length){
-      toList.innerHTML=benchPlayers.map(slug=>{
+      const grouped={F:[],D:[],G:[]};
+      benchPlayers.forEach(slug=>{
         const bp=m[slug];
-        return`<div class="player-option" onclick="selectTradeTarget('${slug}')"><span class="player-option-name">${formatName(bp.player_name)}</span><span class="player-option-slot">B</span></div>`;
-      }).join('');
+        if(!bp) return;
+        const pos=normalizePos(bp.position);
+        grouped[pos].push({slug,bp});
+      });
+      const labels={F:'Forwards',D:'Defensemen',G:'Goalies'};
+      toList.innerHTML=['F','D','G']
+        .filter(pos=>grouped[pos].length)
+        .map(pos=>`<div class="bench-pos-group"><div class="bench-pos-title">${labels[pos]}</div>${grouped[pos].map(item=>`<div class="player-option" onclick="selectTradeTarget(event,'${item.slug}')"><span class="player-option-name">${formatName(item.bp.player_name)}</span><span class="player-option-slot">${pos}</span></div>`).join('')}</div>`)
+        .join('');
     }else{
       toList.innerHTML='<div class="empty-msg">No bench players available.</div>';
     }
@@ -540,26 +601,51 @@
     document.getElementById('modal-trade').classList.remove('hidden');
   }
 
-  function selectTradeTarget(slug){
+  function selectTradeTarget(ev,slug){
     window.tradeToSlug=slug;
     document.querySelectorAll('#trade-to-list .player-option').forEach(el=>el.classList.remove('selected'));
-    event.target.closest('.player-option').classList.add('selected');
+    ev.currentTarget.classList.add('selected');
   }
 
   async function confirmTrade(){
     if(!window.tradeFromSlug||!window.tradeToSlug){alert('Please select both players');return;}
-
-    const hold=currentHolds.find(h=>h.player_slug===window.tradeFromSlug&&h.team_name===activeTeamId);
+    const team=teams.find(t=>t.id===activeTeamId);
+    if(!team){alert('Team not found');return;}
+    const hold=currentHolds.find(h=>h.player_slug===window.tradeFromSlug&&h.team_name===team.name);
     if(!hold){alert('Hold not found');return;}
 
     try{
       const accumulatedPts=hold.points_accumulated||0;
       const now=new Date().toISOString();
-      const team=teams.find(t=>t.id===activeTeamId);
+      const m=slugMap();
+      const fromSlot=window.tradeFromSlot||findPlayerSlot(team,window.tradeFromSlug);
+      const toSlot=findPlayerSlot(team,window.tradeToSlug);
+      if(!fromSlot||fromSlot.group==='B'){alert('Invalid active player slot.');return;}
+      if(!toSlot||toSlot.group!=='B'){alert('Incoming player must be on your bench.');return;}
+
+      const toPos=normalizePos(m[window.tradeToSlug]?.position);
+      if(toPos!==fromSlot.group){
+        alert(`Position mismatch: ${toPos} cannot replace ${fromSlot.group} slot.`);
+        return;
+      }
+
+      const currentCap=teamMainCap(team);
+      const fromCap=m[window.tradeFromSlug]?.cap_hit||0;
+      const toCap=m[window.tradeToSlug]?.cap_hit||0;
+      const capAfter=currentCap-fromCap+toCap;
+      if(capAfter>CAP_MAX){
+        alert(`Trade rejected: cap would be $${(capAfter/1e6).toFixed(2)}M (max $${(CAP_MAX/1e6).toFixed(1)}M).`);
+        return;
+      }
+
+      const rosterSnapshot=JSON.stringify(team.roster);
+      team.roster[fromSlot.group][fromSlot.index]=window.tradeToSlug;
+      team.roster.B[toSlot.index]=window.tradeFromSlug;
+      await saveRostersToSupabase();
 
       const tradeData={
         league_code:_leagueCode,
-        team_name:activeTeamId,
+        team_name:team.name,
         player_from_slug:window.tradeFromSlug,
         player_to_slug:window.tradeToSlug,
         date_from_acquired:hold.date_acquired,
@@ -567,35 +653,43 @@
         points_accumulated_at_trade:accumulatedPts
       };
 
-      await fetch(`${SUPABASE_URL}/rest/v1/player_trades`,{
+      const tradeRes=await fetch(`${SUPABASE_URL}/rest/v1/player_trades`,{
         method:'POST',
-        headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Content-Type':'application/json'},
+        headers:sbHeaders(),
         body:JSON.stringify(tradeData)
       });
+      if(!tradeRes.ok) throw new Error('Failed to write trade history');
 
-      await fetch(`${SUPABASE_URL}/rest/v1/player_holds?id=eq.${hold.id}`,{
+      const delRes=await fetch(`${SUPABASE_URL}/rest/v1/player_holds?id=eq.${hold.id}`,{
         method:'DELETE',
-        headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}
+        headers:sbHeaders()
       });
+      if(!delRes.ok) throw new Error('Failed to remove previous hold');
 
       const newHold={
         league_code:_leagueCode,
-        team_name:activeTeamId,
+        team_name:team.name,
         player_slug:window.tradeToSlug,
         date_acquired:now,
         points_accumulated:0
       };
-      await fetch(`${SUPABASE_URL}/rest/v1/player_holds`,{
+      const holdRes=await fetch(`${SUPABASE_URL}/rest/v1/player_holds`,{
         method:'POST',
-        headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Content-Type':'application/json'},
+        headers:sbHeaders(),
         body:JSON.stringify(newHold)
       });
+      if(!holdRes.ok) throw new Error('Failed to create new hold');
 
       closeModal();
       await loadHolds();
       await loadTrades();
       render();
-    }catch(e){alert('Error executing trade');console.error(e);}
+    }catch(e){
+      alert('Error executing trade');
+      console.error(e);
+      // Reload latest roster state from source of truth on failure.
+      await load();
+    }
   }
 
   async function releaseHold(holdId){

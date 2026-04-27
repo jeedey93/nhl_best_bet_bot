@@ -39,14 +39,20 @@ CREATE INDEX idx_trades_from_player ON player_trades(player_from_slug);
 CREATE INDEX idx_trades_to_player ON player_trades(player_to_slug);
 CREATE INDEX idx_trades_date ON player_trades(date_traded);
 
--- ===== RLS POLICIES (Optional - only enable if using Row Level Security) =====
--- Uncomment the lines below if you want to enable RLS for security
+-- ===== DISABLE RLS (Row Level Security) by default =====
+-- RLS is disabled to allow public access for your pool use case
+ALTER TABLE player_holds DISABLE ROW LEVEL SECURITY;
+ALTER TABLE player_trades DISABLE ROW LEVEL SECURITY;
+
+-- Grant permissions to anon user
+GRANT ALL ON player_holds TO anon;
+GRANT ALL ON player_trades TO anon;
+
+-- ===== OPTIONAL: Enable RLS with policies if needed =====
+-- Uncomment the following if you want to enable RLS for security:
 
 -- ALTER TABLE player_holds ENABLE ROW LEVEL SECURITY;
 -- ALTER TABLE player_trades ENABLE ROW LEVEL SECURITY;
-
--- Create policies that allow anonymous public access (for your pool use case)
--- Note: Only uncomment these if you've enabled RLS above
 
 -- CREATE POLICY "Allow public read on player_holds"
 --   ON player_holds
@@ -79,11 +85,6 @@ CREATE INDEX idx_trades_date ON player_trades(date_traded);
 --   FOR INSERT
 --   WITH CHECK (true);
 
--- ===== END RLS POLICIES =====
-
--- If RLS is preventing inserts, you can also grant permissions directly:
--- GRANT ALL ON player_holds TO anon;
--- GRANT ALL ON player_trades TO anon;
 
 
 

@@ -126,7 +126,9 @@ Ensure these files are in `/docs/pool/`:
 4. Select a bench player to trade in
 5. Confirm trade
 6. System automatically:
-   - Moves player-to from main roster to bench
+   - Swaps players between active roster slot and bench slot
+   - Persists updated roster composition to `pool_rosters` (visible in Draft/Standings)
+   - Validates salary cap before confirming swap (bench excluded from cap)
    - Saves accumulated points to trade history
    - Creates new hold on player-to (bench player)
    - Clears old hold record
