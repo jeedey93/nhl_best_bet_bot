@@ -488,32 +488,53 @@
            points_accumulated:0
          };
 
-         try{
-           const created=await postWithFallback(`${SUPABASE_URL}/rest/v1/player_holds`,[
-             hold,
-             {league_code:_leagueCode,team_name:team.name,player_slug:slug,date_acquired:now,points_accumulated:0}
-           ]);
+         let holdCreated=false;
+         let lastError=null;
 
-           if(created?.conflict){
-             existingHoldKeys.add(holdKey);
-             successCount++;
-           }else if(created){
-             const holdRecord=Array.isArray(created)?created[0]:created;
-             if(holdRecord) currentHolds.push(holdRecord);
-             existingHoldKeys.add(holdKey);
-             successCount++;
-           }else{
-             existingHoldKeys.add(holdKey);
-             successCount++;
+         // Try up to 3 times with backoff
+         for(let attempt=0; attempt<3; attempt++){
+           try{
+             const created=await postWithFallback(`${SUPABASE_URL}/rest/v1/player_holds`,[
+               hold,
+               {league_code:_leagueCode,team_name:team.name,player_slug:slug,date_acquired:now,points_accumulated:0}
+             ]);
+
+             if(created?.conflict){
+               existingHoldKeys.add(holdKey);
+               successCount++;
+               holdCreated=true;
+               break;
+             }else if(created){
+               const holdRecord=Array.isArray(created)?created[0]:created;
+               if(holdRecord) currentHolds.push(holdRecord);
+               existingHoldKeys.add(holdKey);
+               successCount++;
+               holdCreated=true;
+               break;
+             }else{
+               existingHoldKeys.add(holdKey);
+               successCount++;
+               holdCreated=true;
+               break;
+             }
+           }catch(err){
+             lastError=err;
+             if(attempt<2){
+               // Wait before retry (100ms * (attempt + 1))
+               await new Promise(r=>setTimeout(r,100*(attempt+1)));
+             }
            }
-         }catch(holdErr){
-           console.warn(`Exception creating hold for ${slug}:`,holdErr);
+         }
+
+         if(!holdCreated){
            errorCount++;
+           console.warn(`Failed to create hold for ${slug} after 3 attempts:`,lastError);
          }
        }
 
-       if(errorCount>0&&errorCount>successCount){
-         loadWarnings.push('Some holds could not be initialized. They will be created on-demand.');
+       // Only warn if significant portion failed
+       if(errorCount>0&&errorCount>mainRosterPlayers.length*0.2){
+         loadWarnings.push(`${errorCount} hold(s) failed to initialize. They will be created on-demand when trading.`);
        }
      }catch(e){
        console.error('Error initializing holds:',e);
@@ -535,11 +556,23 @@
      render();
    }
 
-  function buildWarningBox(){
-    if(!loadWarnings.length) return '';
-    const unique=[...new Set(loadWarnings)];
-    return `<div class="warning-box"><div class="warning-box-title">Heads up</div><ul class="warning-list">${unique.map(msg=>`<li>${escapeHtml(msg)}</li>`).join('')}</ul></div>`;
-  }
+   function buildWarningBox(){
+     if(!loadWarnings.length) return '';
+     // Filter out stale initialization warnings if we now have decent hold coverage
+     const team=teams.find(t=>t.id===activeTeamId);
+     if(team){
+       const mainRosterCount=[...(team.roster.F||[]),...(team.roster.D||[]),...(team.roster.G||[])].filter(Boolean).length;
+       const heldCount=currentHolds.filter(h=>teamHoldMatch(h,team)).length;
+       // If we have holds for 80%+ of roster, don't show initial sync warnings
+       if(mainRosterCount>0&&heldCount/mainRosterCount>0.8){
+         const filtered=loadWarnings.filter(w=>!/hold|sync|initialize/.test(w));
+         if(!filtered.length) return '';
+         return `<div class="warning-box"><div class="warning-box-title">Heads up</div><ul class="warning-list">${filtered.map(msg=>`<li>${escapeHtml(msg)}</li>`).join('')}</ul></div>`;
+       }
+     }
+     const unique=[...new Set(loadWarnings)];
+     return `<div class="warning-box"><div class="warning-box-title">Heads up</div><ul class="warning-list">${unique.map(msg=>`<li>${escapeHtml(msg)}</li>`).join('')}</ul></div>`;
+   }
 
   function buildSummary(team,activeCount,benchCount,tradeCount){
     const capUsed=teamMainCap(team);
@@ -992,22 +1025,32 @@
        ...(team.roster.G||[])
      ].filter(Boolean);
 
+     let synced=0;
      for(const slug of mainRosterPlayers){
        const existingHold=currentHolds.find(h=>h.player_slug===slug&&teamHoldMatch(h,team));
        if(!existingHold){
          // No real hold exists, create one
          try{
-           await createHoldRecord(team,slug,new Date().toISOString(),0);
-           await loadHolds();
+           const newHold=await createHoldRecord(team,slug,new Date().toISOString(),0);
+           if(newHold){
+             currentHolds.push(newHold);
+             synced++;
+           }
          }catch(e){
            console.warn(`Sync failed for ${slug}:`,e);
          }
        }
      }
+
+     // If we created any holds, reload and re-render
+     if(synced>0){
+       await loadHolds();
+       render();
+     }
    }
 
-    // Run background sync every 5 seconds to finalize synthetic holds
-    setInterval(syncSyntheticHolds,5000);
+    // Run background sync every 3 seconds to finalize synthetic holds (more aggressive)
+    setInterval(syncSyntheticHolds,3000);
 
     load().catch(console.error);
 </script>
