@@ -173,6 +173,7 @@
 
     .player-card.swap-source { border-color: #60a5fa !important; background: rgba(96,165,250,0.12) !important; box-shadow: 0 0 0 2px rgba(96,165,250,0.35); }
     .player-card.claimed-other { opacity: 0.38; pointer-events: none; }
+    .player-card.owned-active { opacity: 0.45; pointer-events: none; }
     .claimed-badge { font-family: 'Bebas Neue', cursive; font-size: 0.6rem; letter-spacing: 1px; background: rgba(200,16,46,0.15); border: 1px solid rgba(200,16,46,0.25); color: rgba(255,122,138,0.8); border-radius: 3px; padding: 1px 5px; flex-shrink: 0; white-space: nowrap; max-width: 72px; overflow: hidden; text-overflow: ellipsis; }
 
     /* ── IMPROVED: Zero-GP / Injury flag ── */
@@ -1172,7 +1173,13 @@
     visible.forEach(p=>{
       const slug=p.puckpedia_slug, inActive=activeSlugs.has(slug);
       const claimedLive=liveDraftedSlugs.has(slug), claimedOther=claimedLive||(!inActive&&claimed.has(slug));
-      list.appendChild(makePoolCard(p,normalizePos(p.position),claimedOther,claimedOther?(claimedBy[slug]||'Live Draft'):null));
+      list.appendChild(makePoolCard(
+        p,
+        normalizePos(p.position),
+        claimedOther,
+        claimedOther?(claimedBy[slug]||'Live Draft'):null,
+        inActive
+      ));
     });
     if (filtered.length>visible.length) {
       const remaining=filtered.length-visible.length;
@@ -1184,9 +1191,9 @@
   }
 
   // ── Make pool card ────────────────────────────────────────────────────────
-  function makePoolCard(player,pos,claimedByOther=false,claimedTeamName=null) {
+  function makePoolCard(player,pos,claimedByOther=false,claimedTeamName=null,ownedByActive=false) {
     const el=document.createElement('div');
-    el.className='player-card'+(claimedByOther?' claimed-other':'');
+    el.className='player-card'+(claimedByOther?' claimed-other':'')+(ownedByActive?' owned-active':'');
     el.dataset.slug=player.puckpedia_slug;
     const salary=player.cap_hit?'$'+player.cap_hit.toLocaleString():'No contract';
     const eff=player.cap_hit?effScore(player).toFixed(1):null;
@@ -1200,10 +1207,12 @@
     }
     const abbr=TEAM_ABBR[player.team];
     const logoHtml=abbr?`<img class="card-team-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}">`:'';
-    const claimedBadge=claimedTeamName?`<span class="claimed-badge">${claimedTeamName}</span>`:'';
+    const claimedBadge=ownedByActive
+      ? '<span class="claimed-badge">Your team</span>'
+      : (claimedTeamName?`<span class="claimed-badge">${claimedTeamName}</span>`:'');
     // IMPROVED: zero-GP injury flag on pool card
     const injFlag=isLikelyInactive(player)?`<span class="inj-flag" title="0 games played — may be injured or scratched">0 GP</span>`:'';
-    const canAdd=!claimedByOther&&!document.body.classList.contains('view-only');
+    const canAdd=!claimedByOther&&!ownedByActive&&!document.body.classList.contains('view-only');
     const actionBtn=canAdd?`<button class="add-btn" aria-label="Add ${player.player_name}">+</button>`:'';
     el.innerHTML=`<span class="pos-badge ${pos}">${pos}</span>${logoHtml}<div class="player-info"><div class="player-name">${formatName(player.player_name)}</div><div class="player-salary">${salary}</div></div>${statBoxHtml}${injFlag}${claimedBadge}${actionBtn}`;
     if (canAdd) el.querySelector('.add-btn').addEventListener('click',e=>{ e.stopPropagation(); tapAddPlayer(player,pos); });
