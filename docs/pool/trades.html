@@ -468,9 +468,14 @@
          ...(team.roster.G||[])
        ].filter(Boolean);
 
+       let successCount=0, errorCount=0;
+
        for(const slug of mainRosterPlayers){
          const holdKey=`${team.id||team.name}::${slug}`;
-         if(existingHoldKeys.has(holdKey)) continue;
+         if(existingHoldKeys.has(holdKey)){
+           successCount++;
+           continue;
+         }
 
          const now=new Date().toISOString();
          const hold={
@@ -490,24 +495,29 @@
            ]);
 
            if(created?.conflict){
-             // Hold already exists (409 conflict), just mark as handled
              existingHoldKeys.add(holdKey);
+             successCount++;
            }else if(created){
              const holdRecord=Array.isArray(created)?created[0]:created;
              if(holdRecord) currentHolds.push(holdRecord);
              existingHoldKeys.add(holdKey);
+             successCount++;
            }else{
-             // Null response but no error means silent success (Prefer=minimal)
              existingHoldKeys.add(holdKey);
+             successCount++;
            }
          }catch(holdErr){
            console.warn(`Exception creating hold for ${slug}:`,holdErr);
-           // Don't add warning on every player - only show if most fail
+           errorCount++;
          }
+       }
+
+       if(errorCount>0&&errorCount>successCount){
+         loadWarnings.push('Some holds could not be initialized. They will be created on-demand.');
        }
      }catch(e){
        console.error('Error initializing holds:',e);
-       loadWarnings.push('Could not fully initialize active roster holds.');
+       loadWarnings.push('Could not fully initialize active roster holds. Holds will be created on-demand.');
      }
    }
 
@@ -564,30 +574,31 @@
     `;
   }
 
-  function buildHoldCard(slot,hold,p){
-    const daysHeld=hold?.date_acquired?Math.max(0,Math.floor((new Date()-new Date(hold.date_acquired))/86400000)):0;
-    const pts=poolScore(p);
-    const abbr=TEAM_ABBR[p.team]||'';
-    return `
-      <div class="hold-card">
-        <div class="hold-player">
-          ${abbr?`<img class="player-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}">`:''}
-          <div class="hold-info">
-            <div class="hold-name"><span class="hold-slot">${slot}</span>${escapeHtml(formatName(p.player_name))}</div>
-            <div class="hold-since">${hold?.date_acquired?`Acquired: ${new Date(hold.date_acquired).toLocaleDateString()}`:'Awaiting hold sync'}</div>
-          </div>
-        </div>
-        <div class="hold-stats">
-          <div class="hold-stat"><div class="hold-stat-label">Days Held</div><div class="hold-stat-value">${daysHeld}</div></div>
-          <div class="hold-stat"><div class="hold-stat-label">Accumul. Points</div><div class="hold-stat-value">${hold?.points_accumulated||0}</div></div>
-          <div class="hold-stat"><div class="hold-stat-label">Current Pts</div><div class="hold-stat-value">${pts}</div></div>
-        </div>
-        <div class="hold-actions">
-          <button class="btn-small btn-trade" onclick="openTradeModal('${p.puckpedia_slug}')">🔄 Trade</button>
-        </div>
-      </div>
-    `;
-  }
+   function buildHoldCard(slot,hold,p){
+     const daysHeld=hold?.date_acquired?Math.max(0,Math.floor((new Date()-new Date(hold.date_acquired))/86400000)):0;
+     const pts=poolScore(p);
+     const abbr=TEAM_ABBR[p.team]||'';
+     const isSynthetic=hold?._synthetic;
+     return `
+       <div class="hold-card">
+         <div class="hold-player">
+           ${abbr?`<img class="player-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}">`:''}
+           <div class="hold-info">
+             <div class="hold-name"><span class="hold-slot">${slot}</span>${escapeHtml(formatName(p.player_name))}</div>
+             <div class="hold-since">${hold?.date_acquired?`Acquired: ${new Date(hold.date_acquired).toLocaleDateString()}${isSynthetic?' (syncing...)':''}`:''}</div>
+           </div>
+         </div>
+         <div class="hold-stats">
+           <div class="hold-stat"><div class="hold-stat-label">Days Held</div><div class="hold-stat-value">${daysHeld}</div></div>
+           <div class="hold-stat"><div class="hold-stat-label">Accumul. Points</div><div class="hold-stat-value">${hold?.points_accumulated||0}</div></div>
+           <div class="hold-stat"><div class="hold-stat-label">Current Pts</div><div class="hold-stat-value">${pts}</div></div>
+         </div>
+         <div class="hold-actions">
+           <button class="btn-small btn-trade" onclick="openTradeModal('${p.puckpedia_slug}')">🔄 Trade</button>
+         </div>
+       </div>
+     `;
+   }
 
   function buildBenchCard(slot,p){
     const abbr=TEAM_ABBR[p.team]||'';
@@ -609,31 +620,48 @@
     `;
   }
 
-  function render(){
-    const team=teams.find(t=>t.id===activeTeamId);
-    if(!team){document.getElementById('content').innerHTML='<div class="msg">Team not found.</div>';return;}
+   function render(){
+     const team=teams.find(t=>t.id===activeTeamId);
+     if(!team){document.getElementById('content').innerHTML='<div class="msg">Team not found.</div>';return;}
 
-    const teamHolds=currentHolds.filter(h=>teamHoldMatch(h,team));
-    const teamTrades=[...currentTrades.filter(t=>((t.team_id&&team.id&&t.team_id===team.id)||t.team_name===team.name||t.team_name_snapshot===team.name))].sort((a,b)=>new Date(b.date_traded)-new Date(a.date_traded));
-    const activeCount=[...(team.roster.F||[]),...(team.roster.D||[]),...(team.roster.G||[])].filter(Boolean).length;
-    const benchCount=(team.roster.B||[]).filter(Boolean).length;
+     const teamHolds=currentHolds.filter(h=>teamHoldMatch(h,team));
+     const teamTrades=[...currentTrades.filter(t=>((t.team_id&&team.id&&t.team_id===team.id)||t.team_name===team.name||t.team_name_snapshot===team.name))].sort((a,b)=>new Date(b.date_traded)-new Date(a.date_traded));
+     const activeCount=[...(team.roster.F||[]),...(team.roster.D||[]),...(team.roster.G||[])].filter(Boolean).length;
+     const benchCount=(team.roster.B||[]).filter(Boolean).length;
 
-    let html=`${buildWarningBox()}${buildSummary(team,activeCount,benchCount,teamTrades.length)}
-      <div class="section-title">Active <span>Roster</span></div>
-      <div class="current-holds">
-    `;
+     let html=`${buildWarningBox()}${buildSummary(team,activeCount,benchCount,teamTrades.length)}
+       <div class="section-title">Active <span>Roster</span></div>
+       <div class="current-holds">
+     `;
 
-    if(activeCount){
-      const labels={F:'Forwards',D:'Defensemen',G:'Goalies'};
-      ['F','D','G'].forEach(pos=>{
-        const rows=(team.roster[pos]||[]).map((slug,idx)=>slug?{slot:slotLabel(pos,idx),hold:findHold(team,slug),player:getPlayer(slug,pos)}:null).filter(Boolean);
-        if(!rows.length) return;
-        html+=`<div class="hold-pos-group"><div class="hold-pos-title ${pos}">${labels[pos]} (${rows.length})</div>${rows.map(item=>buildHoldCard(item.slot,item.hold,item.player)).join('')}</div>`;
-      });
-    }else{
-      html+='<div class="empty-msg">No active roster players found.</div>';
-    }
-    html+='</div>';
+     if(activeCount){
+       const labels={F:'Forwards',D:'Defensemen',G:'Goalies'};
+       ['F','D','G'].forEach(pos=>{
+         const rows=(team.roster[pos]||[]).map((slug,idx)=>{
+           if(!slug) return null;
+           let hold=findHold(team,slug);
+           // Fallback: if no hold found, create a synthetic one for display
+           // This shows the player was added today but the DB hold hasn't synced yet
+           if(!hold){
+             hold={
+               league_code:_leagueCode,
+               team_id:team.id,
+               team_name:team.name,
+               player_slug:slug,
+               date_acquired:new Date().toISOString(),
+               points_accumulated:0,
+               _synthetic:true  // Mark as placeholder
+             };
+           }
+           return {slot:slotLabel(pos,idx),hold,player:getPlayer(slug,pos)};
+         }).filter(Boolean);
+         if(!rows.length) return;
+         html+=`<div class="hold-pos-group"><div class="hold-pos-title ${pos}">${labels[pos]} (${rows.length})</div>${rows.map(item=>buildHoldCard(item.slot,item.hold,item.player)).join('')}</div>`;
+       });
+     }else{
+       html+='<div class="empty-msg">No active roster players found.</div>';
+     }
+     html+='</div>';
 
     const benchPlayers=(team.roster.B||[]).map((slug,idx)=>slug?{slot:slotLabel('B',idx),player:getPlayer(slug,'F')}:null).filter(Boolean);
     html+=`
