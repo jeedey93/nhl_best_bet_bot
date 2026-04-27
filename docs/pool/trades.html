@@ -30,10 +30,25 @@
     .site-nav-links a.active { color: var(--gold); background: rgba(255,184,28,0.1); }
 
     .page-wrap { max-width: 1000px; margin: 0 auto; padding: 1rem 1rem 1.5rem; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
 
     header { text-align: center; margin-bottom: 1rem; }
     header h1 { font-family: 'Bebas Neue', cursive; font-size: clamp(1.5rem, 3vw, 2.2rem); letter-spacing: 4px; line-height: 1; text-shadow: 0 0 30px rgba(200,16,46,0.4), 0 2px 8px rgba(0,0,0,0.8); }
     header h1 span { color: var(--gold); }
+
+    .summary-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.55rem; margin-bottom: 0.8rem; }
+    .summary-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 0.5rem 0.65rem; min-width: 0; }
+    .summary-card.warn { border-color: rgba(245,158,11,0.35); background: rgba(245,158,11,0.06); }
+    .summary-card.good { border-color: rgba(34,197,94,0.25); background: rgba(34,197,94,0.06); }
+    .summary-label { font-family: 'Barlow Condensed', sans-serif; font-size: 0.62rem; font-weight: 700; color: rgba(255,255,255,0.42); letter-spacing: 1.4px; text-transform: uppercase; }
+    .summary-value { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 1.3px; color: white; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .summary-value.gold { color: var(--gold); }
+    .summary-value.green { color: var(--green); }
+    .summary-value.red { color: var(--red); }
+
+    .warning-box { margin-bottom: 0.8rem; background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.24); border-radius: 8px; padding: 0.55rem 0.7rem; }
+    .warning-box-title { font-family: 'Bebas Neue', cursive; font-size: 0.82rem; letter-spacing: 2px; color: #f59e0b; margin-bottom: 0.2rem; }
+    .warning-list { list-style: none; display: grid; gap: 0.15rem; color: rgba(255,255,255,0.72); font-size: 0.8rem; }
 
     .team-selector { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 1rem; justify-content: center; }
     .team-btn { font-family: 'Bebas Neue', cursive; font-size: 0.84rem; letter-spacing: 1.5px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); color: var(--silver); border-radius: 7px; padding: 4px 12px; cursor: pointer; transition: background 0.15s, border-color 0.15s, color 0.15s; }
@@ -79,6 +94,7 @@
     .hold-info { flex: 1; min-width: 0; }
     .hold-name { font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 1px; color: white; }
     .hold-since { font-family: 'Barlow Condensed', sans-serif; font-size: 0.68rem; color: rgba(255,255,255,0.5); margin-top: 1px; }
+    .hold-slot { font-family: 'Bebas Neue', cursive; font-size: 0.68rem; letter-spacing: 1.2px; color: var(--silver); background: rgba(255,255,255,0.07); border-radius: 4px; padding: 2px 6px; margin-right: 0.3rem; }
 
     .hold-stats { display: flex; gap: 0.55rem; flex-wrap: wrap; }
     .hold-stat { background: rgba(255,255,255,0.05); border-radius: 5px; padding: 0.24rem 0.5rem; }
@@ -112,8 +128,21 @@
     .player-option { display: flex; align-items: center; gap: 0.75rem; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 0.6rem 0.75rem; cursor: pointer; transition: background 0.15s, border-color 0.15s; }
     .player-option:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.2); }
     .player-option.selected { background: rgba(255,184,28,0.12); border-color: rgba(255,184,28,0.3); }
+    .player-option.disabled { opacity: 0.42; cursor: not-allowed; }
+    .player-option.disabled:hover { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.08); }
     .player-option-name { flex: 1; font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 1px; color: white; }
     .player-option-slot { font-family: 'Barlow Condensed', sans-serif; font-size: 0.75rem; font-weight: 700; background: rgba(255,255,255,0.1); border-radius: 3px; padding: 2px 6px; color: var(--silver); }
+    .player-option-meta { font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem; color: rgba(255,255,255,0.45); }
+
+    .trade-preview { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 0.75rem; margin-top: 0.75rem; }
+    .trade-preview-title { font-family: 'Bebas Neue', cursive; font-size: 0.82rem; letter-spacing: 2px; color: var(--gold); margin-bottom: 0.35rem; }
+    .trade-preview-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.45rem; }
+    .trade-preview-item { background: rgba(255,255,255,0.04); border-radius: 6px; padding: 0.4rem 0.5rem; }
+    .trade-preview-item-label { font-size: 0.62rem; color: rgba(255,255,255,0.4); letter-spacing: 1px; text-transform: uppercase; font-weight: 700; }
+    .trade-preview-item-value { font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 1px; color: white; margin-top: 2px; }
+    .trade-preview-note { margin-top: 0.45rem; font-size: 0.78rem; color: rgba(255,255,255,0.66); }
+    .trade-preview-note.warn { color: #f59e0b; }
+    .trade-preview-note.good { color: var(--green); }
 
     .modal-btns { display: flex; gap: 10px; justify-content: flex-end; margin-top: 1.5rem; }
     .modal-btn { font-family: 'Bebas Neue', cursive; font-size: 0.95rem; letter-spacing: 2px; border-radius: 6px; padding: 0.6rem 1.2rem; cursor: pointer; border: 1px solid; transition: background 0.15s; }
@@ -130,12 +159,14 @@
     .btn-refresh:hover { background: rgba(255,255,255,0.1); color: white; }
 
     @media (max-width: 600px) {
+      .summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .trade-row { grid-template-columns: 1fr; }
       .trade-header-row { display: none; }
       .trade-row > * { padding: 0.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.08); }
       .trade-row > *:before { content: attr(data-label); font-weight: 700; display: block; font-size: 0.65rem; color: rgba(255,255,255,0.4); margin-bottom: 0.2rem; }
       .hold-card { flex-direction: column; align-items: flex-start; }
       .hold-stats { width: 100%; }
+      .trade-preview-grid { grid-template-columns: 1fr; }
     }
 
     #pw-gate { position:fixed;inset:0;z-index:9999;background:var(--rink);display:flex;align-items:center;justify-content:center;background-image:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(26,58,110,0.6) 0%,transparent 70%); }
@@ -157,6 +188,7 @@
   <div class="pw-box">
     <h2>🏒 Hockey Pool</h2>
     <p>ENTER PASSWORD TO CONTINUE</p>
+    <label class="sr-only" for="pw-input">Password</label>
     <input id="pw-input" class="pw-input" type="password" placeholder="Password" autocomplete="off">
     <button class="pw-btn" onclick="checkPw()">ENTER</button>
     <div class="pw-error" id="pw-error"></div>
@@ -178,7 +210,7 @@
   <div class="site-nav-inner">
     <a class="site-nav-brand" href="../index.html">Parieur Discipliné</a>
     <div class="site-nav-links">
-      <a href="/pool">Home</a>
+      <a href="./">Home</a>
       <a href="" id="nav-draft">Draft</a>
       <a href="" id="nav-live-draft">Live Draft</a>
       <a href="" id="nav-standings">Standings</a>
@@ -200,38 +232,38 @@
   </div>
 </div>
 
-<div class="modal-overlay hidden" id="modal-hold">
-  <div class="modal-box">
-    <div class="modal-title">Add Player <span>Hold</span></div>
-    <div class="form-group">
-      <label class="form-label">Player</label>
-      <div class="player-selector" id="hold-player-list"></div>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Acquired Date</label>
-      <input type="date" class="form-input" id="hold-date" value="">
-    </div>
-    <div class="modal-btns">
-      <button class="modal-btn modal-btn-cancel" onclick="closeModal()">Cancel</button>
-      <button class="modal-btn modal-btn-confirm" onclick="confirmHold()">Add Hold</button>
-    </div>
-  </div>
-</div>
-
 <div class="modal-overlay hidden" id="modal-trade">
   <div class="modal-box">
     <div class="modal-title">Execute <span>Trade</span></div>
     <div class="form-group">
-      <label class="form-label">Player From (Main Roster)</label>
-      <div id="trade-from-info" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:0.75rem;margin-bottom:0.5rem;"></div>
+      <div class="form-label">Player From (Main Roster)</div>
+      <div id="trade-from-info" aria-live="polite" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:0.75rem;margin-bottom:0.5rem;"></div>
     </div>
     <div class="form-group">
-      <label class="form-label">Player To (Bench)</label>
-      <div class="player-selector" id="trade-to-list"></div>
+      <div class="form-label">Player To (Bench)</div>
+      <div class="player-selector" id="trade-to-list" aria-live="polite"></div>
+      <div class="trade-preview" id="trade-preview">
+        <div class="trade-preview-title">Trade impact</div>
+        <div class="trade-preview-grid">
+          <div class="trade-preview-item">
+            <div class="trade-preview-item-label">Current cap</div>
+            <div class="trade-preview-item-value" id="trade-cap-current">—</div>
+          </div>
+          <div class="trade-preview-item">
+            <div class="trade-preview-item-label">After trade</div>
+            <div class="trade-preview-item-value" id="trade-cap-after">—</div>
+          </div>
+          <div class="trade-preview-item">
+            <div class="trade-preview-item-label">Remaining</div>
+            <div class="trade-preview-item-value" id="trade-cap-remaining">—</div>
+          </div>
+        </div>
+        <div class="trade-preview-note" id="trade-preview-note">Select an eligible bench player to preview the swap.</div>
+      </div>
     </div>
     <div class="modal-btns">
       <button class="modal-btn modal-btn-cancel" onclick="closeModal()">Cancel</button>
-      <button class="modal-btn modal-btn-confirm" onclick="confirmTrade()">Execute Trade</button>
+      <button class="modal-btn modal-btn-confirm" id="trade-confirm-btn" onclick="confirmTrade()" disabled>Execute Trade</button>
     </div>
   </div>
 </div>
@@ -240,6 +272,7 @@
   const SUPABASE_URL = 'https://fifurqlitkywtmhgtzeu.supabase.co';
   const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZpZnVycWxpdGt5d3RtaGd0emV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3MDIyMjQsImV4cCI6MjA5MjI3ODIyNH0.KPVPj1qwbSJJMyLR_-AhDcRs0vi2sUU6qbFQ-kH53C0';
   const CAP_MAX = 95_500_000;
+  const PLAYER_CACHE_KEY = 'hp_players_v3';
 
   const TEAM_ABBR = {
     'anaheim-ducks':'ANA','boston-bruins':'BOS','buffalo-sabres':'BUF','calgary-flames':'CGY',
@@ -259,7 +292,8 @@
 
   let allPlayers=[], teams=[], activeTeamId=null;
   let _scoring={f_points:1,d_goals:1,d_assists:1,g_wins:2,g_shutouts:3};
-  let currentHolds=[], currentTrades=[];
+  let currentHolds=[], currentTrades=[], loadWarnings=[];
+  let tradeContext=null;
 
   document.getElementById('nav-draft').href       = `/pool/join?league=${_leagueCode}`;
   document.getElementById('nav-live-draft').href  = `/pool/live-draft?league=${_leagueCode}`;
@@ -267,11 +301,19 @@
   document.getElementById('nav-trades').href      = `/pool/trades?league=${_leagueCode}`;
   document.getElementById('nav-settings').href    = `/pool/settings?league=${_leagueCode}`;
 
+  function escapeHtml(value){return String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
   function normalizePos(pos){if(!pos)return'F';const p=pos.toUpperCase();if(p.includes('G'))return'G';if(p==='D'||p.includes('LD')||p.includes('RD'))return'D';return'F';}
   function poolScore(p){const pos=normalizePos(p.position);if(pos==='G')return(p.wins??0)*_scoring.g_wins+(p.shutouts??0)*_scoring.g_shutouts;if(pos==='D')return(p.goals??0)*_scoring.d_goals+(p.assists??0)*_scoring.d_assists;return(p.points??0)*_scoring.f_points;}
   function formatName(n){if(!n)return'';if(n.includes(',')){const[l,f]=n.split(',').map(s=>s.trim());return`${f} ${l}`;}return n;}
   function slugMap(){if(!slugMap._c)slugMap._c=Object.fromEntries(allPlayers.map(p=>[p.puckpedia_slug,p]));return slugMap._c;}
   function sbHeaders(extra={}){return{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Content-Type':'application/json',...extra};}
+  function formatCap(value){return `$${((value||0)/1e6).toFixed(2)}M`;}
+  function slotLabel(group,index){return `${group}${index+1}`;}
+  function fallbackPlayer(slug,group='F'){return {puckpedia_slug:slug,player_name:slug?.split('/').pop()?.replace(/-/g,' ')||slug,position:group,cap_hit:0,team:''};}
+  function getPlayer(slug,group='F'){return slugMap()[slug]||fallbackPlayer(slug,group);}
+  function teamHoldMatch(hold,team){return (!!hold.team_id&&!!team.id&&hold.team_id===team.id)||hold.team_name===team.name||hold.team_name_snapshot===team.name;}
+  function findHold(team,slug){return currentHolds.find(h=>h.player_slug===slug&&teamHoldMatch(h,team))||null;}
+  function collectRelevantSlugs(){const set=new Set();teams.forEach(team=>['F','D','G','B'].forEach(group=>(team.roster[group]||[]).filter(Boolean).forEach(slug=>set.add(slug))));currentTrades.forEach(t=>{if(t.player_from_slug)set.add(t.player_from_slug);if(t.player_to_slug)set.add(t.player_to_slug);});currentHolds.forEach(h=>{if(h.player_slug)set.add(h.player_slug);});return [...set];}
   function teamMainCap(team){
     const m=slugMap();
     return [...(team.roster.F||[]),...(team.roster.D||[]),...(team.roster.G||[])]
@@ -287,7 +329,7 @@
   }
   async function saveRostersToSupabase(){
     const data={teams,activeTeamId};
-    const res=await fetch(`${SUPABASE_URL}/rest/v1/pool_rosters`,{
+    const res=await fetch(`${SUPABASE_URL}/rest/v1/pool_rosters?on_conflict=league_code`,{
       method:'POST',
       headers:sbHeaders({'Prefer':'resolution=merge-duplicates,return=minimal'}),
       body:JSON.stringify({league_code:_leagueCode,data,updated_at:new Date().toISOString()}),
@@ -295,35 +337,73 @@
     if(!res.ok) throw new Error(`Failed to persist roster (${res.status})`);
   }
 
+  async function postWithFallback(url,payloads,prefer='return=representation'){
+    let lastError='';
+    for(const payload of payloads){
+      const res=await fetch(url,{method:'POST',headers:sbHeaders({'Prefer':prefer}),body:JSON.stringify(payload)});
+      if(res.ok){
+        const text=await res.text();
+        return text?JSON.parse(text):null;
+      }
+      lastError=await res.text();
+      if(res.status===409) return {conflict:true};
+      if(res.status!==400||!/column|team_id|team_name_snapshot|player_from_name|from_slot_group|to_slot_group/i.test(lastError)){
+        throw new Error(lastError||`Request failed (${res.status})`);
+      }
+    }
+    throw new Error(lastError||'Request failed');
+  }
+
+  async function ensurePlayersLoaded(slugs){
+    const needed=[...new Set((slugs||[]).filter(Boolean).filter(slug=>!slugMap()[slug]))];
+    if(!needed.length) return;
+    const fields='puckpedia_slug,player_name,position,cap_hit,team,goals,assists,points,wins,shutouts,games_played';
+    for(let i=0;i<needed.length;i+=75){
+      const chunk=needed.slice(i,i+75);
+      const orClause=`(${chunk.map(slug=>`puckpedia_slug.eq.${slug}`).join(',')})`;
+      const res=await fetch(`${SUPABASE_URL}/rest/v1/nhl_players?select=${fields}&or=${encodeURIComponent(orClause)}`,{headers:sbHeaders()});
+      if(!res.ok){
+        loadWarnings.push(`Some rostered players could not be refreshed from the player database.`);
+        continue;
+      }
+      const rows=await res.json();
+      const map=new Map(allPlayers.map(p=>[p.puckpedia_slug,p]));
+      rows.forEach(p=>map.set(p.puckpedia_slug,p));
+      allPlayers=[...map.values()];
+      slugMap._c=null;
+    }
+    sessionStorage.setItem(PLAYER_CACHE_KEY,JSON.stringify(allPlayers));
+  }
+
   async function loadScoringSettings(){
     try{
       const r=await fetch(`${SUPABASE_URL}/rest/v1/pool_settings?league_code=eq.${_leagueCode}&select=f_points,d_goals,d_assists,g_wins,g_shutouts`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
       if(r.ok){const rows=await r.json();if(rows.length)_scoring={..._scoring,...rows[0]};}
-    }catch(e){}
+    }catch(e){console.warn('Unable to load scoring settings',e);}
   }
 
-  async function load(){
+  async function load(preferredTeamId=activeTeamId){
     await loadScoringSettings();
     try{
-      const cached=sessionStorage.getItem('hp_players_v2');
+      loadWarnings=[];
+      const cached=sessionStorage.getItem(PLAYER_CACHE_KEY);
       if(cached){
         try{allPlayers=JSON.parse(cached);if(!Array.isArray(allPlayers)||!allPlayers.length)throw new Error('empty');}
-        catch(_){sessionStorage.removeItem('hp_players_v2');allPlayers=[];}
+        catch(_){sessionStorage.removeItem(PLAYER_CACHE_KEY);allPlayers=[];}
       }
       if(!allPlayers.length){
         const res=await fetch(`${SUPABASE_URL}/rest/v1/nhl_players?select=puckpedia_slug,player_name,position,cap_hit,team,goals,assists,points,wins,shutouts,games_played&order=cap_hit.desc&limit=1000`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
         if(!res.ok)throw new Error(res.status);
         allPlayers=await res.json();
-        sessionStorage.setItem('hp_players_v2',JSON.stringify(allPlayers));
+        sessionStorage.setItem(PLAYER_CACHE_KEY,JSON.stringify(allPlayers));
       }
       slugMap._c=null;
 
-      const rRes=await fetch(`${SUPABASE_URL}/rest/v1/pool_rosters?league_code=eq.${_leagueCode}&select=*`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
+      const rRes=await fetch(`${SUPABASE_URL}/rest/v1/pool_rosters?league_code=eq.${_leagueCode}&select=data`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
       if(!rRes.ok)throw new Error(rRes.status);
       const allRosterRows=await rRes.json();
       if(!allRosterRows.length){document.getElementById('content').innerHTML='<div class="msg">No teams saved yet. Go build your pool!</div>';return;}
 
-      // Create teams array - using first roster row which contains all teams
       const firstRow=allRosterRows[0];
       teams=[];
       if(firstRow.data?.teams){
@@ -341,41 +421,39 @@
         });
       }
 
-       activeTeamId=teams[0]?.id;
+      activeTeamId=teams.find(t=>t.id===preferredTeamId)?.id||firstRow.data?.activeTeamId&&teams.find(t=>t.id===firstRow.data.activeTeamId)?.id||teams[0]?.id;
 
-       await loadHolds();
-       await loadTrades();
-       await initializeHoldsForRoster();
-       await loadHolds();
-       renderTeamSelector();
-       render();
+      await Promise.all([loadHolds(),loadTrades()]);
+      await ensurePlayersLoaded(collectRelevantSlugs());
+      await initializeHoldsForRoster();
+      await loadHolds();
+      renderTeamSelector();
+      render();
     }catch(e){console.error(e);document.getElementById('content').innerHTML=`<div class="msg">Failed to load. <button class="btn-refresh" onclick="location.reload()">Retry</button></div>`;}
   }
 
   async function loadHolds(){
     try{
-      const res=await fetch(`${SUPABASE_URL}/rest/v1/player_holds?league_code=eq.${_leagueCode}`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
-      if(res.ok) currentHolds=await res.json();
-    }catch(e){}
+      const res=await fetch(`${SUPABASE_URL}/rest/v1/player_holds?league_code=eq.${_leagueCode}&order=date_acquired.asc`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
+      if(!res.ok) throw new Error(`player_holds ${res.status}`);
+      currentHolds=await res.json();
+    }catch(e){currentHolds=[];console.warn('Unable to load holds',e);loadWarnings.push('Active hold data could not be fully loaded.');}
   }
 
   async function loadTrades(){
     try{
-      const res=await fetch(`${SUPABASE_URL}/rest/v1/player_trades?league_code=eq.${_leagueCode}`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
-      if(res.ok) currentTrades=await res.json();
-    }catch(e){}
+      const res=await fetch(`${SUPABASE_URL}/rest/v1/player_trades?league_code=eq.${_leagueCode}&order=date_traded.desc`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
+      if(!res.ok) throw new Error(`player_trades ${res.status}`);
+      currentTrades=await res.json();
+    }catch(e){currentTrades=[];console.warn('Unable to load trades',e);loadWarnings.push('Trade history could not be fully loaded.');}
   }
 
   async function initializeHoldsForRoster(){
-    // Auto-create holds for all main roster players (F, D, G) if not already held
-    if(!activeTeamId) return; // Safety check
+    if(!activeTeamId) return;
     try{
-      const m=slugMap();
-      const existingHoldKeys=new Set(currentHolds.map(h=>`${h.team_name}::${h.player_slug}`));
-
-      // Only process active team to avoid duplication issues
       const team=teams.find(t=>t.id===activeTeamId);
       if(!team) return;
+      const existingHoldKeys=new Set(currentHolds.filter(h=>teamHoldMatch(h,team)).map(h=>`${h.team_id||team.id||h.team_name}::${h.player_slug}`));
 
       const mainRosterPlayers=[
         ...(team.roster.F||[]),
@@ -384,46 +462,36 @@
       ].filter(Boolean);
 
       for(const slug of mainRosterPlayers){
-        // Skip if already held or player not found
-        const holdKey=`${team.name}::${slug}`;
-        if(existingHoldKeys.has(holdKey)||!m[slug]) continue;
+        const holdKey=`${team.id||team.name}::${slug}`;
+        if(existingHoldKeys.has(holdKey)) continue;
 
         const now=new Date().toISOString();
         const hold={
           league_code:_leagueCode,
-            team_name:team.name,
+          team_id:team.id,
+          team_name:team.name,
+          team_name_snapshot:team.name,
           player_slug:slug,
           date_acquired:now,
           points_accumulated:0
         };
 
         try{
-          const res=await fetch(`${SUPABASE_URL}/rest/v1/player_holds`,{
-            method:'POST',
-            headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Content-Type':'application/json'},
-            body:JSON.stringify(hold)
-          });
+          const created=await postWithFallback(`${SUPABASE_URL}/rest/v1/player_holds`,[
+            hold,
+            {league_code:_leagueCode,team_name:team.name,player_slug:slug,date_acquired:now,points_accumulated:0}
+          ]);
 
-          if(res.ok){
-            try{
-              const created=await res.json();
-              const holdRecord=Array.isArray(created)?created[0]:created;
-              currentHolds.push(holdRecord);
-              existingHoldKeys.add(holdKey);
-            }catch(parseErr){
-              console.warn('Error parsing response for hold creation',parseErr);
-              // If response is empty, assume it worked (some APIs return empty on success)
-              existingHoldKeys.add(holdKey);
-            }
-          }else if(res.status===409){
-            // Conflict - likely unique constraint, just mark as existing
+          if(created?.conflict){
             existingHoldKeys.add(holdKey);
           }else{
-            const errText=await res.text();
-            console.warn(`Failed to create hold for ${slug}: ${res.status}`,errText);
+            const holdRecord=Array.isArray(created)?created[0]:created;
+            if(holdRecord) currentHolds.push(holdRecord);
+            existingHoldKeys.add(holdKey);
           }
         }catch(holdErr){
           console.warn(`Exception creating hold for ${slug}:`,holdErr);
+          loadWarnings.push(`Could not initialize one active roster hold automatically.`);
         }
       }
     }catch(e){
@@ -444,32 +512,71 @@
     render();
   }
 
-  function buildHoldCard(hold,p){
-    const daysHeld=Math.floor((new Date()-new Date(hold.date_acquired))/86400000);
-    const pts=poolScore(p);
-    const abbr=TEAM_ABBR[p.team]||'';
+  function buildWarningBox(){
+    if(!loadWarnings.length) return '';
+    const unique=[...new Set(loadWarnings)];
+    return `<div class="warning-box"><div class="warning-box-title">Heads up</div><ul class="warning-list">${unique.map(msg=>`<li>${escapeHtml(msg)}</li>`).join('')}</ul></div>`;
+  }
+
+  function buildSummary(team,activeCount,benchCount,tradeCount){
+    const capUsed=teamMainCap(team);
+    const capRemaining=CAP_MAX-capUsed;
+    const activeHeld=(currentHolds.filter(h=>{
+      const slot=findPlayerSlot(team,h.player_slug);
+      return teamHoldMatch(h,team)&&!!slot&&slot.group!=='B';
+    }).length);
     return `
-      <div class="hold-card">
-        <div class="hold-player">
-          ${abbr?`<img class="player-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}">`:''}
-          <div class="hold-info">
-            <div class="hold-name">${formatName(p.player_name)}</div>
-            <div class="hold-since">Acquired: ${new Date(hold.date_acquired).toLocaleDateString()}</div>
-          </div>
+      <div class="summary-grid">
+        <div class="summary-card ${capRemaining<0?'warn':'good'}">
+          <div class="summary-label">Cap used</div>
+          <div class="summary-value ${capRemaining<0?'red':'gold'}">${formatCap(capUsed)}</div>
         </div>
-        <div class="hold-stats">
-          <div class="hold-stat"><div class="hold-stat-label">Days Held</div><div class="hold-stat-value">${daysHeld}</div></div>
-          <div class="hold-stat"><div class="hold-stat-label">Accumul. Points</div><div class="hold-stat-value">${hold.points_accumulated||0}</div></div>
-          <div class="hold-stat"><div class="hold-stat-label">Current Pts</div><div class="hold-stat-value">${pts}</div></div>
+        <div class="summary-card ${capRemaining<0?'warn':'good'}">
+          <div class="summary-label">Cap remaining</div>
+          <div class="summary-value ${capRemaining<0?'red':'green'}">${formatCap(capRemaining)}</div>
         </div>
-        <div class="hold-actions">
-          <button class="btn-small btn-trade" onclick="openTradeModal('${hold.player_slug}')">🔄 Trade</button>
+        <div class="summary-card">
+          <div class="summary-label">Active slots</div>
+          <div class="summary-value">${activeCount}</div>
+        </div>
+        <div class="summary-card ${activeHeld<activeCount?'warn':''}">
+          <div class="summary-label">Tracked holds</div>
+          <div class="summary-value">${activeHeld}/${activeCount}</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label">Bench / trades</div>
+          <div class="summary-value">${benchCount} / ${tradeCount}</div>
         </div>
       </div>
     `;
   }
 
-  function buildBenchCard(p){
+  function buildHoldCard(slot,hold,p){
+    const daysHeld=hold?.date_acquired?Math.max(0,Math.floor((new Date()-new Date(hold.date_acquired))/86400000)):0;
+    const pts=poolScore(p);
+    const abbr=TEAM_ABBR[p.team]||'';
+    return `
+      <div class="hold-card">
+        <div class="hold-player">
+          ${abbr?`<img class="player-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}">`:''}
+          <div class="hold-info">
+            <div class="hold-name"><span class="hold-slot">${slot}</span>${escapeHtml(formatName(p.player_name))}</div>
+            <div class="hold-since">${hold?.date_acquired?`Acquired: ${new Date(hold.date_acquired).toLocaleDateString()}`:'Awaiting hold sync'}</div>
+          </div>
+        </div>
+        <div class="hold-stats">
+          <div class="hold-stat"><div class="hold-stat-label">Days Held</div><div class="hold-stat-value">${daysHeld}</div></div>
+          <div class="hold-stat"><div class="hold-stat-label">Accumul. Points</div><div class="hold-stat-value">${hold?.points_accumulated||0}</div></div>
+          <div class="hold-stat"><div class="hold-stat-label">Current Pts</div><div class="hold-stat-value">${pts}</div></div>
+        </div>
+        <div class="hold-actions">
+          <button class="btn-small btn-trade" onclick="openTradeModal('${p.puckpedia_slug}')">🔄 Trade</button>
+        </div>
+      </div>
+    `;
+  }
+
+  function buildBenchCard(slot,p){
     const abbr=TEAM_ABBR[p.team]||'';
     const pts=poolScore(p);
     return `
@@ -477,12 +584,13 @@
         <div class="hold-player">
           ${abbr?`<img class="player-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}">`:''}
           <div class="hold-info">
-            <div class="hold-name">${formatName(p.player_name)}</div>
+            <div class="hold-name"><span class="hold-slot">${slot}</span>${escapeHtml(formatName(p.player_name))}</div>
             <div class="hold-since">Bench player · Not accumulating while on bench</div>
           </div>
         </div>
         <div class="hold-stats">
           <div class="hold-stat"><div class="hold-stat-label">Current Pts</div><div class="hold-stat-value">${pts}</div></div>
+          <div class="hold-stat"><div class="hold-stat-label">Cap Hit</div><div class="hold-stat-value">${formatCap(p.cap_hit||0)}</div></div>
         </div>
       </div>
     `;
@@ -492,46 +600,40 @@
     const team=teams.find(t=>t.id===activeTeamId);
     if(!team){document.getElementById('content').innerHTML='<div class="msg">Team not found.</div>';return;}
 
-    const teamHolds=currentHolds.filter(h=>h.team_name===team.name);
-    const teamTrades=currentTrades.filter(t=>t.team_name===team.name);
-    const m=slugMap();
+    const teamHolds=currentHolds.filter(h=>teamHoldMatch(h,team));
+    const teamTrades=[...currentTrades.filter(t=>((t.team_id&&team.id&&t.team_id===team.id)||t.team_name===team.name||t.team_name_snapshot===team.name))].sort((a,b)=>new Date(b.date_traded)-new Date(a.date_traded));
+    const activeCount=[...(team.roster.F||[]),...(team.roster.D||[]),...(team.roster.G||[])].filter(Boolean).length;
+    const benchCount=(team.roster.B||[]).filter(Boolean).length;
 
-    let html=`
+    let html=`${buildWarningBox()}${buildSummary(team,activeCount,benchCount,teamTrades.length)}
       <div class="section-title">Active <span>Roster</span></div>
       <div class="current-holds">
     `;
 
-    if(teamHolds.length){
-      const grouped={F:[],D:[],G:[]};
-      teamHolds.forEach(hold=>{
-        const p=m[hold.player_slug];
-        if(!p) return;
-        const slot=findPlayerSlot(team,hold.player_slug);
-        const pos=slot&&slot.group!=='B'?slot.group:normalizePos(p.position);
-        (grouped[pos]||(grouped[pos]=[])).push({hold,p});
-      });
+    if(activeCount){
       const labels={F:'Forwards',D:'Defensemen',G:'Goalies'};
       ['F','D','G'].forEach(pos=>{
-        if(!grouped[pos]||!grouped[pos].length) return;
-        html+=`<div class="hold-pos-group"><div class="hold-pos-title ${pos}">${labels[pos]} (${grouped[pos].length})</div>${grouped[pos].map(item=>buildHoldCard(item.hold,item.p)).join('')}</div>`;
+        const rows=(team.roster[pos]||[]).map((slug,idx)=>slug?{slot:slotLabel(pos,idx),hold:findHold(team,slug),player:getPlayer(slug,pos)}:null).filter(Boolean);
+        if(!rows.length) return;
+        html+=`<div class="hold-pos-group"><div class="hold-pos-title ${pos}">${labels[pos]} (${rows.length})</div>${rows.map(item=>buildHoldCard(item.slot,item.hold,item.player)).join('')}</div>`;
       });
     }else{
       html+='<div class="empty-msg">No active roster players found.</div>';
     }
     html+='</div>';
 
-    const benchPlayers=(team.roster.B||[]).filter(Boolean).map(slug=>m[slug]).filter(Boolean);
+    const benchPlayers=(team.roster.B||[]).map((slug,idx)=>slug?{slot:slotLabel('B',idx),player:getPlayer(slug,'F')}:null).filter(Boolean);
     html+=`
       <div class="section-title">Team <span>Bench</span></div>
       <div class="current-holds">
     `;
     if(benchPlayers.length){
       const benchGrouped={F:[],D:[],G:[]};
-      benchPlayers.forEach(p=>{ benchGrouped[normalizePos(p.position)].push(p); });
+      benchPlayers.forEach(item=>{ benchGrouped[normalizePos(item.player.position)].push(item); });
       const labels={F:'Forwards',D:'Defensemen',G:'Goalies'};
       ['F','D','G'].forEach(pos=>{
         if(!benchGrouped[pos].length) return;
-        html+=`<div class="hold-pos-group"><div class="hold-pos-title ${pos}">${labels[pos]} (${benchGrouped[pos].length})</div>${benchGrouped[pos].map(p=>buildBenchCard(p)).join('')}</div>`;
+        html+=`<div class="hold-pos-group"><div class="hold-pos-title ${pos}">${labels[pos]} (${benchGrouped[pos].length})</div>${benchGrouped[pos].map(item=>buildBenchCard(item.slot,item.player)).join('')}</div>`;
       });
     }else{
       html+='<div class="empty-msg">No bench players.</div>';
@@ -553,33 +655,32 @@
         </div>
       `;
       teamTrades.forEach(trade=>{
-        const pFrom=m[trade.player_from_slug];
-        const pTo=m[trade.player_to_slug];
-        if(!pFrom||!pTo)return;
+        const pFrom=trade.player_from_name?{player_name:trade.player_from_name,team:trade.player_from_team,position:trade.player_from_position}:getPlayer(trade.player_from_slug);
+        const pTo=trade.player_to_name?{player_name:trade.player_to_name,team:trade.player_to_team,position:trade.player_to_position}:getPlayer(trade.player_to_slug);
         const fromsaved=trade.points_accumulated_at_trade||0;
         const abbrFrom=TEAM_ABBR[pFrom.team]||'';
         const abbrTo=TEAM_ABBR[pTo.team]||'';
         html+=`
           <div class="trade-row">
-            <div class="player-info">
+            <div class="player-info" data-label="From Player">
               ${abbrFrom?`<img class="player-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbrFrom}_dark.svg" alt="${abbrFrom}">`:''}
               <div class="player-details">
-                <div class="player-name">${formatName(pFrom.player_name)}</div>
-                <div class="player-meta">Since ${new Date(trade.date_from_acquired).toLocaleDateString()}</div>
+                <div class="player-name">${escapeHtml(formatName(pFrom.player_name))}</div>
+                <div class="player-meta">${trade.from_slot_group?`${trade.from_slot_group}${(trade.from_slot_index??0)+1} · `:''}Since ${new Date(trade.date_from_acquired).toLocaleDateString()}</div>
               </div>
             </div>
-            <div class="date-box">
+            <div class="date-box" data-label="Date Traded">
               <span class="date-label">Traded</span>
               <span class="date-value">${new Date(trade.date_traded).toLocaleDateString()}</span>
             </div>
-            <div class="player-info">
+            <div class="player-info" data-label="To Player">
               ${abbrTo?`<img class="player-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbrTo}_dark.svg" alt="${abbrTo}">`:''}
               <div class="player-details">
-                <div class="player-name">${formatName(pTo.player_name)}</div>
-                <div class="player-meta">Bench player</div>
+                <div class="player-name">${escapeHtml(formatName(pTo.player_name))}</div>
+                <div class="player-meta">${trade.to_slot_group?`${trade.to_slot_group}${(trade.to_slot_index??0)+1} · `:''}Activated from bench</div>
               </div>
             </div>
-            <div class="points-unit">
+            <div class="points-unit" data-label="Pts Saved">
               <span class="points-label">Saved</span>
               <span class="points-value">${fromsaved}</span>
             </div>
@@ -597,152 +698,230 @@
   function openTradeModal(playerSlug){
     const team=teams.find(t=>t.id===activeTeamId);
     if(!team)return;
-    const m=slugMap();
-    const p=m[playerSlug];
+    const p=getPlayer(playerSlug);
     if(!p)return;
 
     const fromSlot=findPlayerSlot(team,playerSlug);
     if(!fromSlot||fromSlot.group==='B'){alert('Player must be in active roster to trade.');return;}
-    window.tradeFromSlug=playerSlug;
-    window.tradeFromDate=currentHolds.find(h=>h.player_slug===playerSlug&&h.team_name===team.name)?.date_acquired;
-    window.tradeFromSlot=fromSlot;
+    tradeContext={fromSlug:playerSlug,fromSlot,teamId:team.id,toSlug:null};
+    const hold=findHold(team,playerSlug);
+    const currentCap=teamMainCap(team);
 
     const fromInfo=document.getElementById('trade-from-info');
     fromInfo.innerHTML=`
-      <strong>${formatName(p.player_name)}</strong>
-      <span style="color:rgba(255,255,255,0.5);">· ${formatName(p.player_name)}</span>
+      <strong>${escapeHtml(formatName(p.player_name))}</strong>
+      <span style="color:rgba(255,255,255,0.5);"> · ${slotLabel(fromSlot.group,fromSlot.index)} · ${formatCap(p.cap_hit||0)}</span>
+      <div class="player-meta" style="margin-top:4px;">${hold?.date_acquired?`Held since ${new Date(hold.date_acquired).toLocaleDateString()} · `:''}Current cap ${formatCap(currentCap)}</div>
     `;
 
-    const benchPlayers=team.roster.B.filter(Boolean);
+    const benchPlayers=(team.roster.B||[]).map((slug,index)=>slug?{slug,index,player:getPlayer(slug)}:null).filter(Boolean);
     const toList=document.getElementById('trade-to-list');
-    if(benchPlayers.length){
+    const eligible=benchPlayers.filter(item=>normalizePos(item.player.position)===fromSlot.group);
+    if(eligible.length){
       const grouped={F:[],D:[],G:[]};
-      benchPlayers.forEach(slug=>{
-        const bp=m[slug];
-        if(!bp) return;
-        const pos=normalizePos(bp.position);
-        grouped[pos].push({slug,bp});
+      eligible.forEach(item=>{
+        const pos=normalizePos(item.player.position);
+        grouped[pos].push(item);
       });
       const labels={F:'Forwards',D:'Defensemen',G:'Goalies'};
       toList.innerHTML=['F','D','G']
         .filter(pos=>grouped[pos].length)
-        .map(pos=>`<div class="bench-pos-group"><div class="bench-pos-title">${labels[pos]}</div>${grouped[pos].map(item=>`<div class="player-option" onclick="selectTradeTarget(event,'${item.slug}')"><span class="player-option-name">${formatName(item.bp.player_name)}</span><span class="player-option-slot">${pos}</span></div>`).join('')}</div>`)
+        .map(pos=>`<div class="bench-pos-group"><div class="bench-pos-title">${labels[pos]}</div>${grouped[pos].map(item=>`<div class="player-option" onclick="selectTradeTarget(event,'${item.slug}')"><span class="player-option-name">${escapeHtml(formatName(item.player.player_name))}</span><span class="player-option-slot">B${item.index+1}</span><span class="player-option-meta">${formatCap(item.player.cap_hit||0)} · ${poolScore(item.player)} pts</span></div>`).join('')}</div>`)
         .join('');
     }else{
-      toList.innerHTML='<div class="empty-msg">No bench players available.</div>';
+      toList.innerHTML='<div class="empty-msg">No eligible bench players for this position.</div>';
     }
 
+    updateTradePreview();
     document.getElementById('modal-trade').classList.remove('hidden');
   }
 
   function selectTradeTarget(ev,slug){
-    window.tradeToSlug=slug;
+    if(!tradeContext) return;
+    tradeContext.toSlug=slug;
     document.querySelectorAll('#trade-to-list .player-option').forEach(el=>el.classList.remove('selected'));
     ev.currentTarget.classList.add('selected');
+    updateTradePreview();
   }
 
-  async function confirmTrade(){
-    if(!window.tradeFromSlug||!window.tradeToSlug){alert('Please select both players');return;}
+  function updateTradePreview(){
+    const currentEl=document.getElementById('trade-cap-current');
+    const afterEl=document.getElementById('trade-cap-after');
+    const remainingEl=document.getElementById('trade-cap-remaining');
+    const noteEl=document.getElementById('trade-preview-note');
+    const btn=document.getElementById('trade-confirm-btn');
     const team=teams.find(t=>t.id===activeTeamId);
-    if(!team){alert('Team not found');return;}
-    const hold=currentHolds.find(h=>h.player_slug===window.tradeFromSlug&&h.team_name===team.name);
-    if(!hold){alert('Hold not found');return;}
-
-    try{
-      const accumulatedPts=hold.points_accumulated||0;
-      const now=new Date().toISOString();
-      const m=slugMap();
-      const fromSlot=window.tradeFromSlot||findPlayerSlot(team,window.tradeFromSlug);
-      const toSlot=findPlayerSlot(team,window.tradeToSlug);
-      if(!fromSlot||fromSlot.group==='B'){alert('Invalid active player slot.');return;}
-      if(!toSlot||toSlot.group!=='B'){alert('Incoming player must be on your bench.');return;}
-
-      const toPos=normalizePos(m[window.tradeToSlug]?.position);
-      if(toPos!==fromSlot.group){
-        alert(`Position mismatch: ${toPos} cannot replace ${fromSlot.group} slot.`);
-        return;
-      }
-
-      const currentCap=teamMainCap(team);
-      const fromCap=m[window.tradeFromSlug]?.cap_hit||0;
-      const toCap=m[window.tradeToSlug]?.cap_hit||0;
-      const capAfter=currentCap-fromCap+toCap;
-      if(capAfter>CAP_MAX){
-        alert(`Trade rejected: cap would be $${(capAfter/1e6).toFixed(2)}M (max $${(CAP_MAX/1e6).toFixed(1)}M).`);
-        return;
-      }
-
-      const rosterSnapshot=JSON.stringify(team.roster);
-      team.roster[fromSlot.group][fromSlot.index]=window.tradeToSlug;
-      team.roster.B[toSlot.index]=window.tradeFromSlug;
-      await saveRostersToSupabase();
-
-      const tradeData={
-        league_code:_leagueCode,
-        team_name:team.name,
-        player_from_slug:window.tradeFromSlug,
-        player_to_slug:window.tradeToSlug,
-        date_from_acquired:hold.date_acquired,
-        date_traded:now,
-        points_accumulated_at_trade:accumulatedPts
-      };
-
-      const tradeRes=await fetch(`${SUPABASE_URL}/rest/v1/player_trades`,{
-        method:'POST',
-        headers:sbHeaders(),
-        body:JSON.stringify(tradeData)
-      });
-      if(!tradeRes.ok) throw new Error('Failed to write trade history');
-
-      const delRes=await fetch(`${SUPABASE_URL}/rest/v1/player_holds?id=eq.${hold.id}`,{
-        method:'DELETE',
-        headers:sbHeaders()
-      });
-      if(!delRes.ok) throw new Error('Failed to remove previous hold');
-
-      const newHold={
-        league_code:_leagueCode,
-        team_name:team.name,
-        player_slug:window.tradeToSlug,
-        date_acquired:now,
-        points_accumulated:0
-      };
-      const holdRes=await fetch(`${SUPABASE_URL}/rest/v1/player_holds`,{
-        method:'POST',
-        headers:sbHeaders(),
-        body:JSON.stringify(newHold)
-      });
-      if(!holdRes.ok) throw new Error('Failed to create new hold');
-
-      closeModal();
-      await loadHolds();
-      await loadTrades();
-      render();
-    }catch(e){
-      alert('Error executing trade');
-      console.error(e);
-      // Reload latest roster state from source of truth on failure.
-      await load();
+    if(!team||!tradeContext){
+      btn.disabled=true;
+      currentEl.textContent=afterEl.textContent=remainingEl.textContent='—';
+      noteEl.textContent='Select an eligible bench player to preview the swap.';
+      noteEl.className='trade-preview-note';
+      return;
+    }
+    const currentCap=teamMainCap(team);
+    currentEl.textContent=formatCap(currentCap);
+    if(!tradeContext.toSlug){
+      afterEl.textContent='—';
+      remainingEl.textContent='—';
+      btn.disabled=true;
+      noteEl.textContent='Select an eligible bench player to preview the swap.';
+      noteEl.className='trade-preview-note';
+      return;
+    }
+    const fromPlayer=getPlayer(tradeContext.fromSlug,tradeContext.fromSlot.group);
+    const toPlayer=getPlayer(tradeContext.toSlug,tradeContext.fromSlot.group);
+    const capAfter=currentCap-(fromPlayer.cap_hit||0)+(toPlayer.cap_hit||0);
+    const capRemaining=CAP_MAX-capAfter;
+    afterEl.textContent=formatCap(capAfter);
+    remainingEl.textContent=formatCap(capRemaining);
+    if(capAfter>CAP_MAX){
+      btn.disabled=true;
+      noteEl.textContent=`Over cap by ${formatCap(capAfter-CAP_MAX)}. Choose a cheaper player.`;
+      noteEl.className='trade-preview-note warn';
+    }else{
+      btn.disabled=false;
+      noteEl.textContent=`Eligible ${tradeContext.fromSlot.group}-for-${tradeContext.fromSlot.group} swap. Bench salary still stays off-cap after the move.`;
+      noteEl.className='trade-preview-note good';
     }
   }
 
-  async function releaseHold(holdId){
-    if(!confirm('Release this hold? Accumulated points will be lost.'))return;
+  async function executeTradeRpc(team,hold){
+    const now=new Date().toISOString();
+    const res=await fetch(`${SUPABASE_URL}/rest/v1/rpc/execute_pool_trade`,{
+      method:'POST',
+      headers:sbHeaders(),
+      body:JSON.stringify({
+        p_league_code:_leagueCode,
+        p_team_id:team.id,
+        p_team_name:team.name,
+        p_player_from_slug:tradeContext.fromSlug,
+        p_player_to_slug:tradeContext.toSlug,
+        p_date_traded:now
+      })
+    });
+    if(res.ok) return true;
+    const text=await res.text();
+    const missingRpc=res.status===404||/execute_pool_trade|schema cache|PGRST202|Could not find the function/i.test(text);
+    if(missingRpc) return false;
+    throw new Error(text||`RPC trade failed (${res.status})`);
+  }
+
+  async function createHoldRecord(team,slug,dateAcquired,points=0){
+    const rows=await postWithFallback(`${SUPABASE_URL}/rest/v1/player_holds`,[
+      {league_code:_leagueCode,team_id:team.id,team_name:team.name,team_name_snapshot:team.name,player_slug:slug,date_acquired:dateAcquired,points_accumulated:points},
+      {league_code:_leagueCode,team_name:team.name,player_slug:slug,date_acquired:dateAcquired,points_accumulated:points}
+    ]);
+    if(!rows||rows.conflict) return null;
+    return Array.isArray(rows)?rows[0]:rows;
+  }
+
+  async function createTradeRecord(team,hold,fromPlayer,toPlayer,fromSlot,toSlot,now){
+    const rows=await postWithFallback(`${SUPABASE_URL}/rest/v1/player_trades`,[
+      {
+        league_code:_leagueCode,
+        team_id:team.id,
+        team_name:team.name,
+        team_name_snapshot:team.name,
+        player_from_slug:tradeContext.fromSlug,
+        player_to_slug:tradeContext.toSlug,
+        player_from_name:formatName(fromPlayer.player_name),
+        player_to_name:formatName(toPlayer.player_name),
+        player_from_position:normalizePos(fromPlayer.position),
+        player_to_position:normalizePos(toPlayer.position),
+        player_from_team:fromPlayer.team||null,
+        player_to_team:toPlayer.team||null,
+        from_slot_group:fromSlot.group,
+        from_slot_index:fromSlot.index,
+        to_slot_group:'B',
+        to_slot_index:toSlot.index,
+        date_from_acquired:hold.date_acquired,
+        date_traded:now,
+        points_accumulated_at_trade:hold.points_accumulated||0
+      },
+      {
+        league_code:_leagueCode,
+        team_name:team.name,
+        player_from_slug:tradeContext.fromSlug,
+        player_to_slug:tradeContext.toSlug,
+        date_from_acquired:hold.date_acquired,
+        date_traded:now,
+        points_accumulated_at_trade:hold.points_accumulated||0
+      }
+    ]);
+    return Array.isArray(rows)?rows[0]:rows;
+  }
+
+  async function executeTradeLegacy(team,hold){
+    const now=new Date().toISOString();
+    const m=slugMap();
+    const fromSlot=tradeContext.fromSlot||findPlayerSlot(team,tradeContext.fromSlug);
+    const toSlot=findPlayerSlot(team,tradeContext.toSlug);
+    if(!fromSlot||fromSlot.group==='B') throw new Error('Invalid active player slot.');
+    if(!toSlot||toSlot.group!=='B') throw new Error('Incoming player must be on your bench.');
+    const fromPlayer=m[tradeContext.fromSlug]||fallbackPlayer(tradeContext.fromSlug,fromSlot.group);
+    const toPlayer=m[tradeContext.toSlug]||fallbackPlayer(tradeContext.toSlug,fromSlot.group);
+    const toPos=normalizePos(toPlayer.position);
+    if(toPos!==fromSlot.group) throw new Error(`Position mismatch: ${toPos} cannot replace ${fromSlot.group} slot.`);
+    const capAfter=teamMainCap(team)-(fromPlayer.cap_hit||0)+(toPlayer.cap_hit||0);
+    if(capAfter>CAP_MAX) throw new Error(`Trade rejected: cap would be ${formatCap(capAfter)} (max ${formatCap(CAP_MAX)}).`);
+
+    const originalRoster=JSON.parse(JSON.stringify(team.roster));
+    let tradeRecordId=null;
+    let deletedOldHold=false;
+    team.roster[fromSlot.group][fromSlot.index]=tradeContext.toSlug;
+    team.roster.B[toSlot.index]=tradeContext.fromSlug;
+
     try{
-      await fetch(`${SUPABASE_URL}/rest/v1/player_holds?id=eq.${holdId}`,{
-        method:'DELETE',
-        headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}
-      });
-      await loadHolds();
-      render();
-    }catch(e){alert('Error releasing hold');console.error(e);}
+      await saveRostersToSupabase();
+
+      tradeRecordId=(await createTradeRecord(team,hold,fromPlayer,toPlayer,fromSlot,toSlot,now))?.id||null;
+
+      if(hold?.id){
+        const delRes=await fetch(`${SUPABASE_URL}/rest/v1/player_holds?id=eq.${hold.id}`,{method:'DELETE',headers:sbHeaders()});
+        if(!delRes.ok) throw new Error('Failed to remove previous hold');
+        deletedOldHold=true;
+      }
+
+      await createHoldRecord(team,tradeContext.toSlug,now,0);
+    }catch(e){
+      team.roster=originalRoster;
+      try{await saveRostersToSupabase();}catch(_){console.warn('Roster rollback failed');}
+      if(tradeRecordId){
+        try{await fetch(`${SUPABASE_URL}/rest/v1/player_trades?id=eq.${tradeRecordId}`,{method:'DELETE',headers:sbHeaders()});}catch(_){console.warn('Trade rollback failed');}
+      }
+      if(deletedOldHold&&hold){
+        try{await createHoldRecord(team,hold.player_slug,hold.date_acquired,hold.points_accumulated||0);}catch(_){console.warn('Hold rollback failed');}
+      }
+      throw e;
+    }
+  }
+
+  async function confirmTrade(){
+    if(!tradeContext?.fromSlug||!tradeContext?.toSlug){alert('Please select both players');return;}
+    const team=teams.find(t=>t.id===activeTeamId);
+    if(!team){alert('Team not found');return;}
+    const hold=findHold(team,tradeContext.fromSlug);
+    if(!hold){alert('Hold not found for this active player yet. Refresh the page and try again.');return;}
+
+    try{
+      const usedRpc=await executeTradeRpc(team,hold);
+      if(!usedRpc) await executeTradeLegacy(team,hold);
+      closeModal();
+      await load(activeTeamId);
+    }catch(e){
+      alert(e.message||'Error executing trade');
+      console.error(e);
+      await load(activeTeamId);
+    }
   }
 
   function closeModal(){
     document.getElementById('modal-trade').classList.add('hidden');
-    document.getElementById('modal-hold').classList.add('hidden');
-    window.tradeFromSlug=null;
-    window.tradeToSlug=null;
+    tradeContext=null;
+    document.getElementById('trade-from-info').innerHTML='';
+    document.getElementById('trade-to-list').innerHTML='';
+    document.getElementById('trade-confirm-btn').disabled=true;
+    updateTradePreview();
   }
 
   load().catch(console.error);

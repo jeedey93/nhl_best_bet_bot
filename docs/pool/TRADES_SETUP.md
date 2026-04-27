@@ -17,30 +17,49 @@ The Trade & Hold System allows players to:
 Tracks active player acquisitions:
 - `id` - UUID primary key
 - `league_code` - League identifier
-- `team_name` - Team name (text, e.g., "Team 1")
+- `team_id` - Stable team identifier from `pool_rosters.data.teams[].id`
+- `team_name` - Current team name
+- `team_name_snapshot` - Team name saved for history/safety
 - `player_slug` - PuckPedia player slug (puckpedia_slug)
 - `date_acquired` - When player was acquired
 - `points_accumulated` - Points accumulated while held (updated manually or via cron)
 
-**Unique Constraint**: One hold per player per (league_code, team_name)
+**Unique Constraint**: One hold per player per `(league_code, team_name)` for backwards compatibility. `team_id` is now also stored for safer matching.
 
 #### `player_trades` Table
 Historical record of all trades:
 - `id` - UUID primary key
 - `league_code` - League identifier
-- `team_name` - Team name (text, e.g., "Team 1")
+- `team_id` - Stable team identifier
+- `team_name` / `team_name_snapshot` - Team names for display/history
 - `player_from_slug` - Player being traded out
 - `player_to_slug` - Player being traded in
+- `player_from_name`, `player_to_name` - Snapshot names stored at trade time
+- `player_from_position`, `player_to_position` - Position snapshots
+- `player_from_team`, `player_to_team` - NHL team snapshots
+- `from_slot_group`, `from_slot_index` - Active roster slot that was vacated
+- `to_slot_group`, `to_slot_index` - Bench slot that was activated
 - `date_from_acquired` - When the "from" player was originally acquired
 - `date_traded` - When the trade occurred
 - `points_accumulated_at_trade` - Points saved from the "from" player
+
+#### `execute_pool_trade()` RPC
+Supabase SQL function that performs the trade atomically:
+- validates outgoing player is on active roster
+- validates incoming player is on bench
+- validates position match (`F/D/G`)
+- validates post-trade cap stays within `$95.5M`
+- swaps the roster inside `pool_rosters`
+- writes `player_trades`
+- rolls hold from old player to new player
 
 ### File Structure
 
 ```
 docs/pool/
 ├── trades.html              # Main trades/holds management page
-│   ├── Current Holds section
+│   ├── Active Roster section
+│   ├── Team Bench section
 │   ├── Trade History section
 │   └── Team roster selector
 ├── join.html                # Updated with Trades nav link
@@ -69,9 +88,12 @@ Execute the SQL from `TRADES_SCHEMA.sql` in your Supabase SQL editor:
 -- Paste into Supabase → SQL Editor → Run
 ```
 
-This creates:
+This creates / updates:
 - `player_holds` table with indexes
 - `player_trades` table with indexes
+- `execute_pool_trade()` RPC function
+
+If you previously created the trade tables, **run the updated SQL again** so the new columns and RPC are added.
 
 ### 2. Configure Access Policies (Optional)
 
@@ -99,19 +121,22 @@ Ensure these files are in `/docs/pool/`:
 
 ## Usage Workflow
 
-### Adding a Hold
+### Holds on Active Roster
 
-**All main roster players (Forwards, Defensemen, Goalies) are automatically in holds by default.**
+**All main roster players (Forwards, Defensemen, Goalies) are treated as the active roster on the page.**
 
-- When you visit the Trades page, any main roster player without an existing hold will be automatically added to a hold with today's date
+- The page will attempt to initialize missing hold rows for active players
 - Bench players are excluded from holds
-- Points start accumulating immediately on the next daily update
+- Points accumulate only for held active-roster players
+- If a hold cannot be initialized, the player still renders on the page and a warning is shown
 
 **Manual holds can also be added via direct Supabase insert:**
 ```json
 {
   "league_code": "DEMO01",
-  "team_id": "uuid-123",
+  "team_id": "team-1",
+  "team_name": "Team 1",
+  "team_name_snapshot": "Team 1",
   "player_slug": "connor-mcdavid",
   "date_acquired": "2026-04-27T00:00:00Z",
   "points_accumulated": 0
@@ -121,21 +146,18 @@ Ensure these files are in `/docs/pool/`:
 ### Trading Between Roster and Bench
 
 1. Go to Trades page → Select team
-2. View Current Holds
+2. View Active Roster
 3. Click "🔄 Trade" on a held player
-4. Select a bench player to trade in
+4. Select an **eligible** bench player to trade in (same `F/D/G` slot type only)
 5. Confirm trade
 6. System automatically:
    - Swaps players between active roster slot and bench slot
    - Persists updated roster composition to `pool_rosters` (visible in Draft/Standings)
+   - Shows current cap / cap-after preview before confirmation
    - Validates salary cap before confirming swap (bench excluded from cap)
    - Saves accumulated points to trade history
    - Creates new hold on player-to (bench player)
    - Clears old hold record
-
-### Releasing a Hold
-
-Click "↩ Release" on any held player to remove the hold without trading.
 
 ### Viewing Trade History
 
@@ -150,16 +172,12 @@ Trade History section shows all past trades with:
 ### On Trade Execution
 
 ```
-1. Get current hold for player-from
-2. Calculate points_accumulated from hold record
-3. Insert record into player_trades with:
-   - player_from_slug
-   - player_to_slug
-   - date_from_acquired
-   - date_traded (now)
-   - points_accumulated_at_trade
-4. Delete hold for player-from
-5. Create new hold for player-to with date_acquired = now
+1. Lock the league roster row
+2. Validate active slot, bench slot, position match, and salary cap
+3. Swap roster slots inside `pool_rosters`
+4. Insert snapshot-rich `player_trades` history row
+5. Delete old hold for player-from
+6. Create new hold for player-to with `date_acquired = now`
 ```
 
 ### Updating Accumulated Points (Manual or Automated)
@@ -210,17 +228,16 @@ currentTrades = await res.json();
 
 **`openTradeModal(playerSlug)`** - Show trade UI
 - Displays player being traded from
-- Lists available bench players
-- User selects target
+- Lists only eligible bench players for that slot type
+- Previews cap before/after trade
 
 **`confirmTrade()`** - Execute trade transaction
-- Inserts trade record
-- Deletes old hold
-- Creates new hold on bench player
+- Uses `execute_pool_trade()` RPC when available for atomic updates
+- Falls back to a best-effort rollback flow if RPC has not been deployed yet
 
 ### UI Components
 
-**Current Holds Card**
+**Active Roster Card**
 ```html
 <div class="hold-card">
   <div class="hold-player">
@@ -242,7 +259,6 @@ currentTrades = await res.json();
   </div>
   <div class="hold-actions">
     <button onclick="openTradeModal(...)">🔄 Trade</button>
-    <button onclick="releaseHold(...)">↩ Release</button>
   </div>
 </div>
 ```
@@ -265,9 +281,9 @@ All endpoints are read/write to Supabase REST API:
 |----------|--------|---------|
 | `/rest/v1/player_holds` | GET | List holds |
 | `/rest/v1/player_holds` | POST | Create hold |
-| `/rest/v1/player_holds?id=eq.X` | DELETE | Release hold |
 | `/rest/v1/player_trades` | GET | List trades |
 | `/rest/v1/player_trades` | POST | Record trade |
+| `/rest/v1/rpc/execute_pool_trade` | POST | Atomic roster swap + hold rollover |
 
 ## Future Enhancements
 
@@ -313,9 +329,11 @@ for hold in holds:
         .execute()
 ```
 
-### Bench-to-Main Swaps
+### Future Enhancements
 
-Extend system to also track trades**from** bench to main roster (currently only main-to-bench supported).
+- Replace active-roster hold auto-init with a dedicated roster-finalization sync so acquisition dates are more exact.
+- Add realtime updates to Standings / Draft after a completed trade.
+- Add collapsible trade history for an even denser layout.
 
 ### Trade Validation
 
@@ -335,35 +353,27 @@ Email/SMS notifications on:
 
 ### Manual Testing
 
-1. **Add a hold**:
-   - Navigate to Trades page
-   - Add player with date
-   - Verify in Current Holds
-
-2. **Execute trade**:
+1. **Execute trade**:
    - Click 🔄 Trade on held player
    - Select bench player
    - Confirm
    - Verify trade appears in history
 
-3. **Release hold**:
-   - Click ↩ Release
-   - Verify hold is removed
-
-4. **View trade history**:
+2. **View trade history**:
    - Scroll to Trade History
-   - Verify all trades display correctly
+   - Verify newest trades display first
+   - Verify saved snapshot names still render even if live player metadata is missing
 
 ### Database Verification
 
 ```sql
 -- Check active holds
 SELECT * FROM player_holds 
-WHERE league_code = 'DEMO01' AND team_id = 'uuid-123';
+WHERE league_code = 'DEMO01' AND team_name = 'Team 1';
 
 -- Check trade history
 SELECT * FROM player_trades 
-WHERE league_code = 'DEMO01' AND team_id = 'uuid-123'
+WHERE league_code = 'DEMO01' AND team_name = 'Team 1'
 ORDER BY date_traded DESC;
 ```
 
@@ -398,10 +408,11 @@ If you see `POST .../player_holds 400 (Bad Request)` error:
 ### Holds not loading
 - Verify player_holds table exists: `SELECT * FROM player_holds LIMIT 1;`
 - Check league_code matches
-- Verify team_id is correct UUID format
+- Verify `team_id` / `team_name` on the hold matches the selected roster team
 
 ### Trades failing
 - Check both player_holds and player_trades tables exist
+- Re-run `TRADES_SCHEMA.sql` so `execute_pool_trade()` exists
 - Ensure player slugs are valid (must match nhl_players.puckpedia_slug)
 - Verify no duplicate holds for same player+team
 
@@ -416,7 +427,7 @@ If you see `POST .../player_holds 400 (Bad Request)` error:
 - **Team Selection**: Trades page defaults to first team, use selector to switch
 - **Date Format**: All dates stored as ISO 8601 timestamps in Supabase
 - **Scoring**: Uses same pool_settings table as standings/draft pages
-- **Cache**: Player list cached in sessionStorage, old key "hp_players" purged
+- **Cache**: Player list cached in sessionStorage, and missing roster/trade players are fetched on demand
 - **Auto-Initialization**: Holds are auto-created on page load if table permissions allow
 
 ## Support

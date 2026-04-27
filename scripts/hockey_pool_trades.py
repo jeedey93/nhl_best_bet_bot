@@ -7,6 +7,7 @@ Provides functions to manage player holds and update accumulated points
 import json
 import os
 from datetime import datetime, timezone
+from typing import Optional
 import requests
 from dotenv import load_dotenv
 
@@ -52,11 +53,19 @@ def get_hold(hold_id: str) -> dict:
         print(f"Exception fetching hold: {e}")
         return None
 
-def create_hold(league_code: str, team_id: str, player_slug: str, date_acquired: str) -> dict:
+def create_hold(
+    league_code: str,
+    team_name: str,
+    player_slug: str,
+    date_acquired: str,
+    team_id: Optional[str] = None,
+) -> dict:
     """Create a new player hold."""
     payload = {
         'league_code': league_code,
         'team_id': team_id,
+        'team_name': team_name,
+        'team_name_snapshot': team_name,
         'player_slug': player_slug,
         'date_acquired': date_acquired,
         'points_accumulated': 0
@@ -119,23 +128,28 @@ def get_all_trades(league_code: str) -> list:
 
 def record_trade(
     league_code: str,
-    team_id: str,
+    team_name: str,
     player_from_slug: str,
     player_to_slug: str,
     date_from_acquired: str,
     date_traded: str,
-    points_accumulated_at_trade: int
+    points_accumulated_at_trade: int,
+    team_id: Optional[str] = None,
+    **extra_fields,
 ) -> dict:
     """Record a completed trade."""
     payload = {
         'league_code': league_code,
         'team_id': team_id,
+        'team_name': team_name,
+        'team_name_snapshot': team_name,
         'player_from_slug': player_from_slug,
         'player_to_slug': player_to_slug,
         'date_from_acquired': date_from_acquired,
         'date_traded': date_traded,
         'points_accumulated_at_trade': points_accumulated_at_trade
     }
+    payload.update({k: v for k, v in extra_fields.items() if v is not None})
     try:
         resp = requests.post(
             f'{SUPABASE_URL}/rest/v1/player_trades',
