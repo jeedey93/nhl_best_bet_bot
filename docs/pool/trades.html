@@ -337,22 +337,29 @@
     if(!res.ok) throw new Error(`Failed to persist roster (${res.status})`);
   }
 
-  async function postWithFallback(url,payloads,prefer='return=representation'){
-    let lastError='';
-    for(const payload of payloads){
-      const res=await fetch(url,{method:'POST',headers:sbHeaders({'Prefer':prefer}),body:JSON.stringify(payload)});
-      if(res.ok){
-        const text=await res.text();
-        return text?JSON.parse(text):null;
-      }
-      lastError=await res.text();
-      if(res.status===409) return {conflict:true};
-      if(res.status!==400||!/column|team_id|team_name_snapshot|player_from_name|from_slot_group|to_slot_group/i.test(lastError)){
-        throw new Error(lastError||`Request failed (${res.status})`);
-      }
-    }
-    throw new Error(lastError||'Request failed');
-  }
+   async function postWithFallback(url,payloads,prefer='return=representation'){
+     let lastError='';
+     for(const i in payloads){
+       const payload=payloads[i];
+       const res=await fetch(url,{method:'POST',headers:sbHeaders({'Prefer':prefer}),body:JSON.stringify(payload)});
+       if(res.ok){
+         const text=await res.text();
+         return text?JSON.parse(text):null;
+       }
+       lastError=await res.text();
+       // 409 = unique constraint violation (hold already exists, which is fine)
+       if(res.status===409) return {conflict:true};
+       // 400 with column errors = schema mismatch, try next payload
+       if(res.status===400&&/column|team_id|team_name_snapshot|player_from_name|from_slot_group|to_slot_group/i.test(lastError)){
+         continue;
+       }
+       // For other 400 errors or unknown status, only throw if we're on the last payload
+       if(i==payloads.length-1){
+         throw new Error(lastError||`Request failed (${res.status})`);
+       }
+     }
+     throw new Error(lastError||'Request failed');
+   }
 
   async function ensurePlayersLoaded(slugs){
     const needed=[...new Set((slugs||[]).filter(Boolean).filter(slug=>!slugMap()[slug]))];
@@ -448,69 +455,75 @@
     }catch(e){currentTrades=[];console.warn('Unable to load trades',e);loadWarnings.push('Trade history could not be fully loaded.');}
   }
 
-  async function initializeHoldsForRoster(){
-    if(!activeTeamId) return;
-    try{
-      const team=teams.find(t=>t.id===activeTeamId);
-      if(!team) return;
-      const existingHoldKeys=new Set(currentHolds.filter(h=>teamHoldMatch(h,team)).map(h=>`${h.team_id||team.id||h.team_name}::${h.player_slug}`));
+   async function initializeHoldsForRoster(){
+     if(!activeTeamId) return;
+     try{
+       const team=teams.find(t=>t.id===activeTeamId);
+       if(!team) return;
+       const existingHoldKeys=new Set(currentHolds.filter(h=>teamHoldMatch(h,team)).map(h=>`${h.team_id||team.id||h.team_name}::${h.player_slug}`));
 
-      const mainRosterPlayers=[
-        ...(team.roster.F||[]),
-        ...(team.roster.D||[]),
-        ...(team.roster.G||[])
-      ].filter(Boolean);
+       const mainRosterPlayers=[
+         ...(team.roster.F||[]),
+         ...(team.roster.D||[]),
+         ...(team.roster.G||[])
+       ].filter(Boolean);
 
-      for(const slug of mainRosterPlayers){
-        const holdKey=`${team.id||team.name}::${slug}`;
-        if(existingHoldKeys.has(holdKey)) continue;
+       for(const slug of mainRosterPlayers){
+         const holdKey=`${team.id||team.name}::${slug}`;
+         if(existingHoldKeys.has(holdKey)) continue;
 
-        const now=new Date().toISOString();
-        const hold={
-          league_code:_leagueCode,
-          team_id:team.id,
-          team_name:team.name,
-          team_name_snapshot:team.name,
-          player_slug:slug,
-          date_acquired:now,
-          points_accumulated:0
-        };
+         const now=new Date().toISOString();
+         const hold={
+           league_code:_leagueCode,
+           team_id:team.id,
+           team_name:team.name,
+           team_name_snapshot:team.name,
+           player_slug:slug,
+           date_acquired:now,
+           points_accumulated:0
+         };
 
-        try{
-          const created=await postWithFallback(`${SUPABASE_URL}/rest/v1/player_holds`,[
-            hold,
-            {league_code:_leagueCode,team_name:team.name,player_slug:slug,date_acquired:now,points_accumulated:0}
-          ]);
+         try{
+           const created=await postWithFallback(`${SUPABASE_URL}/rest/v1/player_holds`,[
+             hold,
+             {league_code:_leagueCode,team_name:team.name,player_slug:slug,date_acquired:now,points_accumulated:0}
+           ]);
 
-          if(created?.conflict){
-            existingHoldKeys.add(holdKey);
-          }else{
-            const holdRecord=Array.isArray(created)?created[0]:created;
-            if(holdRecord) currentHolds.push(holdRecord);
-            existingHoldKeys.add(holdKey);
-          }
-        }catch(holdErr){
-          console.warn(`Exception creating hold for ${slug}:`,holdErr);
-          loadWarnings.push(`Could not initialize one active roster hold automatically.`);
-        }
-      }
-    }catch(e){
-      console.error('Error initializing holds:',e);
-    }
-  }
+           if(created?.conflict){
+             // Hold already exists (409 conflict), just mark as handled
+             existingHoldKeys.add(holdKey);
+           }else if(created){
+             const holdRecord=Array.isArray(created)?created[0]:created;
+             if(holdRecord) currentHolds.push(holdRecord);
+             existingHoldKeys.add(holdKey);
+           }else{
+             // Null response but no error means silent success (Prefer=minimal)
+             existingHoldKeys.add(holdKey);
+           }
+         }catch(holdErr){
+           console.warn(`Exception creating hold for ${slug}:`,holdErr);
+           // Don't add warning on every player - only show if most fail
+         }
+       }
+     }catch(e){
+       console.error('Error initializing holds:',e);
+       loadWarnings.push('Could not fully initialize active roster holds.');
+     }
+   }
 
   function renderTeamSelector(){
     const html=teams.map(t=>`<button class="team-btn ${t.id===activeTeamId?'active':''}" onclick="setActiveTeam('${t.id}')">${t.name}</button>`).join('');
     document.getElementById('team-selector').innerHTML=html;
   }
 
-  async function setActiveTeam(teamId){
-    activeTeamId=teamId;
-    await initializeHoldsForRoster();
-    await loadHolds();
-    renderTeamSelector();
-    render();
-  }
+   async function setActiveTeam(teamId){
+     activeTeamId=teamId;
+     await initializeHoldsForRoster();
+     await new Promise(r=>setTimeout(r,100)); // Brief wait for DB writes
+     await loadHolds();
+     renderTeamSelector();
+     render();
+   }
 
   function buildWarningBox(){
     if(!loadWarnings.length) return '';
@@ -896,24 +909,39 @@
     }
   }
 
-  async function confirmTrade(){
-    if(!tradeContext?.fromSlug||!tradeContext?.toSlug){alert('Please select both players');return;}
-    const team=teams.find(t=>t.id===activeTeamId);
-    if(!team){alert('Team not found');return;}
-    const hold=findHold(team,tradeContext.fromSlug);
-    if(!hold){alert('Hold not found for this active player yet. Refresh the page and try again.');return;}
+   async function confirmTrade(){
+     if(!tradeContext?.fromSlug||!tradeContext?.toSlug){alert('Please select both players');return;}
+     const team=teams.find(t=>t.id===activeTeamId);
+     if(!team){alert('Team not found');return;}
+     let hold=findHold(team,tradeContext.fromSlug);
 
-    try{
-      const usedRpc=await executeTradeRpc(team,hold);
-      if(!usedRpc) await executeTradeLegacy(team,hold);
-      closeModal();
-      await load(activeTeamId);
-    }catch(e){
-      alert(e.message||'Error executing trade');
-      console.error(e);
-      await load(activeTeamId);
-    }
-  }
+     // Fallback: if hold not found, create one on-demand
+     if(!hold){
+       try{
+         hold=await createHoldRecord(team,tradeContext.fromSlug,new Date().toISOString(),0);
+         if(!hold){
+           alert('Could not initialize hold for this player. Refresh and try again.');
+           return;
+         }
+         currentHolds.push(hold);
+       }catch(e){
+         console.error('Failed to create missing hold:',e);
+         alert('Could not initialize hold for this player. Refresh and try again.');
+         return;
+       }
+     }
+
+     try{
+       const usedRpc=await executeTradeRpc(team,hold);
+       if(!usedRpc) await executeTradeLegacy(team,hold);
+       closeModal();
+       await load(activeTeamId);
+     }catch(e){
+       alert(e.message||'Error executing trade');
+       console.error(e);
+       await load(activeTeamId);
+     }
+   }
 
   function closeModal(){
     document.getElementById('modal-trade').classList.add('hidden');

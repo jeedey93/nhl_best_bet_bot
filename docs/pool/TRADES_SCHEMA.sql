@@ -22,6 +22,26 @@ ALTER TABLE player_holds ADD COLUMN IF NOT EXISTS team_id text;
 ALTER TABLE player_holds ADD COLUMN IF NOT EXISTS team_name_snapshot text;
 CREATE INDEX IF NOT EXISTS idx_holds_league_team_id ON player_holds(league_code, team_id);
 
+-- Drop old constraint - we'll use a unique index instead for better flexibility
+DO $$
+BEGIN
+  ALTER TABLE player_holds DROP CONSTRAINT IF EXISTS unique_hold;
+EXCEPTION WHEN OTHERS THEN NULL;
+END $$;
+
+-- Create unique index that prioritizes team_id
+-- When team_id exists, it's the source of truth. When absent, fall back to team_name.
+DROP INDEX IF EXISTS idx_holds_unique_by_team_id;
+DROP INDEX IF EXISTS idx_holds_unique_by_name;
+
+-- Index for rows WITH team_id (primary new pattern)
+CREATE UNIQUE INDEX idx_holds_unique_by_team_id ON player_holds(league_code, team_id, player_slug)
+WHERE team_id IS NOT NULL;
+
+-- Index for rows WITHOUT team_id (backward compatibility)
+CREATE UNIQUE INDEX idx_holds_unique_by_name ON player_holds(league_code, team_name, player_slug)
+WHERE team_id IS NULL;
+
 -- Player Trades Table
 -- Historical record of trades between main roster and bench
 CREATE TABLE IF NOT EXISTS player_trades (
