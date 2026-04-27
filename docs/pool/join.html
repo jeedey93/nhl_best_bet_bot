@@ -415,13 +415,14 @@
 <nav class="site-nav">
   <div class="site-nav-inner">
     <a class="site-nav-brand" href="../index.html">Parieur Discipliné</a>
-    <div class="site-nav-links">
-      <a href="/pool">Home</a>
-      <a href="" id="nav-draft" class="active">Draft</a>
-      <a href="" id="nav-live-draft">Live Draft</a>
-      <a href="" id="nav-standings">Standings</a>
-      <a href="" id="nav-settings">Settings</a>
-    </div>
+     <div class="site-nav-links">
+       <a href="/pool">Home</a>
+       <a href="" id="nav-draft" class="active">Draft</a>
+       <a href="" id="nav-live-draft">Live Draft</a>
+       <a href="" id="nav-standings">Standings</a>
+       <a href="" id="nav-trades">Trades</a>
+       <a href="" id="nav-settings">Settings</a>
+     </div>
   </div>
 </nav>
 
@@ -662,10 +663,11 @@
     const row   = document.getElementById('league-badge-row');
     if (badge) badge.textContent = _leagueCode;
     if (row)   row.style.display = '';
-    document.getElementById('nav-draft').href       = `/pool/join?league=${_leagueCode}`;
-    document.getElementById('nav-live-draft').href  = `/pool/live-draft?league=${_leagueCode}`;
-    document.getElementById('nav-standings').href   = `/pool/standings?league=${_leagueCode}`;
-    document.getElementById('nav-settings').href    = `/pool/settings?league=${_leagueCode}`;
+     document.getElementById('nav-draft').href       = `/pool/join?league=${_leagueCode}`;
+     document.getElementById('nav-live-draft').href  = `/pool/live-draft?league=${_leagueCode}`;
+     document.getElementById('nav-standings').href   = `/pool/standings?league=${_leagueCode}`;
+     document.getElementById('nav-trades').href      = `/pool/trades?league=${_leagueCode}`;
+     document.getElementById('nav-settings').href    = `/pool/settings?league=${_leagueCode}`;
     try {
       const k='hp_recent_leagues'; let list=JSON.parse(localStorage.getItem(k)||'[]');
       list=[_leagueCode,...list.filter(c=>c!==_leagueCode)].slice(0,5);
