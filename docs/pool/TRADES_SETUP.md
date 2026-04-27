@@ -17,18 +17,18 @@ The Trade & Hold System allows players to:
 Tracks active player acquisitions:
 - `id` - UUID primary key
 - `league_code` - League identifier
-- `team_id` - Team UUID
+- `team_name` - Team name (text, e.g., "Team 1")
 - `player_slug` - PuckPedia player slug (puckpedia_slug)
 - `date_acquired` - When player was acquired
 - `points_accumulated` - Points accumulated while held (updated manually or via cron)
 
-**Unique Constraint**: One hold per player per team
+**Unique Constraint**: One hold per player per (league_code, team_name)
 
 #### `player_trades` Table
 Historical record of all trades:
 - `id` - UUID primary key
 - `league_code` - League identifier
-- `team_id` - Team UUID
+- `team_name` - Team name (text, e.g., "Team 1")
 - `player_from_slug` - Player being traded out
 - `player_to_slug` - Player being traded in
 - `date_from_acquired` - When the "from" player was originally acquired

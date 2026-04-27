@@ -287,35 +287,28 @@
       }
       slugMap._c=null;
 
-      const rRes=await fetch(`${SUPABASE_URL}/rest/v1/pool_rosters?league_code=eq.${_leagueCode}&select=id,team_id,data`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
+      const rRes=await fetch(`${SUPABASE_URL}/rest/v1/pool_rosters?league_code=eq.${_leagueCode}&select=*`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
       if(!rRes.ok)throw new Error(rRes.status);
       const allRosterRows=await rRes.json();
       if(!allRosterRows.length){document.getElementById('content').innerHTML='<div class="msg">No teams saved yet. Go build your pool!</div>';return;}
 
-      // Build a map of roster team data by team_id
-      const rosterMap={};
-      allRosterRows.forEach(row=>{
-        if(row.team_id&&row.data?.teams) rosterMap[row.team_id]=row.data.teams;
-      });
-
-      // Create teams array with proper team_ids from pool_rosters
+      // Create teams array - using first roster row which contains all teams
+      const firstRow=allRosterRows[0];
       teams=[];
-      allRosterRows.forEach(row=>{
-        if(row.data?.teams){
-          row.data.teams.forEach(t=>{
-            teams.push({
-              id:row.team_id,
-              name:t.name||'Team',
-              roster:{
-                F:Array.isArray(t.roster?.F)?t.roster.F:Array(12).fill(null),
-                D:Array.isArray(t.roster?.D)?t.roster.D:Array(6).fill(null),
-                G:Array.isArray(t.roster?.G)?t.roster.G:Array(2).fill(null),
-                B:Array.isArray(t.roster?.B)?t.roster.B:Array(6).fill(null)
-              }
-            });
+      if(firstRow.data?.teams){
+        firstRow.data.teams.forEach((t,idx)=>{
+          teams.push({
+            id:t.name||`Team-${idx}`,
+            name:t.name||`Team ${idx+1}`,
+            roster:{
+              F:Array.isArray(t.roster?.F)?t.roster.F:Array(12).fill(null),
+              D:Array.isArray(t.roster?.D)?t.roster.D:Array(6).fill(null),
+              G:Array.isArray(t.roster?.G)?t.roster.G:Array(2).fill(null),
+              B:Array.isArray(t.roster?.B)?t.roster.B:Array(6).fill(null)
+            }
           });
-        }
-      });
+        });
+      }
 
        activeTeamId=teams[0]?.id;
 
@@ -366,7 +359,7 @@
         const now=new Date().toISOString();
         const hold={
           league_code:_leagueCode,
-          team_id:activeTeamId,
+          team_name:activeTeamId,
           player_slug:slug,
           date_acquired:now,
           points_accumulated:0
@@ -419,8 +412,8 @@
     const team=teams.find(t=>t.id===activeTeamId);
     if(!team){document.getElementById('content').innerHTML='<div class="msg">Team not found.</div>';return;}
 
-    const teamHolds=currentHolds.filter(h=>h.team_id===activeTeamId);
-    const teamTrades=currentTrades.filter(t=>t.team_id===activeTeamId);
+    const teamHolds=currentHolds.filter(h=>h.team_name===activeTeamId);
+    const teamTrades=currentTrades.filter(t=>t.team_name===activeTeamId);
     const m=slugMap();
 
     let html=`
@@ -556,7 +549,7 @@
   async function confirmTrade(){
     if(!window.tradeFromSlug||!window.tradeToSlug){alert('Please select both players');return;}
 
-    const hold=currentHolds.find(h=>h.player_slug===window.tradeFromSlug&&h.team_id===activeTeamId);
+    const hold=currentHolds.find(h=>h.player_slug===window.tradeFromSlug&&h.team_name===activeTeamId);
     if(!hold){alert('Hold not found');return;}
 
     try{
@@ -566,7 +559,7 @@
 
       const tradeData={
         league_code:_leagueCode,
-        team_id:activeTeamId,
+        team_name:activeTeamId,
         player_from_slug:window.tradeFromSlug,
         player_to_slug:window.tradeToSlug,
         date_from_acquired:hold.date_acquired,
@@ -587,7 +580,7 @@
 
       const newHold={
         league_code:_leagueCode,
-        team_id:activeTeamId,
+        team_name:activeTeamId,
         player_slug:window.tradeToSlug,
         date_acquired:now,
         points_accumulated:0
