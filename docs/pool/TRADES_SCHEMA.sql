@@ -297,10 +297,20 @@ BEGIN
 END;
 $$;
 
--- ===== DISABLE RLS (Row Level Security) by default =====
--- RLS is disabled to allow public access for your pool use case
+-- ===== DISABLE RLS (Row Level Security) =====
+-- RLS must be disabled to allow public/anon access for hold/trade operations
+BEGIN;
 ALTER TABLE player_holds DISABLE ROW LEVEL SECURITY;
 ALTER TABLE player_trades DISABLE ROW LEVEL SECURITY;
+COMMIT;
+
+-- Drop any existing RLS policies that might interfere
+DROP POLICY IF EXISTS "Allow public read on player_holds" ON player_holds;
+DROP POLICY IF EXISTS "Allow public insert on player_holds" ON player_holds;
+DROP POLICY IF EXISTS "Allow public update on player_holds" ON player_holds;
+DROP POLICY IF EXISTS "Allow public delete on player_holds" ON player_holds;
+DROP POLICY IF EXISTS "Allow public read on player_trades" ON player_trades;
+DROP POLICY IF EXISTS "Allow public insert on player_trades" ON player_trades;
 
 -- Grant permissions to anon user
 GRANT ALL ON player_holds TO anon;
