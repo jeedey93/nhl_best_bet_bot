@@ -99,15 +99,15 @@ Ensure these files are in `/docs/pool/`:
 
 ## Usage Workflow
 
-### Adding a Hold (Manual Process for Now)
+### Adding a Hold
 
-Currently, holds are created through the Trades page by:
-1. Navigating to `/pool/trades?league=LEAGUECODE`
-2. Viewing "Current Holds" section
-3. Selecting a player to add hold (implement via Add Hold button)
-4. Setting the acquisition date
+**All main roster players (Forwards, Defensemen, Goalies) are automatically in holds by default.**
 
-Or directly via Supabase insert:
+- When you visit the Trades page, any main roster player without an existing hold will be automatically added to a hold with today's date
+- Bench players are excluded from holds
+- Points start accumulating immediately on the next daily update
+
+**Manual holds can also be added via direct Supabase insert:**
 ```json
 {
   "league_code": "DEMO01",
