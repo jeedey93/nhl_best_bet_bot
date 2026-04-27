@@ -35,14 +35,15 @@
 
     .page-wrap { max-width: 980px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
 
-    /* Let All Teams use a wider canvas than tabs/header */
+    /* Expand All Teams beyond tab width only when needed */
     @media (min-width: 901px) {
-      .allteams-mode #view-allteams {
+      .allteams-mode.allteams-needs-wide #view-allteams {
         width: min(1400px, calc(100vw - 1.5rem));
         margin-left: 50%;
         transform: translateX(-50%);
       }
     }
+
 
 
     header { text-align: center; margin-bottom: 1.5rem; }
@@ -182,6 +183,8 @@
     .allteams-mode .at-wrap { width: 100%; max-width: 100%; }
     .allteams-mode .at-scroll { overflow-x: hidden; }
     .allteams-mode .at-table { width: 100%; min-width: 0; table-layout: fixed; }
+    .allteams-mode.allteams-needs-wide .at-scroll { overflow-x: auto; }
+    .allteams-mode.allteams-needs-wide .at-table { width: max-content; min-width: 100%; table-layout: auto; }
     .allteams-mode .at-table th, .allteams-mode .at-table td { min-width: 0; }
     .allteams-mode .at-th-inner { padding: 6px 5px 5px; }
     .allteams-mode .at-th-name { font-size: 0.78rem; letter-spacing: 1px; max-width: none; }
@@ -451,6 +454,7 @@
 
   function render(){
     document.body.classList.toggle('allteams-mode', activeView==='allteams');
+    document.body.classList.remove('allteams-needs-wide');
     const sorted=[...teams].sort((a,b)=>teamTotalPts(b.roster)-teamTotalPts(a.roster));
     const leaderPts=sorted.length?teamTotalPts(sorted[0].roster):0;
     const avgs=computePoolAverages();
@@ -471,7 +475,20 @@
       </div>
       <div id="view-pool" style="display:${activeView==='pool'?'block':'none'}">${buildPoolLeaders()}</div>
     `;
+    requestAnimationFrame(updateAllTeamsWidthMode);
   }
+
+  function updateAllTeamsWidthMode(){
+    const body=document.body;
+    body.classList.remove('allteams-needs-wide');
+    if(activeView!=='allteams') return;
+    const root=document.getElementById('view-allteams');
+    if(!root) return;
+    const clipped=[...root.querySelectorAll('.at-th-name, td.pn')].some(el=>el.scrollWidth>el.clientWidth+1);
+    if(clipped) body.classList.add('allteams-needs-wide');
+  }
+
+  window.addEventListener('resize', ()=>{ if(activeView==='allteams') updateAllTeamsWidthMode(); });
   function setView(v){activeView=v;sessionStorage.setItem('pool_view',v);render();}
   function selectTeam(id){activeTeamId=id;activeView='team';sessionStorage.setItem('pool_view','team');render();}
 
