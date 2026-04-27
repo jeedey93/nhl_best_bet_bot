@@ -367,6 +367,32 @@ ORDER BY date_traded DESC;
 
 ## Troubleshooting
 
+### 400 Bad Request on Hold Creation
+
+If you see `POST .../player_holds 400 (Bad Request)` error:
+
+**Solution 1: Check RLS Policies**
+- Go to Supabase Dashboard → Authentication → Policies
+- Ensure `player_holds` table has public insert/update/delete policies
+- If RLS is enabled, run these in SQL Editor:
+  ```sql
+  GRANT ALL ON player_holds TO anon;
+  GRANT ALL ON player_trades TO anon;
+  ```
+
+**Solution 2: Check Table Permissions**
+- Supabase Dashboard → SQL Editor
+- Run: `SELECT * FROM player_holds LIMIT 1;` to verify table exists
+- If error, re-run `TRADES_SCHEMA.sql`
+
+**Solution 3: Disable Auto-Initialize**
+- Edit `docs/pool/trades.html`
+- Comment out this line (around line 300):
+  ```javascript
+  // initializeHoldsForRoster();
+  ```
+- Manually add holds via Supabase insert instead
+
 ### Holds not loading
 - Verify player_holds table exists: `SELECT * FROM player_holds LIMIT 1;`
 - Check league_code matches
@@ -389,6 +415,7 @@ ORDER BY date_traded DESC;
 - **Date Format**: All dates stored as ISO 8601 timestamps in Supabase
 - **Scoring**: Uses same pool_settings table as standings/draft pages
 - **Cache**: Player list cached in sessionStorage, old key "hp_players" purged
+- **Auto-Initialization**: Holds are auto-created on page load if table permissions allow
 
 ## Support
 
@@ -397,4 +424,5 @@ For issues with:
 - **Navigation**: Verify all nav hrefs updated in join.html, standings.html, trades.html
 - **Data**: Check Supabase dashboard for data integrity
 - **Performance**: Add indexes if querying large datasets (already included in schema)
+- **Permissions**: Check RLS policies and table grants in Supabase
 

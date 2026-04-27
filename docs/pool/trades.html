@@ -297,7 +297,8 @@
 
        await loadHolds();
        await loadTrades();
-       await initializeHoldsForRoster();
+       // Auto-initialize holds (optional - comment out if causing issues)
+       initializeHoldsForRoster();
        renderTeamSelector();
        render();
     }catch(e){console.error(e);document.getElementById('content').innerHTML=`<div class="msg">Failed to load. <button class="btn-refresh" onclick="location.reload()">Retry</button></div>`;}
@@ -319,42 +320,64 @@
 
   async function initializeHoldsForRoster(){
     // Auto-create holds for all main roster players (F, D, G) if not already held
+    if(!activeTeamId) return; // Safety check
     try{
       const m=slugMap();
       const existingHoldSlugs=new Set(currentHolds.map(h=>h.player_slug));
 
-      for(const team of teams){
-        const mainRosterPlayers=[
-          ...(team.roster.F||[]),
-          ...(team.roster.D||[]),
-          ...(team.roster.G||[])
-        ].filter(Boolean);
+      // Only process active team to avoid duplication issues
+      const team=teams.find(t=>t.id===activeTeamId);
+      if(!team) return;
 
-        for(const slug of mainRosterPlayers){
-          if(!existingHoldSlugs.has(slug)){
-            // Create hold for this player
-            const now=new Date().toISOString();
-            const hold={
-              league_code:_leagueCode,
-              team_id:team.id,
-              player_slug:slug,
-              date_acquired:now,
-              points_accumulated:0
-            };
-            const res=await fetch(`${SUPABASE_URL}/rest/v1/player_holds`,{
-              method:'POST',
-              headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Content-Type':'application/json'},
-              body:JSON.stringify(hold)
-            });
-            if(res.ok){
+      const mainRosterPlayers=[
+        ...(team.roster.F||[]),
+        ...(team.roster.D||[]),
+        ...(team.roster.G||[])
+      ].filter(Boolean);
+
+      for(const slug of mainRosterPlayers){
+        // Skip if already held or player not found
+        if(existingHoldSlugs.has(slug)||!m[slug]) continue;
+
+        const now=new Date().toISOString();
+        const hold={
+          league_code:_leagueCode,
+          team_id:activeTeamId,
+          player_slug:slug,
+          date_acquired:now,
+          points_accumulated:0
+        };
+
+        try{
+          const res=await fetch(`${SUPABASE_URL}/rest/v1/player_holds`,{
+            method:'POST',
+            headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Content-Type':'application/json'},
+            body:JSON.stringify(hold)
+          });
+
+          if(res.ok){
+            try{
               const created=await res.json();
-              currentHolds.push(Array.isArray(created)?created[0]:created);
+              const holdRecord=Array.isArray(created)?created[0]:created;
+              currentHolds.push(holdRecord);
               existingHoldSlugs.add(slug);
+            }catch(parseErr){
+              console.warn('Error parsing response for hold creation',parseErr);
             }
+          }else if(res.status===409){
+            // Conflict - likely unique constraint, just mark as existing
+            existingHoldSlugs.add(slug);
+          }else{
+            const errText=await res.text();
+            console.warn(`Failed to create hold for ${slug}: ${res.status}`,errText);
           }
+        }catch(holdErr){
+          console.warn(`Exception creating hold for ${slug}:`,holdErr);
         }
       }
-    }catch(e){console.error('Error initializing holds:',e);}
+    }catch(e){
+      console.error('Error initializing holds:',e);
+    }
   }
 
   function renderTeamSelector(){
