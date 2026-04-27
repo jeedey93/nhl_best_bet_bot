@@ -980,7 +980,36 @@
     updateTradePreview();
   }
 
-  load().catch(console.error);
+   async function syncSyntheticHolds(){
+     // Periodically convert synthetic holds to real DB records
+     if(!activeTeamId) return;
+     const team=teams.find(t=>t.id===activeTeamId);
+     if(!team) return;
+
+     const mainRosterPlayers=[
+       ...(team.roster.F||[]),
+       ...(team.roster.D||[]),
+       ...(team.roster.G||[])
+     ].filter(Boolean);
+
+     for(const slug of mainRosterPlayers){
+       const existingHold=currentHolds.find(h=>h.player_slug===slug&&teamHoldMatch(h,team));
+       if(!existingHold){
+         // No real hold exists, create one
+         try{
+           await createHoldRecord(team,slug,new Date().toISOString(),0);
+           await loadHolds();
+         }catch(e){
+           console.warn(`Sync failed for ${slug}:`,e);
+         }
+       }
+     }
+   }
+
+    // Run background sync every 5 seconds to finalize synthetic holds
+    setInterval(syncSyntheticHolds,5000);
+
+    load().catch(console.error);
 </script>
 </body>
 </html>
