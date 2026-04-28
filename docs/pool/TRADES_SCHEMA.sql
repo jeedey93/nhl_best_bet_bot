@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS player_trades (
   CONSTRAINT valid_trade CHECK (player_from_slug != player_to_slug)
 );
 
+CREATE INDEX IF NOT EXISTS idx_trades_league_code ON player_trades(league_code);
 CREATE INDEX IF NOT EXISTS idx_trades_league_team ON player_trades(league_code, team_name);
 CREATE INDEX IF NOT EXISTS idx_trades_from_player ON player_trades(player_from_slug);
 CREATE INDEX IF NOT EXISTS idx_trades_to_player ON player_trades(player_to_slug);
