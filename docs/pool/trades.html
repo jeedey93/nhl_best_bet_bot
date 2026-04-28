@@ -350,29 +350,23 @@
      let lastError='';
      for(const i in payloads){
        const payload=payloads[i];
-       console.log(`[POST] Attempt ${parseInt(i)+1}/${payloads.length}:`, payload);
        const res=await fetch(url,{method:'POST',headers:sbHeaders({'Prefer':prefer}),body:JSON.stringify(payload)});
        if(res.ok){
          const text=await res.text();
-         console.log(`[POST] ✓ Success on attempt ${parseInt(i)+1}`, text?JSON.parse(text):null);
          return text?JSON.parse(text):null;
        }
        lastError=await res.text();
-       console.warn(`[POST] ✗ Attempt ${parseInt(i)+1} failed (${res.status}):`, lastError);
        // 409 = unique constraint violation (hold already exists, which is fine)
        if(res.status===409) return {conflict:true};
        // 400 with column errors = schema mismatch, try next payload
        if(res.status===400&&/column|team_id|team_name_snapshot|player_from_name|from_slot_group|to_slot_group/i.test(lastError)){
-         console.log(`[POST] Schema mismatch on attempt ${parseInt(i)+1}, trying fallback...`);
          continue;
        }
        // For other 400 errors or unknown status, only throw if we're on the last payload
        if(i==payloads.length-1){
-         console.error(`[POST] All attempts failed. Last error:`, lastError);
          throw new Error(lastError||`Request failed (${res.status})`);
        }
      }
-     console.error(`[POST] All fallback attempts exhausted with error:`, lastError);
      throw new Error(lastError||'Request failed');
    }
 
@@ -456,78 +450,26 @@
      try{
        const cols='id,created_at,league_code,team_name,team_id,team_name_snapshot,player_from_slug,player_to_slug,player_from_name,player_to_name,player_from_position,player_to_position,player_from_team,player_to_team,from_slot_group,from_slot_index,to_slot_group,to_slot_index,date_from_acquired,date_traded,points_accumulated_at_trade';
        const url=`${SUPABASE_URL}/rest/v1/player_trades?league_code=eq.${_leagueCode}&select=${cols}&order=date_traded.desc`;
-       console.log(`[TRADES] Fetching from: ${url}`);
-
-       // Diagnostic: Count all trades in table first
-       let totalCount=0;
-       try{
-         const countUrl=`${SUPABASE_URL}/rest/v1/player_trades?select=id`;
-         const countRes=await fetch(countUrl,{headers:{...sbHeaders(),'Prefer':'count=exact'}});
-         if(countRes.ok){
-           const countText=countRes.headers.get('Content-Range')||'';
-           const match=countText.match(/\/(\d+)/);
-           totalCount=match?parseInt(match[1]):0;
-           console.log(`[TRADES] Total trades in entire table: ${totalCount}`);
-         }else{
-           console.log('[TRADES] Count query failed, will continue without total');
-         }
-       }catch(_){console.log('[TRADES] Could not get total count');}
-
        const res=await fetch(url,{headers:sbHeaders({'Cache-Control':'no-cache'})});
        if(!res.ok){
          const errText=await res.text();
-         console.error(`[TRADES] HTTP error response:`, {status:res.status, statusText:res.statusText, body:errText});
          throw new Error(`player_trades ${res.status}: ${errText}`);
        }
        currentTrades=await res.json();
-       console.group(`[TRADES] Loaded for league ${_leagueCode}`);
-       console.log(`  Total: ${currentTrades.length} trades for this league (${totalCount} total in DB)`);
-       if(currentTrades.length>0){
-         console.table(currentTrades.slice(0,3).map(t=>({
-           league:t.league_code,
-           team_id:t.team_id,
-           team_name:t.team_name,
-           from:t.player_from_slug,
-           to:t.player_to_slug,
-           date:new Date(t.date_traded).toLocaleDateString()
-         })));
-       }else{
-          console.warn(`  ⚠️  NO TRADES FOUND in database! Checking league code...`);
-          console.warn(`  League code detected: "${_leagueCode}"`);
-          console.warn(`  League code type: ${typeof _leagueCode}`);
-          console.warn(`  League code length: ${_leagueCode?.length}`);
-          console.warn(`  Raw URL params: ${window.location.search}`);
-          console.warn(`  Query URL used: ${url}`);
-          if(totalCount>0){
-            console.warn(`  ⚠️  DIAGNOSTIC: ${totalCount} trades exist in database but none match league_code='${_leagueCode}'`);
-            console.warn(`  This suggests: Trade was inserted with WRONG league_code or NULL league_code`);
-            console.warn(`  Next: Check player_trades table for rows with NULL or mismatched league_code`);
-          }
-          console.warn(`  Possible causes:`);
-          console.warn(`    1. League not yet created (no teams saved)`);
-          console.warn(`    2. League code mismatch or NULL in database`);
-          console.warn(`    3. No trades executed yet for this league`);
-          console.warn(`  Check Supabase Trades table directly: WHERE league_code='${_leagueCode}'`);
-        }
-        console.groupEnd();
      }catch(e){currentTrades=[];console.error('[TRADES ERROR]',e);loadWarnings.push('Trade history could not be fully loaded.');}
    }
 
-  async function waitForTradeHistory(team,fromSlug,toSlug,maxAttempts=12){
-    for(let i=0;i<maxAttempts;i++){
-      console.log(`[Wait attempt ${i+1}/${maxAttempts}] Looking for trade: ${fromSlug} → ${toSlug}`);
-      await loadTrades();
-      const found=currentTrades.some(t=>{
-        const matches=teamTradeMatch(t,team)&&t.player_from_slug===fromSlug&&t.player_to_slug===toSlug;
-        if(matches) console.log('✓ Found trade!',t);
-        return matches;
-      });
-      if(found) return true;
-      if(i < maxAttempts - 1) await new Promise(r=>setTimeout(r,500));
-    }
-    console.warn(`✗ Trade not found after ${maxAttempts} attempts. Current trades:`,currentTrades.filter(t=>teamTradeMatch(t,team)));
-    return false;
-  }
+   async function waitForTradeHistory(team,fromSlug,toSlug,maxAttempts=12){
+     for(let i=0;i<maxAttempts;i++){
+       await loadTrades();
+       const found=currentTrades.some(t=>{
+         return teamTradeMatch(t,team)&&t.player_from_slug===fromSlug&&t.player_to_slug===toSlug;
+       });
+       if(found) return true;
+       if(i < maxAttempts - 1) await new Promise(r=>setTimeout(r,500));
+     }
+     return false;
+   }
 
 
   function renderTeamSelector(){
@@ -825,15 +767,6 @@
 
   async function executeTradeRpc(team){
     const now=new Date().toISOString();
-    console.log(`[RPC] Calling execute_pool_trade with:`, {
-      league: _leagueCode,
-      team_id: team.id,
-      team_name: team.name,
-      from: tradeContext.fromSlug,
-      to: tradeContext.toSlug,
-      timestamp: now
-    });
-    console.log(`[RPC] Raw _leagueCode value:`, JSON.stringify({value: _leagueCode, type: typeof _leagueCode, length: _leagueCode?.length}));
     const res=await fetch(`${SUPABASE_URL}/rest/v1/rpc/execute_pool_trade`,{
       method:'POST',
       headers:sbHeaders(),
@@ -846,57 +779,48 @@
         p_date_traded:now
       })
     });
-    if(res.ok){
-      const result=await res.json();
-      console.log(`[RPC] ✓ RPC SUCCESS:`, result);
-      return true;
-    }
+    if(res.ok) return true;
     const text=await res.text();
-    console.warn(`[RPC] ✗ RPC response (${res.status}):`, text);
     const missingRpc=res.status===404||/execute_pool_trade|schema cache|PGRST202|Could not find the function/i.test(text);
-    if(missingRpc){
-      console.log(`[RPC] Function not found or disabled, using legacy path`);
-      return false;
-    }
+    if(missingRpc) return false;
     throw new Error(text||`RPC trade failed (${res.status})`);
   }
 
   async function createTradeRecord(team,dateFromAcquired,fromPlayer,toPlayer,fromSlot,toSlot,now){
-    const primaryPayload={
-      league_code:_leagueCode,
-      team_id:team.id,
-      team_name:team.name,
-      team_name_snapshot:team.name,
-      player_from_slug:tradeContext.fromSlug,
-      player_to_slug:tradeContext.toSlug,
-      player_from_name:formatName(fromPlayer.player_name),
-      player_to_name:formatName(toPlayer.player_name),
-      player_from_position:normalizePos(fromPlayer.position),
-      player_to_position:normalizePos(toPlayer.position),
-      player_from_team:fromPlayer.team||null,
-      player_to_team:toPlayer.team||null,
-      from_slot_group:fromSlot.group,
-      from_slot_index:fromSlot.index,
-      to_slot_group:'B',
-      to_slot_index:toSlot.index,
-      date_from_acquired:dateFromAcquired,
-      date_traded:now,
-      points_accumulated_at_trade:0
-    };
-    const fallbackPayload={
-      league_code:_leagueCode,
-      team_id:team.id,
-      team_name:team.name,
-      team_name_snapshot:team.name,
-      player_from_slug:tradeContext.fromSlug,
-      player_to_slug:tradeContext.toSlug,
-      date_from_acquired:dateFromAcquired,
-      date_traded:now,
-      points_accumulated_at_trade:0
-    };
-    console.log(`[TRADE RECORD] Creating with payloads:`, {primary:primaryPayload, fallback:fallbackPayload});
-    const rows=await postWithFallback(`${SUPABASE_URL}/rest/v1/player_trades`,[primaryPayload, fallbackPayload]);
-    console.log(`[TRADE RECORD] Insert result:`, rows);
+    const rows=await postWithFallback(`${SUPABASE_URL}/rest/v1/player_trades`,[
+      {
+        league_code:_leagueCode,
+        team_id:team.id,
+        team_name:team.name,
+        team_name_snapshot:team.name,
+        player_from_slug:tradeContext.fromSlug,
+        player_to_slug:tradeContext.toSlug,
+        player_from_name:formatName(fromPlayer.player_name),
+        player_to_name:formatName(toPlayer.player_name),
+        player_from_position:normalizePos(fromPlayer.position),
+        player_to_position:normalizePos(toPlayer.position),
+        player_from_team:fromPlayer.team||null,
+        player_to_team:toPlayer.team||null,
+        from_slot_group:fromSlot.group,
+        from_slot_index:fromSlot.index,
+        to_slot_group:'B',
+        to_slot_index:toSlot.index,
+        date_from_acquired:dateFromAcquired,
+        date_traded:now,
+        points_accumulated_at_trade:0
+      },
+      {
+        league_code:_leagueCode,
+        team_id:team.id,
+        team_name:team.name,
+        team_name_snapshot:team.name,
+        player_from_slug:tradeContext.fromSlug,
+        player_to_slug:tradeContext.toSlug,
+        date_from_acquired:dateFromAcquired,
+        date_traded:now,
+        points_accumulated_at_trade:0
+      }
+    ]);
     return Array.isArray(rows)?rows[0]:rows;
   }
 
@@ -949,21 +873,18 @@
        confirmBtn.textContent='Executing...';
      }
 
-      try{
-        console.log(`[Trade] Starting: ${fromSlug} ↔ ${toSlug} for team ${team.id}/${team.name}`);
-        const usedRpc=await executeTradeRpc(team);
-        console.log(`[Trade] RPC executed. Used RPC: ${usedRpc}. Now waiting for history...`);
-        if(!usedRpc) await executeTradeLegacy(team);
+       try{
+         const usedRpc=await executeTradeRpc(team);
+         if(!usedRpc) await executeTradeLegacy(team);
 
-        // Wait aggressively for the trade to appear
-        const tradeLogged=await waitForTradeHistory(team,fromSlug,toSlug,12);
-        console.log(`[Trade] Trade history ${tradeLogged?'found':'NOT found'} after execution`);
-        if(!tradeLogged){
-          console.warn('Trade executed but not yet visible in history. Will refresh anyway.');
-        }
+         // Wait aggressively for the trade to appear
+         const tradeLogged=await waitForTradeHistory(team,fromSlug,toSlug,12);
+         if(!tradeLogged){
+           console.warn('Trade executed but not yet visible in history. Will refresh anyway.');
+         }
 
-        closeModal();
-        await load(activeTeamId);
+         closeModal();
+         await load(activeTeamId);
       }catch(e){
         const msg=e?.message||'';
         const staleOutgoing=/Outgoing player is not on the active roster/i.test(msg);
