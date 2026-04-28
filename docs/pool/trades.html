@@ -530,13 +530,9 @@
      return `<div class="warning-box"><div class="warning-box-title">Heads up</div><ul class="warning-list">${unique.map(msg=>`<li>${escapeHtml(msg)}</li>`).join('')}</ul></div>`;
    }
 
-  function buildSummary(team,activeCount,benchCount,tradeCount){
+  function buildSummary(team,activeCount,tradeCount){
     const capUsed=teamMainCap(team);
     const capRemaining=CAP_MAX-capUsed;
-    const activeWithTenure=[...(team.roster.F||[]),...(team.roster.D||[]),...(team.roster.G||[])]
-      .filter(Boolean)
-      .filter(slug=>!!getAcquiredDateForActivePlayer(team,slug))
-      .length;
     return `
       <div class="summary-grid">
         <div class="summary-card ${capRemaining<0?'warn':'good'}">
@@ -551,13 +547,9 @@
           <div class="summary-label">Active slots</div>
           <div class="summary-value">${activeCount}</div>
         </div>
-        <div class="summary-card ${activeWithTenure<activeCount?'warn':''}">
-          <div class="summary-label">Tenure logged</div>
-          <div class="summary-value">${activeWithTenure}/${activeCount}</div>
-        </div>
         <div class="summary-card">
-          <div class="summary-label">Bench / trades</div>
-          <div class="summary-value">${benchCount} / ${tradeCount}</div>
+          <div class="summary-label">Trades</div>
+          <div class="summary-value">${tradeCount}</div>
         </div>
       </div>
     `;
@@ -622,7 +614,7 @@
       const activeCount=[...(team.roster.F||[]),...(team.roster.D||[]),...(team.roster.G||[])].filter(Boolean).length;
       const benchCount=(team.roster.B||[]).filter(Boolean).length;
 
-     let html=`${buildWarningBox()}${buildSummary(team,activeCount,benchCount,teamTrades.length)}
+     let html=`${buildWarningBox()}${buildSummary(team,activeCount,teamTrades.length)}
        <div class="section-title">Active <span>Roster</span></div>
        <div class="current-holds">
      `;
