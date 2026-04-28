@@ -440,8 +440,7 @@
 
   async function loadTrades(){
     try{
-      const ts=Date.now();
-      const res=await fetch(`${SUPABASE_URL}/rest/v1/player_trades?league_code=eq.${_leagueCode}&order=date_traded.desc&_=${ts}`,{headers:sbHeaders({'Cache-Control':'no-cache'})});
+      const res=await fetch(`${SUPABASE_URL}/rest/v1/player_trades?league_code=eq.${_leagueCode}&select=*&order=date_traded.desc`,{headers:sbHeaders({'Cache-Control':'no-cache'})});
       if(!res.ok) throw new Error(`player_trades ${res.status}`);
       currentTrades=await res.json();
     }catch(e){currentTrades=[];console.warn('Unable to load trades',e);loadWarnings.push('Trade history could not be fully loaded.');}
