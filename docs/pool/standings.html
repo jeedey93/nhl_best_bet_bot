@@ -437,6 +437,26 @@
     if(pos==='D'){const g=Math.max(0,(p.goals??0)-(snapData.goals??0));const a=Math.max(0,(p.assists??0)-(snapData.assists??0));return g*_scoring.d_goals+a*_scoring.d_assists;}
     return Math.max(0,((p.points??0)-(snapData.points??0)))*_scoring.f_points;
   }
+  function ownedStatsDelta(p,team,slug){
+    const snap=team?.acquisitions?.[slug];
+    const snapData=typeof snap==='object'&&snap!==null?snap.stats_snapshot:null;
+    if(!snapData) return null;
+    return {
+      pos:normalizePos(p.position),
+      goals:Math.max(0,(p.goals??0)-(snapData.goals??0)),
+      assists:Math.max(0,(p.assists??0)-(snapData.assists??0)),
+      points:Math.max(0,(p.points??0)-(snapData.points??0)),
+      wins:Math.max(0,(p.wins??0)-(snapData.wins??0)),
+      shutouts:Math.max(0,(p.shutouts??0)-(snapData.shutouts??0)),
+      gamesPlayed:Math.max(0,(p.games_played??0)-(snapData.games_played??0))
+    };
+  }
+  function ownedStatsLabel(p,team,slug){
+    const d=ownedStatsDelta(p,team,slug);
+    if(!d) return '';
+    if(d.pos==='G') return `${d.wins}W · ${d.shutouts}SO · ${d.gamesPlayed}GP`;
+    return `${d.goals}G · ${d.assists}A · ${d.points}PTS · ${d.gamesPlayed}GP`;
+  }
   function formatName(n){if(!n)return'';if(n.includes(',')){const[l,f]=n.split(',').map(s=>s.trim());return`${f} ${l}`;}return n;}
   function slugMap(){if(!slugMap._c)slugMap._c=Object.fromEntries(allPlayers.map(p=>[p.puckpedia_slug,p]));return slugMap._c;}
   function rosterPlayers(rs){const m=slugMap();return{F:rs.F.map(s=>(s&&m[s])?{...m[s],_slug:s}:null),D:rs.D.map(s=>(s&&m[s])?{...m[s],_slug:s}:null),G:rs.G.map(s=>(s&&m[s])?{...m[s],_slug:s}:null),B:(rs.B||[]).map(s=>(s&&m[s])?{...m[s],_slug:s}:null)};}
@@ -678,11 +698,11 @@
     const pts=poolScoreOwned(p,team,p._slug),pos=normalizePos(p.position),displayPos=group==='B'?pos:group,avg=avgs[group]??0;
     const perf=pts>avg*1.15?'above':pts<avg*0.7?'below':'avg';
     const capM=(p.cap_hit||0)/1e6,eff=capM>0?`${(pts/capM).toFixed(1)} pt/$M`:'';
-    const gp=p.games_played,pace=(gp>0&&pts>0)?`<span class="player-row-pace">~${Math.round((pts/gp)*(82-gp))} proj</span>`:'';
+    const ownedDelta=ownedStatsDelta(p,team,p._slug);
+    const gp=ownedDelta?.gamesPlayed??0;
+    const pace=(gp>0&&pts>0)?`<span class="player-row-pace">~${Math.round((pts/gp)*(82-gp))} proj</span>`:'';
     const isStar=topScorerPlayer&&p.puckpedia_slug===topScorerPlayer.puckpedia_slug;
-    let stat='';
-    if(pos==='G'){const a=[];if(p.wins!=null)a.push(`${p.wins}W`);if(p.shutouts)a.push(`${p.shutouts}SO`);if(p.games_played!=null)a.push(`${p.games_played}GP`);stat=a.join(' · ');}
-    else{const a=[];if(p.goals!=null)a.push(`${p.goals}G`);if(p.assists!=null)a.push(`${p.assists}A`);if(p.points!=null)a.push(`${p.points}PTS`);if(p.games_played!=null)a.push(`${p.games_played}GP`);stat=a.join(' · ');}
+    const stat=ownedStatsLabel(p,team,p._slug);
     return`<div class="player-row"><div class="player-row-perf-bar ${perf}"></div><span class="pos-badge ${displayPos}">${displayPos}</span>${logo}<span class="player-row-name">${formatName(p.player_name)}</span>${isStar?'<span class="star-badge">⭐</span>':''}${stat?`<span class="player-row-stat">${stat}</span>`:''}${pace}${eff?`<span class="player-row-eff">${eff}</span>`:''}<span class="player-row-pts">${pts}<span class="player-row-pts-label">PTS</span></span></div>`;}
 
   function buildPoolLeaders(){
@@ -692,7 +712,7 @@
     const pL={F:'Forwards',D:'Defence',G:'Goalies'};
     const grid=`<div class="pool-section-title">Position <span>Leaders</span></div><div class="pos-leaders-grid">${['F','D','G'].map(pos=>`<div class="pos-leader-col"><div class="pos-leader-col-header ${pos}">${pL[pos]} <small>POOL PTS</small></div>${byPos[pos].slice(0,8).map((item,i)=>{const abbr=TEAM_ABBR[item.player.team];return`<div class="pos-leader-row"><div class="pos-leader-rank">${i+1}</div><div class="pos-leader-name">${formatName(item.player.player_name)}</div><div class="pos-leader-team">${abbr||'—'}</div><div class="pos-leader-owner">${item.owner}</div><div class="pos-leader-pts">${item.pts}</div></div>`;}).join('')}</div>`).join('')}</div>`;
     const allS=drafted.map(({player,owner,pos,team})=>({player,owner,pos,team,pts:poolScoreOwned(player,team,player._slug)})).sort((a,b)=>b.pts-a.pts).slice(0,10);
-    const top=`<div class="pool-section-title">Top <span>Pool Players</span></div><div class="top-players-list"><div class="top-player-row header" style="grid-template-columns:30px 1fr 80px 80px 60px"><div></div><div class="lb-col-label left">Player</div><div class="lb-col-label">Owner</div><div class="lb-col-label">Stats</div><div class="lb-col-label">Pts</div></div>${allS.map((item,i)=>{const p=item.player,abbr=TEAM_ABBR[p.team],logo=abbr?`<img class="top-player-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}">`:'' ;const pos=normalizePos(p.position),stat=pos==='G'?`${p.wins??0}W ${p.shutouts??0}SO`:`${p.goals??0}G ${p.assists??0}A`;return`<div class="top-player-row"><div class="top-player-rank">${i+1}</div><div class="top-player-info">${logo}<div><div class="top-player-name">${formatName(p.player_name)}</div></div></div><div class="top-player-owner">${item.owner}</div><div class="top-player-stat">${stat}</div><div class="top-player-pts">${item.pts}</div></div>`;}).join('')}</div>`;
+    const top=`<div class="pool-section-title">Top <span>Pool Players</span></div><div class="top-players-list"><div class="top-player-row header" style="grid-template-columns:30px 1fr 80px 80px 60px"><div></div><div class="lb-col-label left">Player</div><div class="lb-col-label">Owner</div><div class="lb-col-label">Owned Stats</div><div class="lb-col-label">Pts</div></div>${allS.map((item,i)=>{const p=item.player,abbr=TEAM_ABBR[p.team],logo=abbr?`<img class="top-player-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}">`:'' ;const stat=ownedStatsLabel(p,item.team,p._slug).replace(/ · /g,' ');return`<div class="top-player-row"><div class="top-player-rank">${i+1}</div><div class="top-player-info">${logo}<div><div class="top-player-name">${formatName(p.player_name)}</div></div></div><div class="top-player-owner">${item.owner}</div><div class="top-player-stat">${stat||'—'}</div><div class="top-player-pts">${item.pts}</div></div>`;}).join('')}</div>`;
     return grid+top;
   }
 

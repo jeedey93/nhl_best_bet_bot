@@ -178,26 +178,24 @@
     .btn-start-season { font-family: 'Bebas Neue', cursive; font-size: 0.8rem; letter-spacing: 1.5px; background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.3); color: var(--green); border-radius: 5px; padding: 3px 10px; cursor: pointer; transition: background 0.15s, color 0.15s, border-color 0.15s; }
     .btn-start-season:hover { background: rgba(34,197,94,0.16); border-color: rgba(34,197,94,0.55); }
 
-    /* ── Pool layout ── */
-    .pool-layout { display: grid; grid-template-columns: 320px 1fr; gap: 1rem; max-width: 1100px; width: 100%; margin: 0 auto; padding: 0.75rem 1.25rem 0; flex: 1; min-height: 0; align-items: stretch; }
-    .section-label { font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 3px; color: var(--silver); margin-bottom: 4px; display: flex; align-items: center; justify-content: space-between; }
-    .section-label .count { font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem; font-weight: 700; background: rgba(255,255,255,0.07); border-radius: 20px; padding: 1px 8px; color: var(--silver); letter-spacing: 1px; }
-    .section-label .count.full { background: rgba(34,197,94,0.2); color: var(--green); }
-
-    /* ── Left panel ── */
-    .your-team-panel { display: flex; flex-direction: column; min-height: 0; overflow-y: auto; padding-right: 4px; padding-bottom: 1rem; }
-    .your-team-panel::-webkit-scrollbar { width: 3px; }
-    .your-team-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
-    .your-team-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.6rem; flex-shrink: 0; }
-    .your-team-header h2 { font-family: 'Bebas Neue', cursive; font-size: 1.1rem; letter-spacing: 4px; color: white; }
-    .your-team-header h2 span { color: var(--gold); }
-    .btn-generate-team { font-family: 'Bebas Neue', cursive; font-size: 0.8rem; letter-spacing: 1.5px; background: rgba(255,184,28,0.08); border: 1px solid rgba(255,184,28,0.3); color: var(--gold); border-radius: 5px; padding: 3px 10px; cursor: pointer; transition: background 0.15s, color 0.15s, border-color 0.15s; }
-    .btn-generate-team:hover { background: rgba(255,184,28,0.2); border-color: rgba(255,184,28,0.6); }
-    .btn-generate-team:disabled { opacity: 0.4; cursor: default; }
-    .btn-clear-team { font-family: 'Bebas Neue', cursive; font-size: 0.8rem; letter-spacing: 1.5px; background: none; border: 1px solid rgba(200,16,46,0.25); color: rgba(200,16,46,0.6); border-radius: 5px; padding: 3px 10px; cursor: pointer; transition: background 0.15s, color 0.15s, border-color 0.15s; }
-    .btn-clear-team:hover { background: rgba(200,16,46,0.12); color: var(--red); border-color: rgba(200,16,46,0.5); }
-    .btn-start-season { font-family: 'Bebas Neue', cursive; font-size: 0.8rem; letter-spacing: 1.5px; background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.3); color: var(--green); border-radius: 5px; padding: 3px 10px; cursor: pointer; transition: background 0.15s, color 0.15s, border-color 0.15s; }
-    .btn-start-season:hover { background: rgba(34,197,94,0.16); border-color: rgba(34,197,94,0.55); }
+    /* ── Team switcher ── */
+    .team-switcher-wrap { max-width: 1100px; width: 100%; margin: 0 auto; padding: 0.5rem 1.25rem 0; flex-shrink: 0; }
+    .team-switcher { display: flex; align-items: center; gap: 5px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+    .team-switcher::-webkit-scrollbar { display: none; }
+    .team-pill-switcher { display: flex; flex-direction: column; align-items: center; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 7px; padding: 5px 10px 4px; cursor: pointer; flex-shrink: 0; transition: background 0.15s, border-color 0.15s; position: relative; min-width: 80px; }
+    .team-pill-switcher:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.18); }
+    .team-pill-switcher.active { background: rgba(255,184,28,0.1); border-color: rgba(255,184,28,0.4); }
+    .team-pill-name { font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 2px; color: var(--silver); white-space: nowrap; max-width: 120px; overflow: hidden; text-overflow: ellipsis; }
+    .team-pill-switcher.active .team-pill-name { color: var(--gold); }
+    .team-pill-progress { font-family: 'Barlow Condensed', sans-serif; font-size: 0.65rem; font-weight: 700; color: rgba(255,255,255,0.3); letter-spacing: 0.5px; margin-top: 1px; }
+    .team-pill-switcher.active .team-pill-progress { color: rgba(255,184,28,0.6); }
+    .team-pill-progress.full { color: var(--green) !important; }
+    .team-pill-actions { display: flex; gap: 3px; margin-top: 4px; }
+    .team-pill-btn { font-family: 'Bebas Neue', cursive; font-size: 0.65rem; letter-spacing: 1px; background: none; border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.35); border-radius: 3px; padding: 1px 5px; cursor: pointer; transition: color 0.15s, border-color 0.15s, background 0.15s; }
+    .team-pill-btn:hover { color: white; border-color: rgba(255,255,255,0.35); background: rgba(255,255,255,0.07); }
+    .team-pill-btn.delete:hover { color: var(--red); border-color: rgba(200,16,46,0.4); background: rgba(200,16,46,0.08); }
+    .btn-add-team { display: flex; align-items: center; justify-content: center; gap: 5px; font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 2px; background: rgba(255,184,28,0.06); border: 1px dashed rgba(255,184,28,0.25); color: rgba(255,184,28,0.6); border-radius: 7px; padding: 5px 14px; cursor: pointer; flex-shrink: 0; transition: background 0.15s, color 0.15s, border-color 0.15s; min-width: 100px; height: 100%; }
+    .btn-add-team:hover { background: rgba(255,184,28,0.12); color: var(--gold); border-color: rgba(255,184,28,0.5); }
 
     /* ── Pool layout ── */
     .pool-layout { display: grid; grid-template-columns: 320px 1fr; gap: 1rem; max-width: 1100px; width: 100%; margin: 0 auto; padding: 0.75rem 1.25rem 0; flex: 1; min-height: 0; align-items: stretch; }
@@ -220,6 +218,25 @@
     .btn-start-season { font-family: 'Bebas Neue', cursive; font-size: 0.8rem; letter-spacing: 1.5px; background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.3); color: var(--green); border-radius: 5px; padding: 3px 10px; cursor: pointer; transition: background 0.15s, color 0.15s, border-color 0.15s; }
     .btn-start-season:hover { background: rgba(34,197,94,0.16); border-color: rgba(34,197,94,0.55); }
 
+    /* ── Team switcher ── */
+    .team-switcher-wrap { max-width: 1100px; width: 100%; margin: 0 auto; padding: 0.5rem 1.25rem 0; flex-shrink: 0; }
+    .team-switcher { display: flex; align-items: center; gap: 5px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+    .team-switcher::-webkit-scrollbar { display: none; }
+    .team-pill-switcher { display: flex; flex-direction: column; align-items: center; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 7px; padding: 5px 10px 4px; cursor: pointer; flex-shrink: 0; transition: background 0.15s, border-color 0.15s; position: relative; min-width: 80px; }
+    .team-pill-switcher:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.18); }
+    .team-pill-switcher.active { background: rgba(255,184,28,0.1); border-color: rgba(255,184,28,0.4); }
+    .team-pill-name { font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 2px; color: var(--silver); white-space: nowrap; max-width: 120px; overflow: hidden; text-overflow: ellipsis; }
+    .team-pill-switcher.active .team-pill-name { color: var(--gold); }
+    .team-pill-progress { font-family: 'Barlow Condensed', sans-serif; font-size: 0.65rem; font-weight: 700; color: rgba(255,255,255,0.3); letter-spacing: 0.5px; margin-top: 1px; }
+    .team-pill-switcher.active .team-pill-progress { color: rgba(255,184,28,0.6); }
+    .team-pill-progress.full { color: var(--green) !important; }
+    .team-pill-actions { display: flex; gap: 3px; margin-top: 4px; }
+    .team-pill-btn { font-family: 'Bebas Neue', cursive; font-size: 0.65rem; letter-spacing: 1px; background: none; border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.35); border-radius: 3px; padding: 1px 5px; cursor: pointer; transition: color 0.15s, border-color 0.15s, background 0.15s; }
+    .team-pill-btn:hover { color: white; border-color: rgba(255,255,255,0.35); background: rgba(255,255,255,0.07); }
+    .team-pill-btn.delete:hover { color: var(--red); border-color: rgba(200,16,46,0.4); background: rgba(200,16,46,0.08); }
+    .btn-add-team { display: flex; align-items: center; justify-content: center; gap: 5px; font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 2px; background: rgba(255,184,28,0.06); border: 1px dashed rgba(255,184,28,0.25); color: rgba(255,184,28,0.6); border-radius: 7px; padding: 5px 14px; cursor: pointer; flex-shrink: 0; transition: background 0.15s, color 0.15s, border-color 0.15s; min-width: 100px; height: 100%; }
+    .btn-add-team:hover { background: rgba(255,184,28,0.12); color: var(--gold); border-color: rgba(255,184,28,0.5); }
+
     /* ── Pool layout ── */
     .pool-layout { display: grid; grid-template-columns: 320px 1fr; gap: 1rem; max-width: 1100px; width: 100%; margin: 0 auto; padding: 0.75rem 1.25rem 0; flex: 1; min-height: 0; align-items: stretch; }
     .section-label { font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 3px; color: var(--silver); margin-bottom: 4px; display: flex; align-items: center; justify-content: space-between; }
@@ -240,6 +257,145 @@
     .btn-clear-team:hover { background: rgba(200,16,46,0.12); color: var(--red); border-color: rgba(200,16,46,0.5); }
     .btn-start-season { font-family: 'Bebas Neue', cursive; font-size: 0.8rem; letter-spacing: 1.5px; background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.3); color: var(--green); border-radius: 5px; padding: 3px 10px; cursor: pointer; transition: background 0.15s, color 0.15s, border-color 0.15s; }
     .btn-start-season:hover { background: rgba(34,197,94,0.16); border-color: rgba(34,197,94,0.55); }
+
+    /* ── Team switcher ── */
+    .team-switcher-wrap { max-width: 1100px; width: 100%; margin: 0 auto; padding: 0.5rem 1.25rem 0; flex-shrink: 0; }
+    .team-switcher { display: flex; align-items: center; gap: 5px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+    .team-switcher::-webkit-scrollbar { display: none; }
+    .team-pill-switcher { display: flex; flex-direction: column; align-items: center; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 7px; padding: 5px 10px 4px; cursor: pointer; flex-shrink: 0; transition: background 0.15s, border-color 0.15s; position: relative; min-width: 80px; }
+    .team-pill-switcher:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.18); }
+    .team-pill-switcher.active { background: rgba(255,184,28,0.1); border-color: rgba(255,184,28,0.4); }
+    .team-pill-name { font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 2px; color: var(--silver); white-space: nowrap; max-width: 120px; overflow: hidden; text-overflow: ellipsis; }
+    .team-pill-switcher.active .team-pill-name { color: var(--gold); }
+    .team-pill-progress { font-family: 'Barlow Condensed', sans-serif; font-size: 0.65rem; font-weight: 700; color: rgba(255,255,255,0.3); letter-spacing: 0.5px; margin-top: 1px; }
+    .team-pill-switcher.active .team-pill-progress { color: rgba(255,184,28,0.6); }
+    .team-pill-progress.full { color: var(--green) !important; }
+    .team-pill-actions { display: flex; gap: 3px; margin-top: 4px; }
+    .team-pill-btn { font-family: 'Bebas Neue', cursive; font-size: 0.65rem; letter-spacing: 1px; background: none; border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.35); border-radius: 3px; padding: 1px 5px; cursor: pointer; transition: color 0.15s, border-color 0.15s, background 0.15s; }
+    .team-pill-btn:hover { color: white; border-color: rgba(255,255,255,0.35); background: rgba(255,255,255,0.07); }
+    .team-pill-btn.delete:hover { color: var(--red); border-color: rgba(200,16,46,0.4); background: rgba(200,16,46,0.08); }
+    .btn-add-team { display: flex; align-items: center; justify-content: center; gap: 5px; font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 2px; background: rgba(255,184,28,0.06); border: 1px dashed rgba(255,184,28,0.25); color: rgba(255,184,28,0.6); border-radius: 7px; padding: 5px 14px; cursor: pointer; flex-shrink: 0; transition: background 0.15s, color 0.15s, border-color 0.15s; min-width: 100px; height: 100%; }
+    .btn-add-team:hover { background: rgba(255,184,28,0.12); color: var(--gold); border-color: rgba(255,184,28,0.5); }
+
+    /* ── Pool layout ── */
+    .pool-layout { display: grid; grid-template-columns: 320px 1fr; gap: 1rem; max-width: 1100px; width: 100%; margin: 0 auto; padding: 0.75rem 1.25rem 0; flex: 1; min-height: 0; align-items: stretch; }
+    .section-label { font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 3px; color: var(--silver); margin-bottom: 4px; display: flex; align-items: center; justify-content: space-between; }
+    .section-label .count { font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem; font-weight: 700; background: rgba(255,255,255,0.07); border-radius: 20px; padding: 1px 8px; color: var(--silver); letter-spacing: 1px; }
+    .section-label .count.full { background: rgba(34,197,94,0.2); color: var(--green); }
+
+    /* ── Left panel ── */
+    .your-team-panel { display: flex; flex-direction: column; min-height: 0; overflow-y: auto; padding-right: 4px; padding-bottom: 1rem; }
+    .your-team-panel::-webkit-scrollbar { width: 3px; }
+    .your-team-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
+    .your-team-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.6rem; flex-shrink: 0; }
+    .your-team-header h2 { font-family: 'Bebas Neue', cursive; font-size: 1.1rem; letter-spacing: 4px; color: white; }
+    .your-team-header h2 span { color: var(--gold); }
+    .btn-generate-team { font-family: 'Bebas Neue', cursive; font-size: 0.8rem; letter-spacing: 1.5px; background: rgba(255,184,28,0.08); border: 1px solid rgba(255,184,28,0.3); color: var(--gold); border-radius: 5px; padding: 3px 10px; cursor: pointer; transition: background 0.15s, color 0.15s, border-color 0.15s; }
+    .btn-generate-team:hover { background: rgba(255,184,28,0.2); border-color: rgba(255,184,28,0.6); }
+    .btn-generate-team:disabled { opacity: 0.4; cursor: default; }
+    .btn-clear-team { font-family: 'Bebas Neue', cursive; font-size: 0.8rem; letter-spacing: 1.5px; background: none; border: 1px solid rgba(200,16,46,0.25); color: rgba(200,16,46,0.6); border-radius: 5px; padding: 3px 10px; cursor: pointer; transition: background 0.15s, color 0.15s, border-color 0.15s; }
+    .btn-clear-team:hover { background: rgba(200,16,46,0.12); color: var(--red); border-color: rgba(200,16,46,0.5); }
+    .btn-start-season { font-family: 'Bebas Neue', cursive; font-size: 0.8rem; letter-spacing: 1.5px; background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.3); color: var(--green); border-radius: 5px; padding: 3px 10px; cursor: pointer; transition: background 0.15s, color 0.15s, border-color 0.15s; }
+    .btn-start-season:hover { background: rgba(34,197,94,0.16); border-color: rgba(34,197,94,0.55); }
+
+    /* ── Team switcher ── */
+    .team-switcher-wrap { max-width: 1100px; width: 100%; margin: 0 auto; padding: 0.5rem 1.25rem 0; flex-shrink: 0; }
+    .team-switcher { display: flex; align-items: center; gap: 5px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+    .team-switcher::-webkit-scrollbar { display: none; }
+    .team-pill-switcher { display: flex; flex-direction: column; align-items: center; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 7px; padding: 5px 10px 4px; cursor: pointer; flex-shrink: 0; transition: background 0.15s, border-color 0.15s; position: relative; min-width: 80px; }
+    .team-pill-switcher:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.18); }
+    .team-pill-switcher.active { background: rgba(255,184,28,0.1); border-color: rgba(255,184,28,0.4); }
+    .team-pill-name { font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 2px; color: var(--silver); white-space: nowrap; max-width: 120px; overflow: hidden; text-overflow: ellipsis; }
+    .team-pill-switcher.active .team-pill-name { color: var(--gold); }
+    .team-pill-progress { font-family: 'Barlow Condensed', sans-serif; font-size: 0.65rem; font-weight: 700; color: rgba(255,255,255,0.3); letter-spacing: 0.5px; margin-top: 1px; }
+    .team-pill-switcher.active .team-pill-progress { color: rgba(255,184,28,0.6); }
+    .team-pill-progress.full { color: var(--green) !important; }
+    .team-pill-actions { display: flex; gap: 3px; margin-top: 4px; }
+    .team-pill-btn { font-family: 'Bebas Neue', cursive; font-size: 0.65rem; letter-spacing: 1px; background: none; border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.35); border-radius: 3px; padding: 1px 5px; cursor: pointer; transition: color 0.15s, border-color 0.15s, background 0.15s; }
+    .team-pill-btn:hover { color: white; border-color: rgba(255,255,255,0.35); background: rgba(255,255,255,0.07); }
+    .team-pill-btn.delete:hover { color: var(--red); border-color: rgba(200,16,46,0.4); background: rgba(200,16,46,0.08); }
+    .btn-add-team { display: flex; align-items: center; justify-content: center; gap: 5px; font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 2px; background: rgba(255,184,28,0.06); border: 1px dashed rgba(255,184,28,0.25); color: rgba(255,184,28,0.6); border-radius: 7px; padding: 5px 14px; cursor: pointer; flex-shrink: 0; transition: background 0.15s, color 0.15s, border-color 0.15s; min-width: 100px; height: 100%; }
+    .btn-add-team:hover { background: rgba(255,184,28,0.12); color: var(--gold); border-color: rgba(255,184,28,0.5); }
+
+    /* ── Pool layout ── */
+    .pool-layout { display: grid; grid-template-columns: 320px 1fr; gap: 1rem; max-width: 1100px; width: 100%; margin: 0 auto; padding: 0.75rem 1.25rem 0; flex: 1; min-height: 0; align-items: stretch; }
+    .section-label { font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 3px; color: var(--silver); margin-bottom: 4px; display: flex; align-items: center; justify-content: space-between; }
+    .section-label .count { font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem; font-weight: 700; background: rgba(255,255,255,0.07); border-radius: 20px; padding: 1px 8px; color: var(--silver); letter-spacing: 1px; }
+    .section-label .count.full { background: rgba(34,197,94,0.2); color: var(--green); }
+
+    /* ── Left panel ── */
+    .your-team-panel { display: flex; flex-direction: column; min-height: 0; overflow-y: auto; padding-right: 4px; padding-bottom: 1rem; }
+    .your-team-panel::-webkit-scrollbar { width: 3px; }
+    .your-team-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
+    .your-team-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.6rem; flex-shrink: 0; }
+    .your-team-header h2 { font-family: 'Bebas Neue', cursive; font-size: 1.1rem; letter-spacing: 4px; color: white; }
+    .your-team-header h2 span { color: var(--gold); }
+    .btn-generate-team { font-family: 'Bebas Neue', cursive; font-size: 0.8rem; letter-spacing: 1.5px; background: rgba(255,184,28,0.08); border: 1px solid rgba(255,184,28,0.3); color: var(--gold); border-radius: 5px; padding: 3px 10px; cursor: pointer; transition: background 0.15s, color 0.15s, border-color 0.15s; }
+    .btn-generate-team:hover { background: rgba(255,184,28,0.2); border-color: rgba(255,184,28,0.6); }
+    .btn-generate-team:disabled { opacity: 0.4; cursor: default; }
+    .btn-clear-team { font-family: 'Bebas Neue', cursive; font-size: 0.8rem; letter-spacing: 1.5px; background: none; border: 1px solid rgba(200,16,46,0.25); color: rgba(200,16,46,0.6); border-radius: 5px; padding: 3px 10px; cursor: pointer; transition: background 0.15s, color 0.15s, border-color 0.15s; }
+    .btn-clear-team:hover { background: rgba(200,16,46,0.12); color: var(--red); border-color: rgba(200,16,46,0.5); }
+    .btn-start-season { font-family: 'Bebas Neue', cursive; font-size: 0.8rem; letter-spacing: 1.5px; background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.3); color: var(--green); border-radius: 5px; padding: 3px 10px; cursor: pointer; transition: background 0.15s, color 0.15s, border-color 0.15s; }
+    .btn-start-season:hover { background: rgba(34,197,94,0.16); border-color: rgba(34,197,94,0.55); }
+
+    /* ── Team switcher ── */
+    .team-switcher-wrap { max-width: 1100px; width: 100%; margin: 0 auto; padding: 0.5rem 1.25rem 0; flex-shrink: 0; }
+    .team-switcher { display: flex; align-items: center; gap: 5px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+    .team-switcher::-webkit-scrollbar { display: none; }
+    .team-pill-switcher { display: flex; flex-direction: column; align-items: center; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 7px; padding: 5px 10px 4px; cursor: pointer; flex-shrink: 0; transition: background 0.15s, border-color 0.15s; position: relative; min-width: 80px; }
+    .team-pill-switcher:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.18); }
+    .team-pill-switcher.active { background: rgba(255,184,28,0.1); border-color: rgba(255,184,28,0.4); }
+    .team-pill-name { font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 2px; color: var(--silver); white-space: nowrap; max-width: 120px; overflow: hidden; text-overflow: ellipsis; }
+    .team-pill-switcher.active .team-pill-name { color: var(--gold); }
+    .team-pill-progress { font-family: 'Barlow Condensed', sans-serif; font-size: 0.65rem; font-weight: 700; color: rgba(255,255,255,0.3); letter-spacing: 0.5px; margin-top: 1px; }
+    .team-pill-switcher.active .team-pill-progress { color: rgba(255,184,28,0.6); }
+    .team-pill-progress.full { color: var(--green) !important; }
+    .team-pill-actions { display: flex; gap: 3px; margin-top: 4px; }
+    .team-pill-btn { font-family: 'Bebas Neue', cursive; font-size: 0.65rem; letter-spacing: 1px; background: none; border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.35); border-radius: 3px; padding: 1px 5px; cursor: pointer; transition: color 0.15s, border-color 0.15s, background 0.15s; }
+    .team-pill-btn:hover { color: white; border-color: rgba(255,255,255,0.35); background: rgba(255,255,255,0.07); }
+    .team-pill-btn.delete:hover { color: var(--red); border-color: rgba(200,16,46,0.4); background: rgba(200,16,46,0.08); }
+    .btn-add-team { display: flex; align-items: center; justify-content: center; gap: 5px; font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 2px; background: rgba(255,184,28,0.06); border: 1px dashed rgba(255,184,28,0.25); color: rgba(255,184,28,0.6); border-radius: 7px; padding: 5px 14px; cursor: pointer; flex-shrink: 0; transition: background 0.15s, color 0.15s, border-color 0.15s; min-width: 100px; height: 100%; }
+    .btn-add-team:hover { background: rgba(255,184,28,0.12); color: var(--gold); border-color: rgba(255,184,28,0.5); }
+
+    /* ── Pool layout ── */
+    .pool-layout { display: grid; grid-template-columns: 320px 1fr; gap: 1rem; max-width: 1100px; width: 100%; margin: 0 auto; padding: 0.75rem 1.25rem 0; flex: 1; min-height: 0; align-items: stretch; }
+    .section-label { font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 3px; color: var(--silver); margin-bottom: 4px; display: flex; align-items: center; justify-content: space-between; }
+    .section-label .count { font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem; font-weight: 700; background: rgba(255,255,255,0.07); border-radius: 20px; padding: 1px 8px; color: var(--silver); letter-spacing: 1px; }
+    .section-label .count.full { background: rgba(34,197,94,0.2); color: var(--green); }
+
+    /* ── Left panel ── */
+    .your-team-panel { display: flex; flex-direction: column; min-height: 0; overflow-y: auto; padding-right: 4px; padding-bottom: 1rem; }
+    .your-team-panel::-webkit-scrollbar { width: 3px; }
+    .your-team-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
+    .your-team-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.6rem; flex-shrink: 0; }
+    .your-team-header h2 { font-family: 'Bebas Neue', cursive; font-size: 1.1rem; letter-spacing: 4px; color: white; }
+    .your-team-header h2 span { color: var(--gold); }
+    .btn-generate-team { font-family: 'Bebas Neue', cursive; font-size: 0.8rem; letter-spacing: 1.5px; background: rgba(255,184,28,0.08); border: 1px solid rgba(255,184,28,0.3); color: var(--gold); border-radius: 5px; padding: 3px 10px; cursor: pointer; transition: background 0.15s, color 0.15s, border-color 0.15s; }
+    .btn-generate-team:hover { background: rgba(255,184,28,0.2); border-color: rgba(255,184,28,0.6); }
+    .btn-generate-team:disabled { opacity: 0.4; cursor: default; }
+    .btn-clear-team { font-family: 'Bebas Neue', cursive; font-size: 0.8rem; letter-spacing: 1.5px; background: none; border: 1px solid rgba(200,16,46,0.25); color: rgba(200,16,46,0.6); border-radius: 5px; padding: 3px 10px; cursor: pointer; transition: background 0.15s, color 0.15s, border-color 0.15s; }
+    .btn-clear-team:hover { background: rgba(200,16,46,0.12); color: var(--red); border-color: rgba(200,16,46,0.5); }
+    .btn-start-season { font-family: 'Bebas Neue', cursive; font-size: 0.8rem; letter-spacing: 1.5px; background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.3); color: var(--green); border-radius: 5px; padding: 3px 10px; cursor: pointer; transition: background 0.15s, color 0.15s, border-color 0.15s; }
+    .btn-start-season:hover { background: rgba(34,197,94,0.16); border-color: rgba(34,197,94,0.55); }
+
+    /* ── Team switcher ── */
+    .team-switcher-wrap { max-width: 1100px; width: 100%; margin: 0 auto; padding: 0.5rem 1.25rem 0; flex-shrink: 0; }
+    .team-switcher { display: flex; align-items: center; gap: 5px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+    .team-switcher::-webkit-scrollbar { display: none; }
+    .team-pill-switcher { display: flex; flex-direction: column; align-items: center; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 7px; padding: 5px 10px 4px; cursor: pointer; flex-shrink: 0; transition: background 0.15s, border-color 0.15s; position: relative; min-width: 80px; }
+    .team-pill-switcher:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.18); }
+    .team-pill-switcher.active { background: rgba(255,184,28,0.1); border-color: rgba(255,184,28,0.4); }
+    .team-pill-name { font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 2px; color: var(--silver); white-space: nowrap; max-width: 120px; overflow: hidden; text-overflow: ellipsis; }
+    .team-pill-switcher.active .team-pill-name { color: var(--gold); }
+    .team-pill-progress { font-family: 'Barlow Condensed', sans-serif; font-size: 0.65rem; font-weight: 700; color: rgba(255,255,255,0.3); letter-spacing: 0.5px; margin-top: 1px; }
+    .team-pill-switcher.active .team-pill-progress { color: rgba(255,184,28,0.6); }
+    .team-pill-progress.full { color: var(--green) !important; }
+    .team-pill-actions { display: flex; gap: 3px; margin-top: 4px; }
+    .team-pill-btn { font-family: 'Bebas Neue', cursive; font-size: 0.65rem; letter-spacing: 1px; background: none; border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.35); border-radius: 3px; padding: 1px 5px; cursor: pointer; transition: color 0.15s, border-color 0.15s, background 0.15s; }
+    .team-pill-btn:hover { color: white; border-color: rgba(255,255,255,0.35); background: rgba(255,255,255,0.07); }
+    .team-pill-btn.delete:hover { color: var(--red); border-color: rgba(200,16,46,0.4); background: rgba(200,16,46,0.08); }
+    .btn-add-team { display: flex; align-items: center; justify-content: center; gap: 5px; font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 2px; background: rgba(255,184,28,0.06); border: 1px dashed rgba(255,184,28,0.25); color: rgba(255,184,28,0.6); border-radius: 7px; padding: 5px 14px; cursor: pointer; flex-shrink: 0; transition: background 0.15s, color 0.15s, border-color 0.15s; min-width: 100px; height: 100%; }
+    .btn-add-team:hover { background: rgba(255,184,28,0.12); color: var(--gold); border-color: rgba(255,184,28,0.5); }
 
     /* ── Pool layout ── */
     .pool-layout { display: grid; grid-template-columns: 320px 1fr; gap: 1rem; max-width: 1100px; width: 100%; margin: 0 auto; padding: 0.75rem 1.25rem 0; flex: 1; min-height: 0; align-items: stretch; }
@@ -497,8 +653,7 @@
     .pw-error { color:rgba(200,16,46,0.8);font-size:0.8rem;margin-top:0.5rem;min-height:1em;letter-spacing:1px; }
 
     body.view-only .btn-generate-team,
-    body.view-only .btn-clear-team,
-    body.view-only .btn-start-season { display: none; }
+    body.view-only .btn-clear-team { display: none; }
 
     /* ── Mobile ── */
     @media (max-width: 860px) {
@@ -648,7 +803,6 @@
       <h2>Your <span>Team</span></h2>
       <div style="display:flex;gap:6px;align-items:center;">
         <button class="btn-generate-team" id="btn-generate-team" onclick="generateUltimateTeam()"><span id="btn-generate-team-label">⚡ Ultimate Team</span></button>
-        <button class="btn-start-season" id="btn-start-season" onclick="startSeasonSnapshots()">🚀 Start Season</button>
         <button class="btn-clear-team" onclick="clearTeam()">✕ Clear</button>
       </div>
     </div>
@@ -784,7 +938,6 @@
   let _poolPage = 0;
   const PAGE_SIZE = 50;
   let _clearPending = false, _clearTimer = null, _undoSnapshot = null;
-  let _startSeasonPending = false, _startSeasonTimer = null;
   let _modalMode = null, _modalTargetId = null;
 
   // ── IMPROVED: Scoring — loaded from Supabase, then legend updated ──────────
@@ -1256,65 +1409,6 @@
     if (el) el.textContent=t?t.name:'—';
   }
 
-  async function startSeasonSnapshots() {
-    if (document.body.classList.contains('view-only') || !_isEditing) {
-      toast('Click Edit first');
-      return;
-    }
-
-    const btn = document.getElementById('btn-start-season');
-    if (!_startSeasonPending) {
-      _startSeasonPending = true;
-      if (btn) btn.textContent = 'Confirm Start?';
-      toast('This will reset all teams to 0 owned points baseline. Click again to confirm.');
-      clearTimeout(_startSeasonTimer);
-      _startSeasonTimer = setTimeout(() => {
-        _startSeasonPending = false;
-        if (btn) btn.textContent = '🚀 Start Season';
-      }, 5000);
-      return;
-    }
-
-    _startSeasonPending = false;
-    clearTimeout(_startSeasonTimer);
-    if (btn) {
-      btn.textContent = 'Starting...';
-      btn.disabled = true;
-    }
-
-    try {
-      const now = new Date().toISOString();
-      let snapCount = 0;
-      let teamCount = 0;
-
-      for (const team of teams) {
-        const acquisitions = ensureAcquisitions(team);
-        let changed = false;
-        for (const group of ['F', 'D', 'G', 'B']) {
-          for (const slug of (team.roster[group] || []).filter(Boolean)) {
-            const p = slugMap()[slug];
-            if (!p) continue;
-            acquisitions[slug] = { date: now, stats_snapshot: captureStatsSnapshot(p) };
-            snapCount += 1;
-            changed = true;
-          }
-        }
-        if (changed) teamCount += 1;
-      }
-
-      savePool();
-      await saveToSupabase();
-      renderAll();
-      toast(`✓ Season started: ${snapCount} snapshots across ${teamCount} teams`);
-    } catch (e) {
-      toast(`Start season failed: ${e.message || 'unknown error'}`);
-    } finally {
-      if (btn) {
-        btn.disabled = false;
-        btn.textContent = '🚀 Start Season';
-      }
-    }
-  }
   function confirmDeleteTeam(id) {
     if (_deleteTarget===id) { clearTimeout(_deleteTimer); _deleteTarget=null; deleteTeam(id); return; }
     _deleteTarget=id; toast('Click ✕ again to delete team');
