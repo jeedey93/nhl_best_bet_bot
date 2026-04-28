@@ -446,35 +446,45 @@
     }catch(e){console.error(e);document.getElementById('content').innerHTML=`<div class="msg">Failed to load. <button class="btn-refresh" onclick="location.reload()">Retry</button></div>`;}
   }
 
-  async function loadTrades(){
-    try{
-      const cols='id,created_at,league_code,team_name,team_id,team_name_snapshot,player_from_slug,player_to_slug,player_from_name,player_to_name,player_from_position,player_to_position,player_from_team,player_to_team,from_slot_group,from_slot_index,to_slot_group,to_slot_index,date_from_acquired,date_traded,points_accumulated_at_trade';
-      const url=`${SUPABASE_URL}/rest/v1/player_trades?league_code=eq.${_leagueCode}&select=${cols}&order=date_traded.desc`;
-      const res=await fetch(url,{headers:sbHeaders({'Cache-Control':'no-cache'})});
-      if(!res.ok){
-        const errText=await res.text();
-        throw new Error(`player_trades ${res.status}: ${errText}`);
-      }
-      currentTrades=await res.json();
-      console.group(`[TRADES] Loaded for league ${_leagueCode}`);
-      console.log(`  Total: ${currentTrades.length} trades`);
-      if(currentTrades.length>0){
-        console.table(currentTrades.slice(0,3).map(t=>({
-          league:t.league_code,
-          team_id:t.team_id,
-          team_name:t.team_name,
-          from:t.player_from_slug,
-          to:t.player_to_slug,
-          date:new Date(t.date_traded).toLocaleDateString()
-        })));
-      }else{
-         console.warn(`  ⚠️  NO TRADES FOUND in database! Checking league code...`);
-         console.warn(`  League code: ${_leagueCode}`);
-         console.warn(`  Check Supabase table directly: WHERE league_code='${_leagueCode}'`);
+   async function loadTrades(){
+     try{
+       const cols='id,created_at,league_code,team_name,team_id,team_name_snapshot,player_from_slug,player_to_slug,player_from_name,player_to_name,player_from_position,player_to_position,player_from_team,player_to_team,from_slot_group,from_slot_index,to_slot_group,to_slot_index,date_from_acquired,date_traded,points_accumulated_at_trade';
+       const url=`${SUPABASE_URL}/rest/v1/player_trades?league_code=eq.${_leagueCode}&select=${cols}&order=date_traded.desc`;
+       console.log(`[TRADES] Fetching from: ${url}`);
+       const res=await fetch(url,{headers:sbHeaders({'Cache-Control':'no-cache'})});
+       if(!res.ok){
+         const errText=await res.text();
+         console.error(`[TRADES] HTTP error response:`, {status:res.status, statusText:res.statusText, body:errText});
+         throw new Error(`player_trades ${res.status}: ${errText}`);
        }
-       console.groupEnd();
-    }catch(e){currentTrades=[];console.error('[TRADES ERROR]',e);loadWarnings.push('Trade history could not be fully loaded.');}
-  }
+       currentTrades=await res.json();
+       console.group(`[TRADES] Loaded for league ${_leagueCode}`);
+       console.log(`  Total: ${currentTrades.length} trades`);
+       if(currentTrades.length>0){
+         console.table(currentTrades.slice(0,3).map(t=>({
+           league:t.league_code,
+           team_id:t.team_id,
+           team_name:t.team_name,
+           from:t.player_from_slug,
+           to:t.player_to_slug,
+           date:new Date(t.date_traded).toLocaleDateString()
+         })));
+       }else{
+          console.warn(`  ⚠️  NO TRADES FOUND in database! Checking league code...`);
+          console.warn(`  League code detected: "${_leagueCode}"`);
+          console.warn(`  League code type: ${typeof _leagueCode}`);
+          console.warn(`  League code length: ${_leagueCode?.length}`);
+          console.warn(`  Raw URL params: ${window.location.search}`);
+          console.warn(`  Query URL used: ${url}`);
+          console.warn(`  Possible causes:`);
+          console.warn(`    1. League not yet created (no teams saved)`);
+          console.warn(`    2. League code mismatch between URL and database`);
+          console.warn(`    3. No trades executed yet for this league`);
+          console.warn(`  Check Supabase Trades table directly: WHERE league_code='${_leagueCode}'`);
+        }
+        console.groupEnd();
+     }catch(e){currentTrades=[];console.error('[TRADES ERROR]',e);loadWarnings.push('Trade history could not be fully loaded.');}
+   }
 
   async function waitForTradeHistory(team,fromSlug,toSlug,maxAttempts=12){
     for(let i=0;i<maxAttempts;i++){
