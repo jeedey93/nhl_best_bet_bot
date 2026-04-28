@@ -21,6 +21,7 @@
     }
     body { background: var(--rink); background-image: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(26,58,110,0.6) 0%, transparent 70%); min-height: 100vh; font-family: 'Barlow Condensed', sans-serif; color: white; padding-top: var(--nav-h); }
 
+    /* ── NAV ── */
     .site-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(7,17,31,0.92); border-bottom: 1px solid var(--line); backdrop-filter: blur(12px); }
     .site-nav-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: var(--nav-h); padding: 0 1.5rem; }
     .site-nav-brand { font-family: 'Bebas Neue', cursive; font-size: 1.5rem; color: var(--gold); letter-spacing: 4px; text-decoration: none; }
@@ -29,6 +30,7 @@
     .site-nav-links a:hover { color: white; background: rgba(255,255,255,0.07); }
     .site-nav-links a.active { color: var(--gold); background: rgba(255,184,28,0.1); }
 
+    /* ── LAYOUT ── */
     .page-wrap { max-width: 1000px; margin: 0 auto; padding: 1rem 1rem 1.5rem; }
     .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
 
@@ -36,6 +38,17 @@
     header h1 { font-family: 'Bebas Neue', cursive; font-size: clamp(1.5rem, 3vw, 2.2rem); letter-spacing: 4px; line-height: 1; text-shadow: 0 0 30px rgba(200,16,46,0.4), 0 2px 8px rgba(0,0,0,0.8); }
     header h1 span { color: var(--gold); }
 
+    /* ── LAST TRADE BANNER ── */
+    .last-trade-banner { display: flex; align-items: center; gap: 0.75rem; background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.25); border-radius: 10px; padding: 0.65rem 1rem; margin-bottom: 0.8rem; animation: fadeIn 0.4s ease; }
+    .last-trade-banner.hidden { display: none; }
+    .last-trade-banner-icon { font-size: 1.1rem; }
+    .last-trade-banner-text { flex: 1; font-size: 0.85rem; color: rgba(255,255,255,0.8); letter-spacing: 0.5px; }
+    .last-trade-banner-text strong { color: var(--green); font-family: 'Bebas Neue', cursive; letter-spacing: 1px; font-size: 0.95rem; }
+    .last-trade-banner-close { background: none; border: none; color: rgba(255,255,255,0.4); cursor: pointer; font-size: 1rem; padding: 0 0.25rem; transition: color 0.15s; }
+    .last-trade-banner-close:hover { color: white; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
+
+    /* ── SUMMARY ── */
     .summary-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.55rem; margin-bottom: 0.8rem; }
     .summary-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 0.5rem 0.65rem; min-width: 0; }
     .summary-card.warn { border-color: rgba(245,158,11,0.35); background: rgba(245,158,11,0.06); }
@@ -46,130 +59,202 @@
     .summary-value.green { color: var(--green); }
     .summary-value.red { color: var(--red); }
     .summary-sub { font-family: 'Barlow Condensed', sans-serif; font-size: 0.68rem; color: rgba(255,255,255,0.5); margin-top: 2px; letter-spacing: 0.8px; }
+    /* Trades remaining pip bar */
+    .trades-pip-row { display: flex; gap: 3px; margin-top: 4px; }
+    .trades-pip { width: 10px; height: 5px; border-radius: 3px; background: rgba(255,255,255,0.12); transition: background 0.2s; }
+    .trades-pip.used { background: var(--gold); }
+    .trades-pip.last { background: var(--red); }
 
+    /* ── WARNINGS ── */
     .warning-box { margin-bottom: 0.8rem; background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.24); border-radius: 8px; padding: 0.55rem 0.7rem; }
     .warning-box-title { font-family: 'Bebas Neue', cursive; font-size: 0.82rem; letter-spacing: 2px; color: #f59e0b; margin-bottom: 0.2rem; }
     .warning-list { list-style: none; display: grid; gap: 0.15rem; color: rgba(255,255,255,0.72); font-size: 0.8rem; }
 
+    /* ── TEAM SELECTOR ── */
     .team-selector { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 1rem; justify-content: center; }
     .team-btn { font-family: 'Bebas Neue', cursive; font-size: 0.84rem; letter-spacing: 1.5px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); color: var(--silver); border-radius: 7px; padding: 4px 12px; cursor: pointer; transition: background 0.15s, border-color 0.15s, color 0.15s; }
     .team-btn:hover { background: rgba(255,255,255,0.08); color: white; }
     .team-btn.active { background: rgba(255,184,28,0.1); border-color: rgba(255,184,28,0.4); color: var(--gold); }
 
+    /* ── SECTION HEADERS ── */
     .section-title { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 2px; color: white; margin: 1rem 0 0.55rem; display: flex; align-items: center; gap: 0.4rem; }
     .section-title span { color: var(--gold); }
+    .section-title-actions { margin-left: auto; display: flex; gap: 6px; align-items: center; }
+    .filter-btn { font-family: 'Bebas Neue', cursive; font-size: 0.72rem; letter-spacing: 1px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); color: var(--silver); border-radius: 5px; padding: 3px 8px; cursor: pointer; transition: background 0.15s; }
+    .filter-btn:hover { background: rgba(255,255,255,0.1); color: white; }
+    .filter-btn.active { background: rgba(255,184,28,0.1); border-color: rgba(255,184,28,0.35); color: var(--gold); }
+    .filter-input { font-family: 'Barlow Condensed', sans-serif; font-size: 0.8rem; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: white; border-radius: 5px; padding: 3px 8px; outline: none; width: 130px; transition: border-color 0.15s; }
+    .filter-input:focus { border-color: rgba(255,184,28,0.4); }
+    .filter-input::placeholder { color: rgba(255,255,255,0.3); }
 
+    /* ── TRADE HISTORY TABLE ── */
     .trades-list { background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; margin-bottom: 1rem; }
-    .trade-row { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 0.7rem; padding: 0.65rem 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.05); align-items: center; }
+
+    .trade-header-row { display: grid; grid-template-columns: 1fr 100px 1fr 90px; gap: 0.7rem; padding: 0.45rem 0.75rem; background: rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .trade-header-cell { font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem; font-weight: 700; color: rgba(255,255,255,0.3); letter-spacing: 2px; text-transform: uppercase; }
+    .trade-header-cell.center { text-align: center; }
+
+    .trade-row { display: grid; grid-template-columns: 1fr 100px 1fr 90px; gap: 0.7rem; padding: 0.65rem 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.05); align-items: center; transition: background 0.15s; }
     .trade-row:last-child { border-bottom: none; }
     .trade-row:hover { background: rgba(255,255,255,0.02); }
 
-    .trade-header-row { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 0.7rem; padding: 0.45rem 0.75rem; background: rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.1); }
-    .trade-header-cell { font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem; font-weight: 700; color: rgba(255,255,255,0.3); letter-spacing: 2px; text-transform: uppercase; }
+    /* League feed has extra team column */
+    .trade-header-row.league { grid-template-columns: 110px 1fr 1fr 100px; }
+    .trade-row.league { grid-template-columns: 110px 1fr 1fr 100px; }
 
-    .player-info { display: flex; align-items: center; gap: 0.5rem; }
+    .player-info { display: flex; align-items: center; gap: 0.5rem; min-width: 0; }
     .player-logo { width: 24px; height: 24px; object-fit: contain; flex-shrink: 0; }
     .player-details { flex: 1; min-width: 0; }
-    .player-name { font-family: 'Bebas Neue', cursive; font-size: 0.95rem; letter-spacing: 1px; color: white; }
+    .player-name { font-family: 'Bebas Neue', cursive; font-size: 0.95rem; letter-spacing: 1px; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .player-meta { font-family: 'Barlow Condensed', sans-serif; font-size: 0.75rem; color: rgba(255,255,255,0.5); margin-top: 1px; }
 
-    .date-box { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 0.5rem 0.75rem; }
-    .date-label { display: block; font-family: 'Barlow Condensed', sans-serif; font-size: 0.65rem; font-weight: 700; color: rgba(255,255,255,0.4); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 2px; }
-    .date-value { font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 1px; color: white; }
+    /* Date now shown inline as a subtle tag */
+    .date-tag { display: inline-flex; align-items: center; gap: 4px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); border-radius: 5px; padding: 0.35rem 0.55rem; }
+    .date-tag-label { font-family: 'Barlow Condensed', sans-serif; font-size: 0.62rem; font-weight: 700; color: rgba(255,255,255,0.38); letter-spacing: 1px; text-transform: uppercase; margin-right: 2px; }
+    .date-tag-value { font-family: 'Bebas Neue', cursive; font-size: 0.82rem; letter-spacing: 0.5px; color: var(--silver); }
 
-    .points-unit { background: rgba(255,184,28,0.1); border: 1px solid rgba(255,184,28,0.2); border-radius: 6px; padding: 0.5rem 0.75rem; text-align: center; }
-    .points-label { display: block; font-family: 'Barlow Condensed', sans-serif; font-size: 0.65rem; font-weight: 700; color: rgba(255,184,28,0.6); letter-spacing: 1px, 0.5s; text-transform: uppercase; margin-bottom: 2px; }
-    .points-value { font-family: 'Bebas Neue', cursive; font-size: 1.2rem; letter-spacing: 1px; color: var(--gold); }
+    /* Pts at trade - now shows clearly it's "at time of trade" */
+    .pts-tag { display: inline-flex; flex-direction: column; align-items: center; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 0.3rem 0.5rem; }
+    .pts-tag-label { font-family: 'Barlow Condensed', sans-serif; font-size: 0.58rem; font-weight: 700; color: rgba(255,255,255,0.35); letter-spacing: 0.8px; text-transform: uppercase; }
+    .pts-tag-value { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 1px; color: var(--silver); }
 
-    .action-btns { display: flex; gap: 5px; }
-    .btn-small { font-family: 'Bebas Neue', cursive; font-size: 0.74rem; letter-spacing: 1px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: var(--silver); border-radius: 5px; padding: 3px 8px; cursor: pointer; transition: background 0.15s, border-color 0.15s; }
-    .btn-small:hover { background: rgba(255,255,255,0.1); color: white; border-color: rgba(255,255,255,0.2); }
-    .btn-trade { background: rgba(34,197,94,0.08); border-color: rgba(34,197,94,0.3); color: var(--green); }
-    .btn-trade:hover { background: rgba(34,197,94,0.15); border-color: rgba(34,197,94,0.5); }
-
+    /* ── ACTIVE ROSTER HOLD CARDS ── */
     .current-holds { background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 12px; padding: 0.75rem; margin-bottom: 1rem; }
-    .hold-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 0.6rem 0.7rem; margin-bottom: 0.45rem; display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; }
-    .hold-card:last-child { margin-bottom: 0; }
-
-    .hold-player { display: flex; align-items: center; gap: 0.5rem; flex: 1; min-width: 0; }
-    .hold-info { flex: 1; min-width: 0; }
-    .hold-name { font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 1px; color: white; }
-    .hold-since { font-family: 'Barlow Condensed', sans-serif; font-size: 0.68rem; color: rgba(255,255,255,0.5); margin-top: 1px; }
-    .hold-slot { font-family: 'Bebas Neue', cursive; font-size: 0.68rem; letter-spacing: 1.2px; color: var(--silver); background: rgba(255,255,255,0.07); border-radius: 4px; padding: 2px 6px; margin-right: 0.3rem; }
-
-    .hold-stats { display: flex; gap: 0.55rem; flex-wrap: wrap; }
-    .hold-stat { background: rgba(255,255,255,0.05); border-radius: 5px; padding: 0.24rem 0.5rem; }
-    .hold-stat-label { font-family: 'Barlow Condensed', sans-serif; font-size: 0.65rem; font-weight: 700; color: rgba(255,255,255,0.4); letter-spacing: 0.5px; }
-    .hold-stat-value { font-family: 'Bebas Neue', cursive; font-size: 0.82rem; letter-spacing: 1px; color: var(--gold); margin-top: 1px; }
-
-    .hold-actions { display: flex; gap: 6px; }
     .hold-pos-group { margin-bottom: 0.55rem; }
     .hold-pos-group:last-child { margin-bottom: 0; }
     .hold-pos-title { font-family: 'Bebas Neue', cursive; font-size: 0.75rem; letter-spacing: 1.5px; margin: 0 0 0.28rem; }
     .hold-pos-title.F { color: var(--pink); }
     .hold-pos-title.D { color: var(--blue); }
     .hold-pos-title.G { color: var(--gold); }
-    .bench-pos-group { margin-bottom: 0.45rem; }
-    .bench-pos-group:last-child { margin-bottom: 0; }
-    .bench-pos-title { font-family: 'Bebas Neue', cursive; font-size: 0.7rem; letter-spacing: 1.5px; color: var(--silver); margin-bottom: 0.2rem; }
 
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+    .hold-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 0.6rem 0.7rem; margin-bottom: 0.45rem; display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 0.6rem; }
+    .hold-card:last-child { margin-bottom: 0; }
+    .hold-player { display: flex; align-items: center; gap: 0.5rem; min-width: 0; }
+    .hold-info { flex: 1; min-width: 0; }
+    .hold-name { font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 1px; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .hold-since { font-family: 'Barlow Condensed', sans-serif; font-size: 0.68rem; color: rgba(255,255,255,0.5); margin-top: 1px; }
+    .hold-since.approx { color: rgba(245,158,11,0.7); }
+    .hold-slot { font-family: 'Bebas Neue', cursive; font-size: 0.68rem; letter-spacing: 1.2px; color: var(--silver); background: rgba(255,255,255,0.07); border-radius: 4px; padding: 2px 6px; margin-right: 0.3rem; flex-shrink: 0; }
+
+    .hold-stats { display: flex; gap: 0.55rem; }
+    .hold-stat { background: rgba(255,255,255,0.05); border-radius: 5px; padding: 0.24rem 0.5rem; text-align: center; }
+    .hold-stat-label { font-family: 'Barlow Condensed', sans-serif; font-size: 0.65rem; font-weight: 700; color: rgba(255,255,255,0.4); letter-spacing: 0.5px; white-space: nowrap; }
+    .hold-stat-value { font-family: 'Bebas Neue', cursive; font-size: 0.82rem; letter-spacing: 1px; color: var(--gold); margin-top: 1px; }
+    .hold-stat-value.approx { color: rgba(245,158,11,0.6); }
+
+    .hold-actions { display: flex; gap: 6px; align-items: center; flex-shrink: 0; }
+
+    /* Trade button now shows remaining count */
+    .btn-trade-wrap { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+    .btn-trade-remaining { font-family: 'Barlow Condensed', sans-serif; font-size: 0.6rem; color: rgba(255,255,255,0.35); letter-spacing: 0.5px; }
+    .btn-trade-remaining.low { color: rgba(245,158,11,0.7); }
+
+    .btn-small { font-family: 'Bebas Neue', cursive; font-size: 0.74rem; letter-spacing: 1px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: var(--silver); border-radius: 5px; padding: 3px 8px; cursor: pointer; transition: background 0.15s, border-color 0.15s; }
+    .btn-small:hover { background: rgba(255,255,255,0.1); color: white; border-color: rgba(255,255,255,0.2); }
+    .btn-small:disabled { opacity: 0.42; cursor: not-allowed; }
+    .btn-trade { background: rgba(34,197,94,0.08); border-color: rgba(34,197,94,0.3); color: var(--green); }
+    .btn-trade:hover:not(:disabled) { background: rgba(34,197,94,0.15); border-color: rgba(34,197,94,0.5); }
+
+    /* Undo button */
+    .btn-undo { background: rgba(255,184,28,0.07); border-color: rgba(255,184,28,0.25); color: var(--gold); }
+    .btn-undo:hover { background: rgba(255,184,28,0.15); border-color: rgba(255,184,28,0.45); }
+
+    /* ── BENCH CARDS ── */
+    .bench-hold-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 0.6rem 0.7rem; margin-bottom: 0.45rem; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 0.6rem; }
+    .bench-hold-card:last-child { margin-bottom: 0; }
+
+    /* ── EMPTY STATES ── */
+    .empty-state { text-align: center; padding: 2.5rem 1rem; }
+    .empty-state-icon { font-size: 2.2rem; opacity: 0.3; margin-bottom: 0.5rem; }
+    .empty-state-msg { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 2px; color: var(--silver); opacity: 0.6; }
+    .empty-state-sub { font-size: 0.8rem; color: rgba(255,255,255,0.3); margin-top: 0.3rem; }
+    .empty-msg { text-align: center; color: var(--silver); padding: 2rem 1rem; font-size: 0.95rem; letter-spacing: 1px; }
+
+    /* ── MODAL ── */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 1rem; backdrop-filter: blur(4px); }
     .modal-overlay.hidden { display: none; }
-    .modal-box { background: #0d1b2e; border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; padding: 2rem; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; }
-    .modal-title { font-family: 'Bebas Neue', cursive; font-size: 1.4rem; letter-spacing: 3px; color: white; margin-bottom: 1.5rem; }
+    .modal-box { background: #0d1b2e; border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 1.5rem; width: 100%; max-width: 540px; max-height: 92vh; overflow-y: auto; }
+    .modal-title { font-family: 'Bebas Neue', cursive; font-size: 1.4rem; letter-spacing: 3px; color: white; margin-bottom: 1.25rem; }
     .modal-title span { color: var(--gold); }
 
-    .form-group { margin-bottom: 1.25rem; }
-    .form-label { display: block; font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 2px; color: var(--silver); margin-bottom: 0.5rem; }
-    .form-input, .form-select { width: 100%; font-family: 'Barlow Condensed', sans-serif; font-size: 0.95rem; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15); color: white; border-radius: 6px; padding: 0.6rem 0.85rem; outline: none; transition: border-color 0.15s; }
-    .form-input:focus, .form-select:focus { border-color: rgba(255,184,28,0.5); }
+    /* Player comparison in modal */
+    .compare-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 0.5rem; align-items: center; margin-bottom: 1.25rem; }
+    .compare-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 0.7rem; }
+    .compare-card.outgoing { border-color: rgba(200,16,46,0.25); background: rgba(200,16,46,0.06); }
+    .compare-card.incoming { border-color: rgba(34,197,94,0.25); background: rgba(34,197,94,0.06); }
+    .compare-card.incoming.empty { border-color: rgba(255,255,255,0.06); background: rgba(255,255,255,0.02); opacity: 0.5; }
+    .compare-direction { text-align: center; font-size: 1.2rem; color: var(--gold); }
+    .compare-role { font-family: 'Barlow Condensed', sans-serif; font-size: 0.62rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 0.3rem; }
+    .compare-role.out { color: rgba(200,16,46,0.7); }
+    .compare-role.in { color: rgba(34,197,94,0.7); }
+    .compare-name { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 1px; color: white; margin-bottom: 0.5rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .compare-stats { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+    .compare-stat { background: rgba(255,255,255,0.06); border-radius: 4px; padding: 0.2rem 0.45rem; }
+    .compare-stat-label { font-size: 0.6rem; font-weight: 700; color: rgba(255,255,255,0.38); letter-spacing: 0.5px; text-transform: uppercase; }
+    .compare-stat-value { font-family: 'Bebas Neue', cursive; font-size: 0.85rem; color: var(--gold); margin-top: 1px; }
+    .compare-stat-value.better { color: var(--green); }
+    .compare-stat-value.worse { color: var(--red); }
+
+    .form-group { margin-bottom: 1rem; }
+    .form-label { display: block; font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 2px; color: var(--silver); margin-bottom: 0.45rem; }
+    .form-input { width: 100%; font-family: 'Barlow Condensed', sans-serif; font-size: 0.95rem; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15); color: white; border-radius: 6px; padding: 0.5rem 0.75rem; outline: none; transition: border-color 0.15s; }
+    .form-input:focus { border-color: rgba(255,184,28,0.5); }
     .form-input::placeholder { color: rgba(255,255,255,0.3); }
 
-    .player-selector { display: grid; grid-template-columns: 1fr; gap: 8px; max-height: 300px; overflow-y: auto; margin-bottom: 1rem; }
-    .player-option { display: flex; align-items: center; gap: 0.75rem; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 0.6rem 0.75rem; cursor: pointer; transition: background 0.15s, border-color 0.15s; }
-    .player-option:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.2); }
-    .player-option.selected { background: rgba(255,184,28,0.12); border-color: rgba(255,184,28,0.3); }
-    .player-option.disabled { opacity: 0.42; cursor: not-allowed; }
-    .player-option.disabled:hover { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.08); }
-    .player-option-name { flex: 1; font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 1px; color: white; }
-    .player-option-slot { font-family: 'Barlow Condensed', sans-serif; font-size: 0.75rem; font-weight: 700; background: rgba(255,255,255,0.1); border-radius: 3px; padding: 2px 6px; color: var(--silver); }
-    .player-option-meta { font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem; color: rgba(255,255,255,0.45); }
+    /* Bench search */
+    .bench-search-wrap { position: relative; margin-bottom: 0.5rem; }
+    .bench-search-wrap .form-input { padding-left: 2rem; }
+    .bench-search-icon { position: absolute; left: 0.6rem; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.3); font-size: 0.85rem; pointer-events: none; }
 
-    .trade-preview { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 0.75rem; margin-top: 0.75rem; }
-    .trade-preview-title { font-family: 'Bebas Neue', cursive; font-size: 0.82rem; letter-spacing: 2px; color: var(--gold); margin-bottom: 0.35rem; }
-    .trade-preview-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.45rem; }
-    .trade-preview-item { background: rgba(255,255,255,0.04); border-radius: 6px; padding: 0.4rem 0.5rem; }
-    .trade-preview-item-label { font-size: 0.62rem; color: rgba(255,255,255,0.4); letter-spacing: 1px; text-transform: uppercase; font-weight: 700; }
-    .trade-preview-item-value { font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 1px; color: white; margin-top: 2px; }
-    .trade-preview-note { margin-top: 0.45rem; font-size: 0.78rem; color: rgba(255,255,255,0.66); }
+    .player-selector { display: grid; gap: 6px; max-height: 220px; overflow-y: auto; margin-bottom: 0.75rem; }
+    .player-option { display: flex; align-items: center; gap: 0.75rem; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 0.55rem 0.7rem; cursor: pointer; transition: background 0.15s, border-color 0.15s; }
+    .player-option:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.2); }
+    .player-option.selected { background: rgba(255,184,28,0.12); border-color: rgba(255,184,28,0.35); }
+    .player-option-name { flex: 1; font-family: 'Bebas Neue', cursive; font-size: 0.88rem; letter-spacing: 1px; color: white; }
+    .player-option-slot { font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem; font-weight: 700; background: rgba(255,255,255,0.1); border-radius: 3px; padding: 2px 5px; color: var(--silver); flex-shrink: 0; }
+    .player-option-meta { font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem; color: rgba(255,255,255,0.45); flex-shrink: 0; }
+
+    /* No-results for bench search */
+    .bench-no-results { text-align: center; padding: 1rem; color: rgba(255,255,255,0.35); font-size: 0.82rem; letter-spacing: 0.5px; }
+
+    /* Cap impact preview */
+    .trade-preview { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 0.7rem; }
+    .trade-preview-title { font-family: 'Bebas Neue', cursive; font-size: 0.78rem; letter-spacing: 2px; color: rgba(255,255,255,0.5); margin-bottom: 0.4rem; }
+    .trade-preview-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.4rem; }
+    .trade-preview-item { background: rgba(255,255,255,0.04); border-radius: 6px; padding: 0.35rem 0.45rem; }
+    .trade-preview-item-label { font-size: 0.6rem; color: rgba(255,255,255,0.38); letter-spacing: 1px; text-transform: uppercase; font-weight: 700; }
+    .trade-preview-item-value { font-family: 'Bebas Neue', cursive; font-size: 0.88rem; letter-spacing: 1px; color: white; margin-top: 2px; }
+    .trade-preview-note { margin-top: 0.4rem; font-size: 0.76rem; color: rgba(255,255,255,0.6); }
     .trade-preview-note.warn { color: #f59e0b; }
     .trade-preview-note.good { color: var(--green); }
 
-    .modal-btns { display: flex; gap: 10px; justify-content: flex-end; margin-top: 1.5rem; }
-    .modal-btn { font-family: 'Bebas Neue', cursive; font-size: 0.95rem; letter-spacing: 2px; border-radius: 6px; padding: 0.6rem 1.2rem; cursor: pointer; border: 1px solid; transition: background 0.15s; }
+    .modal-btns { display: flex; gap: 10px; justify-content: flex-end; margin-top: 1.25rem; }
+    .modal-btn { font-family: 'Bebas Neue', cursive; font-size: 0.95rem; letter-spacing: 2px; border-radius: 6px; padding: 0.55rem 1.2rem; cursor: pointer; border: 1px solid; transition: background 0.15s; }
     .modal-btn-confirm { background: rgba(255,184,28,0.12); border-color: rgba(255,184,28,0.35); color: var(--gold); }
-    .modal-btn-confirm:hover { background: rgba(255,184,28,0.22); }
+    .modal-btn-confirm:hover:not(:disabled) { background: rgba(255,184,28,0.22); }
     .modal-btn-confirm:disabled { opacity: 0.4; cursor: default; }
     .modal-btn-cancel { background: none; border-color: rgba(255,255,255,0.12); color: var(--silver); }
     .modal-btn-cancel:hover { background: rgba(255,255,255,0.06); }
 
-    .empty-msg { text-align: center; color: var(--silver); padding: 2rem 1rem; font-size: 0.95rem; letter-spacing: 1px; }
+    /* Undo modal */
+    .undo-modal-box { background: #0d1b2e; border: 1px solid rgba(255,184,28,0.25); border-radius: 12px; padding: 1.5rem; width: 100%; max-width: 420px; }
+    .undo-countdown { font-family: 'Bebas Neue', cursive; font-size: 2rem; color: var(--gold); text-align: center; margin: 0.5rem 0; }
+    .undo-bar-wrap { height: 4px; background: rgba(255,255,255,0.08); border-radius: 2px; overflow: hidden; margin-bottom: 1rem; }
+    .undo-bar { height: 100%; background: var(--gold); border-radius: 2px; transition: width 1s linear; }
 
+    /* ── MISC ── */
     .msg { text-align: center; color: var(--silver); font-size: 0.9rem; letter-spacing: 1px; padding: 3rem 0; }
     .btn-refresh { font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 2px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); color: var(--silver); border-radius: 6px; padding: 4px 14px; cursor: pointer; }
     .btn-refresh:hover { background: rgba(255,255,255,0.1); color: white; }
 
-    @media (max-width: 600px) {
-      .summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .trade-row { grid-template-columns: 1fr; }
-      .trade-header-row { display: none; }
-      .trade-row > * { padding: 0.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.08); }
-      .trade-row > *:before { content: attr(data-label); font-weight: 700; display: block; font-size: 0.65rem; color: rgba(255,255,255,0.4); margin-bottom: 0.2rem; }
-      .hold-card { flex-direction: column; align-items: flex-start; }
-      .hold-stats { width: 100%; }
-      .trade-preview-grid { grid-template-columns: 1fr; }
-    }
+    .toast { position:fixed;bottom:20px;right:20px;background:rgba(34,197,94,0.9);border:1px solid rgba(34,197,94,0.5);color:white;padding:0.85rem 1.3rem;border-radius:8px;font-family:'Bebas Neue',cursive;letter-spacing:1px;z-index:1000;animation:slideIn 0.3s ease-out;max-width:280px; }
+    @keyframes slideIn { from{transform:translateX(400px);opacity:0;}to{transform:translateX(0);opacity:1;} }
+    .toast.error { background:rgba(200,16,46,0.9);border-color:rgba(200,16,46,0.5); }
 
+    .spinner { display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 0.8s linear infinite;margin-right:0.4rem;vertical-align:middle; }
+    @keyframes spin { to{transform:rotate(360deg);} }
+
+    /* ── PASSWORD GATE ── */
     #pw-gate { position:fixed;inset:0;z-index:9999;background:var(--rink);display:flex;align-items:center;justify-content:center;background-image:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(26,58,110,0.6) 0%,transparent 70%); }
     .pw-box { background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:2.5rem 2rem;width:320px;max-width:90vw;text-align:center; }
     .pw-box h2 { font-family:'Bebas Neue',cursive;font-size:1.8rem;color:var(--gold);letter-spacing:3px;margin-bottom:0.3rem; }
@@ -182,16 +267,25 @@
     .pw-btn:hover { background:#e0122e; }
     .pw-error { color:rgba(200,16,46,0.8);font-size:0.8rem;margin-top:0.5rem;min-height:1em;letter-spacing:1px; }
 
-    .toast { position:fixed;bottom:20px;right:20px;background:rgba(34,197,94,0.9);border:1px solid rgba(34,197,94,0.5);color:white;padding:1rem 1.5rem;border-radius:8px;font-family:'Bebas Neue',cursive;letter-spacing:1px;z-index:1000;animation:slideIn 0.3s ease-out; }
-    @keyframes slideIn { from{transform:translateX(400px);opacity:0;}to{transform:translateX(0);opacity:1;} }
-    .toast.error { background:rgba(200,16,46,0.9);border-color:rgba(200,16,46,0.5); }
-
-    .spinner { display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 0.8s linear infinite;margin-right:0.5rem;vertical-align:middle; }
-    @keyframes spin { to{transform:rotate(360deg);} }
+    /* ── RESPONSIVE ── */
+    @media (max-width: 680px) {
+      .summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .trade-header-row, .trade-header-row.league { display: none; }
+      .trade-row, .trade-row.league { grid-template-columns: 1fr; gap: 0.4rem; }
+      .trade-row > *::before { content: attr(data-label); display: block; font-family: 'Barlow Condensed', sans-serif; font-size: 0.62rem; font-weight: 700; color: rgba(255,255,255,0.35); letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 0.15rem; }
+      .trade-row > * { padding-bottom: 0.4rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
+      .trade-row > *:last-child { border-bottom: none; }
+      .hold-card { grid-template-columns: 1fr; }
+      .hold-stats { flex-wrap: wrap; }
+      .compare-grid { grid-template-columns: 1fr; gap: 0.4rem; }
+      .compare-direction { display: none; }
+      .trade-preview-grid { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
 
+<!-- PASSWORD GATE -->
 <div id="pw-gate">
   <div class="pw-box">
     <h2>🏒 Hockey Pool</h2>
@@ -214,6 +308,7 @@
   }
 </script>
 
+<!-- NAV -->
 <nav class="site-nav">
   <div class="site-nav-inner">
     <a class="site-nav-brand" href="../index.html">Parieur Discipliné</a>
@@ -233,42 +328,67 @@
     <h1>Player <span>Trades</span></h1>
   </header>
 
-  <div class="team-selector" id="team-selector"></div>
-
-  <div id="content">
-    <div class="msg">Loading…</div>
+  <!-- Last trade confirmation banner -->
+  <div class="last-trade-banner hidden" id="last-trade-banner">
+    <div class="last-trade-banner-icon">✅</div>
+    <div class="last-trade-banner-text" id="last-trade-banner-text"></div>
+    <button class="last-trade-banner-close" onclick="document.getElementById('last-trade-banner').classList.add('hidden')" aria-label="Dismiss">✕</button>
   </div>
+
+  <div class="team-selector" id="team-selector"></div>
+  <div id="content"><div class="msg">Loading…</div></div>
 </div>
 
+<!-- TRADE MODAL -->
 <div class="modal-overlay hidden" id="modal-trade">
   <div class="modal-box">
     <div class="modal-title">Execute <span>Trade</span></div>
-    <div class="form-group">
-      <div class="form-label">Player From (Main Roster)</div>
-      <div id="trade-from-info" aria-live="polite" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:0.75rem;margin-bottom:0.5rem;"></div>
-    </div>
-    <div class="form-group">
-      <div class="form-label">Player To (Bench)</div>
-      <div class="player-selector" id="trade-to-list" aria-live="polite"></div>
-      <div class="trade-preview" id="trade-preview">
-        <div class="trade-preview-title">Trade impact</div>
-        <div class="trade-preview-grid">
-          <div class="trade-preview-item">
-            <div class="trade-preview-item-label">Current cap</div>
-            <div class="trade-preview-item-value" id="trade-cap-current">—</div>
-          </div>
-          <div class="trade-preview-item">
-            <div class="trade-preview-item-label">After trade</div>
-            <div class="trade-preview-item-value" id="trade-cap-after">—</div>
-          </div>
-          <div class="trade-preview-item">
-            <div class="trade-preview-item-label">Remaining</div>
-            <div class="trade-preview-item-value" id="trade-cap-remaining">—</div>
-          </div>
-        </div>
-        <div class="trade-preview-note" id="trade-preview-note">Select an eligible bench player to preview the swap.</div>
+
+    <!-- Side-by-side player comparison -->
+    <div class="compare-grid" id="compare-grid">
+      <div class="compare-card outgoing" id="compare-out">
+        <div class="compare-role out">DROPPING</div>
+        <div class="compare-name" id="compare-out-name">—</div>
+        <div class="compare-stats" id="compare-out-stats"></div>
+      </div>
+      <div class="compare-direction">⇄</div>
+      <div class="compare-card incoming empty" id="compare-in">
+        <div class="compare-role in">ACTIVATING</div>
+        <div class="compare-name" id="compare-in-name">Select a player →</div>
+        <div class="compare-stats" id="compare-in-stats"></div>
       </div>
     </div>
+
+    <div class="form-group">
+      <div class="form-label">Pick from bench</div>
+      <!-- Bench player search -->
+      <div class="bench-search-wrap">
+        <span class="bench-search-icon">🔍</span>
+        <input class="form-input" id="bench-search" placeholder="Search bench players…" oninput="filterBenchList(this.value)" autocomplete="off">
+      </div>
+      <div class="player-selector" id="trade-to-list" aria-live="polite"></div>
+    </div>
+
+    <!-- Cap impact preview -->
+    <div class="trade-preview">
+      <div class="trade-preview-title">Cap Impact</div>
+      <div class="trade-preview-grid">
+        <div class="trade-preview-item">
+          <div class="trade-preview-item-label">Current cap</div>
+          <div class="trade-preview-item-value" id="trade-cap-current">—</div>
+        </div>
+        <div class="trade-preview-item">
+          <div class="trade-preview-item-label">After trade</div>
+          <div class="trade-preview-item-value" id="trade-cap-after">—</div>
+        </div>
+        <div class="trade-preview-item">
+          <div class="trade-preview-item-label">Remaining</div>
+          <div class="trade-preview-item-value" id="trade-cap-remaining">—</div>
+        </div>
+      </div>
+      <div class="trade-preview-note" id="trade-preview-note">Select an eligible bench player to preview the swap.</div>
+    </div>
+
     <div class="modal-btns">
       <button class="modal-btn modal-btn-cancel" onclick="closeModal()">Cancel</button>
       <button class="modal-btn modal-btn-confirm" id="trade-confirm-btn" onclick="confirmTrade()" disabled>Execute Trade</button>
@@ -276,11 +396,29 @@
   </div>
 </div>
 
+<!-- UNDO MODAL -->
+<div class="modal-overlay hidden" id="modal-undo">
+  <div class="modal-box undo-modal-box">
+    <div class="modal-title">↩ Undo <span>Trade?</span></div>
+    <div id="undo-desc" style="font-size:0.85rem;color:rgba(255,255,255,0.7);margin-bottom:0.75rem;line-height:1.5;"></div>
+    <div class="undo-countdown" id="undo-countdown">15</div>
+    <div class="undo-bar-wrap"><div class="undo-bar" id="undo-bar" style="width:100%"></div></div>
+    <div class="modal-btns">
+      <button class="modal-btn modal-btn-cancel" onclick="closeUndoModal()">Keep Trade</button>
+      <button class="modal-btn modal-btn-confirm" id="undo-confirm-btn" onclick="executeUndo()">↩ Undo Trade</button>
+    </div>
+  </div>
+</div>
+
 <script>
+  /* ═══════════════════════════════════════════════════
+     CONSTANTS & STATE
+  ═══════════════════════════════════════════════════ */
   const SUPABASE_URL = 'https://fifurqlitkywtmhgtzeu.supabase.co';
   const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZpZnVycWxpdGt5d3RtaGd0emV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3MDIyMjQsImV4cCI6MjA5MjI3ODIyNH0.KPVPj1qwbSJJMyLR_-AhDcRs0vi2sUU6qbFQ-kH53C0';
   const CAP_MAX = 95_500_000;
   const PLAYER_CACHE_KEY = 'hp_players_v3';
+  const UNDO_WINDOW_SECONDS = 15;
 
   const TEAM_ABBR = {
     'anaheim-ducks':'ANA','boston-bruins':'BOS','buffalo-sabres':'BUF','calgary-flames':'CGY',
@@ -295,16 +433,28 @@
     'vancouver-canucks':'VAN','vegas-golden-knights':'VGK','washington-capitals':'WSH','winnipeg-jets':'WPG',
   };
 
-  const _leagueCode = new URLSearchParams(window.location.search).get('league')||null;
+  const _leagueCode = new URLSearchParams(window.location.search).get('league') || null;
   if (!_leagueCode) window.location.replace('/pool');
 
-  let allPlayers=[], teams=[], activeTeamId=null;
-  let _scoring={f_points:1,d_goals:1,d_assists:1,g_wins:2,g_shutouts:3};
-  let _maxTradesPerTeam=5;
-  let currentTrades=[], loadWarnings=[];
-  let tradeContext=null;
-  let isSubmittingTrade=false;
-  let showLeagueFeed=false;
+  let allPlayers = [], teams = [], activeTeamId = null;
+  let _scoring = { f_points:1, d_goals:1, d_assists:1, g_wins:2, g_shutouts:3 };
+  let _maxTradesPerTeam = 5;
+  let currentTrades = [], loadWarnings = [];
+  let tradeContext = null;
+  let isSubmittingTrade = false;
+  let showLeagueFeed = false;
+
+  // Undo state
+  let undoContext = null;
+  let undoTimer = null;
+  let undoInterval = null;
+
+  // League feed filters
+  let leagueFilterTeam = 'all';
+  let leagueFilterDate  = '';
+
+  // Bench search filter
+  let benchSearchQuery = '';
 
   document.getElementById('nav-draft').href       = `/pool/join?league=${_leagueCode}`;
   document.getElementById('nav-live-draft').href  = `/pool/live-draft?league=${_leagueCode}`;
@@ -312,123 +462,86 @@
   document.getElementById('nav-trades').href      = `/pool/trades?league=${_leagueCode}`;
   document.getElementById('nav-settings').href    = `/pool/settings?league=${_leagueCode}`;
 
-  function escapeHtml(value){return String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-  function normalizePos(pos){if(!pos)return'F';const p=pos.toUpperCase();if(p.includes('G'))return'G';if(p==='D'||p.includes('LD')||p.includes('RD'))return'D';return'F';}
-  function poolScore(p){const pos=normalizePos(p.position);if(pos==='G')return(p.wins??0)*_scoring.g_wins+(p.shutouts??0)*_scoring.g_shutouts;if(pos==='D')return(p.goals??0)*_scoring.d_goals+(p.assists??0)*_scoring.d_assists;return(p.points??0)*_scoring.f_points;}
-  // Returns only points accumulated since the player was acquired by this team (current - snapshot)
+  /* ═══════════════════════════════════════════════════
+     UTILITIES
+  ═══════════════════════════════════════════════════ */
+  function escapeHtml(v){ return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function normalizePos(pos){ if(!pos)return'F'; const p=pos.toUpperCase(); if(p.includes('G'))return'G'; if(p==='D'||p.includes('LD')||p.includes('RD'))return'D'; return'F'; }
+  function poolScore(p){ const pos=normalizePos(p.position); if(pos==='G')return(p.wins??0)*_scoring.g_wins+(p.shutouts??0)*_scoring.g_shutouts; if(pos==='D')return(p.goals??0)*_scoring.d_goals+(p.assists??0)*_scoring.d_assists; return(p.points??0)*_scoring.f_points; }
   function poolScoreOwned(p, team, slug){
-    const snap=team?.acquisitions?.[slug]?.stats_snapshot;
-    if(!snap) return poolScore(p); // no snapshot yet, fall back to full season
-    const pos=normalizePos(p.position);
-    if(pos==='G'){
-      const wins=Math.max(0,(p.wins??0)-(snap.wins??0));
-      const shutouts=Math.max(0,(p.shutouts??0)-(snap.shutouts??0));
-      return wins*_scoring.g_wins+shutouts*_scoring.g_shutouts;
-    }
-    if(pos==='D'){
-      const goals=Math.max(0,(p.goals??0)-(snap.goals??0));
-      const assists=Math.max(0,(p.assists??0)-(snap.assists??0));
-      return goals*_scoring.d_goals+assists*_scoring.d_assists;
-    }
+    const snap = team?.acquisitions?.[slug]?.stats_snapshot;
+    if(!snap) return null; // null = approximate / unknown
+    const pos = normalizePos(p.position);
+    if(pos==='G'){ const w=Math.max(0,(p.wins??0)-(snap.wins??0)),s=Math.max(0,(p.shutouts??0)-(snap.shutouts??0)); return w*_scoring.g_wins+s*_scoring.g_shutouts; }
+    if(pos==='D'){ const g=Math.max(0,(p.goals??0)-(snap.goals??0)),a=Math.max(0,(p.assists??0)-(snap.assists??0)); return g*_scoring.d_goals+a*_scoring.d_assists; }
     return Math.max(0,((p.points??0)-(snap.points??0)))*_scoring.f_points;
   }
-  function captureStatsSnapshot(p){
-    return{points:p.points??0,goals:p.goals??0,assists:p.assists??0,wins:p.wins??0,shutouts:p.shutouts??0};
-  }
-  function formatName(n){if(!n)return'';if(n.includes(',')){const[l,f]=n.split(',').map(s=>s.trim());return`${f} ${l}`;}return n;}
-  function slugMap(){if(!slugMap._c)slugMap._c=Object.fromEntries(allPlayers.map(p=>[p.puckpedia_slug,p]));return slugMap._c;}
-  function sbHeaders(extra={}){return{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Content-Type':'application/json',...extra};}
-  function formatCap(value){return `$${((value||0)/1e6).toFixed(2)}M`;}
-  function slotLabel(group,index){return `${group}${index+1}`;}
-  function fallbackPlayer(slug,group='F'){return {puckpedia_slug:slug,player_name:slug?.split('/').pop()?.replace(/-/g,' ')||slug,position:group,cap_hit:0,team:''};}
-  function getPlayer(slug,group='F'){return slugMap()[slug]||fallbackPlayer(slug,group);}
+  function captureStatsSnapshot(p){ return{points:p.points??0,goals:p.goals??0,assists:p.assists??0,wins:p.wins??0,shutouts:p.shutouts??0}; }
+  function formatName(n){ if(!n)return''; if(n.includes(',')){ const[l,f]=n.split(',').map(s=>s.trim()); return`${f} ${l}`; } return n; }
+  function slugMap(){ if(!slugMap._c) slugMap._c=Object.fromEntries(allPlayers.map(p=>[p.puckpedia_slug,p])); return slugMap._c; }
+  function sbHeaders(extra={}){ return{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Content-Type':'application/json',...extra}; }
+  function formatCap(v){ return`$${((v||0)/1e6).toFixed(2)}M`; }
+  function slotLabel(g,i){ return`${g}${i+1}`; }
+  function fallbackPlayer(slug,group='F'){ return{puckpedia_slug:slug,player_name:slug?.split('/').pop()?.replace(/-/g,' ')||slug,position:group,cap_hit:0,team:''}; }
+  function getPlayer(slug,group='F'){ return slugMap()[slug]||fallbackPlayer(slug,group); }
   function teamTradeMatch(trade,team){
     const byId=!!trade.team_id&&!!team.id&&trade.team_id===team.id;
     const byName=trade.team_name===team.name;
-    const bySnapshot=trade.team_name_snapshot===team.name;
-    const result=byId||byName||bySnapshot;
-    // console.log(`  [teamTradeMatch] team_id match: ${byId} (${trade.team_id}===${team.id}), name: ${byName} (${trade.team_name}===${team.name}), snapshot: ${bySnapshot} → ${result}`);
-    return result;
+    const bySnap=trade.team_name_snapshot===team.name;
+    return byId||byName||bySnap;
   }
-  function getTeamRealTradeCount(team){
-    return currentTrades.filter(t=>teamTradeMatch(t,team)&&t.player_from_slug!==t.player_to_slug).length;
-  }
-  function isTradeLimitReached(team){
-    return _maxTradesPerTeam>0 && getTeamRealTradeCount(team)>=_maxTradesPerTeam;
-  }
-  function findLatestIncomingTrade(team,slug){return currentTrades.find(t=>teamTradeMatch(t,team)&&t.player_to_slug===slug&&t.player_from_slug!==t.player_to_slug)||null;}
+  function getTeamRealTradeCount(team){ return currentTrades.filter(t=>teamTradeMatch(t,team)&&t.player_from_slug!==t.player_to_slug).length; }
+  function isTradeLimitReached(team){ return _maxTradesPerTeam>0&&getTeamRealTradeCount(team)>=_maxTradesPerTeam; }
+  function tradesRemaining(team){ if(_maxTradesPerTeam<=0)return null; return Math.max(0,_maxTradesPerTeam-getTeamRealTradeCount(team)); }
+  function findLatestIncomingTrade(team,slug){ return currentTrades.find(t=>teamTradeMatch(t,team)&&t.player_to_slug===slug&&t.player_from_slug!==t.player_to_slug)||null; }
   function getAcquiredDateForActivePlayer(team,slug){
-    // Check roster metadata (draft day) - supports both old string format and new object format
     const acq=team.acquisitions?.[slug];
     if(acq) return typeof acq==='string'?acq:(acq.date||null);
-    // Otherwise check trade history
     return findLatestIncomingTrade(team,slug)?.date_traded||null;
   }
-  function collectRelevantSlugs(){const set=new Set();teams.forEach(team=>['F','D','G','B'].forEach(group=>(team.roster[group]||[]).filter(Boolean).forEach(slug=>set.add(slug))));currentTrades.forEach(t=>{if(t.player_from_slug)set.add(t.player_from_slug);if(t.player_to_slug)set.add(t.player_to_slug);});return [...set];}
-  function teamMainCap(team){
-    const m=slugMap();
-    return [...(team.roster.F||[]),...(team.roster.D||[]),...(team.roster.G||[])]
-      .filter(Boolean)
-      .reduce((sum,slug)=>sum+(m[slug]?.cap_hit||0),0);
-  }
-  function findPlayerSlot(team,slug){
-    for(const group of ['F','D','G','B']){
-      const idx=(team.roster[group]||[]).findIndex(s=>s===slug);
-      if(idx!==-1) return {group,index:idx};
-    }
-    return null;
-  }
+  function collectRelevantSlugs(){ const s=new Set(); teams.forEach(t=>['F','D','G','B'].forEach(g=>(t.roster[g]||[]).filter(Boolean).forEach(sl=>s.add(sl)))); currentTrades.forEach(t=>{ if(t.player_from_slug)s.add(t.player_from_slug); if(t.player_to_slug)s.add(t.player_to_slug); }); return[...s]; }
+  function teamMainCap(team){ const m=slugMap(); return[...(team.roster.F||[]),...(team.roster.D||[]),...(team.roster.G||[])].filter(Boolean).reduce((sum,slug)=>sum+(m[slug]?.cap_hit||0),0); }
+  function findPlayerSlot(team,slug){ for(const g of['F','D','G','B']){ const idx=(team.roster[g]||[]).findIndex(s=>s===slug); if(idx!==-1)return{group:g,index:idx}; } return null; }
+
+  /* ═══════════════════════════════════════════════════
+     SUPABASE HELPERS
+  ═══════════════════════════════════════════════════ */
   async function saveRostersToSupabase(){
     const data={teams,activeTeamId};
     const res=await fetch(`${SUPABASE_URL}/rest/v1/pool_rosters?on_conflict=league_code`,{
-      method:'POST',
-      headers:sbHeaders({'Prefer':'resolution=merge-duplicates,return=minimal'}),
-      body:JSON.stringify({league_code:_leagueCode,data,updated_at:new Date().toISOString()}),
+      method:'POST', headers:sbHeaders({'Prefer':'resolution=merge-duplicates,return=minimal'}),
+      body:JSON.stringify({league_code:_leagueCode,data,updated_at:new Date().toISOString()})
     });
     if(!res.ok) throw new Error(`Failed to persist roster (${res.status})`);
   }
 
-   async function postWithFallback(url,payloads,prefer='return=representation'){
-     let lastError='';
-     for(const i in payloads){
-       const payload=payloads[i];
-       const res=await fetch(url,{method:'POST',headers:sbHeaders({'Prefer':prefer}),body:JSON.stringify(payload)});
-       if(res.ok){
-         const text=await res.text();
-         return text?JSON.parse(text):null;
-       }
-       lastError=await res.text();
-       // 409 = unique constraint violation (hold already exists, which is fine)
-       if(res.status===409) return {conflict:true};
-       // 400 with column errors = schema mismatch, try next payload
-       if(res.status===400&&/column|team_id|team_name_snapshot|player_from_name|from_slot_group|to_slot_group/i.test(lastError)){
-         continue;
-       }
-       // For other 400 errors or unknown status, only throw if we're on the last payload
-       if(i==payloads.length-1){
-         throw new Error(lastError||`Request failed (${res.status})`);
-       }
-     }
-     throw new Error(lastError||'Request failed');
-   }
+  async function postWithFallback(url,payloads,prefer='return=representation'){
+    let lastError='';
+    for(const i in payloads){
+      const payload=payloads[i];
+      const res=await fetch(url,{method:'POST',headers:sbHeaders({'Prefer':prefer}),body:JSON.stringify(payload)});
+      if(res.ok){ const text=await res.text(); return text?JSON.parse(text):null; }
+      lastError=await res.text();
+      if(res.status===409) return{conflict:true};
+      if(res.status===400&&/column|team_id|team_name_snapshot|player_from_name|from_slot_group|to_slot_group/i.test(lastError)) continue;
+      if(i==payloads.length-1) throw new Error(lastError||`Request failed (${res.status})`);
+    }
+    throw new Error(lastError||'Request failed');
+  }
 
   async function ensurePlayersLoaded(slugs){
-    const needed=[...new Set((slugs||[]).filter(Boolean).filter(slug=>!slugMap()[slug]))];
+    const needed=[...new Set((slugs||[]).filter(Boolean).filter(sl=>!slugMap()[sl]))];
     if(!needed.length) return;
     const fields='puckpedia_slug,player_name,position,cap_hit,team,goals,assists,points,wins,shutouts,games_played';
     for(let i=0;i<needed.length;i+=75){
       const chunk=needed.slice(i,i+75);
-      const orClause=`(${chunk.map(slug=>`puckpedia_slug.eq.${slug}`).join(',')})`;
+      const orClause=`(${chunk.map(sl=>`puckpedia_slug.eq.${sl}`).join(',')})`;
       const res=await fetch(`${SUPABASE_URL}/rest/v1/nhl_players?select=${fields}&or=${encodeURIComponent(orClause)}`,{headers:sbHeaders()});
-      if(!res.ok){
-        loadWarnings.push(`Some rostered players could not be refreshed from the player database.`);
-        continue;
-      }
+      if(!res.ok){ loadWarnings.push('Some rostered players could not be refreshed from the player database.'); continue; }
       const rows=await res.json();
       const map=new Map(allPlayers.map(p=>[p.puckpedia_slug,p]));
       rows.forEach(p=>map.set(p.puckpedia_slug,p));
-      allPlayers=[...map.values()];
-      slugMap._c=null;
+      allPlayers=[...map.values()]; slugMap._c=null;
     }
     sessionStorage.setItem(PLAYER_CACHE_KEY,JSON.stringify(allPlayers));
   }
@@ -436,17 +549,22 @@
   async function loadScoringSettings(){
     try{
       const r=await fetch(`${SUPABASE_URL}/rest/v1/pool_settings?league_code=eq.${_leagueCode}&select=f_points,d_goals,d_assists,g_wins,g_shutouts,max_trades_per_team`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
-      if(r.ok){
-        const rows=await r.json();
-        if(rows.length){
-          _scoring={..._scoring,...rows[0]};
-          const maxTrades=parseInt(rows[0].max_trades_per_team);
-          _maxTradesPerTeam=Number.isFinite(maxTrades)&&maxTrades>=0?maxTrades:5;
-        }
-      }
-    }catch(e){console.warn('Unable to load scoring settings',e);}
+      if(r.ok){ const rows=await r.json(); if(rows.length){ _scoring={..._scoring,...rows[0]}; const mt=parseInt(rows[0].max_trades_per_team); _maxTradesPerTeam=Number.isFinite(mt)&&mt>=0?mt:5; } }
+    }catch(e){ console.warn('Unable to load scoring settings',e); }
   }
 
+  async function loadTrades(){
+    try{
+      const cols='id,created_at,league_code,team_name,team_id,team_name_snapshot,player_from_slug,player_to_slug,player_from_name,player_to_name,player_from_position,player_to_position,player_from_team,player_to_team,from_slot_group,from_slot_index,to_slot_group,to_slot_index,date_from_acquired,date_traded,points_accumulated_at_trade';
+      const res=await fetch(`${SUPABASE_URL}/rest/v1/player_trades?league_code=eq.${_leagueCode}&select=${cols}&order=date_traded.desc`,{headers:sbHeaders({'Cache-Control':'no-cache'})});
+      if(!res.ok){ const t=await res.text(); throw new Error(`player_trades ${res.status}: ${t}`); }
+      currentTrades=await res.json();
+    }catch(e){ currentTrades=[]; console.error('[TRADES ERROR]',e); loadWarnings.push('Trade history could not be fully loaded.'); }
+  }
+
+  /* ═══════════════════════════════════════════════════
+     LOAD
+  ═══════════════════════════════════════════════════ */
   async function load(preferredTeamId=activeTeamId){
     await loadScoringSettings();
     try{
@@ -454,41 +572,27 @@
       const cached=sessionStorage.getItem(PLAYER_CACHE_KEY);
       const cacheTime=sessionStorage.getItem(PLAYER_CACHE_KEY+'_time');
       const cacheAgeHours=cacheTime?Math.floor((Date.now()-parseInt(cacheTime))/3600000):-1;
-      if(cached && cacheAgeHours<24){
-        try{allPlayers=JSON.parse(cached);if(!Array.isArray(allPlayers)||!allPlayers.length)throw new Error('empty');}
-        catch(_){sessionStorage.removeItem(PLAYER_CACHE_KEY);sessionStorage.removeItem(PLAYER_CACHE_KEY+'_time');allPlayers=[];}
-      }else{
-        sessionStorage.removeItem(PLAYER_CACHE_KEY);
-        sessionStorage.removeItem(PLAYER_CACHE_KEY+'_time');
-        allPlayers=[];
-      }
+      if(cached&&cacheAgeHours<24){ try{ allPlayers=JSON.parse(cached); if(!Array.isArray(allPlayers)||!allPlayers.length)throw new Error('empty'); }catch(_){ sessionStorage.removeItem(PLAYER_CACHE_KEY); sessionStorage.removeItem(PLAYER_CACHE_KEY+'_time'); allPlayers=[]; } }
+      else{ sessionStorage.removeItem(PLAYER_CACHE_KEY); sessionStorage.removeItem(PLAYER_CACHE_KEY+'_time'); allPlayers=[]; }
       if(!allPlayers.length){
         const res=await fetch(`${SUPABASE_URL}/rest/v1/nhl_players?select=puckpedia_slug,player_name,position,cap_hit,team,goals,assists,points,wins,shutouts,games_played&order=cap_hit.desc&limit=1000`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
-        if(!res.ok)throw new Error(res.status);
-        allPlayers=await res.json();
+        if(!res.ok) throw new Error(res.status);
+        allPlayers=await res.json(); slugMap._c=null;
         sessionStorage.setItem(PLAYER_CACHE_KEY,JSON.stringify(allPlayers));
         sessionStorage.setItem(PLAYER_CACHE_KEY+'_time',Date.now().toString());
       }
-      slugMap._c=null;
 
       const rRes=await fetch(`${SUPABASE_URL}/rest/v1/pool_rosters?league_code=eq.${_leagueCode}&select=data`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
-      if(!rRes.ok)throw new Error(rRes.status);
+      if(!rRes.ok) throw new Error(rRes.status);
       const allRosterRows=await rRes.json();
-      if(!allRosterRows.length){document.getElementById('content').innerHTML='<div class="msg">No teams saved yet. Go build your pool!</div>';return;}
+      if(!allRosterRows.length){ document.getElementById('content').innerHTML='<div class="msg">No teams saved yet. Go build your pool!</div>'; return; }
 
       const firstRow=allRosterRows[0];
       teams=[];
       if(firstRow.data?.teams){
         firstRow.data.teams.forEach((t,idx)=>{
-          teams.push({
-            id:t.id||`team-${idx}`,
-            name:t.name||`Team ${idx+1}`,
-            roster:{
-              F:Array.isArray(t.roster?.F)?t.roster.F:Array(12).fill(null),
-              D:Array.isArray(t.roster?.D)?t.roster.D:Array(6).fill(null),
-              G:Array.isArray(t.roster?.G)?t.roster.G:Array(2).fill(null),
-              B:Array.isArray(t.roster?.B)?t.roster.B:Array(6).fill(null)
-            }
+          teams.push({ id:t.id||`team-${idx}`, name:t.name||`Team ${idx+1}`, acquisitions:t.acquisitions||{},
+            roster:{ F:Array.isArray(t.roster?.F)?t.roster.F:Array(12).fill(null), D:Array.isArray(t.roster?.D)?t.roster.D:Array(6).fill(null), G:Array.isArray(t.roster?.G)?t.roster.G:Array(2).fill(null), B:Array.isArray(t.roster?.B)?t.roster.B:Array(6).fill(null) }
           });
         });
       }
@@ -497,120 +601,89 @@
 
       await loadTrades();
       await ensurePlayersLoaded(collectRelevantSlugs());
-      // Auto-initialize acquisition dates for any players without them
       await initializeDraftDayAcquisitions();
       renderTeamSelector();
       render();
-    }catch(e){console.error(e);document.getElementById('content').innerHTML=`<div class="msg">Failed to load. <button class="btn-refresh" onclick="location.reload()">Retry</button></div>`;}
+    }catch(e){ console.error(e); document.getElementById('content').innerHTML=`<div class="msg">Failed to load. <button class="btn-refresh" onclick="location.reload()">Retry</button></div>`; }
   }
 
-   async function loadTrades(){
-     try{
-       const cols='id,created_at,league_code,team_name,team_id,team_name_snapshot,player_from_slug,player_to_slug,player_from_name,player_to_name,player_from_position,player_to_position,player_from_team,player_to_team,from_slot_group,from_slot_index,to_slot_group,to_slot_index,date_from_acquired,date_traded,points_accumulated_at_trade';
-       const url=`${SUPABASE_URL}/rest/v1/player_trades?league_code=eq.${_leagueCode}&select=${cols}&order=date_traded.desc`;
-       const res=await fetch(url,{headers:sbHeaders({'Cache-Control':'no-cache'})});
-       if(!res.ok){
-         const errText=await res.text();
-         throw new Error(`player_trades ${res.status}: ${errText}`);
-       }
-       currentTrades=await res.json();
-     }catch(e){currentTrades=[];console.error('[TRADES ERROR]',e);loadWarnings.push('Trade history could not be fully loaded.');}
-   }
+  async function initializeDraftDayAcquisitions(){
+    const now=new Date().toISOString();
+    let needsUpdate=false;
+    for(const team of teams){
+      if(!team.acquisitions) team.acquisitions={};
+      const allPlayerSlugs=new Set();
+      ['F','D','G','B'].forEach(g=>(team.roster[g]||[]).filter(Boolean).forEach(sl=>allPlayerSlugs.add(sl)));
+      for(const slug of allPlayerSlugs){
+        const hasTradeRecord=currentTrades.some(t=>teamTradeMatch(t,team)&&t.player_from_slug!==t.player_to_slug&&(t.player_from_slug===slug||t.player_to_slug===slug));
+        if(!hasTradeRecord&&!team.acquisitions[slug]){
+          const p=slugMap()[slug];
+          team.acquisitions[slug]={date:now,stats_snapshot:p?captureStatsSnapshot(p):null};
+          needsUpdate=true;
+        }
+      }
+    }
+    if(needsUpdate){ try{ await saveRostersToSupabase(); }catch(e){ console.warn('Failed to save acquisition dates:',e.message); } }
+  }
 
   function showToast(message,isError=false){
     const toast=document.createElement('div');
     toast.className=`toast${isError?' error':''}`;
     toast.textContent=message;
     document.body.appendChild(toast);
-    setTimeout(()=>toast.remove(),3000);
+    setTimeout(()=>toast.remove(),3500);
   }
 
   async function waitForTradeHistory(team,fromSlug,toSlug,maxAttempts=12){
-     const confirmBtn=document.getElementById('trade-confirm-btn');
-     const originalText=confirmBtn?.textContent;
-     for(let i=0;i<maxAttempts;i++){
-       if(confirmBtn) confirmBtn.innerHTML=`<span class="spinner"></span>Waiting...`;
-       await loadTrades();
-       const found=currentTrades.some(t=>{
-         return teamTradeMatch(t,team)&&t.player_from_slug!==t.player_to_slug&&t.player_from_slug===fromSlug&&t.player_to_slug===toSlug;
-       });
-       if(found){
-         if(confirmBtn) confirmBtn.textContent=originalText||'Execute Trade';
-         return true;
-       }
-       if(i < maxAttempts - 1) await new Promise(r=>setTimeout(r,500));
-     }
-     if(confirmBtn) confirmBtn.textContent=originalText||'Execute Trade';
-     return false;
-   }
-
-   async function initializeDraftDayAcquisitions(){
-     // Sets acquisition dates for draft day players by storing in roster metadata
-     // This avoids the database constraint that prevents from_slug === to_slug
-     const now=new Date().toISOString();
-     let needsUpdate=false;
-
-     for(const team of teams){
-       if(!team.acquisitions) team.acquisitions={};
-
-       const allPlayerSlugs=new Set();
-       ['F','D','G','B'].forEach(group=>(team.roster[group]||[]).filter(Boolean).forEach(slug=>allPlayerSlugs.add(slug)));
-
-       for(const slug of allPlayerSlugs){
-         // Check if this player has a trade record (real trades only)
-         const hasTradeRecord=currentTrades.some(t=>teamTradeMatch(t,team)&&t.player_from_slug!==t.player_to_slug&&(t.player_from_slug===slug||t.player_to_slug===slug));
-
-         // If no trade record and no acquisition date, set it to now (draft day) with stats snapshot
-         if(!hasTradeRecord && !team.acquisitions[slug]){
-           const p=slugMap()[slug];
-           team.acquisitions[slug]={date:now,stats_snapshot:p?captureStatsSnapshot(p):null};
-           needsUpdate=true;
-         }
-       }
-     }
-
-     if(needsUpdate){
-       try{
-         await saveRostersToSupabase();
-       }catch(e){
-         console.warn('Failed to save acquisition dates:',e.message);
-       }
-     }
-   }
-
-
-  function renderTeamSelector(){
-    const teamButtons=teams.map(t=>`<button class="team-btn ${!showLeagueFeed&&t.id===activeTeamId?'active':''}" onclick="setActiveTeam('${t.id}')">${t.name}</button>`).join('');
-    const leagueButton=`<button class="team-btn ${showLeagueFeed?'active':''}" onclick="setLeagueFeedView()">League Feed</button>`;
-    document.getElementById('team-selector').innerHTML=`${teamButtons}${leagueButton}`;
+    const confirmBtn=document.getElementById('trade-confirm-btn');
+    const originalText=confirmBtn?.textContent;
+    for(let i=0;i<maxAttempts;i++){
+      if(confirmBtn) confirmBtn.innerHTML=`<span class="spinner"></span>Waiting...`;
+      await loadTrades();
+      const found=currentTrades.some(t=>teamTradeMatch(t,team)&&t.player_from_slug!==t.player_to_slug&&t.player_from_slug===fromSlug&&t.player_to_slug===toSlug);
+      if(found){ if(confirmBtn) confirmBtn.textContent=originalText||'Execute Trade'; return true; }
+      if(i<maxAttempts-1) await new Promise(r=>setTimeout(r,500));
+    }
+    if(confirmBtn) confirmBtn.textContent=originalText||'Execute Trade';
+    return false;
   }
 
-   function setActiveTeam(teamId){
-     showLeagueFeed=false;
-     activeTeamId=teamId;
-     renderTeamSelector();
-     render();
-   }
+  /* ═══════════════════════════════════════════════════
+     RENDER HELPERS
+  ═══════════════════════════════════════════════════ */
+  function renderTeamSelector(){
+    const buttons=teams.map(t=>`<button class="team-btn ${!showLeagueFeed&&t.id===activeTeamId?'active':''}" onclick="setActiveTeam('${t.id}')">${escapeHtml(t.name)}</button>`).join('');
+    const leagueBtn=`<button class="team-btn ${showLeagueFeed?'active':''}" onclick="setLeagueFeedView()">League Feed</button>`;
+    document.getElementById('team-selector').innerHTML=buttons+leagueBtn;
+  }
 
-   function setLeagueFeedView(){
-     showLeagueFeed=true;
-     renderTeamSelector();
-     render();
-   }
+  function setActiveTeam(teamId){ showLeagueFeed=false; activeTeamId=teamId; renderTeamSelector(); render(); }
+  function setLeagueFeedView(){ showLeagueFeed=true; renderTeamSelector(); render(); }
 
-   function buildWarningBox(){
-     if(!loadWarnings.length) return '';
-     const unique=[...new Set(loadWarnings)];
-     return `<div class="warning-box"><div class="warning-box-title">Heads up</div><ul class="warning-list">${unique.map(msg=>`<li>${escapeHtml(msg)}</li>`).join('')}</ul></div>`;
-   }
+  function buildWarningBox(){
+    if(!loadWarnings.length) return '';
+    const unique=[...new Set(loadWarnings)];
+    return`<div class="warning-box"><div class="warning-box-title">Heads up</div><ul class="warning-list">${unique.map(m=>`<li>${escapeHtml(m)}</li>`).join('')}</ul></div>`;
+  }
 
+  function buildPips(used,max){
+    if(max<=0||max>20) return '';
+    let html='<div class="trades-pip-row">';
+    for(let i=0;i<max;i++){
+      const isUsed=i<used;
+      const isLast=used===max-1&&i===used-1;
+      html+=`<div class="trades-pip ${isUsed?(isLast?'last':'used'):''}"></div>`;
+    }
+    return html+'</div>';
+  }
 
   function buildSummary(team,activeCount,tradeCount){
     const capUsed=teamMainCap(team);
     const capRemaining=CAP_MAX-capUsed;
+    const rem=tradesRemaining(team);
     const tradesDisplay=_maxTradesPerTeam>0?`${tradeCount}/${_maxTradesPerTeam}`:`${tradeCount}`;
-    const tradesRemaining=_maxTradesPerTeam>0?Math.max(0,_maxTradesPerTeam-tradeCount):null;
-    return `
+    const pips=_maxTradesPerTeam>0?buildPips(tradeCount,_maxTradesPerTeam):'';
+    return`
       <div class="summary-grid">
         <div class="summary-card ${capRemaining<0?'warn':'good'}">
           <div class="summary-label">Cap used</div>
@@ -627,267 +700,346 @@
         <div class="summary-card">
           <div class="summary-label">Trades</div>
           <div class="summary-value">${tradesDisplay}</div>
-          <div class="summary-sub">${tradesRemaining===null?'Remaining: Unlimited':`Remaining: ${tradesRemaining}`}</div>
+          ${pips}
+          <div class="summary-sub">${rem===null?'Unlimited remaining':`${rem} remaining`}</div>
         </div>
-      </div>
-    `;
+      </div>`;
   }
 
-   function buildHoldCard(slot,acquiredAt,p,team,slug,canTrade){
-     const daysHeld=acquiredAt?Math.max(0,Math.floor((new Date()-new Date(acquiredAt))/86400000)):'-';
-     const pts=poolScoreOwned(p,team,slug);
-     const abbr=TEAM_ABBR[p.team]||'';
-     return `
-       <div class="hold-card">
-         <div class="hold-player">
-           ${abbr?`<img class="player-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}">`:''}
-           <div class="hold-info">
-             <div class="hold-name"><span class="hold-slot">${slot}</span>${escapeHtml(formatName(p.player_name))}</div>
-              <div class="hold-since">${acquiredAt?`Acquired: ${new Date(acquiredAt).toLocaleDateString()}`:'Acquired: Unknown'}</div>
-           </div>
-         </div>
-          <div class="hold-stats">
-             <div class="hold-stat"><div class="hold-stat-label">Days Held</div><div class="hold-stat-value">${daysHeld}</div></div>
-            <div class="hold-stat"><div class="hold-stat-label">Owned Pts</div><div class="hold-stat-value">${pts}</div></div>
-          </div>
-         <div class="hold-actions">
-           <button class="btn-small btn-trade" onclick="openTradeModal('${p.puckpedia_slug}')" ${canTrade?'':'disabled'}>${canTrade?'🔄 Trade':'⛔ Limit'}</button>
-         </div>
-       </div>
-     `;
-   }
-
-  function buildBenchCard(slot,p){
+  function buildHoldCard(slot,acquiredAt,p,team,slug,canTrade,rem){
+    const ownedPts=poolScoreOwned(p,team,slug);
+    const isApprox=ownedPts===null;
+    const displayPts=isApprox?poolScore(p):ownedPts;
+    const daysHeld=acquiredAt?Math.max(0,Math.floor((new Date()-new Date(acquiredAt))/86400000)):'-';
     const abbr=TEAM_ABBR[p.team]||'';
-    const pts=poolScore(p);
-    return `
+    const pos=normalizePos(p.position);
+    const statLabel=pos==='G'?'W/SHO':(pos==='D'?'G+A':'PTS');
+    const statVal=pos==='G'?`${p.wins??0}/${p.shutouts??0}`:(pos==='D'?`${p.goals??0}+${p.assists??0}`:`${p.points??0}`);
+
+    const tradeBtn=canTrade
+      ? `<div class="btn-trade-wrap"><button class="btn-small btn-trade" onclick="openTradeModal('${p.puckpedia_slug}')">🔄 Trade</button>${rem!==null?`<span class="trades-btn-remaining ${rem<=1?'low':''}"></span>`:''}  </div>`
+      : `<button class="btn-small" disabled title="Trade limit reached">⛔ Limit</button>`;
+
+    return`
       <div class="hold-card">
         <div class="hold-player">
-          ${abbr?`<img class="player-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}">`:''}
+          ${abbr?`<img class="player-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}" loading="lazy">`:''}
           <div class="hold-info">
             <div class="hold-name"><span class="hold-slot">${slot}</span>${escapeHtml(formatName(p.player_name))}</div>
-            <div class="hold-since">Bench player · Not accumulating while on bench</div>
+            <div class="hold-since ${isApprox?'approx':''}">${acquiredAt?`Acquired: ${new Date(acquiredAt).toLocaleDateString()}`:'Acquired: Unknown'}${isApprox?' · ⚠ pts approx':''}</div>
           </div>
         </div>
         <div class="hold-stats">
-          <div class="hold-stat"><div class="hold-stat-label">Season Pts</div><div class="hold-stat-value">${pts}</div></div>
-          <div class="hold-stat"><div class="hold-stat-label">Cap Hit</div><div class="hold-stat-value">${formatCap(p.cap_hit||0)}</div></div>
+          <div class="hold-stat"><div class="hold-stat-label">Days</div><div class="hold-stat-value">${daysHeld}</div></div>
+          <div class="hold-stat"><div class="hold-stat-label">${statLabel}</div><div class="hold-stat-value">${statVal}</div></div>
+          <div class="hold-stat"><div class="hold-stat-label">Owned${isApprox?' ~':''}</div><div class="hold-stat-value ${isApprox?'approx':''}">${displayPts}</div></div>
         </div>
-      </div>
-    `;
+        <div class="hold-actions">${tradeBtn}</div>
+      </div>`;
   }
 
-    function render(){
-      const team=teams.find(t=>t.id===activeTeamId);
-      if(!team){document.getElementById('content').innerHTML='<div class="msg">Team not found.</div>';return;}
+  function buildBenchCard(slot,p){
+    const abbr=TEAM_ABBR[p.team]||'';
+    const pos=normalizePos(p.position);
+    const statLabel=pos==='G'?'W/SHO':(pos==='D'?'G+A':'PTS');
+    const statVal=pos==='G'?`${p.wins??0}/${p.shutouts??0}`:(pos==='D'?`${p.goals??0}+${p.assists??0}`:`${p.points??0}`);
+    // Same metric as active roster for fair comparison (season totals shown)
+    return`
+      <div class="bench-hold-card">
+        <div class="hold-player">
+          ${abbr?`<img class="player-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}" loading="lazy">`:''}
+          <div class="hold-info">
+            <div class="hold-name"><span class="hold-slot">${slot}</span>${escapeHtml(formatName(p.player_name))}</div>
+            <div class="hold-since">Bench — season stats shown (not accumulating)</div>
+          </div>
+        </div>
+        <div class="hold-stats">
+          <div class="hold-stat"><div class="hold-stat-label">${statLabel}</div><div class="hold-stat-value">${statVal}</div></div>
+          <div class="hold-stat"><div class="hold-stat-label">Cap</div><div class="hold-stat-value">${formatCap(p.cap_hit||0)}</div></div>
+        </div>
+      </div>`;
+  }
 
-      console.log(`[RENDER] Team: ${team.name} (id=${team.id}), Total trades in array: ${currentTrades.length}`);
-      const teamTrades=[...currentTrades.filter(t=>{
-        // Only show actual trades (where from_slug !== to_slug)
-        const isRealTrade=t.player_from_slug!==t.player_to_slug;
-        const matches=teamTradeMatch(t,team);
-        return matches && isRealTrade;
-      })].sort((a,b)=>new Date(b.date_traded)-new Date(a.date_traded));
-      console.log(`[RENDER] Trades for this team: ${teamTrades.length}`, teamTrades);
-      const activeCount=[...(team.roster.F||[]),...(team.roster.D||[]),...(team.roster.G||[])].filter(Boolean).length;
-      const allTrades=[...currentTrades.filter(t=>t.player_from_slug!==t.player_to_slug)].sort((a,b)=>new Date(b.date_traded)-new Date(a.date_traded));
+  function buildEmptyState(icon,msg,sub=''){
+    return`<div class="empty-state"><div class="empty-state-icon">${icon}</div><div class="empty-state-msg">${msg}</div>${sub?`<div class="empty-state-sub">${sub}</div>`:''}</div>`;
+  }
 
-     let html=`${buildWarningBox()}`;
+  /* ═══════════════════════════════════════════════════
+     MAIN RENDER
+  ═══════════════════════════════════════════════════ */
+  function render(){
+    const team=teams.find(t=>t.id===activeTeamId);
+    if(!team){ document.getElementById('content').innerHTML='<div class="msg">Team not found.</div>'; return; }
 
-      if(showLeagueFeed){
-        html+=`<div class="section-title">League-wide <span>Trade Feed</span></div>`;
-        html+='<div class="trades-list">';
-        if(allTrades.length){
+    const teamTrades=[...currentTrades.filter(t=>t.player_from_slug!==t.player_to_slug&&teamTradeMatch(t,team))].sort((a,b)=>new Date(b.date_traded)-new Date(a.date_traded));
+    const activeCount=[...(team.roster.F||[]),...(team.roster.D||[]),...(team.roster.G||[])].filter(Boolean).length;
+    const allRealTrades=[...currentTrades.filter(t=>t.player_from_slug!==t.player_to_slug)].sort((a,b)=>new Date(b.date_traded)-new Date(a.date_traded));
+
+    let html=buildWarningBox();
+
+    /* ── LEAGUE FEED ── */
+    if(showLeagueFeed){
+      // Apply filters
+      let filtered=allRealTrades.filter(trade=>{
+        if(leagueFilterTeam!=='all'){
+          const tradeTeam=teams.find(t=>teamTradeMatch(trade,t));
+          if(!tradeTeam||tradeTeam.id!==leagueFilterTeam) return false;
+        }
+        if(leagueFilterDate){
+          const d=new Date(trade.date_traded).toISOString().slice(0,10);
+          if(!d.startsWith(leagueFilterDate)) return false;
+        }
+        return true;
+      });
+
+      const teamOptions=teams.map(t=>`<option value="${t.id}" ${leagueFilterTeam===t.id?'selected':''}>${escapeHtml(t.name)}</option>`).join('');
+      html+=`
+        <div class="section-title">
+          League-wide <span>Trade Feed</span>
+          <div class="section-title-actions">
+            <select class="filter-input" style="width:auto;" onchange="leagueFilterTeam=this.value;render()">
+              <option value="all" ${leagueFilterTeam==='all'?'selected':''}>All Teams</option>
+              ${teamOptions}
+            </select>
+            <input class="filter-input" type="month" value="${leagueFilterDate}" placeholder="Filter by month" onchange="leagueFilterDate=this.value;render()" style="width:140px;">
+            ${leagueFilterTeam!=='all'||leagueFilterDate?`<button class="filter-btn active" onclick="leagueFilterTeam='all';leagueFilterDate='';render()">✕ Clear</button>`:''}
+          </div>
+        </div>
+        <div class="trades-list">
+          <div class="trade-header-row league">
+            <div class="trade-header-cell">Team</div>
+            <div class="trade-header-cell">Dropped</div>
+            <div class="trade-header-cell">Activated</div>
+            <div class="trade-header-cell">Date</div>
+          </div>`;
+
+      if(filtered.length){
+        filtered.forEach(trade=>{
+          const tradeTeam=teams.find(t=>teamTradeMatch(trade,t));
+          const teamName=tradeTeam?.name||trade.team_name||'Unknown';
+          const pFrom=trade.player_from_name?{player_name:trade.player_from_name,team:trade.player_from_team,position:trade.player_from_position}:getPlayer(trade.player_from_slug);
+          const pTo=trade.player_to_name?{player_name:trade.player_to_name,team:trade.player_to_team,position:trade.player_to_position}:getPlayer(trade.player_to_slug);
+          const abbrFrom=TEAM_ABBR[pFrom.team]||'';
+          const abbrTo=TEAM_ABBR[pTo.team]||'';
+          const pos=normalizePos(pFrom.position||pTo.position);
           html+=`
-            <div class="trade-header-row">
-              <div class="trade-header-cell">Team</div>
-              <div class="trade-header-cell">From Player</div>
-              <div class="trade-header-cell">To Player</div>
-              <div class="trade-header-cell">Date</div>
-            </div>
-          `;
-          allTrades.forEach(trade=>{
-            const tradeTeam=teams.find(t=>teamTradeMatch(trade,t));
-            const teamName=tradeTeam?.name||trade.team_name||'Unknown';
-            const pFrom=trade.player_from_name?{player_name:trade.player_from_name,team:trade.player_from_team}:getPlayer(trade.player_from_slug);
-            const pTo=trade.player_to_name?{player_name:trade.player_to_name,team:trade.player_to_team}:getPlayer(trade.player_to_slug);
-            const abbrFrom=TEAM_ABBR[pFrom.team]||'';
-            const abbrTo=TEAM_ABBR[pTo.team]||'';
-            html+=`
-              <div class="trade-row">
-                <div class="player-info" data-label="Team">
-                  <div class="player-details">
-                    <div class="player-name">${escapeHtml(teamName)}</div>
-                  </div>
-                </div>
-                <div class="player-info" data-label="From Player">
-                  ${abbrFrom?`<img class="player-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbrFrom}_dark.svg" alt="${abbrFrom}">`:''}
-                  <div class="player-details">
-                    <div class="player-name">${escapeHtml(formatName(pFrom.player_name))}</div>
-                  </div>
-                </div>
-                <div class="player-info" data-label="To Player">
-                  ${abbrTo?`<img class="player-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbrTo}_dark.svg" alt="${abbrTo}">`:''}
-                  <div class="player-details">
-                    <div class="player-name">${escapeHtml(formatName(pTo.player_name))}</div>
-                  </div>
-                </div>
-                <div class="date-box" data-label="Date">
-                  <span class="date-label">Traded</span>
-                  <span class="date-value">${new Date(trade.date_traded).toLocaleDateString()}</span>
+            <div class="trade-row league">
+              <div class="player-info" data-label="Team">
+                <div class="player-details"><div class="player-name">${escapeHtml(teamName)}</div></div>
+              </div>
+              <div class="player-info" data-label="Dropped">
+                ${abbrFrom?`<img class="player-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbrFrom}_dark.svg" alt="${abbrFrom}" loading="lazy">`:''}
+                <div class="player-details">
+                  <div class="player-name">${escapeHtml(formatName(pFrom.player_name))}</div>
+                  <div class="player-meta">${pos} · ${formatCap(pFrom.cap_hit||0)}</div>
                 </div>
               </div>
-            `;
-          });
-        }else{
-          html+='<div class="empty-msg">No trades yet in this league.</div>';
-        }
-        html+='</div>';
-        document.getElementById('content').innerHTML=html;
-        return;
+              <div class="player-info" data-label="Activated">
+                ${abbrTo?`<img class="player-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbrTo}_dark.svg" alt="${abbrTo}" loading="lazy">`:''}
+                <div class="player-details">
+                  <div class="player-name">${escapeHtml(formatName(pTo.player_name))}</div>
+                  <div class="player-meta">${pos} · ${formatCap(pTo.cap_hit||0)}</div>
+                </div>
+              </div>
+              <div class="date-tag" data-label="Date">
+                <span class="date-tag-value">${new Date(trade.date_traded).toLocaleDateString()}</span>
+              </div>
+            </div>`;
+        });
+      }else{
+        html+=buildEmptyState('📋','No trades match your filters','Try clearing the team or date filter');
       }
+      html+='</div>';
+      document.getElementById('content').innerHTML=html;
+      return;
+    }
 
-     html+=`${buildSummary(team,activeCount,teamTrades.length)}`;
+    /* ── TEAM VIEW ── */
+    html+=buildSummary(team,activeCount,teamTrades.length);
+    const canTrade=!isTradeLimitReached(team);
+    const rem=tradesRemaining(team);
 
-    html+=`
-      <div class="section-title">Active <span>Roster</span></div>
-      <div class="current-holds">
-     `;
-
-      if(activeCount){
-       const canTrade=!isTradeLimitReached(team);
-       const labels={F:'Forwards',D:'Defensemen',G:'Goalies'};
-       ['F','D','G'].forEach(pos=>{
-         const rows=(team.roster[pos]||[]).map((slug,idx)=>{
-           if(!slug) return null;
-           const acquiredAt=getAcquiredDateForActivePlayer(team,slug);
-           return {slot:slotLabel(pos,idx),acquiredAt,slug,player:getPlayer(slug,pos)};
-         }).filter(Boolean);
-         if(!rows.length) return;
-         html+=`<div class="hold-pos-group"><div class="hold-pos-title ${pos}">${labels[pos]} (${rows.length})</div>${rows.map(item=>buildHoldCard(item.slot,item.acquiredAt,item.player,team,item.slug,canTrade)).join('')}</div>`;
-       });
-     }else{
-       html+='<div class="empty-msg">No active roster players found.</div>';
-     }
-     html+='</div>';
-
-    const benchPlayers=(team.roster.B||[]).map((slug,idx)=>slug?{slot:slotLabel('B',idx),player:getPlayer(slug,'F')}:null).filter(Boolean);
-    html+=`
-      <div class="section-title">Team <span>Bench</span></div>
-      <div class="current-holds">
-    `;
-    if(benchPlayers.length){
-      const benchGrouped={F:[],D:[],G:[]};
-      benchPlayers.forEach(item=>{ benchGrouped[normalizePos(item.player.position)].push(item); });
+    /* Active roster */
+    html+=`<div class="section-title">Active <span>Roster</span></div><div class="current-holds">`;
+    if(activeCount){
       const labels={F:'Forwards',D:'Defensemen',G:'Goalies'};
       ['F','D','G'].forEach(pos=>{
-        if(!benchGrouped[pos].length) return;
-        html+=`<div class="hold-pos-group"><div class="hold-pos-title ${pos}">${labels[pos]} (${benchGrouped[pos].length})</div>${benchGrouped[pos].map(item=>buildBenchCard(item.slot,item.player)).join('')}</div>`;
+        const rows=(team.roster[pos]||[]).map((slug,idx)=>{ if(!slug)return null; const acq=getAcquiredDateForActivePlayer(team,slug); return{slot:slotLabel(pos,idx),acq,slug,player:getPlayer(slug,pos)}; }).filter(Boolean);
+        if(!rows.length) return;
+        html+=`<div class="hold-pos-group"><div class="hold-pos-title ${pos}">${labels[pos]} (${rows.length})</div>${rows.map(item=>buildHoldCard(item.slot,item.acq,item.player,team,item.slug,canTrade,rem)).join('')}</div>`;
       });
     }else{
-      html+='<div class="empty-msg">No bench players.</div>';
+      html+=buildEmptyState('👤','No active roster players found');
     }
     html+='</div>';
 
-    html+=`
-      <div class="section-title">Trade <span>History</span></div>
-      <div class="trades-list">
-    `;
+    /* Bench */
+    const benchPlayers=(team.roster.B||[]).map((slug,idx)=>slug?{slot:slotLabel('B',idx),player:getPlayer(slug,'F')}:null).filter(Boolean);
+    html+=`<div class="section-title">Team <span>Bench</span></div><div class="current-holds">`;
+    if(benchPlayers.length){
+      const labels={F:'Forwards',D:'Defensemen',G:'Goalies'};
+      const grouped={F:[],D:[],G:[]};
+      benchPlayers.forEach(item=>grouped[normalizePos(item.player.position)].push(item));
+      ['F','D','G'].forEach(pos=>{ if(!grouped[pos].length)return; html+=`<div class="hold-pos-group"><div class="hold-pos-title ${pos}">${labels[pos]} (${grouped[pos].length})</div>${grouped[pos].map(item=>buildBenchCard(item.slot,item.player)).join('')}</div>`; });
+    }else{
+      html+=buildEmptyState('🪑','No bench players');
+    }
+    html+='</div>';
 
+    /* Trade history */
+    html+=`<div class="section-title">Trade <span>History</span></div><div class="trades-list">`;
     if(teamTrades.length){
       html+=`
         <div class="trade-header-row">
-          <div class="trade-header-cell">From Player</div>
-          <div class="trade-header-cell">Date Traded</div>
-          <div class="trade-header-cell">To Player</div>
-          <div class="trade-header-cell">Pts Saved</div>
-        </div>
-      `;
+          <div class="trade-header-cell">Dropped → bench</div>
+          <div class="trade-header-cell center">Date</div>
+          <div class="trade-header-cell">Activated from bench</div>
+          <div class="trade-header-cell center">Season pts at trade</div>
+        </div>`;
       teamTrades.forEach(trade=>{
         const pFrom=trade.player_from_name?{player_name:trade.player_from_name,team:trade.player_from_team,position:trade.player_from_position}:getPlayer(trade.player_from_slug);
         const pTo=trade.player_to_name?{player_name:trade.player_to_name,team:trade.player_to_team,position:trade.player_to_position}:getPlayer(trade.player_to_slug);
-        const fromsaved=trade.points_accumulated_at_trade||0;
+        const ptsAtTrade=trade.points_accumulated_at_trade??0;
         const abbrFrom=TEAM_ABBR[pFrom.team]||'';
         const abbrTo=TEAM_ABBR[pTo.team]||'';
         html+=`
           <div class="trade-row">
-            <div class="player-info" data-label="From Player">
-              ${abbrFrom?`<img class="player-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbrFrom}_dark.svg" alt="${abbrFrom}">`:''}
+            <div class="player-info" data-label="Dropped">
+              ${abbrFrom?`<img class="player-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbrFrom}_dark.svg" alt="${abbrFrom}" loading="lazy">`:''}
               <div class="player-details">
                 <div class="player-name">${escapeHtml(formatName(pFrom.player_name))}</div>
-                <div class="player-meta">${trade.from_slot_group?`${trade.from_slot_group}${(trade.from_slot_index??0)+1} · `:''}Since ${new Date(trade.date_from_acquired).toLocaleDateString()}</div>
+                <div class="player-meta">${trade.from_slot_group?`${trade.from_slot_group}${(trade.from_slot_index??0)+1} · `:''}Since ${trade.date_from_acquired?new Date(trade.date_from_acquired).toLocaleDateString():'?'}</div>
               </div>
             </div>
-            <div class="date-box" data-label="Date Traded">
-              <span class="date-label">Traded</span>
-              <span class="date-value">${new Date(trade.date_traded).toLocaleDateString()}</span>
+            <div style="display:flex;justify-content:center;" data-label="Date">
+              <div class="date-tag">
+                <span class="date-tag-value">${new Date(trade.date_traded).toLocaleDateString()}</span>
+              </div>
             </div>
-            <div class="player-info" data-label="To Player">
-              ${abbrTo?`<img class="player-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbrTo}_dark.svg" alt="${abbrTo}">`:''}
+            <div class="player-info" data-label="Activated">
+              ${abbrTo?`<img class="player-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbrTo}_dark.svg" alt="${abbrTo}" loading="lazy">`:''}
               <div class="player-details">
                 <div class="player-name">${escapeHtml(formatName(pTo.player_name))}</div>
                 <div class="player-meta">${trade.to_slot_group?`${trade.to_slot_group}${(trade.to_slot_index??0)+1} · `:''}Activated from bench</div>
               </div>
             </div>
-            <div class="points-unit" data-label="Pts Saved">
-              <span class="points-label">Saved</span>
-              <span class="points-value">${fromsaved}</span>
+            <div style="display:flex;justify-content:center;" data-label="Season pts at trade">
+              <div class="pts-tag">
+                <span class="pts-tag-label">At trade</span>
+                <span class="pts-tag-value">${ptsAtTrade}</span>
+              </div>
             </div>
-          </div>
-        `;
+          </div>`;
       });
     }else{
-      html+='<div class="empty-msg">No trades yet.</div>';
+      html+=buildEmptyState('🔄','No trades yet','Use the Trade button on any active player to swap with a bench player');
     }
     html+='</div>';
 
     document.getElementById('content').innerHTML=html;
   }
 
+  /* ═══════════════════════════════════════════════════
+     TRADE MODAL
+  ═══════════════════════════════════════════════════ */
+  let _allBenchOptions=[]; // full list for search filtering
+
   function openTradeModal(playerSlug){
     const team=teams.find(t=>t.id===activeTeamId);
-    if(!team)return;
-    if(isTradeLimitReached(team)){
-      const limitTxt=_maxTradesPerTeam>0?`${_maxTradesPerTeam}`:'set';
-      alert(`Trade limit reached (${limitTxt}) for this team.`);
-      return;
-    }
+    if(!team) return;
+    if(isTradeLimitReached(team)){ alert(`Trade limit reached (${_maxTradesPerTeam}) for this team.`); return; }
     const p=getPlayer(playerSlug);
-    if(!p)return;
-
+    if(!p) return;
     const fromSlot=findPlayerSlot(team,playerSlug);
-    if(!fromSlot||fromSlot.group==='B'){alert('Player must be in active roster to trade.');return;}
+    if(!fromSlot||fromSlot.group==='B'){ alert('Player must be in active roster to trade.'); return; }
+
     tradeContext={fromSlug:playerSlug,fromSlot,teamId:team.id,toSlug:null};
-    const acquiredAt=getAcquiredDateForActivePlayer(team,playerSlug);
-    const currentCap=teamMainCap(team);
+    benchSearchQuery='';
+    document.getElementById('bench-search').value='';
 
-    const fromInfo=document.getElementById('trade-from-info');
-    fromInfo.innerHTML=`
-      <strong>${escapeHtml(formatName(p.player_name))}</strong>
-      <span style="color:rgba(255,255,255,0.5);"> · ${slotLabel(fromSlot.group,fromSlot.index)} · ${formatCap(p.cap_hit||0)}</span>
-      <div class="player-meta" style="margin-top:4px;">${acquiredAt?`Held since ${new Date(acquiredAt).toLocaleDateString()} · `:'Held since pre-trade roster · '}Current cap ${formatCap(currentCap)}</div>
-    `;
+    // Populate comparison out card
+    populateCompareOut(p,fromSlot);
 
-    const benchPlayers=(team.roster.B||[]).map((slug,index)=>slug?{slug,index,player:getPlayer(slug)}:null).filter(Boolean);
-    const toList=document.getElementById('trade-to-list');
-    const eligible=benchPlayers.filter(item=>normalizePos(item.player.position)===fromSlot.group);
-    if(eligible.length){
-      const grouped={F:[],D:[],G:[]};
-      eligible.forEach(item=>{
-        const pos=normalizePos(item.player.position);
-        grouped[pos].push(item);
-      });
-      const labels={F:'Forwards',D:'Defensemen',G:'Goalies'};
-      toList.innerHTML=['F','D','G']
-        .filter(pos=>grouped[pos].length)
-        .map(pos=>`<div class="bench-pos-group"><div class="bench-pos-title">${labels[pos]}</div>${grouped[pos].map(item=>`<div class="player-option" onclick="selectTradeTarget(event,'${item.slug}')"><span class="player-option-name">${escapeHtml(formatName(item.player.player_name))}</span><span class="player-option-slot">B${item.index+1}</span><span class="player-option-meta">${formatCap(item.player.cap_hit||0)} · ${poolScore(item.player)} pts</span></div>`).join('')}</div>`)
-        .join('');
-    }else{
-      toList.innerHTML='<div class="empty-msg">No eligible bench players for this position.</div>';
-    }
+    // Reset compare in card
+    resetCompareIn();
+
+    // Build bench list
+    const benchPlayers=(team.roster.B||[]).map((slug,idx)=>slug?{slug,index:idx,player:getPlayer(slug)}:null).filter(Boolean);
+    _allBenchOptions=benchPlayers.filter(item=>normalizePos(item.player.position)===fromSlot.group);
+    renderBenchList(_allBenchOptions);
 
     updateTradePreview();
     document.getElementById('modal-trade').classList.remove('hidden');
+  }
+
+  function populateCompareOut(p,fromSlot){
+    document.getElementById('compare-out-name').textContent=formatName(p.player_name)||'—';
+    const pos=normalizePos(p.position);
+    let statsHtml='';
+    if(pos==='G'){
+      statsHtml=`<div class="compare-stat"><div class="compare-stat-label">W</div><div class="compare-stat-value">${p.wins??0}</div></div><div class="compare-stat"><div class="compare-stat-label">SHO</div><div class="compare-stat-value">${p.shutouts??0}</div></div>`;
+    } else if(pos==='D'){
+      statsHtml=`<div class="compare-stat"><div class="compare-stat-label">G</div><div class="compare-stat-value">${p.goals??0}</div></div><div class="compare-stat"><div class="compare-stat-label">A</div><div class="compare-stat-value">${p.assists??0}</div></div>`;
+    } else {
+      statsHtml=`<div class="compare-stat"><div class="compare-stat-label">PTS</div><div class="compare-stat-value">${p.points??0}</div></div><div class="compare-stat"><div class="compare-stat-label">G</div><div class="compare-stat-value">${p.goals??0}</div></div><div class="compare-stat"><div class="compare-stat-label">A</div><div class="compare-stat-value">${p.assists??0}</div></div>`;
+    }
+    statsHtml+=`<div class="compare-stat"><div class="compare-stat-label">Cap</div><div class="compare-stat-value">${formatCap(p.cap_hit||0)}</div></div>`;
+    document.getElementById('compare-out-stats').innerHTML=statsHtml;
+  }
+
+  function resetCompareIn(){
+    document.getElementById('compare-in-name').textContent='Select a player →';
+    document.getElementById('compare-in-stats').innerHTML='';
+    document.getElementById('compare-in').classList.add('empty');
+  }
+
+  function updateCompareIn(p){
+    const pFrom=getPlayer(tradeContext.fromSlug);
+    const pos=normalizePos(p.position);
+    document.getElementById('compare-in-name').textContent=formatName(p.player_name)||'—';
+    document.getElementById('compare-in').classList.remove('empty');
+
+    function betterWorse(a,b){ if(a>b)return'better'; if(a<b)return'worse'; return''; }
+
+    let statsHtml='';
+    if(pos==='G'){
+      const bW=betterWorse(p.wins??0,pFrom.wins??0), bS=betterWorse(p.shutouts??0,pFrom.shutouts??0);
+      statsHtml=`<div class="compare-stat"><div class="compare-stat-label">W</div><div class="compare-stat-value ${bW}">${p.wins??0}</div></div><div class="compare-stat"><div class="compare-stat-label">SHO</div><div class="compare-stat-value ${bS}">${p.shutouts??0}</div></div>`;
+    } else if(pos==='D'){
+      const bG=betterWorse(p.goals??0,pFrom.goals??0), bA=betterWorse(p.assists??0,pFrom.assists??0);
+      statsHtml=`<div class="compare-stat"><div class="compare-stat-label">G</div><div class="compare-stat-value ${bG}">${p.goals??0}</div></div><div class="compare-stat"><div class="compare-stat-label">A</div><div class="compare-stat-value ${bA}">${p.assists??0}</div></div>`;
+    } else {
+      const bP=betterWorse(p.points??0,pFrom.points??0), bG=betterWorse(p.goals??0,pFrom.goals??0), bA=betterWorse(p.assists??0,pFrom.assists??0);
+      statsHtml=`<div class="compare-stat"><div class="compare-stat-label">PTS</div><div class="compare-stat-value ${bP}">${p.points??0}</div></div><div class="compare-stat"><div class="compare-stat-label">G</div><div class="compare-stat-value ${bG}">${p.goals??0}</div></div><div class="compare-stat"><div class="compare-stat-label">A</div><div class="compare-stat-value ${bA}">${p.assists??0}</div></div>`;
+    }
+    const bCap=betterWorse(pFrom.cap_hit||0,p.cap_hit||0); // lower cap is better
+    statsHtml+=`<div class="compare-stat"><div class="compare-stat-label">Cap</div><div class="compare-stat-value ${bCap}">${formatCap(p.cap_hit||0)}</div></div>`;
+    document.getElementById('compare-in-stats').innerHTML=statsHtml;
+  }
+
+  function renderBenchList(options){
+    const toList=document.getElementById('trade-to-list');
+    if(!options.length){
+      const msg=_allBenchOptions.length===0
+        ?`No eligible bench players for this position (${tradeContext?.fromSlot?.group||'?'}). Add players of the same position to your bench first.`
+        :'No players match your search.';
+      toList.innerHTML=`<div class="bench-no-results">${msg}</div>`;
+      return;
+    }
+    toList.innerHTML=options.map(item=>`
+      <div class="player-option ${tradeContext?.toSlug===item.slug?'selected':''}" onclick="selectTradeTarget(event,'${item.slug}')">
+        <span class="player-option-name">${escapeHtml(formatName(item.player.player_name))}</span>
+        <span class="player-option-slot">B${item.index+1}</span>
+        <span class="player-option-meta">${formatCap(item.player.cap_hit||0)} · ${poolScore(item.player)} pts</span>
+      </div>`).join('');
+  }
+
+  function filterBenchList(query){
+    benchSearchQuery=query.toLowerCase().trim();
+    const filtered=benchSearchQuery
+      ?_allBenchOptions.filter(item=>formatName(item.player.player_name).toLowerCase().includes(benchSearchQuery))
+      :_allBenchOptions;
+    renderBenchList(filtered);
   }
 
   function selectTradeTarget(ev,slug){
@@ -895,6 +1047,8 @@
     tradeContext.toSlug=slug;
     document.querySelectorAll('#trade-to-list .player-option').forEach(el=>el.classList.remove('selected'));
     ev.currentTarget.classList.add('selected');
+    const p=getPlayer(slug);
+    if(p) updateCompareIn(p);
     updateTradePreview();
   }
 
@@ -905,60 +1059,29 @@
     const noteEl=document.getElementById('trade-preview-note');
     const btn=document.getElementById('trade-confirm-btn');
     const team=teams.find(t=>t.id===activeTeamId);
-    if(!team||!tradeContext){
-      btn.disabled=true;
-      currentEl.textContent=afterEl.textContent=remainingEl.textContent='—';
-      noteEl.textContent='Select an eligible bench player to preview the swap.';
-      noteEl.className='trade-preview-note';
-      return;
-    }
-    if(isTradeLimitReached(team)){
-      btn.disabled=true;
-      currentEl.textContent=afterEl.textContent=remainingEl.textContent='—';
-      noteEl.textContent=`Trade limit reached (${_maxTradesPerTeam}).`;
-      noteEl.className='trade-preview-note warn';
-      return;
-    }
+    if(!team||!tradeContext){ btn.disabled=true; currentEl.textContent=afterEl.textContent=remainingEl.textContent='—'; noteEl.textContent='Select an eligible bench player to preview the swap.'; noteEl.className='trade-preview-note'; return; }
+    if(isTradeLimitReached(team)){ btn.disabled=true; currentEl.textContent=afterEl.textContent=remainingEl.textContent='—'; noteEl.textContent=`Trade limit reached (${_maxTradesPerTeam}).`; noteEl.className='trade-preview-note warn'; return; }
     const currentCap=teamMainCap(team);
     currentEl.textContent=formatCap(currentCap);
-    if(!tradeContext.toSlug){
-      afterEl.textContent='—';
-      remainingEl.textContent='—';
-      btn.disabled=true;
-      noteEl.textContent='Select an eligible bench player to preview the swap.';
-      noteEl.className='trade-preview-note';
-      return;
-    }
+    if(!tradeContext.toSlug){ afterEl.textContent='—'; remainingEl.textContent='—'; btn.disabled=true; noteEl.textContent='Select an eligible bench player to preview the swap.'; noteEl.className='trade-preview-note'; return; }
     const fromPlayer=getPlayer(tradeContext.fromSlug,tradeContext.fromSlot.group);
     const toPlayer=getPlayer(tradeContext.toSlug,tradeContext.fromSlot.group);
     const capAfter=currentCap-(fromPlayer.cap_hit||0)+(toPlayer.cap_hit||0);
     const capRemaining=CAP_MAX-capAfter;
     afterEl.textContent=formatCap(capAfter);
     remainingEl.textContent=formatCap(capRemaining);
-    if(capAfter>CAP_MAX){
-      btn.disabled=true;
-      noteEl.textContent=`Over cap by ${formatCap(capAfter-CAP_MAX)}. Choose a cheaper player.`;
-      noteEl.className='trade-preview-note warn';
-    }else{
-      btn.disabled=false;
-      noteEl.textContent=`Eligible ${tradeContext.fromSlot.group}-for-${tradeContext.fromSlot.group} swap. Bench salary still stays off-cap after the move.`;
-      noteEl.className='trade-preview-note good';
-    }
+    if(capAfter>CAP_MAX){ btn.disabled=true; noteEl.textContent=`Over cap by ${formatCap(capAfter-CAP_MAX)}. Choose a cheaper player.`; noteEl.className='trade-preview-note warn'; }
+    else{ btn.disabled=false; noteEl.textContent=`Eligible ${tradeContext.fromSlot.group}-for-${tradeContext.fromSlot.group} swap. Bench salary stays off-cap.`; noteEl.className='trade-preview-note good'; }
   }
 
+  /* ═══════════════════════════════════════════════════
+     EXECUTE TRADE
+  ═══════════════════════════════════════════════════ */
   async function executeTradeRpc(team){
     const now=new Date().toISOString();
     const res=await fetch(`${SUPABASE_URL}/rest/v1/rpc/execute_pool_trade`,{
-      method:'POST',
-      headers:sbHeaders(),
-      body:JSON.stringify({
-        p_league_code:_leagueCode,
-        p_team_id:team.id,
-        p_team_name:team.name,
-        p_player_from_slug:tradeContext.fromSlug,
-        p_player_to_slug:tradeContext.toSlug,
-        p_date_traded:now
-      })
+      method:'POST', headers:sbHeaders(),
+      body:JSON.stringify({p_league_code:_leagueCode,p_team_id:team.id,p_team_name:team.name,p_player_from_slug:tradeContext.fromSlug,p_player_to_slug:tradeContext.toSlug,p_date_traded:now})
     });
     if(res.ok) return true;
     const text=await res.text();
@@ -970,38 +1093,8 @@
   async function createTradeRecord(team,dateFromAcquired,fromPlayer,toPlayer,fromSlot,toSlot,now){
     const pointsAtTrade=poolScore(fromPlayer);
     const rows=await postWithFallback(`${SUPABASE_URL}/rest/v1/player_trades`,[
-      {
-        league_code:_leagueCode,
-        team_id:team.id,
-        team_name:team.name,
-        team_name_snapshot:team.name,
-        player_from_slug:tradeContext.fromSlug,
-        player_to_slug:tradeContext.toSlug,
-        player_from_name:formatName(fromPlayer.player_name),
-        player_to_name:formatName(toPlayer.player_name),
-        player_from_position:normalizePos(fromPlayer.position),
-        player_to_position:normalizePos(toPlayer.position),
-        player_from_team:fromPlayer.team||null,
-        player_to_team:toPlayer.team||null,
-        from_slot_group:fromSlot.group,
-        from_slot_index:fromSlot.index,
-        to_slot_group:'B',
-        to_slot_index:toSlot.index,
-        date_from_acquired:dateFromAcquired,
-        date_traded:now,
-        points_accumulated_at_trade:pointsAtTrade
-      },
-      {
-        league_code:_leagueCode,
-        team_id:team.id,
-        team_name:team.name,
-        team_name_snapshot:team.name,
-        player_from_slug:tradeContext.fromSlug,
-        player_to_slug:tradeContext.toSlug,
-        date_from_acquired:dateFromAcquired,
-        date_traded:now,
-        points_accumulated_at_trade:pointsAtTrade
-      }
+      {league_code:_leagueCode,team_id:team.id,team_name:team.name,team_name_snapshot:team.name,player_from_slug:tradeContext.fromSlug,player_to_slug:tradeContext.toSlug,player_from_name:formatName(fromPlayer.player_name),player_to_name:formatName(toPlayer.player_name),player_from_position:normalizePos(fromPlayer.position),player_to_position:normalizePos(toPlayer.position),player_from_team:fromPlayer.team||null,player_to_team:toPlayer.team||null,from_slot_group:fromSlot.group,from_slot_index:fromSlot.index,to_slot_group:'B',to_slot_index:toSlot.index,date_from_acquired:dateFromAcquired,date_traded:now,points_accumulated_at_trade:pointsAtTrade},
+      {league_code:_leagueCode,team_id:team.id,team_name:team.name,team_name_snapshot:team.name,player_from_slug:tradeContext.fromSlug,player_to_slug:tradeContext.toSlug,date_from_acquired:dateFromAcquired,date_traded:now,points_accumulated_at_trade:pointsAtTrade}
     ]);
     return Array.isArray(rows)?rows[0]:rows;
   }
@@ -1025,92 +1118,162 @@
     let tradeRecordId=null;
     team.roster[fromSlot.group][fromSlot.index]=tradeContext.toSlug;
     team.roster.B[toSlot.index]=tradeContext.fromSlug;
-
-    // Save stats snapshot for the newly activated player (bench → active)
     if(!team.acquisitions) team.acquisitions={};
     team.acquisitions[tradeContext.toSlug]={date:now,stats_snapshot:captureStatsSnapshot(toPlayer)};
 
     try{
       await saveRostersToSupabase();
-
       tradeRecordId=(await createTradeRecord(team,dateFromAcquired,fromPlayer,toPlayer,fromSlot,toSlot,now))?.id||null;
     }catch(e){
       team.roster=originalRoster;
-      try{await saveRostersToSupabase();}catch(_){console.warn('Roster rollback failed');}
-      if(tradeRecordId){
-        try{await fetch(`${SUPABASE_URL}/rest/v1/player_trades?id=eq.${tradeRecordId}`,{method:'DELETE',headers:sbHeaders()});}catch(_){console.warn('Trade rollback failed');}
-      }
+      try{ await saveRostersToSupabase(); }catch(_){ console.warn('Roster rollback failed'); }
+      if(tradeRecordId){ try{ await fetch(`${SUPABASE_URL}/rest/v1/player_trades?id=eq.${tradeRecordId}`,{method:'DELETE',headers:sbHeaders()}); }catch(_){ console.warn('Trade rollback failed'); } }
       throw e;
+    }
+    return{fromPlayer,toPlayer,tradeRecordId,fromSlot,toSlot,originalRoster,dateFromAcquired,now};
+  }
+
+  async function confirmTrade(){
+    if(!tradeContext?.fromSlug||!tradeContext?.toSlug){ alert('Please select both players'); return; }
+    if(isSubmittingTrade) return;
+    const team=teams.find(t=>t.id===activeTeamId);
+    if(!team){ alert('Team not found'); return; }
+    if(isTradeLimitReached(team)){ alert(`Trade limit reached (${_maxTradesPerTeam}) for this team.`); return; }
+
+    const fromSlug=tradeContext.fromSlug;
+    const toSlug=tradeContext.toSlug;
+    const confirmBtn=document.getElementById('trade-confirm-btn');
+
+    isSubmittingTrade=true;
+    if(confirmBtn){ confirmBtn.disabled=true; confirmBtn.textContent='Executing...'; }
+
+    try{
+      const fromPlayer=getPlayer(fromSlug);
+      const toPlayer=getPlayer(toSlug);
+
+      const usedRpc=await executeTradeRpc(team);
+      let legacyResult=null;
+      if(!usedRpc) legacyResult=await executeTradeLegacy(team);
+
+      const tradeLogged=await waitForTradeHistory(team,fromSlug,toSlug,12);
+      if(!tradeLogged) console.warn('Trade executed but not yet visible in history.');
+
+      closeModal();
+      await load(activeTeamId);
+
+      // Show last trade banner
+      showLastTradeBanner(fromPlayer,toPlayer);
+
+      // Open undo window
+      openUndoModal(team,fromSlug,toSlug,fromPlayer,toPlayer);
+
+    }catch(e){
+      const msg=e?.message||'';
+      const staleOutgoing=/Outgoing player is not on the active roster/i.test(msg);
+      if(staleOutgoing){
+        await waitForTradeHistory(team,fromSlug,toSlug,6);
+        closeModal();
+        await load(activeTeamId);
+        return;
+      }
+      alert(msg||'Error executing trade');
+      console.error(e);
+      await load(activeTeamId);
+    }finally{
+      isSubmittingTrade=false;
+      if(confirmBtn){ confirmBtn.textContent='Execute Trade'; confirmBtn.disabled=!tradeContext?.toSlug; }
     }
   }
 
-   async function confirmTrade(){
-     if(!tradeContext?.fromSlug||!tradeContext?.toSlug){alert('Please select both players');return;}
-     if(isSubmittingTrade) return;
-     const team=teams.find(t=>t.id===activeTeamId);
-     if(!team){alert('Team not found');return;}
-     if(isTradeLimitReached(team)){
-       alert(`Trade limit reached (${_maxTradesPerTeam}) for this team.`);
-       return;
-     }
-     const fromSlug=tradeContext.fromSlug;
-     const toSlug=tradeContext.toSlug;
-     const confirmBtn=document.getElementById('trade-confirm-btn');
-
-     isSubmittingTrade=true;
-     if(confirmBtn){
-       confirmBtn.disabled=true;
-       confirmBtn.textContent='Executing...';
-     }
-
-       try{
-         const usedRpc=await executeTradeRpc(team);
-         if(!usedRpc) await executeTradeLegacy(team);
-
-         // Wait aggressively for the trade to appear
-         const tradeLogged=await waitForTradeHistory(team,fromSlug,toSlug,12);
-         if(!tradeLogged){
-           console.warn('Trade executed but not yet visible in history. Will refresh anyway.');
-         }
-
-         closeModal();
-         showToast('✓ Trade executed successfully!');
-         await load(activeTeamId);
-      }catch(e){
-        const msg=e?.message||'';
-        const staleOutgoing=/Outgoing player is not on the active roster/i.test(msg);
-        if(staleOutgoing){
-          // If the first request already swapped/logged the trade, treat the second stale attempt as success.
-          console.log('[Trade] Stale outgoing error - checking if trade was already logged');
-          await waitForTradeHistory(team,fromSlug,toSlug,6);
-          closeModal();
-          await load(activeTeamId);
-          return;
-        }
-        alert(msg||'Error executing trade');
-        console.error(e);
-        await load(activeTeamId);
-     }finally{
-       isSubmittingTrade=false;
-       if(confirmBtn){
-         confirmBtn.textContent='Execute Trade';
-         confirmBtn.disabled=!tradeContext?.toSlug;
-       }
-     }
-   }
-
   function closeModal(){
     document.getElementById('modal-trade').classList.add('hidden');
-    tradeContext=null;
-    document.getElementById('trade-from-info').innerHTML='';
+    tradeContext=null; benchSearchQuery='';
+    document.getElementById('bench-search').value='';
     document.getElementById('trade-to-list').innerHTML='';
     document.getElementById('trade-confirm-btn').disabled=true;
+    resetCompareIn();
     updateTradePreview();
   }
 
+  /* ═══════════════════════════════════════════════════
+     LAST TRADE BANNER
+  ═══════════════════════════════════════════════════ */
+  function showLastTradeBanner(fromPlayer,toPlayer){
+    const banner=document.getElementById('last-trade-banner');
+    const text=document.getElementById('last-trade-banner-text');
+    text.innerHTML=`✅ Trade complete: <strong>${escapeHtml(formatName(fromPlayer.player_name))}</strong> → bench &nbsp;|&nbsp; <strong>${escapeHtml(formatName(toPlayer.player_name))}</strong> → active roster`;
+    banner.classList.remove('hidden');
+  }
 
-    load().catch(console.error);
+  /* ═══════════════════════════════════════════════════
+     UNDO MODAL
+  ═══════════════════════════════════════════════════ */
+  function openUndoModal(team,fromSlug,toSlug,fromPlayer,toPlayer){
+    undoContext={team,fromSlug,toSlug,fromPlayer,toPlayer};
+    const desc=document.getElementById('undo-desc');
+    desc.innerHTML=`You just moved <strong>${escapeHtml(formatName(fromPlayer.player_name))}</strong> to the bench and activated <strong>${escapeHtml(formatName(toPlayer.player_name))}</strong>. You have ${UNDO_WINDOW_SECONDS} seconds to undo this.`;
+    document.getElementById('undo-countdown').textContent=UNDO_WINDOW_SECONDS;
+    document.getElementById('undo-bar').style.width='100%';
+    document.getElementById('modal-undo').classList.remove('hidden');
+
+    let secondsLeft=UNDO_WINDOW_SECONDS;
+    undoInterval=setInterval(()=>{
+      secondsLeft--;
+      document.getElementById('undo-countdown').textContent=secondsLeft;
+      document.getElementById('undo-bar').style.width=`${(secondsLeft/UNDO_WINDOW_SECONDS)*100}%`;
+      if(secondsLeft<=0){ clearInterval(undoInterval); closeUndoModal(); }
+    },1000);
+  }
+
+  function closeUndoModal(){
+    clearInterval(undoInterval);
+    document.getElementById('modal-undo').classList.add('hidden');
+    undoContext=null;
+  }
+
+  async function executeUndo(){
+    if(!undoContext) return;
+    clearInterval(undoInterval);
+    const {team,fromSlug,toSlug}=undoContext;
+    document.getElementById('undo-confirm-btn').disabled=true;
+    document.getElementById('undo-confirm-btn').textContent='Undoing…';
+
+    try{
+      // Swap roster back
+      const activeSlot=findPlayerSlot(team,toSlug);  // toSlug is now on active
+      const benchSlot=findPlayerSlot(team,fromSlug); // fromSlug is now on bench
+      if(!activeSlot||benchSlot?.group!=='B') throw new Error('Cannot find players to undo trade.');
+
+      team.roster[activeSlot.group][activeSlot.index]=fromSlug;
+      team.roster.B[benchSlot.index]=toSlug;
+
+      // Restore acquisition for the player that went back to active
+      if(team.acquisitions?.[toSlug]) delete team.acquisitions[toSlug];
+
+      await saveRostersToSupabase();
+
+      // Delete the most recent trade record for this swap
+      const tradeRecord=currentTrades.find(t=>teamTradeMatch(t,team)&&t.player_from_slug===fromSlug&&t.player_to_slug===toSlug&&t.player_from_slug!==t.player_to_slug);
+      if(tradeRecord?.id){
+        await fetch(`${SUPABASE_URL}/rest/v1/player_trades?id=eq.${tradeRecord.id}`,{method:'DELETE',headers:sbHeaders()});
+      }
+
+      closeUndoModal();
+      showToast('↩ Trade undone successfully');
+      await load(activeTeamId);
+      document.getElementById('last-trade-banner').classList.add('hidden');
+    }catch(e){
+      console.error('Undo failed:',e);
+      alert('Failed to undo trade: '+e.message);
+      closeUndoModal();
+      await load(activeTeamId);
+    }
+  }
+
+  /* ═══════════════════════════════════════════════════
+     BOOT
+  ═══════════════════════════════════════════════════ */
+  load().catch(console.error);
 </script>
 </body>
 </html>
-
