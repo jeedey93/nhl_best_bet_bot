@@ -442,19 +442,30 @@
   async function loadTrades(){
     try{
       const cols='id,created_at,league_code,team_name,team_id,team_name_snapshot,player_from_slug,player_to_slug,player_from_name,player_to_name,player_from_position,player_to_position,player_from_team,player_to_team,from_slot_group,from_slot_index,to_slot_group,to_slot_index,date_from_acquired,date_traded,points_accumulated_at_trade';
-      const res=await fetch(`${SUPABASE_URL}/rest/v1/player_trades?league_code=eq.${_leagueCode}&select=${cols}&order=date_traded.desc`,{headers:sbHeaders({'Cache-Control':'no-cache'})});
-      if(!res.ok) throw new Error(`player_trades ${res.status}`);
+      const url=`${SUPABASE_URL}/rest/v1/player_trades?league_code=eq.${_leagueCode}&select=${cols}&order=date_traded.desc`;
+      const res=await fetch(url,{headers:sbHeaders({'Cache-Control':'no-cache'})});
+      if(!res.ok){
+        const errText=await res.text();
+        throw new Error(`player_trades ${res.status}: ${errText}`);
+      }
       currentTrades=await res.json();
+      console.log(`Loaded ${currentTrades.length} trades for league ${_leagueCode}`,currentTrades);
     }catch(e){currentTrades=[];console.warn('Unable to load trades',e);loadWarnings.push('Trade history could not be fully loaded.');}
   }
 
   async function waitForTradeHistory(team,fromSlug,toSlug,maxAttempts=12){
     for(let i=0;i<maxAttempts;i++){
+      console.log(`[Wait attempt ${i+1}/${maxAttempts}] Looking for trade: ${fromSlug} → ${toSlug}`);
       await loadTrades();
-      const found=currentTrades.some(t=>teamTradeMatch(t,team)&&t.player_from_slug===fromSlug&&t.player_to_slug===toSlug);
+      const found=currentTrades.some(t=>{
+        const matches=teamTradeMatch(t,team)&&t.player_from_slug===fromSlug&&t.player_to_slug===toSlug;
+        if(matches) console.log('✓ Found trade!',t);
+        return matches;
+      });
       if(found) return true;
       if(i < maxAttempts - 1) await new Promise(r=>setTimeout(r,500));
     }
+    console.warn(`✗ Trade not found after ${maxAttempts} attempts. Current trades:`,currentTrades.filter(t=>teamTradeMatch(t,team)));
     return false;
   }
 
@@ -852,31 +863,35 @@
        confirmBtn.textContent='Executing...';
      }
 
-     try{
-       const usedRpc=await executeTradeRpc(team);
-       if(!usedRpc) await executeTradeLegacy(team);
+      try{
+        console.log(`[Trade] Starting: ${fromSlug} ↔ ${toSlug} for team ${team.id}/${team.name}`);
+        const usedRpc=await executeTradeRpc(team);
+        console.log(`[Trade] RPC executed. Used RPC: ${usedRpc}. Now waiting for history...`);
+        if(!usedRpc) await executeTradeLegacy(team);
 
-       // Wait aggressively for the trade to appear
-       const tradeLogged=await waitForTradeHistory(team,fromSlug,toSlug,12);
-       if(!tradeLogged){
-         console.warn('Trade executed but not yet visible in history. Will refresh anyway.');
-       }
+        // Wait aggressively for the trade to appear
+        const tradeLogged=await waitForTradeHistory(team,fromSlug,toSlug,12);
+        console.log(`[Trade] Trade history ${tradeLogged?'found':'NOT found'} after execution`);
+        if(!tradeLogged){
+          console.warn('Trade executed but not yet visible in history. Will refresh anyway.');
+        }
 
-       closeModal();
-       await load(activeTeamId);
-     }catch(e){
-       const msg=e?.message||'';
-       const staleOutgoing=/Outgoing player is not on the active roster/i.test(msg);
-       if(staleOutgoing){
-         // If the first request already swapped/logged the trade, treat the second stale attempt as success.
-         await waitForTradeHistory(team,fromSlug,toSlug,6);
-         closeModal();
-         await load(activeTeamId);
-         return;
-       }
-       alert(msg||'Error executing trade');
-       console.error(e);
-       await load(activeTeamId);
+        closeModal();
+        await load(activeTeamId);
+      }catch(e){
+        const msg=e?.message||'';
+        const staleOutgoing=/Outgoing player is not on the active roster/i.test(msg);
+        if(staleOutgoing){
+          // If the first request already swapped/logged the trade, treat the second stale attempt as success.
+          console.log('[Trade] Stale outgoing error - checking if trade was already logged');
+          await waitForTradeHistory(team,fromSlug,toSlug,6);
+          closeModal();
+          await load(activeTeamId);
+          return;
+        }
+        alert(msg||'Error executing trade');
+        console.error(e);
+        await load(activeTeamId);
      }finally{
        isSubmittingTrade=false;
        if(confirmBtn){
