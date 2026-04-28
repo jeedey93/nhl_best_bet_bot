@@ -292,7 +292,7 @@
 
   let allPlayers=[], teams=[], activeTeamId=null;
   let _scoring={f_points:1,d_goals:1,d_assists:1,g_wins:2,g_shutouts:3};
-  let currentHolds=[], currentTrades=[], loadWarnings=[];
+  let currentTrades=[], loadWarnings=[];
   let tradeContext=null;
 
   document.getElementById('nav-draft').href       = `/pool/join?league=${_leagueCode}`;
@@ -311,9 +311,10 @@
   function slotLabel(group,index){return `${group}${index+1}`;}
   function fallbackPlayer(slug,group='F'){return {puckpedia_slug:slug,player_name:slug?.split('/').pop()?.replace(/-/g,' ')||slug,position:group,cap_hit:0,team:''};}
   function getPlayer(slug,group='F'){return slugMap()[slug]||fallbackPlayer(slug,group);}
-  function teamHoldMatch(hold,team){return (!!hold.team_id&&!!team.id&&hold.team_id===team.id)||hold.team_name===team.name||hold.team_name_snapshot===team.name;}
-  function findHold(team,slug){return currentHolds.find(h=>h.player_slug===slug&&teamHoldMatch(h,team))||null;}
-  function collectRelevantSlugs(){const set=new Set();teams.forEach(team=>['F','D','G','B'].forEach(group=>(team.roster[group]||[]).filter(Boolean).forEach(slug=>set.add(slug))));currentTrades.forEach(t=>{if(t.player_from_slug)set.add(t.player_from_slug);if(t.player_to_slug)set.add(t.player_to_slug);});currentHolds.forEach(h=>{if(h.player_slug)set.add(h.player_slug);});return [...set];}
+  function teamTradeMatch(trade,team){return (!!trade.team_id&&!!team.id&&trade.team_id===team.id)||trade.team_name===team.name||trade.team_name_snapshot===team.name;}
+  function findLatestIncomingTrade(team,slug){return currentTrades.find(t=>teamTradeMatch(t,team)&&t.player_to_slug===slug)||null;}
+  function getAcquiredDateForActivePlayer(team,slug){return findLatestIncomingTrade(team,slug)?.date_traded||null;}
+  function collectRelevantSlugs(){const set=new Set();teams.forEach(team=>['F','D','G','B'].forEach(group=>(team.roster[group]||[]).filter(Boolean).forEach(slug=>set.add(slug))));currentTrades.forEach(t=>{if(t.player_from_slug)set.add(t.player_from_slug);if(t.player_to_slug)set.add(t.player_to_slug);});return [...set];}
   function teamMainCap(team){
     const m=slugMap();
     return [...(team.roster.F||[]),...(team.roster.D||[]),...(team.roster.G||[])]
@@ -430,21 +431,11 @@
 
       activeTeamId=teams.find(t=>t.id===preferredTeamId)?.id||firstRow.data?.activeTeamId&&teams.find(t=>t.id===firstRow.data.activeTeamId)?.id||teams[0]?.id;
 
-      await Promise.all([loadHolds(),loadTrades()]);
+      await loadTrades();
       await ensurePlayersLoaded(collectRelevantSlugs());
-      await initializeHoldsForRoster();
-      await loadHolds();
       renderTeamSelector();
       render();
     }catch(e){console.error(e);document.getElementById('content').innerHTML=`<div class="msg">Failed to load. <button class="btn-refresh" onclick="location.reload()">Retry</button></div>`;}
-  }
-
-  async function loadHolds(){
-    try{
-      const res=await fetch(`${SUPABASE_URL}/rest/v1/player_holds?league_code=eq.${_leagueCode}&order=date_acquired.asc`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
-      if(!res.ok) throw new Error(`player_holds ${res.status}`);
-      currentHolds=await res.json();
-    }catch(e){currentHolds=[];console.warn('Unable to load holds',e);loadWarnings.push('Active hold data could not be fully loaded.');}
   }
 
   async function loadTrades(){
@@ -455,121 +446,20 @@
     }catch(e){currentTrades=[];console.warn('Unable to load trades',e);loadWarnings.push('Trade history could not be fully loaded.');}
   }
 
-   async function initializeHoldsForRoster(){
-     if(!activeTeamId) return;
-     try{
-       const team=teams.find(t=>t.id===activeTeamId);
-       if(!team) return;
-       const existingHoldKeys=new Set(currentHolds.filter(h=>teamHoldMatch(h,team)).map(h=>`${h.team_id||team.id||h.team_name}::${h.player_slug}`));
-
-       const mainRosterPlayers=[
-         ...(team.roster.F||[]),
-         ...(team.roster.D||[]),
-         ...(team.roster.G||[])
-       ].filter(Boolean);
-
-       let successCount=0, errorCount=0;
-
-       for(const slug of mainRosterPlayers){
-         const holdKey=`${team.id||team.name}::${slug}`;
-         if(existingHoldKeys.has(holdKey)){
-           successCount++;
-           continue;
-         }
-
-         const now=new Date().toISOString();
-         const hold={
-           league_code:_leagueCode,
-           team_id:team.id,
-           team_name:team.name,
-           team_name_snapshot:team.name,
-           player_slug:slug,
-           date_acquired:now,
-           points_accumulated:0
-         };
-
-         let holdCreated=false;
-         let lastError=null;
-
-         // Try up to 3 times with backoff
-         for(let attempt=0; attempt<3; attempt++){
-           try{
-             const created=await postWithFallback(`${SUPABASE_URL}/rest/v1/player_holds`,[
-               hold,
-               {league_code:_leagueCode,team_name:team.name,player_slug:slug,date_acquired:now,points_accumulated:0}
-             ]);
-
-             if(created?.conflict){
-               existingHoldKeys.add(holdKey);
-               successCount++;
-               holdCreated=true;
-               break;
-             }else if(created){
-               const holdRecord=Array.isArray(created)?created[0]:created;
-               if(holdRecord) currentHolds.push(holdRecord);
-               existingHoldKeys.add(holdKey);
-               successCount++;
-               holdCreated=true;
-               break;
-             }else{
-               existingHoldKeys.add(holdKey);
-               successCount++;
-               holdCreated=true;
-               break;
-             }
-           }catch(err){
-             lastError=err;
-             if(attempt<2){
-               // Wait before retry (100ms * (attempt + 1))
-               await new Promise(r=>setTimeout(r,100*(attempt+1)));
-             }
-           }
-         }
-
-         if(!holdCreated){
-           errorCount++;
-           console.warn(`Failed to create hold for ${slug} after 3 attempts:`,lastError);
-         }
-       }
-
-       // Only warn if significant portion failed
-       if(errorCount>0&&errorCount>mainRosterPlayers.length*0.2){
-         loadWarnings.push(`${errorCount} hold(s) failed to initialize. They will be created on-demand when trading.`);
-       }
-     }catch(e){
-       console.error('Error initializing holds:',e);
-       loadWarnings.push('Could not fully initialize active roster holds. Holds will be created on-demand.');
-     }
-   }
 
   function renderTeamSelector(){
     const html=teams.map(t=>`<button class="team-btn ${t.id===activeTeamId?'active':''}" onclick="setActiveTeam('${t.id}')">${t.name}</button>`).join('');
     document.getElementById('team-selector').innerHTML=html;
   }
 
-   async function setActiveTeam(teamId){
+   function setActiveTeam(teamId){
      activeTeamId=teamId;
-     await initializeHoldsForRoster();
-     await new Promise(r=>setTimeout(r,100)); // Brief wait for DB writes
-     await loadHolds();
      renderTeamSelector();
      render();
    }
 
    function buildWarningBox(){
      if(!loadWarnings.length) return '';
-     // Filter out stale initialization warnings if we now have decent hold coverage
-     const team=teams.find(t=>t.id===activeTeamId);
-     if(team){
-       const mainRosterCount=[...(team.roster.F||[]),...(team.roster.D||[]),...(team.roster.G||[])].filter(Boolean).length;
-       const heldCount=currentHolds.filter(h=>teamHoldMatch(h,team)).length;
-       // If we have holds for 80%+ of roster, don't show initial sync warnings
-       if(mainRosterCount>0&&heldCount/mainRosterCount>0.8){
-         const filtered=loadWarnings.filter(w=>!/hold|sync|initialize/.test(w));
-         if(!filtered.length) return '';
-         return `<div class="warning-box"><div class="warning-box-title">Heads up</div><ul class="warning-list">${filtered.map(msg=>`<li>${escapeHtml(msg)}</li>`).join('')}</ul></div>`;
-       }
-     }
      const unique=[...new Set(loadWarnings)];
      return `<div class="warning-box"><div class="warning-box-title">Heads up</div><ul class="warning-list">${unique.map(msg=>`<li>${escapeHtml(msg)}</li>`).join('')}</ul></div>`;
    }
@@ -577,10 +467,10 @@
   function buildSummary(team,activeCount,benchCount,tradeCount){
     const capUsed=teamMainCap(team);
     const capRemaining=CAP_MAX-capUsed;
-    const activeHeld=(currentHolds.filter(h=>{
-      const slot=findPlayerSlot(team,h.player_slug);
-      return teamHoldMatch(h,team)&&!!slot&&slot.group!=='B';
-    }).length);
+    const activeWithTenure=[...(team.roster.F||[]),...(team.roster.D||[]),...(team.roster.G||[])]
+      .filter(Boolean)
+      .filter(slug=>!!getAcquiredDateForActivePlayer(team,slug))
+      .length;
     return `
       <div class="summary-grid">
         <div class="summary-card ${capRemaining<0?'warn':'good'}">
@@ -595,9 +485,9 @@
           <div class="summary-label">Active slots</div>
           <div class="summary-value">${activeCount}</div>
         </div>
-        <div class="summary-card ${activeHeld<activeCount?'warn':''}">
-          <div class="summary-label">Tracked holds</div>
-          <div class="summary-value">${activeHeld}/${activeCount}</div>
+        <div class="summary-card ${activeWithTenure<activeCount?'warn':''}">
+          <div class="summary-label">Tenure logged</div>
+          <div class="summary-value">${activeWithTenure}/${activeCount}</div>
         </div>
         <div class="summary-card">
           <div class="summary-label">Bench / trades</div>
@@ -607,23 +497,22 @@
     `;
   }
 
-   function buildHoldCard(slot,hold,p){
-     const daysHeld=hold?.date_acquired?Math.max(0,Math.floor((new Date()-new Date(hold.date_acquired))/86400000)):0;
+   function buildHoldCard(slot,acquiredAt,p){
+     const daysHeld=acquiredAt?Math.max(0,Math.floor((new Date()-new Date(acquiredAt))/86400000)):'-';
      const pts=poolScore(p);
      const abbr=TEAM_ABBR[p.team]||'';
-     const isSynthetic=hold?._synthetic;
      return `
        <div class="hold-card">
          <div class="hold-player">
            ${abbr?`<img class="player-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}">`:''}
            <div class="hold-info">
              <div class="hold-name"><span class="hold-slot">${slot}</span>${escapeHtml(formatName(p.player_name))}</div>
-             <div class="hold-since">${hold?.date_acquired?`Acquired: ${new Date(hold.date_acquired).toLocaleDateString()}${isSynthetic?' (syncing...)':''}`:''}</div>
+             <div class="hold-since">${acquiredAt?`Acquired: ${new Date(acquiredAt).toLocaleDateString()}`:'Acquired: pre-trade roster (not yet in trade log)'}</div>
            </div>
          </div>
          <div class="hold-stats">
            <div class="hold-stat"><div class="hold-stat-label">Days Held</div><div class="hold-stat-value">${daysHeld}</div></div>
-           <div class="hold-stat"><div class="hold-stat-label">Accumul. Points</div><div class="hold-stat-value">${hold?.points_accumulated||0}</div></div>
+           <div class="hold-stat"><div class="hold-stat-label">Tenure</div><div class="hold-stat-value">${acquiredAt?'Tracked':'Legacy'}</div></div>
            <div class="hold-stat"><div class="hold-stat-label">Current Pts</div><div class="hold-stat-value">${pts}</div></div>
          </div>
          <div class="hold-actions">
@@ -657,8 +546,7 @@
      const team=teams.find(t=>t.id===activeTeamId);
      if(!team){document.getElementById('content').innerHTML='<div class="msg">Team not found.</div>';return;}
 
-     const teamHolds=currentHolds.filter(h=>teamHoldMatch(h,team));
-     const teamTrades=[...currentTrades.filter(t=>((t.team_id&&team.id&&t.team_id===team.id)||t.team_name===team.name||t.team_name_snapshot===team.name))].sort((a,b)=>new Date(b.date_traded)-new Date(a.date_traded));
+     const teamTrades=[...currentTrades.filter(t=>teamTradeMatch(t,team))].sort((a,b)=>new Date(b.date_traded)-new Date(a.date_traded));
      const activeCount=[...(team.roster.F||[]),...(team.roster.D||[]),...(team.roster.G||[])].filter(Boolean).length;
      const benchCount=(team.roster.B||[]).filter(Boolean).length;
 
@@ -672,24 +560,11 @@
        ['F','D','G'].forEach(pos=>{
          const rows=(team.roster[pos]||[]).map((slug,idx)=>{
            if(!slug) return null;
-           let hold=findHold(team,slug);
-           // Fallback: if no hold found, create a synthetic one for display
-           // This shows the player was added today but the DB hold hasn't synced yet
-           if(!hold){
-             hold={
-               league_code:_leagueCode,
-               team_id:team.id,
-               team_name:team.name,
-               player_slug:slug,
-               date_acquired:new Date().toISOString(),
-               points_accumulated:0,
-               _synthetic:true  // Mark as placeholder
-             };
-           }
-           return {slot:slotLabel(pos,idx),hold,player:getPlayer(slug,pos)};
+           const acquiredAt=getAcquiredDateForActivePlayer(team,slug);
+           return {slot:slotLabel(pos,idx),acquiredAt,player:getPlayer(slug,pos)};
          }).filter(Boolean);
          if(!rows.length) return;
-         html+=`<div class="hold-pos-group"><div class="hold-pos-title ${pos}">${labels[pos]} (${rows.length})</div>${rows.map(item=>buildHoldCard(item.slot,item.hold,item.player)).join('')}</div>`;
+         html+=`<div class="hold-pos-group"><div class="hold-pos-title ${pos}">${labels[pos]} (${rows.length})</div>${rows.map(item=>buildHoldCard(item.slot,item.acquiredAt,item.player)).join('')}</div>`;
        });
      }else{
        html+='<div class="empty-msg">No active roster players found.</div>';
@@ -778,14 +653,14 @@
     const fromSlot=findPlayerSlot(team,playerSlug);
     if(!fromSlot||fromSlot.group==='B'){alert('Player must be in active roster to trade.');return;}
     tradeContext={fromSlug:playerSlug,fromSlot,teamId:team.id,toSlug:null};
-    const hold=findHold(team,playerSlug);
+    const acquiredAt=getAcquiredDateForActivePlayer(team,playerSlug);
     const currentCap=teamMainCap(team);
 
     const fromInfo=document.getElementById('trade-from-info');
     fromInfo.innerHTML=`
       <strong>${escapeHtml(formatName(p.player_name))}</strong>
       <span style="color:rgba(255,255,255,0.5);"> · ${slotLabel(fromSlot.group,fromSlot.index)} · ${formatCap(p.cap_hit||0)}</span>
-      <div class="player-meta" style="margin-top:4px;">${hold?.date_acquired?`Held since ${new Date(hold.date_acquired).toLocaleDateString()} · `:''}Current cap ${formatCap(currentCap)}</div>
+      <div class="player-meta" style="margin-top:4px;">${acquiredAt?`Held since ${new Date(acquiredAt).toLocaleDateString()} · `:'Held since pre-trade roster · '}Current cap ${formatCap(currentCap)}</div>
     `;
 
     const benchPlayers=(team.roster.B||[]).map((slug,index)=>slug?{slug,index,player:getPlayer(slug)}:null).filter(Boolean);
@@ -859,7 +734,7 @@
     }
   }
 
-  async function executeTradeRpc(team,hold){
+  async function executeTradeRpc(team){
     const now=new Date().toISOString();
     const res=await fetch(`${SUPABASE_URL}/rest/v1/rpc/execute_pool_trade`,{
       method:'POST',
@@ -880,16 +755,7 @@
     throw new Error(text||`RPC trade failed (${res.status})`);
   }
 
-  async function createHoldRecord(team,slug,dateAcquired,points=0){
-    const rows=await postWithFallback(`${SUPABASE_URL}/rest/v1/player_holds`,[
-      {league_code:_leagueCode,team_id:team.id,team_name:team.name,team_name_snapshot:team.name,player_slug:slug,date_acquired:dateAcquired,points_accumulated:points},
-      {league_code:_leagueCode,team_name:team.name,player_slug:slug,date_acquired:dateAcquired,points_accumulated:points}
-    ]);
-    if(!rows||rows.conflict) return null;
-    return Array.isArray(rows)?rows[0]:rows;
-  }
-
-  async function createTradeRecord(team,hold,fromPlayer,toPlayer,fromSlot,toSlot,now){
+  async function createTradeRecord(team,dateFromAcquired,fromPlayer,toPlayer,fromSlot,toSlot,now){
     const rows=await postWithFallback(`${SUPABASE_URL}/rest/v1/player_trades`,[
       {
         league_code:_leagueCode,
@@ -908,24 +774,24 @@
         from_slot_index:fromSlot.index,
         to_slot_group:'B',
         to_slot_index:toSlot.index,
-        date_from_acquired:hold.date_acquired,
+        date_from_acquired:dateFromAcquired,
         date_traded:now,
-        points_accumulated_at_trade:hold.points_accumulated||0
+        points_accumulated_at_trade:0
       },
       {
         league_code:_leagueCode,
         team_name:team.name,
         player_from_slug:tradeContext.fromSlug,
         player_to_slug:tradeContext.toSlug,
-        date_from_acquired:hold.date_acquired,
+        date_from_acquired:dateFromAcquired,
         date_traded:now,
-        points_accumulated_at_trade:hold.points_accumulated||0
+        points_accumulated_at_trade:0
       }
     ]);
     return Array.isArray(rows)?rows[0]:rows;
   }
 
-  async function executeTradeLegacy(team,hold){
+  async function executeTradeLegacy(team){
     const now=new Date().toISOString();
     const m=slugMap();
     const fromSlot=tradeContext.fromSlot||findPlayerSlot(team,tradeContext.fromSlug);
@@ -934,6 +800,7 @@
     if(!toSlot||toSlot.group!=='B') throw new Error('Incoming player must be on your bench.');
     const fromPlayer=m[tradeContext.fromSlug]||fallbackPlayer(tradeContext.fromSlug,fromSlot.group);
     const toPlayer=m[tradeContext.toSlug]||fallbackPlayer(tradeContext.toSlug,fromSlot.group);
+    const dateFromAcquired=getAcquiredDateForActivePlayer(team,tradeContext.fromSlug)||now;
     const toPos=normalizePos(toPlayer.position);
     if(toPos!==fromSlot.group) throw new Error(`Position mismatch: ${toPos} cannot replace ${fromSlot.group} slot.`);
     const capAfter=teamMainCap(team)-(fromPlayer.cap_hit||0)+(toPlayer.cap_hit||0);
@@ -941,30 +808,18 @@
 
     const originalRoster=JSON.parse(JSON.stringify(team.roster));
     let tradeRecordId=null;
-    let deletedOldHold=false;
     team.roster[fromSlot.group][fromSlot.index]=tradeContext.toSlug;
     team.roster.B[toSlot.index]=tradeContext.fromSlug;
 
     try{
       await saveRostersToSupabase();
 
-      tradeRecordId=(await createTradeRecord(team,hold,fromPlayer,toPlayer,fromSlot,toSlot,now))?.id||null;
-
-      if(hold?.id){
-        const delRes=await fetch(`${SUPABASE_URL}/rest/v1/player_holds?id=eq.${hold.id}`,{method:'DELETE',headers:sbHeaders()});
-        if(!delRes.ok) throw new Error('Failed to remove previous hold');
-        deletedOldHold=true;
-      }
-
-      await createHoldRecord(team,tradeContext.toSlug,now,0);
+      tradeRecordId=(await createTradeRecord(team,dateFromAcquired,fromPlayer,toPlayer,fromSlot,toSlot,now))?.id||null;
     }catch(e){
       team.roster=originalRoster;
       try{await saveRostersToSupabase();}catch(_){console.warn('Roster rollback failed');}
       if(tradeRecordId){
         try{await fetch(`${SUPABASE_URL}/rest/v1/player_trades?id=eq.${tradeRecordId}`,{method:'DELETE',headers:sbHeaders()});}catch(_){console.warn('Trade rollback failed');}
-      }
-      if(deletedOldHold&&hold){
-        try{await createHoldRecord(team,hold.player_slug,hold.date_acquired,hold.points_accumulated||0);}catch(_){console.warn('Hold rollback failed');}
       }
       throw e;
     }
@@ -974,27 +829,10 @@
      if(!tradeContext?.fromSlug||!tradeContext?.toSlug){alert('Please select both players');return;}
      const team=teams.find(t=>t.id===activeTeamId);
      if(!team){alert('Team not found');return;}
-     let hold=findHold(team,tradeContext.fromSlug);
-
-     // Fallback: if hold not found, create one on-demand
-     if(!hold){
-       try{
-         hold=await createHoldRecord(team,tradeContext.fromSlug,new Date().toISOString(),0);
-         if(!hold){
-           alert('Could not initialize hold for this player. Refresh and try again.');
-           return;
-         }
-         currentHolds.push(hold);
-       }catch(e){
-         console.error('Failed to create missing hold:',e);
-         alert('Could not initialize hold for this player. Refresh and try again.');
-         return;
-       }
-     }
 
      try{
-       const usedRpc=await executeTradeRpc(team,hold);
-       if(!usedRpc) await executeTradeLegacy(team,hold);
+       const usedRpc=await executeTradeRpc(team);
+       if(!usedRpc) await executeTradeLegacy(team);
        closeModal();
        await load(activeTeamId);
      }catch(e){
@@ -1013,44 +851,6 @@
     updateTradePreview();
   }
 
-   async function syncSyntheticHolds(){
-     // Periodically convert synthetic holds to real DB records
-     if(!activeTeamId) return;
-     const team=teams.find(t=>t.id===activeTeamId);
-     if(!team) return;
-
-     const mainRosterPlayers=[
-       ...(team.roster.F||[]),
-       ...(team.roster.D||[]),
-       ...(team.roster.G||[])
-     ].filter(Boolean);
-
-     let synced=0;
-     for(const slug of mainRosterPlayers){
-       const existingHold=currentHolds.find(h=>h.player_slug===slug&&teamHoldMatch(h,team));
-       if(!existingHold){
-         // No real hold exists, create one
-         try{
-           const newHold=await createHoldRecord(team,slug,new Date().toISOString(),0);
-           if(newHold){
-             currentHolds.push(newHold);
-             synced++;
-           }
-         }catch(e){
-           console.warn(`Sync failed for ${slug}:`,e);
-         }
-       }
-     }
-
-     // If we created any holds, reload and re-render
-     if(synced>0){
-       await loadHolds();
-       render();
-     }
-   }
-
-    // Run background sync every 3 seconds to finalize synthetic holds (more aggressive)
-    setInterval(syncSyntheticHolds,3000);
 
     load().catch(console.error);
 </script>

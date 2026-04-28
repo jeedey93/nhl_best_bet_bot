@@ -1,8 +1,9 @@
 -- Hockey Pool Trade System - Supabase SQL Migration
 -- This SQL creates the tables needed for the player hold/trade system
 
--- Player Holds Table
--- Tracks when players are acquired and points accumulated while held
+-- Player Holds Table (legacy/deprecated)
+-- Active ownership now comes from pool_rosters + player_trades.
+-- This table is kept for backward compatibility with older scripts.
 CREATE TABLE IF NOT EXISTS player_holds (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   created_at timestamp DEFAULT now(),
@@ -102,9 +103,7 @@ DECLARE
   v_from_group text;
   v_from_index integer;
   v_to_index integer;
-  v_hold_id uuid;
   v_hold_date timestamp;
-  v_hold_points integer := 0;
   v_team_name text;
   v_team_id text;
   v_from_cap integer := 0;
@@ -221,19 +220,20 @@ BEGIN
     RAISE EXCEPTION 'Trade rejected: cap would be $%.2fM (max $95.50M)', (v_cap_after::numeric / 1000000.0);
   END IF;
 
-  SELECT id, date_acquired, points_accumulated
-  INTO v_hold_id, v_hold_date, v_hold_points
-  FROM player_holds
+  -- Derive the active tenure start from prior incoming trade history.
+  -- If no incoming record exists (pre-trade roster), fallback to trade timestamp.
+  SELECT date_traded
+  INTO v_hold_date
+  FROM player_trades
   WHERE league_code = p_league_code
-    AND player_slug = p_player_from_slug
+    AND player_to_slug = p_player_from_slug
     AND (
       (v_team_id IS NOT NULL AND team_id = v_team_id)
       OR team_name = v_team_name
       OR team_name_snapshot = v_team_name
     )
-  ORDER BY created_at DESC
-  LIMIT 1
-  FOR UPDATE;
+  ORDER BY date_traded DESC
+  LIMIT 1;
 
   v_updated_team := jsonb_set(v_team, ARRAY['roster', v_from_group, v_from_index::text], to_jsonb(p_player_to_slug::text), false);
   v_updated_team := jsonb_set(v_updated_team, ARRAY['roster', 'B', v_to_index::text], to_jsonb(p_player_from_slug::text), false);
@@ -264,26 +264,7 @@ BEGIN
     v_to_norm,
     v_from_team, v_to_team,
     v_from_group, v_from_index, 'B', v_to_index,
-    COALESCE(v_hold_date, p_date_traded), p_date_traded, COALESCE(v_hold_points, 0)
-  );
-
-  IF v_hold_id IS NOT NULL THEN
-    DELETE FROM player_holds WHERE id = v_hold_id;
-  END IF;
-
-  DELETE FROM player_holds
-  WHERE league_code = p_league_code
-    AND player_slug = p_player_to_slug
-    AND (
-      (v_team_id IS NOT NULL AND team_id = v_team_id)
-      OR team_name = v_team_name
-      OR team_name_snapshot = v_team_name
-    );
-
-  INSERT INTO player_holds (
-    league_code, team_id, team_name, team_name_snapshot, player_slug, date_acquired, points_accumulated
-  ) VALUES (
-    p_league_code, v_team_id, v_team_name, v_team_name, p_player_to_slug, p_date_traded, 0
+    COALESCE(v_hold_date, p_date_traded), p_date_traded, 0
   );
 
   RETURN jsonb_build_object(
@@ -298,23 +279,32 @@ END;
 $$;
 
 -- ===== DISABLE RLS (Row Level Security) =====
--- RLS must be disabled to allow public/anon access for hold/trade operations
-BEGIN;
-ALTER TABLE player_holds DISABLE ROW LEVEL SECURITY;
-ALTER TABLE player_trades DISABLE ROW LEVEL SECURITY;
-COMMIT;
+-- CRITICAL: RLS must be disabled to allow public/anon access for hold/trade operations
+-- The anon role (used by browser clients) cannot perform implicit operations with RLS enabled
 
--- Drop any existing RLS policies that might interfere
+-- Drop ALL existing RLS policies first before disabling RLS
 DROP POLICY IF EXISTS "Allow public read on player_holds" ON player_holds;
 DROP POLICY IF EXISTS "Allow public insert on player_holds" ON player_holds;
 DROP POLICY IF EXISTS "Allow public update on player_holds" ON player_holds;
 DROP POLICY IF EXISTS "Allow public delete on player_holds" ON player_holds;
 DROP POLICY IF EXISTS "Allow public read on player_trades" ON player_trades;
 DROP POLICY IF EXISTS "Allow public insert on player_trades" ON player_trades;
+DROP POLICY IF EXISTS "Allow public update on player_trades" ON player_trades;
+DROP POLICY IF EXISTS "Allow public delete on player_trades" ON player_trades;
 
--- Grant permissions to anon user
+-- Now disable RLS on both tables (this is required!)
+ALTER TABLE player_holds DISABLE ROW LEVEL SECURITY;
+ALTER TABLE player_trades DISABLE ROW LEVEL SECURITY;
+
+-- CRITICAL: Grant ALL permissions to public and anon roles
+-- This is necessary for browser-based access to work
+GRANT ALL ON player_holds TO public;
 GRANT ALL ON player_holds TO anon;
+GRANT ALL ON player_trades TO public;
 GRANT ALL ON player_trades TO anon;
+
+-- Grant function execution to both roles
+GRANT EXECUTE ON FUNCTION execute_pool_trade(text, text, text, text, text, timestamp) TO public;
 GRANT EXECUTE ON FUNCTION execute_pool_trade(text, text, text, text, text, timestamp) TO anon;
 
 -- ===== OPTIONAL: Enable RLS with policies if needed =====
