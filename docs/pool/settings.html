@@ -127,6 +127,33 @@
     .save-status.show { opacity: 1; }
     .save-status.error { color: var(--red); }
 
+    /* ── Season baseline ── */
+    .season-zone {
+      margin-top: 1.25rem;
+      border: 1px solid rgba(34,197,94,0.25);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      background: rgba(34,197,94,0.04);
+    }
+    .season-zone-title {
+      font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 3px;
+      color: rgba(34,197,94,0.8); margin-bottom: 0.8rem;
+    }
+    .season-zone-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+    .season-zone-desc { display: flex; flex-direction: column; gap: 3px; }
+    .season-zone-label { font-size: 0.95rem; font-weight: 700; color: white; }
+    .season-zone-sub { font-size: 0.78rem; color: var(--silver); line-height: 1.4; max-width: 290px; }
+    .btn-start-season {
+      font-family: 'Bebas Neue', cursive; font-size: 0.95rem; letter-spacing: 2px;
+      background: rgba(34,197,94,0.14); color: var(--green);
+      border: 1px solid rgba(34,197,94,0.4); border-radius: 7px;
+      padding: 0.5rem 1.2rem; cursor: pointer; white-space: nowrap;
+      transition: background 0.15s, border-color 0.15s;
+      flex-shrink: 0;
+    }
+    .btn-start-season:hover { background: rgba(34,197,94,0.22); border-color: rgba(34,197,94,0.65); }
+    .btn-start-season:disabled { opacity: 0.45; cursor: default; }
+
     /* ── Formula preview ── */
     .formula-box {
       background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07);
@@ -382,6 +409,17 @@ function checkPoolPw(){
     <div class="formula-line" id="formula-g"></div>
   </div>
 
+  <div class="season-zone">
+    <div class="season-zone-title">🚀 Season Baseline</div>
+    <div class="season-zone-row">
+      <div class="season-zone-desc">
+        <span class="season-zone-label">Start season from 0 owned points</span>
+        <span class="season-zone-sub">Creates a fresh snapshot for every currently rostered player in all teams. Standings/trades then count only points earned after this baseline.</span>
+      </div>
+      <button class="btn-start-season" id="btn-start-season" onclick="startSeasonBaseline()">Start Season</button>
+    </div>
+  </div>
+
   <!-- Danger zone -->
   <div class="danger-zone">
     <div class="danger-zone-title">⚠ Danger Zone</div>
@@ -455,6 +493,78 @@ function checkPoolPw(){
       `<strong><span class="pos-badge D" style="font-size:0.65rem;padding:1px 5px;border-radius:3px;background:rgba(125,180,255,0.15);color:#7db4ff;">D</span> Defence</strong> = Goals × <span class="hl">${v.d_goals}</span> + Assists × <span class="hl">${v.d_assists}</span>`;
     document.getElementById('formula-g').innerHTML =
       `<strong><span class="pos-badge G" style="font-size:0.65rem;padding:1px 5px;border-radius:3px;background:rgba(34,197,94,0.15);color:#22c55e;">G</span> Goalie</strong> = Wins × <span class="hl">${v.g_wins}</span> + Shutouts × <span class="hl">${v.g_shutouts}</span>`;
+  }
+
+  function captureStatsSnapshot(p) {
+    return {
+      points: p?.points ?? 0,
+      goals: p?.goals ?? 0,
+      assists: p?.assists ?? 0,
+      wins: p?.wins ?? 0,
+      shutouts: p?.shutouts ?? 0,
+    };
+  }
+
+  async function startSeasonBaseline() {
+    const btn = document.getElementById('btn-start-season');
+    const status = document.getElementById('save-status');
+
+    const confirmed = window.confirm('Start season baseline now? This will overwrite all existing acquisition snapshots and reset owned points to 0 from this moment.');
+    if (!confirmed) return;
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Starting…';
+    status.textContent = '';
+    status.className = 'save-status';
+
+    try {
+      const playersRes = await fetch(`${SUPABASE_URL}/rest/v1/nhl_players?select=puckpedia_slug,points,goals,assists,wins,shutouts&limit=2000`, { headers: sbHeaders() });
+      if (!playersRes.ok) throw new Error(`Failed loading players (${playersRes.status})`);
+      const players = await playersRes.json();
+      const playerMap = Object.fromEntries(players.map(p => [p.puckpedia_slug, p]));
+
+      const rosterRes = await fetch(`${SUPABASE_URL}/rest/v1/pool_rosters?league_code=eq.${_leagueCode}&select=data`, { headers: sbHeaders() });
+      if (!rosterRes.ok) throw new Error(`Failed loading rosters (${rosterRes.status})`);
+      const rows = await rosterRes.json();
+      if (!rows.length || !rows[0].data?.teams?.length) throw new Error('No teams found for this league');
+
+      const now = new Date().toISOString();
+      let snapCount = 0;
+      const data = rows[0].data;
+
+      data.teams = data.teams.map(team => {
+        const acquisitions = {};
+        for (const group of ['F', 'D', 'G', 'B']) {
+          for (const slug of (team.roster?.[group] || []).filter(Boolean)) {
+            const p = playerMap[slug];
+            if (!p) continue;
+            acquisitions[slug] = { date: now, stats_snapshot: captureStatsSnapshot(p) };
+            snapCount += 1;
+          }
+        }
+        return { ...team, acquisitions };
+      });
+
+      const saveRes = await fetch(`${SUPABASE_URL}/rest/v1/pool_rosters`, {
+        method: 'POST',
+        headers: sbHeaders({ 'Prefer': 'resolution=merge-duplicates,return=minimal' }),
+        body: JSON.stringify({ league_code: _leagueCode, data, updated_at: now }),
+      });
+      if (!saveRes.ok) {
+        const body = await saveRes.text();
+        throw new Error(`Failed saving baseline (${saveRes.status}): ${body}`);
+      }
+
+      status.textContent = `✓ Season baseline created (${snapCount} player snapshots)`;
+      status.className = 'save-status show';
+      setTimeout(() => status.classList.remove('show'), 4000);
+    } catch (e) {
+      status.textContent = e.message || 'Failed to start season baseline.';
+      status.className = 'save-status show error';
+    }
+
+    btn.disabled = false;
+    btn.textContent = 'Start Season';
   }
 
   // Update formula preview live as user types
