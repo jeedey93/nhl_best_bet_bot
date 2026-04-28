@@ -313,6 +313,26 @@
   function escapeHtml(value){return String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
   function normalizePos(pos){if(!pos)return'F';const p=pos.toUpperCase();if(p.includes('G'))return'G';if(p==='D'||p.includes('LD')||p.includes('RD'))return'D';return'F';}
   function poolScore(p){const pos=normalizePos(p.position);if(pos==='G')return(p.wins??0)*_scoring.g_wins+(p.shutouts??0)*_scoring.g_shutouts;if(pos==='D')return(p.goals??0)*_scoring.d_goals+(p.assists??0)*_scoring.d_assists;return(p.points??0)*_scoring.f_points;}
+  // Returns only points accumulated since the player was acquired by this team (current - snapshot)
+  function poolScoreOwned(p, team, slug){
+    const snap=team?.acquisitions?.[slug]?.stats_snapshot;
+    if(!snap) return poolScore(p); // no snapshot yet, fall back to full season
+    const pos=normalizePos(p.position);
+    if(pos==='G'){
+      const wins=Math.max(0,(p.wins??0)-(snap.wins??0));
+      const shutouts=Math.max(0,(p.shutouts??0)-(snap.shutouts??0));
+      return wins*_scoring.g_wins+shutouts*_scoring.g_shutouts;
+    }
+    if(pos==='D'){
+      const goals=Math.max(0,(p.goals??0)-(snap.goals??0));
+      const assists=Math.max(0,(p.assists??0)-(snap.assists??0));
+      return goals*_scoring.d_goals+assists*_scoring.d_assists;
+    }
+    return Math.max(0,((p.points??0)-(snap.points??0)))*_scoring.f_points;
+  }
+  function captureStatsSnapshot(p){
+    return{points:p.points??0,goals:p.goals??0,assists:p.assists??0,wins:p.wins??0,shutouts:p.shutouts??0};
+  }
   function formatName(n){if(!n)return'';if(n.includes(',')){const[l,f]=n.split(',').map(s=>s.trim());return`${f} ${l}`;}return n;}
   function slugMap(){if(!slugMap._c)slugMap._c=Object.fromEntries(allPlayers.map(p=>[p.puckpedia_slug,p]));return slugMap._c;}
   function sbHeaders(extra={}){return{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Content-Type':'application/json',...extra};}
@@ -330,9 +350,9 @@
   }
   function findLatestIncomingTrade(team,slug){return currentTrades.find(t=>teamTradeMatch(t,team)&&t.player_to_slug===slug&&t.player_from_slug!==t.player_to_slug)||null;}
   function getAcquiredDateForActivePlayer(team,slug){
-    // First check if we have an acquisition date in roster metadata (draft day)
-    const rosterAcqDate=team.acquisitions?.[slug];
-    if(rosterAcqDate) return rosterAcqDate;
+    // Check roster metadata (draft day) - supports both old string format and new object format
+    const acq=team.acquisitions?.[slug];
+    if(acq) return typeof acq==='string'?acq:(acq.date||null);
     // Otherwise check trade history
     return findLatestIncomingTrade(team,slug)?.date_traded||null;
   }
@@ -525,9 +545,10 @@
          // Check if this player has a trade record (real trades only)
          const hasTradeRecord=currentTrades.some(t=>teamTradeMatch(t,team)&&t.player_from_slug!==t.player_to_slug&&(t.player_from_slug===slug||t.player_to_slug===slug));
 
-         // If no trade record and no acquisition date, set it to now (draft day)
+         // If no trade record and no acquisition date, set it to now (draft day) with stats snapshot
          if(!hasTradeRecord && !team.acquisitions[slug]){
-           team.acquisitions[slug]=now;
+           const p=slugMap()[slug];
+           team.acquisitions[slug]={date:now,stats_snapshot:p?captureStatsSnapshot(p):null};
            needsUpdate=true;
          }
        }
@@ -594,9 +615,9 @@
     `;
   }
 
-   function buildHoldCard(slot,acquiredAt,p){
+   function buildHoldCard(slot,acquiredAt,p,team,slug){
      const daysHeld=acquiredAt?Math.max(0,Math.floor((new Date()-new Date(acquiredAt))/86400000)):'-';
-     const pts=poolScore(p);
+     const pts=poolScoreOwned(p,team,slug);
      const abbr=TEAM_ABBR[p.team]||'';
      return `
        <div class="hold-card">
@@ -608,8 +629,8 @@
            </div>
          </div>
           <div class="hold-stats">
-            <div class="hold-stat"><div class="hold-stat-label">Days Held</div><div class="hold-stat-value">${daysHeld}</div></div>
-            <div class="hold-stat"><div class="hold-stat-label">Current Pts</div><div class="hold-stat-value">${pts}</div></div>
+             <div class="hold-stat"><div class="hold-stat-label">Days Held</div><div class="hold-stat-value">${daysHeld}</div></div>
+            <div class="hold-stat"><div class="hold-stat-label">Owned Pts</div><div class="hold-stat-value">${pts}</div></div>
           </div>
          <div class="hold-actions">
            <button class="btn-small btn-trade" onclick="openTradeModal('${p.puckpedia_slug}')">🔄 Trade</button>
@@ -631,7 +652,7 @@
           </div>
         </div>
         <div class="hold-stats">
-          <div class="hold-stat"><div class="hold-stat-label">Current Pts</div><div class="hold-stat-value">${pts}</div></div>
+          <div class="hold-stat"><div class="hold-stat-label">Season Pts</div><div class="hold-stat-value">${pts}</div></div>
           <div class="hold-stat"><div class="hold-stat-label">Cap Hit</div><div class="hold-stat-value">${formatCap(p.cap_hit||0)}</div></div>
         </div>
       </div>
@@ -721,10 +742,10 @@
          const rows=(team.roster[pos]||[]).map((slug,idx)=>{
            if(!slug) return null;
            const acquiredAt=getAcquiredDateForActivePlayer(team,slug);
-           return {slot:slotLabel(pos,idx),acquiredAt,player:getPlayer(slug,pos)};
+           return {slot:slotLabel(pos,idx),acquiredAt,slug,player:getPlayer(slug,pos)};
          }).filter(Boolean);
          if(!rows.length) return;
-         html+=`<div class="hold-pos-group"><div class="hold-pos-title ${pos}">${labels[pos]} (${rows.length})</div>${rows.map(item=>buildHoldCard(item.slot,item.acquiredAt,item.player)).join('')}</div>`;
+         html+=`<div class="hold-pos-group"><div class="hold-pos-title ${pos}">${labels[pos]} (${rows.length})</div>${rows.map(item=>buildHoldCard(item.slot,item.acquiredAt,item.player,team,item.slug)).join('')}</div>`;
        });
      }else{
        html+='<div class="empty-msg">No active roster players found.</div>';
@@ -973,6 +994,10 @@
     let tradeRecordId=null;
     team.roster[fromSlot.group][fromSlot.index]=tradeContext.toSlug;
     team.roster.B[toSlot.index]=tradeContext.fromSlug;
+
+    // Save stats snapshot for the newly activated player (bench → active)
+    if(!team.acquisitions) team.acquisitions={};
+    team.acquisitions[tradeContext.toSlug]={date:now,stats_snapshot:captureStatsSnapshot(toPlayer)};
 
     try{
       await saveRostersToSupabase();

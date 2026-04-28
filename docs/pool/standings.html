@@ -46,11 +46,17 @@
 
 
 
-    header { text-align: center; margin-bottom: 1.5rem; }
+    header { text-align: center; margin-bottom: 1.5rem; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; }
     header h1 { font-family: 'Bebas Neue', cursive; font-size: clamp(1.8rem, 4vw, 2.8rem); letter-spacing: 5px; line-height: 1; text-shadow: 0 0 30px rgba(200,16,46,0.4), 0 2px 8px rgba(0,0,0,0.8); }
     header h1 span { color: var(--gold); }
     .league-code-badge { display: inline-flex; align-items: center; gap: 0.4rem; margin-top: 0.4rem; font-family: 'Barlow Condensed', sans-serif; font-size: 0.75rem; font-weight: 700; color: var(--silver); letter-spacing: 2px; text-transform: uppercase; }
     .league-code-badge span { font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 3px; color: var(--gold); background: rgba(255,184,28,0.1); border: 1px solid rgba(255,184,28,0.3); border-radius: 4px; padding: 1px 10px; }
+    .header-controls { display: flex; align-items: center; gap: 0.5rem; justify-content: center; }
+    .btn-sync { font-family: 'Bebas Neue', cursive; font-size: 0.8rem; letter-spacing: 1.5px; background: rgba(34,197,94,0.12); border: 1px solid rgba(34,197,94,0.3); color: var(--green); border-radius: 6px; padding: 4px 12px; cursor: pointer; transition: background 0.2s, border-color 0.2s; }
+    .btn-sync:hover { background: rgba(34,197,94,0.2); border-color: rgba(34,197,94,0.5); }
+    .btn-sync:disabled { opacity: 0.5; cursor: not-allowed; }
+    .sync-status { font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem; color: rgba(34,197,94,0.7); margin-left: 0.3rem; }
+    .sync-status.error { color: rgba(200,16,46,0.7); }
 
     .podium { display: flex; align-items: flex-end; justify-content: center; gap: 0.75rem; margin-bottom: 2rem; }
     .podium-block { flex: 1; max-width: 220px; text-align: center; background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 10px; padding: 1rem 0.75rem 0.85rem; cursor: pointer; transition: background 0.15s, transform 0.15s; }
@@ -366,9 +372,13 @@
 </nav>
 
 <div class="page-wrap">
-  <header>
+ <header>
     <h1>Pool <span>Standings</span></h1>
-    <div class="league-code-badge" id="league-badge-row" style="display:none">League <span id="league-badge">—</span></div>
+    <div class="header-controls">
+      <div class="league-code-badge" id="league-badge-row" style="display:none">League <span id="league-badge">—</span></div>
+      <button class="btn-sync" id="sync-btn" onclick="syncPlayerStats()" title="Manually refresh player stats from NHL API">🔄 Sync Stats</button>
+      <span class="sync-status" id="sync-status"></span>
+    </div>
   </header>
   <div id="content"><div class="msg">Loading…</div></div>
 </div>
@@ -408,6 +418,7 @@
     .then(r=>r.json()).then(rows=>{ const n=rows[0]?.name; if(n) document.getElementById('league-badge').textContent=`${n} · ${_leagueCode}`; }).catch(()=>{});
 
   let _scoring={f_points:1,d_goals:1,d_assists:1,g_wins:2,g_shutouts:3};
+  let currentTrades=[];
   async function loadScoringSettings(){
     try{
       const r=await fetch(`${SUPABASE_URL}/rest/v1/pool_settings?league_code=eq.${_leagueCode}&select=f_points,d_goals,d_assists,g_wins,g_shutouts`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
@@ -417,15 +428,24 @@
 
   function normalizePos(pos){if(!pos)return'F';const p=pos.toUpperCase();if(p.includes('G'))return'G';if(p==='D'||p.includes('LD')||p.includes('RD'))return'D';return'F';}
   function poolScore(p){const pos=normalizePos(p.position);if(pos==='G')return(p.wins??0)*_scoring.g_wins+(p.shutouts??0)*_scoring.g_shutouts;if(pos==='D')return(p.goals??0)*_scoring.d_goals+(p.assists??0)*_scoring.d_assists;return(p.points??0)*_scoring.f_points;}
+  function poolScoreOwned(p,team,slug){
+    const snap=team?.acquisitions?.[slug];
+    const snapData=typeof snap==='object'&&snap!==null?snap.stats_snapshot:null;
+    if(!snapData) return poolScore(p);
+    const pos=normalizePos(p.position);
+    if(pos==='G'){const wins=Math.max(0,(p.wins??0)-(snapData.wins??0));const so=Math.max(0,(p.shutouts??0)-(snapData.shutouts??0));return wins*_scoring.g_wins+so*_scoring.g_shutouts;}
+    if(pos==='D'){const g=Math.max(0,(p.goals??0)-(snapData.goals??0));const a=Math.max(0,(p.assists??0)-(snapData.assists??0));return g*_scoring.d_goals+a*_scoring.d_assists;}
+    return Math.max(0,((p.points??0)-(snapData.points??0)))*_scoring.f_points;
+  }
   function formatName(n){if(!n)return'';if(n.includes(',')){const[l,f]=n.split(',').map(s=>s.trim());return`${f} ${l}`;}return n;}
   function slugMap(){if(!slugMap._c)slugMap._c=Object.fromEntries(allPlayers.map(p=>[p.puckpedia_slug,p]));return slugMap._c;}
-  function rosterPlayers(rs){const m=slugMap();return{F:rs.F.map(s=>(s&&m[s])?m[s]:null),D:rs.D.map(s=>(s&&m[s])?m[s]:null),G:rs.G.map(s=>(s&&m[s])?m[s]:null),B:(rs.B||[]).map(s=>(s&&m[s])?m[s]:null)};}
-  function teamSubScores(rs){const r=rosterPlayers(rs);return{F:r.F.filter(Boolean).reduce((s,p)=>s+poolScore(p),0),D:r.D.filter(Boolean).reduce((s,p)=>s+poolScore(p),0),G:r.G.filter(Boolean).reduce((s,p)=>s+poolScore(p),0),B:0};}
-  function teamTotalPts(rs){const s=teamSubScores(rs);return s.F+s.D+s.G;}
+  function rosterPlayers(rs){const m=slugMap();return{F:rs.F.map(s=>(s&&m[s])?{...m[s],_slug:s}:null),D:rs.D.map(s=>(s&&m[s])?{...m[s],_slug:s}:null),G:rs.G.map(s=>(s&&m[s])?{...m[s],_slug:s}:null),B:(rs.B||[]).map(s=>(s&&m[s])?{...m[s],_slug:s}:null)};}
+  function teamSubScores(team){const rs=team.roster;const r=rosterPlayers(rs);return{F:r.F.filter(Boolean).reduce((s,p)=>s+poolScoreOwned(p,team,p._slug),0),D:r.D.filter(Boolean).reduce((s,p)=>s+poolScoreOwned(p,team,p._slug),0),G:r.G.filter(Boolean).reduce((s,p)=>s+poolScoreOwned(p,team,p._slug),0),B:0};}
+  function teamTotalPts(team){const s=teamSubScores(team);return s.F+s.D+s.G;}
   function teamCapUsed(rs){const r=rosterPlayers(rs);return[...r.F,...r.D,...r.G].filter(Boolean).reduce((s,p)=>s+(p.cap_hit||0),0);}
   function teamFilled(rs){return[...rs.F,...rs.D,...rs.G,...(rs.B||[])].filter(Boolean).length;}
-  function computePoolAverages(){const a={F:[],D:[],G:[]};teams.forEach(t=>{const r=rosterPlayers(t.roster);['F','D','G'].forEach(pos=>r[pos].filter(Boolean).forEach(p=>a[pos].push(poolScore(p))));});const avg=arr=>arr.length?arr.reduce((a,b)=>a+b,0)/arr.length:0;return{F:avg(a.F),D:avg(a.D),G:avg(a.G),B:0};}
-  function allDraftedPlayers(){const l=[];teams.forEach(t=>{const r=rosterPlayers(t.roster);['F','D','G'].forEach(pos=>r[pos].filter(Boolean).forEach(p=>l.push({player:p,owner:t.name,pos})));});return l;}
+  function computePoolAverages(){const a={F:[],D:[],G:[]};teams.forEach(t=>{const r=rosterPlayers(t.roster);['F','D','G'].forEach(pos=>r[pos].filter(Boolean).forEach(p=>a[pos].push(poolScoreOwned(p,t,p._slug))));});const avg=arr=>arr.length?arr.reduce((a,b)=>a+b,0)/arr.length:0;return{F:avg(a.F),D:avg(a.D),G:avg(a.G),B:0};}
+  function allDraftedPlayers(){const l=[];teams.forEach(t=>{const r=rosterPlayers(t.roster);['F','D','G'].forEach(pos=>r[pos].filter(Boolean).forEach(p=>l.push({player:p,owner:t.name,pos,team:t})));});return l;}
 
   async function load(){
     await loadScoringSettings();
@@ -447,8 +467,8 @@
       if(!rRes.ok)throw new Error(rRes.status);
       const rows=await rRes.json();
       if(!rows.length||!rows[0].data?.teams?.length){document.getElementById('content').innerHTML='<div class="msg">No teams saved yet. Go build your pool!</div>';return;}
-      teams=rows[0].data.teams.map(t=>({id:t.id,name:t.name||'Team',roster:{F:Array.isArray(t.roster?.F)?t.roster.F:Array(12).fill(null),D:Array.isArray(t.roster?.D)?t.roster.D:Array(6).fill(null),G:Array.isArray(t.roster?.G)?t.roster.G:Array(2).fill(null),B:Array.isArray(t.roster?.B)?t.roster.B:Array(6).fill(null)}}));
-      const sorted=[...teams].sort((a,b)=>teamTotalPts(b.roster)-teamTotalPts(a.roster));
+      teams=rows[0].data.teams.map(t=>({id:t.id,name:t.name||'Team',acquisitions:t.acquisitions||{},roster:{F:Array.isArray(t.roster?.F)?t.roster.F:Array(12).fill(null),D:Array.isArray(t.roster?.D)?t.roster.D:Array(6).fill(null),G:Array.isArray(t.roster?.G)?t.roster.G:Array(2).fill(null),B:Array.isArray(t.roster?.B)?t.roster.B:Array(6).fill(null)}}));
+      const sorted=[...teams].sort((a,b)=>teamTotalPts(b)-teamTotalPts(a));
       activeTeamId=sorted[0]?.id||teams[0]?.id;
       render();
     }catch(e){document.getElementById('content').innerHTML=`<div class="msg">Failed to load. <button class="btn-refresh" onclick="load()">Retry</button></div>`;}
@@ -457,8 +477,8 @@
   function render(){
     document.body.classList.toggle('allteams-mode', activeView==='allteams');
     document.body.classList.remove('allteams-needs-wide');
-    const sorted=[...teams].sort((a,b)=>teamTotalPts(b.roster)-teamTotalPts(a.roster));
-    const leaderPts=sorted.length?teamTotalPts(sorted[0].roster):0;
+    const sorted=[...teams].sort((a,b)=>teamTotalPts(b)-teamTotalPts(a));
+    const leaderPts=sorted.length?teamTotalPts(sorted[0]):0;
     const avgs=computePoolAverages();
     const activeTeam=teams.find(t=>t.id===activeTeamId);
     document.getElementById('content').innerHTML=`
@@ -472,7 +492,7 @@
       <div id="view-standings" style="display:${activeView==='standings'?'block':'none'}">${buildLeaderboard(sorted,leaderPts)}</div>
       <div id="view-allteams"  style="display:${activeView==='allteams'?'block':'none'}">${buildAllTeams(teams)}</div>
       <div id="view-team"      style="display:${activeView==='team'?'block':'none'}">
-        <div class="team-tabs">${sorted.map(t=>`<div class="team-tab ${t.id===activeTeamId?'active':''}" onclick="selectTeam('${t.id}')">${t.name}<span class="team-tab-pts">${teamTotalPts(t.roster)}pts</span></div>`).join('')}</div>
+        <div class="team-tabs">${sorted.map(t=>`<div class="team-tab ${t.id===activeTeamId?'active':''}" onclick="selectTeam('${t.id}')">${t.name}<span class="team-tab-pts">${teamTotalPts(t)}pts</span></div>`).join('')}</div>
         <div class="team-detail visible">${activeTeam?buildDetail(activeTeam,sorted,leaderPts,avgs):''}</div>
       </div>
       <div id="view-pool" style="display:${activeView==='pool'?'block':'none'}">${buildPoolLeaders()}</div>
@@ -490,22 +510,55 @@
     if(clipped) body.classList.add('allteams-needs-wide');
   }
 
-  window.addEventListener('resize', ()=>{ if(activeView==='allteams') updateAllTeamsWidthMode(); });
-  function setView(v){activeView=v;sessionStorage.setItem('pool_view',v);render();}
-  function selectTeam(id){activeTeamId=id;activeView='team';sessionStorage.setItem('pool_view','team');render();}
+   window.addEventListener('resize', ()=>{ if(activeView==='allteams') updateAllTeamsWidthMode(); });
+   function setView(v){activeView=v;sessionStorage.setItem('pool_view',v);render();}
+   function selectTeam(id){activeTeamId=id;activeView='team';sessionStorage.setItem('pool_view','team');render();}
+
+   async function syncPlayerStats(){
+     const btn=document.getElementById('sync-btn');
+     const status=document.getElementById('sync-status');
+     btn.disabled=true;
+     status.textContent='Syncing...';
+     status.className='sync-status';
+     try{
+       const res=await fetch('/api/sync-pool-stats',{
+         method:'POST',
+         headers:{'Content-Type':'application/json'},
+         body:JSON.stringify({})
+       });
+       const data=await res.json();
+       if(res.status===200){
+         // Local: Immediate success
+         status.textContent='✅ Stats updated!';
+         setTimeout(()=>location.reload(),1500);
+       }else if(res.status===202){
+         // Vercel: Workflow triggered, will run in background
+         status.textContent='✅ Sync started (check back in 5 min)';
+         setTimeout(()=>{ btn.disabled=false; status.textContent=''; },4000);
+       }else{
+         status.textContent=`❌ ${data.error||'Failed'}`;
+         status.className='sync-status error';
+         setTimeout(()=>{ btn.disabled=false; },3000);
+       }
+     }catch(e){
+       status.textContent='❌ '+e.message;
+       status.className='sync-status error';
+       btn.disabled=false;
+     }
+   }
 
   function buildPodium(sorted,leaderPts){
     const medals=['🥇','🥈','🥉'],cls=['first','second','third'];
     const order=sorted.length>=3?[sorted[1],sorted[0],sorted[2]]:sorted;
     const oi=sorted.length>=3?[1,0,2]:sorted.map((_,i)=>i);
-    return`<div class="podium">${order.map((t,i)=>{if(!t)return'';const ri=oi[i],pts=teamTotalPts(t.roster),sub=teamSubScores(t.roster),gap=ri===0?'':`−${leaderPts-pts} from 1st`;
+    return`<div class="podium">${order.map((t,i)=>{if(!t)return'';const ri=oi[i],pts=teamTotalPts(t),sub=teamSubScores(t),gap=ri===0?'':`−${leaderPts-pts} from 1st`;
       return`<div class="podium-block ${cls[ri]}" onclick="selectTeam('${t.id}');setView('team')"><span class="podium-crown">${medals[ri]}</span><div class="podium-rank">#${ri+1}</div><div class="podium-name">${t.name}</div><div class="podium-pts">${pts}<span class="podium-pts-label">POOL PTS</span></div>${gap?`<div class="podium-gap">${gap}</div>`:''}<div class="podium-breakdown"><span class="podium-breakdown-item F">F ${sub.F}</span><span class="podium-breakdown-item D">D ${sub.D}</span><span class="podium-breakdown-item G">G ${sub.G}</span><span class="podium-breakdown-item B">B ${sub.B}</span></div></div>`;
     }).join('')}</div>`;}
 
   function buildLeaderboard(sorted,leaderPts){
     const rc=i=>i===0?'gold':i===1?'silver':i===2?'bronze':'';
     const rows=sorted.map((t,i)=>{
-      const pts=teamTotalPts(t.roster),cap=teamCapUsed(t.roster),filled=teamFilled(t.roster),sub=teamSubScores(t.roster);
+      const pts=teamTotalPts(t),cap=teamCapUsed(t.roster),filled=teamFilled(t.roster),sub=teamSubScores(t);
       const gap=i===0?'Leader':`−${leaderPts-pts}`,eff=cap>0?(pts/(cap/1e6)).toFixed(1):'—';
       return`<div class="lb-row ${t.id===activeTeamId?'active':''}" onclick="selectTeam('${t.id}')"><div class="lb-rank ${rc(i)}">${i+1}</div><div><div class="lb-name">${t.name}</div><div class="lb-subscore"><span class="lb-subscore-pill F">F ${sub.F}</span><span class="lb-subscore-pill D">D ${sub.D}</span><span class="lb-subscore-pill G">G ${sub.G}</span><span class="lb-subscore-pill B">B ${sub.B}</span></div></div><div class="lb-stat">${filled}/26</div><div class="lb-stat">$${(cap/1e6).toFixed(1)}M</div><div class="lb-stat">${eff} pt/$M</div><div class="lb-stat ${i===0?'gap leader':'gap'}">${gap}</div><div class="lb-stat pts">${pts}</div></div>`;
     }).join('');
@@ -521,7 +574,7 @@
     // Rosters sorted by pts descending within each pos
     const rosters=sorted.map(t=>{
       const r=rosterPlayers(t.roster);
-      return{F:r.F.filter(Boolean).sort((a,b)=>poolScore(b)-poolScore(a)),D:r.D.filter(Boolean).sort((a,b)=>poolScore(b)-poolScore(a)),G:r.G.filter(Boolean).sort((a,b)=>poolScore(b)-poolScore(a)),B:r.B.filter(Boolean).sort((a,b)=>poolScore(b)-poolScore(a))};
+      return{F:r.F.filter(Boolean).sort((a,b)=>poolScoreOwned(b,t,b._slug)-poolScoreOwned(a,t,a._slug)),D:r.D.filter(Boolean).sort((a,b)=>poolScoreOwned(b,t,b._slug)-poolScoreOwned(a,t,a._slug)),G:r.G.filter(Boolean).sort((a,b)=>poolScoreOwned(b,t,b._slug)-poolScoreOwned(a,t,a._slug)),B:r.B.filter(Boolean).sort((a,b)=>poolScoreOwned(b,t,b._slug)-poolScoreOwned(a,t,a._slug)),_team:t};
     });
 
     const SALARY_CAP=95500000;
@@ -556,7 +609,7 @@
         rosters.forEach((r,ti)=>{
           const p=r[key][i]||null;
           if(p){
-            const pts=poolScore(p),sal=p.cap_hit?`$${(p.cap_hit/1e6).toFixed(3)}M`:'—';
+            const pts=poolScoreOwned(p,r._team,p._slug),sal=p.cap_hit?`$${(p.cap_hit/1e6).toFixed(3)}M`:'—';
             const full=formatName(p.player_name),nhl=TEAM_ABBR[p.team]||'';
             body+=`<td class="pn" title="${full}">${full}${nhl?` <span class="nhl">${nhl}</span>`:''}</td><td class="ps">${sal}</td>`;
           } else {
@@ -607,22 +660,22 @@
     const roster=rosterPlayers(team.roster);
     const allP=[...roster.F,...roster.D,...roster.G,...(roster.B||[])].filter(Boolean);
     if(!allP.length)return`<div class="msg" style="padding:1.5rem 0;">No players drafted yet.</div>`;
-    const totalPts=allP.reduce((s,p)=>s+poolScore(p),0),cap=allP.reduce((s,p)=>s+(p.cap_hit||0),0),filled=allP.length;
-    const eff=cap>0?(totalPts/(cap/1e6)).toFixed(1):'—',sub=teamSubScores(team.roster);
+    const totalPts=allP.reduce((s,p)=>s+poolScoreOwned(p,team,p._slug),0),cap=allP.reduce((s,p)=>s+(p.cap_hit||0),0),filled=allP.length;
+    const eff=cap>0?(totalPts/(cap/1e6)).toFixed(1):'—',sub=teamSubScores(team);
     const rank=sorted.findIndex(t=>t.id===team.id)+1,gap=rank===1?'Leading 🏆':`${leaderPts-totalPts} pts behind 1st`;
-    const scored=allP.map(p=>({p,pts:poolScore(p)})).sort((a,b)=>b.pts-a.pts),topScorer=scored[0];
-    const groups=[{key:'F',label:'Forwards',players:roster.F.filter(Boolean).sort((a,b)=>poolScore(b)-poolScore(a))},{key:'D',label:'Defence',players:roster.D.filter(Boolean).sort((a,b)=>poolScore(b)-poolScore(a))},{key:'G',label:'Goalies',players:roster.G.filter(Boolean).sort((a,b)=>poolScore(b)-poolScore(a))},{key:'B',label:'Bench',players:roster.B.filter(Boolean).sort((a,b)=>poolScore(b)-poolScore(a))}];
+    const scored=allP.map(p=>({p,pts:poolScoreOwned(p,team,p._slug)})).sort((a,b)=>b.pts-a.pts),topScorer=scored[0];
+    const groups=[{key:'F',label:'Forwards',players:roster.F.filter(Boolean).sort((a,b)=>poolScoreOwned(b,team,b._slug)-poolScoreOwned(a,team,a._slug))},{key:'D',label:'Defence',players:roster.D.filter(Boolean).sort((a,b)=>poolScoreOwned(b,team,b._slug)-poolScoreOwned(a,team,a._slug))},{key:'G',label:'Goalies',players:roster.G.filter(Boolean).sort((a,b)=>poolScoreOwned(b,team,b._slug)-poolScoreOwned(a,team,a._slug))},{key:'B',label:'Bench',players:roster.B.filter(Boolean).sort((a,b)=>poolScoreOwned(b,team,b._slug)-poolScoreOwned(a,team,a._slug))}];
     return`
       <div class="detail-header"><div class="detail-header-left"><div class="detail-title">${team.name}</div><div class="detail-rank-label">Rank #${rank} · ${gap}</div></div>
       <div class="detail-summary"><span class="detail-badge pts">${totalPts} PTS</span><span class="detail-badge cap">$${(cap/1e6).toFixed(1)}M</span><span class="detail-badge filled">${filled}/26</span><span class="detail-badge eff">${eff} pt/$M</span></div></div>
       <div class="pos-scores-bar"><div class="pos-score-block F"><div class="pos-score-val">${sub.F}</div><div class="pos-score-label">Forwards</div></div><div class="pos-score-block D"><div class="pos-score-val">${sub.D}</div><div class="pos-score-label">Defence</div></div><div class="pos-score-block G"><div class="pos-score-val">${sub.G}</div><div class="pos-score-label">Goalies</div></div><div class="pos-score-block B"><div class="pos-score-val">${sub.B}</div><div class="pos-score-label">Bench</div></div></div>
       ${topScorer?`<div class="top-scorer-callout"><span class="top-scorer-icon">⭐</span><div class="top-scorer-text">Top contributor: <strong>${formatName(topScorer.p.player_name)}</strong> — ${topScorer.pts} pool pts &nbsp;·&nbsp; ${(topScorer.pts/totalPts*100).toFixed(0)}% of team total</div></div>`:''}
-      ${groups.filter(g=>g.players.length).map(g=>`<div class="pos-group"><div class="pos-group-label ${g.key}">${g.label} (${g.players.length})</div>${g.players.map(p=>buildPlayerRow(p,g.key,avgs,topScorer?.p)).join('')}</div>`).join('')}
+      ${groups.filter(g=>g.players.length).map(g=>`<div class="pos-group"><div class="pos-group-label ${g.key}">${g.label} (${g.players.length})</div>${g.players.map(p=>buildPlayerRow(p,g.key,avgs,topScorer?.p,team)).join('')}</div>`).join('')}
     `;}
 
-  function buildPlayerRow(p,group,avgs,topScorerPlayer){
+  function buildPlayerRow(p,group,avgs,topScorerPlayer,team){
     const abbr=TEAM_ABBR[p.team],logo=abbr?`<img class="player-row-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}">`:'' ;
-    const pts=poolScore(p),pos=normalizePos(p.position),displayPos=group==='B'?pos:group,avg=avgs[group]??0;
+    const pts=poolScoreOwned(p,team,p._slug),pos=normalizePos(p.position),displayPos=group==='B'?pos:group,avg=avgs[group]??0;
     const perf=pts>avg*1.15?'above':pts<avg*0.7?'below':'avg';
     const capM=(p.cap_hit||0)/1e6,eff=capM>0?`${(pts/capM).toFixed(1)} pt/$M`:'';
     const gp=p.games_played,pace=(gp>0&&pts>0)?`<span class="player-row-pace">~${Math.round((pts/gp)*(82-gp))} proj</span>`:'';
@@ -634,11 +687,11 @@
 
   function buildPoolLeaders(){
     const drafted=allDraftedPlayers(),byPos={F:[],D:[],G:[]};
-    drafted.forEach(({player,owner,pos})=>byPos[pos].push({player,owner,pts:poolScore(player)}));
+    drafted.forEach(({player,owner,pos,team})=>byPos[pos].push({player,owner,team,pts:poolScoreOwned(player,team,player._slug)}));
     ['F','D','G'].forEach(pos=>byPos[pos].sort((a,b)=>b.pts-a.pts));
     const pL={F:'Forwards',D:'Defence',G:'Goalies'};
     const grid=`<div class="pool-section-title">Position <span>Leaders</span></div><div class="pos-leaders-grid">${['F','D','G'].map(pos=>`<div class="pos-leader-col"><div class="pos-leader-col-header ${pos}">${pL[pos]} <small>POOL PTS</small></div>${byPos[pos].slice(0,8).map((item,i)=>{const abbr=TEAM_ABBR[item.player.team];return`<div class="pos-leader-row"><div class="pos-leader-rank">${i+1}</div><div class="pos-leader-name">${formatName(item.player.player_name)}</div><div class="pos-leader-team">${abbr||'—'}</div><div class="pos-leader-owner">${item.owner}</div><div class="pos-leader-pts">${item.pts}</div></div>`;}).join('')}</div>`).join('')}</div>`;
-    const allS=drafted.map(({player,owner,pos})=>({player,owner,pos,pts:poolScore(player)})).sort((a,b)=>b.pts-a.pts).slice(0,10);
+    const allS=drafted.map(({player,owner,pos,team})=>({player,owner,pos,team,pts:poolScoreOwned(player,team,player._slug)})).sort((a,b)=>b.pts-a.pts).slice(0,10);
     const top=`<div class="pool-section-title">Top <span>Pool Players</span></div><div class="top-players-list"><div class="top-player-row header" style="grid-template-columns:30px 1fr 80px 80px 60px"><div></div><div class="lb-col-label left">Player</div><div class="lb-col-label">Owner</div><div class="lb-col-label">Stats</div><div class="lb-col-label">Pts</div></div>${allS.map((item,i)=>{const p=item.player,abbr=TEAM_ABBR[p.team],logo=abbr?`<img class="top-player-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}">`:'' ;const pos=normalizePos(p.position),stat=pos==='G'?`${p.wins??0}W ${p.shutouts??0}SO`:`${p.goals??0}G ${p.assists??0}A`;return`<div class="top-player-row"><div class="top-player-rank">${i+1}</div><div class="top-player-info">${logo}<div><div class="top-player-name">${formatName(p.player_name)}</div></div></div><div class="top-player-owner">${item.owner}</div><div class="top-player-stat">${stat}</div><div class="top-player-pts">${item.pts}</div></div>`;}).join('')}</div>`;
     return grid+top;
   }

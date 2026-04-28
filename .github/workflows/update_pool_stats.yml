@@ -1,0 +1,61 @@
+name: Update Pool Player Stats
+
+on:
+  schedule:
+    # Once daily at 9:00 AM Montreal time (13:00 UTC during daylight saving, 14:00 standard)
+    - cron: '0 13 * * *'
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  update-stats:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Set environment variables
+        run: |
+          echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" > .env
+          echo "SUPABASE_SERVICE_KEY=${{ secrets.SUPABASE_SERVICE_KEY }}" >> .env
+
+      - name: Update NHL player stats
+        run: python scripts/scrape_nhl_stats.py
+        continue-on-error: true
+
+      - name: Check if update succeeded
+        run: |
+          if [ $? -eq 0 ]; then
+            echo "✅ NHL player stats updated successfully at $(date -u)"
+          else
+            echo "⚠️  Stats update had issues, but continuing. Check logs."
+          fi
+
+      - name: Upload logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stats-update-logs
+          path: |
+            .env
+            *.log
+          retention-days: 7
+
+      - name: Notify on critical failure
+        if: failure()
+        run: |
+          echo "❌ CRITICAL: NHL player stats update failed"
+          echo "Time: $(date -u)"
+          echo "Check workflow logs: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+

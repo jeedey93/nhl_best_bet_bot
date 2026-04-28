@@ -192,4 +192,15 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+        print("\n✅ Script completed successfully")
+        sys.exit(0)
+    except KeyboardInterrupt:
+        print("\n⚠️  Script interrupted by user")
+        sys.exit(1)
+    except Exception as e:
+        print(f"\n❌ FATAL ERROR: {e}", file=sys.stderr)
+        import traceback
+        traceback.print_exc()
+        sys.exit(2)
