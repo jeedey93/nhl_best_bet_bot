@@ -302,6 +302,7 @@
   let currentTrades=[], loadWarnings=[];
   let tradeContext=null;
   let isSubmittingTrade=false;
+  let showLeagueFeed=false;
 
   document.getElementById('nav-draft').href       = `/pool/join?league=${_leagueCode}`;
   document.getElementById('nav-live-draft').href  = `/pool/live-draft?league=${_leagueCode}`;
@@ -493,18 +494,18 @@
      const confirmBtn=document.getElementById('trade-confirm-btn');
      const originalText=confirmBtn?.textContent;
      for(let i=0;i<maxAttempts;i++){
-       if(confirmBtn) confirmBtn.textContent=`<span class="spinner"></span>Waiting...`;
+       if(confirmBtn) confirmBtn.innerHTML=`<span class="spinner"></span>Waiting...`;
        await loadTrades();
        const found=currentTrades.some(t=>{
          return teamTradeMatch(t,team)&&t.player_from_slug!==t.player_to_slug&&t.player_from_slug===fromSlug&&t.player_to_slug===toSlug;
        });
        if(found){
-         if(confirmBtn) confirmBtn.textContent=originalText;
+         if(confirmBtn) confirmBtn.textContent=originalText||'Execute Trade';
          return true;
        }
        if(i < maxAttempts - 1) await new Promise(r=>setTimeout(r,500));
      }
-     if(confirmBtn) confirmBtn.textContent=originalText;
+     if(confirmBtn) confirmBtn.textContent=originalText||'Execute Trade';
      return false;
    }
 
@@ -543,12 +544,20 @@
 
 
   function renderTeamSelector(){
-    const html=teams.map(t=>`<button class="team-btn ${t.id===activeTeamId?'active':''}" onclick="setActiveTeam('${t.id}')">${t.name}</button>`).join('');
-    document.getElementById('team-selector').innerHTML=html;
+    const teamButtons=teams.map(t=>`<button class="team-btn ${!showLeagueFeed&&t.id===activeTeamId?'active':''}" onclick="setActiveTeam('${t.id}')">${t.name}</button>`).join('');
+    const leagueButton=`<button class="team-btn ${showLeagueFeed?'active':''}" onclick="setLeagueFeedView()">League Feed</button>`;
+    document.getElementById('team-selector').innerHTML=`${teamButtons}${leagueButton}`;
   }
 
    function setActiveTeam(teamId){
+     showLeagueFeed=false;
      activeTeamId=teamId;
+     renderTeamSelector();
+     render();
+   }
+
+   function setLeagueFeedView(){
+     showLeagueFeed=true;
      renderTeamSelector();
      render();
    }
@@ -558,6 +567,7 @@
      const unique=[...new Set(loadWarnings)];
      return `<div class="warning-box"><div class="warning-box-title">Heads up</div><ul class="warning-list">${unique.map(msg=>`<li>${escapeHtml(msg)}</li>`).join('')}</ul></div>`;
    }
+
 
   function buildSummary(team,activeCount,tradeCount){
     const capUsed=teamMainCap(team);
@@ -641,11 +651,68 @@
       })].sort((a,b)=>new Date(b.date_traded)-new Date(a.date_traded));
       console.log(`[RENDER] Trades for this team: ${teamTrades.length}`, teamTrades);
       const activeCount=[...(team.roster.F||[]),...(team.roster.D||[]),...(team.roster.G||[])].filter(Boolean).length;
-      const benchCount=(team.roster.B||[]).filter(Boolean).length;
+      const allTrades=[...currentTrades.filter(t=>t.player_from_slug!==t.player_to_slug)].sort((a,b)=>new Date(b.date_traded)-new Date(a.date_traded));
 
-     let html=`${buildWarningBox()}${buildSummary(team,activeCount,teamTrades.length)}
-       <div class="section-title">Active <span>Roster</span></div>
-       <div class="current-holds">
+     let html=`${buildWarningBox()}`;
+
+      if(showLeagueFeed){
+        html+=`<div class="section-title">League-wide <span>Trade Feed</span></div>`;
+        html+='<div class="trades-list">';
+        if(allTrades.length){
+          html+=`
+            <div class="trade-header-row">
+              <div class="trade-header-cell">Team</div>
+              <div class="trade-header-cell">From Player</div>
+              <div class="trade-header-cell">To Player</div>
+              <div class="trade-header-cell">Date</div>
+            </div>
+          `;
+          allTrades.forEach(trade=>{
+            const tradeTeam=teams.find(t=>teamTradeMatch(trade,t));
+            const teamName=tradeTeam?.name||trade.team_name||'Unknown';
+            const pFrom=trade.player_from_name?{player_name:trade.player_from_name,team:trade.player_from_team}:getPlayer(trade.player_from_slug);
+            const pTo=trade.player_to_name?{player_name:trade.player_to_name,team:trade.player_to_team}:getPlayer(trade.player_to_slug);
+            const abbrFrom=TEAM_ABBR[pFrom.team]||'';
+            const abbrTo=TEAM_ABBR[pTo.team]||'';
+            html+=`
+              <div class="trade-row">
+                <div class="player-info" data-label="Team">
+                  <div class="player-details">
+                    <div class="player-name">${escapeHtml(teamName)}</div>
+                  </div>
+                </div>
+                <div class="player-info" data-label="From Player">
+                  ${abbrFrom?`<img class="player-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbrFrom}_dark.svg" alt="${abbrFrom}">`:''}
+                  <div class="player-details">
+                    <div class="player-name">${escapeHtml(formatName(pFrom.player_name))}</div>
+                  </div>
+                </div>
+                <div class="player-info" data-label="To Player">
+                  ${abbrTo?`<img class="player-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbrTo}_dark.svg" alt="${abbrTo}">`:''}
+                  <div class="player-details">
+                    <div class="player-name">${escapeHtml(formatName(pTo.player_name))}</div>
+                  </div>
+                </div>
+                <div class="date-box" data-label="Date">
+                  <span class="date-label">Traded</span>
+                  <span class="date-value">${new Date(trade.date_traded).toLocaleDateString()}</span>
+                </div>
+              </div>
+            `;
+          });
+        }else{
+          html+='<div class="empty-msg">No trades yet in this league.</div>';
+        }
+        html+='</div>';
+        document.getElementById('content').innerHTML=html;
+        return;
+      }
+
+     html+=`${buildSummary(team,activeCount,teamTrades.length)}`;
+
+    html+=`
+      <div class="section-title">Active <span>Roster</span></div>
+      <div class="current-holds">
      `;
 
      if(activeCount){
@@ -731,57 +798,6 @@
       });
     }else{
       html+='<div class="empty-msg">No trades yet.</div>';
-    }
-    html+=`
-      <div class="section-title">League-wide <span>Trade Feed</span></div>
-      <div class="trades-list">
-    `;
-
-    const allTrades=[...currentTrades.filter(t=>t.player_from_slug!==t.player_to_slug)].sort((a,b)=>new Date(b.date_traded)-new Date(a.date_traded));
-    if(allTrades.length){
-      html+=`
-        <div class="trade-header-row">
-          <div class="trade-header-cell">Team</div>
-          <div class="trade-header-cell">From Player</div>
-          <div class="trade-header-cell">To Player</div>
-          <div class="trade-header-cell">Date</div>
-        </div>
-      `;
-      allTrades.forEach(trade=>{
-        const tradeTeam=teams.find(t=>teamTradeMatch(trade,t));
-        const teamName=tradeTeam?.name||trade.team_name||'Unknown';
-        const pFrom=trade.player_from_name?{player_name:trade.player_from_name,team:trade.player_from_team}:getPlayer(trade.player_from_slug);
-        const pTo=trade.player_to_name?{player_name:trade.player_to_name,team:trade.player_to_team}:getPlayer(trade.player_to_slug);
-        const abbrFrom=TEAM_ABBR[pFrom.team]||'';
-        const abbrTo=TEAM_ABBR[pTo.team]||'';
-        html+=`
-          <div class="trade-row">
-            <div class="player-info" data-label="Team">
-              <div class="player-details">
-                <div class="player-name">${escapeHtml(teamName)}</div>
-              </div>
-            </div>
-            <div class="player-info" data-label="From Player">
-              ${abbrFrom?`<img class="player-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbrFrom}_dark.svg" alt="${abbrFrom}">`:''}
-              <div class="player-details">
-                <div class="player-name">${escapeHtml(formatName(pFrom.player_name))}</div>
-              </div>
-            </div>
-            <div class="player-info" data-label="To Player">
-              ${abbrTo?`<img class="player-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbrTo}_dark.svg" alt="${abbrTo}">`:''}
-              <div class="player-details">
-                <div class="player-name">${escapeHtml(formatName(pTo.player_name))}</div>
-              </div>
-            </div>
-            <div class="date-box" data-label="Date">
-              <span class="date-label">Traded</span>
-              <span class="date-value">${new Date(trade.date_traded).toLocaleDateString()}</span>
-            </div>
-          </div>
-        `;
-      });
-    }else{
-      html+='<div class="empty-msg">No trades yet in this league.</div>';
     }
     html+='</div>';
 
