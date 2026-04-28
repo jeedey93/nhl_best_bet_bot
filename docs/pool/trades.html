@@ -312,7 +312,14 @@
   function slotLabel(group,index){return `${group}${index+1}`;}
   function fallbackPlayer(slug,group='F'){return {puckpedia_slug:slug,player_name:slug?.split('/').pop()?.replace(/-/g,' ')||slug,position:group,cap_hit:0,team:''};}
   function getPlayer(slug,group='F'){return slugMap()[slug]||fallbackPlayer(slug,group);}
-  function teamTradeMatch(trade,team){return (!!trade.team_id&&!!team.id&&trade.team_id===team.id)||trade.team_name===team.name||trade.team_name_snapshot===team.name;}
+  function teamTradeMatch(trade,team){
+    const byId=!!trade.team_id&&!!team.id&&trade.team_id===team.id;
+    const byName=trade.team_name===team.name;
+    const bySnapshot=trade.team_name_snapshot===team.name;
+    const result=byId||byName||bySnapshot;
+    // console.log(`  [teamTradeMatch] team_id match: ${byId} (${trade.team_id}===${team.id}), name: ${byName} (${trade.team_name}===${team.name}), snapshot: ${bySnapshot} → ${result}`);
+    return result;
+  }
   function findLatestIncomingTrade(team,slug){return currentTrades.find(t=>teamTradeMatch(t,team)&&t.player_to_slug===slug)||null;}
   function getAcquiredDateForActivePlayer(team,slug){return findLatestIncomingTrade(team,slug)?.date_traded||null;}
   function collectRelevantSlugs(){const set=new Set();teams.forEach(team=>['F','D','G','B'].forEach(group=>(team.roster[group]||[]).filter(Boolean).forEach(slug=>set.add(slug))));currentTrades.forEach(t=>{if(t.player_from_slug)set.add(t.player_from_slug);if(t.player_to_slug)set.add(t.player_to_slug);});return [...set];}
@@ -449,8 +456,24 @@
         throw new Error(`player_trades ${res.status}: ${errText}`);
       }
       currentTrades=await res.json();
-      console.log(`Loaded ${currentTrades.length} trades for league ${_leagueCode}`,currentTrades);
-    }catch(e){currentTrades=[];console.warn('Unable to load trades',e);loadWarnings.push('Trade history could not be fully loaded.');}
+      console.group(`[TRADES] Loaded for league ${_leagueCode}`);
+      console.log(`  Total: ${currentTrades.length} trades`);
+      if(currentTrades.length>0){
+        console.table(currentTrades.slice(0,3).map(t=>({
+          league:t.league_code,
+          team_id:t.team_id,
+          team_name:t.team_name,
+          from:t.player_from_slug,
+          to:t.player_to_slug,
+          date:new Date(t.date_traded).toLocaleDateString()
+        })));
+      }else{
+         console.warn(`  ⚠️  NO TRADES FOUND in database! Checking league code...`);
+         console.warn(`  League code: ${_leagueCode}`);
+         console.warn(`  Check Supabase table directly: WHERE league_code='${_leagueCode}'`);
+       }
+       console.groupEnd();
+    }catch(e){currentTrades=[];console.error('[TRADES ERROR]',e);loadWarnings.push('Trade history could not be fully loaded.');}
   }
 
   async function waitForTradeHistory(team,fromSlug,toSlug,maxAttempts=12){
@@ -565,13 +588,19 @@
     `;
   }
 
-   function render(){
-     const team=teams.find(t=>t.id===activeTeamId);
-     if(!team){document.getElementById('content').innerHTML='<div class="msg">Team not found.</div>';return;}
+    function render(){
+      const team=teams.find(t=>t.id===activeTeamId);
+      if(!team){document.getElementById('content').innerHTML='<div class="msg">Team not found.</div>';return;}
 
-     const teamTrades=[...currentTrades.filter(t=>teamTradeMatch(t,team))].sort((a,b)=>new Date(b.date_traded)-new Date(a.date_traded));
-     const activeCount=[...(team.roster.F||[]),...(team.roster.D||[]),...(team.roster.G||[])].filter(Boolean).length;
-     const benchCount=(team.roster.B||[]).filter(Boolean).length;
+      console.log(`[RENDER] Team: ${team.name} (id=${team.id}), Total trades in array: ${currentTrades.length}`);
+      const teamTrades=[...currentTrades.filter(t=>{
+        const matches=teamTradeMatch(t,team);
+        if(!matches) console.log(`[RENDER] Trade filtered out (no match):`, t, `\n  teamTradeMatch(${JSON.stringify({team_id:t.team_id,team_name:t.team_name},null,2)}, ${team.id}) = ${matches}`);
+        return matches;
+      })].sort((a,b)=>new Date(b.date_traded)-new Date(a.date_traded));
+      console.log(`[RENDER] Trades for this team: ${teamTrades.length}`, teamTrades);
+      const activeCount=[...(team.roster.F||[]),...(team.roster.D||[]),...(team.roster.G||[])].filter(Boolean).length;
+      const benchCount=(team.roster.B||[]).filter(Boolean).length;
 
      let html=`${buildWarningBox()}${buildSummary(team,activeCount,benchCount,teamTrades.length)}
        <div class="section-title">Active <span>Roster</span></div>
@@ -803,7 +832,9 @@
       },
       {
         league_code:_leagueCode,
+        team_id:team.id,
         team_name:team.name,
+        team_name_snapshot:team.name,
         player_from_slug:tradeContext.fromSlug,
         player_to_slug:tradeContext.toSlug,
         date_from_acquired:dateFromAcquired,
