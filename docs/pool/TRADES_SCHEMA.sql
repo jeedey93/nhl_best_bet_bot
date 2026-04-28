@@ -1,47 +1,9 @@
 -- Hockey Pool Trade System - Supabase SQL Migration
 -- This SQL creates the tables needed for the player hold/trade system
 
--- Player Holds Table (legacy/deprecated)
--- Active ownership now comes from pool_rosters + player_trades.
--- This table is kept for backward compatibility with older scripts.
-CREATE TABLE IF NOT EXISTS player_holds (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  created_at timestamp DEFAULT now(),
-  league_code text NOT NULL,
-  team_name text NOT NULL,
-  player_slug text NOT NULL,
-  date_acquired timestamp NOT NULL,
-  points_accumulated integer DEFAULT 0,
-
-  CONSTRAINT unique_hold UNIQUE (league_code, team_name, player_slug)
-);
-
-CREATE INDEX IF NOT EXISTS idx_holds_league_team ON player_holds(league_code, team_name);
-CREATE INDEX IF NOT EXISTS idx_holds_player ON player_holds(player_slug);
-
-ALTER TABLE player_holds ADD COLUMN IF NOT EXISTS team_id text;
-ALTER TABLE player_holds ADD COLUMN IF NOT EXISTS team_name_snapshot text;
-CREATE INDEX IF NOT EXISTS idx_holds_league_team_id ON player_holds(league_code, team_id);
-
--- Drop old constraint - we'll use a unique index instead for better flexibility
-DO $$
-BEGIN
-  ALTER TABLE player_holds DROP CONSTRAINT IF EXISTS unique_hold;
-EXCEPTION WHEN OTHERS THEN NULL;
-END $$;
-
--- Create unique index that prioritizes team_id
--- When team_id exists, it's the source of truth. When absent, fall back to team_name.
-DROP INDEX IF EXISTS idx_holds_unique_by_team_id;
-DROP INDEX IF EXISTS idx_holds_unique_by_name;
-
--- Index for rows WITH team_id (primary new pattern)
-CREATE UNIQUE INDEX idx_holds_unique_by_team_id ON player_holds(league_code, team_id, player_slug)
-WHERE team_id IS NOT NULL;
-
--- Index for rows WITHOUT team_id (backward compatibility)
-CREATE UNIQUE INDEX idx_holds_unique_by_name ON player_holds(league_code, team_name, player_slug)
-WHERE team_id IS NULL;
+-- Active ownership comes from pool_rosters + player_trades.
+-- Legacy holds table is no longer needed.
+DROP TABLE IF EXISTS player_holds;
 
 -- Player Trades Table
 -- Historical record of trades between main roster and bench
@@ -279,27 +241,17 @@ END;
 $$;
 
 -- ===== DISABLE RLS (Row Level Security) =====
--- CRITICAL: RLS must be disabled to allow public/anon access for hold/trade operations
--- The anon role (used by browser clients) cannot perform implicit operations with RLS enabled
-
--- Drop ALL existing RLS policies first before disabling RLS
-DROP POLICY IF EXISTS "Allow public read on player_holds" ON player_holds;
-DROP POLICY IF EXISTS "Allow public insert on player_holds" ON player_holds;
-DROP POLICY IF EXISTS "Allow public update on player_holds" ON player_holds;
-DROP POLICY IF EXISTS "Allow public delete on player_holds" ON player_holds;
+-- CRITICAL: RLS must be disabled to allow public/anon access for trade operations
 DROP POLICY IF EXISTS "Allow public read on player_trades" ON player_trades;
 DROP POLICY IF EXISTS "Allow public insert on player_trades" ON player_trades;
 DROP POLICY IF EXISTS "Allow public update on player_trades" ON player_trades;
 DROP POLICY IF EXISTS "Allow public delete on player_trades" ON player_trades;
 
--- Now disable RLS on both tables (this is required!)
-ALTER TABLE player_holds DISABLE ROW LEVEL SECURITY;
+-- Disable RLS on trades table
 ALTER TABLE player_trades DISABLE ROW LEVEL SECURITY;
 
 -- CRITICAL: Grant ALL permissions to public and anon roles
 -- This is necessary for browser-based access to work
-GRANT ALL ON player_holds TO public;
-GRANT ALL ON player_holds TO anon;
 GRANT ALL ON player_trades TO public;
 GRANT ALL ON player_trades TO anon;
 
@@ -310,29 +262,8 @@ GRANT EXECUTE ON FUNCTION execute_pool_trade(text, text, text, text, text, times
 -- ===== OPTIONAL: Enable RLS with policies if needed =====
 -- Uncomment the following if you want to enable RLS for security:
 
--- ALTER TABLE player_holds ENABLE ROW LEVEL SECURITY;
 -- ALTER TABLE player_trades ENABLE ROW LEVEL SECURITY;
 
--- CREATE POLICY "Allow public read on player_holds"
---   ON player_holds
---   FOR SELECT
---   USING (true);
-
--- CREATE POLICY "Allow public insert on player_holds"
---   ON player_holds
---   FOR INSERT
---   WITH CHECK (true);
-
--- CREATE POLICY "Allow public update on player_holds"
---   ON player_holds
---   FOR UPDATE
---   USING (true)
---   WITH CHECK (true);
-
--- CREATE POLICY "Allow public delete on player_holds"
---   ON player_holds
---   FOR DELETE
---   USING (true);
 
 -- CREATE POLICY "Allow public read on player_trades"
 --   ON player_trades

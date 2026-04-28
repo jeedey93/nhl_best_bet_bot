@@ -440,10 +440,21 @@
 
   async function loadTrades(){
     try{
-      const res=await fetch(`${SUPABASE_URL}/rest/v1/player_trades?league_code=eq.${_leagueCode}&order=date_traded.desc`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
+      const ts=Date.now();
+      const res=await fetch(`${SUPABASE_URL}/rest/v1/player_trades?league_code=eq.${_leagueCode}&order=date_traded.desc&_=${ts}`,{headers:sbHeaders({'Cache-Control':'no-cache'})});
       if(!res.ok) throw new Error(`player_trades ${res.status}`);
       currentTrades=await res.json();
     }catch(e){currentTrades=[];console.warn('Unable to load trades',e);loadWarnings.push('Trade history could not be fully loaded.');}
+  }
+
+  async function waitForTradeHistory(team,fromSlug,toSlug,maxAttempts=6){
+    for(let i=0;i<maxAttempts;i++){
+      await loadTrades();
+      const found=currentTrades.some(t=>teamTradeMatch(t,team)&&t.player_from_slug===fromSlug&&t.player_to_slug===toSlug);
+      if(found) return true;
+      await new Promise(r=>setTimeout(r,250));
+    }
+    return false;
   }
 
 
@@ -829,10 +840,13 @@
      if(!tradeContext?.fromSlug||!tradeContext?.toSlug){alert('Please select both players');return;}
      const team=teams.find(t=>t.id===activeTeamId);
      if(!team){alert('Team not found');return;}
+     const fromSlug=tradeContext.fromSlug;
+     const toSlug=tradeContext.toSlug;
 
      try{
        const usedRpc=await executeTradeRpc(team);
        if(!usedRpc) await executeTradeLegacy(team);
+       await waitForTradeHistory(team,fromSlug,toSlug);
        closeModal();
        await load(activeTeamId);
      }catch(e){
