@@ -461,13 +461,15 @@
        // Diagnostic: Count all trades in table first
        let totalCount=0;
        try{
-         const countUrl=`${SUPABASE_URL}/rest/v1/player_trades?select=count()`;
-         const countRes=await fetch(countUrl,{headers:sbHeaders()});
+         const countUrl=`${SUPABASE_URL}/rest/v1/player_trades?select=id`;
+         const countRes=await fetch(countUrl,{headers:{...sbHeaders(),'Prefer':'count=exact'}});
          if(countRes.ok){
            const countText=countRes.headers.get('Content-Range')||'';
            const match=countText.match(/\/(\d+)/);
            totalCount=match?parseInt(match[1]):0;
            console.log(`[TRADES] Total trades in entire table: ${totalCount}`);
+         }else{
+           console.log('[TRADES] Count query failed, will continue without total');
          }
        }catch(_){console.log('[TRADES] Could not get total count');}
 
