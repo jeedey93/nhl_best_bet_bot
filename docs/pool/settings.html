@@ -154,6 +154,37 @@
     .btn-start-season:hover { background: rgba(34,197,94,0.22); border-color: rgba(34,197,94,0.65); }
     .btn-start-season:disabled { opacity: 0.45; cursor: default; }
 
+    /* Commissioner tools */
+    .tools-zone {
+      margin-top: 1rem;
+      border: 1px solid rgba(125,180,255,0.25);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      background: rgba(125,180,255,0.04);
+    }
+    .tools-zone-title {
+      font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 3px;
+      color: rgba(125,180,255,0.85); margin-bottom: 0.8rem;
+    }
+    .tools-zone-row {
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+      margin-bottom: 0.7rem;
+    }
+    .tools-zone-row:last-child { margin-bottom: 0; }
+    .tools-zone-desc { display: flex; flex-direction: column; gap: 3px; }
+    .tools-zone-label { font-size: 0.92rem; font-weight: 700; color: white; }
+    .tools-zone-sub { font-size: 0.76rem; color: var(--silver); line-height: 1.35; max-width: 290px; }
+    .btn-tool {
+      font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 1.5px;
+      background: rgba(125,180,255,0.12); color: #7db4ff;
+      border: 1px solid rgba(125,180,255,0.35); border-radius: 7px;
+      padding: 0.45rem 1rem; cursor: pointer; white-space: nowrap;
+      transition: background 0.15s, border-color 0.15s;
+      flex-shrink: 0;
+    }
+    .btn-tool:hover { background: rgba(125,180,255,0.2); border-color: rgba(125,180,255,0.55); }
+    .btn-tool:disabled { opacity: 0.45; cursor: default; }
+
     /* ── Formula preview ── */
     .formula-box {
       background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07);
@@ -399,6 +430,20 @@ function checkPoolPw(){
     </div>
   </div>
 
+  <div class="settings-card">
+    <div class="settings-card-title"><span>Trade Rules</span></div>
+    <div class="score-row">
+      <div class="score-label">
+        <span class="score-label-main">Max Trades Per Team</span>
+        <span class="score-label-sub">Set 0 for unlimited trades</span>
+      </div>
+      <div class="score-input-wrap">
+        <input class="score-input" id="max_trades_per_team" type="number" min="0" max="99" value="5">
+        <span class="score-unit">trades</span>
+      </div>
+    </div>
+  </div>
+
   <button class="btn-save" id="btn-save" onclick="promptSave()">💾 Save Settings</button>
   <div class="save-status" id="save-status"></div>
 
@@ -418,6 +463,24 @@ function checkPoolPw(){
         <span class="season-zone-sub">Creates a fresh snapshot for every currently rostered player in all teams. Standings/trades then count only points earned after this baseline.</span>
       </div>
       <button class="btn-start-season" id="btn-start-season" onclick="startSeasonBaseline()">Start Season</button>
+    </div>
+  </div>
+
+  <div class="tools-zone">
+    <div class="tools-zone-title">Commissioner Tools</div>
+    <div class="tools-zone-row">
+      <div class="tools-zone-desc">
+        <span class="tools-zone-label">Rebuild missing snapshots</span>
+        <span class="tools-zone-sub">Safe repair mode: adds snapshots only for players that do not already have one.</span>
+      </div>
+      <button class="btn-tool" id="btn-rebuild-missing" onclick="rebuildMissingSnapshotsOnly()">Repair Missing</button>
+    </div>
+    <div class="tools-zone-row">
+      <div class="tools-zone-desc">
+        <span class="tools-zone-label">Recompute standings</span>
+        <span class="tools-zone-sub">Runs a full calculation pass and shows summary counts (teams, players, missing snapshots, errors).</span>
+      </div>
+      <button class="btn-tool" id="btn-recompute" onclick="recomputeStandingsPass()">Recompute</button>
     </div>
   </div>
 
@@ -461,7 +524,7 @@ function checkPoolPw(){
   // Load settings from Supabase
   async function loadSettings() {
     try {
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/pool_settings?league_code=eq.${_leagueCode}&select=f_points,d_goals,d_assists,g_wins,g_shutouts`, { headers: sbHeaders() });
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/pool_settings?league_code=eq.${_leagueCode}&select=f_points,d_goals,d_assists,g_wins,g_shutouts,max_trades_per_team`, { headers: sbHeaders() });
       if (res.ok) {
         const rows = await res.json();
         if (rows.length) {
@@ -471,6 +534,7 @@ function checkPoolPw(){
           document.getElementById('d_assists').value = s.d_assists ?? 1;
           document.getElementById('g_wins').value = s.g_wins ?? 2;
           document.getElementById('g_shutouts').value = s.g_shutouts ?? 3;
+          document.getElementById('max_trades_per_team').value = s.max_trades_per_team ?? 5;
         }
       }
     } catch(e) {}
@@ -478,12 +542,14 @@ function checkPoolPw(){
   }
 
   function getValues() {
+    const maxTradesRaw = parseInt(document.getElementById('max_trades_per_team').value);
     return {
       f_points:   parseInt(document.getElementById('f_points').value) || 1,
       d_goals:    parseInt(document.getElementById('d_goals').value) || 1,
       d_assists:  parseInt(document.getElementById('d_assists').value) || 1,
       g_wins:     parseInt(document.getElementById('g_wins').value) || 2,
       g_shutouts: parseInt(document.getElementById('g_shutouts').value) || 3,
+      max_trades_per_team: Number.isFinite(maxTradesRaw) ? Math.max(0, maxTradesRaw) : 5,
     };
   }
 
@@ -505,6 +571,151 @@ function checkPoolPw(){
       wins: p?.wins ?? 0,
       shutouts: p?.shutouts ?? 0,
     };
+  }
+
+  function setStatus(message, isError = false, durationMs = 5000) {
+    const status = document.getElementById('save-status');
+    status.textContent = message;
+    status.className = `save-status show${isError ? ' error' : ''}`;
+    if (durationMs > 0) setTimeout(() => status.classList.remove('show'), durationMs);
+  }
+
+  async function loadPlayersMapForTools() {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/nhl_players?select=puckpedia_slug,points,goals,assists,wins,shutouts&limit=5000`, { headers: sbHeaders() });
+    if (!res.ok) throw new Error(`Failed loading players (${res.status})`);
+    const players = await res.json();
+    return Object.fromEntries(players.map(p => [p.puckpedia_slug, p]));
+  }
+
+  async function loadRosterDataForTools() {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/pool_rosters?league_code=eq.${_leagueCode}&select=data`, { headers: sbHeaders() });
+    if (!res.ok) throw new Error(`Failed loading rosters (${res.status})`);
+    const rows = await res.json();
+    if (!rows.length || !rows[0].data?.teams?.length) throw new Error('No teams found for this league');
+    return rows[0].data;
+  }
+
+  function getRosterSlugs(team) {
+    const slugs = [];
+    for (const group of ['F', 'D', 'G', 'B']) {
+      for (const slug of (team.roster?.[group] || []).filter(Boolean)) slugs.push(slug);
+    }
+    return slugs;
+  }
+
+  async function rebuildMissingSnapshotsOnly() {
+    const btn = document.getElementById('btn-rebuild-missing');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Repairing...';
+    setStatus('', false, 0);
+
+    try {
+      const playerMap = await loadPlayersMapForTools();
+      const data = await loadRosterDataForTools();
+      const now = new Date().toISOString();
+
+      let teamsProcessed = 0;
+      let teamsUpdated = 0;
+      let addedSnapshots = 0;
+      let skippedNoPlayer = 0;
+
+      data.teams = data.teams.map(team => {
+        teamsProcessed += 1;
+        const acquisitions = (team.acquisitions && typeof team.acquisitions === 'object') ? { ...team.acquisitions } : {};
+        let changed = false;
+
+        for (const slug of getRosterSlugs(team)) {
+          const existing = acquisitions[slug];
+          const hasSnapshot = !!(existing && typeof existing === 'object' && existing.stats_snapshot && typeof existing.stats_snapshot === 'object');
+          if (hasSnapshot) continue;
+          const p = playerMap[slug];
+          if (!p) {
+            skippedNoPlayer += 1;
+            continue;
+          }
+          acquisitions[slug] = { date: now, stats_snapshot: captureStatsSnapshot(p) };
+          addedSnapshots += 1;
+          changed = true;
+        }
+
+        if (changed) {
+          teamsUpdated += 1;
+          return { ...team, acquisitions };
+        }
+        return team;
+      });
+
+      if (!addedSnapshots) {
+        setStatus(`No missing snapshots found. Teams processed: ${teamsProcessed}.`, false);
+      } else {
+        const saveRes = await fetch(`${SUPABASE_URL}/rest/v1/pool_rosters`, {
+          method: 'POST',
+          headers: sbHeaders({ 'Prefer': 'resolution=merge-duplicates,return=minimal' }),
+          body: JSON.stringify({ league_code: _leagueCode, data, updated_at: now }),
+        });
+        if (!saveRes.ok) {
+          const body = await saveRes.text();
+          throw new Error(`Failed saving repairs (${saveRes.status}): ${body}`);
+        }
+        const suffix = skippedNoPlayer ? ` | Missing players in DB: ${skippedNoPlayer}` : '';
+        setStatus(`Repaired ${addedSnapshots} snapshots across ${teamsUpdated}/${teamsProcessed} teams.${suffix}`, false, 6500);
+      }
+    } catch (e) {
+      setStatus(e.message || 'Failed to repair missing snapshots.', true, 7000);
+    }
+
+    btn.disabled = false;
+    btn.textContent = 'Repair Missing';
+  }
+
+  async function recomputeStandingsPass() {
+    const btn = document.getElementById('btn-recompute');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Computing...';
+    setStatus('', false, 0);
+
+    try {
+      const data = await loadRosterDataForTools();
+
+      let teamsProcessed = 0;
+      let playersScanned = 0;
+      let missingSnapshots = 0;
+      let errors = 0;
+
+      for (const team of data.teams) {
+        teamsProcessed += 1;
+        const acquisitions = (team.acquisitions && typeof team.acquisitions === 'object') ? team.acquisitions : {};
+
+        for (const group of ['F', 'D', 'G']) {
+          for (const slug of (team.roster?.[group] || []).filter(Boolean)) {
+            playersScanned += 1;
+            const rec = acquisitions[slug];
+            const hasSnapshot = !!(rec && typeof rec === 'object' && rec.stats_snapshot && typeof rec.stats_snapshot === 'object');
+            if (!hasSnapshot) {
+              missingSnapshots += 1;
+              continue;
+            }
+
+            try {
+              void rec.stats_snapshot;
+            } catch (_) {
+              errors += 1;
+            }
+          }
+        }
+      }
+
+      setStatus(
+        `Standings pass complete | Teams: ${teamsProcessed} | Active players: ${playersScanned} | Missing snapshots: ${missingSnapshots} | Errors: ${errors}`,
+        false,
+        8000
+      );
+    } catch (e) {
+      setStatus(e.message || 'Failed to recompute standings pass.', true, 7000);
+    }
+
+    btn.disabled = false;
+    btn.textContent = 'Recompute';
   }
 
   async function startSeasonBaseline() {
@@ -570,7 +781,7 @@ function checkPoolPw(){
   }
 
   // Update formula preview live as user types
-  ['f_points','d_goals','d_assists','g_wins','g_shutouts'].forEach(id => {
+  ['f_points','d_goals','d_assists','g_wins','g_shutouts','max_trades_per_team'].forEach(id => {
     document.getElementById(id).addEventListener('input', updateFormula);
   });
 

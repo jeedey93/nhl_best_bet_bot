@@ -45,6 +45,7 @@
     .summary-value.gold { color: var(--gold); }
     .summary-value.green { color: var(--green); }
     .summary-value.red { color: var(--red); }
+    .summary-sub { font-family: 'Barlow Condensed', sans-serif; font-size: 0.68rem; color: rgba(255,255,255,0.5); margin-top: 2px; letter-spacing: 0.8px; }
 
     .warning-box { margin-bottom: 0.8rem; background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.24); border-radius: 8px; padding: 0.55rem 0.7rem; }
     .warning-box-title { font-family: 'Bebas Neue', cursive; font-size: 0.82rem; letter-spacing: 2px; color: #f59e0b; margin-bottom: 0.2rem; }
@@ -299,6 +300,7 @@
 
   let allPlayers=[], teams=[], activeTeamId=null;
   let _scoring={f_points:1,d_goals:1,d_assists:1,g_wins:2,g_shutouts:3};
+  let _maxTradesPerTeam=5;
   let currentTrades=[], loadWarnings=[];
   let tradeContext=null;
   let isSubmittingTrade=false;
@@ -347,6 +349,12 @@
     const result=byId||byName||bySnapshot;
     // console.log(`  [teamTradeMatch] team_id match: ${byId} (${trade.team_id}===${team.id}), name: ${byName} (${trade.team_name}===${team.name}), snapshot: ${bySnapshot} → ${result}`);
     return result;
+  }
+  function getTeamRealTradeCount(team){
+    return currentTrades.filter(t=>teamTradeMatch(t,team)&&t.player_from_slug!==t.player_to_slug).length;
+  }
+  function isTradeLimitReached(team){
+    return _maxTradesPerTeam>0 && getTeamRealTradeCount(team)>=_maxTradesPerTeam;
   }
   function findLatestIncomingTrade(team,slug){return currentTrades.find(t=>teamTradeMatch(t,team)&&t.player_to_slug===slug&&t.player_from_slug!==t.player_to_slug)||null;}
   function getAcquiredDateForActivePlayer(team,slug){
@@ -427,8 +435,15 @@
 
   async function loadScoringSettings(){
     try{
-      const r=await fetch(`${SUPABASE_URL}/rest/v1/pool_settings?league_code=eq.${_leagueCode}&select=f_points,d_goals,d_assists,g_wins,g_shutouts`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
-      if(r.ok){const rows=await r.json();if(rows.length)_scoring={..._scoring,...rows[0]};}
+      const r=await fetch(`${SUPABASE_URL}/rest/v1/pool_settings?league_code=eq.${_leagueCode}&select=f_points,d_goals,d_assists,g_wins,g_shutouts,max_trades_per_team`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
+      if(r.ok){
+        const rows=await r.json();
+        if(rows.length){
+          _scoring={..._scoring,...rows[0]};
+          const maxTrades=parseInt(rows[0].max_trades_per_team);
+          _maxTradesPerTeam=Number.isFinite(maxTrades)&&maxTrades>=0?maxTrades:5;
+        }
+      }
     }catch(e){console.warn('Unable to load scoring settings',e);}
   }
 
@@ -593,6 +608,8 @@
   function buildSummary(team,activeCount,tradeCount){
     const capUsed=teamMainCap(team);
     const capRemaining=CAP_MAX-capUsed;
+    const tradesDisplay=_maxTradesPerTeam>0?`${tradeCount}/${_maxTradesPerTeam}`:`${tradeCount}`;
+    const tradesRemaining=_maxTradesPerTeam>0?Math.max(0,_maxTradesPerTeam-tradeCount):null;
     return `
       <div class="summary-grid">
         <div class="summary-card ${capRemaining<0?'warn':'good'}">
@@ -609,13 +626,14 @@
         </div>
         <div class="summary-card">
           <div class="summary-label">Trades</div>
-          <div class="summary-value">${tradeCount}</div>
+          <div class="summary-value">${tradesDisplay}</div>
+          <div class="summary-sub">${tradesRemaining===null?'Remaining: Unlimited':`Remaining: ${tradesRemaining}`}</div>
         </div>
       </div>
     `;
   }
 
-   function buildHoldCard(slot,acquiredAt,p,team,slug){
+   function buildHoldCard(slot,acquiredAt,p,team,slug,canTrade){
      const daysHeld=acquiredAt?Math.max(0,Math.floor((new Date()-new Date(acquiredAt))/86400000)):'-';
      const pts=poolScoreOwned(p,team,slug);
      const abbr=TEAM_ABBR[p.team]||'';
@@ -633,7 +651,7 @@
             <div class="hold-stat"><div class="hold-stat-label">Owned Pts</div><div class="hold-stat-value">${pts}</div></div>
           </div>
          <div class="hold-actions">
-           <button class="btn-small btn-trade" onclick="openTradeModal('${p.puckpedia_slug}')">🔄 Trade</button>
+           <button class="btn-small btn-trade" onclick="openTradeModal('${p.puckpedia_slug}')" ${canTrade?'':'disabled'}>${canTrade?'🔄 Trade':'⛔ Limit'}</button>
          </div>
        </div>
      `;
@@ -736,7 +754,8 @@
       <div class="current-holds">
      `;
 
-     if(activeCount){
+      if(activeCount){
+       const canTrade=!isTradeLimitReached(team);
        const labels={F:'Forwards',D:'Defensemen',G:'Goalies'};
        ['F','D','G'].forEach(pos=>{
          const rows=(team.roster[pos]||[]).map((slug,idx)=>{
@@ -745,7 +764,7 @@
            return {slot:slotLabel(pos,idx),acquiredAt,slug,player:getPlayer(slug,pos)};
          }).filter(Boolean);
          if(!rows.length) return;
-         html+=`<div class="hold-pos-group"><div class="hold-pos-title ${pos}">${labels[pos]} (${rows.length})</div>${rows.map(item=>buildHoldCard(item.slot,item.acquiredAt,item.player,team,item.slug)).join('')}</div>`;
+         html+=`<div class="hold-pos-group"><div class="hold-pos-title ${pos}">${labels[pos]} (${rows.length})</div>${rows.map(item=>buildHoldCard(item.slot,item.acquiredAt,item.player,team,item.slug,canTrade)).join('')}</div>`;
        });
      }else{
        html+='<div class="empty-msg">No active roster players found.</div>';
@@ -828,6 +847,11 @@
   function openTradeModal(playerSlug){
     const team=teams.find(t=>t.id===activeTeamId);
     if(!team)return;
+    if(isTradeLimitReached(team)){
+      const limitTxt=_maxTradesPerTeam>0?`${_maxTradesPerTeam}`:'set';
+      alert(`Trade limit reached (${limitTxt}) for this team.`);
+      return;
+    }
     const p=getPlayer(playerSlug);
     if(!p)return;
 
@@ -886,6 +910,13 @@
       currentEl.textContent=afterEl.textContent=remainingEl.textContent='—';
       noteEl.textContent='Select an eligible bench player to preview the swap.';
       noteEl.className='trade-preview-note';
+      return;
+    }
+    if(isTradeLimitReached(team)){
+      btn.disabled=true;
+      currentEl.textContent=afterEl.textContent=remainingEl.textContent='—';
+      noteEl.textContent=`Trade limit reached (${_maxTradesPerTeam}).`;
+      noteEl.className='trade-preview-note warn';
       return;
     }
     const currentCap=teamMainCap(team);
@@ -1018,6 +1049,10 @@
      if(isSubmittingTrade) return;
      const team=teams.find(t=>t.id===activeTeamId);
      if(!team){alert('Team not found');return;}
+     if(isTradeLimitReached(team)){
+       alert(`Trade limit reached (${_maxTradesPerTeam}) for this team.`);
+       return;
+     }
      const fromSlug=tradeContext.fromSlug;
      const toSlug=tradeContext.toSlug;
      const confirmBtn=document.getElementById('trade-confirm-btn');
