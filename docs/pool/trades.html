@@ -36,7 +36,7 @@
     header h1 { font-family: 'Bebas Neue', cursive; font-size: clamp(1.5rem, 3vw, 2.2rem); letter-spacing: 4px; line-height: 1; text-shadow: 0 0 30px rgba(200,16,46,0.4), 0 2px 8px rgba(0,0,0,0.8); }
     header h1 span { color: var(--gold); }
 
-    .summary-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.55rem; margin-bottom: 0.8rem; }
+    .summary-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.55rem; margin-bottom: 0.8rem; }
     .summary-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 0.5rem 0.65rem; min-width: 0; }
     .summary-card.warn { border-color: rgba(245,158,11,0.35); background: rgba(245,158,11,0.06); }
     .summary-card.good { border-color: rgba(34,197,94,0.25); background: rgba(34,197,94,0.06); }
@@ -180,6 +180,13 @@
     .pw-btn { margin-top:1rem;width:100%;background:var(--red);color:white;border:none;border-radius:8px;padding:0.75rem;font-family:'Bebas Neue',cursive;font-size:1.2rem;letter-spacing:3px;cursor:pointer;transition:background 0.2s; }
     .pw-btn:hover { background:#e0122e; }
     .pw-error { color:rgba(200,16,46,0.8);font-size:0.8rem;margin-top:0.5rem;min-height:1em;letter-spacing:1px; }
+
+    .toast { position:fixed;bottom:20px;right:20px;background:rgba(34,197,94,0.9);border:1px solid rgba(34,197,94,0.5);color:white;padding:1rem 1.5rem;border-radius:8px;font-family:'Bebas Neue',cursive;letter-spacing:1px;z-index:1000;animation:slideIn 0.3s ease-out; }
+    @keyframes slideIn { from{transform:translateX(400px);opacity:0;}to{transform:translateX(0);opacity:1;} }
+    .toast.error { background:rgba(200,16,46,0.9);border-color:rgba(200,16,46,0.5); }
+
+    .spinner { display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 0.8s linear infinite;margin-right:0.5rem;vertical-align:middle; }
+    @keyframes spin { to{transform:rotate(360deg);} }
   </style>
 </head>
 <body>
@@ -409,15 +416,22 @@
     try{
       loadWarnings=[];
       const cached=sessionStorage.getItem(PLAYER_CACHE_KEY);
-      if(cached){
+      const cacheTime=sessionStorage.getItem(PLAYER_CACHE_KEY+'_time');
+      const cacheAgeHours=cacheTime?Math.floor((Date.now()-parseInt(cacheTime))/3600000):-1;
+      if(cached && cacheAgeHours<24){
         try{allPlayers=JSON.parse(cached);if(!Array.isArray(allPlayers)||!allPlayers.length)throw new Error('empty');}
-        catch(_){sessionStorage.removeItem(PLAYER_CACHE_KEY);allPlayers=[];}
+        catch(_){sessionStorage.removeItem(PLAYER_CACHE_KEY);sessionStorage.removeItem(PLAYER_CACHE_KEY+'_time');allPlayers=[];}
+      }else{
+        sessionStorage.removeItem(PLAYER_CACHE_KEY);
+        sessionStorage.removeItem(PLAYER_CACHE_KEY+'_time');
+        allPlayers=[];
       }
       if(!allPlayers.length){
         const res=await fetch(`${SUPABASE_URL}/rest/v1/nhl_players?select=puckpedia_slug,player_name,position,cap_hit,team,goals,assists,points,wins,shutouts,games_played&order=cap_hit.desc&limit=1000`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
         if(!res.ok)throw new Error(res.status);
         allPlayers=await res.json();
         sessionStorage.setItem(PLAYER_CACHE_KEY,JSON.stringify(allPlayers));
+        sessionStorage.setItem(PLAYER_CACHE_KEY+'_time',Date.now().toString());
       }
       slugMap._c=null;
 
@@ -467,15 +481,30 @@
      }catch(e){currentTrades=[];console.error('[TRADES ERROR]',e);loadWarnings.push('Trade history could not be fully loaded.');}
    }
 
-   async function waitForTradeHistory(team,fromSlug,toSlug,maxAttempts=12){
+  function showToast(message,isError=false){
+    const toast=document.createElement('div');
+    toast.className=`toast${isError?' error':''}`;
+    toast.textContent=message;
+    document.body.appendChild(toast);
+    setTimeout(()=>toast.remove(),3000);
+  }
+
+  async function waitForTradeHistory(team,fromSlug,toSlug,maxAttempts=12){
+     const confirmBtn=document.getElementById('trade-confirm-btn');
+     const originalText=confirmBtn?.textContent;
      for(let i=0;i<maxAttempts;i++){
+       if(confirmBtn) confirmBtn.textContent=`<span class="spinner"></span>Waiting...`;
        await loadTrades();
        const found=currentTrades.some(t=>{
-         return teamTradeMatch(t,team)&&t.player_from_slug===fromSlug&&t.player_to_slug===toSlug;
+         return teamTradeMatch(t,team)&&t.player_from_slug!==t.player_to_slug&&t.player_from_slug===fromSlug&&t.player_to_slug===toSlug;
        });
-       if(found) return true;
+       if(found){
+         if(confirmBtn) confirmBtn.textContent=originalText;
+         return true;
+       }
        if(i < maxAttempts - 1) await new Promise(r=>setTimeout(r,500));
      }
+     if(confirmBtn) confirmBtn.textContent=originalText;
      return false;
    }
 
@@ -703,6 +732,57 @@
     }else{
       html+='<div class="empty-msg">No trades yet.</div>';
     }
+    html+=`
+      <div class="section-title">League-wide <span>Trade Feed</span></div>
+      <div class="trades-list">
+    `;
+
+    const allTrades=[...currentTrades.filter(t=>t.player_from_slug!==t.player_to_slug)].sort((a,b)=>new Date(b.date_traded)-new Date(a.date_traded));
+    if(allTrades.length){
+      html+=`
+        <div class="trade-header-row">
+          <div class="trade-header-cell">Team</div>
+          <div class="trade-header-cell">From Player</div>
+          <div class="trade-header-cell">To Player</div>
+          <div class="trade-header-cell">Date</div>
+        </div>
+      `;
+      allTrades.forEach(trade=>{
+        const tradeTeam=teams.find(t=>teamTradeMatch(trade,t));
+        const teamName=tradeTeam?.name||trade.team_name||'Unknown';
+        const pFrom=trade.player_from_name?{player_name:trade.player_from_name,team:trade.player_from_team}:getPlayer(trade.player_from_slug);
+        const pTo=trade.player_to_name?{player_name:trade.player_to_name,team:trade.player_to_team}:getPlayer(trade.player_to_slug);
+        const abbrFrom=TEAM_ABBR[pFrom.team]||'';
+        const abbrTo=TEAM_ABBR[pTo.team]||'';
+        html+=`
+          <div class="trade-row">
+            <div class="player-info" data-label="Team">
+              <div class="player-details">
+                <div class="player-name">${escapeHtml(teamName)}</div>
+              </div>
+            </div>
+            <div class="player-info" data-label="From Player">
+              ${abbrFrom?`<img class="player-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbrFrom}_dark.svg" alt="${abbrFrom}">`:''}
+              <div class="player-details">
+                <div class="player-name">${escapeHtml(formatName(pFrom.player_name))}</div>
+              </div>
+            </div>
+            <div class="player-info" data-label="To Player">
+              ${abbrTo?`<img class="player-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbrTo}_dark.svg" alt="${abbrTo}">`:''}
+              <div class="player-details">
+                <div class="player-name">${escapeHtml(formatName(pTo.player_name))}</div>
+              </div>
+            </div>
+            <div class="date-box" data-label="Date">
+              <span class="date-label">Traded</span>
+              <span class="date-value">${new Date(trade.date_traded).toLocaleDateString()}</span>
+            </div>
+          </div>
+        `;
+      });
+    }else{
+      html+='<div class="empty-msg">No trades yet in this league.</div>';
+    }
     html+='</div>';
 
     document.getElementById('content').innerHTML=html;
@@ -820,6 +900,7 @@
   }
 
   async function createTradeRecord(team,dateFromAcquired,fromPlayer,toPlayer,fromSlot,toSlot,now){
+    const pointsAtTrade=poolScore(fromPlayer);
     const rows=await postWithFallback(`${SUPABASE_URL}/rest/v1/player_trades`,[
       {
         league_code:_leagueCode,
@@ -840,7 +921,7 @@
         to_slot_index:toSlot.index,
         date_from_acquired:dateFromAcquired,
         date_traded:now,
-        points_accumulated_at_trade:0
+        points_accumulated_at_trade:pointsAtTrade
       },
       {
         league_code:_leagueCode,
@@ -851,7 +932,7 @@
         player_to_slug:tradeContext.toSlug,
         date_from_acquired:dateFromAcquired,
         date_traded:now,
-        points_accumulated_at_trade:0
+        points_accumulated_at_trade:pointsAtTrade
       }
     ]);
     return Array.isArray(rows)?rows[0]:rows;
@@ -917,6 +998,7 @@
          }
 
          closeModal();
+         showToast('✓ Trade executed successfully!');
          await load(activeTeamId);
       }catch(e){
         const msg=e?.message||'';
