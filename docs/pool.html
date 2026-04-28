@@ -223,6 +223,12 @@
     }
     .recent-btn.standings:hover { background: rgba(255,255,255,0.1); color: white; border-color: rgba(255,255,255,0.25); }
 
+    /* Trades — green accent */
+    .recent-btn.trades {
+      background: rgba(34,197,94,0.08); border-color: rgba(34,197,94,0.24); color: var(--green);
+    }
+    .recent-btn.trades:hover { background: rgba(34,197,94,0.18); border-color: rgba(34,197,94,0.45); }
+
     /* Settings — subtle */
     .recent-btn.settings {
       background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.09); color: rgba(255,255,255,0.4);
@@ -429,6 +435,7 @@
           <button class="recent-btn draft"      onclick="goToDraft('${code}', '${escHtml(displayName)}')">✏️ Draft</button>
           <button class="recent-btn live-draft" onclick="goToLiveDraft('${code}')">🟢 Live Draft</button>
           <button class="recent-btn standings"  onclick="goToStandings('${code}')">📊 Standings</button>
+          <button class="recent-btn trades"     onclick="goToTrades('${code}')">🔄 Trades</button>
           <button class="recent-btn settings"   onclick="goToSettings('${code}')">⚙️ Settings</button>
           <div class="recent-btn-divider"></div>
           <button class="recent-btn delete" id="del-btn-${code}" onclick="promptDelete('${code}', '${escHtml(displayName)}')">🗑 Delete</button>
@@ -446,6 +453,7 @@
   function goToDraft(code, name)    { saveRecent(code, name); window.location.href = `/pool/join?league=${code}`; }
   function goToLiveDraft(code)      { window.location.href = `/pool/live-draft?league=${code}`; }
   function goToStandings(code)      { window.location.href = `/pool/standings?league=${code}`; }
+  function goToTrades(code)         { window.location.href = `/pool/trades?league=${code}`; }
   function goToSettings(code)       { window.location.href = `/pool/settings?league=${code}`; }
 
   // ── Password modal ────────────────────────────────────────────────────────
@@ -549,6 +557,7 @@
         </div>
         <button class="btn-primary" onclick="goToDraft('${code}', '${escHtml(leagueName)}')">Go to Draft →</button>
         <button class="btn-secondary" onclick="goToStandings('${code}')">View Standings</button>
+        <button class="btn-secondary" onclick="goToTrades('${code}')">View Trades</button>
       </div>`;
   }
 
