@@ -294,6 +294,7 @@
   let _scoring={f_points:1,d_goals:1,d_assists:1,g_wins:2,g_shutouts:3};
   let currentTrades=[], loadWarnings=[];
   let tradeContext=null;
+  let isSubmittingTrade=false;
 
   document.getElementById('nav-draft').href       = `/pool/join?league=${_leagueCode}`;
   document.getElementById('nav-live-draft').href  = `/pool/live-draft?league=${_leagueCode}`;
@@ -837,10 +838,18 @@
 
    async function confirmTrade(){
      if(!tradeContext?.fromSlug||!tradeContext?.toSlug){alert('Please select both players');return;}
+     if(isSubmittingTrade) return;
      const team=teams.find(t=>t.id===activeTeamId);
      if(!team){alert('Team not found');return;}
      const fromSlug=tradeContext.fromSlug;
      const toSlug=tradeContext.toSlug;
+     const confirmBtn=document.getElementById('trade-confirm-btn');
+
+     isSubmittingTrade=true;
+     if(confirmBtn){
+       confirmBtn.disabled=true;
+       confirmBtn.textContent='Executing...';
+     }
 
      try{
        const usedRpc=await executeTradeRpc(team);
@@ -849,9 +858,27 @@
        closeModal();
        await load(activeTeamId);
      }catch(e){
-       alert(e.message||'Error executing trade');
+       const msg=e?.message||'';
+       const staleOutgoing=/Outgoing player is not on the active roster/i.test(msg);
+       if(staleOutgoing){
+         // If the first request already swapped/logged the trade, treat the second stale attempt as success.
+         await waitForTradeHistory(team,fromSlug,toSlug,4);
+         const alreadyLogged=currentTrades.some(t=>teamTradeMatch(t,team)&&t.player_from_slug===fromSlug&&t.player_to_slug===toSlug);
+         if(alreadyLogged){
+           closeModal();
+           await load(activeTeamId);
+           return;
+         }
+       }
+       alert(msg||'Error executing trade');
        console.error(e);
        await load(activeTeamId);
+     }finally{
+       isSubmittingTrade=false;
+       if(confirmBtn){
+         confirmBtn.textContent='Execute Trade';
+         confirmBtn.disabled=!tradeContext?.toSlug;
+       }
      }
    }
 
