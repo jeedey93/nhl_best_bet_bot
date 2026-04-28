@@ -320,8 +320,14 @@
     // console.log(`  [teamTradeMatch] team_id match: ${byId} (${trade.team_id}===${team.id}), name: ${byName} (${trade.team_name}===${team.name}), snapshot: ${bySnapshot} → ${result}`);
     return result;
   }
-  function findLatestIncomingTrade(team,slug){return currentTrades.find(t=>teamTradeMatch(t,team)&&t.player_to_slug===slug)||null;}
-  function getAcquiredDateForActivePlayer(team,slug){return findLatestIncomingTrade(team,slug)?.date_traded||null;}
+  function findLatestIncomingTrade(team,slug){return currentTrades.find(t=>teamTradeMatch(t,team)&&t.player_to_slug===slug&&t.player_from_slug!==t.player_to_slug)||null;}
+  function getAcquiredDateForActivePlayer(team,slug){
+    // First check if we have an acquisition date in roster metadata (draft day)
+    const rosterAcqDate=team.acquisitions?.[slug];
+    if(rosterAcqDate) return rosterAcqDate;
+    // Otherwise check trade history
+    return findLatestIncomingTrade(team,slug)?.date_traded||null;
+  }
   function collectRelevantSlugs(){const set=new Set();teams.forEach(team=>['F','D','G','B'].forEach(group=>(team.roster[group]||[]).filter(Boolean).forEach(slug=>set.add(slug))));currentTrades.forEach(t=>{if(t.player_from_slug)set.add(t.player_from_slug);if(t.player_to_slug)set.add(t.player_to_slug);});return [...set];}
   function teamMainCap(team){
     const m=slugMap();
@@ -474,67 +480,36 @@
    }
 
    async function initializeDraftDayAcquisitions(){
-     // Sets acquisition dates for draft day players without creating visible trade records
-     // Only sets date_from_acquired, doesn't create actual trades in history
-     const m=slugMap();
+     // Sets acquisition dates for draft day players by storing in roster metadata
+     // This avoids the database constraint that prevents from_slug === to_slug
      const now=new Date().toISOString();
+     let needsUpdate=false;
 
      for(const team of teams){
+       if(!team.acquisitions) team.acquisitions={};
+
        const allPlayerSlugs=new Set();
        ['F','D','G','B'].forEach(group=>(team.roster[group]||[]).filter(Boolean).forEach(slug=>allPlayerSlugs.add(slug)));
 
        for(const slug of allPlayerSlugs){
-         // Check if this player already has a trade record (either from or to)
-         const hasTradeRecord=currentTrades.some(t=>teamTradeMatch(t,team)&&(t.player_from_slug===slug||t.player_to_slug===slug));
-         if(!hasTradeRecord){
-           const player=m[slug];
-           if(player){
-             try{
-               // Create a hidden acquisition record (both from and to same player = no visible trade)
-               // This just sets the tenure start date
-               await postWithFallback(`${SUPABASE_URL}/rest/v1/player_trades`,[
-                 {
-                   league_code:_leagueCode,
-                   team_id:team.id,
-                   team_name:team.name,
-                   team_name_snapshot:team.name,
-                   player_from_slug:slug,
-                   player_to_slug:slug,
-                   player_from_name:formatName(player.player_name),
-                   player_to_name:formatName(player.player_name),
-                   player_from_position:normalizePos(player.position),
-                   player_to_position:normalizePos(player.position),
-                   player_from_team:player.team||null,
-                   player_to_team:player.team||null,
-                   from_slot_group:'DRAFT',
-                   from_slot_index:-1,
-                   to_slot_group:'DRAFT',
-                   to_slot_index:-1,
-                   date_from_acquired:now,
-                   date_traded:now,
-                   points_accumulated_at_trade:0
-                 },
-                 {
-                   league_code:_leagueCode,
-                   team_id:team.id,
-                   team_name:team.name,
-                   team_name_snapshot:team.name,
-                   player_from_slug:slug,
-                   player_to_slug:slug,
-                   date_from_acquired:now,
-                   date_traded:now,
-                   points_accumulated_at_trade:0
-                 }
-               ]);
-             }catch(e){
-               console.warn(`Failed to set acquisition date for ${slug}:`,e.message);
-             }
-           }
+         // Check if this player has a trade record (real trades only)
+         const hasTradeRecord=currentTrades.some(t=>teamTradeMatch(t,team)&&t.player_from_slug!==t.player_to_slug&&(t.player_from_slug===slug||t.player_to_slug===slug));
+
+         // If no trade record and no acquisition date, set it to now (draft day)
+         if(!hasTradeRecord && !team.acquisitions[slug]){
+           team.acquisitions[slug]=now;
+           needsUpdate=true;
          }
        }
      }
 
-     await loadTrades();
+     if(needsUpdate){
+       try{
+         await saveRostersToSupabase();
+       }catch(e){
+         console.warn('Failed to save acquisition dates:',e.message);
+       }
+     }
    }
 
 
