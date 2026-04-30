@@ -172,7 +172,7 @@
     .btn-refresh:hover { background: rgba(255,255,255,0.1); color: white; }
 
     @media (max-width: 600px) {
-      .lb-row { grid-template-columns: 30px 1fr 50px 60px; }
+      .lb-row { grid-template-columns: 30px 1fr 50px 50px 50px; }
       .podium { gap: 0.4rem; }
       .pos-scores-bar { flex-wrap: wrap; }
       .view-tab { font-size: 0.68rem; letter-spacing: 1px; padding: 5px 5px; }
@@ -432,11 +432,14 @@
   function buildLeaderboard(sorted,leaderPts){
     const rc=i=>i===0?'gold':i===1?'silver':i===2?'bronze':'';
     const rows=sorted.map((t,i)=>{
-      const pts=teamTotalPts(t),cap=teamCapUsed(t.roster),filled=teamFilled(t.roster),sub=teamSubScores(t);
+      const pts=teamTotalPts(t),cap=teamCapUsed(t.roster),sub=teamSubScores(t);
       const gap=i===0?'Leader':`−${leaderPts-pts}`,eff=cap>0?(pts/(cap/1e6)).toFixed(1):'—';
-      return`<div class="lb-row ${t.id===activeTeamId?'active':''}" onclick="selectTeam('${t.id}')"><div class="lb-rank ${rc(i)}">${i+1}</div><div><div class="lb-name">${t.name}</div><div class="lb-subscore"><span class="lb-subscore-pill F">F ${sub.F}</span><span class="lb-subscore-pill D">D ${sub.D}</span><span class="lb-subscore-pill G">G ${sub.G}</span><span class="lb-subscore-pill B">B ${sub.B}</span></div></div><div class="lb-stat">${filled}/26</div><div class="lb-stat">$${(cap/1e6).toFixed(1)}M</div><div class="lb-stat">${eff} pt/$M</div><div class="lb-stat ${i===0?'gap leader':'gap'}">${gap}</div><div class="lb-stat pts">${pts}</div></div>`;
+      const allP=[...rosterPlayers(t.roster).F,...rosterPlayers(t.roster).D,...rosterPlayers(t.roster).G].filter(Boolean);
+      const totalGP=allP.reduce((s,p)=>{const d=ownedStatsDelta(p,t,p._slug);return s+(d?.gamesPlayed??p.games_played??0);},0);
+      const ppg=totalGP>0?(pts/totalGP).toFixed(2):'—';
+      return`<div class="lb-row ${t.id===activeTeamId?'active':''}" onclick="selectTeam('${t.id}')"><div class="lb-rank ${rc(i)}">${i+1}</div><div><div class="lb-name">${t.name}</div><div class="lb-subscore"><span class="lb-subscore-pill F">F ${sub.F}</span><span class="lb-subscore-pill D">D ${sub.D}</span><span class="lb-subscore-pill G">G ${sub.G}</span></div></div><div class="lb-stat">${ppg}</div><div class="lb-stat">${eff}</div><div class="lb-stat ${i===0?'gap leader':'gap'}">${gap}</div><div class="lb-stat pts">${pts}</div></div>`;
     }).join('');
-    return`<div class="leaderboard"><div class="lb-row header" style="grid-template-columns:36px 1fr 60px 60px 70px 70px 70px"><div></div><div class="lb-col-label left">Team</div><div class="lb-col-label">Players</div><div class="lb-col-label">Cap</div><div class="lb-col-label">Eff.</div><div class="lb-col-label">Gap</div><div class="lb-col-label">Pts</div></div>${rows}</div>`;}
+    return`<div class="leaderboard"><div class="lb-row header" style="grid-template-columns:36px 1fr 60px 60px 60px 60px"><div></div><div class="lb-col-label left">Team</div><div class="lb-col-label">Pt/GP</div><div class="lb-col-label">Eff.</div><div class="lb-col-label">Gap</div><div class="lb-col-label">Pts</div></div>${rows}</div>`;}
 
   function buildDetail(team,sorted,leaderPts,avgs){
     const roster=rosterPlayers(team.roster);
