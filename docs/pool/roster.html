@@ -99,16 +99,16 @@
     .roster-group-count { font-family: 'Barlow Condensed', sans-serif; font-size: 0.68rem; color: rgba(255,255,255,0.3); }
 
     /* Column headers */
-    .roster-col-header { display: grid; grid-template-columns: 26px 1fr 44px 60px 44px 60px 72px; gap: 0; align-items: center; padding: 0.22rem 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.07); }
-    .roster-col-header.bench-cols { grid-template-columns: 26px 1fr 60px 60px; }
+    .roster-col-header { display: grid; grid-template-columns: 26px 1fr 34px 34px 34px 38px 42px 60px 72px; gap: 0; align-items: center; padding: 0.22rem 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.07); }
+    .roster-col-header.bench-cols { grid-template-columns: 26px 1fr 34px 34px 34px 38px 42px 60px; }
     .col-hd { font-family: 'Barlow Condensed', sans-serif; font-size: 0.6rem; font-weight: 700; color: rgba(255,255,255,0.28); letter-spacing: 1.5px; text-transform: uppercase; text-align: center; }
     .col-hd.left { text-align: left; }
 
     /* Player row */
-    .roster-row { display: grid; grid-template-columns: 26px 1fr 44px 60px 44px 60px 72px; gap: 0; align-items: center; padding: 0 0.75rem; height: 34px; border-bottom: 1px solid rgba(255,255,255,0.04); transition: background 0.12s; }
+    .roster-row { display: grid; grid-template-columns: 26px 1fr 34px 34px 34px 38px 42px 60px 72px; gap: 0; align-items: center; padding: 0 0.75rem; height: 34px; border-bottom: 1px solid rgba(255,255,255,0.04); transition: background 0.12s; }
     .roster-row:last-child { border-bottom: none; }
     .roster-row:hover { background: rgba(255,255,255,0.025); }
-    .roster-row.bench-row { grid-template-columns: 26px 1fr 60px 60px; background: rgba(0,0,0,0.12); }
+    .roster-row.bench-row { grid-template-columns: 26px 1fr 34px 34px 34px 38px 42px 60px; background: rgba(0,0,0,0.12); }
     .roster-row.bench-row:hover { background: rgba(255,255,255,0.015); }
 
     /* Logo cell */
@@ -127,6 +127,10 @@
     .cell-stat.muted { color: rgba(255,255,255,0.45); font-size: 0.78rem; }
     .cell-stat.approx { color: rgba(245,158,11,0.6); }
     .cell-cap { text-align: center; font-family: 'Barlow Condensed', sans-serif; font-size: 0.75rem; font-weight: 600; color: rgba(255,255,255,0.5); }
+    .cell-trend { text-align: center; font-family: 'Bebas Neue', cursive; font-size: 0.78rem; letter-spacing: 0.8px; }
+    .cell-trend.up { color: var(--green); }
+    .cell-trend.down { color: #f87171; }
+    .cell-trend.flat { color: rgba(255,255,255,0.45); }
 
     /* Action cell */
     .cell-action { display: flex; align-items: center; justify-content: flex-end; }
@@ -251,10 +255,12 @@
       .summary-bar { flex-wrap: wrap; }
       .summary-bar-item { flex: 1 1 45%; border-right: none; border-bottom: 1px solid rgba(255,255,255,0.07); }
       .roster-col-header { display: none; }
-      .roster-row { grid-template-columns: 26px 1fr 44px 60px; height: auto; padding: 0.4rem 0.75rem; }
-      .roster-row .cell-stat:nth-child(4) { display: none; }
+      .roster-row { grid-template-columns: 26px 1fr 38px 42px 72px; height: auto; padding: 0.4rem 0.75rem; }
+      .roster-row .cell-gp,
+      .roster-row .cell-g,
+      .roster-row .cell-a,
       .roster-row .cell-cap { display: none; }
-      .bench-row { grid-template-columns: 26px 1fr 60px; }
+      .bench-row { grid-template-columns: 26px 1fr 38px 42px; }
       .trade-header-row, .trade-header-row.league { display: none; }
       .trade-row, .trade-row.league { grid-template-columns: 1fr 1fr; height: auto; padding: 0.5rem 0.75rem; gap: 0.4rem; }
       .compare-grid { grid-template-columns: 1fr; gap: 0.4rem; }
@@ -444,7 +450,21 @@
     if(pos==='D'){ const g=Math.max(0,(p.goals??0)-(snap.goals??0)),a=Math.max(0,(p.assists??0)-(snap.assists??0)); return g*_scoring.d_goals+a*_scoring.d_assists; }
     return Math.max(0,((p.points??0)-(snap.points??0)))*_scoring.f_points;
   }
-  function captureStatsSnapshot(p){ return{points:p.points??0,goals:p.goals??0,assists:p.assists??0,wins:p.wins??0,shutouts:p.shutouts??0}; }
+  function captureStatsSnapshot(p){ return{points:p.points??0,goals:p.goals??0,assists:p.assists??0,wins:p.wins??0,shutouts:p.shutouts??0,games_played:p.games_played??p.gp??0}; }
+  function performanceSignal(p, team, slug){
+    const snap = team?.acquisitions?.[slug]?.stats_snapshot;
+    const ownedPts = poolScoreOwned(p, team, slug);
+    const gpNow = Number(p.games_played ?? p.gp ?? 0);
+    const gpSnap = Number(snap?.games_played ?? NaN);
+    const gpOwned = Number.isFinite(gpSnap) ? Math.max(0, gpNow - gpSnap) : 0;
+    if(ownedPts===null || !gpNow || gpNow < 8 || gpOwned < 3) return {label:'-', cls:'flat', title:'Need more games since acquisition'};
+    const seasonPace = poolScore(p) / gpNow;
+    const ownedPace = ownedPts / gpOwned;
+    const delta = ownedPace - seasonPace;
+    if(delta > 0.15) return {label:'▲', cls:'up', title:`Hot streak (+${delta.toFixed(2)} pts/gm)`};
+    if(delta < -0.15) return {label:'▼', cls:'down', title:`Cooling off (${delta.toFixed(2)} pts/gm)`};
+    return {label:'=', cls:'flat', title:'Holding season pace'};
+  }
   function formatName(n){ if(!n)return''; if(n.includes(',')){ const[l,f]=n.split(',').map(s=>s.trim()); return`${f} ${l}`; } return n; }
   function slugMap(){ if(!slugMap._c) slugMap._c=Object.fromEntries(allPlayers.map(p=>[p.puckpedia_slug,p])); return slugMap._c; }
   function sbHeaders(extra={}){ return{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Content-Type':'application/json',...extra}; }
@@ -671,16 +691,13 @@
 
   /* ── Compact roster row ── */
   function buildRosterRow(slot, acquiredAt, p, team, slug, canSwap) {
-    const ownedPts = poolScoreOwned(p, team, slug);
-    const isApprox = ownedPts === null;
-    const displayPts = isApprox ? poolScore(p) : ownedPts;
-    const daysHeld = acquiredAt ? Math.max(0, Math.floor((new Date() - new Date(acquiredAt)) / 86400000)) : '—';
     const abbr = TEAM_ABBR[p.team] || '';
     const pos = normalizePos(p.position);
-    const statLabel = pos === 'G' ? 'W / SHO' : (pos === 'D' ? 'G + A' : 'PTS');
-    const statVal = pos === 'G'
-      ? `${p.wins ?? 0} / ${p.shutouts ?? 0}`
-      : (pos === 'D' ? `${p.goals ?? 0} + ${p.assists ?? 0}` : `${p.points ?? 0}`);
+    const gp = Number(p.games_played ?? p.gp ?? 0);
+    const goals = pos === 'G' ? (p.wins ?? 0) : (p.goals ?? 0);
+    const assists = pos === 'G' ? (p.shutouts ?? 0) : (p.assists ?? 0);
+    const points = pos === 'G' ? poolScore(p) : (p.points ?? ((p.goals ?? 0) + (p.assists ?? 0)));
+    const signal = performanceSignal(p, team, slug);
 
     const swapBtn = canSwap
       ? `<button class="btn-swap" onclick="openTradeModal('${slug}')">⇄ Swap</button>`
@@ -693,22 +710,26 @@
         <div class="cell-logo">${abbr ? `<img src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}" loading="lazy">` : ''}</div>
         <div class="cell-name">
           <div class="cell-name-main"><span class="slot-badge">${slot}</span>${escapeHtml(formatName(p.player_name))}</div>
-          <div class="cell-name-sub">Since ${acqDate}${isApprox ? ' · ~' : ''}</div>
+          <div class="cell-name-sub">Since ${acqDate}</div>
         </div>
-        <div class="cell-stat muted">${daysHeld}</div>
-        <div class="cell-stat">${statVal}</div>
-        <div class="cell-stat ${isApprox ? 'approx' : 'gold'}">${displayPts}</div>
+        <div class="cell-stat cell-gp">${gp}</div>
+        <div class="cell-stat cell-g">${goals}</div>
+        <div class="cell-stat cell-a">${assists}</div>
+        <div class="cell-stat gold">${points}</div>
+        <div class="cell-trend ${signal.cls}" title="${signal.title}">${signal.label}</div>
         <div class="cell-cap">${formatCap(p.cap_hit || 0)}</div>
         <div class="cell-action">${swapBtn}</div>
       </div>`;
   }
 
-  function buildBenchRow(slot, p) {
+  function buildBenchRow(slot, p, team, slug) {
     const abbr = TEAM_ABBR[p.team] || '';
     const pos = normalizePos(p.position);
-    const statVal = pos === 'G'
-      ? `${p.wins ?? 0} / ${p.shutouts ?? 0}`
-      : (pos === 'D' ? `${p.goals ?? 0} + ${p.assists ?? 0}` : `${p.points ?? 0}`);
+    const gp = Number(p.games_played ?? p.gp ?? 0);
+    const goals = pos === 'G' ? (p.wins ?? 0) : (p.goals ?? 0);
+    const assists = pos === 'G' ? (p.shutouts ?? 0) : (p.assists ?? 0);
+    const points = pos === 'G' ? poolScore(p) : (p.points ?? ((p.goals ?? 0) + (p.assists ?? 0)));
+    const signal = performanceSignal(p, team, slug);
 
     return `
       <div class="roster-row bench-row">
@@ -717,7 +738,11 @@
           <div class="cell-name-main"><span class="slot-badge">${slot}</span>${escapeHtml(formatName(p.player_name))}</div>
           <div class="cell-name-sub">On bench</div>
         </div>
-        <div class="cell-stat muted">${statVal}</div>
+        <div class="cell-stat cell-gp">${gp}</div>
+        <div class="cell-stat cell-g">${goals}</div>
+        <div class="cell-stat cell-a">${assists}</div>
+        <div class="cell-stat gold">${points}</div>
+        <div class="cell-trend ${signal.cls}" title="${signal.title}">${signal.label}</div>
         <div class="cell-cap">${formatCap(p.cap_hit || 0)}</div>
       </div>`;
   }
@@ -727,23 +752,37 @@
   }
 
   /* ── Column header row ── */
-  function rosterColHeaders(){
+  function statHeaderLabels(pos){
+    return pos==='G'
+      ? { stat1: 'W', stat2: 'SHO', stat3: 'Pool P' }
+      : { stat1: 'G', stat2: 'A', stat3: 'P' };
+  }
+
+  function rosterColHeaders(pos){
+    const labels = statHeaderLabels(pos);
     return `<div class="roster-col-header">
       <div></div>
       <div class="col-hd left">Player</div>
-      <div class="col-hd">Days</div>
-      <div class="col-hd">Stats</div>
-      <div class="col-hd">Owned Pts</div>
+      <div class="col-hd">GP</div>
+      <div class="col-hd">${labels.stat1}</div>
+      <div class="col-hd">${labels.stat2}</div>
+      <div class="col-hd">${labels.stat3}</div>
+      <div class="col-hd">Form</div>
       <div class="col-hd">Cap</div>
       <div class="col-hd"></div>
     </div>`;
   }
 
-  function benchColHeaders(){
+  function benchColHeaders(pos){
+    const labels = statHeaderLabels(pos);
     return `<div class="roster-col-header bench-cols">
       <div></div>
       <div class="col-hd left">Player</div>
-      <div class="col-hd">Stats</div>
+      <div class="col-hd">GP</div>
+      <div class="col-hd">${labels.stat1}</div>
+      <div class="col-hd">${labels.stat2}</div>
+      <div class="col-hd">${labels.stat3}</div>
+      <div class="col-hd">Form</div>
       <div class="col-hd">Cap</div>
     </div>`;
   }
@@ -834,7 +873,6 @@
     html += `<div class="section-title">Active <span>Roster</span></div><div class="roster-table">`;
 
     if(activeCount){
-      let firstGroup = true;
       ['F','D','G'].forEach(pos=>{
         const rows=(team.roster[pos]||[]).map((slug,idx)=>{
           if(!slug) return null;
@@ -842,7 +880,7 @@
         }).filter(Boolean);
         if(!rows.length) return;
         html += `<div class="roster-group-header"><span class="roster-group-label ${pos}">${posLabels[pos]}</span><span class="roster-group-count">${rows.length}</span></div>`;
-        if(firstGroup){ html += rosterColHeaders(); firstGroup = false; }
+        html += rosterColHeaders(pos);
         html += rows.map(item=>buildRosterRow(item.slot, item.acq, item.player, team, item.slug, canSwap)).join('');
       });
     }else{
@@ -851,17 +889,16 @@
     html += '</div>';
 
     /* ── BENCH ── */
-    const benchPlayers=(team.roster.B||[]).map((slug,idx)=>slug?{slot:slotLabel('B',idx),player:getPlayer(slug,'F')}:null).filter(Boolean);
+    const benchPlayers=(team.roster.B||[]).map((slug,idx)=>slug?{slot:slotLabel('B',idx),slug,player:getPlayer(slug,'F')}:null).filter(Boolean);
     html += `<div class="section-title">Team <span>Bench</span></div><div class="roster-table">`;
     if(benchPlayers.length){
       const grouped={F:[],D:[],G:[]};
       benchPlayers.forEach(item=>grouped[normalizePos(item.player.position)].push(item));
-      let firstGroup = true;
       ['F','D','G'].forEach(pos=>{
         if(!grouped[pos].length) return;
         html += `<div class="roster-group-header"><span class="roster-group-label ${pos}">${posLabels[pos]}</span><span class="roster-group-count">${grouped[pos].length}</span></div>`;
-        if(firstGroup){ html += benchColHeaders(); firstGroup = false; }
-        html += grouped[pos].map(item=>buildBenchRow(item.slot, item.player)).join('');
+        html += benchColHeaders(pos);
+        html += grouped[pos].map(item=>buildBenchRow(item.slot, item.player, team, item.slug)).join('');
       });
     }else{
       html += buildEmptyState('🪑','No bench players');
