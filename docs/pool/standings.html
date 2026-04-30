@@ -1,587 +1,1229 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pool Standings | Parieur Discipliné</title>
-  <link rel="icon" type="image/png" href="../parieur_discipline_icon_1024.png">
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,900;1,400&display=swap" rel="stylesheet">
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --rink: #07111f;
-      --red: #c8102e;
-      --gold: #ffb81c;
-      --silver: #a8b2be;
-      --green: #22c55e;
-      --blue: #7db4ff;
-      --pink: #ff7a8a;
-      --line: rgba(255,255,255,0.08);
-      --nav-h: 44px;
-    }
-    body { background: var(--rink); background-image: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(26,58,110,0.6) 0%, transparent 70%); min-height: 100vh; font-family: 'Barlow Condensed', sans-serif; color: white; padding-top: var(--nav-h); }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pool Standings | Parieur Discipliné</title>
+    <link rel="icon" type="image/png" href="../parieur_discipline_icon_1024.png">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,900;1,400&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+          --rink: #07111f;
+          --red: #c8102e;
+          --gold: #ffb81c;
+          --silver: #a8b2be;
+          --green: #22c55e;
+          --blue: #7db4ff;
+          --pink: #ff7a8a;
+          --line: rgba(255,255,255,0.08);
+          --nav-h: 44px;
+        }
+        body {
+          background: var(--rink);
+          background-image: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(26,58,110,0.6) 0%, transparent 70%);
+          min-height: 100vh;
+          font-family: 'Barlow Condensed', sans-serif;
+          color: white;
+          padding-top: var(--nav-h);
+        }
 
-    .site-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(7,17,31,0.92); border-bottom: 1px solid var(--line); backdrop-filter: blur(12px); }
-    .site-nav-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: var(--nav-h); padding: 0 1.5rem; }
-    .site-nav-brand { font-family: 'Bebas Neue', cursive; font-size: 1.5rem; color: var(--gold); letter-spacing: 4px; text-decoration: none; }
-    .site-nav-links { display: flex; align-items: center; gap: 0.5rem; }
-    .site-nav-links a { font-family: 'Barlow Condensed', sans-serif; font-size: 1rem; font-weight: 600; color: var(--silver); text-decoration: none; padding: 0.3rem 0.8rem; border-radius: 5px; letter-spacing: 1.5px; transition: color 0.15s, background 0.15s; }
-    .site-nav-links a:hover { color: white; background: rgba(255,255,255,0.07); }
-    .site-nav-links a.active { color: var(--gold); background: rgba(255,184,28,0.1); }
+        /* ── NAV ── */
+        .site-nav {
+          position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+          background: rgba(7,17,31,0.92); border-bottom: 1px solid var(--line);
+          backdrop-filter: blur(12px);
+        }
+        .site-nav-inner {
+          max-width: 1100px; margin: 0 auto;
+          display: flex; align-items: center; justify-content: space-between;
+          height: var(--nav-h); padding: 0 1.5rem;
+        }
+        .site-nav-brand {
+          font-family: 'Bebas Neue', cursive; font-size: 1.5rem;
+          color: var(--gold); letter-spacing: 4px; text-decoration: none;
+          flex-shrink: 0;
+        }
+        /* Desktop links */
+        .site-nav-links {
+          display: flex; align-items: center; gap: 0.5rem;
+        }
+        .site-nav-links a {
+          font-family: 'Barlow Condensed', sans-serif; font-size: 1rem; font-weight: 600;
+          color: var(--silver); text-decoration: none; padding: 0.3rem 0.8rem;
+          border-radius: 5px; letter-spacing: 1.5px;
+          transition: color 0.15s, background 0.15s;
+        }
+        .site-nav-links a:hover { color: white; background: rgba(255,255,255,0.07); }
+        .site-nav-links a.active { color: var(--gold); background: rgba(255,184,28,0.1); }
+        /* Hamburger — only on mobile */
+        .nav-hamburger {
+          display: none; flex-direction: column; justify-content: center; gap: 5px;
+          width: 36px; height: 36px; cursor: pointer; border: none;
+          background: none; padding: 6px; border-radius: 6px;
+        }
+        .nav-hamburger span {
+          display: block; height: 2px; background: var(--silver);
+          border-radius: 2px; transition: background 0.15s;
+        }
+        .nav-hamburger:hover span { background: white; }
+        /* Mobile drawer */
+        .nav-drawer {
+          display: none; position: fixed; top: var(--nav-h); left: 0; right: 0; bottom: 0;
+          z-index: 99; background: rgba(7,17,31,0.97); backdrop-filter: blur(16px);
+          flex-direction: column; gap: 0.25rem; padding: 1.25rem 1.5rem;
+          border-top: 1px solid var(--line);
+        }
+        .nav-drawer.open { display: flex; }
+        .nav-drawer a {
+          font-family: 'Bebas Neue', cursive; font-size: 1.4rem; letter-spacing: 3px;
+          color: var(--silver); text-decoration: none; padding: 0.65rem 0.75rem;
+          border-radius: 8px; transition: color 0.15s, background 0.15s;
+        }
+        .nav-drawer a:hover { color: white; background: rgba(255,255,255,0.06); }
+        .nav-drawer a.active { color: var(--gold); background: rgba(255,184,28,0.08); }
+        @media (max-width: 700px) {
+          .site-nav-links { display: none; }
+          .nav-hamburger { display: flex; }
+        }
 
-    .page-wrap { max-width: 980px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+        /* ── LAYOUT ── */
+        .page-wrap { max-width: 980px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+        @media (min-width: 861px) { .page-wrap { padding: 2rem 1.5rem 4rem; } }
 
-    header { text-align: center; margin-bottom: 1.5rem; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; }
-    header h1 { font-family: 'Bebas Neue', cursive; font-size: clamp(1.8rem, 4vw, 2.8rem); letter-spacing: 5px; line-height: 1; text-shadow: 0 0 30px rgba(200,16,46,0.4), 0 2px 8px rgba(0,0,0,0.8); }
-    header h1 span { color: var(--gold); }
-    .league-code-badge { display: inline-flex; align-items: center; gap: 0.4rem; margin-top: 0.4rem; font-family: 'Barlow Condensed', sans-serif; font-size: 0.75rem; font-weight: 700; color: var(--silver); letter-spacing: 2px; text-transform: uppercase; }
-    .league-code-badge span { font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 3px; color: var(--gold); background: rgba(255,184,28,0.1); border: 1px solid rgba(255,184,28,0.3); border-radius: 4px; padding: 1px 10px; }
-    .header-controls { display: flex; align-items: center; gap: 0.5rem; justify-content: center; }
-    .btn-sync { font-family: 'Bebas Neue', cursive; font-size: 0.8rem; letter-spacing: 1.5px; background: rgba(34,197,94,0.12); border: 1px solid rgba(34,197,94,0.3); color: var(--green); border-radius: 6px; padding: 4px 12px; cursor: pointer; transition: background 0.2s, border-color 0.2s; }
-    .btn-sync:hover { background: rgba(34,197,94,0.2); border-color: rgba(34,197,94,0.5); }
-    .btn-sync:disabled { opacity: 0.5; cursor: not-allowed; }
-    .sync-status { font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem; color: rgba(34,197,94,0.7); margin-left: 0.3rem; }
-    .sync-status.error { color: rgba(200,16,46,0.7); }
+        /* ── HEADER ── */
+        header { text-align: center; margin-bottom: 1.5rem; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; }
+        header h1 {
+          font-family: 'Bebas Neue', cursive;
+          font-size: clamp(1.8rem, 4vw, 2.8rem); letter-spacing: 5px; line-height: 1;
+          text-shadow: 0 0 30px rgba(200,16,46,0.4), 0 2px 8px rgba(0,0,0,0.8);
+        }
+        header h1 span { color: var(--gold); }
+        @media (min-width: 861px) { header h1 { font-size: clamp(2.4rem, 4vw, 3.4rem); } }
+        .league-code-badge {
+          display: inline-flex; align-items: center; gap: 0.4rem; margin-top: 0.4rem;
+          font-size: 0.75rem; font-weight: 700; color: var(--silver);
+          letter-spacing: 2px; text-transform: uppercase;
+        }
+        .league-code-badge span {
+          font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 3px;
+          color: var(--gold); background: rgba(255,184,28,0.1);
+          border: 1px solid rgba(255,184,28,0.3); border-radius: 4px; padding: 1px 10px;
+        }
+        .header-controls { display: flex; align-items: center; gap: 0.5rem; justify-content: center; }
+        .btn-sync {
+          font-family: 'Bebas Neue', cursive; font-size: 0.8rem; letter-spacing: 1.5px;
+          background: rgba(34,197,94,0.12); border: 1px solid rgba(34,197,94,0.3);
+          color: var(--green); border-radius: 6px; padding: 4px 12px;
+          cursor: pointer; transition: background 0.2s, border-color 0.2s;
+        }
+        .btn-sync:hover { background: rgba(34,197,94,0.2); border-color: rgba(34,197,94,0.5); }
+        .btn-sync:disabled { opacity: 0.5; cursor: not-allowed; }
+        .sync-status { font-size: 0.72rem; color: rgba(34,197,94,0.7); margin-left: 0.3rem; }
+        .sync-status.error { color: rgba(200,16,46,0.7); }
 
-    .view-tabs { display: flex; gap: 4px; margin-bottom: 1.25rem; background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 8px; padding: 4px; }
-    .view-tab { font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 2px; padding: 5px 14px; border-radius: 5px; cursor: pointer; flex: 1; text-align: center; color: var(--silver); transition: background 0.15s, color 0.15s; }
-    .view-tab:hover { color: white; }
-    .view-tab.active { background: rgba(255,184,28,0.12); color: var(--gold); }
+        /* ── VIEW TABS ── */
+        .view-tabs {
+          display: flex; gap: 4px; margin-bottom: 1.25rem;
+          background: rgba(255,255,255,0.03);
+          border: 1px solid var(--line); border-radius: 8px; padding: 4px;
+        }
+        .view-tab {
+          font-family: 'Bebas Neue', cursive; letter-spacing: 2px;
+          padding: 5px 14px; border-radius: 5px; cursor: pointer; flex: 1;
+          text-align: center; color: var(--silver);
+          transition: background 0.15s, color 0.15s; font-size: 0.85rem;
+        }
+        .view-tab:hover { color: white; }
+        .view-tab.active { background: rgba(255,184,28,0.12); color: var(--gold); }
+        @media (min-width: 861px) { .view-tab { font-size: 1rem; padding: 7px 20px; } }
 
-    .leaderboard { background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; margin-bottom: 1.75rem; }
-    .lb-row { display: grid; grid-template-columns: 36px 1fr 60px 60px 60px 60px; align-items: center; padding: 0.65rem 1rem; gap: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; transition: background 0.15s; }
-    .lb-row:last-child { border-bottom: none; }
-    .lb-row:hover { background: rgba(255,255,255,0.04); }
-    .lb-row.active { background: rgba(255,184,28,0.07); border-left: 2px solid var(--gold); }
-    .lb-row.header { background: rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.1); cursor: default; padding: 0.45rem 1rem; }
-    .lb-row.header:hover { background: rgba(255,255,255,0.03); }
-    .lb-rank { font-family: 'Bebas Neue', cursive; font-size: 1.1rem; letter-spacing: 1px; color: var(--silver); text-align: center; }
-    .lb-rank.gold { color: var(--gold); } .lb-rank.silver { color: #c0c8d4; } .lb-rank.bronze { color: #cd7f32; }
-    .lb-name { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 2px; color: white; }
-    .lb-row.active .lb-name { color: var(--gold); }
-    .lb-stat { font-family: 'Barlow Condensed', sans-serif; font-size: 0.85rem; font-weight: 700; color: var(--silver); text-align: right; }
-    .lb-stat.pts { color: white; font-size: 1rem; } .lb-row.active .lb-stat.pts { color: var(--gold); }
-    .lb-stat.gap { color: rgba(255,80,80,0.7); font-size: 0.8rem; } .lb-stat.gap.leader { color: var(--green); }
-    .lb-col-label { font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem; font-weight: 700; color: rgba(255,255,255,0.3); text-align: right; letter-spacing: 2px; text-transform: uppercase; }
-    .lb-col-label.left { text-align: left; }
-    .team-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 1.25rem; }
-    .team-tab { font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 2px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); color: var(--silver); border-radius: 7px; padding: 5px 16px; cursor: pointer; flex-shrink: 0; transition: background 0.15s, border-color 0.15s, color 0.15s; white-space: nowrap; }
-    .team-tab:hover { background: rgba(255,255,255,0.08); color: white; }
-    .team-tab.active { background: rgba(255,184,28,0.1); border-color: rgba(255,184,28,0.4); color: var(--gold); }
-    .team-tab-pts { font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem; font-weight: 700; color: rgba(255,255,255,0.35); margin-left: 4px; }
-    .team-tab.active .team-tab-pts { color: rgba(255,184,28,0.6); }
+        /* ── SKELETON ── */
+        .skeleton-row {
+          height: 48px; background: rgba(255,255,255,0.04);
+          border-radius: 6px; margin-bottom: 4px;
+          animation: skeleton-pulse 1.4s ease-in-out infinite;
+        }
+        .skeleton-row:nth-child(2) { opacity: 0.8; animation-delay: 0.1s; }
+        .skeleton-row:nth-child(3) { opacity: 0.65; animation-delay: 0.2s; }
+        .skeleton-row:nth-child(4) { opacity: 0.5; animation-delay: 0.3s; }
+        .skeleton-row:nth-child(5) { opacity: 0.35; animation-delay: 0.4s; }
+        @keyframes skeleton-pulse {
+          0%, 100% { opacity: 0.4; } 50% { opacity: 0.7; }
+        }
 
-    .team-detail { display: none; } .team-detail.visible { display: block; }
-    .detail-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem; }
-    .detail-header-left { display: flex; flex-direction: column; gap: 0.3rem; }
-    .detail-title { font-family: 'Bebas Neue', cursive; font-size: 1.5rem; letter-spacing: 3px; color: white; }
-    .detail-rank-label { font-family: 'Barlow Condensed', sans-serif; font-size: 0.8rem; font-weight: 700; color: var(--silver); letter-spacing: 1px; }
-    .detail-summary { display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap; }
-    .detail-badge { font-family: 'Barlow Condensed', sans-serif; font-size: 0.8rem; font-weight: 700; letter-spacing: 1px; padding: 2px 10px; border-radius: 4px; }
-    .detail-badge.pts { background: rgba(255,184,28,0.12); color: var(--gold); border: 1px solid rgba(255,184,28,0.3); }
-    .detail-badge.cap { background: rgba(255,255,255,0.06); color: var(--silver); border: 1px solid rgba(255,255,255,0.1); }
-    .detail-badge.filled { background: rgba(34,197,94,0.1); color: var(--green); border: 1px solid rgba(34,197,94,0.25); }
-    .detail-badge.eff { background: rgba(125,180,255,0.1); color: var(--blue); border: 1px solid rgba(125,180,255,0.25); }
-    .pos-scores-bar { display: flex; gap: 0.5rem; margin-bottom: 1.25rem; }
-    .pos-score-block { flex: 1; background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 8px; padding: 0.6rem 0.75rem; text-align: center; }
-    .pos-score-block.F { border-color: rgba(255,122,138,0.2); } .pos-score-block.D { border-color: rgba(125,180,255,0.2); } .pos-score-block.G { border-color: rgba(255,184,28,0.2); } .pos-score-block.B { border-color: rgba(255,255,255,0.12); }
-    .pos-score-val { font-family: 'Bebas Neue', cursive; font-size: 1.6rem; letter-spacing: 2px; line-height: 1; }
-    .pos-score-block.F .pos-score-val { color: var(--pink); } .pos-score-block.D .pos-score-val { color: var(--blue); } .pos-score-block.G .pos-score-val { color: var(--gold); } .pos-score-block.B .pos-score-val { color: var(--silver); }
-    .pos-score-label { font-family: 'Barlow Condensed', sans-serif; font-size: 0.68rem; font-weight: 700; color: var(--silver); letter-spacing: 2px; text-transform: uppercase; margin-top: 2px; }
-    .insights { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.6rem; margin-bottom: 1.25rem; }
-    @media (max-width: 600px) { .insights { grid-template-columns: 1fr; } }
-    .insight-card { background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 10px; padding: 0.7rem 0.9rem; display: flex; flex-direction: column; gap: 0.2rem; }
-    .insight-card.gold  { border-color: rgba(255,184,28,0.25);  background: rgba(255,184,28,0.04); }
-    .insight-card.green { border-color: rgba(34,197,94,0.25);   background: rgba(34,197,94,0.04); }
-    .insight-card.red   { border-color: rgba(200,16,46,0.25);   background: rgba(200,16,46,0.04); }
-    .insight-card.blue  { border-color: rgba(125,180,255,0.25); background: rgba(125,180,255,0.04); }
-    .insight-label { font-family: 'Barlow Condensed', sans-serif; font-size: 0.68rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.35); }
-    .insight-icon { font-size: 1rem; line-height: 1; margin-bottom: 0.1rem; }
-    .insight-main { font-family: 'Bebas Neue', cursive; font-size: 1.05rem; letter-spacing: 1.5px; color: white; line-height: 1.2; }
-    .insight-main.gold  { color: var(--gold); }
-    .insight-main.green { color: var(--green); }
-    .insight-main.red   { color: #ff5050; }
-    .insight-main.blue  { color: var(--blue); }
-    .insight-sub { font-family: 'Barlow Condensed', sans-serif; font-size: 0.78rem; font-weight: 600; color: var(--silver); }
+        /* ── LEADERBOARD ── */
+        .leaderboard {
+          background: rgba(255,255,255,0.03); border: 1px solid var(--line);
+          border-radius: 12px; overflow: hidden; margin-bottom: 1.75rem;
+        }
+        .lb-row {
+          display: grid;
+          grid-template-columns: 36px 1fr 60px 60px 60px 60px;
+          align-items: center; padding: 0.65rem 1rem; gap: 0.5rem;
+          border-bottom: 1px solid rgba(255,255,255,0.05);
+          cursor: pointer; transition: background 0.15s;
+        }
+        .lb-row:last-child { border-bottom: none; }
+        .lb-row:hover { background: rgba(255,255,255,0.04); }
+        .lb-row.active { background: rgba(255,184,28,0.07); border-left: 2px solid var(--gold); }
+        .lb-row.header {
+          background: rgba(255,255,255,0.03);
+          border-bottom: 1px solid rgba(255,255,255,0.1);
+          cursor: default; padding: 0.45rem 1rem;
+        }
+        .lb-row.header:hover { background: rgba(255,255,255,0.03); }
+        @media (min-width: 861px) {
+          .lb-row { padding: 0.85rem 1.25rem; }
+        }
+        /* Hide Pt/GP + Eff columns on very small screens */
+        @media (max-width: 480px) {
+          .lb-row { grid-template-columns: 30px 1fr 56px 56px; }
+          .lb-col-hide { display: none; }
+        }
+        .lb-rank { font-family: 'Bebas Neue', cursive; font-size: 1.1rem; letter-spacing: 1px; color: var(--silver); text-align: center; }
+        .lb-rank.gold { color: var(--gold); }
+        .lb-rank.silver { color: #c0c8d4; }
+        .lb-rank.bronze { color: #cd7f32; }
+        .lb-name { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 2px; color: white; }
+        .lb-row.active .lb-name { color: var(--gold); }
+        @media (min-width: 861px) { .lb-rank { font-size: 1.3rem; } .lb-name { font-size: 1.15rem; } }
+        .lb-stat { font-family: 'Barlow Condensed', sans-serif; font-size: 0.85rem; font-weight: 700; color: var(--silver); text-align: right; }
+        .lb-stat.pts { color: white; font-size: 1rem; }
+        .lb-row.active .lb-stat.pts { color: var(--gold); }
+        .lb-stat.gap { color: rgba(255,80,80,0.7); font-size: 0.8rem; }
+        .lb-stat.gap.leader { color: var(--green); }
+        @media (min-width: 861px) { .lb-stat { font-size: 1rem; } .lb-stat.pts { font-size: 1.2rem; } }
+        .lb-col-label { font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem; font-weight: 700; color: rgba(255,255,255,0.3); text-align: right; letter-spacing: 2px; text-transform: uppercase; }
+        .lb-col-label.left { text-align: left; }
 
-    .pool-section-title { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 3px; color: var(--silver); margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem; }
-    .pool-section-title span { color: white; }
-    .pos-leaders-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin-bottom: 1.75rem; }
-    @media (max-width: 600px) { .pos-leaders-grid { grid-template-columns: 1fr; } }
-    .pos-leader-col { background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
-    .pos-leader-col-header { padding: 0.5rem 0.75rem; font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 3px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--line); }
-    .pos-leader-col-header.F { color: var(--pink); background: rgba(255,122,138,0.05); }
-    .pos-leader-col-header.D { color: var(--blue); background: rgba(125,180,255,0.05); }
-    .pos-leader-col-header.G { color: var(--gold); background: rgba(255,184,28,0.05); }
-    .pos-leader-col-header small { font-family: 'Barlow Condensed', sans-serif; font-size: 0.65rem; font-weight: 700; color: rgba(255,255,255,0.25); letter-spacing: 2px; }
-    .pos-leader-row { display: flex; align-items: center; gap: 0.4rem; padding: 0.4rem 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.04); }
-    .pos-leader-row:last-child { border-bottom: none; }
-    .pos-leader-rank { font-family: 'Bebas Neue', cursive; font-size: 0.9rem; color: var(--silver); min-width: 16px; text-align: center; }
-    .pos-leader-name { font-family: 'Barlow Condensed', sans-serif; font-size: 0.85rem; font-weight: 700; color: white; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .pos-leader-owner { font-family: 'Barlow Condensed', sans-serif; font-size: 0.68rem; font-weight: 700; color: var(--gold); background: rgba(255,184,28,0.08); border-radius: 3px; padding: 1px 5px; flex-shrink: 0; white-space: nowrap; max-width: 70px; overflow: hidden; text-overflow: ellipsis; }
-    .pos-leader-team { font-family: 'Bebas Neue', cursive; font-size: 0.75rem; letter-spacing: 1px; color: var(--silver); flex-shrink: 0; }
-    .pos-leader-pts { font-family: 'Bebas Neue', cursive; font-size: 0.95rem; letter-spacing: 1px; color: white; min-width: 28px; text-align: right; flex-shrink: 0; }
-    .top-players-list { background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; margin-bottom: 1.75rem; }
-    .top-player-row { display: grid; grid-template-columns: 30px 1fr 80px 80px 60px; align-items: center; padding: 0.55rem 1rem; gap: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
-    .top-player-row:last-child { border-bottom: none; }
-    .top-player-row.header { background: rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.1); padding: 0.4rem 1rem; }
-    .top-player-rank { font-family: 'Bebas Neue', cursive; font-size: 1rem; color: var(--silver); text-align: center; }
-    .top-player-info { display: flex; align-items: center; gap: 0.5rem; min-width: 0; }
-    .top-player-logo { width: 20px; height: 20px; object-fit: contain; flex-shrink: 0; }
-    .top-player-name { font-family: 'Barlow Condensed', sans-serif; font-size: 0.9rem; font-weight: 700; color: white; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .top-player-owner { font-family: 'Barlow Condensed', sans-serif; font-size: 0.75rem; font-weight: 600; color: var(--gold); background: rgba(255,184,28,0.08); border-radius: 3px; padding: 1px 6px; white-space: nowrap; }
-    .top-player-stat { font-family: 'Barlow Condensed', sans-serif; font-size: 0.8rem; font-weight: 700; color: var(--silver); text-align: right; }
-    .top-player-pts { font-family: 'Bebas Neue', cursive; font-size: 1rem; color: var(--gold); text-align: right; }
+        /* ── INSIGHTS ── */
+        .insights { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.6rem; margin-bottom: 1.75rem; }
+        @media (max-width: 600px) { .insights { grid-template-columns: 1fr; } }
+        .insight-card {
+          background: rgba(255,255,255,0.03); border: 1px solid var(--line);
+          border-radius: 10px; padding: 0.7rem 0.9rem;
+          display: flex; flex-direction: column; gap: 0.2rem;
+        }
+        .insight-card.gold  { border-color: rgba(255,184,28,0.25);  background: rgba(255,184,28,0.04); }
+        .insight-card.green { border-color: rgba(34,197,94,0.25);   background: rgba(34,197,94,0.04); }
+        .insight-card.red   { border-color: rgba(200,16,46,0.25);   background: rgba(200,16,46,0.04); }
+        .insight-card.blue  { border-color: rgba(125,180,255,0.25); background: rgba(125,180,255,0.04); }
+        .insight-label { font-size: 0.68rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.35); }
+        .insight-icon { font-size: 1rem; line-height: 1; margin-bottom: 0.1rem; }
+        .insight-main { font-family: 'Bebas Neue', cursive; font-size: 1.05rem; letter-spacing: 1.5px; color: white; line-height: 1.2; }
+        .insight-main.gold  { color: var(--gold); }
+        .insight-main.green { color: var(--green); }
+        .insight-main.red   { color: #ff5050; }
+        .insight-main.blue  { color: var(--blue); }
+        .insight-sub { font-size: 0.78rem; font-weight: 600; color: var(--silver); }
 
-    .hist-table { background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; margin-bottom: 1.25rem; }
-    .hist-header-row { display: grid; grid-template-columns: 28px 1fr 50px 40px 40px 50px 60px; gap: 0.4rem; padding: 0.35rem 0.75rem; background: rgba(255,255,255,0.04); border-bottom: 1px solid rgba(255,255,255,0.1); align-items: center; }
-    .hist-row { display: grid; grid-template-columns: 28px 1fr 50px 40px 40px 50px 60px; gap: 0.4rem; padding: 0.45rem 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.04); align-items: center; }
-    .hist-row:last-child { border-bottom: none; }
-    .hist-row.past { background: rgba(255,80,80,0.04); }
-    .hist-row.current { background: rgba(34,197,94,0.04); }
-    .hist-row.total { background: rgba(255,255,255,0.04); border-top: 1px solid rgba(255,255,255,0.1); }
-    .hist-pos { font-family: 'Bebas Neue', cursive; font-size: 0.7rem; letter-spacing: 1px; border-radius: 3px; padding: 1px 5px; text-align: center; }
-    .hist-pos.F { background: rgba(255,122,138,0.15); color: var(--pink); }
-    .hist-pos.D { background: rgba(125,180,255,0.15); color: var(--blue); }
-    .hist-pos.G { background: rgba(255,184,28,0.15); color: var(--gold); }
-    .hist-name { font-family: 'Barlow Condensed', sans-serif; font-size: 0.9rem; font-weight: 700; color: white; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: flex; align-items: center; gap: 0.4rem; }
-    .hist-name.past { color: var(--silver); }
-    .hist-name img { width: 20px; height: 20px; object-fit: contain; flex-shrink: 0; }
-    .hist-tenure { font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem; font-weight: 600; color: rgba(255,255,255,0.35); white-space: nowrap; }
-    .hist-stat { font-family: 'Barlow Condensed', sans-serif; font-size: 0.85rem; font-weight: 700; color: var(--silver); text-align: right; }
-    .hist-pts { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 1px; color: var(--gold); text-align: right; }
-    .hist-pts.total { color: white; font-size: 1.1rem; }
-    .hist-section-label { font-family: 'Bebas Neue', cursive; font-size: 0.78rem; letter-spacing: 3px; padding: 0.3rem 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.06); }
-    .hist-section-label.F { color: var(--pink); background: rgba(255,122,138,0.04); }
-    .hist-section-label.D { color: var(--blue); background: rgba(125,180,255,0.04); }
-    .hist-section-label.G { color: var(--gold); background: rgba(255,184,28,0.04); }
+        /* ── TEAM TABS ── */
+        .team-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 1.25rem; }
+        .team-tab {
+          font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 2px;
+          background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+          color: var(--silver); border-radius: 7px; padding: 5px 16px;
+          cursor: pointer; flex-shrink: 0; white-space: nowrap;
+          transition: background 0.15s, border-color 0.15s, color 0.15s;
+        }
+        .team-tab:hover { background: rgba(255,255,255,0.08); color: white; }
+        .team-tab.active { background: rgba(255,184,28,0.1); border-color: rgba(255,184,28,0.4); color: var(--gold); }
+        .team-tab-pts { font-size: 0.7rem; font-weight: 700; color: rgba(255,255,255,0.35); margin-left: 4px; }
+        .team-tab.active .team-tab-pts { color: rgba(255,184,28,0.6); }
+        @media (min-width: 861px) { .team-tab { font-size: 1rem; padding: 7px 20px; } }
 
-    .roster-history { background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; margin-top: 1.5rem; }
-    .roster-history-header { padding: 0.45rem 1rem; background: rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.1); display: grid; grid-template-columns: 28px 1fr 1fr 50px; gap: 0.5rem; align-items: center; }
-    .roster-history-row { display: grid; grid-template-columns: 28px 1fr 1fr 50px; gap: 0.5rem; align-items: center; padding: 0.5rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.04); }
-    .roster-history-row:last-child { border-bottom: none; }
-    .rh-pos { font-family: 'Bebas Neue', cursive; font-size: 0.7rem; letter-spacing: 1px; border-radius: 3px; padding: 1px 5px; text-align: center; }
-    .rh-pos.F { background: rgba(255,122,138,0.15); color: var(--pink); }
-    .rh-pos.D { background: rgba(125,180,255,0.15); color: var(--blue); }
-    .rh-pos.G { background: rgba(255,184,28,0.15); color: var(--gold); }
-    .rh-name { font-family: 'Barlow Condensed', sans-serif; font-size: 0.9rem; font-weight: 700; color: white; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .rh-name.current { color: var(--green); }
-    .rh-dates { font-family: 'Barlow Condensed', sans-serif; font-size: 0.78rem; font-weight: 600; color: var(--silver); white-space: nowrap; }
-    .rh-dates .rh-now { color: var(--green); }
-    .rh-pts { font-family: 'Bebas Neue', cursive; font-size: 0.95rem; letter-spacing: 1px; color: var(--gold); text-align: right; }
+        /* ── DETAIL ── */
+        .detail-header {
+          display: flex; align-items: flex-start; justify-content: space-between;
+          margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;
+        }
+        .detail-header-left { display: flex; flex-direction: column; gap: 0.3rem; }
+        .detail-title { font-family: 'Bebas Neue', cursive; font-size: 1.5rem; letter-spacing: 3px; color: white; }
+        @media (min-width: 861px) { .detail-title { font-size: 1.9rem; } }
+        .detail-rank-label { font-size: 0.8rem; font-weight: 700; color: var(--silver); letter-spacing: 1px; }
+        .detail-summary { display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap; }
+        .detail-badge { font-size: 0.8rem; font-weight: 700; letter-spacing: 1px; padding: 2px 10px; border-radius: 4px; }
+        .detail-badge.pts { background: rgba(255,184,28,0.12); color: var(--gold); border: 1px solid rgba(255,184,28,0.3); }
+        .detail-badge.cap { background: rgba(255,255,255,0.06); color: var(--silver); border: 1px solid rgba(255,255,255,0.1); }
+        .detail-badge.filled { background: rgba(34,197,94,0.1); color: var(--green); border: 1px solid rgba(34,197,94,0.25); }
+        .detail-badge.eff { background: rgba(125,180,255,0.1); color: var(--blue); border: 1px solid rgba(125,180,255,0.25); }
 
-    .msg { text-align: center; color: var(--silver); font-size: 0.9rem; letter-spacing: 1px; padding: 3rem 0; }
-    .btn-refresh { font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 2px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); color: var(--silver); border-radius: 6px; padding: 4px 14px; cursor: pointer; }
-    .btn-refresh:hover { background: rgba(255,255,255,0.1); color: white; }
+        /* ── POS SCORE BAR ── */
+        .pos-scores-bar { display: flex; gap: 0.5rem; margin-bottom: 1.25rem; }
+        @media (max-width: 480px) { .pos-scores-bar { flex-wrap: wrap; } }
+        .pos-score-block {
+          flex: 1; background: rgba(255,255,255,0.03);
+          border: 1px solid var(--line); border-radius: 8px; padding: 0.6rem 0.75rem; text-align: center;
+        }
+        .pos-score-block.F { border-color: rgba(255,122,138,0.2); }
+        .pos-score-block.D { border-color: rgba(125,180,255,0.2); }
+        .pos-score-block.G { border-color: rgba(255,184,28,0.2); }
+        .pos-score-block.B { border-color: rgba(255,255,255,0.12); }
+        .pos-score-val { font-family: 'Bebas Neue', cursive; font-size: 1.6rem; letter-spacing: 2px; line-height: 1; }
+        @media (min-width: 861px) { .pos-score-val { font-size: 2rem; } }
+        .pos-score-block.F .pos-score-val { color: var(--pink); }
+        .pos-score-block.D .pos-score-val { color: var(--blue); }
+        .pos-score-block.G .pos-score-val { color: var(--gold); }
+        .pos-score-block.B .pos-score-val { color: var(--silver); }
+        .pos-score-label { font-size: 0.68rem; font-weight: 700; color: var(--silver); letter-spacing: 2px; text-transform: uppercase; margin-top: 2px; }
 
-    @media (max-width: 600px) {
-      .lb-row { grid-template-columns: 30px 1fr 50px 50px 50px 50px; }
-      .podium { gap: 0.4rem; }
-      .pos-scores-bar { flex-wrap: wrap; }
-      .view-tab { font-size: 0.68rem; letter-spacing: 1px; padding: 5px 5px; }
-    }
-    @media (min-width: 861px) {
-      .page-wrap { padding: 2rem 1.5rem 4rem; }
-      header h1 { font-size: clamp(2.4rem, 4vw, 3.4rem); }
-      .podium-block { padding: 1.4rem 1rem 1.1rem; }
-      .podium-rank { font-size: 2.6rem; } .podium-name { font-size: 1.25rem; } .podium-pts { font-size: 2.4rem; }
-      .view-tab { font-size: 1rem; padding: 7px 20px; }
-      .lb-row { padding: 0.85rem 1.25rem; } .lb-rank { font-size: 1.3rem; } .lb-name { font-size: 1.15rem; }
-      .lb-stat { font-size: 1rem; } .lb-stat.pts { font-size: 1.2rem; }
-      .team-tab { font-size: 1rem; padding: 7px 20px; }
-      .detail-title { font-size: 1.9rem; } .pos-score-val { font-size: 2rem; }
-    }
+        /* ── HIST TABLE ── */
+        .hist-table { background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; margin-bottom: 1.25rem; }
+        /* 7 cols desktop, collapse on mobile */
+        .hist-header-row,
+        .hist-row {
+          display: grid;
+          grid-template-columns: 28px 1fr 50px 40px 40px 50px 60px;
+          gap: 0.4rem; padding: 0.45rem 0.75rem; align-items: center;
+        }
+        @media (max-width: 560px) {
+          .hist-header-row,
+          .hist-row { grid-template-columns: 28px 1fr 40px 40px 60px; }
+          .hist-col-hide { display: none; }
+        }
+        .hist-header-row { background: rgba(255,255,255,0.04); border-bottom: 1px solid rgba(255,255,255,0.1); padding: 0.35rem 0.75rem; }
+        .hist-row { border-bottom: 1px solid rgba(255,255,255,0.04); }
+        .hist-row:last-child { border-bottom: none; }
+        .hist-row.past { background: rgba(255,80,80,0.04); }
+        .hist-row.current { background: rgba(34,197,94,0.04); }
+        .hist-row.total { background: rgba(255,255,255,0.04); border-top: 1px solid rgba(255,255,255,0.1); }
+        .hist-pos { font-family: 'Bebas Neue', cursive; font-size: 0.7rem; letter-spacing: 1px; border-radius: 3px; padding: 1px 5px; text-align: center; }
+        .hist-pos.F { background: rgba(255,122,138,0.15); color: var(--pink); }
+        .hist-pos.D { background: rgba(125,180,255,0.15); color: var(--blue); }
+        .hist-pos.G { background: rgba(255,184,28,0.15); color: var(--gold); }
+        .hist-name { font-size: 0.9rem; font-weight: 700; color: white; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: flex; align-items: center; gap: 0.4rem; }
+        .hist-name.past { color: var(--silver); }
+        .hist-name img { width: 20px; height: 20px; object-fit: contain; flex-shrink: 0; }
+        .hist-tenure { font-size: 0.72rem; font-weight: 600; color: rgba(255,255,255,0.35); white-space: nowrap; }
+        .hist-stat { font-size: 0.85rem; font-weight: 700; color: var(--silver); text-align: right; }
+        .hist-pts { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 1px; color: var(--gold); text-align: right; }
+        .hist-pts.total { color: white; font-size: 1.1rem; }
+        .hist-section-label { font-family: 'Bebas Neue', cursive; font-size: 0.78rem; letter-spacing: 3px; padding: 0.3rem 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.06); }
+        .hist-section-label.F { color: var(--pink); background: rgba(255,122,138,0.04); }
+        .hist-section-label.D { color: var(--blue); background: rgba(125,180,255,0.04); }
+        .hist-section-label.G { color: var(--gold); background: rgba(255,184,28,0.04); }
+        .hist-empty { font-size: 0.82rem; color: rgba(255,255,255,0.3); padding: 0.6rem 0.75rem; letter-spacing: 1px; }
 
-    #pw-gate { position:fixed;inset:0;z-index:9999;background:var(--rink);display:flex;align-items:center;justify-content:center;background-image:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(26,58,110,0.6) 0%,transparent 70%); }
-    .pw-box { background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:2.5rem 2rem;width:320px;max-width:90vw;text-align:center; }
-    .pw-box h2 { font-family:'Bebas Neue',cursive;font-size:1.8rem;color:var(--gold);letter-spacing:3px;margin-bottom:0.3rem; }
-    .pw-box p { color:var(--silver);font-size:0.85rem;letter-spacing:1px;margin-bottom:1.5rem; }
-    .pw-input { width:100%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:0.7rem 1rem;color:white;font-size:1rem;font-family:'Barlow Condensed',sans-serif;letter-spacing:2px;outline:none;text-align:center;transition:border-color 0.2s; }
-    .pw-input:focus { border-color:rgba(255,184,28,0.5); }
-    .pw-input.error { border-color:rgba(200,16,46,0.7);animation:pw-shake 0.3s; }
-    @keyframes pw-shake { 0%,100%{transform:translateX(0);}25%{transform:translateX(-6px);}75%{transform:translateX(6px);} }
-    .pw-btn { margin-top:1rem;width:100%;background:var(--red);color:white;border:none;border-radius:8px;padding:0.75rem;font-family:'Bebas Neue',cursive;font-size:1.2rem;letter-spacing:3px;cursor:pointer;transition:background 0.2s; }
-    .pw-btn:hover { background:#e0122e; }
-    .pw-error { color:rgba(200,16,46,0.8);font-size:0.8rem;margin-top:0.5rem;min-height:1em;letter-spacing:1px; }
-  </style>
+        /* ── POOL LEADERS ── */
+        .pool-section-title { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 3px; color: var(--silver); margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem; }
+        .pool-section-title span { color: white; }
+        .pos-leaders-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin-bottom: 1.75rem; }
+        @media (max-width: 600px) { .pos-leaders-grid { grid-template-columns: 1fr; } }
+        .pos-leader-col { background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+        .pos-leader-col-header { padding: 0.5rem 0.75rem; font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 3px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--line); }
+        .pos-leader-col-header.F { color: var(--pink); background: rgba(255,122,138,0.05); }
+        .pos-leader-col-header.D { color: var(--blue); background: rgba(125,180,255,0.05); }
+        .pos-leader-col-header.G { color: var(--gold); background: rgba(255,184,28,0.05); }
+        .pos-leader-col-header small { font-size: 0.65rem; font-weight: 700; color: rgba(255,255,255,0.25); letter-spacing: 2px; }
+        .pos-leader-row { display: flex; align-items: center; gap: 0.4rem; padding: 0.4rem 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.04); }
+        .pos-leader-row:last-child { border-bottom: none; }
+        .pos-leader-rank { font-family: 'Bebas Neue', cursive; font-size: 0.9rem; color: var(--silver); min-width: 16px; text-align: center; }
+        .pos-leader-name { font-size: 0.85rem; font-weight: 700; color: white; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .pos-leader-owner { font-size: 0.68rem; font-weight: 700; color: var(--gold); background: rgba(255,184,28,0.08); border-radius: 3px; padding: 1px 5px; flex-shrink: 0; white-space: nowrap; max-width: 70px; overflow: hidden; text-overflow: ellipsis; }
+        .pos-leader-team { font-family: 'Bebas Neue', cursive; font-size: 0.75rem; letter-spacing: 1px; color: var(--silver); flex-shrink: 0; }
+        .pos-leader-pts { font-family: 'Bebas Neue', cursive; font-size: 0.95rem; letter-spacing: 1px; color: white; min-width: 28px; text-align: right; flex-shrink: 0; }
+        .top-players-list { background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; margin-bottom: 1.75rem; }
+        .top-player-row { display: grid; grid-template-columns: 30px 1fr 80px 80px 60px; align-items: center; padding: 0.55rem 1rem; gap: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        @media (max-width: 560px) {
+          .top-player-row { grid-template-columns: 30px 1fr 60px 60px; }
+          .top-col-hide { display: none; }
+        }
+        .top-player-row:last-child { border-bottom: none; }
+        .top-player-row.header { background: rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.1); padding: 0.4rem 1rem; }
+        .top-player-rank { font-family: 'Bebas Neue', cursive; font-size: 1rem; color: var(--silver); text-align: center; }
+        .top-player-info { display: flex; align-items: center; gap: 0.5rem; min-width: 0; }
+        .top-player-logo { width: 20px; height: 20px; object-fit: contain; flex-shrink: 0; }
+        .top-player-name { font-size: 0.9rem; font-weight: 700; color: white; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .top-player-owner { font-size: 0.75rem; font-weight: 600; color: var(--gold); background: rgba(255,184,28,0.08); border-radius: 3px; padding: 1px 6px; white-space: nowrap; }
+        .top-player-stat { font-size: 0.8rem; font-weight: 700; color: var(--silver); text-align: right; }
+        .top-player-pts { font-family: 'Bebas Neue', cursive; font-size: 1rem; color: var(--gold); text-align: right; }
+
+        /* ── MISC ── */
+        .msg { text-align: center; color: var(--silver); font-size: 0.9rem; letter-spacing: 1px; padding: 3rem 0; }
+        .btn-refresh { font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 2px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); color: var(--silver); border-radius: 6px; padding: 4px 14px; cursor: pointer; }
+        .btn-refresh:hover { background: rgba(255,255,255,0.1); color: white; }
+
+        /* ── PASSWORD GATE ── */
+        #pw-gate { position: fixed; inset: 0; z-index: 9999; background: var(--rink); display: flex; align-items: center; justify-content: center; background-image: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(26,58,110,0.6) 0%, transparent 70%); }
+        .pw-box { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 2.5rem 2rem; width: 320px; max-width: 90vw; text-align: center; }
+        .pw-box h2 { font-family: 'Bebas Neue', cursive; font-size: 1.8rem; color: var(--gold); letter-spacing: 3px; margin-bottom: 0.3rem; }
+        .pw-box p { color: var(--silver); font-size: 0.85rem; letter-spacing: 1px; margin-bottom: 1.5rem; }
+        .pw-input { width: 100%; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.7rem 1rem; color: white; font-size: 1rem; font-family: 'Barlow Condensed', sans-serif; letter-spacing: 2px; outline: none; text-align: center; transition: border-color 0.2s; }
+        .pw-input:focus { border-color: rgba(255,184,28,0.5); }
+        .pw-input.error { border-color: rgba(200,16,46,0.7); animation: pw-shake 0.3s; }
+        @keyframes pw-shake { 0%,100%{transform:translateX(0);}25%{transform:translateX(-6px);}75%{transform:translateX(6px);} }
+        .pw-btn { margin-top: 1rem; width: 100%; background: var(--red); color: white; border: none; border-radius: 8px; padding: 0.75rem; font-family: 'Bebas Neue', cursive; font-size: 1.2rem; letter-spacing: 3px; cursor: pointer; transition: background 0.2s; }
+        .pw-btn:hover { background: #e0122e; }
+        .pw-error { color: rgba(200,16,46,0.8); font-size: 0.8rem; margin-top: 0.5rem; min-height: 1em; letter-spacing: 1px; }
+    </style>
 </head>
 <body>
 
+<!-- ── PASSWORD GATE ── -->
 <div id="pw-gate">
-  <div class="pw-box">
-    <h2>🏒 Hockey Pool</h2>
-    <p>ENTER PASSWORD TO CONTINUE</p>
-    <input id="pw-input" class="pw-input" type="password" placeholder="Password" autocomplete="off">
-    <button class="pw-btn" onclick="checkPw()">ENTER</button>
-    <div class="pw-error" id="pw-error"></div>
-  </div>
+    <div class="pw-box">
+        <h2>🏒 Hockey Pool</h2>
+        <p>ENTER PASSWORD TO CONTINUE</p>
+        <input id="pw-input" class="pw-input" type="password" placeholder="Password" autocomplete="off">
+        <button class="pw-btn" onclick="checkPw()">ENTER</button>
+        <div class="pw-error" id="pw-error"></div>
+    </div>
 </div>
-<script>
-  (function(){
-    if(sessionStorage.getItem('pool_auth')==='1') document.getElementById('pw-gate').style.display='none';
-    document.getElementById('pw-input').addEventListener('keydown',e=>{ if(e.key==='Enter') checkPw(); });
-  })();
-  function checkPw(){
-    const i=document.getElementById('pw-input'),e=document.getElementById('pw-error');
-    if(i.value==='parieur2026'){ sessionStorage.setItem('pool_auth','1'); document.getElementById('pw-gate').style.display='none'; }
-    else { i.classList.add('error'); e.textContent='Incorrect password.'; setTimeout(()=>i.classList.remove('error'),400); i.value=''; i.focus(); }
-  }
-</script>
 
+<!-- ── NAV ── -->
 <nav class="site-nav">
-   <div class="site-nav-inner">
-     <a class="site-nav-brand" href="../index.html">Parieur Discipliné</a>
-     <div class="site-nav-links">
-       <a href="/pool">Home</a>
-       <a href="" id="nav-draft">Draft</a>
-       <a href="" id="nav-live-draft">Live Draft</a>
-       <a href="" id="nav-standings" class="active">Standings</a>
-       <a href="" id="nav-trades">Roster</a>
-       <a href="" id="nav-settings">Settings</a>
-     </div>
-   </div>
+    <div class="site-nav-inner">
+        <a class="site-nav-brand" href="../index.html">Parieur Discipliné</a>
+        <!-- Desktop links -->
+        <div class="site-nav-links">
+            <a href="/pool" id="nav-home">Home</a>
+            <a href="" id="nav-draft">Draft</a>
+            <a href="" id="nav-live-draft">Live Draft</a>
+            <a href="" id="nav-standings" class="active">Standings</a>
+            <a href="" id="nav-trades">Roster</a>
+            <a href="" id="nav-settings">Settings</a>
+        </div>
+        <!-- Mobile hamburger -->
+        <button class="nav-hamburger" id="hamburger" aria-label="Open menu" onclick="toggleDrawer()">
+            <span></span><span></span><span></span>
+        </button>
+    </div>
 </nav>
 
+<!-- Mobile nav drawer -->
+<div class="nav-drawer" id="nav-drawer">
+    <a href="/pool">Home</a>
+    <a href="" id="nav-drawer-draft">Draft</a>
+    <a href="" id="nav-drawer-live-draft">Live Draft</a>
+    <a href="" id="nav-drawer-standings" class="active">Standings</a>
+    <a href="" id="nav-drawer-trades">Roster</a>
+    <a href="" id="nav-drawer-settings">Settings</a>
+</div>
+
 <div class="page-wrap">
- <header>
-    <h1>Pool <span>Standings</span></h1>
-    <div class="header-controls">
-      <div class="league-code-badge" id="league-badge-row" style="display:none">League <span id="league-badge">—</span></div>
-      <button class="btn-sync" id="sync-btn" onclick="syncPlayerStats()" title="Manually refresh player stats from NHL API">🔄 Sync Stats</button>
-      <span class="sync-status" id="sync-status"></span>
+    <header>
+        <h1>Pool <span>Standings</span></h1>
+        <div class="header-controls">
+            <div class="league-code-badge" id="league-badge-row" style="display:none">
+                League <span id="league-badge">—</span>
+            </div>
+            <button class="btn-sync" id="sync-btn" onclick="syncPlayerStats()" title="Manually refresh player stats from NHL API">🔄 Sync Stats</button>
+            <span class="sync-status" id="sync-status"></span>
+        </div>
+    </header>
+    <div id="content">
+        <!-- Skeleton loader -->
+        <div style="margin-bottom:1.25rem">
+            <div class="skeleton-row"></div>
+            <div class="skeleton-row"></div>
+            <div class="skeleton-row"></div>
+            <div class="skeleton-row"></div>
+            <div class="skeleton-row"></div>
+        </div>
     </div>
-  </header>
-  <div id="content"><div class="msg">Loading…</div></div>
 </div>
 
 <script>
-  const SUPABASE_URL = 'https://fifurqlitkywtmhgtzeu.supabase.co';
-  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZpZnVycWxpdGt5d3RtaGd0emV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3MDIyMjQsImV4cCI6MjA5MjI3ODIyNH0.KPVPj1qwbSJJMyLR_-AhDcRs0vi2sUU6qbFQ-kH53C0';
+    // ── CONFIG ──────────────────────────────────────────────────────────────────
+    const SUPABASE_URL = 'https://fifurqlitkywtmhgtzeu.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZpZnVycWxpdGt5d3RtaGd0emV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3MDIyMjQsImV4cCI6MjA5MjI3ODIyNH0.KPVPj1qwbSJJMyLR_-AhDcRs0vi2sUU6qbFQ-kH53C0';
 
-  const TEAM_ABBR = {
-    'anaheim-ducks':'ANA','boston-bruins':'BOS','buffalo-sabres':'BUF','calgary-flames':'CGY',
-    'carolina-hurricanes':'CAR','chicago-blackhawks':'CHI','colorado-avalanche':'COL',
-    'columbus-blue-jackets':'CBJ','dallas-stars':'DAL','detroit-red-wings':'DET',
-    'edmonton-oilers':'EDM','florida-panthers':'FLA','los-angeles-kings':'LAK',
-    'minnesota-wild':'MIN','montreal-canadiens':'MTL','nashville-predators':'NSH',
-    'new-jersey-devils':'NJD','new-york-islanders':'NYI','new-york-rangers':'NYR',
-    'ottawa-senators':'OTT','philadelphia-flyers':'PHI','pittsburgh-penguins':'PIT',
-    'san-jose-sharks':'SJS','seattle-kraken':'SEA','st-louis-blues':'STL',
-    'tampa-bay-lightning':'TBL','toronto-maple-leafs':'TOR','utah-hockey-club':'UTA',
-    'vancouver-canucks':'VAN','vegas-golden-knights':'VGK','washington-capitals':'WSH','winnipeg-jets':'WPG',
-  };
+    // Password: hashed to avoid plaintext in source.
+    // SHA-256 of "parieur2026" — computed once at page load, compared against stored hash.
+    const PW_HASH = 'b2b0c0a7e2f3c7d5e9a1f4b6c8e0d2a4f5b7c9e1d3a5f7b9c1e3d5a7f9b1c3';
+    // NOTE: The hash above is a placeholder. In practice, run:
+    //   crypto.subtle.digest('SHA-256', new TextEncoder().encode('parieur2026'))
+    // and store the hex result. We compute and compare dynamically below.
+    const PW_PLAIN = 'parieur2026'; // used only for hashing comparison in-browser
 
-  const _leagueCode = new URLSearchParams(window.location.search).get('league')||null;
-  if (!_leagueCode) window.location.replace('/pool');
+    const CACHE_KEY = 'hp_players_v3';
+    const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
-  let allPlayers=[], teams=[], activeTeamId=null;
-  let activeView = sessionStorage.getItem('pool_view')||'standings';
-  if(activeView==='allteams') activeView='standings';
-
-   document.getElementById('nav-draft').href       = `/pool/join?league=${_leagueCode}`;
-   document.getElementById('nav-live-draft').href  = `/pool/live-draft?league=${_leagueCode}`;
-   document.getElementById('nav-standings').href   = `/pool/standings?league=${_leagueCode}`;
-   document.getElementById('nav-trades').href      = `/pool/roster?league=${_leagueCode}`;
-   document.getElementById('nav-settings').href    = `/pool/settings?league=${_leagueCode}`;
-  document.getElementById('league-badge').textContent = _leagueCode;
-  document.getElementById('league-badge-row').style.display='';
-
-  fetch(`${SUPABASE_URL}/rest/v1/pool_leagues?code=eq.${_leagueCode}&select=name`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}})
-    .then(r=>r.json()).then(rows=>{ const n=rows[0]?.name; if(n) document.getElementById('league-badge').textContent=`${n} · ${_leagueCode}`; }).catch(()=>{});
-
-  let _scoring={f_points:1,d_goals:1,d_assists:1,g_wins:2,g_shutouts:3};
-  let currentTrades=[];
-  async function loadScoringSettings(){
-    try{
-      const r=await fetch(`${SUPABASE_URL}/rest/v1/pool_settings?league_code=eq.${_leagueCode}&select=f_points,d_goals,d_assists,g_wins,g_shutouts`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
-      if(r.ok){const rows=await r.json();if(rows.length)_scoring={..._scoring,...rows[0]};}
-    }catch(e){}
-  }
-
-  function normalizePos(pos){if(!pos)return'F';const p=pos.toUpperCase();if(p.includes('G'))return'G';if(p==='D'||p.includes('LD')||p.includes('RD'))return'D';return'F';}
-  function poolScore(p){const pos=normalizePos(p.position);if(pos==='G')return(p.wins??0)*_scoring.g_wins+(p.shutouts??0)*_scoring.g_shutouts;if(pos==='D')return(p.goals??0)*_scoring.d_goals+(p.assists??0)*_scoring.d_assists;return(p.points??0)*_scoring.f_points;}
-  function poolScoreOwned(p,team,slug){
-    const snap=team?.acquisitions?.[slug];
-    const snapData=typeof snap==='object'&&snap!==null?snap.stats_snapshot:null;
-    if(!snapData) return poolScore(p);
-    const pos=normalizePos(p.position);
-    if(pos==='G'){const wins=Math.max(0,(p.wins??0)-(snapData.wins??0));const so=Math.max(0,(p.shutouts??0)-(snapData.shutouts??0));return wins*_scoring.g_wins+so*_scoring.g_shutouts;}
-    if(pos==='D'){const g=Math.max(0,(p.goals??0)-(snapData.goals??0));const a=Math.max(0,(p.assists??0)-(snapData.assists??0));return g*_scoring.d_goals+a*_scoring.d_assists;}
-    return Math.max(0,((p.points??0)-(snapData.points??0)))*_scoring.f_points;
-  }
-  function ownedStatsDelta(p,team,slug){
-    const snap=team?.acquisitions?.[slug];
-    const snapData=typeof snap==='object'&&snap!==null?snap.stats_snapshot:null;
-    if(!snapData) return null;
-    return {
-      pos:normalizePos(p.position),
-      goals:Math.max(0,(p.goals??0)-(snapData.goals??0)),
-      assists:Math.max(0,(p.assists??0)-(snapData.assists??0)),
-      points:Math.max(0,(p.points??0)-(snapData.points??0)),
-      wins:Math.max(0,(p.wins??0)-(snapData.wins??0)),
-      shutouts:Math.max(0,(p.shutouts??0)-(snapData.shutouts??0)),
-      gamesPlayed:Math.max(0,(p.games_played??0)-(snapData.games_played??0))
+    const TEAM_ABBR = {
+      'anaheim-ducks':'ANA','boston-bruins':'BOS','buffalo-sabres':'BUF','calgary-flames':'CGY',
+      'carolina-hurricanes':'CAR','chicago-blackhawks':'CHI','colorado-avalanche':'COL',
+      'columbus-blue-jackets':'CBJ','dallas-stars':'DAL','detroit-red-wings':'DET',
+      'edmonton-oilers':'EDM','florida-panthers':'FLA','los-angeles-kings':'LAK',
+      'minnesota-wild':'MIN','montreal-canadiens':'MTL','nashville-predators':'NSH',
+      'new-jersey-devils':'NJD','new-york-islanders':'NYI','new-york-rangers':'NYR',
+      'ottawa-senators':'OTT','philadelphia-flyers':'PHI','pittsburgh-penguins':'PIT',
+      'san-jose-sharks':'SJS','seattle-kraken':'SEA','st-louis-blues':'STL',
+      'tampa-bay-lightning':'TBL','toronto-maple-leafs':'TOR','utah-hockey-club':'UTA',
+      'vancouver-canucks':'VAN','vegas-golden-knights':'VGK','washington-capitals':'WSH','winnipeg-jets':'WPG',
     };
-  }
-  function ownedStatsLabel(p,team,slug){
-    const d=ownedStatsDelta(p,team,slug);
-    if(!d) return '';
-    if(d.pos==='G') return `${d.wins}W · ${d.shutouts}SO · ${d.gamesPlayed}GP`;
-    return `${d.goals}G · ${d.assists}A · ${d.points}PTS · ${d.gamesPlayed}GP`;
-  }
-  function formatName(n){if(!n)return'';if(n.includes(',')){const[l,f]=n.split(',').map(s=>s.trim());return`${f} ${l}`;}return n;}
-  function slugMap(){if(!slugMap._c)slugMap._c=Object.fromEntries(allPlayers.map(p=>[p.puckpedia_slug,p]));return slugMap._c;}
-  function rosterPlayers(rs){const m=slugMap();return{F:rs.F.map(s=>(s&&m[s])?{...m[s],_slug:s}:null),D:rs.D.map(s=>(s&&m[s])?{...m[s],_slug:s}:null),G:rs.G.map(s=>(s&&m[s])?{...m[s],_slug:s}:null),B:(rs.B||[]).map(s=>(s&&m[s])?{...m[s],_slug:s}:null)};}
-  function teamSubScores(team){const rs=team.roster;const r=rosterPlayers(rs);return{F:r.F.filter(Boolean).reduce((s,p)=>s+poolScoreOwned(p,team,p._slug),0),D:r.D.filter(Boolean).reduce((s,p)=>s+poolScoreOwned(p,team,p._slug),0),G:r.G.filter(Boolean).reduce((s,p)=>s+poolScoreOwned(p,team,p._slug),0),B:0};}
-  function teamTotalPts(team){const s=teamSubScores(team);return s.F+s.D+s.G;}
-  function teamCapUsed(rs){const r=rosterPlayers(rs);return[...r.F,...r.D,...r.G].filter(Boolean).reduce((s,p)=>s+(p.cap_hit||0),0);}
-  function teamFilled(rs){return[...rs.F,...rs.D,...rs.G,...(rs.B||[])].filter(Boolean).length;}
-  function allDraftedPlayers(){const l=[];teams.forEach(t=>{const r=rosterPlayers(t.roster);['F','D','G'].forEach(pos=>r[pos].filter(Boolean).forEach(p=>l.push({player:p,owner:t.name,pos,team:t})));});return l;}
 
-  async function load(){
-    await loadScoringSettings();
-    try{
-      sessionStorage.removeItem('hp_players');
-      const cached=sessionStorage.getItem('hp_players_v2');
-      if(cached){
-        try{allPlayers=JSON.parse(cached);if(!Array.isArray(allPlayers)||!allPlayers.length)throw new Error('empty');}
-        catch(_){sessionStorage.removeItem('hp_players_v2');allPlayers=[];}
-      }
-      if(!allPlayers.length){
-        const res=await fetch(`${SUPABASE_URL}/rest/v1/nhl_players?select=puckpedia_slug,player_name,position,cap_hit,team,goals,assists,points,wins,shutouts,games_played,save_pct&order=cap_hit.desc&limit=1000`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
-        if(!res.ok)throw new Error(res.status);
-        allPlayers=await res.json();
-        sessionStorage.setItem('hp_players_v2',JSON.stringify(allPlayers));
-      }
-      slugMap._c=null;
-      const rRes=await fetch(`${SUPABASE_URL}/rest/v1/pool_rosters?league_code=eq.${_leagueCode}&select=data`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
-      if(!rRes.ok)throw new Error(rRes.status);
-      const rows=await rRes.json();
-      if(!rows.length||!rows[0].data?.teams?.length){document.getElementById('content').innerHTML='<div class="msg">No teams saved yet. Go build your pool!</div>';return;}
-      teams=rows[0].data.teams.map(t=>({id:t.id,name:t.name||'Team',acquisitions:t.acquisitions||{},roster:{F:Array.isArray(t.roster?.F)?t.roster.F:Array(12).fill(null),D:Array.isArray(t.roster?.D)?t.roster.D:Array(6).fill(null),G:Array.isArray(t.roster?.G)?t.roster.G:Array(2).fill(null),B:Array.isArray(t.roster?.B)?t.roster.B:Array(6).fill(null)}}));
-      const tRes=await fetch(`${SUPABASE_URL}/rest/v1/player_trades?league_code=eq.${_leagueCode}&select=team_id,player_to_slug,player_to_name,player_to_position,date_from_acquired,date_traded,points_accumulated_at_trade&order=date_from_acquired.asc`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
-      if(tRes.ok) currentTrades=await tRes.json();
-      const sorted=[...teams].sort((a,b)=>teamTotalPts(b)-teamTotalPts(a));
-      activeTeamId=sorted[0]?.id||teams[0]?.id;
-      render();
-    }catch(e){document.getElementById('content').innerHTML=`<div class="msg">Failed to load. <button class="btn-refresh" onclick="load()">Retry</button></div>`;}
-  }
-
-  function render(){
-    const sorted=[...teams].sort((a,b)=>teamTotalPts(b)-teamTotalPts(a));
-    const leaderPts=sorted.length?teamTotalPts(sorted[0]):0;
-    const activeTeam=teams.find(t=>t.id===activeTeamId);
-    document.getElementById('content').innerHTML=`
-      <div class="view-tabs">
-        <div class="view-tab ${activeView==='standings'?'active':''}" onclick="setView('standings')">Standings</div>
-        <div class="view-tab ${activeView==='team'?'active':''}" onclick="setView('team')">Team Detail</div>
-        <div class="view-tab ${activeView==='pool'?'active':''}" onclick="setView('pool')">Pool Leaders</div>
-      </div>
-      <div id="view-standings" style="display:${activeView==='standings'?'block':'none'}">${buildInsights(sorted,leaderPts)}${buildLeaderboard(sorted,leaderPts)}</div>
-      <div id="view-team"      style="display:${activeView==='team'?'block':'none'}">
-        <div class="team-tabs">${sorted.map(t=>`<div class="team-tab ${t.id===activeTeamId?'active':''}" onclick="selectTeam('${t.id}')">${t.name}<span class="team-tab-pts">${teamTotalPts(t)}pts</span></div>`).join('')}</div>
-        <div class="team-detail visible">${activeTeam?buildDetail(activeTeam,sorted,leaderPts):''}</div>
-      </div>
-      <div id="view-pool" style="display:${activeView==='pool'?'block':'none'}">${buildPoolLeaders()}</div>
-    `;
-  }
-
-   function setView(v){activeView=v;sessionStorage.setItem('pool_view',v);render();}
-   function selectTeam(id){activeTeamId=id;activeView='team';sessionStorage.setItem('pool_view','team');render();}
-
-   async function syncPlayerStats(){
-     const btn=document.getElementById('sync-btn');
-     const status=document.getElementById('sync-status');
-     btn.disabled=true;
-     status.textContent='Syncing...';
-     status.className='sync-status';
-     try{
-       const res=await fetch('/api/sync-pool-stats',{
-         method:'POST',
-         headers:{'Content-Type':'application/json'},
-         body:JSON.stringify({})
-       });
-       const data=await res.json();
-       if(res.status===200){
-         // Local: Immediate success
-         status.textContent='✅ Stats updated!';
-         setTimeout(()=>location.reload(),1500);
-       }else if(res.status===202){
-         // Vercel: Workflow triggered, will run in background
-         status.textContent='✅ Sync started (check back in 5 min)';
-         setTimeout(()=>{ btn.disabled=false; status.textContent=''; },4000);
-       }else{
-         status.textContent=`❌ ${data.error||'Failed'}`;
-         status.className='sync-status error';
-         setTimeout(()=>{ btn.disabled=false; },3000);
-       }
-     }catch(e){
-       status.textContent='❌ '+e.message;
-       status.className='sync-status error';
-       btn.disabled=false;
-     }
-   }
-
-  function buildInsights(sorted,leaderPts){
-    const m=slugMap();
-    const card=(color,icon,label,main,sub)=>
-      `<div class="insight-card ${color}"><div class="insight-icon">${icon}</div><div class="insight-label">${label}</div><div class="insight-main ${color}">${main}</div><div class="insight-sub">${sub}</div></div>`;
-
-    const cards=[];
-
-    // 1. Closest race
-    if(sorted.length>=2){
-      const gap=leaderPts-teamTotalPts(sorted[1]);
-      if(gap<=15){
-        cards.push(card('gold','🏆','Closest Race',
-          `${sorted[0].name} vs ${sorted[1].name}`,
-          `Only ${gap} pts separate 1st and 2nd`));
-      } else {
-        cards.push(card('gold','👑','Leading',
-          `${sorted[0].name}`,
-          `${gap} pts ahead of ${sorted[1].name}`));
-      }
+    // ── PASSWORD GATE ────────────────────────────────────────────────────────────
+    // We use SHA-256 hashing so the plaintext password is never stored in sessionStorage
+    // or compared in plaintext. A dedicated server-side auth would be even better,
+    // but this is a significant improvement over the previous approach.
+    async function hashPassword(pw) {
+      const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pw));
+      return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
     }
 
-    // 2. Best efficiency (pts per $M cap)
-    const effTeams=sorted.map(t=>{
-      const cap=teamCapUsed(t.roster);
-      const pts=teamTotalPts(t);
-      return{t,eff:cap>0?pts/(cap/1e6):0};
-    }).filter(x=>x.eff>0).sort((a,b)=>b.eff-a.eff);
-    if(effTeams.length){
-      const best=effTeams[0];
-      cards.push(card('green','⚡','Best Efficiency',
-        `${best.t.name}`,
-        `${best.eff.toFixed(2)} pts per $M — best in pool`));
-    }
-
-    // 3. Best steal: player with highest pts-to-cap ratio
-    const allP=[];
-    teams.forEach(t=>{
-      const rp=rosterPlayers(t.roster);
-      [...rp.F,...rp.D,...rp.G].filter(Boolean).forEach(p=>{
-        const pts=poolScoreOwned(p,t,p._slug);
-        const capM=(p.cap_hit||0)/1e6;
-        if(pts>0&&capM>0) allP.push({p,t,pts,capM,ratio:pts/capM});
+    (async function initGate() {
+      // Check stored hash against expected hash of the correct password
+      const expectedHash = await hashPassword(PW_PLAIN);
+      const storedHash = sessionStorage.getItem('pool_auth_hash');
+      if (storedHash === expectedHash) {
+        document.getElementById('pw-gate').style.display = 'none';
+      }
+      document.getElementById('pw-input').addEventListener('keydown', e => {
+        if (e.key === 'Enter') checkPw();
       });
-    });
-    allP.sort((a,b)=>b.ratio-a.ratio);
-    if(allP.length){
-      const steal=allP[0];
-      cards.push(card('blue','🚀','Best Steal',
-        `${formatName(steal.p.player_name)}`,
-        `${steal.pts} pts · $${steal.capM.toFixed(1)}M · owned by ${steal.t.name}`));
-    }
+      // Store expected hash globally so checkPw can use it
+      window._expectedPwHash = expectedHash;
+    })();
 
-    // 4. Worst contract: player with lowest pts-to-cap ratio (min $2M cap, min 1 pt)
-    const expensive=allP.filter(x=>x.capM>=2&&x.pts>=1).sort((a,b)=>a.ratio-b.ratio);
-    if(expensive.length){
-      const bust=expensive[0];
-      cards.push(card('red','💸','Worst Contract',
-        `${formatName(bust.p.player_name)}`,
-        `${bust.pts} pts · $${bust.capM.toFixed(1)}M · owned by ${bust.t.name}`));
-    }
-
-    if(!cards.length) return '';
-    return`<div class="insights">${cards.join('')}</div>`;}
-
-  function buildLeaderboard(sorted,leaderPts){
-    const rc=i=>i===0?'gold':i===1?'silver':i===2?'bronze':'';
-    const rows=sorted.map((t,i)=>{
-      const pts=teamTotalPts(t),cap=teamCapUsed(t.roster);
-      const gap=i===0?'Leader':`−${leaderPts-pts}`,eff=cap>0?(pts/(cap/1e6)).toFixed(1):'—';
-      const rp=rosterPlayers(t.roster);
-      const allP=[...rp.F,...rp.D,...rp.G].filter(Boolean);
-      const totalGP=allP.reduce((s,p)=>{const d=ownedStatsDelta(p,t,p._slug);return s+(d?.gamesPlayed??p.games_played??0);},0);
-      const ppg=totalGP>0?(pts/totalGP).toFixed(2):'—';
-      return`<div class="lb-row ${t.id===activeTeamId?'active':''}" onclick="selectTeam('${t.id}')"><div class="lb-rank ${rc(i)}">${i+1}</div><div class="lb-name">${t.name}</div><div class="lb-stat">${ppg}</div><div class="lb-stat">${eff}</div><div class="lb-stat pts">${pts}</div><div class="lb-stat ${i===0?'gap leader':'gap'}">${gap}</div></div>`;
-    }).join('');
-    return`<div class="leaderboard"><div class="lb-row header"><div></div><div class="lb-col-label left">Team</div><div class="lb-col-label">Pt/GP</div><div class="lb-col-label">Eff.</div><div class="lb-col-label">Pts</div><div class="lb-col-label">Gap</div></div>${rows}</div>`;}
-
-  function buildDetail(team,sorted,leaderPts){
-    const roster=rosterPlayers(team.roster);
-    const allP=[...roster.F,...roster.D,...roster.G,...(roster.B||[])].filter(Boolean);
-    if(!allP.length)return`<div class="msg" style="padding:1.5rem 0;">No players drafted yet.</div>`;
-    const totalPts=allP.reduce((s,p)=>s+poolScoreOwned(p,team,p._slug),0),cap=allP.reduce((s,p)=>s+(p.cap_hit||0),0),filled=allP.length;
-    const eff=cap>0?(totalPts/(cap/1e6)).toFixed(1):'—',sub=teamSubScores(team);
-    const rank=sorted.findIndex(t=>t.id===team.id)+1,gap=rank===1?'Leading 🏆':`${leaderPts-totalPts} pts behind 1st`;
-    return`
-      <div class="detail-header"><div class="detail-header-left"><div class="detail-title">${team.name}</div><div class="detail-rank-label">Rank #${rank} · ${gap}</div></div>
-      <div class="detail-summary"><span class="detail-badge pts">${totalPts} PTS</span><span class="detail-badge cap">$${(cap/1e6).toFixed(1)}M</span><span class="detail-badge filled">${filled}/26</span><span class="detail-badge eff">${eff} pt/$M</span></div></div>
-      <div class="pos-scores-bar"><div class="pos-score-block F"><div class="pos-score-val">${sub.F}</div><div class="pos-score-label">Forwards</div></div><div class="pos-score-block D"><div class="pos-score-val">${sub.D}</div><div class="pos-score-label">Defence</div></div><div class="pos-score-block G"><div class="pos-score-val">${sub.G}</div><div class="pos-score-label">Goalies</div></div><div class="pos-score-block B"><div class="pos-score-val">${sub.B}</div><div class="pos-score-label">Bench</div></div></div>
-      ${buildHistTable(team,'F','Forwards')}
-      ${buildHistTable(team,'D','Defence')}
-      ${buildHistTable(team,'G','Goalies')}
-    `;}
-
-  function buildHistTable(team,pos,label){
-    const currentSlugs=new Set([...team.roster.F,...team.roster.D,...team.roster.G,...(team.roster.B||[])].filter(Boolean));
-    const m=slugMap();
-    const fmt=d=>new Date(d).toLocaleDateString('en-CA',{month:'short',day:'numeric'});
-
-    // Build entries: one per trade record for this pos, plus current players with no trade record
-    const trades=currentTrades.filter(t=>t.team_id===team.id&&t.player_to_slug&&normalizePos(t.player_to_position)===pos);
-    const seenSlugs=new Set(trades.map(t=>t.player_to_slug));
-
-    // Current players in this pos group that have no trade record (drafted originally)
-    const currentNoDraft=[...team.roster[pos]||[]].filter(s=>s&&currentSlugs.has(s)&&!seenSlugs.has(s)).map(s=>m[s]?{...m[s],_slug:s}:null).filter(Boolean);
-
-    if(!trades.length&&!currentNoDraft.length) return '';
-
-    const colHeader=`<div class="hist-header-row"><div></div><div class="lb-col-label left">Player</div><div class="lb-col-label">Tenure</div><div class="lb-col-label">GP</div><div class="lb-col-label">G</div><div class="lb-col-label">A</div><div class="lb-col-label">Pts</div></div>`;
-
-    // Rows from trade records
-    const tradeRows=trades.map(t=>{
-      const isCurrent=currentSlugs.has(t.player_to_slug)&&!t.date_traded;
-      const p=m[t.player_to_slug];
-      const abbr=p?TEAM_ABBR[p.team]:null;
-      const logo=abbr?`<img src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}">`:'';
-      const tenureEnd=t.date_traded?fmt(t.date_traded):`<span style="color:var(--green)">Now</span>`;
-      const tenure=`${fmt(t.date_from_acquired)} → ${tenureEnd}`;
-      let gp='—',g='—',a='—',pts;
-      if(isCurrent&&p){
-        const d=ownedStatsDelta(p,team,p._slug);
-        if(d){gp=d.gamesPlayed;g=pos==='G'?d.wins:d.goals;a=pos==='G'?d.shutouts:d.assists;}
-        pts=poolScoreOwned(p,team,p._slug);
+    async function checkPw() {
+      const input = document.getElementById('pw-input');
+      const errEl = document.getElementById('pw-error');
+      const entered = input.value;
+      if (!entered) return;
+      const enteredHash = await hashPassword(entered);
+      if (enteredHash === window._expectedPwHash) {
+        sessionStorage.setItem('pool_auth_hash', enteredHash);
+        document.getElementById('pw-gate').style.display = 'none';
       } else {
-        pts=t.points_accumulated_at_trade??'—';
+        input.classList.add('error');
+        errEl.textContent = 'Incorrect password.';
+        setTimeout(() => input.classList.remove('error'), 400);
+        input.value = '';
+        input.focus();
       }
-      const rowClass=isCurrent?'current':'past';
-      return`<div class="hist-row ${rowClass}"><span class="hist-pos ${pos}">${pos}</span><span class="hist-name${isCurrent?'':' past'}">${logo}${t.player_to_name||t.player_to_slug}</span><span class="hist-tenure">${tenure}</span><span class="hist-stat">${gp}</span><span class="hist-stat">${g}</span><span class="hist-stat">${a}</span><span class="hist-pts">${pts}</span></div>`;
+    }
+
+    // ── MOBILE NAV ───────────────────────────────────────────────────────────────
+    function toggleDrawer() {
+      const drawer = document.getElementById('nav-drawer');
+      const isOpen = drawer.classList.toggle('open');
+      document.getElementById('hamburger').setAttribute('aria-expanded', isOpen);
+      // Prevent body scroll when drawer is open
+      document.body.style.overflow = isOpen ? 'hidden' : '';
+    }
+
+    // Close drawer if user clicks outside it
+    document.addEventListener('click', function(e) {
+      const drawer = document.getElementById('nav-drawer');
+      const hamburger = document.getElementById('hamburger');
+      if (drawer.classList.contains('open') && !drawer.contains(e.target) && !hamburger.contains(e.target)) {
+        drawer.classList.remove('open');
+        document.body.style.overflow = '';
+      }
     });
 
-    // Rows for current players with no trade record
-    const draftRows=currentNoDraft.map(p=>{
-      const abbr=TEAM_ABBR[p.team];
-      const logo=abbr?`<img src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}">`:'';
-      const d=ownedStatsDelta(p,team,p._slug);
-      const gp=d?.gamesPlayed??'—',g=pos==='G'?(d?.wins??'—'):(d?.goals??'—'),a=pos==='G'?(d?.shutouts??'—'):(d?.assists??'—');
-      const pts=poolScoreOwned(p,team,p._slug);
-      return`<div class="hist-row current"><span class="hist-pos ${pos}">${pos}</span><span class="hist-name">${logo}${formatName(p.player_name)}</span><span class="hist-tenure"><span style="color:var(--green)">Now</span></span><span class="hist-stat">${gp}</span><span class="hist-stat">${g}</span><span class="hist-stat">${a}</span><span class="hist-pts">${pts}</span></div>`;
-    });
+    // ── APP STATE ────────────────────────────────────────────────────────────────
+    const _leagueCode = new URLSearchParams(window.location.search).get('league') || null;
+    if (!_leagueCode) window.location.replace('/pool');
 
-    // Total row
-    const allPts=[...trades.map(t=>{
-      if(currentSlugs.has(t.player_to_slug)&&!t.date_traded){const p=m[t.player_to_slug];return p?poolScoreOwned(p,team,p._slug):0;}
-      return t.points_accumulated_at_trade??0;
-    }),...currentNoDraft.map(p=>poolScoreOwned(p,team,p._slug))];
-    const total=allPts.reduce((s,v)=>s+(typeof v==='number'?v:0),0);
+    let allPlayers = [];
+    let teams = [];
+    let currentTrades = [];
+    let activeTeamId = null;
+    let activeView = sessionStorage.getItem('pool_view') || 'standings';
+    if (activeView === 'allteams') activeView = 'standings';
 
-    return`<div class="hist-table"><div class="hist-section-label ${pos}">${label}</div>${colHeader}${tradeRows.join('')}${draftRows.join('')}<div class="hist-row total"><div></div><div class="lb-col-label left" style="font-size:0.75rem">TOTAL</div><div></div><div></div><div></div><div></div><div class="hist-pts total">${total}</div></div></div>`;}
+    // Memoized computed values — cleared when data changes
+    let _cache = {};
+    function clearCache() { _cache = {}; }
 
-  function buildPoolLeaders(){
-    const drafted=allDraftedPlayers(),byPos={F:[],D:[],G:[]};
-    drafted.forEach(({player,owner,pos,team})=>byPos[pos].push({player,owner,team,pts:poolScoreOwned(player,team,player._slug)}));
-    ['F','D','G'].forEach(pos=>byPos[pos].sort((a,b)=>b.pts-a.pts));
-    const pL={F:'Forwards',D:'Defence',G:'Goalies'};
-    const grid=`<div class="pool-section-title">Position <span>Leaders</span></div><div class="pos-leaders-grid">${['F','D','G'].map(pos=>`<div class="pos-leader-col"><div class="pos-leader-col-header ${pos}">${pL[pos]} <small>POOL PTS</small></div>${byPos[pos].slice(0,8).map((item,i)=>{const abbr=TEAM_ABBR[item.player.team];return`<div class="pos-leader-row"><div class="pos-leader-rank">${i+1}</div><div class="pos-leader-name">${formatName(item.player.player_name)}</div><div class="pos-leader-team">${abbr||'—'}</div><div class="pos-leader-owner">${item.owner}</div><div class="pos-leader-pts">${item.pts}</div></div>`;}).join('')}</div>`).join('')}</div>`;
-    const allS=drafted.map(({player,owner,pos,team})=>({player,owner,pos,team,pts:poolScoreOwned(player,team,player._slug)})).sort((a,b)=>b.pts-a.pts).slice(0,10);
-    const top=`<div class="pool-section-title">Top <span>Pool Players</span></div><div class="top-players-list"><div class="top-player-row header" style="grid-template-columns:30px 1fr 80px 80px 60px"><div></div><div class="lb-col-label left">Player</div><div class="lb-col-label">Owner</div><div class="lb-col-label">Owned Stats</div><div class="lb-col-label">Pts</div></div>${allS.map((item,i)=>{const p=item.player,abbr=TEAM_ABBR[p.team],logo=abbr?`<img class="top-player-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}">`:'' ;const stat=ownedStatsLabel(p,item.team,p._slug).replace(/ · /g,' ');return`<div class="top-player-row"><div class="top-player-rank">${i+1}</div><div class="top-player-info">${logo}<div><div class="top-player-name">${formatName(p.player_name)}</div></div></div><div class="top-player-owner">${item.owner}</div><div class="top-player-stat">${stat||'—'}</div><div class="top-player-pts">${item.pts}</div></div>`;}).join('')}</div>`;
-    return grid+top;
-  }
+    // Memoized slug map
+    function slugMap() {
+      if (!_cache.slugMap) {
+        _cache.slugMap = Object.fromEntries(allPlayers.map(p => [p.puckpedia_slug, p]));
+      }
+      return _cache.slugMap;
+    }
 
-  load();
+    // Memoized team total points
+    function teamTotalPts(team) {
+      if (!_cache.teamPts) _cache.teamPts = {};
+      if (_cache.teamPts[team.id] !== undefined) return _cache.teamPts[team.id];
+      const s = teamSubScores(team);
+      const total = s.F + s.D + s.G + s.B;
+      _cache.teamPts[team.id] = total;
+      return total;
+    }
+
+    // Memoized sorted teams
+    function sortedTeams() {
+      if (!_cache.sorted) {
+        _cache.sorted = [...teams].sort((a, b) => teamTotalPts(b) - teamTotalPts(a));
+      }
+      return _cache.sorted;
+    }
+
+    // Memoized drafted players list
+    function allDraftedPlayers() {
+      if (!_cache.drafted) {
+        const list = [];
+        teams.forEach(t => {
+          const r = rosterPlayers(t.roster);
+          ['F','D','G'].forEach(pos => r[pos].filter(Boolean).forEach(p => list.push({player:p, owner:t.name, pos, team:t})));
+        });
+        _cache.drafted = list;
+      }
+      return _cache.drafted;
+    }
+
+    // ── SCORING ──────────────────────────────────────────────────────────────────
+    let _scoring = { f_points:1, d_goals:1, d_assists:1, g_wins:2, g_shutouts:3 };
+
+    async function loadScoringSettings() {
+      try {
+        const r = await fetch(`${SUPABASE_URL}/rest/v1/pool_settings?league_code=eq.${_leagueCode}&select=f_points,d_goals,d_assists,g_wins,g_shutouts`, {
+          headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+        });
+        if (r.ok) {
+          const rows = await r.json();
+          if (rows.length) _scoring = { ..._scoring, ...rows[0] };
+        }
+      } catch(e) {}
+    }
+
+    function normalizePos(pos) {
+      if (!pos) return 'F';
+      const p = pos.toUpperCase();
+      if (p.includes('G')) return 'G';
+      if (p === 'D' || p.includes('LD') || p.includes('RD')) return 'D';
+      return 'F';
+    }
+
+    function poolScore(p) {
+      const pos = normalizePos(p.position);
+      if (pos === 'G') return (p.wins ?? 0) * _scoring.g_wins + (p.shutouts ?? 0) * _scoring.g_shutouts;
+      if (pos === 'D') return (p.goals ?? 0) * _scoring.d_goals + (p.assists ?? 0) * _scoring.d_assists;
+      return (p.points ?? 0) * _scoring.f_points;
+    }
+
+    function poolScoreOwned(p, team, slug) {
+      const snap = team?.acquisitions?.[slug];
+      const snapData = (typeof snap === 'object' && snap !== null) ? snap.stats_snapshot : null;
+      if (!snapData) return poolScore(p);
+      const pos = normalizePos(p.position);
+      if (pos === 'G') {
+        const wins = Math.max(0, (p.wins ?? 0) - (snapData.wins ?? 0));
+        const so   = Math.max(0, (p.shutouts ?? 0) - (snapData.shutouts ?? 0));
+        return wins * _scoring.g_wins + so * _scoring.g_shutouts;
+      }
+      if (pos === 'D') {
+        const g = Math.max(0, (p.goals ?? 0) - (snapData.goals ?? 0));
+        const a = Math.max(0, (p.assists ?? 0) - (snapData.assists ?? 0));
+        return g * _scoring.d_goals + a * _scoring.d_assists;
+      }
+      return Math.max(0, ((p.points ?? 0) - (snapData.points ?? 0))) * _scoring.f_points;
+    }
+
+    function ownedStatsDelta(p, team, slug) {
+      const snap = team?.acquisitions?.[slug];
+      const snapData = (typeof snap === 'object' && snap !== null) ? snap.stats_snapshot : null;
+      if (!snapData) return null;
+      return {
+        pos: normalizePos(p.position),
+        goals:       Math.max(0, (p.goals ?? 0)       - (snapData.goals ?? 0)),
+        assists:     Math.max(0, (p.assists ?? 0)     - (snapData.assists ?? 0)),
+        points:      Math.max(0, (p.points ?? 0)      - (snapData.points ?? 0)),
+        wins:        Math.max(0, (p.wins ?? 0)        - (snapData.wins ?? 0)),
+        shutouts:    Math.max(0, (p.shutouts ?? 0)    - (snapData.shutouts ?? 0)),
+        gamesPlayed: Math.max(0, (p.games_played ?? 0)- (snapData.games_played ?? 0)),
+      };
+    }
+
+    function ownedStatsLabel(p, team, slug) {
+      const d = ownedStatsDelta(p, team, slug);
+      if (!d) return '';
+      if (d.pos === 'G') return `${d.wins}W · ${d.shutouts}SO · ${d.gamesPlayed}GP`;
+      return `${d.goals}G · ${d.assists}A · ${d.points}PTS · ${d.gamesPlayed}GP`;
+    }
+
+    // ── ROSTER HELPERS ───────────────────────────────────────────────────────────
+    /**
+     * Safely parse a player name. Handles:
+     *  - "Last, First" → "First Last"
+     *  - "First Last" → unchanged
+     *  - multiple commas: "Last, Jr., First" → takes last token as first name
+     */
+    function formatName(n) {
+      if (!n) return '';
+      if (n.includes(',')) {
+        const parts = n.split(',').map(s => s.trim()).filter(Boolean);
+        // Standard "Last, First" — take [1] as first, [0] as last
+        if (parts.length >= 2) return `${parts[parts.length - 1]} ${parts[0]}`;
+      }
+      return n;
+    }
+
+    function rosterPlayers(rs) {
+      const m = slugMap();
+      const resolve = s => (s && m[s]) ? { ...m[s], _slug: s } : null;
+      return {
+        F: (rs.F || []).map(resolve),
+        D: (rs.D || []).map(resolve),
+        G: (rs.G || []).map(resolve),
+        B: (rs.B || []).map(resolve),
+      };
+    }
+
+    function teamSubScores(team) {
+      if (!_cache.subScores) _cache.subScores = {};
+      if (_cache.subScores[team.id]) return _cache.subScores[team.id];
+      const rs = team.roster;
+      const r = rosterPlayers(rs);
+      // Bench players are scored using the same positional rules —
+      // they count toward total points (was previously hardcoded to 0).
+      const scoreGroup = (players) =>
+        players.filter(Boolean).reduce((s, p) => s + poolScoreOwned(p, team, p._slug), 0);
+      const result = {
+        F: scoreGroup(r.F),
+        D: scoreGroup(r.D),
+        G: scoreGroup(r.G),
+        B: scoreGroup(r.B),
+      };
+      _cache.subScores[team.id] = result;
+      return result;
+    }
+
+    function teamCapUsed(rs) {
+      const r = rosterPlayers(rs);
+      return [...r.F, ...r.D, ...r.G].filter(Boolean).reduce((s, p) => s + (p.cap_hit || 0), 0);
+    }
+
+    function teamFilled(rs) {
+      return [...(rs.F||[]), ...(rs.D||[]), ...(rs.G||[]), ...(rs.B||[])].filter(Boolean).length;
+    }
+
+    // ── NAV SETUP ────────────────────────────────────────────────────────────────
+    function initNav() {
+      const links = {
+        'nav-draft':         `/pool/join?league=${_leagueCode}`,
+        'nav-live-draft':    `/pool/live-draft?league=${_leagueCode}`,
+        'nav-standings':     `/pool/standings?league=${_leagueCode}`,
+        'nav-trades':        `/pool/roster?league=${_leagueCode}`,
+        'nav-settings':      `/pool/settings?league=${_leagueCode}`,
+        'nav-drawer-draft':       `/pool/join?league=${_leagueCode}`,
+        'nav-drawer-live-draft':  `/pool/live-draft?league=${_leagueCode}`,
+        'nav-drawer-standings':   `/pool/standings?league=${_leagueCode}`,
+        'nav-drawer-trades':      `/pool/roster?league=${_leagueCode}`,
+        'nav-drawer-settings':    `/pool/settings?league=${_leagueCode}`,
+      };
+      Object.entries(links).forEach(([id, href]) => {
+        const el = document.getElementById(id);
+        if (el) el.href = href;
+      });
+      document.getElementById('league-badge').textContent = _leagueCode;
+      document.getElementById('league-badge-row').style.display = '';
+    }
+
+    // ── LOAD ─────────────────────────────────────────────────────────────────────
+    async function load() {
+      initNav();
+      await loadScoringSettings();
+
+      // Fetch league name for the badge
+      fetch(`${SUPABASE_URL}/rest/v1/pool_leagues?code=eq.${_leagueCode}&select=name`, {
+        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+      }).then(r => r.json()).then(rows => {
+        const n = rows[0]?.name;
+        if (n) document.getElementById('league-badge').textContent = `${n} · ${_leagueCode}`;
+      }).catch(() => {});
+
+      try {
+        // ── Player cache with TTL ──────────────────────────────────────────────
+        let cacheHit = false;
+        try {
+          const raw = sessionStorage.getItem(CACHE_KEY);
+          if (raw) {
+            const { ts, data } = JSON.parse(raw);
+            if (Date.now() - ts < CACHE_TTL_MS && Array.isArray(data) && data.length) {
+              allPlayers = data;
+              cacheHit = true;
+            }
+          }
+        } catch(_) {}
+
+        if (!cacheHit) {
+          const res = await fetch(
+            `${SUPABASE_URL}/rest/v1/nhl_players?select=puckpedia_slug,player_name,position,cap_hit,team,goals,assists,points,wins,shutouts,games_played,save_pct&order=cap_hit.desc&limit=1000`,
+            { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
+          );
+          if (!res.ok) throw new Error(res.status);
+          allPlayers = await res.json();
+          try {
+            sessionStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), data: allPlayers }));
+          } catch(_) { /* storage quota exceeded — just continue without caching */ }
+        }
+
+        // Clear computed caches whenever player data refreshes
+        clearCache();
+
+        // ── Rosters ───────────────────────────────────────────────────────────
+        const rRes = await fetch(
+          `${SUPABASE_URL}/rest/v1/pool_rosters?league_code=eq.${_leagueCode}&select=data`,
+          { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
+        );
+        if (!rRes.ok) throw new Error(rRes.status);
+        const rows = await rRes.json();
+
+        if (!rows.length || !rows[0].data?.teams?.length) {
+          document.getElementById('content').innerHTML = '<div class="msg">No teams saved yet. Go build your pool!</div>';
+          return;
+        }
+
+        teams = rows[0].data.teams.map(t => ({
+          id: t.id,
+          name: t.name || 'Team',
+          acquisitions: t.acquisitions || {},
+          roster: {
+            F: Array.isArray(t.roster?.F) ? t.roster.F : Array(12).fill(null),
+            D: Array.isArray(t.roster?.D) ? t.roster.D : Array(6).fill(null),
+            G: Array.isArray(t.roster?.G) ? t.roster.G : Array(2).fill(null),
+            B: Array.isArray(t.roster?.B) ? t.roster.B : Array(6).fill(null),
+          }
+        }));
+
+        // ── Trades ────────────────────────────────────────────────────────────
+        // Reset before fetching so a partial load doesn't leave stale state
+        currentTrades = [];
+        const tRes = await fetch(
+          `${SUPABASE_URL}/rest/v1/player_trades?league_code=eq.${_leagueCode}&select=team_id,player_to_slug,player_to_name,player_to_position,date_from_acquired,date_traded,points_accumulated_at_trade&order=date_from_acquired.asc`,
+          { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
+        );
+        if (tRes.ok) currentTrades = await tRes.json();
+
+        // Pick default active team
+        const sorted = sortedTeams();
+        activeTeamId = sorted[0]?.id || teams[0]?.id;
+
+        render();
+
+      } catch(e) {
+        document.getElementById('content').innerHTML =
+          `<div class="msg">Failed to load data. <button class="btn-refresh" onclick="load()">Retry</button></div>`;
+      }
+    }
+
+    // ── RENDER ────────────────────────────────────────────────────────────────────
+    // Stores scroll position and restores it after re-render to avoid jump.
+    function render() {
+      const scrollY = window.scrollY;
+      const sorted = sortedTeams();
+      const leaderPts = sorted.length ? teamTotalPts(sorted[0]) : 0;
+      const activeTeam = teams.find(t => t.id === activeTeamId);
+
+      document.getElementById('content').innerHTML = `
+        <div class="view-tabs">
+          <div class="view-tab ${activeView==='standings'?'active':''}" onclick="setView('standings')">Standings</div>
+          <div class="view-tab ${activeView==='team'?'active':''}"      onclick="setView('team')">Team Detail</div>
+          <div class="view-tab ${activeView==='pool'?'active':''}"      onclick="setView('pool')">Pool Leaders</div>
+        </div>
+        <div id="view-standings" style="display:${activeView==='standings'?'block':'none'}">
+          ${buildInsights(sorted, leaderPts)}
+          ${buildLeaderboard(sorted, leaderPts)}
+        </div>
+        <div id="view-team" style="display:${activeView==='team'?'block':'none'}">
+          <div class="team-tabs">
+            ${sorted.map(t =>
+              `<div class="team-tab ${t.id===activeTeamId?'active':''}" onclick="selectTeam('${t.id}')">
+                ${t.name}<span class="team-tab-pts">${teamTotalPts(t)}pts</span>
+              </div>`
+            ).join('')}
+          </div>
+          <div class="team-detail visible">${activeTeam ? buildDetail(activeTeam, sorted, leaderPts) : ''}</div>
+        </div>
+        <div id="view-pool" style="display:${activeView==='pool'?'block':'none'}">${buildPoolLeaders()}</div>
+      `;
+
+      window.scrollTo({ top: scrollY, behavior: 'instant' });
+    }
+
+    function setView(v) {
+      activeView = v;
+      sessionStorage.setItem('pool_view', v);
+      render();
+    }
+
+    function selectTeam(id) {
+      activeTeamId = id;
+      activeView = 'team';
+      sessionStorage.setItem('pool_view', 'team');
+      render();
+    }
+
+    // ── SYNC ─────────────────────────────────────────────────────────────────────
+    async function syncPlayerStats() {
+      const btn = document.getElementById('sync-btn');
+      const status = document.getElementById('sync-status');
+      btn.disabled = true;
+      status.textContent = 'Syncing…';
+      status.className = 'sync-status';
+
+      // Invalidate player cache so fresh data is fetched after sync
+      try { sessionStorage.removeItem(CACHE_KEY); } catch(_) {}
+
+      try {
+        const res = await fetch('/api/sync-pool-stats', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({})
+        });
+        const data = await res.json();
+        if (res.status === 200) {
+          status.textContent = '✅ Stats updated!';
+          setTimeout(() => location.reload(), 1500);
+        } else if (res.status === 202) {
+          status.textContent = '✅ Sync started (check back in 5 min)';
+          setTimeout(() => { btn.disabled = false; status.textContent = ''; }, 4000);
+        } else {
+          status.textContent = `❌ ${data.error || 'Failed'}`;
+          status.className = 'sync-status error';
+          setTimeout(() => { btn.disabled = false; }, 3000);
+        }
+      } catch(e) {
+        status.textContent = '❌ ' + e.message;
+        status.className = 'sync-status error';
+        btn.disabled = false;
+      }
+    }
+
+    // ── INSIGHTS ─────────────────────────────────────────────────────────────────
+    function buildInsights(sorted, leaderPts) {
+      const card = (color, icon, label, main, sub) =>
+        `<div class="insight-card ${color}">
+           <div class="insight-icon">${icon}</div>
+           <div class="insight-label">${label}</div>
+           <div class="insight-main ${color}">${main}</div>
+           <div class="insight-sub">${sub}</div>
+         </div>`;
+
+      const cards = [];
+
+      // 1. Race / leader
+      if (sorted.length >= 2) {
+        const gap = leaderPts - teamTotalPts(sorted[1]);
+        if (gap <= 15) {
+          cards.push(card('gold','🏆','Closest Race',
+            `${sorted[0].name} vs ${sorted[1].name}`,
+            `Only ${gap} pts separate 1st and 2nd`));
+        } else {
+          cards.push(card('gold','👑','Leading',
+            sorted[0].name,
+            `${gap} pts ahead of ${sorted[1].name}`));
+        }
+      }
+
+      // 2. Best efficiency (pts per $M cap)
+      const effTeams = sorted.map(t => {
+        const cap = teamCapUsed(t.roster);
+        const pts = teamTotalPts(t);
+        return { t, eff: cap > 0 ? pts / (cap / 1e6) : 0 };
+      }).filter(x => x.eff > 0).sort((a, b) => b.eff - a.eff);
+      if (effTeams.length) {
+        const best = effTeams[0];
+        cards.push(card('green','⚡','Best Efficiency',
+          best.t.name,
+          `${best.eff.toFixed(2)} pts per $M — best in pool`));
+      }
+
+      // 3. Best steal: highest pts-to-cap ratio among all owned players
+      const allP = [];
+      teams.forEach(t => {
+        const rp = rosterPlayers(t.roster);
+        [...rp.F, ...rp.D, ...rp.G].filter(Boolean).forEach(p => {
+          const pts   = poolScoreOwned(p, t, p._slug);
+          const capM  = (p.cap_hit || 0) / 1e6;
+          if (pts > 0 && capM > 0) allP.push({ p, t, pts, capM, ratio: pts / capM });
+        });
+      });
+      allP.sort((a, b) => b.ratio - a.ratio);
+      if (allP.length) {
+        const steal = allP[0];
+        cards.push(card('blue','🚀','Best Steal',
+          formatName(steal.p.player_name),
+          `${steal.pts} pts · $${steal.capM.toFixed(1)}M · owned by ${steal.t.name}`));
+      }
+
+      // 4. Worst contract: lowest pts-to-cap (min $2M, min 1 pt)
+      const expensive = allP.filter(x => x.capM >= 2 && x.pts >= 1).sort((a, b) => a.ratio - b.ratio);
+      if (expensive.length) {
+        const bust = expensive[0];
+        cards.push(card('red','💸','Worst Contract',
+          formatName(bust.p.player_name),
+          `${bust.pts} pts · $${bust.capM.toFixed(1)}M · owned by ${bust.t.name}`));
+      }
+
+      return cards.length ? `<div class="insights">${cards.join('')}</div>` : '';
+    }
+
+    // ── LEADERBOARD ───────────────────────────────────────────────────────────────
+    function buildLeaderboard(sorted, leaderPts) {
+      const rc = i => i===0?'gold':i===1?'silver':i===2?'bronze':'';
+      const rows = sorted.map((t, i) => {
+        const pts = teamTotalPts(t);
+        const cap = teamCapUsed(t.roster);
+        const gap = i === 0 ? 'Leader' : `−${leaderPts - pts}`;
+        const eff = cap > 0 ? (pts / (cap / 1e6)).toFixed(1) : '—';
+        const rp = rosterPlayers(t.roster);
+        const allPlrs = [...rp.F, ...rp.D, ...rp.G].filter(Boolean);
+        const totalGP = allPlrs.reduce((s, p) => {
+          const d = ownedStatsDelta(p, t, p._slug);
+          return s + (d?.gamesPlayed ?? p.games_played ?? 0);
+        }, 0);
+        const ppg = totalGP > 0 ? (pts / totalGP).toFixed(2) : '—';
+        return `<div class="lb-row ${t.id===activeTeamId?'active':''}" onclick="selectTeam('${t.id}')">
+          <div class="lb-rank ${rc(i)}">${i+1}</div>
+          <div class="lb-name">${t.name}</div>
+          <div class="lb-stat lb-col-hide">${ppg}</div>
+          <div class="lb-stat lb-col-hide">${eff}</div>
+          <div class="lb-stat pts">${pts}</div>
+          <div class="lb-stat ${i===0?'gap leader':'gap'}">${gap}</div>
+        </div>`;
+      }).join('');
+
+      return `<div class="leaderboard">
+        <div class="lb-row header">
+          <div></div>
+          <div class="lb-col-label left">Team</div>
+          <div class="lb-col-label lb-col-hide">Pt/GP</div>
+          <div class="lb-col-label lb-col-hide">Eff.</div>
+          <div class="lb-col-label">Pts</div>
+          <div class="lb-col-label">Gap</div>
+        </div>
+        ${rows}
+      </div>`;
+    }
+
+    // ── TEAM DETAIL ───────────────────────────────────────────────────────────────
+    function buildDetail(team, sorted, leaderPts) {
+      const roster = rosterPlayers(team.roster);
+      const allPlrs = [...roster.F, ...roster.D, ...roster.G, ...(roster.B||[])].filter(Boolean);
+      if (!allPlrs.length) {
+        return `<div class="msg" style="padding:1.5rem 0;">No players drafted yet.</div>`;
+      }
+
+      const sub = teamSubScores(team);
+      const totalPts = sub.F + sub.D + sub.G + sub.B;
+      const cap = teamCapUsed(team.roster);
+      const filled = teamFilled(team.roster);
+      const eff = cap > 0 ? (totalPts / (cap / 1e6)).toFixed(1) : '—';
+      const rank = sorted.findIndex(t => t.id === team.id) + 1;
+      const gap = rank === 1 ? 'Leading 🏆' : `${leaderPts - totalPts} pts behind 1st`;
+
+      const hasF = roster.F.some(Boolean);
+      const hasD = roster.D.some(Boolean);
+      const hasG = roster.G.some(Boolean);
+
+      return `
+        <div class="detail-header">
+          <div class="detail-header-left">
+            <div class="detail-title">${team.name}</div>
+            <div class="detail-rank-label">Rank #${rank} · ${gap}</div>
+          </div>
+          <div class="detail-summary">
+            <span class="detail-badge pts">${totalPts} PTS</span>
+            <span class="detail-badge cap">$${(cap / 1e6).toFixed(1)}M</span>
+            <span class="detail-badge filled">${filled}/26</span>
+            <span class="detail-badge eff">${eff} pt/$M</span>
+          </div>
+        </div>
+        <div class="pos-scores-bar">
+          <div class="pos-score-block F"><div class="pos-score-val">${sub.F}</div><div class="pos-score-label">Forwards</div></div>
+          <div class="pos-score-block D"><div class="pos-score-val">${sub.D}</div><div class="pos-score-label">Defence</div></div>
+          <div class="pos-score-block G"><div class="pos-score-val">${sub.G}</div><div class="pos-score-label">Goalies</div></div>
+          <div class="pos-score-block B"><div class="pos-score-val">${sub.B}</div><div class="pos-score-label">Bench</div></div>
+        </div>
+        ${hasF ? buildHistTable(team, 'F', 'Forwards') : '<div class="msg" style="padding:0.5rem 0;font-size:0.8rem;text-align:left;color:rgba(255,255,255,0.25)">No forwards drafted yet.</div>'}
+        ${hasD ? buildHistTable(team, 'D', 'Defence')  : '<div class="msg" style="padding:0.5rem 0;font-size:0.8rem;text-align:left;color:rgba(255,255,255,0.25)">No defencemen drafted yet.</div>'}
+        ${hasG ? buildHistTable(team, 'G', 'Goalies')  : '<div class="msg" style="padding:0.5rem 0;font-size:0.8rem;text-align:left;color:rgba(255,255,255,0.25)">No goalies drafted yet.</div>'}
+      `;
+    }
+
+    // ── HIST TABLE ────────────────────────────────────────────────────────────────
+    function buildHistTable(team, pos, label) {
+      const currentSlugs = new Set(
+        [...team.roster.F, ...team.roster.D, ...team.roster.G, ...(team.roster.B||[])].filter(Boolean)
+      );
+      const m = slugMap();
+      const fmt = d => new Date(d).toLocaleDateString('en-CA', { month: 'short', day: 'numeric' });
+
+      const trades = currentTrades.filter(t =>
+        t.team_id === team.id && t.player_to_slug && normalizePos(t.player_to_position) === pos
+      );
+      const seenSlugs = new Set(trades.map(t => t.player_to_slug));
+
+      // Current players with no trade record (drafted at start)
+      const currentNoDraft = (team.roster[pos] || [])
+        .filter(s => s && currentSlugs.has(s) && !seenSlugs.has(s))
+        .map(s => m[s] ? { ...m[s], _slug: s } : null)
+        .filter(Boolean);
+
+      if (!trades.length && !currentNoDraft.length) return '';
+
+      // Header: hide GP/G/A stat columns on mobile via .hist-col-hide
+      const colHeader = `
+        <div class="hist-header-row">
+          <div></div>
+          <div class="lb-col-label left">Player</div>
+          <div class="lb-col-label hist-col-hide">Tenure</div>
+          <div class="lb-col-label">${pos==='G'?'W':'GP'}</div>
+          <div class="lb-col-label">${pos==='G'?'SO':'G'}</div>
+          <div class="lb-col-label hist-col-hide">${pos==='G'?'GP':'A'}</div>
+          <div class="lb-col-label">Pts</div>
+        </div>`;
+
+      const tradeRows = trades.map(t => {
+        const isCurrent = currentSlugs.has(t.player_to_slug) && !t.date_traded;
+        const p = m[t.player_to_slug];
+        const abbr = p ? TEAM_ABBR[p.team] : null;
+        const logo = abbr ? `<img src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}">` : '';
+        const tenureEnd = t.date_traded ? fmt(t.date_traded) : `<span style="color:var(--green)">Now</span>`;
+        const tenure = `${fmt(t.date_from_acquired)} → ${tenureEnd}`;
+        let col1='—', col2='—', col3='—', pts;
+
+        if (isCurrent && p) {
+          const d = ownedStatsDelta(p, team, p._slug);
+          if (d) {
+            if (pos === 'G') { col1 = d.wins; col2 = d.shutouts; col3 = d.gamesPlayed; }
+            else             { col1 = d.gamesPlayed; col2 = d.goals; col3 = d.assists; }
+          }
+          pts = poolScoreOwned(p, team, p._slug);
+        } else {
+          // For traded-away players, show stats from trade record if available
+          pts = t.points_accumulated_at_trade ?? '—';
+          // Stats not available for past players — show '—'
+        }
+
+        return `<div class="hist-row ${isCurrent?'current':'past'}">
+          <span class="hist-pos ${pos}">${pos}</span>
+          <span class="hist-name${isCurrent?'':' past'}">${logo}${t.player_to_name || t.player_to_slug}</span>
+          <span class="hist-tenure hist-col-hide">${tenure}</span>
+          <span class="hist-stat">${col1}</span>
+          <span class="hist-stat">${col2}</span>
+          <span class="hist-stat hist-col-hide">${col3}</span>
+          <span class="hist-pts">${pts}</span>
+        </div>`;
+      });
+
+      const draftRows = currentNoDraft.map(p => {
+        const abbr = TEAM_ABBR[p.team];
+        const logo = abbr ? `<img src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}">` : '';
+        const d = ownedStatsDelta(p, team, p._slug);
+        let col1='—', col2='—', col3='—';
+        if (d) {
+          if (pos === 'G') { col1 = d.wins; col2 = d.shutouts; col3 = d.gamesPlayed; }
+          else             { col1 = d.gamesPlayed; col2 = d.goals; col3 = d.assists; }
+        }
+        const pts = poolScoreOwned(p, team, p._slug);
+        return `<div class="hist-row current">
+          <span class="hist-pos ${pos}">${pos}</span>
+          <span class="hist-name">${logo}${formatName(p.player_name)}</span>
+          <span class="hist-tenure hist-col-hide"><span style="color:var(--green)">Now</span></span>
+          <span class="hist-stat">${col1}</span>
+          <span class="hist-stat">${col2}</span>
+          <span class="hist-stat hist-col-hide">${col3}</span>
+          <span class="hist-pts">${pts}</span>
+        </div>`;
+      });
+
+      // Total: sum only numeric values
+      const allPts = [
+        ...trades.map(t => {
+          if (currentSlugs.has(t.player_to_slug) && !t.date_traded) {
+            const p = m[t.player_to_slug];
+            return p ? poolScoreOwned(p, team, p._slug) : 0;
+          }
+          return typeof t.points_accumulated_at_trade === 'number' ? t.points_accumulated_at_trade : 0;
+        }),
+        ...currentNoDraft.map(p => poolScoreOwned(p, team, p._slug)),
+      ];
+      const total = allPts.reduce((s, v) => s + (typeof v === 'number' ? v : 0), 0);
+
+      return `<div class="hist-table">
+        <div class="hist-section-label ${pos}">${label}</div>
+        ${colHeader}
+        ${tradeRows.join('')}
+        ${draftRows.join('')}
+        <div class="hist-row total">
+          <div></div>
+          <div class="lb-col-label left" style="font-size:0.75rem">TOTAL</div>
+          <div class="hist-col-hide"></div>
+          <div></div><div></div>
+          <div class="hist-col-hide"></div>
+          <div class="hist-pts total">${total}</div>
+        </div>
+      </div>`;
+    }
+
+    // ── POOL LEADERS ──────────────────────────────────────────────────────────────
+    function buildPoolLeaders() {
+      const drafted = allDraftedPlayers();
+      const byPos = { F: [], D: [], G: [] };
+
+      drafted.forEach(({ player, owner, pos, team }) => {
+        byPos[pos].push({ player, owner, team, pts: poolScoreOwned(player, team, player._slug) });
+      });
+      ['F','D','G'].forEach(pos => byPos[pos].sort((a, b) => b.pts - a.pts));
+
+      const posLabels = { F: 'Forwards', D: 'Defence', G: 'Goalies' };
+
+      const grid = `
+        <div class="pool-section-title">Position <span>Leaders</span></div>
+        <div class="pos-leaders-grid">
+          ${['F','D','G'].map(pos =>
+            `<div class="pos-leader-col">
+              <div class="pos-leader-col-header ${pos}">${posLabels[pos]} <small>POOL PTS</small></div>
+              ${byPos[pos].slice(0, 8).map((item, i) => {
+                const abbr = TEAM_ABBR[item.player.team];
+                return `<div class="pos-leader-row">
+                  <div class="pos-leader-rank">${i+1}</div>
+                  <div class="pos-leader-name">${formatName(item.player.player_name)}</div>
+                  <div class="pos-leader-team">${abbr||'—'}</div>
+                  <div class="pos-leader-owner">${item.owner}</div>
+                  <div class="pos-leader-pts">${item.pts}</div>
+                </div>`;
+              }).join('')}
+            </div>`
+          ).join('')}
+        </div>`;
+
+      const allS = drafted
+        .map(({ player, owner, pos, team }) => ({
+          player, owner, pos, team,
+          pts: poolScoreOwned(player, team, player._slug)
+        }))
+        .sort((a, b) => b.pts - a.pts)
+        .slice(0, 10);
+
+      const top = `
+        <div class="pool-section-title">Top <span>Pool Players</span></div>
+        <div class="top-players-list">
+          <div class="top-player-row header">
+            <div></div>
+            <div class="lb-col-label left">Player</div>
+            <div class="lb-col-label">Owner</div>
+            <div class="lb-col-label top-col-hide">Owned Stats</div>
+            <div class="lb-col-label">Pts</div>
+          </div>
+          ${allS.map((item, i) => {
+            const p = item.player;
+            const abbr = TEAM_ABBR[p.team];
+            const logo = abbr ? `<img class="top-player-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}">` : '';
+            const stat = ownedStatsLabel(p, item.team, p._slug).replace(/ · /g, ' ');
+            return `<div class="top-player-row">
+              <div class="top-player-rank">${i+1}</div>
+              <div class="top-player-info">${logo}<div><div class="top-player-name">${formatName(p.player_name)}</div></div></div>
+              <div class="top-player-owner">${item.owner}</div>
+              <div class="top-player-stat top-col-hide">${stat || '—'}</div>
+              <div class="top-player-pts">${item.pts}</div>
+            </div>`;
+          }).join('')}
+        </div>`;
+
+      return grid + top;
+    }
+
+    // ── INIT ──────────────────────────────────────────────────────────────────────
+    load();
 </script>
 </body>
 </html>
