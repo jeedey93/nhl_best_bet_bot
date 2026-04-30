@@ -252,26 +252,15 @@
     .pw-error { color:rgba(200,16,46,0.8);font-size:0.8rem;margin-top:0.5rem;min-height:1em;letter-spacing:1px; }
 
     /* ── ALL TEAMS GRID ── */
-    .at-grid { display: grid; gap: 0.75rem; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
-    .at-col { display: flex; flex-direction: column; gap: 0.5rem; min-width: 0; }
-    .at-team-header { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 0.7rem 0.9rem 0.6rem; display: flex; align-items: center; gap: 0.6rem; }
-    .at-rank-badge { font-family: 'Bebas Neue', cursive; font-size: 0.72rem; letter-spacing: 1px; background: rgba(255,255,255,0.06); border-radius: 5px; padding: 3px 7px; flex-shrink: 0; }
-    .at-rank-badge.r1 { color: var(--gold); background: rgba(255,184,28,0.12); }
-    .at-rank-badge.r2 { color: #b8c4d0; background: rgba(168,178,190,0.1); }
-    .at-rank-badge.r3 { color: #cd7f32; background: rgba(205,127,50,0.1); }
-    .at-rank-badge.rn { color: rgba(255,255,255,0.35); }
-    .at-team-info { flex: 1; min-width: 0; }
+    .at-scroll-wrap { overflow-x: auto; overflow-y: visible; padding-bottom: 0.5rem; margin-bottom: 0.25rem; }
+    .at-grid { display: flex; gap: 0.75rem; width: max-content; }
+    .at-col { display: flex; flex-direction: column; gap: 0.5rem; width: 240px; flex-shrink: 0; }
+    .at-team-header { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 0.6rem 0.9rem; }
     .at-team-name { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 2px; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.1; }
-    .at-team-pts { font-family: 'Barlow Condensed', sans-serif; font-size: 0.62rem; font-weight: 700; color: rgba(255,255,255,0.32); letter-spacing: 0.5px; margin-top: 1px; }
-    .at-sub-badges { display: flex; gap: 3px; margin-top: 3px; }
-    .at-sub-badge { font-family: 'Barlow Condensed', sans-serif; font-size: 0.58rem; font-weight: 700; border-radius: 2px; padding: 1px 4px; }
-    .at-sub-badge.F { background: rgba(255,122,138,0.12); color: var(--pink); }
-    .at-sub-badge.D { background: rgba(125,180,255,0.12); color: var(--blue); }
-    .at-sub-badge.G { background: rgba(255,184,28,0.12); color: var(--gold); }
     /* col-header row for each position section inside at-col */
-    .at-col-header { display: grid; grid-template-columns: 26px 1fr 38px 60px; gap: 0; align-items: center; padding: 0.22rem 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.07); background: rgba(255,255,255,0.025); }
+    .at-col-header { display: grid; grid-template-columns: 26px 1fr 60px; gap: 0; align-items: center; padding: 0.22rem 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.07); background: rgba(255,255,255,0.025); }
     /* at-row: same visual as roster-row but narrower grid */
-    .at-row { display: grid; grid-template-columns: 26px 1fr 38px 60px; gap: 0; align-items: center; padding: 0 0.75rem; height: 34px; border-bottom: 1px solid rgba(255,255,255,0.04); transition: background 0.12s; }
+    .at-row { display: grid; grid-template-columns: 26px 1fr 60px; gap: 0; align-items: center; padding: 0 0.75rem; height: 34px; border-bottom: 1px solid rgba(255,255,255,0.04); transition: background 0.12s; }
     .at-row:last-child { border-bottom: none; }
     .at-row:hover { background: rgba(255,255,255,0.025); }
     .at-row.empty-row .cell-name-main { color: rgba(255,255,255,0.18); font-style: italic; font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem; letter-spacing: 0; }
@@ -1400,14 +1389,9 @@
     }
 
     const sorted = [...teamsInput].sort((a,b) => teamTotalLocal(b) - teamTotalLocal(a));
-    const rankCls = i => i===0?'r1':i===1?'r2':i===2?'r3':'rn';
 
-    function buildCol(t, rank) {
+    function buildCol(t) {
       const r = rp(t.roster);
-      const pts = teamTotalLocal(t);
-      const subF = r.F.filter(Boolean).reduce((s,p)=>s+localPoolScoreOwned(p,t,p._slug),0);
-      const subD = r.D.filter(Boolean).reduce((s,p)=>s+localPoolScoreOwned(p,t,p._slug),0);
-      const subG = r.G.filter(Boolean).reduce((s,p)=>s+localPoolScoreOwned(p,t,p._slug),0);
 
       // sort each section by pool pts desc
       const sorted_r = {
@@ -1421,16 +1405,7 @@
 
       // Team header card
       html += `<div class="at-team-header">
-        <div class="at-rank-badge ${rankCls(rank)}">#${rank+1}</div>
-        <div class="at-team-info">
-          <div class="at-team-name">${t.name}</div>
-          <div class="at-team-pts">${pts} pts</div>
-          <div class="at-sub-badges">
-            <span class="at-sub-badge F">F ${subF}</span>
-            <span class="at-sub-badge D">D ${subD}</span>
-            <span class="at-sub-badge G">G ${subG}</span>
-          </div>
-        </div>
+        <div class="at-team-name">${t.name}</div>
       </div>`;
 
       // Position sections
@@ -1444,7 +1419,6 @@
           <div class="at-col-header">
             <div class="col-hd"></div>
             <div class="col-hd left">Player</div>
-            <div class="col-hd">PTS</div>
             <div class="col-hd">Salary</div>
           </div>`;
         for(let i=0; i<slots; i++) {
@@ -1452,7 +1426,6 @@
           if(p) {
             const nhl = TEAM_ABBR[p.team] || '';
             const logoUrl = nhl ? `https://assets.nhle.com/logos/nhl/svg/${nhl}_dark.svg` : '';
-            const ppts = localPoolScoreOwned(p, t, p._slug);
             const sal = p.cap_hit ? `$${(p.cap_hit/1e6).toFixed(2)}M` : '—';
             const full = formatName(p.player_name);
             html += `<div class="at-row">
@@ -1461,14 +1434,12 @@
                 <div class="cell-name-main">${full}</div>
                 ${nhl ? `<div class="cell-name-sub">${nhl}</div>` : ''}
               </div>
-              <div class="cell-stat gold">${ppts}</div>
               <div class="cell-cap">${sal}</div>
             </div>`;
           } else {
             html += `<div class="at-row empty-row">
               <div class="cell-logo"></div>
               <div class="cell-name"><div class="cell-name-main">Empty</div></div>
-              <div class="cell-stat muted">—</div>
               <div class="cell-cap">—</div>
             </div>`;
           }
@@ -1502,8 +1473,8 @@
     }
 
     let cols = '';
-    sorted.forEach((t, i) => { cols += buildCol(t, i); });
-    return `<div class="at-grid">${cols}</div>`;
+    sorted.forEach((t) => { cols += buildCol(t); });
+    return `<div class="at-scroll-wrap"><div class="at-grid">${cols}</div></div>`;
   }
 
   /* ═══════════════════════════════════════════════════
