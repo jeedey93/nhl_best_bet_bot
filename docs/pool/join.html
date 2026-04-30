@@ -99,7 +99,8 @@
 
     /* ── Scoring legend ── */
     .scoring-legend { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 0.6rem; flex-shrink: 0; }
-    .scoring-legend-pill { display: flex; align-items: center; gap: 5px; border-radius: 5px; padding: 3px 8px; flex: 1; min-width: 0; }
+    .scoring-legend-pill { display: flex; align-items: center; gap: 5px; border-radius: 5px; padding: 3px 8px; flex: 1; min-width: 0; transition: opacity 0.2s; }
+    .scoring-legend-pill.dimmed { opacity: 0.25; }
     .scoring-legend-pill.F { background: rgba(255,122,138,0.07); border: 1px solid rgba(255,122,138,0.18); }
     .scoring-legend-pill.D { background: rgba(125,180,255,0.07); border: 1px solid rgba(125,180,255,0.18); }
     .scoring-legend-pill.G { background: rgba(255,184,28,0.07); border: 1px solid rgba(255,184,28,0.18); }
@@ -274,6 +275,7 @@
     .col-pts { width: 42px; }
     .col-cap { width: 62px; }
     .col-eff { width: 46px; }
+    body.goalie-filter .col-eff, body.goalie-filter .td-eff { display: none; }
     .col-act { width: 38px; }
 
     /* Table rows */
@@ -472,7 +474,9 @@
       .pool-controls { flex-direction: column; gap: 6px; }
       .pool-controls .pos-filter button { padding: 0.3rem 0.5rem; font-size: 0.8rem; letter-spacing: 1px; }
       .search-input { width: 100%; min-width: 0; }
-      .col-g, .col-a, .col-gp { display: none; }
+      .col-gp { display: none; }
+      .col-g, .col-a { display: none; }
+      body.goalie-filter .col-g, body.goalie-filter .col-a { display: table-cell; }
       .share-row { flex-direction: column; align-items: stretch; gap: 6px; padding: 0 1rem; }
       .btn-share-pool { width: 100%; }
       .overview-grid { grid-template-columns: 1fr 1fr; }
@@ -686,7 +690,7 @@
           <th class="col-cap" onclick="setSort('salary',this)" data-sort="salary" title="Cap Hit">
             CAP <span class="sort-arrow" id="sa-salary">↓</span>
           </th>
-          <th class="col-eff" onclick="setSort('value',this)" data-sort="value" title="Efficiency: Pts ÷ √Cap(M)">
+          <th class="col-eff" id="th-eff" onclick="setSort('value',this)" data-sort="value" title="Efficiency: Pts ÷ √Cap(M)">
             EFF <span class="sort-arrow" id="sa-value"></span>
           </th>
           <th class="col-act"></th>
@@ -1289,7 +1293,7 @@
 
   // Update sort arrows in header
   function updateSortArrows() {
-    const colMap = { salary:'sa-salary', points:'sa-points', value:'sa-value', goals:'sa-goals', assists:'sa-assists', gp:'sa-gp' };
+    const colMap = { salary:'sa-salary', points:'sa-points', value:'sa-value', goals:'sa-goals', assists:'sa-assists', gp:'sa-gp', wins:'sa-wins', shutouts:'sa-shutouts', save_pct:'sa-save_pct' };
     Object.entries(colMap).forEach(([sort, id]) => {
       const el = document.getElementById(id);
       if (!el) return;
@@ -1369,10 +1373,11 @@
       fragment.appendChild(makeTableRow(p, false, null, false, isViewOnly, currentCap));
     }
 
-    // Load more button if needed
+    // Sentinel row for auto-load on scroll
     if (available.length > VIRTUAL_PAGE) {
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td colspan="8" style="padding:0;"><button class="load-more-btn" onclick="loadMoreRows()">Load ${available.length - VIRTUAL_PAGE} more players</button></td>`;
+      tr.className = 'load-more-sentinel';
+      tr.innerHTML = `<td colspan="8" style="padding:4px 0;text-align:center;color:rgba(255,184,28,0.4);font-family:'Bebas Neue',cursive;font-size:0.78rem;letter-spacing:2px;">↓ ${available.length - VIRTUAL_PAGE} more</td>`;
       fragment.appendChild(tr);
     }
 
@@ -1400,8 +1405,8 @@
     const roster = activeRoster();
     const currentCap = [...roster.F, ...roster.D, ...roster.G].filter(Boolean).reduce((s, p) => s + (p.cap_hit || 0), 0);
 
-    // Remove existing load-more button and claimed section
-    const loadMoreRow = tbody.querySelector('tr:has(.load-more-btn)');
+    // Remove existing sentinel and claimed section
+    const loadMoreRow = tbody.querySelector('.load-more-sentinel');
     if (loadMoreRow) loadMoreRow.remove();
     const claimedDivider = tbody.querySelector('.claimed-divider');
     // remove claimed divider and everything after it
@@ -1418,7 +1423,8 @@
 
     if (available.length > _virtualStart + VIRTUAL_PAGE) {
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td colspan="8" style="padding:0;"><button class="load-more-btn" onclick="loadMoreRows()">Load ${available.length - _virtualStart - VIRTUAL_PAGE} more players</button></td>`;
+      tr.className = 'load-more-sentinel';
+      tr.innerHTML = `<td colspan="8" style="padding:4px 0;text-align:center;color:rgba(255,184,28,0.4);font-family:'Bebas Neue',cursive;font-size:0.78rem;letter-spacing:2px;">↓ ${available.length - _virtualStart - VIRTUAL_PAGE} more</td>`;
       fragment.appendChild(tr);
     }
 
@@ -1473,7 +1479,12 @@
     if (pos === 'G') {
       gVal = p.wins != null ? p.wins : '—';
       aVal = p.shutouts != null ? p.shutouts : '—';
-      ptsVal = p.save_pct != null ? p.save_pct.toFixed(3) : '—';
+      if (p.save_pct != null) {
+        const svColor = p.save_pct > 0.910 ? '#22c55e' : p.save_pct >= 0.900 ? '#ffb81c' : 'rgba(255,255,255,0.4)';
+        ptsVal = `<span style="color:${svColor};font-weight:600;">${p.save_pct.toFixed(3)}</span>`;
+      } else {
+        ptsVal = '—';
+      }
     } else {
       gVal = p.goals != null ? p.goals : '—';
       aVal = p.assists != null ? p.assists : '—';
@@ -1490,11 +1501,15 @@
       }
     }
 
+    const isGoalieRow = pos === 'G';
+    const goalieLabelG = isGoalieRow && activeFilter !== 'G' ? `<span style="font-size:0.7rem;color:rgba(255,184,28,0.55);margin-right:2px;">W</span>` : '';
+    const goalieLabelA = isGoalieRow && activeFilter !== 'G' ? `<span style="font-size:0.7rem;color:rgba(255,255,255,0.3);margin-right:2px;">SO</span>` : '';
+
     tr.innerHTML = `
       <td style="padding:0;">${playerCellContent}</td>
       <td class="td-gp">${gpVal}</td>
-      <td class="td-g">${gVal}</td>
-      <td class="td-a">${aVal}</td>
+      <td class="td-g">${goalieLabelG}${gVal}</td>
+      <td class="td-a">${goalieLabelA}${aVal}</td>
       <td class="td-pts">${ptsVal}</td>
       <td class="td-cap">${p.cap_hit ? `$${capM}M` : '—'}</td>
       <td class="td-eff">${eff}</td>
@@ -1531,6 +1546,40 @@
     const remaining = CAP_MAX - capAfter;
     const remColor = remaining < 0 ? 'red' : remaining < 5_000_000 ? 'gold' : 'green';
     const pos = normalizePos(p.position);
+    const isGoalie = pos === 'G';
+
+    let statsHtml;
+    if (isGoalie) {
+      const svPct = p.save_pct != null ? p.save_pct.toFixed(3) : '—';
+      const svColor = p.save_pct == null ? '' : p.save_pct > 0.910 ? 'green' : p.save_pct >= 0.900 ? 'gold' : '';
+      statsHtml = `
+      <div class="cap-tooltip-row">
+        <span class="cap-tooltip-label">WINS</span>
+        <span class="cap-tooltip-val gold">${p.wins ?? '—'}</span>
+      </div>
+      <div class="cap-tooltip-row">
+        <span class="cap-tooltip-label">SHUTOUTS</span>
+        <span class="cap-tooltip-val gold">${p.shutouts ?? '—'}</span>
+      </div>
+      <div class="cap-tooltip-row">
+        <span class="cap-tooltip-label">SV%</span>
+        <span class="cap-tooltip-val ${svColor}">${svPct}</span>
+      </div>
+      <div class="cap-tooltip-row">
+        <span class="cap-tooltip-label">POOL PTS</span>
+        <span class="cap-tooltip-val gold">${pts}</span>
+      </div>`;
+    } else {
+      statsHtml = `
+      <div class="cap-tooltip-row">
+        <span class="cap-tooltip-label">POOL PTS</span>
+        <span class="cap-tooltip-val gold">${pts}</span>
+      </div>
+      <div class="cap-tooltip-row">
+        <span class="cap-tooltip-label">EFFICIENCY</span>
+        <span class="cap-tooltip-val green">${eff}</span>
+      </div>`;
+    }
 
     _tooltip.innerHTML = `
       <div class="cap-tooltip-row">
@@ -1547,14 +1596,7 @@
         <span class="cap-tooltip-val ${remColor}">${remaining >= 0 ? '$' + (remaining/1_000_000).toFixed(1) + 'M left' : '$' + (Math.abs(remaining)/1_000_000).toFixed(1) + 'M over'}</span>
       </div>
       <div class="cap-tooltip-sep"></div>
-      <div class="cap-tooltip-row">
-        <span class="cap-tooltip-label">POOL PTS</span>
-        <span class="cap-tooltip-val gold">${pts}</span>
-      </div>
-      <div class="cap-tooltip-row">
-        <span class="cap-tooltip-label">EFFICIENCY</span>
-        <span class="cap-tooltip-val green">${eff}</span>
-      </div>
+      ${statsHtml}
     `;
     _tooltip.classList.add('visible');
     _tooltipVisible = true;
@@ -1915,6 +1957,7 @@
     btn.classList.add('active');
 
     const isGoalie = pos === 'G';
+    document.body.classList.toggle('goalie-filter', isGoalie);
     const thG = document.getElementById('th-g');
     const thA = document.getElementById('th-a');
     const thPts = document.getElementById('th-pts');
@@ -1946,6 +1989,11 @@
       activeSort = 'points';
     }
 
+    document.querySelectorAll('.scoring-legend-pill').forEach(pill => {
+      const pillPos = pill.classList.contains('F') ? 'F' : pill.classList.contains('D') ? 'D' : 'G';
+      pill.classList.toggle('dimmed', pos !== 'ALL' && pos !== pillPos);
+    });
+
     renderPool();
   }
 
@@ -1971,6 +2019,21 @@
   // ── Init ──────────────────────────────────────────────────────────────────
   initMobileTabs();
   loadScoringSettings().then(() => loadPlayers());
+
+  // Auto-load on scroll: observe sentinel rows in the pool-table-wrap scroller
+  const _scrollRoot = document.getElementById('pool-table-wrap');
+  const _sentinelObserver = new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+      if (entry.isIntersecting) loadMoreRows();
+    }
+  }, { root: _scrollRoot, rootMargin: '0px', threshold: 0 });
+
+  const _tbodyEl = document.getElementById('pool-tbody');
+  new MutationObserver(() => {
+    const sentinel = _tbodyEl.querySelector('.load-more-sentinel');
+    _sentinelObserver.disconnect();
+    if (sentinel) _sentinelObserver.observe(sentinel);
+  }).observe(_tbodyEl, { childList: true });
 </script>
 </body>
 </html>
