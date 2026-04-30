@@ -742,7 +742,7 @@
        <a href="" id="nav-draft" class="active">Draft</a>
        <a href="" id="nav-live-draft">Live Draft</a>
        <a href="" id="nav-standings">Standings</a>
-       <a href="" id="nav-trades">Trades</a>
+       <a href="" id="nav-trades">Roster</a>
        <a href="" id="nav-settings">Settings</a>
      </div>
   </div>
@@ -988,7 +988,7 @@
      document.getElementById('nav-draft').href       = `/pool/join?league=${_leagueCode}`;
      document.getElementById('nav-live-draft').href  = `/pool/live-draft?league=${_leagueCode}`;
      document.getElementById('nav-standings').href   = `/pool/standings?league=${_leagueCode}`;
-     document.getElementById('nav-trades').href      = `/pool/my-team?league=${_leagueCode}`;
+     document.getElementById('nav-trades').href      = `/pool/roster?league=${_leagueCode}`;
      document.getElementById('nav-settings').href    = `/pool/settings?league=${_leagueCode}`;
     try {
       const k='hp_recent_leagues'; let list=JSON.parse(localStorage.getItem(k)||'[]');
@@ -1266,7 +1266,7 @@
     try {
       const raw=localStorage.getItem('hp_roster'); if (!raw) return;
       const saved=JSON.parse(raw), id=uid();
-      teams=[{id,name:'My Team',acquisitions:{},roster:{F:Array.isArray(saved.F)?saved.F:Array(12).fill(null),D:Array.isArray(saved.D)?saved.D:Array(6).fill(null),G:Array.isArray(saved.G)?saved.G:Array(2).fill(null),B:Array.isArray(saved.B)?saved.B:Array(6).fill(null)}}];
+      teams=[{id,name:'Roster',acquisitions:{},roster:{F:Array.isArray(saved.F)?saved.F:Array(12).fill(null),D:Array.isArray(saved.D)?saved.D:Array(6).fill(null),G:Array.isArray(saved.G)?saved.G:Array(2).fill(null),B:Array.isArray(saved.B)?saved.B:Array(6).fill(null)}}];
       activeTeamId=id; savePool(); localStorage.removeItem('hp_roster');
     } catch(e) {}
   }

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My Team | Hockey Pool | Parieur Discipliné</title>
+  <title>Roster | Hockey Pool | Parieur Discipliné</title>
   <link rel="icon" type="image/png" href="../parieur_discipline_icon_1024.png">
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,900;1,400&display=swap" rel="stylesheet">
   <style>
@@ -297,7 +297,7 @@
       <a href="" id="nav-draft">Draft</a>
       <a href="" id="nav-live-draft">Live Draft</a>
       <a href="" id="nav-standings">Standings</a>
-      <a href="" id="nav-trades" class="active">My Team</a>
+      <a href="" id="nav-trades" class="active">Roster</a>
       <a href="" id="nav-settings">Settings</a>
     </div>
   </div>
@@ -427,7 +427,7 @@
   document.getElementById('nav-draft').href       = `/pool/join?league=${_leagueCode}`;
   document.getElementById('nav-live-draft').href  = `/pool/live-draft?league=${_leagueCode}`;
   document.getElementById('nav-standings').href   = `/pool/standings?league=${_leagueCode}`;
-  document.getElementById('nav-trades').href      = `/pool/my-team?league=${_leagueCode}`;
+  document.getElementById('nav-trades').href      = `/pool/roster?league=${_leagueCode}`;
   document.getElementById('nav-settings').href    = `/pool/settings?league=${_leagueCode}`;
 
   /* ═══════════════════════════════════════════════════
@@ -934,7 +934,7 @@
     document.getElementById('bench-search').value='';
     populateCompareOut(p,fromSlot);
     resetCompareIn();
-    const benchPlayers=(team.roster.B||[]).map((slug,idx)=>slug?{slug,index:idx,player:getPlayer(slug)}:null).filter(Boolean);
+    const benchPlayers=(team.roster.B||[]).map((slug,idx)=>slug?{slug,idx,player:getPlayer(slug)}:null).filter(Boolean);
     _allBenchOptions=benchPlayers.filter(item=>normalizePos(item.player.position)===fromSlot.group);
     renderBenchList(_allBenchOptions);
     updateTradePreview();
