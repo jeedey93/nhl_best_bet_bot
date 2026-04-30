@@ -395,7 +395,7 @@
   const SUPABASE_URL = 'https://fifurqlitkywtmhgtzeu.supabase.co';
   const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZpZnVycWxpdGt5d3RtaGd0emV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3MDIyMjQsImV4cCI6MjA5MjI3ODIyNH0.KPVPj1qwbSJJMyLR_-AhDcRs0vi2sUU6qbFQ-kH53C0';
   const CAP_MAX = 95_500_000;
-  const PLAYER_CACHE_KEY = 'hp_players_v4';
+  const PLAYER_CACHE_KEY = 'hp_players_v5';
   const UNDO_WINDOW_SECONDS = 15;
 
   const TEAM_ABBR = {
@@ -573,7 +573,19 @@
       const cached=sessionStorage.getItem(PLAYER_CACHE_KEY);
       const cacheTime=sessionStorage.getItem(PLAYER_CACHE_KEY+'_time');
       const cacheAgeHours=cacheTime?Math.floor((Date.now()-parseInt(cacheTime))/3600000):-1;
-      if(cached&&cacheAgeHours<24){ try{ allPlayers=JSON.parse(cached); if(!Array.isArray(allPlayers)||!allPlayers.length)throw new Error('empty'); }catch(_){ sessionStorage.removeItem(PLAYER_CACHE_KEY); sessionStorage.removeItem(PLAYER_CACHE_KEY+'_time'); allPlayers=[]; } }
+      if(cached&&cacheAgeHours<24){
+        try{
+          allPlayers=JSON.parse(cached);
+          if(!Array.isArray(allPlayers)||!allPlayers.length) throw new Error('empty');
+          // Invalidate old cached payloads created before save_pct backfill.
+          const hasAnySavePct = allPlayers.some(p => p && p.save_pct !== null && p.save_pct !== undefined);
+          if(!hasAnySavePct) throw new Error('stale-save-pct-cache');
+        }catch(_){
+          sessionStorage.removeItem(PLAYER_CACHE_KEY);
+          sessionStorage.removeItem(PLAYER_CACHE_KEY+'_time');
+          allPlayers=[];
+        }
+      }
       else{ sessionStorage.removeItem(PLAYER_CACHE_KEY); sessionStorage.removeItem(PLAYER_CACHE_KEY+'_time'); allPlayers=[]; }
       if(!allPlayers.length){
         const res=await fetch(`${SUPABASE_URL}/rest/v1/nhl_players?select=puckpedia_slug,player_name,position,cap_hit,team,goals,assists,points,wins,shutouts,games_played,save_pct&order=cap_hit.desc&limit=1000`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
