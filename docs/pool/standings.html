@@ -88,6 +88,22 @@
     .pos-score-val { font-family: 'Bebas Neue', cursive; font-size: 1.6rem; letter-spacing: 2px; line-height: 1; }
     .pos-score-block.F .pos-score-val { color: var(--pink); } .pos-score-block.D .pos-score-val { color: var(--blue); } .pos-score-block.G .pos-score-val { color: var(--gold); } .pos-score-block.B .pos-score-val { color: var(--silver); }
     .pos-score-label { font-family: 'Barlow Condensed', sans-serif; font-size: 0.68rem; font-weight: 700; color: var(--silver); letter-spacing: 2px; text-transform: uppercase; margin-top: 2px; }
+    .insights { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.6rem; margin-bottom: 1.25rem; }
+    @media (max-width: 600px) { .insights { grid-template-columns: 1fr; } }
+    .insight-card { background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 10px; padding: 0.7rem 0.9rem; display: flex; flex-direction: column; gap: 0.2rem; }
+    .insight-card.gold  { border-color: rgba(255,184,28,0.25);  background: rgba(255,184,28,0.04); }
+    .insight-card.green { border-color: rgba(34,197,94,0.25);   background: rgba(34,197,94,0.04); }
+    .insight-card.red   { border-color: rgba(200,16,46,0.25);   background: rgba(200,16,46,0.04); }
+    .insight-card.blue  { border-color: rgba(125,180,255,0.25); background: rgba(125,180,255,0.04); }
+    .insight-label { font-family: 'Barlow Condensed', sans-serif; font-size: 0.68rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.35); }
+    .insight-icon { font-size: 1rem; line-height: 1; margin-bottom: 0.1rem; }
+    .insight-main { font-family: 'Bebas Neue', cursive; font-size: 1.05rem; letter-spacing: 1.5px; color: white; line-height: 1.2; }
+    .insight-main.gold  { color: var(--gold); }
+    .insight-main.green { color: var(--green); }
+    .insight-main.red   { color: #ff5050; }
+    .insight-main.blue  { color: var(--blue); }
+    .insight-sub { font-family: 'Barlow Condensed', sans-serif; font-size: 0.78rem; font-weight: 600; color: var(--silver); }
+
     .pool-section-title { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 3px; color: var(--silver); margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem; }
     .pool-section-title span { color: white; }
     .pos-leaders-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin-bottom: 1.75rem; }
@@ -361,7 +377,7 @@
         <div class="view-tab ${activeView==='team'?'active':''}" onclick="setView('team')">Team Detail</div>
         <div class="view-tab ${activeView==='pool'?'active':''}" onclick="setView('pool')">Pool Leaders</div>
       </div>
-      <div id="view-standings" style="display:${activeView==='standings'?'block':'none'}">${buildLeaderboard(sorted,leaderPts)}</div>
+      <div id="view-standings" style="display:${activeView==='standings'?'block':'none'}">${buildInsights(sorted,leaderPts)}${buildLeaderboard(sorted,leaderPts)}</div>
       <div id="view-team"      style="display:${activeView==='team'?'block':'none'}">
         <div class="team-tabs">${sorted.map(t=>`<div class="team-tab ${t.id===activeTeamId?'active':''}" onclick="selectTeam('${t.id}')">${t.name}<span class="team-tab-pts">${teamTotalPts(t)}pts</span></div>`).join('')}</div>
         <div class="team-detail visible">${activeTeam?buildDetail(activeTeam,sorted,leaderPts):''}</div>
@@ -405,6 +421,70 @@
        btn.disabled=false;
      }
    }
+
+  function buildInsights(sorted,leaderPts){
+    const m=slugMap();
+    const card=(color,icon,label,main,sub)=>
+      `<div class="insight-card ${color}"><div class="insight-icon">${icon}</div><div class="insight-label">${label}</div><div class="insight-main ${color}">${main}</div><div class="insight-sub">${sub}</div></div>`;
+
+    const cards=[];
+
+    // 1. Closest race
+    if(sorted.length>=2){
+      const gap=leaderPts-teamTotalPts(sorted[1]);
+      if(gap<=15){
+        cards.push(card('gold','🏆','Closest Race',
+          `${sorted[0].name} vs ${sorted[1].name}`,
+          `Only ${gap} pts separate 1st and 2nd`));
+      } else {
+        cards.push(card('gold','👑','Leading',
+          `${sorted[0].name}`,
+          `${gap} pts ahead of ${sorted[1].name}`));
+      }
+    }
+
+    // 2. Best efficiency (pts per $M cap)
+    const effTeams=sorted.map(t=>{
+      const cap=teamCapUsed(t.roster);
+      const pts=teamTotalPts(t);
+      return{t,eff:cap>0?pts/(cap/1e6):0};
+    }).filter(x=>x.eff>0).sort((a,b)=>b.eff-a.eff);
+    if(effTeams.length){
+      const best=effTeams[0];
+      cards.push(card('green','⚡','Best Efficiency',
+        `${best.t.name}`,
+        `${best.eff.toFixed(2)} pts per $M — best in pool`));
+    }
+
+    // 3. Best steal: player with highest pts-to-cap ratio
+    const allP=[];
+    teams.forEach(t=>{
+      const rp=rosterPlayers(t.roster);
+      [...rp.F,...rp.D,...rp.G].filter(Boolean).forEach(p=>{
+        const pts=poolScoreOwned(p,t,p._slug);
+        const capM=(p.cap_hit||0)/1e6;
+        if(pts>0&&capM>0) allP.push({p,t,pts,capM,ratio:pts/capM});
+      });
+    });
+    allP.sort((a,b)=>b.ratio-a.ratio);
+    if(allP.length){
+      const steal=allP[0];
+      cards.push(card('blue','🚀','Best Steal',
+        `${formatName(steal.p.player_name)}`,
+        `${steal.pts} pts · $${steal.capM.toFixed(1)}M · owned by ${steal.t.name}`));
+    }
+
+    // 4. Worst contract: player with lowest pts-to-cap ratio (min $2M cap, min 1 pt)
+    const expensive=allP.filter(x=>x.capM>=2&&x.pts>=1).sort((a,b)=>a.ratio-b.ratio);
+    if(expensive.length){
+      const bust=expensive[0];
+      cards.push(card('red','💸','Worst Contract',
+        `${formatName(bust.p.player_name)}`,
+        `${bust.pts} pts · $${bust.capM.toFixed(1)}M · owned by ${bust.t.name}`));
+    }
+
+    if(!cards.length) return '';
+    return`<div class="insights">${cards.join('')}</div>`;}
 
   function buildLeaderboard(sorted,leaderPts){
     const rc=i=>i===0?'gold':i===1?'silver':i===2?'bronze':'';
