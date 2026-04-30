@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Trade History | Hockey Pool | Parieur Discipliné</title>
+  <title>My Team | Hockey Pool | Parieur Discipliné</title>
   <link rel="icon" type="image/png" href="../parieur_discipline_icon_1024.png">
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,900;1,400&display=swap" rel="stylesheet">
   <style>
@@ -34,50 +34,50 @@
     .page-wrap { max-width: 1000px; margin: 0 auto; padding: 1rem 1rem 1.5rem; }
     .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
 
-    header { text-align: center; margin-bottom: 1rem; }
+    header { text-align: center; margin-bottom: 0.75rem; }
     header h1 { font-family: 'Bebas Neue', cursive; font-size: clamp(1.5rem, 3vw, 2.2rem); letter-spacing: 4px; line-height: 1; text-shadow: 0 0 30px rgba(200,16,46,0.4), 0 2px 8px rgba(0,0,0,0.8); }
     header h1 span { color: var(--gold); }
 
     /* ── LAST TRADE BANNER ── */
-    .last-trade-banner { display: flex; align-items: center; gap: 0.75rem; background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.25); border-radius: 10px; padding: 0.65rem 1rem; margin-bottom: 0.8rem; animation: fadeIn 0.4s ease; }
+    .last-trade-banner { display: flex; align-items: center; gap: 0.75rem; background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.25); border-radius: 10px; padding: 0.55rem 1rem; margin-bottom: 0.65rem; animation: fadeIn 0.4s ease; }
     .last-trade-banner.hidden { display: none; }
-    .last-trade-banner-icon { font-size: 1.1rem; }
-    .last-trade-banner-text { flex: 1; font-size: 0.85rem; color: rgba(255,255,255,0.8); letter-spacing: 0.5px; }
-    .last-trade-banner-text strong { color: var(--green); font-family: 'Bebas Neue', cursive; letter-spacing: 1px; font-size: 0.95rem; }
+    .last-trade-banner-icon { font-size: 1rem; }
+    .last-trade-banner-text { flex: 1; font-size: 0.82rem; color: rgba(255,255,255,0.8); letter-spacing: 0.5px; }
+    .last-trade-banner-text strong { color: var(--green); font-family: 'Bebas Neue', cursive; letter-spacing: 1px; font-size: 0.92rem; }
     .last-trade-banner-close { background: none; border: none; color: rgba(255,255,255,0.4); cursor: pointer; font-size: 1rem; padding: 0 0.25rem; transition: color 0.15s; }
     .last-trade-banner-close:hover { color: white; }
     @keyframes fadeIn { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
 
-    /* ── SUMMARY ── */
-    .summary-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.55rem; margin-bottom: 0.8rem; }
-    .summary-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 0.5rem 0.65rem; min-width: 0; }
-    .summary-card.warn { border-color: rgba(245,158,11,0.35); background: rgba(245,158,11,0.06); }
-    .summary-card.good { border-color: rgba(34,197,94,0.25); background: rgba(34,197,94,0.06); }
-    .summary-label { font-family: 'Barlow Condensed', sans-serif; font-size: 0.62rem; font-weight: 700; color: rgba(255,255,255,0.42); letter-spacing: 1.4px; text-transform: uppercase; }
-    .summary-value { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 1.3px; color: white; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    /* ── SLIM SUMMARY BAR ── */
+    .summary-bar { display: flex; align-items: center; gap: 0; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; overflow: hidden; margin-bottom: 0.65rem; }
+    .summary-bar-item { flex: 1; padding: 0.45rem 0.75rem; border-right: 1px solid rgba(255,255,255,0.07); min-width: 0; }
+    .summary-bar-item:last-child { border-right: none; }
+    .summary-bar-item.warn { background: rgba(245,158,11,0.06); }
+    .summary-bar-item.good { background: rgba(34,197,94,0.04); }
+    .summary-label { font-family: 'Barlow Condensed', sans-serif; font-size: 0.6rem; font-weight: 700; color: rgba(255,255,255,0.38); letter-spacing: 1.4px; text-transform: uppercase; }
+    .summary-value { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 1.2px; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .summary-value.gold { color: var(--gold); }
     .summary-value.green { color: var(--green); }
-    .summary-value.red { color: var(--red); }
-    .summary-sub { font-family: 'Barlow Condensed', sans-serif; font-size: 0.68rem; color: rgba(255,255,255,0.5); margin-top: 2px; letter-spacing: 0.8px; }
-    /* Trades remaining pip bar */
-    .trades-pip-row { display: flex; gap: 3px; margin-top: 4px; }
-    .trades-pip { width: 10px; height: 5px; border-radius: 3px; background: rgba(255,255,255,0.12); transition: background 0.2s; }
+    .summary-value.red { color: #f87171; }
+    /* Pip bar */
+    .trades-pip-row { display: flex; gap: 2px; margin-top: 3px; }
+    .trades-pip { width: 8px; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.1); }
     .trades-pip.used { background: var(--gold); }
     .trades-pip.last { background: var(--red); }
 
     /* ── WARNINGS ── */
-    .warning-box { margin-bottom: 0.8rem; background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.24); border-radius: 8px; padding: 0.55rem 0.7rem; }
-    .warning-box-title { font-family: 'Bebas Neue', cursive; font-size: 0.82rem; letter-spacing: 2px; color: #f59e0b; margin-bottom: 0.2rem; }
-    .warning-list { list-style: none; display: grid; gap: 0.15rem; color: rgba(255,255,255,0.72); font-size: 0.8rem; }
+    .warning-box { margin-bottom: 0.65rem; background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.24); border-radius: 8px; padding: 0.5rem 0.7rem; }
+    .warning-box-title { font-family: 'Bebas Neue', cursive; font-size: 0.8rem; letter-spacing: 2px; color: #f59e0b; margin-bottom: 0.15rem; }
+    .warning-list { list-style: none; display: grid; gap: 0.12rem; color: rgba(255,255,255,0.72); font-size: 0.78rem; }
 
     /* ── TEAM SELECTOR ── */
-    .team-selector { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 1rem; justify-content: center; }
+    .team-selector { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 0.75rem; justify-content: center; }
     .team-btn { font-family: 'Bebas Neue', cursive; font-size: 0.84rem; letter-spacing: 1.5px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); color: var(--silver); border-radius: 7px; padding: 4px 12px; cursor: pointer; transition: background 0.15s, border-color 0.15s, color 0.15s; }
     .team-btn:hover { background: rgba(255,255,255,0.08); color: white; }
     .team-btn.active { background: rgba(255,184,28,0.1); border-color: rgba(255,184,28,0.4); color: var(--gold); }
 
     /* ── SECTION HEADERS ── */
-    .section-title { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 2px; color: white; margin: 1rem 0 0.55rem; display: flex; align-items: center; gap: 0.4rem; }
+    .section-title { font-family: 'Bebas Neue', cursive; font-size: 0.95rem; letter-spacing: 2px; color: white; margin: 0.85rem 0 0.35rem; display: flex; align-items: center; gap: 0.4rem; }
     .section-title span { color: var(--gold); }
     .section-title-actions { margin-left: auto; display: flex; gap: 6px; align-items: center; }
     .filter-btn { font-family: 'Bebas Neue', cursive; font-size: 0.72rem; letter-spacing: 1px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); color: var(--silver); border-radius: 5px; padding: 3px 8px; cursor: pointer; transition: background 0.15s; }
@@ -87,87 +87,81 @@
     .filter-input:focus { border-color: rgba(255,184,28,0.4); }
     .filter-input::placeholder { color: rgba(255,255,255,0.3); }
 
+    /* ── COMPACT ROSTER TABLE ── */
+    .roster-table { background: rgba(255,255,255,0.025); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; margin-bottom: 0.65rem; }
+
+    .roster-group-header { display: flex; align-items: center; gap: 0.5rem; padding: 0.32rem 0.75rem; background: rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .roster-group-label { font-family: 'Bebas Neue', cursive; font-size: 0.72rem; letter-spacing: 1.8px; }
+    .roster-group-label.F { color: var(--pink); }
+    .roster-group-label.D { color: var(--blue); }
+    .roster-group-label.G { color: var(--gold); }
+    .roster-group-label.B { color: var(--silver); opacity: 0.7; }
+    .roster-group-count { font-family: 'Barlow Condensed', sans-serif; font-size: 0.68rem; color: rgba(255,255,255,0.3); }
+
+    /* Column headers */
+    .roster-col-header { display: grid; grid-template-columns: 26px 1fr 44px 60px 44px 60px 72px; gap: 0; align-items: center; padding: 0.22rem 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.07); }
+    .roster-col-header.bench-cols { grid-template-columns: 26px 1fr 60px 60px; }
+    .col-hd { font-family: 'Barlow Condensed', sans-serif; font-size: 0.6rem; font-weight: 700; color: rgba(255,255,255,0.28); letter-spacing: 1.5px; text-transform: uppercase; text-align: center; }
+    .col-hd.left { text-align: left; }
+
+    /* Player row */
+    .roster-row { display: grid; grid-template-columns: 26px 1fr 44px 60px 44px 60px 72px; gap: 0; align-items: center; padding: 0 0.75rem; height: 34px; border-bottom: 1px solid rgba(255,255,255,0.04); transition: background 0.12s; }
+    .roster-row:last-child { border-bottom: none; }
+    .roster-row:hover { background: rgba(255,255,255,0.025); }
+    .roster-row.bench-row { grid-template-columns: 26px 1fr 60px 60px; background: rgba(0,0,0,0.12); }
+    .roster-row.bench-row:hover { background: rgba(255,255,255,0.015); }
+
+    /* Logo cell */
+    .cell-logo { display: flex; align-items: center; justify-content: center; }
+    .cell-logo img { width: 20px; height: 20px; object-fit: contain; }
+
+    /* Name cell */
+    .cell-name { display: flex; flex-direction: column; justify-content: center; min-width: 0; padding: 0 0.4rem 0 0.3rem; }
+    .cell-name-main { font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 0.8px; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.1; }
+    .cell-name-sub { font-family: 'Barlow Condensed', sans-serif; font-size: 0.62rem; color: rgba(255,255,255,0.36); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.1; }
+    .slot-badge { display: inline-block; font-family: 'Bebas Neue', cursive; font-size: 0.6rem; letter-spacing: 0.8px; color: rgba(255,255,255,0.35); background: rgba(255,255,255,0.07); border-radius: 3px; padding: 0px 4px; margin-right: 3px; vertical-align: middle; line-height: 1.4; }
+
+    /* Stat cells */
+    .cell-stat { text-align: center; font-family: 'Bebas Neue', cursive; font-size: 0.88rem; letter-spacing: 0.8px; color: white; }
+    .cell-stat.gold { color: var(--gold); }
+    .cell-stat.muted { color: rgba(255,255,255,0.45); font-size: 0.78rem; }
+    .cell-stat.approx { color: rgba(245,158,11,0.6); }
+    .cell-cap { text-align: center; font-family: 'Barlow Condensed', sans-serif; font-size: 0.75rem; font-weight: 600; color: rgba(255,255,255,0.5); }
+
+    /* Action cell */
+    .cell-action { display: flex; align-items: center; justify-content: flex-end; }
+    .btn-swap { font-family: 'Bebas Neue', cursive; font-size: 0.7rem; letter-spacing: 1px; background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.3); color: var(--green); border-radius: 5px; padding: 2px 8px; cursor: pointer; transition: background 0.15s, border-color 0.15s; white-space: nowrap; height: 22px; line-height: 18px; }
+    .btn-swap:hover:not(:disabled) { background: rgba(34,197,94,0.18); border-color: rgba(34,197,94,0.55); }
+    .btn-swap:disabled { opacity: 0.38; cursor: not-allowed; color: var(--silver); background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.1); }
+
     /* ── TRADE HISTORY TABLE ── */
-    .trades-list { background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; margin-bottom: 1rem; }
-
-    .trade-header-row { display: grid; grid-template-columns: 1fr 100px 1fr 90px; gap: 0.7rem; padding: 0.45rem 0.75rem; background: rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.1); }
-    .trade-header-cell { font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem; font-weight: 700; color: rgba(255,255,255,0.3); letter-spacing: 2px; text-transform: uppercase; }
+    .trades-list { background: rgba(255,255,255,0.025); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; margin-bottom: 0.65rem; }
+    .trade-header-row { display: grid; grid-template-columns: 1fr 90px 1fr 80px; gap: 0.5rem; padding: 0.3rem 0.75rem; background: rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .trade-header-cell { font-family: 'Barlow Condensed', sans-serif; font-size: 0.6rem; font-weight: 700; color: rgba(255,255,255,0.28); letter-spacing: 1.8px; text-transform: uppercase; }
     .trade-header-cell.center { text-align: center; }
-
-    .trade-row { display: grid; grid-template-columns: 1fr 100px 1fr 90px; gap: 0.7rem; padding: 0.65rem 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.05); align-items: center; transition: background 0.15s; }
+    .trade-row { display: grid; grid-template-columns: 1fr 90px 1fr 80px; gap: 0.5rem; padding: 0 0.75rem; height: 38px; border-bottom: 1px solid rgba(255,255,255,0.04); align-items: center; transition: background 0.12s; }
     .trade-row:last-child { border-bottom: none; }
     .trade-row:hover { background: rgba(255,255,255,0.02); }
+    .trade-header-row.league { grid-template-columns: 110px 1fr 1fr 90px; }
+    .trade-row.league { grid-template-columns: 110px 1fr 1fr 90px; height: 38px; }
 
-    /* League feed has extra team column */
-    .trade-header-row.league { grid-template-columns: 110px 1fr 1fr 100px; }
-    .trade-row.league { grid-template-columns: 110px 1fr 1fr 100px; }
-
-    .player-info { display: flex; align-items: center; gap: 0.5rem; min-width: 0; }
-    .player-logo { width: 24px; height: 24px; object-fit: contain; flex-shrink: 0; }
+    .player-info { display: flex; align-items: center; gap: 0.4rem; min-width: 0; }
+    .player-logo { width: 20px; height: 20px; object-fit: contain; flex-shrink: 0; }
     .player-details { flex: 1; min-width: 0; }
-    .player-name { font-family: 'Bebas Neue', cursive; font-size: 0.95rem; letter-spacing: 1px; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .player-meta { font-family: 'Barlow Condensed', sans-serif; font-size: 0.75rem; color: rgba(255,255,255,0.5); margin-top: 1px; }
+    .player-name { font-family: 'Bebas Neue', cursive; font-size: 0.88rem; letter-spacing: 0.8px; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.1; }
+    .player-meta { font-family: 'Barlow Condensed', sans-serif; font-size: 0.65rem; color: rgba(255,255,255,0.4); line-height: 1.1; }
 
-    /* Date now shown inline as a subtle tag */
-    .date-tag { display: inline-flex; align-items: center; gap: 4px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); border-radius: 5px; padding: 0.35rem 0.55rem; }
-    .date-tag-label { font-family: 'Barlow Condensed', sans-serif; font-size: 0.62rem; font-weight: 700; color: rgba(255,255,255,0.38); letter-spacing: 1px; text-transform: uppercase; margin-right: 2px; }
-    .date-tag-value { font-family: 'Bebas Neue', cursive; font-size: 0.82rem; letter-spacing: 0.5px; color: var(--silver); }
-
-    /* Pts at trade - now shows clearly it's "at time of trade" */
-    .pts-tag { display: inline-flex; flex-direction: column; align-items: center; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 0.3rem 0.5rem; }
-    .pts-tag-label { font-family: 'Barlow Condensed', sans-serif; font-size: 0.58rem; font-weight: 700; color: rgba(255,255,255,0.35); letter-spacing: 0.8px; text-transform: uppercase; }
-    .pts-tag-value { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 1px; color: var(--silver); }
-
-    /* ── ACTIVE ROSTER HOLD CARDS ── */
-    .current-holds { background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 12px; padding: 0.75rem; margin-bottom: 1rem; }
-    .hold-pos-group { margin-bottom: 0.55rem; }
-    .hold-pos-group:last-child { margin-bottom: 0; }
-    .hold-pos-title { font-family: 'Bebas Neue', cursive; font-size: 0.75rem; letter-spacing: 1.5px; margin: 0 0 0.28rem; }
-    .hold-pos-title.F { color: var(--pink); }
-    .hold-pos-title.D { color: var(--blue); }
-    .hold-pos-title.G { color: var(--gold); }
-
-    .hold-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 0.6rem 0.7rem; margin-bottom: 0.45rem; display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 0.6rem; }
-    .hold-card:last-child { margin-bottom: 0; }
-    .hold-player { display: flex; align-items: center; gap: 0.5rem; min-width: 0; }
-    .hold-info { flex: 1; min-width: 0; }
-    .hold-name { font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 1px; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .hold-since { font-family: 'Barlow Condensed', sans-serif; font-size: 0.68rem; color: rgba(255,255,255,0.5); margin-top: 1px; }
-    .hold-since.approx { color: rgba(245,158,11,0.7); }
-    .hold-slot { font-family: 'Bebas Neue', cursive; font-size: 0.68rem; letter-spacing: 1.2px; color: var(--silver); background: rgba(255,255,255,0.07); border-radius: 4px; padding: 2px 6px; margin-right: 0.3rem; flex-shrink: 0; }
-
-    .hold-stats { display: flex; gap: 0.55rem; }
-    .hold-stat { background: rgba(255,255,255,0.05); border-radius: 5px; padding: 0.24rem 0.5rem; text-align: center; }
-    .hold-stat-label { font-family: 'Barlow Condensed', sans-serif; font-size: 0.65rem; font-weight: 700; color: rgba(255,255,255,0.4); letter-spacing: 0.5px; white-space: nowrap; }
-    .hold-stat-value { font-family: 'Bebas Neue', cursive; font-size: 0.82rem; letter-spacing: 1px; color: var(--gold); margin-top: 1px; }
-    .hold-stat-value.approx { color: rgba(245,158,11,0.6); }
-
-    .hold-actions { display: flex; gap: 6px; align-items: center; flex-shrink: 0; }
-
-    /* Trade button now shows remaining count */
-    .btn-trade-wrap { display: flex; flex-direction: column; align-items: center; gap: 2px; }
-    .btn-trade-remaining { font-family: 'Barlow Condensed', sans-serif; font-size: 0.6rem; color: rgba(255,255,255,0.35); letter-spacing: 0.5px; }
-    .btn-trade-remaining.low { color: rgba(245,158,11,0.7); }
-
-    .btn-small { font-family: 'Bebas Neue', cursive; font-size: 0.74rem; letter-spacing: 1px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: var(--silver); border-radius: 5px; padding: 3px 8px; cursor: pointer; transition: background 0.15s, border-color 0.15s; }
-    .btn-small:hover { background: rgba(255,255,255,0.1); color: white; border-color: rgba(255,255,255,0.2); }
-    .btn-small:disabled { opacity: 0.42; cursor: not-allowed; }
-    .btn-trade { background: rgba(34,197,94,0.08); border-color: rgba(34,197,94,0.3); color: var(--green); }
-    .btn-trade:hover:not(:disabled) { background: rgba(34,197,94,0.15); border-color: rgba(34,197,94,0.5); }
-
-    /* Undo button */
-    .btn-undo { background: rgba(255,184,28,0.07); border-color: rgba(255,184,28,0.25); color: var(--gold); }
-    .btn-undo:hover { background: rgba(255,184,28,0.15); border-color: rgba(255,184,28,0.45); }
-
-    /* ── BENCH CARDS ── */
-    .bench-hold-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 0.6rem 0.7rem; margin-bottom: 0.45rem; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 0.6rem; }
-    .bench-hold-card:last-child { margin-bottom: 0; }
+    .date-tag { display: inline-flex; align-items: center; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.07); border-radius: 4px; padding: 0.2rem 0.45rem; }
+    .date-tag-value { font-family: 'Bebas Neue', cursive; font-size: 0.78rem; letter-spacing: 0.5px; color: var(--silver); }
+    .pts-tag { display: inline-flex; flex-direction: column; align-items: center; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); border-radius: 5px; padding: 0.15rem 0.45rem; }
+    .pts-tag-label { font-family: 'Barlow Condensed', sans-serif; font-size: 0.55rem; font-weight: 700; color: rgba(255,255,255,0.3); letter-spacing: 0.8px; text-transform: uppercase; }
+    .pts-tag-value { font-family: 'Bebas Neue', cursive; font-size: 0.88rem; letter-spacing: 1px; color: var(--silver); }
 
     /* ── EMPTY STATES ── */
-    .empty-state { text-align: center; padding: 2.5rem 1rem; }
-    .empty-state-icon { font-size: 2.2rem; opacity: 0.3; margin-bottom: 0.5rem; }
-    .empty-state-msg { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 2px; color: var(--silver); opacity: 0.6; }
-    .empty-state-sub { font-size: 0.8rem; color: rgba(255,255,255,0.3); margin-top: 0.3rem; }
+    .empty-state { text-align: center; padding: 2rem 1rem; }
+    .empty-state-icon { font-size: 2rem; opacity: 0.3; margin-bottom: 0.4rem; }
+    .empty-state-msg { font-family: 'Bebas Neue', cursive; font-size: 0.95rem; letter-spacing: 2px; color: var(--silver); opacity: 0.6; }
+    .empty-state-sub { font-size: 0.75rem; color: rgba(255,255,255,0.28); margin-top: 0.25rem; }
     .empty-msg { text-align: center; color: var(--silver); padding: 2rem 1rem; font-size: 0.95rem; letter-spacing: 1px; }
 
     /* ── MODAL ── */
@@ -176,8 +170,6 @@
     .modal-box { background: #0d1b2e; border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 1.5rem; width: 100%; max-width: 540px; max-height: 92vh; overflow-y: auto; }
     .modal-title { font-family: 'Bebas Neue', cursive; font-size: 1.4rem; letter-spacing: 3px; color: white; margin-bottom: 1.25rem; }
     .modal-title span { color: var(--gold); }
-
-    /* Player comparison in modal */
     .compare-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 0.5rem; align-items: center; margin-bottom: 1.25rem; }
     .compare-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 0.7rem; }
     .compare-card.outgoing { border-color: rgba(200,16,46,0.25); background: rgba(200,16,46,0.06); }
@@ -194,18 +186,14 @@
     .compare-stat-value { font-family: 'Bebas Neue', cursive; font-size: 0.85rem; color: var(--gold); margin-top: 1px; }
     .compare-stat-value.better { color: var(--green); }
     .compare-stat-value.worse { color: var(--red); }
-
     .form-group { margin-bottom: 1rem; }
     .form-label { display: block; font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 2px; color: var(--silver); margin-bottom: 0.45rem; }
     .form-input { width: 100%; font-family: 'Barlow Condensed', sans-serif; font-size: 0.95rem; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15); color: white; border-radius: 6px; padding: 0.5rem 0.75rem; outline: none; transition: border-color 0.15s; }
     .form-input:focus { border-color: rgba(255,184,28,0.5); }
     .form-input::placeholder { color: rgba(255,255,255,0.3); }
-
-    /* Bench search */
     .bench-search-wrap { position: relative; margin-bottom: 0.5rem; }
     .bench-search-wrap .form-input { padding-left: 2rem; }
     .bench-search-icon { position: absolute; left: 0.6rem; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.3); font-size: 0.85rem; pointer-events: none; }
-
     .player-selector { display: grid; gap: 6px; max-height: 220px; overflow-y: auto; margin-bottom: 0.75rem; }
     .player-option { display: flex; align-items: center; gap: 0.75rem; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 0.55rem 0.7rem; cursor: pointer; transition: background 0.15s, border-color 0.15s; }
     .player-option:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.2); }
@@ -213,11 +201,7 @@
     .player-option-name { flex: 1; font-family: 'Bebas Neue', cursive; font-size: 0.88rem; letter-spacing: 1px; color: white; }
     .player-option-slot { font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem; font-weight: 700; background: rgba(255,255,255,0.1); border-radius: 3px; padding: 2px 5px; color: var(--silver); flex-shrink: 0; }
     .player-option-meta { font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem; color: rgba(255,255,255,0.45); flex-shrink: 0; }
-
-    /* No-results for bench search */
     .bench-no-results { text-align: center; padding: 1rem; color: rgba(255,255,255,0.35); font-size: 0.82rem; letter-spacing: 0.5px; }
-
-    /* Cap impact preview */
     .trade-preview { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 0.7rem; }
     .trade-preview-title { font-family: 'Bebas Neue', cursive; font-size: 0.78rem; letter-spacing: 2px; color: rgba(255,255,255,0.5); margin-bottom: 0.4rem; }
     .trade-preview-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.4rem; }
@@ -227,7 +211,6 @@
     .trade-preview-note { margin-top: 0.4rem; font-size: 0.76rem; color: rgba(255,255,255,0.6); }
     .trade-preview-note.warn { color: #f59e0b; }
     .trade-preview-note.good { color: var(--green); }
-
     .modal-btns { display: flex; gap: 10px; justify-content: flex-end; margin-top: 1.25rem; }
     .modal-btn { font-family: 'Bebas Neue', cursive; font-size: 0.95rem; letter-spacing: 2px; border-radius: 6px; padding: 0.55rem 1.2rem; cursor: pointer; border: 1px solid; transition: background 0.15s; }
     .modal-btn-confirm { background: rgba(255,184,28,0.12); border-color: rgba(255,184,28,0.35); color: var(--gold); }
@@ -235,8 +218,6 @@
     .modal-btn-confirm:disabled { opacity: 0.4; cursor: default; }
     .modal-btn-cancel { background: none; border-color: rgba(255,255,255,0.12); color: var(--silver); }
     .modal-btn-cancel:hover { background: rgba(255,255,255,0.06); }
-
-    /* Undo modal */
     .undo-modal-box { background: #0d1b2e; border: 1px solid rgba(255,184,28,0.25); border-radius: 12px; padding: 1.5rem; width: 100%; max-width: 420px; }
     .undo-countdown { font-family: 'Bebas Neue', cursive; font-size: 2rem; color: var(--gold); text-align: center; margin: 0.5rem 0; }
     .undo-bar-wrap { height: 4px; background: rgba(255,255,255,0.08); border-radius: 2px; overflow: hidden; margin-bottom: 1rem; }
@@ -246,11 +227,9 @@
     .msg { text-align: center; color: var(--silver); font-size: 0.9rem; letter-spacing: 1px; padding: 3rem 0; }
     .btn-refresh { font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 2px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); color: var(--silver); border-radius: 6px; padding: 4px 14px; cursor: pointer; }
     .btn-refresh:hover { background: rgba(255,255,255,0.1); color: white; }
-
     .toast { position:fixed;bottom:20px;right:20px;background:rgba(34,197,94,0.9);border:1px solid rgba(34,197,94,0.5);color:white;padding:0.85rem 1.3rem;border-radius:8px;font-family:'Bebas Neue',cursive;letter-spacing:1px;z-index:1000;animation:slideIn 0.3s ease-out;max-width:280px; }
     @keyframes slideIn { from{transform:translateX(400px);opacity:0;}to{transform:translateX(0);opacity:1;} }
     .toast.error { background:rgba(200,16,46,0.9);border-color:rgba(200,16,46,0.5); }
-
     .spinner { display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 0.8s linear infinite;margin-right:0.4rem;vertical-align:middle; }
     @keyframes spin { to{transform:rotate(360deg);} }
 
@@ -269,14 +248,15 @@
 
     /* ── RESPONSIVE ── */
     @media (max-width: 680px) {
-      .summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .summary-bar { flex-wrap: wrap; }
+      .summary-bar-item { flex: 1 1 45%; border-right: none; border-bottom: 1px solid rgba(255,255,255,0.07); }
+      .roster-col-header { display: none; }
+      .roster-row { grid-template-columns: 26px 1fr 44px 60px; height: auto; padding: 0.4rem 0.75rem; }
+      .roster-row .cell-stat:nth-child(4) { display: none; }
+      .roster-row .cell-cap { display: none; }
+      .bench-row { grid-template-columns: 26px 1fr 60px; }
       .trade-header-row, .trade-header-row.league { display: none; }
-      .trade-row, .trade-row.league { grid-template-columns: 1fr; gap: 0.4rem; }
-      .trade-row > *::before { content: attr(data-label); display: block; font-family: 'Barlow Condensed', sans-serif; font-size: 0.62rem; font-weight: 700; color: rgba(255,255,255,0.35); letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 0.15rem; }
-      .trade-row > * { padding-bottom: 0.4rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
-      .trade-row > *:last-child { border-bottom: none; }
-      .hold-card { grid-template-columns: 1fr; }
-      .hold-stats { flex-wrap: wrap; }
+      .trade-row, .trade-row.league { grid-template-columns: 1fr 1fr; height: auto; padding: 0.5rem 0.75rem; gap: 0.4rem; }
       .compare-grid { grid-template-columns: 1fr; gap: 0.4rem; }
       .compare-direction { display: none; }
       .trade-preview-grid { grid-template-columns: 1fr; }
@@ -317,7 +297,7 @@
       <a href="" id="nav-draft">Draft</a>
       <a href="" id="nav-live-draft">Live Draft</a>
       <a href="" id="nav-standings">Standings</a>
-      <a href="" id="nav-trades" class="active">Trades</a>
+      <a href="" id="nav-trades" class="active">My Team</a>
       <a href="" id="nav-settings">Settings</a>
     </div>
   </div>
@@ -325,10 +305,9 @@
 
 <div class="page-wrap">
   <header>
-    <h1>Player <span>Trades</span></h1>
+    <h1>My <span>Team</span></h1>
   </header>
 
-  <!-- Last trade confirmation banner -->
   <div class="last-trade-banner hidden" id="last-trade-banner">
     <div class="last-trade-banner-icon">✅</div>
     <div class="last-trade-banner-text" id="last-trade-banner-text"></div>
@@ -339,15 +318,13 @@
   <div id="content"><div class="msg">Loading…</div></div>
 </div>
 
-<!-- TRADE MODAL -->
+<!-- SWAP MODAL -->
 <div class="modal-overlay hidden" id="modal-trade">
   <div class="modal-box">
-    <div class="modal-title">Execute <span>Trade</span></div>
-
-    <!-- Side-by-side player comparison -->
+    <div class="modal-title">Bench <span>Swap</span></div>
     <div class="compare-grid" id="compare-grid">
       <div class="compare-card outgoing" id="compare-out">
-        <div class="compare-role out">DROPPING</div>
+        <div class="compare-role out">MOVING TO BENCH</div>
         <div class="compare-name" id="compare-out-name">—</div>
         <div class="compare-stats" id="compare-out-stats"></div>
       </div>
@@ -358,18 +335,14 @@
         <div class="compare-stats" id="compare-in-stats"></div>
       </div>
     </div>
-
     <div class="form-group">
       <div class="form-label">Pick from bench</div>
-      <!-- Bench player search -->
       <div class="bench-search-wrap">
         <span class="bench-search-icon">🔍</span>
         <input class="form-input" id="bench-search" placeholder="Search bench players…" oninput="filterBenchList(this.value)" autocomplete="off">
       </div>
       <div class="player-selector" id="trade-to-list" aria-live="polite"></div>
     </div>
-
-    <!-- Cap impact preview -->
     <div class="trade-preview">
       <div class="trade-preview-title">Cap Impact</div>
       <div class="trade-preview-grid">
@@ -378,7 +351,7 @@
           <div class="trade-preview-item-value" id="trade-cap-current">—</div>
         </div>
         <div class="trade-preview-item">
-          <div class="trade-preview-item-label">After trade</div>
+          <div class="trade-preview-item-label">After swap</div>
           <div class="trade-preview-item-value" id="trade-cap-after">—</div>
         </div>
         <div class="trade-preview-item">
@@ -388,10 +361,9 @@
       </div>
       <div class="trade-preview-note" id="trade-preview-note">Select an eligible bench player to preview the swap.</div>
     </div>
-
     <div class="modal-btns">
       <button class="modal-btn modal-btn-cancel" onclick="closeModal()">Cancel</button>
-      <button class="modal-btn modal-btn-confirm" id="trade-confirm-btn" onclick="confirmTrade()" disabled>Execute Trade</button>
+      <button class="modal-btn modal-btn-confirm" id="trade-confirm-btn" onclick="confirmTrade()" disabled>Confirm Swap</button>
     </div>
   </div>
 </div>
@@ -399,13 +371,13 @@
 <!-- UNDO MODAL -->
 <div class="modal-overlay hidden" id="modal-undo">
   <div class="modal-box undo-modal-box">
-    <div class="modal-title">↩ Undo <span>Trade?</span></div>
+    <div class="modal-title">↩ Undo <span>Swap?</span></div>
     <div id="undo-desc" style="font-size:0.85rem;color:rgba(255,255,255,0.7);margin-bottom:0.75rem;line-height:1.5;"></div>
     <div class="undo-countdown" id="undo-countdown">15</div>
     <div class="undo-bar-wrap"><div class="undo-bar" id="undo-bar" style="width:100%"></div></div>
     <div class="modal-btns">
-      <button class="modal-btn modal-btn-cancel" onclick="closeUndoModal()">Keep Trade</button>
-      <button class="modal-btn modal-btn-confirm" id="undo-confirm-btn" onclick="executeUndo()">↩ Undo Trade</button>
+      <button class="modal-btn modal-btn-cancel" onclick="closeUndoModal()">Keep Swap</button>
+      <button class="modal-btn modal-btn-confirm" id="undo-confirm-btn" onclick="executeUndo()">↩ Undo</button>
     </div>
   </div>
 </div>
@@ -444,16 +416,12 @@
   let isSubmittingTrade = false;
   let showLeagueFeed = false;
 
-  // Undo state
   let undoContext = null;
   let undoTimer = null;
   let undoInterval = null;
 
-  // League feed filters
   let leagueFilterTeam = 'all';
   let leagueFilterDate  = '';
-
-  // Bench search filter
   let benchSearchQuery = '';
 
   document.getElementById('nav-draft').href       = `/pool/join?league=${_leagueCode}`;
@@ -463,14 +431,14 @@
   document.getElementById('nav-settings').href    = `/pool/settings?league=${_leagueCode}`;
 
   /* ═══════════════════════════════════════════════════
-     UTILITIES
+     UTILITIES  (unchanged)
   ═══════════════════════════════════════════════════ */
   function escapeHtml(v){ return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
   function normalizePos(pos){ if(!pos)return'F'; const p=pos.toUpperCase(); if(p.includes('G'))return'G'; if(p==='D'||p.includes('LD')||p.includes('RD'))return'D'; return'F'; }
   function poolScore(p){ const pos=normalizePos(p.position); if(pos==='G')return(p.wins??0)*_scoring.g_wins+(p.shutouts??0)*_scoring.g_shutouts; if(pos==='D')return(p.goals??0)*_scoring.d_goals+(p.assists??0)*_scoring.d_assists; return(p.points??0)*_scoring.f_points; }
   function poolScoreOwned(p, team, slug){
     const snap = team?.acquisitions?.[slug]?.stats_snapshot;
-    if(!snap) return null; // null = approximate / unknown
+    if(!snap) return null;
     const pos = normalizePos(p.position);
     if(pos==='G'){ const w=Math.max(0,(p.wins??0)-(snap.wins??0)),s=Math.max(0,(p.shutouts??0)-(snap.shutouts??0)); return w*_scoring.g_wins+s*_scoring.g_shutouts; }
     if(pos==='D'){ const g=Math.max(0,(p.goals??0)-(snap.goals??0)),a=Math.max(0,(p.assists??0)-(snap.assists??0)); return g*_scoring.d_goals+a*_scoring.d_assists; }
@@ -504,7 +472,7 @@
   function findPlayerSlot(team,slug){ for(const g of['F','D','G','B']){ const idx=(team.roster[g]||[]).findIndex(s=>s===slug); if(idx!==-1)return{group:g,index:idx}; } return null; }
 
   /* ═══════════════════════════════════════════════════
-     SUPABASE HELPERS
+     SUPABASE HELPERS  (unchanged)
   ═══════════════════════════════════════════════════ */
   async function saveRostersToSupabase(){
     const data={teams,activeTeamId};
@@ -559,11 +527,11 @@
       const res=await fetch(`${SUPABASE_URL}/rest/v1/player_trades?league_code=eq.${_leagueCode}&select=${cols}&order=date_traded.desc`,{headers:sbHeaders({'Cache-Control':'no-cache'})});
       if(!res.ok){ const t=await res.text(); throw new Error(`player_trades ${res.status}: ${t}`); }
       currentTrades=await res.json();
-    }catch(e){ currentTrades=[]; console.error('[TRADES ERROR]',e); loadWarnings.push('Trade history could not be fully loaded.'); }
+    }catch(e){ currentTrades=[]; console.error('[TRADES ERROR]',e); loadWarnings.push('Swap history could not be fully loaded.'); }
   }
 
   /* ═══════════════════════════════════════════════════
-     LOAD
+     LOAD  (unchanged)
   ═══════════════════════════════════════════════════ */
   async function load(preferredTeamId=activeTeamId){
     await loadScoringSettings();
@@ -581,12 +549,10 @@
         sessionStorage.setItem(PLAYER_CACHE_KEY,JSON.stringify(allPlayers));
         sessionStorage.setItem(PLAYER_CACHE_KEY+'_time',Date.now().toString());
       }
-
       const rRes=await fetch(`${SUPABASE_URL}/rest/v1/pool_rosters?league_code=eq.${_leagueCode}&select=data`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
       if(!rRes.ok) throw new Error(rRes.status);
       const allRosterRows=await rRes.json();
       if(!allRosterRows.length){ document.getElementById('content').innerHTML='<div class="msg">No teams saved yet. Go build your pool!</div>'; return; }
-
       const firstRow=allRosterRows[0];
       teams=[];
       if(firstRow.data?.teams){
@@ -596,9 +562,7 @@
           });
         });
       }
-
       activeTeamId=teams.find(t=>t.id===preferredTeamId)?.id||firstRow.data?.activeTeamId&&teams.find(t=>t.id===firstRow.data.activeTeamId)?.id||teams[0]?.id;
-
       await loadTrades();
       await ensurePlayersLoaded(collectRelevantSlugs());
       await initializeDraftDayAcquisitions();
@@ -641,10 +605,10 @@
       if(confirmBtn) confirmBtn.innerHTML=`<span class="spinner"></span>Waiting...`;
       await loadTrades();
       const found=currentTrades.some(t=>teamTradeMatch(t,team)&&t.player_from_slug!==t.player_to_slug&&t.player_from_slug===fromSlug&&t.player_to_slug===toSlug);
-      if(found){ if(confirmBtn) confirmBtn.textContent=originalText||'Execute Trade'; return true; }
+      if(found){ if(confirmBtn) confirmBtn.textContent=originalText||'Confirm Swap'; return true; }
       if(i<maxAttempts-1) await new Promise(r=>setTimeout(r,500));
     }
-    if(confirmBtn) confirmBtn.textContent=originalText||'Execute Trade';
+    if(confirmBtn) confirmBtn.textContent=originalText||'Confirm Swap';
     return false;
   }
 
@@ -677,91 +641,111 @@
     return html+'</div>';
   }
 
-  function buildSummary(team,activeCount,tradeCount){
-    const capUsed=teamMainCap(team);
-    const capRemaining=CAP_MAX-capUsed;
-    const rem=tradesRemaining(team);
-    const tradesDisplay=_maxTradesPerTeam>0?`${tradeCount}/${_maxTradesPerTeam}`:`${tradeCount}`;
-    const pips=_maxTradesPerTeam>0?buildPips(tradeCount,_maxTradesPerTeam):'';
-    return`
-      <div class="summary-grid">
-        <div class="summary-card ${capRemaining<0?'warn':'good'}">
-          <div class="summary-label">Cap used</div>
-          <div class="summary-value ${capRemaining<0?'red':'gold'}">${formatCap(capUsed)}</div>
+  function buildSummaryBar(team, activeCount, tradeCount){
+    const capUsed = teamMainCap(team);
+    const capRemaining = CAP_MAX - capUsed;
+    const rem = tradesRemaining(team);
+    const tradesDisplay = _maxTradesPerTeam > 0 ? `${tradeCount}/${_maxTradesPerTeam}` : `${tradeCount}`;
+    const pips = _maxTradesPerTeam > 0 ? buildPips(tradeCount, _maxTradesPerTeam) : '';
+    return `
+      <div class="summary-bar">
+        <div class="summary-bar-item ${capRemaining < 0 ? 'warn' : ''}">
+          <div class="summary-label">Cap Used</div>
+          <div class="summary-value ${capRemaining < 0 ? 'red' : 'gold'}">${formatCap(capUsed)}</div>
         </div>
-        <div class="summary-card ${capRemaining<0?'warn':'good'}">
-          <div class="summary-label">Cap remaining</div>
-          <div class="summary-value ${capRemaining<0?'red':'green'}">${formatCap(capRemaining)}</div>
+        <div class="summary-bar-item ${capRemaining < 0 ? 'warn' : 'good'}">
+          <div class="summary-label">Cap Remaining</div>
+          <div class="summary-value ${capRemaining < 0 ? 'red' : 'green'}">${formatCap(capRemaining)}</div>
         </div>
-        <div class="summary-card">
-          <div class="summary-label">Active slots</div>
+        <div class="summary-bar-item">
+          <div class="summary-label">Active Players</div>
           <div class="summary-value">${activeCount}</div>
         </div>
-        <div class="summary-card">
-          <div class="summary-label">Trades</div>
+        <div class="summary-bar-item">
+          <div class="summary-label">Swaps Used</div>
           <div class="summary-value">${tradesDisplay}</div>
           ${pips}
-          <div class="summary-sub">${rem===null?'Unlimited remaining':`${rem} remaining`}</div>
         </div>
       </div>`;
   }
 
-  function buildHoldCard(slot,acquiredAt,p,team,slug,canTrade,rem){
-    const ownedPts=poolScoreOwned(p,team,slug);
-    const isApprox=ownedPts===null;
-    const displayPts=isApprox?poolScore(p):ownedPts;
-    const daysHeld=acquiredAt?Math.max(0,Math.floor((new Date()-new Date(acquiredAt))/86400000)):'-';
-    const abbr=TEAM_ABBR[p.team]||'';
-    const pos=normalizePos(p.position);
-    const statLabel=pos==='G'?'W/SHO':(pos==='D'?'G+A':'PTS');
-    const statVal=pos==='G'?`${p.wins??0}/${p.shutouts??0}`:(pos==='D'?`${p.goals??0}+${p.assists??0}`:`${p.points??0}`);
+  /* ── Compact roster row ── */
+  function buildRosterRow(slot, acquiredAt, p, team, slug, canSwap) {
+    const ownedPts = poolScoreOwned(p, team, slug);
+    const isApprox = ownedPts === null;
+    const displayPts = isApprox ? poolScore(p) : ownedPts;
+    const daysHeld = acquiredAt ? Math.max(0, Math.floor((new Date() - new Date(acquiredAt)) / 86400000)) : '—';
+    const abbr = TEAM_ABBR[p.team] || '';
+    const pos = normalizePos(p.position);
+    const statLabel = pos === 'G' ? 'W / SHO' : (pos === 'D' ? 'G + A' : 'PTS');
+    const statVal = pos === 'G'
+      ? `${p.wins ?? 0} / ${p.shutouts ?? 0}`
+      : (pos === 'D' ? `${p.goals ?? 0} + ${p.assists ?? 0}` : `${p.points ?? 0}`);
 
-    const tradeBtn=canTrade
-      ? `<div class="btn-trade-wrap"><button class="btn-small btn-trade" onclick="openTradeModal('${p.puckpedia_slug}')">🔄 Trade</button>${rem!==null?`<span class="trades-btn-remaining ${rem<=1?'low':''}"></span>`:''}  </div>`
-      : `<button class="btn-small" disabled title="Trade limit reached">⛔ Limit</button>`;
+    const swapBtn = canSwap
+      ? `<button class="btn-swap" onclick="openTradeModal('${slug}')">⇄ Swap</button>`
+      : `<button class="btn-swap" disabled>⛔</button>`;
 
-    return`
-      <div class="hold-card">
-        <div class="hold-player">
-          ${abbr?`<img class="player-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}" loading="lazy">`:''}
-          <div class="hold-info">
-            <div class="hold-name"><span class="hold-slot">${slot}</span>${escapeHtml(formatName(p.player_name))}</div>
-            <div class="hold-since ${isApprox?'approx':''}">${acquiredAt?`Acquired: ${new Date(acquiredAt).toLocaleDateString()}`:'Acquired: Unknown'}${isApprox?' · ⚠ pts approx':''}</div>
-          </div>
+    const acqDate = acquiredAt ? new Date(acquiredAt).toLocaleDateString('en-CA', {month:'short',day:'numeric'}) : '?';
+
+    return `
+      <div class="roster-row">
+        <div class="cell-logo">${abbr ? `<img src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}" loading="lazy">` : ''}</div>
+        <div class="cell-name">
+          <div class="cell-name-main"><span class="slot-badge">${slot}</span>${escapeHtml(formatName(p.player_name))}</div>
+          <div class="cell-name-sub">Since ${acqDate}${isApprox ? ' · ~' : ''}</div>
         </div>
-        <div class="hold-stats">
-          <div class="hold-stat"><div class="hold-stat-label">Days</div><div class="hold-stat-value">${daysHeld}</div></div>
-          <div class="hold-stat"><div class="hold-stat-label">${statLabel}</div><div class="hold-stat-value">${statVal}</div></div>
-          <div class="hold-stat"><div class="hold-stat-label">Owned${isApprox?' ~':''}</div><div class="hold-stat-value ${isApprox?'approx':''}">${displayPts}</div></div>
-        </div>
-        <div class="hold-actions">${tradeBtn}</div>
+        <div class="cell-stat muted">${daysHeld}</div>
+        <div class="cell-stat">${statVal}</div>
+        <div class="cell-stat ${isApprox ? 'approx' : 'gold'}">${displayPts}</div>
+        <div class="cell-cap">${formatCap(p.cap_hit || 0)}</div>
+        <div class="cell-action">${swapBtn}</div>
       </div>`;
   }
 
-  function buildBenchCard(slot,p){
-    const abbr=TEAM_ABBR[p.team]||'';
-    const pos=normalizePos(p.position);
-    const statLabel=pos==='G'?'W/SHO':(pos==='D'?'G+A':'PTS');
-    const statVal=pos==='G'?`${p.wins??0}/${p.shutouts??0}`:(pos==='D'?`${p.goals??0}+${p.assists??0}`:`${p.points??0}`);
-    // Same metric as active roster for fair comparison (season totals shown)
-    return`
-      <div class="bench-hold-card">
-        <div class="hold-player">
-          ${abbr?`<img class="player-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}" loading="lazy">`:''}
-          <div class="hold-info">
-            <div class="hold-name"><span class="hold-slot">${slot}</span>${escapeHtml(formatName(p.player_name))}</div>
-            <div class="hold-since">Bench — season stats shown (not accumulating)</div>
-          </div>
+  function buildBenchRow(slot, p) {
+    const abbr = TEAM_ABBR[p.team] || '';
+    const pos = normalizePos(p.position);
+    const statVal = pos === 'G'
+      ? `${p.wins ?? 0} / ${p.shutouts ?? 0}`
+      : (pos === 'D' ? `${p.goals ?? 0} + ${p.assists ?? 0}` : `${p.points ?? 0}`);
+
+    return `
+      <div class="roster-row bench-row">
+        <div class="cell-logo">${abbr ? `<img src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}" loading="lazy">` : ''}</div>
+        <div class="cell-name">
+          <div class="cell-name-main"><span class="slot-badge">${slot}</span>${escapeHtml(formatName(p.player_name))}</div>
+          <div class="cell-name-sub">On bench</div>
         </div>
-        <div class="hold-stats">
-          <div class="hold-stat"><div class="hold-stat-label">${statLabel}</div><div class="hold-stat-value">${statVal}</div></div>
-          <div class="hold-stat"><div class="hold-stat-label">Cap</div><div class="hold-stat-value">${formatCap(p.cap_hit||0)}</div></div>
-        </div>
+        <div class="cell-stat muted">${statVal}</div>
+        <div class="cell-cap">${formatCap(p.cap_hit || 0)}</div>
       </div>`;
   }
 
   function buildEmptyState(icon,msg,sub=''){
     return`<div class="empty-state"><div class="empty-state-icon">${icon}</div><div class="empty-state-msg">${msg}</div>${sub?`<div class="empty-state-sub">${sub}</div>`:''}</div>`;
+  }
+
+  /* ── Column header row ── */
+  function rosterColHeaders(){
+    return `<div class="roster-col-header">
+      <div></div>
+      <div class="col-hd left">Player</div>
+      <div class="col-hd">Days</div>
+      <div class="col-hd">Stats</div>
+      <div class="col-hd">Owned Pts</div>
+      <div class="col-hd">Cap</div>
+      <div class="col-hd"></div>
+    </div>`;
+  }
+
+  function benchColHeaders(){
+    return `<div class="roster-col-header bench-cols">
+      <div></div>
+      <div class="col-hd left">Player</div>
+      <div class="col-hd">Stats</div>
+      <div class="col-hd">Cap</div>
+    </div>`;
   }
 
   /* ═══════════════════════════════════════════════════
@@ -775,11 +759,10 @@
     const activeCount=[...(team.roster.F||[]),...(team.roster.D||[]),...(team.roster.G||[])].filter(Boolean).length;
     const allRealTrades=[...currentTrades.filter(t=>t.player_from_slug!==t.player_to_slug)].sort((a,b)=>new Date(b.date_traded)-new Date(a.date_traded));
 
-    let html=buildWarningBox();
+    let html = buildWarningBox();
 
     /* ── LEAGUE FEED ── */
     if(showLeagueFeed){
-      // Apply filters
       let filtered=allRealTrades.filter(trade=>{
         if(leagueFilterTeam!=='all'){
           const tradeTeam=teams.find(t=>teamTradeMatch(trade,t));
@@ -791,15 +774,13 @@
         }
         return true;
       });
-
       const teamOptions=teams.map(t=>`<option value="${t.id}" ${leagueFilterTeam===t.id?'selected':''}>${escapeHtml(t.name)}</option>`).join('');
       html+=`
         <div class="section-title">
-          League-wide <span>Trade Feed</span>
+          League <span>Swap Feed</span>
           <div class="section-title-actions">
             <select class="filter-input" style="width:auto;" onchange="leagueFilterTeam=this.value;render()">
-              <option value="all" ${leagueFilterTeam==='all'?'selected':''}>All Teams</option>
-              ${teamOptions}
+              <option value="all" ${leagueFilterTeam==='all'?'selected':''}>All Teams</option>${teamOptions}
             </select>
             <input class="filter-input" type="month" value="${leagueFilterDate}" placeholder="Filter by month" onchange="leagueFilterDate=this.value;render()" style="width:140px;">
             ${leagueFilterTeam!=='all'||leagueFilterDate?`<button class="filter-btn active" onclick="leagueFilterTeam='all';leagueFilterDate='';render()">✕ Clear</button>`:''}
@@ -808,11 +789,10 @@
         <div class="trades-list">
           <div class="trade-header-row league">
             <div class="trade-header-cell">Team</div>
-            <div class="trade-header-cell">Dropped</div>
+            <div class="trade-header-cell">Benched</div>
             <div class="trade-header-cell">Activated</div>
             <div class="trade-header-cell">Date</div>
           </div>`;
-
       if(filtered.length){
         filtered.forEach(trade=>{
           const tradeTeam=teams.find(t=>teamTradeMatch(trade,t));
@@ -824,30 +804,20 @@
           const pos=normalizePos(pFrom.position||pTo.position);
           html+=`
             <div class="trade-row league">
-              <div class="player-info" data-label="Team">
-                <div class="player-details"><div class="player-name">${escapeHtml(teamName)}</div></div>
-              </div>
-              <div class="player-info" data-label="Dropped">
+              <div class="player-info"><div class="player-details"><div class="player-name">${escapeHtml(teamName)}</div></div></div>
+              <div class="player-info">
                 ${abbrFrom?`<img class="player-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbrFrom}_dark.svg" alt="${abbrFrom}" loading="lazy">`:''}
-                <div class="player-details">
-                  <div class="player-name">${escapeHtml(formatName(pFrom.player_name))}</div>
-                  <div class="player-meta">${pos} · ${formatCap(pFrom.cap_hit||0)}</div>
-                </div>
+                <div class="player-details"><div class="player-name">${escapeHtml(formatName(pFrom.player_name))}</div><div class="player-meta">${pos} · ${formatCap(pFrom.cap_hit||0)}</div></div>
               </div>
-              <div class="player-info" data-label="Activated">
+              <div class="player-info">
                 ${abbrTo?`<img class="player-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbrTo}_dark.svg" alt="${abbrTo}" loading="lazy">`:''}
-                <div class="player-details">
-                  <div class="player-name">${escapeHtml(formatName(pTo.player_name))}</div>
-                  <div class="player-meta">${pos} · ${formatCap(pTo.cap_hit||0)}</div>
-                </div>
+                <div class="player-details"><div class="player-name">${escapeHtml(formatName(pTo.player_name))}</div><div class="player-meta">${pos} · ${formatCap(pTo.cap_hit||0)}</div></div>
               </div>
-              <div class="date-tag" data-label="Date">
-                <span class="date-tag-value">${new Date(trade.date_traded).toLocaleDateString()}</span>
-              </div>
+              <div style="display:flex;align-items:center;"><div class="date-tag"><span class="date-tag-value">${new Date(trade.date_traded).toLocaleDateString()}</span></div></div>
             </div>`;
         });
       }else{
-        html+=buildEmptyState('📋','No trades match your filters','Try clearing the team or date filter');
+        html+=buildEmptyState('📋','No swaps match your filters','Try clearing the team or date filter');
       }
       html+='</div>';
       document.getElementById('content').innerHTML=html;
@@ -855,46 +825,58 @@
     }
 
     /* ── TEAM VIEW ── */
-    html+=buildSummary(team,activeCount,teamTrades.length);
-    const canTrade=!isTradeLimitReached(team);
-    const rem=tradesRemaining(team);
+    const canSwap = !isTradeLimitReached(team);
 
-    /* Active roster */
-    html+=`<div class="section-title">Active <span>Roster</span></div><div class="current-holds">`;
+    html += buildSummaryBar(team, activeCount, teamTrades.length);
+
+    /* ── ACTIVE ROSTER ── */
+    const posLabels = { F:'Forwards', D:'Defensemen', G:'Goalies' };
+    html += `<div class="section-title">Active <span>Roster</span></div><div class="roster-table">`;
+
     if(activeCount){
-      const labels={F:'Forwards',D:'Defensemen',G:'Goalies'};
+      let firstGroup = true;
       ['F','D','G'].forEach(pos=>{
-        const rows=(team.roster[pos]||[]).map((slug,idx)=>{ if(!slug)return null; const acq=getAcquiredDateForActivePlayer(team,slug); return{slot:slotLabel(pos,idx),acq,slug,player:getPlayer(slug,pos)}; }).filter(Boolean);
+        const rows=(team.roster[pos]||[]).map((slug,idx)=>{
+          if(!slug) return null;
+          return { slot:slotLabel(pos,idx), acq:getAcquiredDateForActivePlayer(team,slug), slug, player:getPlayer(slug,pos) };
+        }).filter(Boolean);
         if(!rows.length) return;
-        html+=`<div class="hold-pos-group"><div class="hold-pos-title ${pos}">${labels[pos]} (${rows.length})</div>${rows.map(item=>buildHoldCard(item.slot,item.acq,item.player,team,item.slug,canTrade,rem)).join('')}</div>`;
+        html += `<div class="roster-group-header"><span class="roster-group-label ${pos}">${posLabels[pos]}</span><span class="roster-group-count">${rows.length}</span></div>`;
+        if(firstGroup){ html += rosterColHeaders(); firstGroup = false; }
+        html += rows.map(item=>buildRosterRow(item.slot, item.acq, item.player, team, item.slug, canSwap)).join('');
       });
     }else{
-      html+=buildEmptyState('👤','No active roster players found');
+      html += buildEmptyState('👤','No active roster players found');
     }
-    html+='</div>';
+    html += '</div>';
 
-    /* Bench */
+    /* ── BENCH ── */
     const benchPlayers=(team.roster.B||[]).map((slug,idx)=>slug?{slot:slotLabel('B',idx),player:getPlayer(slug,'F')}:null).filter(Boolean);
-    html+=`<div class="section-title">Team <span>Bench</span></div><div class="current-holds">`;
+    html += `<div class="section-title">Team <span>Bench</span></div><div class="roster-table">`;
     if(benchPlayers.length){
-      const labels={F:'Forwards',D:'Defensemen',G:'Goalies'};
       const grouped={F:[],D:[],G:[]};
       benchPlayers.forEach(item=>grouped[normalizePos(item.player.position)].push(item));
-      ['F','D','G'].forEach(pos=>{ if(!grouped[pos].length)return; html+=`<div class="hold-pos-group"><div class="hold-pos-title ${pos}">${labels[pos]} (${grouped[pos].length})</div>${grouped[pos].map(item=>buildBenchCard(item.slot,item.player)).join('')}</div>`; });
+      let firstGroup = true;
+      ['F','D','G'].forEach(pos=>{
+        if(!grouped[pos].length) return;
+        html += `<div class="roster-group-header"><span class="roster-group-label ${pos}">${posLabels[pos]}</span><span class="roster-group-count">${grouped[pos].length}</span></div>`;
+        if(firstGroup){ html += benchColHeaders(); firstGroup = false; }
+        html += grouped[pos].map(item=>buildBenchRow(item.slot, item.player)).join('');
+      });
     }else{
-      html+=buildEmptyState('🪑','No bench players');
+      html += buildEmptyState('🪑','No bench players');
     }
-    html+='</div>';
+    html += '</div>';
 
-    /* Trade history */
-    html+=`<div class="section-title">Trade <span>History</span></div><div class="trades-list">`;
+    /* ── SWAP HISTORY ── */
+    html += `<div class="section-title">Swap <span>History</span></div><div class="trades-list">`;
     if(teamTrades.length){
       html+=`
         <div class="trade-header-row">
-          <div class="trade-header-cell">Dropped → bench</div>
+          <div class="trade-header-cell">Sent to bench</div>
           <div class="trade-header-cell center">Date</div>
-          <div class="trade-header-cell">Activated from bench</div>
-          <div class="trade-header-cell center">Season pts at trade</div>
+          <div class="trade-header-cell">Activated</div>
+          <div class="trade-header-cell center">Pts at swap</div>
         </div>`;
       teamTrades.forEach(trade=>{
         const pFrom=trade.player_from_name?{player_name:trade.player_from_name,team:trade.player_from_team,position:trade.player_from_position}:getPlayer(trade.player_from_slug);
@@ -904,35 +886,30 @@
         const abbrTo=TEAM_ABBR[pTo.team]||'';
         html+=`
           <div class="trade-row">
-            <div class="player-info" data-label="Dropped">
+            <div class="player-info">
               ${abbrFrom?`<img class="player-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbrFrom}_dark.svg" alt="${abbrFrom}" loading="lazy">`:''}
               <div class="player-details">
                 <div class="player-name">${escapeHtml(formatName(pFrom.player_name))}</div>
                 <div class="player-meta">${trade.from_slot_group?`${trade.from_slot_group}${(trade.from_slot_index??0)+1} · `:''}Since ${trade.date_from_acquired?new Date(trade.date_from_acquired).toLocaleDateString():'?'}</div>
               </div>
             </div>
-            <div style="display:flex;justify-content:center;" data-label="Date">
-              <div class="date-tag">
-                <span class="date-tag-value">${new Date(trade.date_traded).toLocaleDateString()}</span>
-              </div>
+            <div style="display:flex;justify-content:center;align-items:center;">
+              <div class="date-tag"><span class="date-tag-value">${new Date(trade.date_traded).toLocaleDateString()}</span></div>
             </div>
-            <div class="player-info" data-label="Activated">
+            <div class="player-info">
               ${abbrTo?`<img class="player-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbrTo}_dark.svg" alt="${abbrTo}" loading="lazy">`:''}
               <div class="player-details">
                 <div class="player-name">${escapeHtml(formatName(pTo.player_name))}</div>
                 <div class="player-meta">${trade.to_slot_group?`${trade.to_slot_group}${(trade.to_slot_index??0)+1} · `:''}Activated from bench</div>
               </div>
             </div>
-            <div style="display:flex;justify-content:center;" data-label="Season pts at trade">
-              <div class="pts-tag">
-                <span class="pts-tag-label">At trade</span>
-                <span class="pts-tag-value">${ptsAtTrade}</span>
-              </div>
+            <div style="display:flex;justify-content:center;align-items:center;">
+              <div class="pts-tag"><span class="pts-tag-label">At swap</span><span class="pts-tag-value">${ptsAtTrade}</span></div>
             </div>
           </div>`;
       });
     }else{
-      html+=buildEmptyState('🔄','No trades yet','Use the Trade button on any active player to swap with a bench player');
+      html+=buildEmptyState('⇄','No swaps yet','Use the Swap button on any active player to swap with a bench player');
     }
     html+='</div>';
 
@@ -940,34 +917,26 @@
   }
 
   /* ═══════════════════════════════════════════════════
-     TRADE MODAL
+     SWAP MODAL  (logic unchanged, labels updated)
   ═══════════════════════════════════════════════════ */
-  let _allBenchOptions=[]; // full list for search filtering
+  let _allBenchOptions=[];
 
   function openTradeModal(playerSlug){
     const team=teams.find(t=>t.id===activeTeamId);
     if(!team) return;
-    if(isTradeLimitReached(team)){ alert(`Trade limit reached (${_maxTradesPerTeam}) for this team.`); return; }
+    if(isTradeLimitReached(team)){ alert(`Swap limit reached (${_maxTradesPerTeam}) for this team.`); return; }
     const p=getPlayer(playerSlug);
     if(!p) return;
     const fromSlot=findPlayerSlot(team,playerSlug);
-    if(!fromSlot||fromSlot.group==='B'){ alert('Player must be in active roster to trade.'); return; }
-
+    if(!fromSlot||fromSlot.group==='B'){ alert('Player must be in active roster to swap.'); return; }
     tradeContext={fromSlug:playerSlug,fromSlot,teamId:team.id,toSlug:null};
     benchSearchQuery='';
     document.getElementById('bench-search').value='';
-
-    // Populate comparison out card
     populateCompareOut(p,fromSlot);
-
-    // Reset compare in card
     resetCompareIn();
-
-    // Build bench list
     const benchPlayers=(team.roster.B||[]).map((slug,idx)=>slug?{slug,index:idx,player:getPlayer(slug)}:null).filter(Boolean);
     _allBenchOptions=benchPlayers.filter(item=>normalizePos(item.player.position)===fromSlot.group);
     renderBenchList(_allBenchOptions);
-
     updateTradePreview();
     document.getElementById('modal-trade').classList.remove('hidden');
   }
@@ -998,9 +967,7 @@
     const pos=normalizePos(p.position);
     document.getElementById('compare-in-name').textContent=formatName(p.player_name)||'—';
     document.getElementById('compare-in').classList.remove('empty');
-
     function betterWorse(a,b){ if(a>b)return'better'; if(a<b)return'worse'; return''; }
-
     let statsHtml='';
     if(pos==='G'){
       const bW=betterWorse(p.wins??0,pFrom.wins??0), bS=betterWorse(p.shutouts??0,pFrom.shutouts??0);
@@ -1012,7 +979,7 @@
       const bP=betterWorse(p.points??0,pFrom.points??0), bG=betterWorse(p.goals??0,pFrom.goals??0), bA=betterWorse(p.assists??0,pFrom.assists??0);
       statsHtml=`<div class="compare-stat"><div class="compare-stat-label">PTS</div><div class="compare-stat-value ${bP}">${p.points??0}</div></div><div class="compare-stat"><div class="compare-stat-label">G</div><div class="compare-stat-value ${bG}">${p.goals??0}</div></div><div class="compare-stat"><div class="compare-stat-label">A</div><div class="compare-stat-value ${bA}">${p.assists??0}</div></div>`;
     }
-    const bCap=betterWorse(pFrom.cap_hit||0,p.cap_hit||0); // lower cap is better
+    const bCap=betterWorse(pFrom.cap_hit||0,p.cap_hit||0);
     statsHtml+=`<div class="compare-stat"><div class="compare-stat-label">Cap</div><div class="compare-stat-value ${bCap}">${formatCap(p.cap_hit||0)}</div></div>`;
     document.getElementById('compare-in-stats').innerHTML=statsHtml;
   }
@@ -1036,9 +1003,7 @@
 
   function filterBenchList(query){
     benchSearchQuery=query.toLowerCase().trim();
-    const filtered=benchSearchQuery
-      ?_allBenchOptions.filter(item=>formatName(item.player.player_name).toLowerCase().includes(benchSearchQuery))
-      :_allBenchOptions;
+    const filtered=benchSearchQuery?_allBenchOptions.filter(item=>formatName(item.player.player_name).toLowerCase().includes(benchSearchQuery)):_allBenchOptions;
     renderBenchList(filtered);
   }
 
@@ -1060,7 +1025,7 @@
     const btn=document.getElementById('trade-confirm-btn');
     const team=teams.find(t=>t.id===activeTeamId);
     if(!team||!tradeContext){ btn.disabled=true; currentEl.textContent=afterEl.textContent=remainingEl.textContent='—'; noteEl.textContent='Select an eligible bench player to preview the swap.'; noteEl.className='trade-preview-note'; return; }
-    if(isTradeLimitReached(team)){ btn.disabled=true; currentEl.textContent=afterEl.textContent=remainingEl.textContent='—'; noteEl.textContent=`Trade limit reached (${_maxTradesPerTeam}).`; noteEl.className='trade-preview-note warn'; return; }
+    if(isTradeLimitReached(team)){ btn.disabled=true; currentEl.textContent=afterEl.textContent=remainingEl.textContent='—'; noteEl.textContent=`Swap limit reached (${_maxTradesPerTeam}).`; noteEl.className='trade-preview-note warn'; return; }
     const currentCap=teamMainCap(team);
     currentEl.textContent=formatCap(currentCap);
     if(!tradeContext.toSlug){ afterEl.textContent='—'; remainingEl.textContent='—'; btn.disabled=true; noteEl.textContent='Select an eligible bench player to preview the swap.'; noteEl.className='trade-preview-note'; return; }
@@ -1071,11 +1036,11 @@
     afterEl.textContent=formatCap(capAfter);
     remainingEl.textContent=formatCap(capRemaining);
     if(capAfter>CAP_MAX){ btn.disabled=true; noteEl.textContent=`Over cap by ${formatCap(capAfter-CAP_MAX)}. Choose a cheaper player.`; noteEl.className='trade-preview-note warn'; }
-    else{ btn.disabled=false; noteEl.textContent=`Eligible ${tradeContext.fromSlot.group}-for-${tradeContext.fromSlot.group} swap. Bench salary stays off-cap.`; noteEl.className='trade-preview-note good'; }
+    else{ btn.disabled=false; noteEl.textContent=`Valid ${tradeContext.fromSlot.group}-for-${tradeContext.fromSlot.group} swap. Bench salary stays off-cap.`; noteEl.className='trade-preview-note good'; }
   }
 
   /* ═══════════════════════════════════════════════════
-     EXECUTE TRADE
+     EXECUTE SWAP  (logic unchanged)
   ═══════════════════════════════════════════════════ */
   async function executeTradeRpc(team){
     const now=new Date().toISOString();
@@ -1112,15 +1077,13 @@
     const toPos=normalizePos(toPlayer.position);
     if(toPos!==fromSlot.group) throw new Error(`Position mismatch: ${toPos} cannot replace ${fromSlot.group} slot.`);
     const capAfter=teamMainCap(team)-(fromPlayer.cap_hit||0)+(toPlayer.cap_hit||0);
-    if(capAfter>CAP_MAX) throw new Error(`Trade rejected: cap would be ${formatCap(capAfter)} (max ${formatCap(CAP_MAX)}).`);
-
+    if(capAfter>CAP_MAX) throw new Error(`Swap rejected: cap would be ${formatCap(capAfter)} (max ${formatCap(CAP_MAX)}).`);
     const originalRoster=JSON.parse(JSON.stringify(team.roster));
     let tradeRecordId=null;
     team.roster[fromSlot.group][fromSlot.index]=tradeContext.toSlug;
     team.roster.B[toSlot.index]=tradeContext.fromSlug;
     if(!team.acquisitions) team.acquisitions={};
     team.acquisitions[tradeContext.toSlug]={date:now,stats_snapshot:captureStatsSnapshot(toPlayer)};
-
     try{
       await saveRostersToSupabase();
       tradeRecordId=(await createTradeRecord(team,dateFromAcquired,fromPlayer,toPlayer,fromSlot,toSlot,now))?.id||null;
@@ -1138,35 +1101,24 @@
     if(isSubmittingTrade) return;
     const team=teams.find(t=>t.id===activeTeamId);
     if(!team){ alert('Team not found'); return; }
-    if(isTradeLimitReached(team)){ alert(`Trade limit reached (${_maxTradesPerTeam}) for this team.`); return; }
-
+    if(isTradeLimitReached(team)){ alert(`Swap limit reached (${_maxTradesPerTeam}) for this team.`); return; }
     const fromSlug=tradeContext.fromSlug;
     const toSlug=tradeContext.toSlug;
     const confirmBtn=document.getElementById('trade-confirm-btn');
-
     isSubmittingTrade=true;
     if(confirmBtn){ confirmBtn.disabled=true; confirmBtn.textContent='Executing...'; }
-
     try{
       const fromPlayer=getPlayer(fromSlug);
       const toPlayer=getPlayer(toSlug);
-
       const usedRpc=await executeTradeRpc(team);
       let legacyResult=null;
       if(!usedRpc) legacyResult=await executeTradeLegacy(team);
-
       const tradeLogged=await waitForTradeHistory(team,fromSlug,toSlug,12);
-      if(!tradeLogged) console.warn('Trade executed but not yet visible in history.');
-
+      if(!tradeLogged) console.warn('Swap executed but not yet visible in history.');
       closeModal();
       await load(activeTeamId);
-
-      // Show last trade banner
       showLastTradeBanner(fromPlayer,toPlayer);
-
-      // Open undo window
       openUndoModal(team,fromSlug,toSlug,fromPlayer,toPlayer);
-
     }catch(e){
       const msg=e?.message||'';
       const staleOutgoing=/Outgoing player is not on the active roster/i.test(msg);
@@ -1176,12 +1128,12 @@
         await load(activeTeamId);
         return;
       }
-      alert(msg||'Error executing trade');
+      alert(msg||'Error executing swap');
       console.error(e);
       await load(activeTeamId);
     }finally{
       isSubmittingTrade=false;
-      if(confirmBtn){ confirmBtn.textContent='Execute Trade'; confirmBtn.disabled=!tradeContext?.toSlug; }
+      if(confirmBtn){ confirmBtn.textContent='Confirm Swap'; confirmBtn.disabled=!tradeContext?.toSlug; }
     }
   }
 
@@ -1195,27 +1147,20 @@
     updateTradePreview();
   }
 
-  /* ═══════════════════════════════════════════════════
-     LAST TRADE BANNER
-  ═══════════════════════════════════════════════════ */
   function showLastTradeBanner(fromPlayer,toPlayer){
     const banner=document.getElementById('last-trade-banner');
     const text=document.getElementById('last-trade-banner-text');
-    text.innerHTML=`✅ Trade complete: <strong>${escapeHtml(formatName(fromPlayer.player_name))}</strong> → bench &nbsp;|&nbsp; <strong>${escapeHtml(formatName(toPlayer.player_name))}</strong> → active roster`;
+    text.innerHTML=`✅ Swap complete: <strong>${escapeHtml(formatName(fromPlayer.player_name))}</strong> → bench &nbsp;|&nbsp; <strong>${escapeHtml(formatName(toPlayer.player_name))}</strong> → active roster`;
     banner.classList.remove('hidden');
   }
 
-  /* ═══════════════════════════════════════════════════
-     UNDO MODAL
-  ═══════════════════════════════════════════════════ */
   function openUndoModal(team,fromSlug,toSlug,fromPlayer,toPlayer){
     undoContext={team,fromSlug,toSlug,fromPlayer,toPlayer};
     const desc=document.getElementById('undo-desc');
-    desc.innerHTML=`You just moved <strong>${escapeHtml(formatName(fromPlayer.player_name))}</strong> to the bench and activated <strong>${escapeHtml(formatName(toPlayer.player_name))}</strong>. You have ${UNDO_WINDOW_SECONDS} seconds to undo this.`;
+    desc.innerHTML=`You just moved <strong>${escapeHtml(formatName(fromPlayer.player_name))}</strong> to the bench and activated <strong>${escapeHtml(formatName(toPlayer.player_name))}</strong>. You have ${UNDO_WINDOW_SECONDS} seconds to undo.`;
     document.getElementById('undo-countdown').textContent=UNDO_WINDOW_SECONDS;
     document.getElementById('undo-bar').style.width='100%';
     document.getElementById('modal-undo').classList.remove('hidden');
-
     let secondsLeft=UNDO_WINDOW_SECONDS;
     undoInterval=setInterval(()=>{
       secondsLeft--;
@@ -1237,34 +1182,25 @@
     const {team,fromSlug,toSlug}=undoContext;
     document.getElementById('undo-confirm-btn').disabled=true;
     document.getElementById('undo-confirm-btn').textContent='Undoing…';
-
     try{
-      // Swap roster back
-      const activeSlot=findPlayerSlot(team,toSlug);  // toSlug is now on active
-      const benchSlot=findPlayerSlot(team,fromSlug); // fromSlug is now on bench
-      if(!activeSlot||benchSlot?.group!=='B') throw new Error('Cannot find players to undo trade.');
-
+      const activeSlot=findPlayerSlot(team,toSlug);
+      const benchSlot=findPlayerSlot(team,fromSlug);
+      if(!activeSlot||benchSlot?.group!=='B') throw new Error('Cannot find players to undo swap.');
       team.roster[activeSlot.group][activeSlot.index]=fromSlug;
       team.roster.B[benchSlot.index]=toSlug;
-
-      // Restore acquisition for the player that went back to active
       if(team.acquisitions?.[toSlug]) delete team.acquisitions[toSlug];
-
       await saveRostersToSupabase();
-
-      // Delete the most recent trade record for this swap
       const tradeRecord=currentTrades.find(t=>teamTradeMatch(t,team)&&t.player_from_slug===fromSlug&&t.player_to_slug===toSlug&&t.player_from_slug!==t.player_to_slug);
       if(tradeRecord?.id){
         await fetch(`${SUPABASE_URL}/rest/v1/player_trades?id=eq.${tradeRecord.id}`,{method:'DELETE',headers:sbHeaders()});
       }
-
       closeUndoModal();
-      showToast('↩ Trade undone successfully');
+      showToast('↩ Swap undone successfully');
       await load(activeTeamId);
       document.getElementById('last-trade-banner').classList.add('hidden');
     }catch(e){
       console.error('Undo failed:',e);
-      alert('Failed to undo trade: '+e.message);
+      alert('Failed to undo swap: '+e.message);
       closeUndoModal();
       await load(activeTeamId);
     }
