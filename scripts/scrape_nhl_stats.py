@@ -111,7 +111,7 @@ def build_stats_map(skaters: list[dict], goalies: list[dict]) -> dict[str, dict]
             "points":       None,
             "wins":         g.get("wins"),
             "shutouts":     g.get("shutouts"),
-            "save_pct":     g.get("savePctg"),
+            "save_pct":     g.get("savePercentage") if g.get("savePercentage") is not None else g.get("savePctg"),
         }
     return result
 
