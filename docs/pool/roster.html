@@ -1005,16 +1005,25 @@
     document.getElementById('modal-trade').classList.remove('hidden');
   }
 
+  function parseSvPctForCompare(p){
+    const raw = p?.save_pct ?? p?.save_percentage ?? p?.savePercentage ?? p?.sv_pct ?? p?.savePctg ?? p?.savePct;
+    if(raw===null || raw===undefined || raw==='') return null;
+    const parsed = typeof raw === 'string' ? Number(raw.replace('%','').trim()) : Number(raw);
+    if(Number.isNaN(parsed) || !Number.isFinite(parsed) || parsed < 0) return null;
+    const pct = parsed <= 1 ? parsed * 100 : parsed;
+    if(!Number.isFinite(pct) || pct > 100) return null;
+    return pct;
+  }
+
   function populateCompareOut(p,fromSlot){
     document.getElementById('compare-out-name').textContent=formatName(p.player_name)||'—';
     const pos=normalizePos(p.position);
     let statsHtml='';
     if(pos==='G'){
-      statsHtml=`<div class="compare-stat"><div class="compare-stat-label">W</div><div class="compare-stat-value">${p.wins??0}</div></div><div class="compare-stat"><div class="compare-stat-label">SHO</div><div class="compare-stat-value">${p.shutouts??0}</div></div>`;
-    } else if(pos==='D'){
-      statsHtml=`<div class="compare-stat"><div class="compare-stat-label">G</div><div class="compare-stat-value">${p.goals??0}</div></div><div class="compare-stat"><div class="compare-stat-label">A</div><div class="compare-stat-value">${p.assists??0}</div></div>`;
+      const sv = goalieSvDisplay(p);
+      statsHtml=`<div class="compare-stat"><div class="compare-stat-label">W</div><div class="compare-stat-value">${p.wins??0}</div></div><div class="compare-stat"><div class="compare-stat-label">SHO</div><div class="compare-stat-value">${p.shutouts??0}</div></div><div class="compare-stat"><div class="compare-stat-label">SV%</div><div class="compare-stat-value ${sv.muted?'':'gold'}">${sv.value}</div></div>`;
     } else {
-      statsHtml=`<div class="compare-stat"><div class="compare-stat-label">PTS</div><div class="compare-stat-value">${p.points??0}</div></div><div class="compare-stat"><div class="compare-stat-label">G</div><div class="compare-stat-value">${p.goals??0}</div></div><div class="compare-stat"><div class="compare-stat-label">A</div><div class="compare-stat-value">${p.assists??0}</div></div>`;
+      statsHtml=`<div class="compare-stat"><div class="compare-stat-label">PTS</div><div class="compare-stat-value">${p.points??((p.goals??0)+(p.assists??0))}</div></div><div class="compare-stat"><div class="compare-stat-label">G</div><div class="compare-stat-value">${p.goals??0}</div></div><div class="compare-stat"><div class="compare-stat-label">A</div><div class="compare-stat-value">${p.assists??0}</div></div>`;
     }
     statsHtml+=`<div class="compare-stat"><div class="compare-stat-label">Cap</div><div class="compare-stat-value">${formatCap(p.cap_hit||0)}</div></div>`;
     document.getElementById('compare-out-stats').innerHTML=statsHtml;
@@ -1034,14 +1043,18 @@
     function betterWorse(a,b){ if(a>b)return'better'; if(a<b)return'worse'; return''; }
     let statsHtml='';
     if(pos==='G'){
-      const bW=betterWorse(p.wins??0,pFrom.wins??0), bS=betterWorse(p.shutouts??0,pFrom.shutouts??0);
-      statsHtml=`<div class="compare-stat"><div class="compare-stat-label">W</div><div class="compare-stat-value ${bW}">${p.wins??0}</div></div><div class="compare-stat"><div class="compare-stat-label">SHO</div><div class="compare-stat-value ${bS}">${p.shutouts??0}</div></div>`;
-    } else if(pos==='D'){
-      const bG=betterWorse(p.goals??0,pFrom.goals??0), bA=betterWorse(p.assists??0,pFrom.assists??0);
-      statsHtml=`<div class="compare-stat"><div class="compare-stat-label">G</div><div class="compare-stat-value ${bG}">${p.goals??0}</div></div><div class="compare-stat"><div class="compare-stat-label">A</div><div class="compare-stat-value ${bA}">${p.assists??0}</div></div>`;
+      const bW=betterWorse(p.wins??0,pFrom.wins??0);
+      const bS=betterWorse(p.shutouts??0,pFrom.shutouts??0);
+      const svNow=parseSvPctForCompare(p);
+      const svFrom=parseSvPctForCompare(pFrom);
+      const bSv=(svNow===null||svFrom===null)?'':betterWorse(svNow,svFrom);
+      const svDisplay=goalieSvDisplay(p).value;
+      statsHtml=`<div class="compare-stat"><div class="compare-stat-label">W</div><div class="compare-stat-value ${bW}">${p.wins??0}</div></div><div class="compare-stat"><div class="compare-stat-label">SHO</div><div class="compare-stat-value ${bS}">${p.shutouts??0}</div></div><div class="compare-stat"><div class="compare-stat-label">SV%</div><div class="compare-stat-value ${bSv}">${svDisplay}</div></div>`;
     } else {
-      const bP=betterWorse(p.points??0,pFrom.points??0), bG=betterWorse(p.goals??0,pFrom.goals??0), bA=betterWorse(p.assists??0,pFrom.assists??0);
-      statsHtml=`<div class="compare-stat"><div class="compare-stat-label">PTS</div><div class="compare-stat-value ${bP}">${p.points??0}</div></div><div class="compare-stat"><div class="compare-stat-label">G</div><div class="compare-stat-value ${bG}">${p.goals??0}</div></div><div class="compare-stat"><div class="compare-stat-label">A</div><div class="compare-stat-value ${bA}">${p.assists??0}</div></div>`;
+      const bP=betterWorse(p.points??0,pFrom.points??0);
+      const bG=betterWorse(p.goals??0,pFrom.goals??0);
+      const bA=betterWorse(p.assists??0,pFrom.assists??0);
+      statsHtml=`<div class="compare-stat"><div class="compare-stat-label">PTS</div><div class="compare-stat-value ${bP}">${p.points??((p.goals??0)+(p.assists??0))}</div></div><div class="compare-stat"><div class="compare-stat-label">G</div><div class="compare-stat-value ${bG}">${p.goals??0}</div></div><div class="compare-stat"><div class="compare-stat-label">A</div><div class="compare-stat-value ${bA}">${p.assists??0}</div></div>`;
     }
     const bCap=betterWorse(pFrom.cap_hit||0,p.cap_hit||0);
     statsHtml+=`<div class="compare-stat"><div class="compare-stat-label">Cap</div><div class="compare-stat-value ${bCap}">${formatCap(p.cap_hit||0)}</div></div>`;
