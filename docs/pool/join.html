@@ -675,7 +675,7 @@
           <th class="col-player" onclick="setSort('salary',this)" data-sort="salary">
             Player <span class="sort-arrow" id="sa-player"></span>
           </th>
-          <th class="col-gp" onclick="setSort('gp',this)" data-sort="gp" title="Games Played">
+          <th class="col-gp" id="th-gp" onclick="setSort('gp',this)" data-sort="gp" title="Games Played">
             GP <span class="sort-arrow" id="sa-gp"></span>
           </th>
           <th class="col-g" id="th-g" onclick="setSort('goals',this)" data-sort="goals" title="Goals">
@@ -1021,6 +1021,7 @@
     if (activeSort==='wins')   return p.wins??0;
     if (activeSort==='shutouts') return p.shutouts??0;
     if (activeSort==='save_pct') return p.save_pct??0;
+    if (activeSort==='gaa')    return -(p.gaa??99); // lower is better, invert for desc sort
     if (activeSort==='gp')     return p.games_played??0;
     return p.cap_hit||0; // salary
   }
@@ -1078,7 +1079,7 @@
         catch(_) { sessionStorage.removeItem(PLAYERS_CACHE_KEY); allPlayers=[]; }
       }
       if (!allPlayers.length) {
-        const res=await fetch(`${SUPABASE_URL}/rest/v1/nhl_players?select=puckpedia_slug,player_name,position,cap_hit,team,goals,assists,points,wins,shutouts,games_played,save_pct&order=cap_hit.desc&limit=1000`,{headers:{apikey:SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
+        const res=await fetch(`${SUPABASE_URL}/rest/v1/nhl_players?select=puckpedia_slug,player_name,position,cap_hit,team,goals,assists,points,wins,shutouts,games_played,save_pct,gaa&order=cap_hit.desc&limit=1000`,{headers:{apikey:SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
         if (!res.ok) throw new Error(res.status);
         allPlayers=await res.json();
         sessionStorage.setItem(PLAYERS_CACHE_KEY,JSON.stringify(allPlayers));
@@ -1293,7 +1294,7 @@
 
   // Update sort arrows in header
   function updateSortArrows() {
-    const colMap = { salary:'sa-salary', points:'sa-points', value:'sa-value', goals:'sa-goals', assists:'sa-assists', gp:'sa-gp', wins:'sa-wins', shutouts:'sa-shutouts', save_pct:'sa-save_pct' };
+    const colMap = { salary:'sa-salary', points:'sa-points', value:'sa-value', goals:'sa-goals', assists:'sa-assists', gp:'sa-gp', wins:'sa-wins', shutouts:'sa-shutouts', save_pct:'sa-save_pct', gaa:'sa-gaa' };
     Object.entries(colMap).forEach(([sort, id]) => {
       const el = document.getElementById(id);
       if (!el) return;
@@ -1474,7 +1475,17 @@
       </div>`;
 
     // Stats
-    let gpVal = p.games_played != null ? p.games_played : '—';
+    let gpVal;
+    if (pos === 'G' && activeFilter === 'G') {
+      if (p.gaa != null) {
+        const gaaColor = p.gaa < 2.5 ? '#22c55e' : p.gaa < 3.0 ? '#ffb81c' : 'rgba(255,255,255,0.4)';
+        gpVal = `<span style="color:${gaaColor};font-weight:600;">${p.gaa.toFixed(2)}</span>`;
+      } else {
+        gpVal = '—';
+      }
+    } else {
+      gpVal = p.games_played != null ? p.games_played : '—';
+    }
     let gVal, aVal, ptsVal;
     if (pos === 'G') {
       gVal = p.wins != null ? p.wins : '—';
@@ -1552,6 +1563,8 @@
     if (isGoalie) {
       const svPct = p.save_pct != null ? p.save_pct.toFixed(3) : '—';
       const svColor = p.save_pct == null ? '' : p.save_pct > 0.910 ? 'green' : p.save_pct >= 0.900 ? 'gold' : '';
+      const gaaVal = p.gaa != null ? p.gaa.toFixed(2) : '—';
+      const gaaColor = p.gaa == null ? '' : p.gaa < 2.5 ? 'green' : p.gaa < 3.0 ? 'gold' : '';
       statsHtml = `
       <div class="cap-tooltip-row">
         <span class="cap-tooltip-label">WINS</span>
@@ -1560,6 +1573,10 @@
       <div class="cap-tooltip-row">
         <span class="cap-tooltip-label">SHUTOUTS</span>
         <span class="cap-tooltip-val gold">${p.shutouts ?? '—'}</span>
+      </div>
+      <div class="cap-tooltip-row">
+        <span class="cap-tooltip-label">GAA</span>
+        <span class="cap-tooltip-val ${gaaColor}">${gaaVal}</span>
       </div>
       <div class="cap-tooltip-row">
         <span class="cap-tooltip-label">SV%</span>
@@ -1958,8 +1975,16 @@
 
     const isGoalie = pos === 'G';
     document.body.classList.toggle('goalie-filter', isGoalie);
+    const thGp = document.getElementById('th-gp');
     const thG = document.getElementById('th-g');
     const thA = document.getElementById('th-a');
+    if (thGp) {
+      thGp.title = isGoalie ? 'Goals Against Average' : 'Games Played';
+      thGp.dataset.sort = isGoalie ? 'gaa' : 'gp';
+      thGp.onclick = () => setSort(thGp.dataset.sort, thGp);
+      thGp.querySelector('.sort-arrow').id = isGoalie ? 'sa-gaa' : 'sa-gp';
+      thGp.childNodes[0].textContent = isGoalie ? 'GAA ' : 'GP ';
+    }
     const thPts = document.getElementById('th-pts');
     if (thG) {
       thG.title = isGoalie ? 'Wins' : 'Goals';
@@ -1983,9 +2008,9 @@
       thPts.childNodes[0].textContent = isGoalie ? 'SV% ' : 'PTS ';
     }
 
-    if (isGoalie && (activeSort === 'goals' || activeSort === 'assists' || activeSort === 'points')) {
+    if (isGoalie && (activeSort === 'goals' || activeSort === 'assists' || activeSort === 'points' || activeSort === 'gp')) {
       activeSort = 'wins';
-    } else if (!isGoalie && (activeSort === 'wins' || activeSort === 'shutouts' || activeSort === 'save_pct')) {
+    } else if (!isGoalie && (activeSort === 'wins' || activeSort === 'shutouts' || activeSort === 'save_pct' || activeSort === 'gaa')) {
       activeSort = 'points';
     }
 
