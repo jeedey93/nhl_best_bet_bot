@@ -466,11 +466,16 @@
     return {label:'=', cls:'flat', title:'Holding season pace'};
   }
   function goalieSvDisplay(p){
-    const raw = p?.save_pct ?? p?.save_percentage ?? p?.sv_pct ?? p?.savePctg ?? p?.savePct;
-    if(raw===null || raw===undefined || Number.isNaN(Number(raw))) return { value:'-', muted:true };
-    const n = Number(raw);
-    // Support either decimal format (0.912) or percentage format (91.2)
-    const pct = n <= 1 ? n * 100 : n;
+    const raw = p?.save_pct ?? p?.save_percentage ?? p?.savePercentage ?? p?.sv_pct ?? p?.savePctg ?? p?.savePct;
+    if(raw===null || raw===undefined || raw==='') return { value:'-', muted:true };
+
+    const parsed = typeof raw === 'string' ? Number(raw.replace('%','').trim()) : Number(raw);
+    if(Number.isNaN(parsed) || !Number.isFinite(parsed) || parsed < 0) return { value:'-', muted:true };
+
+    // Accept decimal ratios (0.924) and percentage values (92.4)
+    const pct = parsed <= 1 ? parsed * 100 : parsed;
+    if(!Number.isFinite(pct) || pct > 100) return { value:'-', muted:true };
+
     return { value:`${pct.toFixed(1)}%`, muted:false };
   }
   function formatName(n){ if(!n)return''; if(n.includes(',')){ const[l,f]=n.split(',').map(s=>s.trim()); return`${f} ${l}`; } return n; }
@@ -725,8 +730,8 @@
         <div class="cell-stat cell-g">${goals}</div>
         <div class="cell-stat cell-a">${assists}</div>
         <div class="cell-stat ${pos==='G' ? (goalieSv.muted ? 'muted' : 'gold') : 'gold'}">${pos==='G' ? goalieSv.value : points}</div>
-        <div class="cell-trend ${signal.cls}" title="${signal.title}">${signal.label}</div>
         <div class="cell-cap">${formatCap(p.cap_hit || 0)}</div>
+        <div class="cell-trend ${signal.cls}" title="${signal.title}">${signal.label}</div>
         <div class="cell-action">${swapBtn}</div>
       </div>`;
   }
@@ -777,8 +782,8 @@
       <div class="col-hd">${labels.stat1}</div>
       <div class="col-hd">${labels.stat2}</div>
       <div class="col-hd">${labels.stat3}</div>
-      <div class="col-hd">Form</div>
       <div class="col-hd">Cap</div>
+      <div class="col-hd">Form</div>
       <div class="col-hd"></div>
     </div>`;
   }
