@@ -395,7 +395,7 @@
   const SUPABASE_URL = 'https://fifurqlitkywtmhgtzeu.supabase.co';
   const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZpZnVycWxpdGt5d3RtaGd0emV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3MDIyMjQsImV4cCI6MjA5MjI3ODIyNH0.KPVPj1qwbSJJMyLR_-AhDcRs0vi2sUU6qbFQ-kH53C0';
   const CAP_MAX = 95_500_000;
-  const PLAYER_CACHE_KEY = 'hp_players_v3';
+  const PLAYER_CACHE_KEY = 'hp_players_v4';
   const UNDO_WINDOW_SECONDS = 15;
 
   const TEAM_ABBR = {
@@ -465,6 +465,14 @@
     if(delta < -0.15) return {label:'▼', cls:'down', title:`Cooling off (${delta.toFixed(2)} pts/gm)`};
     return {label:'=', cls:'flat', title:'Holding season pace'};
   }
+  function goalieSvDisplay(p){
+    const raw = p?.save_pct ?? p?.save_percentage ?? p?.sv_pct ?? p?.savePctg ?? p?.savePct;
+    if(raw===null || raw===undefined || Number.isNaN(Number(raw))) return { value:'-', muted:true };
+    const n = Number(raw);
+    // Support either decimal format (0.912) or percentage format (91.2)
+    const pct = n <= 1 ? n * 100 : n;
+    return { value:`${pct.toFixed(1)}%`, muted:false };
+  }
   function formatName(n){ if(!n)return''; if(n.includes(',')){ const[l,f]=n.split(',').map(s=>s.trim()); return`${f} ${l}`; } return n; }
   function slugMap(){ if(!slugMap._c) slugMap._c=Object.fromEntries(allPlayers.map(p=>[p.puckpedia_slug,p])); return slugMap._c; }
   function sbHeaders(extra={}){ return{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Content-Type':'application/json',...extra}; }
@@ -520,7 +528,7 @@
   async function ensurePlayersLoaded(slugs){
     const needed=[...new Set((slugs||[]).filter(Boolean).filter(sl=>!slugMap()[sl]))];
     if(!needed.length) return;
-    const fields='puckpedia_slug,player_name,position,cap_hit,team,goals,assists,points,wins,shutouts,games_played';
+    const fields='puckpedia_slug,player_name,position,cap_hit,team,goals,assists,points,wins,shutouts,games_played,save_pct';
     for(let i=0;i<needed.length;i+=75){
       const chunk=needed.slice(i,i+75);
       const orClause=`(${chunk.map(sl=>`puckpedia_slug.eq.${sl}`).join(',')})`;
@@ -563,7 +571,7 @@
       if(cached&&cacheAgeHours<24){ try{ allPlayers=JSON.parse(cached); if(!Array.isArray(allPlayers)||!allPlayers.length)throw new Error('empty'); }catch(_){ sessionStorage.removeItem(PLAYER_CACHE_KEY); sessionStorage.removeItem(PLAYER_CACHE_KEY+'_time'); allPlayers=[]; } }
       else{ sessionStorage.removeItem(PLAYER_CACHE_KEY); sessionStorage.removeItem(PLAYER_CACHE_KEY+'_time'); allPlayers=[]; }
       if(!allPlayers.length){
-        const res=await fetch(`${SUPABASE_URL}/rest/v1/nhl_players?select=puckpedia_slug,player_name,position,cap_hit,team,goals,assists,points,wins,shutouts,games_played&order=cap_hit.desc&limit=1000`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
+        const res=await fetch(`${SUPABASE_URL}/rest/v1/nhl_players?select=puckpedia_slug,player_name,position,cap_hit,team,goals,assists,points,wins,shutouts,games_played,save_pct&order=cap_hit.desc&limit=1000`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
         if(!res.ok) throw new Error(res.status);
         allPlayers=await res.json(); slugMap._c=null;
         sessionStorage.setItem(PLAYER_CACHE_KEY,JSON.stringify(allPlayers));
@@ -696,7 +704,8 @@
     const gp = Number(p.games_played ?? p.gp ?? 0);
     const goals = pos === 'G' ? (p.wins ?? 0) : (p.goals ?? 0);
     const assists = pos === 'G' ? (p.shutouts ?? 0) : (p.assists ?? 0);
-    const points = pos === 'G' ? poolScore(p) : (p.points ?? ((p.goals ?? 0) + (p.assists ?? 0)));
+    const points = p.points ?? ((p.goals ?? 0) + (p.assists ?? 0));
+    const goalieSv = pos === 'G' ? goalieSvDisplay(p) : null;
     const signal = performanceSignal(p, team, slug);
 
     const swapBtn = canSwap
@@ -715,7 +724,7 @@
         <div class="cell-stat cell-gp">${gp}</div>
         <div class="cell-stat cell-g">${goals}</div>
         <div class="cell-stat cell-a">${assists}</div>
-        <div class="cell-stat gold">${points}</div>
+        <div class="cell-stat ${pos==='G' ? (goalieSv.muted ? 'muted' : 'gold') : 'gold'}">${pos==='G' ? goalieSv.value : points}</div>
         <div class="cell-trend ${signal.cls}" title="${signal.title}">${signal.label}</div>
         <div class="cell-cap">${formatCap(p.cap_hit || 0)}</div>
         <div class="cell-action">${swapBtn}</div>
@@ -728,7 +737,8 @@
     const gp = Number(p.games_played ?? p.gp ?? 0);
     const goals = pos === 'G' ? (p.wins ?? 0) : (p.goals ?? 0);
     const assists = pos === 'G' ? (p.shutouts ?? 0) : (p.assists ?? 0);
-    const points = pos === 'G' ? poolScore(p) : (p.points ?? ((p.goals ?? 0) + (p.assists ?? 0)));
+    const points = p.points ?? ((p.goals ?? 0) + (p.assists ?? 0));
+    const goalieSv = pos === 'G' ? goalieSvDisplay(p) : null;
     const signal = performanceSignal(p, team, slug);
 
     return `
@@ -741,7 +751,7 @@
         <div class="cell-stat cell-gp">${gp}</div>
         <div class="cell-stat cell-g">${goals}</div>
         <div class="cell-stat cell-a">${assists}</div>
-        <div class="cell-stat gold">${points}</div>
+        <div class="cell-stat ${pos==='G' ? (goalieSv.muted ? 'muted' : 'gold') : 'gold'}">${pos==='G' ? goalieSv.value : points}</div>
         <div class="cell-trend ${signal.cls}" title="${signal.title}">${signal.label}</div>
         <div class="cell-cap">${formatCap(p.cap_hit || 0)}</div>
       </div>`;
@@ -754,7 +764,7 @@
   /* ── Column header row ── */
   function statHeaderLabels(pos){
     return pos==='G'
-      ? { stat1: 'W', stat2: 'SHO', stat3: 'Pool P' }
+      ? { stat1: 'W', stat2: 'SHO', stat3: 'SV%' }
       : { stat1: 'G', stat2: 'A', stat3: 'P' };
   }
 

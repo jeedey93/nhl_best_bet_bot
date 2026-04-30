@@ -581,7 +581,7 @@ function checkPoolPw(){
   }
 
   async function loadPlayersMapForTools() {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/nhl_players?select=puckpedia_slug,points,goals,assists,wins,shutouts&limit=5000`, { headers: sbHeaders() });
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/nhl_players?select=puckpedia_slug,points,goals,assists,wins,shutouts,save_pct&limit=5000`, { headers: sbHeaders() });
     if (!res.ok) throw new Error(`Failed loading players (${res.status})`);
     const players = await res.json();
     return Object.fromEntries(players.map(p => [p.puckpedia_slug, p]));
@@ -731,7 +731,7 @@ function checkPoolPw(){
     status.className = 'save-status';
 
     try {
-      const playersRes = await fetch(`${SUPABASE_URL}/rest/v1/nhl_players?select=puckpedia_slug,points,goals,assists,wins,shutouts&limit=2000`, { headers: sbHeaders() });
+      const playersRes = await fetch(`${SUPABASE_URL}/rest/v1/nhl_players?select=puckpedia_slug,points,goals,assists,wins,shutouts,save_pct&limit=2000`, { headers: sbHeaders() });
       if (!playersRes.ok) throw new Error(`Failed loading players (${playersRes.status})`);
       const players = await playersRes.json();
       const playerMap = Object.fromEntries(players.map(p => [p.puckpedia_slug, p]));
