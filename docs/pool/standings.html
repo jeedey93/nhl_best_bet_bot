@@ -18,10 +18,6 @@
       --pink: #ff7a8a;
       --line: rgba(255,255,255,0.08);
       --nav-h: 44px;
-      --row-f:   rgba(255, 100, 120, 0.13);
-      --row-d:   rgba(80,  160, 255, 0.13);
-      --row-g:   rgba(255, 184,  28, 0.13);
-      --row-sum: rgba(255, 255, 255, 0.06);
     }
     body { background: var(--rink); background-image: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(26,58,110,0.6) 0%, transparent 70%); min-height: 100vh; font-family: 'Barlow Condensed', sans-serif; color: white; padding-top: var(--nav-h); }
 
@@ -34,17 +30,6 @@
     .site-nav-links a.active { color: var(--gold); background: rgba(255,184,28,0.1); }
 
     .page-wrap { max-width: 980px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
-
-    /* Expand All Teams beyond tab width only when needed */
-    @media (min-width: 901px) {
-      .allteams-mode.allteams-needs-wide #view-allteams {
-        width: min(1400px, calc(100vw - 1.5rem));
-        margin-left: 50%;
-        transform: translateX(-50%);
-      }
-    }
-
-
 
     header { text-align: center; margin-bottom: 1.5rem; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; }
     header h1 { font-family: 'Bebas Neue', cursive; font-size: clamp(1.8rem, 4vw, 2.8rem); letter-spacing: 5px; line-height: 1; text-shadow: 0 0 30px rgba(200,16,46,0.4), 0 2px 8px rgba(0,0,0,0.8); }
@@ -182,119 +167,6 @@
     .top-player-stat { font-family: 'Barlow Condensed', sans-serif; font-size: 0.8rem; font-weight: 700; color: var(--silver); text-align: right; }
     .top-player-pts { font-family: 'Bebas Neue', cursive; font-size: 1rem; color: var(--gold); text-align: right; }
 
-    /* ════════ ALL TEAMS SPREADSHEET ════════ */
-    .at-wrap { border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; overflow: hidden; margin-bottom: 1.75rem; }
-    .at-scroll { overflow-x: auto; overflow-y: auto; max-height: 78vh; }
-    .at-table { border-collapse: collapse; min-width: 100%; font-family: 'Barlow Condensed', sans-serif; }
-    .allteams-mode .at-wrap { width: 100%; max-width: 100%; }
-    .allteams-mode .at-scroll { overflow-x: hidden; }
-    .allteams-mode .at-table { width: 100%; min-width: 0; table-layout: fixed; }
-    .allteams-mode.allteams-needs-wide .at-scroll { overflow-x: auto; }
-    .allteams-mode.allteams-needs-wide .at-table { width: max-content; min-width: 100%; table-layout: auto; }
-    .allteams-mode .at-table th, .allteams-mode .at-table td { min-width: 0; }
-    .allteams-mode .at-th-inner { padding: 6px 5px 5px; }
-    .allteams-mode .at-th-name { font-size: 0.78rem; letter-spacing: 1px; max-width: none; }
-    .allteams-mode td.pn {
-      font-size: 0.72rem;
-      padding: 3px 4px;
-      width: 75%;
-      max-width: none;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .allteams-mode td.ps {
-      font-size: 0.68rem;
-      padding: 3px 4px;
-      width: 25%;
-      min-width: 0;
-      max-width: none;
-    }
-    .allteams-mode .at-table thead tr.at-subhead-row th {
-      padding: 3px 4px;
-      letter-spacing: 1px;
-    }
-    .allteams-mode .at-table thead tr.at-subhead-row th { width: 75%; }
-    .allteams-mode .at-table thead tr.at-subhead-row th.r { width: 25%; min-width: 0; max-width: none; }
-
-    /* sticky double header */
-    .at-table thead { position: sticky; top: 0; z-index: 10; }
-    .at-table thead tr.at-head-row th {
-      background: #0c1d32;
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-      border-right: 1px solid rgba(255,255,255,0.07);
-      padding: 0; vertical-align: bottom;
-    }
-    .at-table thead tr.at-head-row th:last-child { border-right: none; }
-    .at-table thead tr.at-subhead-row th {
-      background: #0a1828;
-      border-bottom: 2px solid rgba(255,255,255,0.12);
-      border-right: 1px solid rgba(255,255,255,0.06);
-      padding: 3px 8px 4px;
-      font-size: 0.6rem; font-weight: 700; letter-spacing: 1.5px;
-      color: rgba(255,255,255,0.25); text-transform: uppercase; white-space: nowrap;
-    }
-    .at-table thead tr.at-subhead-row th.r { text-align: right; }
-    .at-table thead tr.at-subhead-row th:last-child { border-right: none; }
-
-    .at-th-inner { padding: 8px 10px 7px; text-align: center; }
-    .at-th-rank { font-family: 'Bebas Neue', cursive; font-size: 0.65rem; letter-spacing: 1px; margin-bottom: 1px; }
-    .at-th-rank.r1 { color: var(--gold); } .at-th-rank.r2 { color: #b8c4d0; } .at-th-rank.r3 { color: #cd7f32; } .at-th-rank.rn { color: rgba(255,255,255,0.22); }
-    .at-th-name { font-family: 'Bebas Neue', cursive; font-size: 0.95rem; letter-spacing: 2px; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 140px; }
-    .at-th-pts { font-family: 'Barlow Condensed', sans-serif; font-size: 0.62rem; font-weight: 700; color: rgba(255,255,255,0.32); letter-spacing: 0.5px; margin-top: 1px; }
-    .at-th-subs { display: flex; justify-content: center; gap: 3px; margin-top: 3px; }
-    .at-th-sub { font-family: 'Barlow Condensed', sans-serif; font-size: 0.58rem; font-weight: 700; border-radius: 2px; padding: 1px 4px; }
-    .at-th-sub.F { background: rgba(255,122,138,0.12); color: #ff7a8a; }
-    .at-th-sub.D { background: rgba(125,180,255,0.12); color: #7db4ff; }
-    .at-th-sub.G { background: rgba(255,184,28,0.12); color: #ffb81c; }
-
-    /* divider column */
-    .at-table th.at-div, .at-table td.at-div { width: 2px; min-width: 2px; max-width: 2px; background: rgba(255,255,255,0.08) !important; padding: 0; border: none !important; }
-
-    /* body */
-    .at-table tbody tr { border-bottom: 1px solid rgba(255,255,255,0.03); transition: filter 0.1s; }
-    .at-table tbody tr:hover { filter: brightness(1.14); }
-
-    /* section header */
-    .at-table tbody tr.at-sec td { padding: 4px 12px 3px; font-family: 'Bebas Neue', cursive; font-size: 0.65rem; letter-spacing: 3px; border-top: 1px solid rgba(255,255,255,0.08); border-bottom: 1px solid rgba(255,255,255,0.06); background: rgba(0,0,0,0.4) !important; }
-    .at-table tbody tr.at-sec.F td { color: var(--pink); }
-    .at-table tbody tr.at-sec.D td { color: var(--blue); }
-    .at-table tbody tr.at-sec.G td { color: var(--gold); }
-    .at-table tbody tr.at-sec.B td { color: var(--silver); }
-
-    /* totals */
-    .at-table tbody tr.at-tot td { background: var(--row-sum) !important; border-top: 1px solid rgba(255,255,255,0.1); }
-    .at-table tbody tr.at-tot td.lbl { font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem; font-weight: 700; letter-spacing: 1px; color: rgba(255,255,255,0.35); padding: 5px 6px 5px 10px; white-space: nowrap; }
-    .at-table tbody tr.at-tot td.val { font-family: 'Bebas Neue', cursive; font-size: 0.82rem; letter-spacing: 1px; color: white; text-align: right; padding: 5px 10px 5px 4px; white-space: nowrap; }
-    .at-table tbody tr.at-tot td.val.g { color: var(--gold); }
-
-    /* position-tinted rows */
-    tr.rF td { background-color: var(--row-f); }
-    tr.rD td { background-color: var(--row-d); }
-    tr.rG td { background-color: var(--row-g); }
-
-    /* player cells */
-    td.pn { /* name */
-      font-family: 'Barlow Condensed', sans-serif; font-size: 0.82rem; font-weight: 700;
-      color: white; padding: 4px 6px 4px 10px;
-      white-space: nowrap; max-width: 148px; overflow: hidden; text-overflow: ellipsis;
-    }
-    td.ps { /* salary */
-      font-family: 'Barlow Condensed', sans-serif; font-size: 0.78rem; font-weight: 700;
-      color: rgba(255,255,255,0.38); text-align: right;
-      padding: 4px 8px 4px 2px; white-space: nowrap;
-    }
-    td.pp { /* pool pts */
-      font-family: 'Bebas Neue', cursive; font-size: 0.8rem; letter-spacing: 1px;
-      color: var(--gold); text-align: right;
-      padding: 4px 10px 4px 2px; white-space: nowrap;
-    }
-    td.pe { /* empty */
-      font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem;
-      color: rgba(255,255,255,0.1); font-style: italic; padding: 4px 10px;
-    }
-    td.pn .nhl { opacity: 0.32; font-size: 0.72em; }
-
     .msg { text-align: center; color: var(--silver); font-size: 0.9rem; letter-spacing: 1px; padding: 3rem 0; }
     .btn-refresh { font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 2px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); color: var(--silver); border-radius: 6px; padding: 4px 14px; cursor: pointer; }
     .btn-refresh:hover { background: rgba(255,255,255,0.1); color: white; }
@@ -316,9 +188,6 @@
       .team-tab { font-size: 1rem; padding: 7px 20px; }
       .detail-title { font-size: 1.9rem; } .pos-score-val { font-size: 2rem; }
       .player-row { padding: 0.6rem 1rem; } .player-row-logo { width: 30px; height: 30px; } .player-row-name { font-size: 1.1rem; }
-      td.pn { font-size: 0.9rem; max-width: 165px; padding: 5px 6px 5px 12px; }
-      td.ps { font-size: 0.85rem; } td.pp { font-size: 0.88rem; }
-      .at-th-name { font-size: 1.05rem; }
     }
 
     #pw-gate { position:fixed;inset:0;z-index:9999;background:var(--rink);display:flex;align-items:center;justify-content:center;background-image:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(26,58,110,0.6) 0%,transparent 70%); }
@@ -405,6 +274,7 @@
 
   let allPlayers=[], teams=[], activeTeamId=null;
   let activeView = sessionStorage.getItem('pool_view')||'standings';
+  if(activeView==='allteams') activeView='standings';
 
    document.getElementById('nav-draft').href       = `/pool/join?league=${_leagueCode}`;
    document.getElementById('nav-live-draft').href  = `/pool/live-draft?league=${_leagueCode}`;
@@ -495,8 +365,6 @@
   }
 
   function render(){
-    document.body.classList.toggle('allteams-mode', activeView==='allteams');
-    document.body.classList.remove('allteams-needs-wide');
     const sorted=[...teams].sort((a,b)=>teamTotalPts(b)-teamTotalPts(a));
     const leaderPts=sorted.length?teamTotalPts(sorted[0]):0;
     const avgs=computePoolAverages();
@@ -505,32 +373,18 @@
       ${buildPodium(sorted,leaderPts)}
       <div class="view-tabs">
         <div class="view-tab ${activeView==='standings'?'active':''}" onclick="setView('standings')">Standings</div>
-        <div class="view-tab ${activeView==='allteams'?'active':''}" onclick="setView('allteams')">All Teams</div>
         <div class="view-tab ${activeView==='team'?'active':''}" onclick="setView('team')">Team Detail</div>
         <div class="view-tab ${activeView==='pool'?'active':''}" onclick="setView('pool')">Pool Leaders</div>
       </div>
       <div id="view-standings" style="display:${activeView==='standings'?'block':'none'}">${buildLeaderboard(sorted,leaderPts)}</div>
-      <div id="view-allteams"  style="display:${activeView==='allteams'?'block':'none'}">${buildAllTeams(teams)}</div>
       <div id="view-team"      style="display:${activeView==='team'?'block':'none'}">
         <div class="team-tabs">${sorted.map(t=>`<div class="team-tab ${t.id===activeTeamId?'active':''}" onclick="selectTeam('${t.id}')">${t.name}<span class="team-tab-pts">${teamTotalPts(t)}pts</span></div>`).join('')}</div>
         <div class="team-detail visible">${activeTeam?buildDetail(activeTeam,sorted,leaderPts,avgs):''}</div>
       </div>
       <div id="view-pool" style="display:${activeView==='pool'?'block':'none'}">${buildPoolLeaders()}</div>
     `;
-    requestAnimationFrame(updateAllTeamsWidthMode);
   }
 
-  function updateAllTeamsWidthMode(){
-    const body=document.body;
-    body.classList.remove('allteams-needs-wide');
-    if(activeView!=='allteams') return;
-    const root=document.getElementById('view-allteams');
-    if(!root) return;
-    const clipped=[...root.querySelectorAll('.at-th-name, td.pn')].some(el=>el.scrollWidth>el.clientWidth+1);
-    if(clipped) body.classList.add('allteams-needs-wide');
-  }
-
-   window.addEventListener('resize', ()=>{ if(activeView==='allteams') updateAllTeamsWidthMode(); });
    function setView(v){activeView=v;sessionStorage.setItem('pool_view',v);render();}
    function selectTeam(id){activeTeamId=id;activeView='team';sessionStorage.setItem('pool_view','team');render();}
 
@@ -583,98 +437,6 @@
       return`<div class="lb-row ${t.id===activeTeamId?'active':''}" onclick="selectTeam('${t.id}')"><div class="lb-rank ${rc(i)}">${i+1}</div><div><div class="lb-name">${t.name}</div><div class="lb-subscore"><span class="lb-subscore-pill F">F ${sub.F}</span><span class="lb-subscore-pill D">D ${sub.D}</span><span class="lb-subscore-pill G">G ${sub.G}</span><span class="lb-subscore-pill B">B ${sub.B}</span></div></div><div class="lb-stat">${filled}/26</div><div class="lb-stat">$${(cap/1e6).toFixed(1)}M</div><div class="lb-stat">${eff} pt/$M</div><div class="lb-stat ${i===0?'gap leader':'gap'}">${gap}</div><div class="lb-stat pts">${pts}</div></div>`;
     }).join('');
     return`<div class="leaderboard"><div class="lb-row header" style="grid-template-columns:36px 1fr 60px 60px 70px 70px 70px"><div></div><div class="lb-col-label left">Team</div><div class="lb-col-label">Players</div><div class="lb-col-label">Cap</div><div class="lb-col-label">Eff.</div><div class="lb-col-label">Gap</div><div class="lb-col-label">Pts</div></div>${rows}</div>`;}
-
-  // ════════ ALL TEAMS SPREADSHEET ════════
-  function buildAllTeams(sorted){
-    if(!sorted.length) return '<div class="msg">No teams yet.</div>';
-
-    const SECS=[{key:'F',label:'FORWARDS',slots:12},{key:'D',label:'DEFENCE',slots:6},{key:'G',label:'GOALIES',slots:2},{key:'B',label:'BENCH',slots:6}];
-    const N=sorted.length;
-
-    // Rosters sorted by pts descending within each pos
-    const rosters=sorted.map(t=>{
-      const r=rosterPlayers(t.roster);
-      return{F:r.F.filter(Boolean).sort((a,b)=>poolScoreOwned(b,t,b._slug)-poolScoreOwned(a,t,a._slug)),D:r.D.filter(Boolean).sort((a,b)=>poolScoreOwned(b,t,b._slug)-poolScoreOwned(a,t,a._slug)),G:r.G.filter(Boolean).sort((a,b)=>poolScoreOwned(b,t,b._slug)-poolScoreOwned(a,t,a._slug)),B:r.B.filter(Boolean).sort((a,b)=>poolScoreOwned(b,t,b._slug)-poolScoreOwned(a,t,a._slug)),_team:t};
-    });
-
-    const SALARY_CAP=95500000;
-    // total cols per team = 2 (name+salary), divider between teams
-    const totalCols=N*2+(N-1);
-
-    const div=(isTh)=>isTh?'<th class="at-div"></th>':'<td class="at-div"></td>';
-
-    // ── HEAD row 1: team banners ──
-    let h1='<tr class="at-head-row">';
-    sorted.forEach((t,i)=>{
-      h1+=`<th colspan="2"><div class="at-th-inner"><div class="at-th-name">${t.name}</div></div></th>`;
-      if(i<N-1)h1+=div(true);
-    });
-    h1+='</tr>';
-
-    // ── HEAD row 2: col labels ──
-    let h2='<tr class="at-subhead-row">';
-    sorted.forEach((t,i)=>{
-      h2+='<th>Player</th><th class="r">Salary</th>';
-      if(i<N-1)h2+=div(true);
-    });
-    h2+='</tr>';
-
-    // ── BODY ──
-    let body='';
-    SECS.forEach(({key,label,slots})=>{
-      body+=`<tr class="at-sec ${key}"><td colspan="${totalCols}">${label}</td></tr>`;
-      for(let i=0;i<slots;i++){
-        const rc2=`r${key}`;
-        body+=`<tr class="${rc2}">`;
-        rosters.forEach((r,ti)=>{
-          const p=r[key][i]||null;
-          if(p){
-            const pts=poolScoreOwned(p,r._team,p._slug),sal=p.cap_hit?`$${(p.cap_hit/1e6).toFixed(3)}M`:'—';
-            const full=formatName(p.player_name),nhl=TEAM_ABBR[p.team]||'';
-            body+=`<td class="pn" title="${full}">${full}${nhl?` <span class="nhl">${nhl}</span>`:''}</td><td class="ps">${sal}</td>`;
-          } else {
-            body+=`<td class="pe">—</td><td class="ps"></td>`;
-          }
-          if(ti<N-1)body+=div(false);
-        });
-        body+='</tr>';
-      }
-    });
-
-    // ── TOTALS ──
-    // Row: Total Salary
-    body+=`<tr class="at-tot">`;
-    sorted.forEach((t,ti)=>{
-      const cap=teamCapUsed(t.roster);
-      body+=`<td class="lbl">Total Salary</td><td class="val">$${(cap/1e6).toFixed(2)}M</td>`;
-      if(ti<N-1)body+=div(false);
-    });
-    body+='</tr>';
-
-    // Row: Cap Space Remaining
-    body+=`<tr class="at-tot">`;
-    sorted.forEach((t,ti)=>{
-      const cap=teamCapUsed(t.roster);
-      const remaining=SALARY_CAP-cap;
-      body+=`<td class="lbl">Cap Space Remaining</td><td class="val g">$${(remaining/1e6).toFixed(2)}M</td>`;
-      if(ti<N-1)body+=div(false);
-    });
-    body+='</tr>';
-
-    // Row: Avg Cap Space / Player Remaining
-    body+=`<tr class="at-tot">`;
-    sorted.forEach((t,ti)=>{
-      const cap=teamCapUsed(t.roster),filled=teamFilled(t.roster);
-      const remaining=SALARY_CAP-cap;
-      const slotsLeft=26-filled;
-      const avg=slotsLeft>0?`$${(remaining/1e6/slotsLeft).toFixed(2)}M`:'—';
-      body+=`<td class="lbl">Avg Cap / Slot Left</td><td class="val">${avg}</td>`;
-      if(ti<N-1)body+=div(false);
-    });
-    body+='</tr>';
-
-    return`<div class="at-wrap"><div class="at-scroll"><table class="at-table"><thead>${h1}${h2}</thead><tbody>${body}</tbody></table></div></div>`;
-  }
 
   function buildDetail(team,sorted,leaderPts,avgs){
     const roster=rosterPlayers(team.roster);
