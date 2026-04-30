@@ -43,27 +43,6 @@
     .sync-status { font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem; color: rgba(34,197,94,0.7); margin-left: 0.3rem; }
     .sync-status.error { color: rgba(200,16,46,0.7); }
 
-    .podium { display: flex; align-items: flex-end; justify-content: center, gap: 0.75rem; margin-bottom: 2rem; }
-    .podium-block { flex: 1; max-width: 220px; text-align: center; background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 10px; padding: 1rem 0.75rem 0.85rem; cursor: pointer; transition: background 0.15s, transform 0.15s; }
-    .podium-block:hover { background: rgba(255,255,255,0.06); transform: translateY(-2px); }
-    .podium-block.first { border-color: rgba(255,184,28,0.35); background: rgba(255,184,28,0.05); box-shadow: 0 0 40px rgba(255,184,28,0.08); }
-    .podium-block.second { border-color: rgba(192,200,212,0.25); }
-    .podium-block.third  { border-color: rgba(205,127,50,0.25); }
-    .podium-crown { font-size: 1.4rem; margin-bottom: 0.3rem; display: block; line-height: 1; }
-    .podium-rank { font-family: 'Bebas Neue', cursive; font-size: 2rem; letter-spacing: 2px; line-height: 1; }
-    .podium-block.first  .podium-rank { color: var(--gold); }
-    .podium-block.second .podium-rank { color: #c0c8d4; }
-    .podium-block.third  .podium-rank { color: #cd7f32; }
-    .podium-name { font-family: 'Bebas Neue', cursive; font-size: 1.05rem; letter-spacing: 2px; color: white; margin: 0.2rem 0 0.5rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .podium-pts { font-family: 'Bebas Neue', cursive; font-size: 1.75rem; letter-spacing: 2px; color: white; line-height: 1; }
-    .podium-pts-label { font-family: 'Barlow Condensed', sans-serif; font-size: 0.65rem; font-weight: 700; color: var(--silver); letter-spacing: 2px; margin-top: 1px; display: block; }
-    .podium-gap { font-family: 'Barlow Condensed', sans-serif; font-size: 0.75rem; font-weight: 700; color: rgba(255,255,255,0.3); margin-top: 0.3rem; }
-    .podium-breakdown { display: flex; justify-content: center; gap: 0.5rem; margin-top: 0.55rem; }
-    .podium-breakdown-item { font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem; font-weight: 700; border-radius: 3px; padding: 1px 7px; }
-    .podium-breakdown-item.F { background: rgba(255,122,138,0.12); color: var(--pink); }
-    .podium-breakdown-item.D { background: rgba(125,180,255,0.12); color: var(--blue); }
-    .podium-breakdown-item.G { background: rgba(255,184,28,0.12); color: var(--gold); }
-
     .view-tabs { display: flex; gap: 4px; margin-bottom: 1.25rem; background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 8px; padding: 4px; }
     .view-tab { font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 2px; padding: 5px 14px; border-radius: 5px; cursor: pointer; flex: 1; text-align: center; color: var(--silver); transition: background 0.15s, color 0.15s; }
     .view-tab:hover { color: white; }
@@ -370,7 +349,6 @@
     const avgs=computePoolAverages();
     const activeTeam=teams.find(t=>t.id===activeTeamId);
     document.getElementById('content').innerHTML=`
-      ${buildPodium(sorted,leaderPts)}
       <div class="view-tabs">
         <div class="view-tab ${activeView==='standings'?'active':''}" onclick="setView('standings')">Standings</div>
         <div class="view-tab ${activeView==='team'?'active':''}" onclick="setView('team')">Team Detail</div>
@@ -420,14 +398,6 @@
        btn.disabled=false;
      }
    }
-
-  function buildPodium(sorted,leaderPts){
-    const medals=['🥇','🥈','🥉'],cls=['first','second','third'];
-    const order=sorted.length>=3?[sorted[1],sorted[0],sorted[2]]:sorted;
-    const oi=sorted.length>=3?[1,0,2]:sorted.map((_,i)=>i);
-    return`<div class="podium">${order.map((t,i)=>{if(!t)return'';const ri=oi[i],pts=teamTotalPts(t),sub=teamSubScores(t),gap=ri===0?'':`−${leaderPts-pts} from 1st`;
-      return`<div class="podium-block ${cls[ri]}" onclick="selectTeam('${t.id}');setView('team')"><span class="podium-crown">${medals[ri]}</span><div class="podium-rank">#${ri+1}</div><div class="podium-name">${t.name}</div><div class="podium-pts">${pts}<span class="podium-pts-label">POOL PTS</span></div>${gap?`<div class="podium-gap">${gap}</div>`:''}<div class="podium-breakdown"><span class="podium-breakdown-item F">F ${sub.F}</span><span class="podium-breakdown-item D">D ${sub.D}</span><span class="podium-breakdown-item G">G ${sub.G}</span><span class="podium-breakdown-item B">B ${sub.B}</span></div></div>`;
-    }).join('')}</div>`;}
 
   function buildLeaderboard(sorted,leaderPts){
     const rc=i=>i===0?'gold':i===1?'silver':i===2?'bronze':'';
