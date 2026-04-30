@@ -32,6 +32,7 @@
 
     /* ── LAYOUT ── */
     .page-wrap { max-width: 1000px; margin: 0 auto; padding: 1rem 1rem 1.5rem; }
+    body.allteams-mode .page-wrap { max-width: min(1400px, calc(100vw - 1.5rem)); }
     .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
 
     header { text-align: center; margin-bottom: 0.75rem; }
@@ -250,6 +251,66 @@
     .pw-btn:hover { background:#e0122e; }
     .pw-error { color:rgba(200,16,46,0.8);font-size:0.8rem;margin-top:0.5rem;min-height:1em;letter-spacing:1px; }
 
+    /* ── ALL TEAMS SPREADSHEET ── */
+    .at-wrap { border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; overflow: hidden; margin-bottom: 1.75rem; }
+    .at-scroll { overflow-x: auto; overflow-y: auto; max-height: 78vh; }
+    .at-table { border-collapse: collapse; min-width: 100%; font-family: 'Barlow Condensed', sans-serif; }
+    body.allteams-mode .at-wrap { width: 100%; max-width: 100%; }
+    body.allteams-mode .at-scroll { overflow-x: hidden; }
+    body.allteams-mode .at-table { width: 100%; min-width: 0; table-layout: fixed; }
+    body.allteams-mode.allteams-needs-wide .at-scroll { overflow-x: auto; }
+    body.allteams-mode.allteams-needs-wide .at-table { width: max-content; min-width: 100%; table-layout: auto; }
+    body.allteams-mode .at-table th, body.allteams-mode .at-table td { min-width: 0; }
+    body.allteams-mode .at-th-inner { padding: 6px 5px 5px; }
+    body.allteams-mode .at-th-name { font-size: 0.78rem; letter-spacing: 1px; max-width: none; }
+    body.allteams-mode td.pn { font-size: 0.72rem; padding: 3px 4px; width: 75%; max-width: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    body.allteams-mode td.ps { font-size: 0.68rem; padding: 3px 4px; width: 25%; min-width: 0; max-width: none; }
+    body.allteams-mode .at-table thead tr.at-subhead-row th { padding: 3px 4px; letter-spacing: 1px; width: 75%; }
+    body.allteams-mode .at-table thead tr.at-subhead-row th.r { width: 25%; min-width: 0; max-width: none; }
+    /* sticky double header */
+    .at-table thead { position: sticky; top: 0; z-index: 10; }
+    .at-table thead tr.at-head-row th { background: #0c1d32; border-bottom: 1px solid rgba(255,255,255,0.08); border-right: 1px solid rgba(255,255,255,0.07); padding: 0; vertical-align: bottom; }
+    .at-table thead tr.at-head-row th:last-child { border-right: none; }
+    .at-table thead tr.at-subhead-row th { background: #0a1828; border-bottom: 2px solid rgba(255,255,255,0.12); border-right: 1px solid rgba(255,255,255,0.06); padding: 3px 8px 4px; font-size: 0.6rem; font-weight: 700; letter-spacing: 1.5px; color: rgba(255,255,255,0.25); text-transform: uppercase; white-space: nowrap; }
+    .at-table thead tr.at-subhead-row th.r { text-align: right; }
+    .at-table thead tr.at-subhead-row th:last-child { border-right: none; }
+    .at-th-inner { padding: 8px 10px 7px; text-align: center; }
+    .at-th-rank { font-family: 'Bebas Neue', cursive; font-size: 0.65rem; letter-spacing: 1px; margin-bottom: 1px; }
+    .at-th-rank.r1 { color: var(--gold); } .at-th-rank.r2 { color: #b8c4d0; } .at-th-rank.r3 { color: #cd7f32; } .at-th-rank.rn { color: rgba(255,255,255,0.22); }
+    .at-th-name { font-family: 'Bebas Neue', cursive; font-size: 0.95rem; letter-spacing: 2px; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 140px; }
+    .at-th-pts { font-family: 'Barlow Condensed', sans-serif; font-size: 0.62rem; font-weight: 700; color: rgba(255,255,255,0.32); letter-spacing: 0.5px; margin-top: 1px; }
+    .at-th-subs { display: flex; justify-content: center; gap: 3px; margin-top: 3px; }
+    .at-th-sub { font-family: 'Barlow Condensed', sans-serif; font-size: 0.58rem; font-weight: 700; border-radius: 2px; padding: 1px 4px; }
+    .at-th-sub.F { background: rgba(255,122,138,0.12); color: #ff7a8a; }
+    .at-th-sub.D { background: rgba(125,180,255,0.12); color: #7db4ff; }
+    .at-th-sub.G { background: rgba(255,184,28,0.12); color: #ffb81c; }
+    .at-table th.at-div, .at-table td.at-div { width: 2px; min-width: 2px; max-width: 2px; background: rgba(255,255,255,0.08) !important; padding: 0; border: none !important; }
+    .at-table tbody tr { border-bottom: 1px solid rgba(255,255,255,0.03); transition: filter 0.1s; }
+    .at-table tbody tr:hover { filter: brightness(1.14); }
+    .at-table tbody tr.at-sec td { padding: 4px 12px 3px; font-family: 'Bebas Neue', cursive; font-size: 0.65rem; letter-spacing: 3px; border-top: 1px solid rgba(255,255,255,0.08); border-bottom: 1px solid rgba(255,255,255,0.06); background: rgba(0,0,0,0.4) !important; }
+    .at-table tbody tr.at-sec.F td { color: var(--pink); }
+    .at-table tbody tr.at-sec.D td { color: var(--blue); }
+    .at-table tbody tr.at-sec.G td { color: var(--gold); }
+    .at-table tbody tr.at-sec.B td { color: var(--silver); }
+    .at-table tbody tr.at-tot td { background: rgba(255,255,255,0.06) !important; border-top: 1px solid rgba(255,255,255,0.1); }
+    .at-table tbody tr.at-tot td.lbl { font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem; font-weight: 700; letter-spacing: 1px; color: rgba(255,255,255,0.35); padding: 5px 6px 5px 10px; white-space: nowrap; }
+    .at-table tbody tr.at-tot td.val { font-family: 'Bebas Neue', cursive; font-size: 0.82rem; letter-spacing: 1px; color: white; text-align: right; padding: 5px 10px 5px 4px; white-space: nowrap; }
+    .at-table tbody tr.at-tot td.val.g { color: var(--gold); }
+    tr.rF td { background-color: rgba(255,100,120,0.13); }
+    tr.rD td { background-color: rgba(80,160,255,0.13); }
+    tr.rG td { background-color: rgba(255,184,28,0.13); }
+    td.pn { font-family: 'Barlow Condensed', sans-serif; font-size: 0.82rem; font-weight: 700; color: white; padding: 4px 6px 4px 10px; white-space: nowrap; max-width: 148px; overflow: hidden; text-overflow: ellipsis; }
+    td.ps { font-family: 'Barlow Condensed', sans-serif; font-size: 0.78rem; font-weight: 700; color: rgba(255,255,255,0.38); text-align: right; padding: 4px 8px 4px 2px; white-space: nowrap; }
+    td.pp { font-family: 'Bebas Neue', cursive; font-size: 0.8rem; letter-spacing: 1px; color: var(--gold); text-align: right; padding: 4px 10px 4px 2px; white-space: nowrap; }
+    td.pe { font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem; color: rgba(255,255,255,0.1); font-style: italic; padding: 4px 10px; }
+    td.pn .nhl { opacity: 0.32; font-size: 0.72em; }
+
+    /* ── VIEW TABS ── */
+    .roster-view-tabs { display: flex; gap: 4px; margin-bottom: 0.75rem; background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 8px; padding: 3px; }
+    .roster-view-tab { font-family: 'Bebas Neue', cursive; font-size: 0.82rem; letter-spacing: 2px; padding: 5px 14px; border-radius: 5px; cursor: pointer; flex: 1; text-align: center; color: var(--silver); transition: background 0.15s, color 0.15s; }
+    .roster-view-tab:hover { color: white; }
+    .roster-view-tab.active { background: rgba(255,184,28,0.12); color: var(--gold); }
+
     /* ── RESPONSIVE ── */
     @media (max-width: 680px) {
       .summary-bar { flex-wrap: wrap; }
@@ -320,8 +381,19 @@
     <button class="last-trade-banner-close" onclick="document.getElementById('last-trade-banner').classList.add('hidden')" aria-label="Dismiss">✕</button>
   </div>
 
-  <div class="team-selector" id="team-selector"></div>
-  <div id="content"><div class="msg">Loading…</div></div>
+  <div class="roster-view-tabs" id="roster-view-tabs">
+    <div class="roster-view-tab active" id="tab-roster" onclick="setRosterView('roster')">My Roster</div>
+    <div class="roster-view-tab" id="tab-allteams" onclick="setRosterView('allteams')">All Teams</div>
+  </div>
+
+  <div id="roster-view">
+    <div class="team-selector" id="team-selector"></div>
+    <div id="content"><div class="msg">Loading…</div></div>
+  </div>
+
+  <div id="allteams-view" style="display:none">
+    <div id="allteams-content"><div class="msg">Loading…</div></div>
+  </div>
 </div>
 
 <!-- SWAP MODAL -->
@@ -613,6 +685,7 @@
       await initializeDraftDayAcquisitions();
       renderTeamSelector();
       render();
+      if (_rosterView === 'allteams') renderAllTeams();
     }catch(e){ console.error(e); document.getElementById('content').innerHTML=`<div class="msg">Failed to load. <button class="btn-refresh" onclick="location.reload()">Retry</button></div>`; }
   }
 
@@ -1281,6 +1354,186 @@
       closeUndoModal();
       await load(activeTeamId);
     }
+  }
+
+  /* ═══════════════════════════════════════════════════
+     ALL TEAMS VIEW
+  ═══════════════════════════════════════════════════ */
+  let _rosterView = 'roster';
+
+  function setRosterView(v) {
+    _rosterView = v;
+    document.getElementById('tab-roster').classList.toggle('active', v === 'roster');
+    document.getElementById('tab-allteams').classList.toggle('active', v === 'allteams');
+    document.getElementById('roster-view').style.display = v === 'roster' ? '' : 'none';
+    document.getElementById('allteams-view').style.display = v === 'allteams' ? '' : 'none';
+    document.body.classList.toggle('allteams-mode', v === 'allteams');
+    if (v === 'allteams') {
+      renderAllTeams();
+      requestAnimationFrame(updateAllTeamsWidthMode);
+    } else {
+      document.body.classList.remove('allteams-needs-wide');
+    }
+  }
+
+  function renderAllTeams() {
+    document.getElementById('allteams-content').innerHTML = buildAllTeams(teams);
+  }
+
+  function updateAllTeamsWidthMode() {
+    const body = document.body;
+    body.classList.remove('allteams-needs-wide');
+    if (_rosterView !== 'allteams') return;
+    const root = document.getElementById('allteams-content');
+    if (!root) return;
+    const clipped = [...root.querySelectorAll('.at-th-name, td.pn')].some(el => el.scrollWidth > el.clientWidth + 1);
+    if (clipped) body.classList.add('allteams-needs-wide');
+  }
+
+  window.addEventListener('resize', () => { if (_rosterView === 'allteams') updateAllTeamsWidthMode(); });
+
+  function buildAllTeams(teamsInput) {
+    if (!teamsInput.length) return '<div class="msg">No teams yet.</div>';
+
+    const TEAM_ABBR_MAP = TEAM_ABBR;
+    const SECS = [{key:'F',label:'FORWARDS',slots:12},{key:'D',label:'DEFENCE',slots:6},{key:'G',label:'GOALIES',slots:2},{key:'B',label:'BENCH',slots:6}];
+    const SALARY_CAP = 95500000;
+    const N = teamsInput.length;
+    const m = slugMap();
+
+    function rp(roster) {
+      return {
+        F: (roster.F||[]).map(s => s&&m[s] ? {...m[s],_slug:s} : null),
+        D: (roster.D||[]).map(s => s&&m[s] ? {...m[s],_slug:s} : null),
+        G: (roster.G||[]).map(s => s&&m[s] ? {...m[s],_slug:s} : null),
+        B: (roster.B||[]).map(s => s&&m[s] ? {...m[s],_slug:s} : null),
+      };
+    }
+
+    function localPoolScore(p) {
+      const pos = normalizePos(p.position);
+      if(pos==='G') return (p.wins??0)*_scoring.g_wins + (p.shutouts??0)*_scoring.g_shutouts;
+      if(pos==='D') return (p.goals??0)*_scoring.d_goals + (p.assists??0)*_scoring.d_assists;
+      return (p.points??0)*_scoring.f_points;
+    }
+
+    function localPoolScoreOwned(p, team, slug) {
+      const snap = team?.acquisitions?.[slug];
+      const snapData = typeof snap==='object'&&snap!==null ? snap.stats_snapshot : null;
+      if(!snapData) return localPoolScore(p);
+      const pos = normalizePos(p.position);
+      if(pos==='G'){ const w=Math.max(0,(p.wins??0)-(snapData.wins??0)),s=Math.max(0,(p.shutouts??0)-(snapData.shutouts??0)); return w*_scoring.g_wins+s*_scoring.g_shutouts; }
+      if(pos==='D'){ const g=Math.max(0,(p.goals??0)-(snapData.goals??0)),a=Math.max(0,(p.assists??0)-(snapData.assists??0)); return g*_scoring.d_goals+a*_scoring.d_assists; }
+      return Math.max(0,((p.points??0)-(snapData.points??0)))*_scoring.f_points;
+    }
+
+    function teamCapUsedLocal(roster) {
+      const r = rp(roster);
+      return [...r.F,...r.D,...r.G].filter(Boolean).reduce((s,p)=>s+(p.cap_hit||0),0);
+    }
+
+    function teamTotalLocal(t) {
+      const r = rp(t.roster);
+      return ['F','D','G'].reduce((s,pos)=>s+r[pos].filter(Boolean).reduce((ss,p)=>ss+localPoolScoreOwned(p,t,p._slug),0),0);
+    }
+
+    function teamFilledLocal(roster) {
+      return [...(roster.F||[]),...(roster.D||[]),...(roster.G||[]),...(roster.B||[])].filter(Boolean).length;
+    }
+
+    const sorted = [...teamsInput].sort((a,b) => teamTotalLocal(b) - teamTotalLocal(a));
+
+    const rosters = sorted.map(t => {
+      const r = rp(t.roster);
+      return {
+        F: r.F.filter(Boolean).sort((a,b)=>localPoolScoreOwned(b,t,b._slug)-localPoolScoreOwned(a,t,a._slug)),
+        D: r.D.filter(Boolean).sort((a,b)=>localPoolScoreOwned(b,t,b._slug)-localPoolScoreOwned(a,t,a._slug)),
+        G: r.G.filter(Boolean).sort((a,b)=>localPoolScoreOwned(b,t,b._slug)-localPoolScoreOwned(a,t,a._slug)),
+        B: r.B.filter(Boolean).sort((a,b)=>localPoolScoreOwned(b,t,b._slug)-localPoolScoreOwned(a,t,a._slug)),
+        _team: t
+      };
+    });
+
+    const totalCols = N*2 + (N-1);
+    const div = isTh => isTh ? '<th class="at-div"></th>' : '<td class="at-div"></td>';
+    const rankCls = i => i===0?'r1':i===1?'r2':i===2?'r3':'rn';
+
+    let h1 = '<tr class="at-head-row">';
+    sorted.forEach((t,i) => {
+      const pts = teamTotalLocal(t);
+      const sub = {
+        F: rp(t.roster).F.filter(Boolean).reduce((s,p)=>s+localPoolScoreOwned(p,t,p._slug),0),
+        D: rp(t.roster).D.filter(Boolean).reduce((s,p)=>s+localPoolScoreOwned(p,t,p._slug),0),
+        G: rp(t.roster).G.filter(Boolean).reduce((s,p)=>s+localPoolScoreOwned(p,t,p._slug),0),
+      };
+      h1 += `<th colspan="2"><div class="at-th-inner">
+        <div class="at-th-rank ${rankCls(i)}">#${i+1}</div>
+        <div class="at-th-name">${t.name}</div>
+        <div class="at-th-pts">${pts} pts</div>
+        <div class="at-th-subs"><span class="at-th-sub F">F ${sub.F}</span><span class="at-th-sub D">D ${sub.D}</span><span class="at-th-sub G">G ${sub.G}</span></div>
+      </div></th>`;
+      if(i<N-1) h1 += div(true);
+    });
+    h1 += '</tr>';
+
+    let h2 = '<tr class="at-subhead-row">';
+    sorted.forEach((_,i) => {
+      h2 += '<th>Player</th><th class="r">Salary</th>';
+      if(i<N-1) h2 += div(true);
+    });
+    h2 += '</tr>';
+
+    let body = '';
+    SECS.forEach(({key, label, slots}) => {
+      body += `<tr class="at-sec ${key}"><td colspan="${totalCols}">${label}</td></tr>`;
+      for(let i=0; i<slots; i++) {
+        body += `<tr class="r${key}">`;
+        rosters.forEach((r, ti) => {
+          const p = r[key][i] || null;
+          if(p) {
+            const sal = p.cap_hit ? `$${(p.cap_hit/1e6).toFixed(3)}M` : '—';
+            const full = formatName(p.player_name);
+            const nhl = TEAM_ABBR_MAP[p.team] || '';
+            body += `<td class="pn" title="${full}">${full}${nhl?` <span class="nhl">${nhl}</span>`:''}</td><td class="ps">${sal}</td>`;
+          } else {
+            body += `<td class="pe">—</td><td class="ps"></td>`;
+          }
+          if(ti<N-1) body += div(false);
+        });
+        body += '</tr>';
+      }
+    });
+
+    body += `<tr class="at-tot">`;
+    sorted.forEach((t,ti) => {
+      const cap = teamCapUsedLocal(t.roster);
+      body += `<td class="lbl">Total Salary</td><td class="val">$${(cap/1e6).toFixed(2)}M</td>`;
+      if(ti<N-1) body += div(false);
+    });
+    body += '</tr>';
+
+    body += `<tr class="at-tot">`;
+    sorted.forEach((t,ti) => {
+      const cap = teamCapUsedLocal(t.roster);
+      const remaining = SALARY_CAP - cap;
+      body += `<td class="lbl">Cap Space Remaining</td><td class="val g">$${(remaining/1e6).toFixed(2)}M</td>`;
+      if(ti<N-1) body += div(false);
+    });
+    body += '</tr>';
+
+    body += `<tr class="at-tot">`;
+    sorted.forEach((t,ti) => {
+      const cap = teamCapUsedLocal(t.roster);
+      const filled = teamFilledLocal(t.roster);
+      const remaining = SALARY_CAP - cap;
+      const slotsLeft = 26 - filled;
+      const avg = slotsLeft > 0 ? `$${(remaining/1e6/slotsLeft).toFixed(2)}M` : '—';
+      body += `<td class="lbl">Avg Cap / Slot Left</td><td class="val">${avg}</td>`;
+      if(ti<N-1) body += div(false);
+    });
+    body += '</tr>';
+
+    return `<div class="at-wrap"><div class="at-scroll"><table class="at-table"><thead>${h1}${h2}</thead><tbody>${body}</tbody></table></div></div>`;
   }
 
   /* ═══════════════════════════════════════════════════
