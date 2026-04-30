@@ -270,13 +270,15 @@
     /* Column widths */
     .col-player { width: auto; }
     .col-gp  { width: 38px; }
-    body.goalie-filter .col-gp { width: 50px; }
     .col-g   { width: 36px; }
     .col-a   { width: 36px; }
     .col-pts { width: 42px; }
     .col-cap { width: 62px; }
     .col-eff { width: 46px; }
     body.goalie-filter .col-eff, body.goalie-filter .td-eff { display: none; }
+    .col-gaa { width: 50px; display: none; }
+    .td-gaa  { display: none; }
+    body.goalie-filter .col-gaa, body.goalie-filter .td-gaa { display: table-cell; }
     .col-act { width: 38px; }
 
     /* Table rows */
@@ -476,7 +478,7 @@
       .pool-controls .pos-filter button { padding: 0.3rem 0.5rem; font-size: 0.8rem; letter-spacing: 1px; }
       .search-input { width: 100%; min-width: 0; }
       .col-gp { display: none; }
-      body.goalie-filter .col-gp, body.goalie-filter .td-gp { display: table-cell; }
+      body.goalie-filter .col-gp, body.goalie-filter .td-gp { display: none; }
       .col-g, .col-a { display: none; }
       body.goalie-filter .col-g, body.goalie-filter .col-a { display: table-cell; }
       .share-row { flex-direction: column; align-items: stretch; gap: 6px; padding: 0 1rem; }
@@ -695,11 +697,14 @@
           <th class="col-eff" id="th-eff" onclick="setSort('value',this)" data-sort="value" title="Efficiency: Pts ÷ √Cap(M)">
             EFF <span class="sort-arrow" id="sa-value"></span>
           </th>
+          <th class="col-gaa" onclick="setSort('gaa',this)" data-sort="gaa" title="Goals Against Average">
+            GAA <span class="sort-arrow" id="sa-gaa"></span>
+          </th>
           <th class="col-act"></th>
         </tr>
         </thead>
         <tbody id="pool-tbody">
-        <tr><td colspan="8" class="loading-msg">Loading players…</td></tr>
+        <tr><td colspan="9" class="loading-msg">Loading players…</td></tr>
         </tbody>
       </table>
     </div>
@@ -1104,7 +1109,7 @@
         renderAll();
       }
     } catch(e) {
-      document.getElementById('pool-tbody').innerHTML=`<tr><td colspan="8" class="empty-msg">Failed to load players (${e.message}). <button class="retry-btn" onclick="loadPlayers()">Retry</button></td></tr>`;
+      document.getElementById('pool-tbody').innerHTML=`<tr><td colspan="9" class="empty-msg">Failed to load players (${e.message}). <button class="retry-btn" onclick="loadPlayers()">Retry</button></td></tr>`;
     }
   }
 
@@ -1359,7 +1364,7 @@
     const { available, claimedRows } = _filteredCache;
 
     if (!available.length && !claimedRows.length) {
-      tbody.innerHTML = '<tr><td colspan="8" class="empty-msg">No players found.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="9" class="empty-msg">No players found.</td></tr>';
       return;
     }
 
@@ -1380,7 +1385,7 @@
     if (available.length > VIRTUAL_PAGE) {
       const tr = document.createElement('tr');
       tr.className = 'load-more-sentinel';
-      tr.innerHTML = `<td colspan="8" style="padding:4px 0;text-align:center;color:rgba(255,184,28,0.4);font-family:'Bebas Neue',cursive;font-size:0.78rem;letter-spacing:2px;">↓ ${available.length - VIRTUAL_PAGE} more</td>`;
+      tr.innerHTML = `<td colspan="9" style="padding:4px 0;text-align:center;color:rgba(255,184,28,0.4);font-family:'Bebas Neue',cursive;font-size:0.78rem;letter-spacing:2px;">↓ ${available.length - VIRTUAL_PAGE} more</td>`;
       fragment.appendChild(tr);
     }
 
@@ -1388,7 +1393,7 @@
     if (claimedRows.length > 0) {
       const divTr = document.createElement('tr');
       divTr.className = 'claimed-divider';
-      divTr.innerHTML = `<td colspan="8">── Claimed / On Your Team (${claimedRows.length})</td>`;
+      divTr.innerHTML = `<td colspan="9">── Claimed / On Your Team (${claimedRows.length})</td>`;
       fragment.appendChild(divTr);
 
       for (const { p, inActive, claimedOther, claimedTeamName } of claimedRows) {
@@ -1427,14 +1432,14 @@
     if (available.length > _virtualStart + VIRTUAL_PAGE) {
       const tr = document.createElement('tr');
       tr.className = 'load-more-sentinel';
-      tr.innerHTML = `<td colspan="8" style="padding:4px 0;text-align:center;color:rgba(255,184,28,0.4);font-family:'Bebas Neue',cursive;font-size:0.78rem;letter-spacing:2px;">↓ ${available.length - _virtualStart - VIRTUAL_PAGE} more</td>`;
+      tr.innerHTML = `<td colspan="9" style="padding:4px 0;text-align:center;color:rgba(255,184,28,0.4);font-family:'Bebas Neue',cursive;font-size:0.78rem;letter-spacing:2px;">↓ ${available.length - _virtualStart - VIRTUAL_PAGE} more</td>`;
       fragment.appendChild(tr);
     }
 
     if (claimedRows.length > 0) {
       const divTr = document.createElement('tr');
       divTr.className = 'claimed-divider';
-      divTr.innerHTML = `<td colspan="8">── Claimed / On Your Team (${claimedRows.length})</td>`;
+      divTr.innerHTML = `<td colspan="9">── Claimed / On Your Team (${claimedRows.length})</td>`;
       fragment.appendChild(divTr);
       for (const { p, inActive, claimedOther, claimedTeamName } of claimedRows) {
         fragment.appendChild(makeTableRow(p, claimedOther, claimedTeamName, inActive, isViewOnly, currentCap));
@@ -1477,17 +1482,7 @@
       </div>`;
 
     // Stats
-    let gpVal;
-    if (pos === 'G' && activeFilter === 'G') {
-      if (p.gaa != null) {
-        const gaaColor = p.gaa < 2.5 ? '#22c55e' : p.gaa < 3.0 ? '#ffb81c' : 'rgba(255,255,255,0.4)';
-        gpVal = `<span style="color:${gaaColor};font-weight:600;">${p.gaa.toFixed(2)}</span>`;
-      } else {
-        gpVal = '—';
-      }
-    } else {
-      gpVal = p.games_played != null ? p.games_played : '—';
-    }
+    let gpVal = p.games_played != null ? p.games_played : '—';
     let gVal, aVal, ptsVal;
     if (pos === 'G') {
       gVal = p.wins != null ? p.wins : '—';
@@ -1502,6 +1497,12 @@
       gVal = p.goals != null ? p.goals : '—';
       aVal = p.assists != null ? p.assists : '—';
       ptsVal = pts;
+    }
+
+    let gaaVal = '—';
+    if (pos === 'G' && p.gaa != null) {
+      const gaaColor = p.gaa < 2.5 ? '#22c55e' : p.gaa < 3.0 ? '#ffb81c' : 'rgba(255,255,255,0.4)';
+      gaaVal = `<span style="color:${gaaColor};font-weight:600;">${p.gaa.toFixed(2)}</span>`;
     }
 
     // Action button
@@ -1526,6 +1527,7 @@
       <td class="td-pts">${ptsVal}</td>
       <td class="td-cap">${p.cap_hit ? `$${capM}M` : '—'}</td>
       <td class="td-eff">${eff}</td>
+      <td class="td-gaa">${gaaVal}</td>
       <td class="td-act">${actBtn}</td>
     `;
 
@@ -1977,16 +1979,7 @@
 
     const isGoalie = pos === 'G';
     document.body.classList.toggle('goalie-filter', isGoalie);
-    const thGp = document.getElementById('th-gp');
     const thG = document.getElementById('th-g');
-    const thA = document.getElementById('th-a');
-    if (thGp) {
-      thGp.title = isGoalie ? 'Goals Against Average' : 'Games Played';
-      thGp.dataset.sort = isGoalie ? 'gaa' : 'gp';
-      thGp.onclick = () => setSort(thGp.dataset.sort, thGp);
-      thGp.querySelector('.sort-arrow').id = isGoalie ? 'sa-gaa' : 'sa-gp';
-      thGp.childNodes[0].textContent = isGoalie ? 'GAA ' : 'GP ';
-    }
     const thPts = document.getElementById('th-pts');
     if (thG) {
       thG.title = isGoalie ? 'Wins' : 'Goals';
@@ -2010,7 +2003,7 @@
       thPts.childNodes[0].textContent = isGoalie ? 'SV% ' : 'PTS ';
     }
 
-    if (isGoalie && (activeSort === 'goals' || activeSort === 'assists' || activeSort === 'points' || activeSort === 'gp')) {
+    if (isGoalie && (activeSort === 'goals' || activeSort === 'assists' || activeSort === 'points')) {
       activeSort = 'wins';
     } else if (!isGoalie && (activeSort === 'wins' || activeSort === 'shutouts' || activeSort === 'save_pct' || activeSort === 'gaa')) {
       activeSort = 'points';
