@@ -64,13 +64,6 @@
     .lb-stat.gap { color: rgba(255,80,80,0.7); font-size: 0.8rem; } .lb-stat.gap.leader { color: var(--green); }
     .lb-col-label { font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem; font-weight: 700; color: rgba(255,255,255,0.3); text-align: right; letter-spacing: 2px; text-transform: uppercase; }
     .lb-col-label.left { text-align: left; }
-    .lb-subscore { display: flex; gap: 3px; justify-content: flex-end; }
-    .lb-subscore-pill { font-family: 'Barlow Condensed', sans-serif; font-size: 0.68rem; font-weight: 700; border-radius: 3px; padding: 1px 5px; }
-    .lb-subscore-pill.F { background: rgba(255,122,138,0.1); color: var(--pink); }
-    .lb-subscore-pill.D { background: rgba(125,180,255,0.1); color: var(--blue); }
-    .lb-subscore-pill.G { background: rgba(255,184,28,0.1); color: var(--gold); }
-    .lb-subscore-pill.B { background: rgba(255,255,255,0.07); color: var(--silver); }
-
     .team-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 1.25rem; }
     .team-tab { font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 2px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); color: var(--silver); border-radius: 7px; padding: 5px 16px; cursor: pointer; flex-shrink: 0; transition: background 0.15s, border-color 0.15s, color 0.15s; white-space: nowrap; }
     .team-tab:hover { background: rgba(255,255,255,0.08); color: white; }
@@ -151,7 +144,7 @@
     .btn-refresh:hover { background: rgba(255,255,255,0.1); color: white; }
 
     @media (max-width: 600px) {
-      .lb-row { grid-template-columns: 30px 1fr 50px 50px 50px; }
+      .lb-row { grid-template-columns: 30px 1fr 50px 50px 50px 50px; }
       .podium { gap: 0.4rem; }
       .pos-scores-bar { flex-wrap: wrap; }
       .view-tab { font-size: 0.68rem; letter-spacing: 1px; padding: 5px 5px; }
@@ -402,13 +395,13 @@
   function buildLeaderboard(sorted,leaderPts){
     const rc=i=>i===0?'gold':i===1?'silver':i===2?'bronze':'';
     const rows=sorted.map((t,i)=>{
-      const pts=teamTotalPts(t),cap=teamCapUsed(t.roster),sub=teamSubScores(t);
+      const pts=teamTotalPts(t),cap=teamCapUsed(t.roster);
       const gap=i===0?'Leader':`−${leaderPts-pts}`,eff=cap>0?(pts/(cap/1e6)).toFixed(1):'—';
       const rp=rosterPlayers(t.roster);
       const allP=[...rp.F,...rp.D,...rp.G].filter(Boolean);
       const totalGP=allP.reduce((s,p)=>{const d=ownedStatsDelta(p,t,p._slug);return s+(d?.gamesPlayed??p.games_played??0);},0);
       const ppg=totalGP>0?(pts/totalGP).toFixed(2):'—';
-      return`<div class="lb-row ${t.id===activeTeamId?'active':''}" onclick="selectTeam('${t.id}')"><div class="lb-rank ${rc(i)}">${i+1}</div><div><div class="lb-name">${t.name}</div><div class="lb-subscore"><span class="lb-subscore-pill F">F ${sub.F}</span><span class="lb-subscore-pill D">D ${sub.D}</span><span class="lb-subscore-pill G">G ${sub.G}</span></div></div><div class="lb-stat">${ppg}</div><div class="lb-stat">${eff}</div><div class="lb-stat pts">${pts}</div><div class="lb-stat ${i===0?'gap leader':'gap'}">${gap}</div></div>`;
+      return`<div class="lb-row ${t.id===activeTeamId?'active':''}" onclick="selectTeam('${t.id}')"><div class="lb-rank ${rc(i)}">${i+1}</div><div class="lb-name">${t.name}</div><div class="lb-stat">${ppg}</div><div class="lb-stat">${eff}</div><div class="lb-stat pts">${pts}</div><div class="lb-stat ${i===0?'gap leader':'gap'}">${gap}</div></div>`;
     }).join('');
     return`<div class="leaderboard"><div class="lb-row header"><div></div><div class="lb-col-label left">Team</div><div class="lb-col-label">Pt/GP</div><div class="lb-col-label">Eff.</div><div class="lb-col-label">Pts</div><div class="lb-col-label">Gap</div></div>${rows}</div>`;}
 
