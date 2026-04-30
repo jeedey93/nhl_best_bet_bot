@@ -687,6 +687,9 @@
           <th class="col-a" id="th-a" onclick="setSort('assists',this)" data-sort="assists" title="Assists">
             A <span class="sort-arrow" id="sa-assists"></span>
           </th>
+          <th class="col-gaa" onclick="setSort('gaa',this)" data-sort="gaa" title="Goals Against Average">
+            GAA <span class="sort-arrow" id="sa-gaa"></span>
+          </th>
           <th class="col-pts" id="th-pts" onclick="setSort('points',this)" data-sort="points" title="Pool Points">
             PTS <span class="sort-arrow" id="sa-points"></span>
           </th>
@@ -695,9 +698,6 @@
           </th>
           <th class="col-eff" id="th-eff" onclick="setSort('value',this)" data-sort="value" title="Efficiency: Pts ÷ √Cap(M)">
             EFF <span class="sort-arrow" id="sa-value"></span>
-          </th>
-          <th class="col-gaa" onclick="setSort('gaa',this)" data-sort="gaa" title="Goals Against Average">
-            GAA <span class="sort-arrow" id="sa-gaa"></span>
           </th>
           <th class="col-act"></th>
         </tr>
@@ -1500,8 +1500,9 @@
 
     let gaaVal = '—';
     if (pos === 'G' && p.gaa != null) {
-      const gaaColor = p.gaa < 2.5 ? '#22c55e' : p.gaa < 3.0 ? '#ffb81c' : 'rgba(255,255,255,0.4)';
-      gaaVal = `<span style="color:${gaaColor};font-weight:600;">${p.gaa.toFixed(2)}</span>`;
+      const gaa = parseFloat(p.gaa);
+      const gaaColor = gaa < 2.5 ? '#22c55e' : gaa < 3.0 ? '#ffb81c' : 'rgba(255,255,255,0.4)';
+      gaaVal = `<span style="color:${gaaColor};font-weight:600;">${gaa.toFixed(2)}</span>`;
     }
 
     // Action button
@@ -1523,10 +1524,10 @@
       <td class="td-gp">${gpVal}</td>
       <td class="td-g">${goalieLabelG}${gVal}</td>
       <td class="td-a">${goalieLabelA}${aVal}</td>
+      <td class="td-gaa">${gaaVal}</td>
       <td class="td-pts">${ptsVal}</td>
       <td class="td-cap">${p.cap_hit ? `$${capM}M` : '—'}</td>
       <td class="td-eff">${eff}</td>
-      <td class="td-gaa">${gaaVal}</td>
       <td class="td-act">${actBtn}</td>
     `;
 
@@ -1566,8 +1567,8 @@
     if (isGoalie) {
       const svPct = p.save_pct != null ? p.save_pct.toFixed(3) : '—';
       const svColor = p.save_pct == null ? '' : p.save_pct > 0.910 ? 'green' : p.save_pct >= 0.900 ? 'gold' : '';
-      const gaaVal = p.gaa != null ? p.gaa.toFixed(2) : '—';
-      const gaaColor = p.gaa == null ? '' : p.gaa < 2.5 ? 'green' : p.gaa < 3.0 ? 'gold' : '';
+      const gaaVal = p.gaa != null ? parseFloat(p.gaa).toFixed(2) : '—';
+      const gaaColor = p.gaa == null ? '' : parseFloat(p.gaa) < 2.5 ? 'green' : parseFloat(p.gaa) < 3.0 ? 'gold' : '';
       statsHtml = `
       <div class="cap-tooltip-row">
         <span class="cap-tooltip-label">WINS</span>
