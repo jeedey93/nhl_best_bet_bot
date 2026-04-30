@@ -139,6 +139,20 @@
     .top-player-stat { font-family: 'Barlow Condensed', sans-serif; font-size: 0.8rem; font-weight: 700; color: var(--silver); text-align: right; }
     .top-player-pts { font-family: 'Bebas Neue', cursive; font-size: 1rem; color: var(--gold); text-align: right; }
 
+    .roster-history { background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; margin-top: 1.5rem; }
+    .roster-history-header { padding: 0.45rem 1rem; background: rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.1); display: grid; grid-template-columns: 28px 1fr 1fr 50px; gap: 0.5rem; align-items: center; }
+    .roster-history-row { display: grid; grid-template-columns: 28px 1fr 1fr 50px; gap: 0.5rem; align-items: center; padding: 0.5rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .roster-history-row:last-child { border-bottom: none; }
+    .rh-pos { font-family: 'Bebas Neue', cursive; font-size: 0.7rem; letter-spacing: 1px; border-radius: 3px; padding: 1px 5px; text-align: center; }
+    .rh-pos.F { background: rgba(255,122,138,0.15); color: var(--pink); }
+    .rh-pos.D { background: rgba(125,180,255,0.15); color: var(--blue); }
+    .rh-pos.G { background: rgba(255,184,28,0.15); color: var(--gold); }
+    .rh-name { font-family: 'Barlow Condensed', sans-serif; font-size: 0.9rem; font-weight: 700; color: white; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .rh-name.current { color: var(--green); }
+    .rh-dates { font-family: 'Barlow Condensed', sans-serif; font-size: 0.78rem; font-weight: 600; color: var(--silver); white-space: nowrap; }
+    .rh-dates .rh-now { color: var(--green); }
+    .rh-pts { font-family: 'Bebas Neue', cursive; font-size: 0.95rem; letter-spacing: 1px; color: var(--gold); text-align: right; }
+
     .msg { text-align: center; color: var(--silver); font-size: 0.9rem; letter-spacing: 1px; padding: 3rem 0; }
     .btn-refresh { font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 2px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); color: var(--silver); border-radius: 6px; padding: 4px 14px; cursor: pointer; }
     .btn-refresh:hover { background: rgba(255,255,255,0.1); color: white; }
@@ -330,6 +344,8 @@
       const rows=await rRes.json();
       if(!rows.length||!rows[0].data?.teams?.length){document.getElementById('content').innerHTML='<div class="msg">No teams saved yet. Go build your pool!</div>';return;}
       teams=rows[0].data.teams.map(t=>({id:t.id,name:t.name||'Team',acquisitions:t.acquisitions||{},roster:{F:Array.isArray(t.roster?.F)?t.roster.F:Array(12).fill(null),D:Array.isArray(t.roster?.D)?t.roster.D:Array(6).fill(null),G:Array.isArray(t.roster?.G)?t.roster.G:Array(2).fill(null),B:Array.isArray(t.roster?.B)?t.roster.B:Array(6).fill(null)}}));
+      const tRes=await fetch(`${SUPABASE_URL}/rest/v1/player_trades?league_code=eq.${_leagueCode}&select=team_id,player_to_slug,player_to_name,player_to_position,date_from_acquired,date_traded,points_accumulated_at_trade&order=date_from_acquired.asc`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
+      if(tRes.ok) currentTrades=await tRes.json();
       const sorted=[...teams].sort((a,b)=>teamTotalPts(b)-teamTotalPts(a));
       activeTeamId=sorted[0]?.id||teams[0]?.id;
       render();
@@ -420,6 +436,7 @@
       <div class="pos-scores-bar"><div class="pos-score-block F"><div class="pos-score-val">${sub.F}</div><div class="pos-score-label">Forwards</div></div><div class="pos-score-block D"><div class="pos-score-val">${sub.D}</div><div class="pos-score-label">Defence</div></div><div class="pos-score-block G"><div class="pos-score-val">${sub.G}</div><div class="pos-score-label">Goalies</div></div><div class="pos-score-block B"><div class="pos-score-val">${sub.B}</div><div class="pos-score-label">Bench</div></div></div>
       ${topScorer?`<div class="top-scorer-callout"><span class="top-scorer-icon">⭐</span><div class="top-scorer-text">Top contributor: <strong>${formatName(topScorer.p.player_name)}</strong> — ${topScorer.pts} pool pts &nbsp;·&nbsp; ${(topScorer.pts/totalPts*100).toFixed(0)}% of team total</div></div>`:''}
       ${groups.filter(g=>g.players.length).map(g=>`<div class="pos-group"><div class="pos-group-label ${g.key}">${g.label} (${g.players.length})</div>${g.players.map(p=>buildPlayerRow(p,g.key,avgs,topScorer?.p,team)).join('')}</div>`).join('')}
+      ${buildRosterHistory(team)}
     `;}
 
   function buildPlayerRow(p,group,avgs,topScorerPlayer,team){
@@ -433,6 +450,20 @@
     const isStar=topScorerPlayer&&p.puckpedia_slug===topScorerPlayer.puckpedia_slug;
     const stat=ownedStatsLabel(p,team,p._slug);
     return`<div class="player-row"><div class="player-row-perf-bar ${perf}"></div><span class="pos-badge ${displayPos}">${displayPos}</span>${logo}<span class="player-row-name">${formatName(p.player_name)}</span>${isStar?'<span class="star-badge">⭐</span>':''}${stat?`<span class="player-row-stat">${stat}</span>`:''}${pace}${eff?`<span class="player-row-eff">${eff}</span>`:''}<span class="player-row-pts">${pts}<span class="player-row-pts-label">PTS</span></span></div>`;}
+
+  function buildRosterHistory(team){
+    const trades=currentTrades.filter(t=>t.team_id===team.id&&t.player_to_slug&&t.date_from_acquired);
+    if(!trades.length) return '';
+    const currentSlugs=new Set([...team.roster.F,...team.roster.D,...team.roster.G,...(team.roster.B||[])].filter(Boolean));
+    const fmt=d=>new Date(d).toLocaleDateString('en-CA',{month:'short',day:'numeric'});
+    const rows=trades.map(t=>{
+      const pos=normalizePos(t.player_to_position);
+      const isCurrent=currentSlugs.has(t.player_to_slug);
+      const dateStr=`${fmt(t.date_from_acquired)} → ${t.date_traded?`<span>${fmt(t.date_traded)}</span>`:'<span class="rh-now">Now</span>'}`;
+      const pts=t.points_accumulated_at_trade??'—';
+      return`<div class="roster-history-row"><span class="rh-pos ${pos}">${pos}</span><span class="rh-name${isCurrent?' current':''}">${t.player_to_name||t.player_to_slug}</span><span class="rh-dates">${dateStr}</span><span class="rh-pts">${pts}</span></div>`;
+    }).join('');
+    return`<div class="pool-section-title" style="margin-top:1.5rem">Roster <span>History</span></div><div class="roster-history"><div class="roster-history-header"><div></div><div class="lb-col-label left">Player</div><div class="lb-col-label">Tenure</div><div class="lb-col-label">Pts</div></div>${rows}</div>`;}
 
   function buildPoolLeaders(){
     const drafted=allDraftedPlayers(),byPos={F:[],D:[],G:[]};
