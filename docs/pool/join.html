@@ -680,7 +680,7 @@
           <th class="col-a" id="th-a" onclick="setSort('assists',this)" data-sort="assists" title="Assists">
             A <span class="sort-arrow" id="sa-assists"></span>
           </th>
-          <th class="col-pts" onclick="setSort('points',this)" data-sort="points" title="Pool Points">
+          <th class="col-pts" id="th-pts" onclick="setSort('points',this)" data-sort="points" title="Pool Points">
             PTS <span class="sort-arrow" id="sa-points"></span>
           </th>
           <th class="col-cap" onclick="setSort('salary',this)" data-sort="salary" title="Cap Hit">
@@ -1016,6 +1016,7 @@
     if (activeSort==='assists') return p.assists??0;
     if (activeSort==='wins')   return p.wins??0;
     if (activeSort==='shutouts') return p.shutouts??0;
+    if (activeSort==='save_pct') return p.save_pct??0;
     if (activeSort==='gp')     return p.games_played??0;
     return p.cap_hit||0; // salary
   }
@@ -1472,7 +1473,7 @@
     if (pos === 'G') {
       gVal = p.wins != null ? p.wins : '—';
       aVal = p.shutouts != null ? p.shutouts : '—';
-      ptsVal = pts;
+      ptsVal = p.save_pct != null ? p.save_pct.toFixed(3) : '—';
     } else {
       gVal = p.goals != null ? p.goals : '—';
       aVal = p.assists != null ? p.assists : '—';
@@ -1916,6 +1917,7 @@
     const isGoalie = pos === 'G';
     const thG = document.getElementById('th-g');
     const thA = document.getElementById('th-a');
+    const thPts = document.getElementById('th-pts');
     if (thG) {
       thG.title = isGoalie ? 'Wins' : 'Goals';
       thG.dataset.sort = isGoalie ? 'wins' : 'goals';
@@ -1930,10 +1932,17 @@
       thA.querySelector('.sort-arrow').id = isGoalie ? 'sa-shutouts' : 'sa-assists';
       thA.childNodes[0].textContent = isGoalie ? 'SO ' : 'A ';
     }
+    if (thPts) {
+      thPts.title = isGoalie ? 'Save Percentage' : 'Pool Points';
+      thPts.dataset.sort = isGoalie ? 'save_pct' : 'points';
+      thPts.onclick = () => setSort(thPts.dataset.sort, thPts);
+      thPts.querySelector('.sort-arrow').id = isGoalie ? 'sa-save_pct' : 'sa-points';
+      thPts.childNodes[0].textContent = isGoalie ? 'SV% ' : 'PTS ';
+    }
 
-    if (isGoalie && (activeSort === 'goals' || activeSort === 'assists')) {
+    if (isGoalie && (activeSort === 'goals' || activeSort === 'assists' || activeSort === 'points')) {
       activeSort = 'wins';
-    } else if (!isGoalie && (activeSort === 'wins' || activeSort === 'shutouts')) {
+    } else if (!isGoalie && (activeSort === 'wins' || activeSort === 'shutouts' || activeSort === 'save_pct')) {
       activeSort = 'points';
     }
 
