@@ -1288,6 +1288,111 @@
       return grid + top;
     }
 
+    // ── FREE AGENTS ───────────────────────────────────────────────────────────────
+    function buildFreeAgents() {
+      // Build set of all drafted slugs
+      const draftedSlugs = new Set(
+        teams.flatMap(t => [
+          ...(t.roster.F || []),
+          ...(t.roster.D || []),
+          ...(t.roster.G || []),
+          ...(t.roster.B || []),
+        ]).filter(Boolean)
+      );
+
+      // Score and filter undrafted players
+      let fas = allPlayers
+        .filter(p => p.puckpedia_slug && !draftedSlugs.has(p.puckpedia_slug))
+        .map(p => ({
+          ...p,
+          _pos: normalizePos(p.position),
+          _pts: poolScore(p),
+          _capM: (p.cap_hit || 0) / 1e6,
+        }))
+        .filter(p => p._pts > 0 || p._capM >= 1);
+
+      // Position filter
+      if (faFilter !== 'ALL') fas = fas.filter(p => p._pos === faFilter);
+
+      // Name search
+      const q = faSearch.trim().toLowerCase();
+      if (q) fas = fas.filter(p => formatName(p.player_name).toLowerCase().includes(q));
+
+      // Sort by pool pts descending
+      fas.sort((a, b) => b._pts - a._pts);
+
+      const totalCount = fas.length;
+      const pos = faFilter;
+
+      const pills = ['ALL','F','D','G'].map(p =>
+        `<div class="fa-pill ${p} ${faFilter===p?'active':''}" onclick="setFaFilter('${p}')">${p==='ALL'?'All':p}</div>`
+      ).join('');
+
+      const rows = fas.slice(0, 50).map((p, i) => {
+        const abbr = TEAM_ABBR[p.team];
+        const logo = abbr
+          ? `<img class="fa-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}">`
+          : '';
+        const ppos = p._pos;
+        let col1 = '—', col2 = '—', col3 = '—';
+        if (ppos === 'G') {
+          col1 = p.wins ?? '—'; col2 = p.shutouts ?? '—'; col3 = p.games_played ?? '—';
+        } else {
+          col1 = p.goals ?? '—'; col2 = p.assists ?? '—'; col3 = p.games_played ?? '—';
+        }
+        return `<div class="fa-row">
+          <div class="fa-rank">${i + 1}</div>
+          <div class="fa-player-info">
+            ${logo}
+            <span class="fa-pos-badge ${ppos}">${ppos}</span>
+            <span class="fa-name">${formatName(p.player_name)}</span>
+          </div>
+          <div class="fa-cap fa-col-hide">$${p._capM.toFixed(1)}M</div>
+          <div class="fa-stat fa-col-hide">${col1}</div>
+          <div class="fa-stat fa-col-hide">${col2}</div>
+          <div class="fa-stat">${col3}</div>
+          <div class="fa-pts">${p._pts}</div>
+        </div>`;
+      }).join('');
+
+      return `
+        <div class="fa-controls">
+          <input
+            class="fa-search"
+            type="text"
+            placeholder="Search player…"
+            value="${faSearch.replace(/"/g, '&quot;')}"
+            oninput="setFaSearch(this.value)"
+          >
+          <div class="fa-pos-pills">${pills}</div>
+          <span class="fa-count">${totalCount} players</span>
+        </div>
+        <div class="fa-table">
+          <div class="fa-row header">
+            <div></div>
+            <div class="lb-col-label left">Player</div>
+            <div class="lb-col-label fa-col-hide">Cap</div>
+            <div class="lb-col-label fa-col-hide">${pos==='G'?'W':'G'}</div>
+            <div class="lb-col-label fa-col-hide">${pos==='G'?'SO':'A'}</div>
+            <div class="lb-col-label">GP</div>
+            <div class="lb-col-label">Pts</div>
+          </div>
+          ${rows || `<div class="fa-empty">No free agents match your search.</div>`}
+        </div>
+        ${fas.length > 50 ? `<div style="text-align:center;color:var(--silver);font-size:0.8rem;padding:0.75rem;letter-spacing:1px">Showing top 50 of ${fas.length} — refine with search or position filter</div>` : ''}
+      `;
+    }
+
+    function setFaFilter(pos) {
+      faFilter = pos;
+      render();
+    }
+
+    function setFaSearch(val) {
+      faSearch = val;
+      render();
+    }
+
     // ── INIT ──────────────────────────────────────────────────────────────────────
     load();
 </script>
