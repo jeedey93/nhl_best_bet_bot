@@ -560,13 +560,16 @@
 
   function getHeadshotCandidates(p) {
     if (!p) return [];
-    const id = p.nhl_player_id || p.player_id || p.nhle_id;
+    const idRaw = p.nhl_player_id || p.player_id || p.nhle_id;
+    const id = String(idRaw || '').trim();
     const abbr = TEAM_ABBR[p.team];
     if (!id) return [];
-    const candidates = [];
-    if (abbr) candidates.push(`https://assets.nhle.com/mugs/nhl/408x408/${abbr}/${id}.png`);
-    // Teamless endpoint is more resilient for traded/mis-mapped players.
-    candidates.push(`https://assets.nhle.com/mugs/nhl/latest/${id}.png`);
+    const candidates = [
+      // Most reliable endpoint for current player mug.
+      `https://assets.nhle.com/mugs/nhl/latest/${id}.png`
+    ];
+    // Season/team endpoint can still help when latest is stale.
+    if (abbr) candidates.push(`https://assets.nhle.com/mugs/nhl/20252026/${abbr}/${id}.png`);
     return [...new Set(candidates.filter(Boolean))];
   }
 
@@ -766,7 +769,7 @@
     const data={teams,activeTeamId};
     const res=await fetch(`${SUPABASE_URL}/rest/v1/pool_rosters?on_conflict=league_code`,{
       method:'POST', headers:sbHeaders({'Prefer':'resolution=merge-duplicates,return=minimal'}),
-      body:JSON.stringify({league_code:_leagueCode,data,updated_at:new Date().toISOString()})
+      body:JSON.stringify({league_code:_leagueCode,data,updated_at: new Date().toISOString()})
     });
     if(!res.ok) throw new Error(`Failed to persist roster (${res.status})`);
   }
@@ -833,7 +836,9 @@
           allPlayers=JSON.parse(cached);
           if(!Array.isArray(allPlayers)||!allPlayers.length) throw new Error('empty');
           const hasAnySavePct = allPlayers.some(p => p && p.save_pct !== null && p.save_pct !== undefined);
+          const hasAnyHeadshotId = allPlayers.some(p => p && p.nhl_player_id !== null && p.nhl_player_id !== undefined && String(p.nhl_player_id).trim() !== '');
           if(!hasAnySavePct) throw new Error('stale-save-pct-cache');
+          if(!hasAnyHeadshotId) throw new Error('stale-headshot-cache');
         }catch(_){
           sessionStorage.removeItem(PLAYER_CACHE_KEY);
           sessionStorage.removeItem(PLAYER_CACHE_KEY+'_time');
