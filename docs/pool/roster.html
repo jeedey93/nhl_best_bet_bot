@@ -558,13 +558,36 @@
   // We derive from nhl_players table if available, else skip
   const _headshotCache = {};
 
-  function getHeadshotUrl(p) {
-    if (!p) return null;
-    // Try nhl_player_id field if present
+  function getHeadshotCandidates(p) {
+    if (!p) return [];
     const id = p.nhl_player_id || p.player_id || p.nhle_id;
     const abbr = TEAM_ABBR[p.team];
-    if (id && abbr) return `https://assets.nhle.com/mugs/nhl/408x408/${abbr}/${id}.png`;
-    return null;
+    if (!id) return [];
+    const candidates = [];
+    if (abbr) candidates.push(`https://assets.nhle.com/mugs/nhl/408x408/${abbr}/${id}.png`);
+    // Teamless endpoint is more resilient for traded/mis-mapped players.
+    candidates.push(`https://assets.nhle.com/mugs/nhl/latest/${id}.png`);
+    return [...new Set(candidates.filter(Boolean))];
+  }
+
+  function handleHeadshotError(imgEl) {
+    if (!imgEl) return;
+    const urls = (imgEl.dataset.headshotUrls || '')
+      .split('|')
+      .map(s => {
+        try { return decodeURIComponent(s); } catch (_) { return ''; }
+      })
+      .filter(Boolean);
+    const currentIndex = Number(imgEl.dataset.headshotIndex || '0');
+    const nextIndex = currentIndex + 1;
+    if (nextIndex < urls.length) {
+      imgEl.dataset.headshotIndex = String(nextIndex);
+      imgEl.src = urls[nextIndex];
+      return;
+    }
+    imgEl.style.display = 'none';
+    const placeholder = imgEl.nextElementSibling;
+    if (placeholder) placeholder.style.display = 'flex';
   }
 
   const _leagueCode = new URLSearchParams(window.location.search).get('league') || null;
@@ -708,14 +731,15 @@
 
   /* ── Headshot HTML helper ── */
   function headshotHtml(p) {
-    const url = getHeadshotUrl(p);
-    if (url) {
-      return `<img class="headshot-img" src="${url}" alt="" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="headshot-placeholder" style="display:none">👤</span>`;
+    const candidates = getHeadshotCandidates(p);
+    if (candidates.length) {
+      const encoded = candidates.map(u => encodeURIComponent(u)).join('|');
+      return `<img class="headshot-img" src="${candidates[0]}" alt="" loading="lazy" data-headshot-index="0" data-headshot-urls="${encoded}" onerror="handleHeadshotError(this)"><span class="headshot-placeholder" style="display:none">👤</span>`;
     }
     return `<span class="headshot-placeholder">👤</span>`;
   }
 
-  /* ── Swap reason picker ── */
+  /* ── SWAP REASON PICKER ── */
   function swapReasonLabel(reason){
     return reason === 'injury' ? 'Injury' : 'Regular Swap';
   }

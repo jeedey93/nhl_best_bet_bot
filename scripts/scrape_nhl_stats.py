@@ -94,6 +94,7 @@ def build_stats_map(skaters: list[dict], goalies: list[dict]) -> dict[str, dict]
     for s in skaters:
         name = normalize(f"{s['firstName']['default']} {s['lastName']['default']}")
         result[name] = {
+            "nhl_player_id": s.get("playerId"),
             "games_played": s.get("gamesPlayed"),
             "goals":        s.get("goals"),
             "assists":      s.get("assists"),
@@ -106,6 +107,7 @@ def build_stats_map(skaters: list[dict], goalies: list[dict]) -> dict[str, dict]
     for g in goalies:
         name = normalize(f"{g['firstName']['default']} {g['lastName']['default']}")
         result[name] = {
+            "nhl_player_id": g.get("playerId"),
             "games_played": g.get("gamesPlayed"),
             "goals":        None,
             "assists":      None,
