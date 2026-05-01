@@ -256,8 +256,9 @@
     .form-input:focus { border-color: rgba(255,184,28,0.5); }
     .form-input::placeholder { color: rgba(255,255,255,0.3); }
     .note-chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
-    .note-chip { font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: var(--silver); border-radius: 4px; padding: 2px 8px; cursor: pointer; transition: background 0.12s; }
+    .note-chip { font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: var(--silver); border-radius: 4px; padding: 2px 8px; cursor: pointer; transition: background 0.12s, border-color 0.12s, color 0.12s; }
     .note-chip:hover { background: rgba(255,255,255,0.1); color: white; }
+    .note-chip.selected { background: rgba(255,184,28,0.14); border-color: rgba(255,184,28,0.45); color: var(--gold); }
 
     .bench-search-wrap { position: relative; margin-bottom: 0.5rem; }
     .bench-search-wrap .form-input { padding-left: 2rem; }
@@ -482,16 +483,12 @@
       </div>
       <div class="player-selector" id="trade-to-list" aria-live="polite"></div>
     </div>
-    <!-- SWAP NOTE -->
+    <!-- SWAP TYPE -->
     <div class="form-group">
-      <div class="form-label">Swap Note <span class="optional">optional</span></div>
-      <input class="form-input" id="swap-note-input" placeholder="e.g. Injured, hot streak, matchup…" maxlength="120" autocomplete="off">
+      <div class="form-label">Swap Type</div>
       <div class="note-chips">
-        <span class="note-chip" onclick="setNoteChip('Injured')">🤕 Injured</span>
-        <span class="note-chip" onclick="setNoteChip('Hot streak')">🔥 Hot streak</span>
-        <span class="note-chip" onclick="setNoteChip('Favourable matchup')">📅 Matchup</span>
-        <span class="note-chip" onclick="setNoteChip('Slump')">📉 Slump</span>
-        <span class="note-chip" onclick="setNoteChip('Called up')">⬆️ Called up</span>
+        <button type="button" class="note-chip" id="swap-type-injury" onclick="setSwapReason('injury')">🤕 Injury</button>
+        <button type="button" class="note-chip" id="swap-type-regular" onclick="setSwapReason('regular')">⇄ Regular Swap</button>
       </div>
     </div>
     <div class="trade-preview">
@@ -718,10 +715,24 @@
     return `<span class="headshot-placeholder">👤</span>`;
   }
 
-  /* ── Note chip setter ── */
-  function setNoteChip(text) {
-    const inp = document.getElementById('swap-note-input');
-    if (inp) inp.value = text;
+  /* ── Swap reason picker ── */
+  function swapReasonLabel(reason){
+    return reason === 'injury' ? 'Injury' : 'Regular Swap';
+  }
+
+  function updateSwapReasonUI(){
+    const injury = document.getElementById('swap-type-injury');
+    const regular = document.getElementById('swap-type-regular');
+    const current = tradeContext?.swapReason || 'regular';
+    if(injury) injury.classList.toggle('selected', current === 'injury');
+    if(regular) regular.classList.toggle('selected', current === 'regular');
+  }
+
+  function setSwapReason(reason) {
+    if(!tradeContext) return;
+    tradeContext.swapReason = reason === 'injury' ? 'injury' : 'regular';
+    updateSwapReasonUI();
+    updateTradePreview();
   }
 
   /* ═══════════════════════════════════════════════════
@@ -950,8 +961,7 @@
     if (isTradeLimitReached(team)) { alert(`Swap limit reached (${_maxTradesPerTeam}).`); return; }
     // Set up trade context and run
     const fromSlot = findPlayerSlot(team, bulkActiveSlug);
-    tradeContext = { fromSlug: bulkActiveSlug, fromSlot, teamId: team.id, toSlug: bulkBenchSlug };
-    document.getElementById('swap-note-input').value = '';
+    tradeContext = { fromSlug: bulkActiveSlug, fromSlot, teamId: team.id, toSlug: bulkBenchSlug, swapReason: 'regular' };
     exitBulkMode();
     try {
       const fromPlayer = getPlayer(bulkActiveSlug);
@@ -1332,12 +1342,12 @@
     if(!p) return;
     const fromSlot=findPlayerSlot(team,playerSlug);
     if(!fromSlot||fromSlot.group==='B'){ alert('Player must be in active roster to swap.'); return; }
-    tradeContext={fromSlug:playerSlug,fromSlot,teamId:team.id,toSlug:null};
+    tradeContext={fromSlug:playerSlug,fromSlot,teamId:team.id,toSlug:null,swapReason:'regular'};
     benchSearchQuery='';
     document.getElementById('bench-search').value='';
-    document.getElementById('swap-note-input').value='';
     populateCompareOut(p,fromSlot);
     resetCompareIn();
+    updateSwapReasonUI();
 
     const benchPlayers=(team.roster.B||[]).map((slug,idx)=>slug?{slug,idx,player:getPlayer(slug)}:null).filter(Boolean);
     _allBenchOptions=benchPlayers.filter(item=>normalizePos(item.player.position)===fromSlot.group);
@@ -1490,7 +1500,7 @@
      EXECUTE SWAP
   ═══════════════════════════════════════════════════ */
   async function executeTradeRpc(team){
-    const swapNote = document.getElementById('swap-note-input')?.value?.trim() || null;
+    const swapNote = swapReasonLabel(tradeContext?.swapReason || 'regular');
     const now=new Date().toISOString();
     const res=await fetch(`${SUPABASE_URL}/rest/v1/rpc/execute_pool_trade`,{
       method:'POST', headers:sbHeaders(),
@@ -1504,7 +1514,7 @@
   }
 
   async function createTradeRecord(team,dateFromAcquired,fromPlayer,toPlayer,fromSlot,toSlot,now){
-    const swapNote = document.getElementById('swap-note-input')?.value?.trim() || null;
+    const swapNote = swapReasonLabel(tradeContext?.swapReason || 'regular');
     const pointsAtTrade=poolScore(fromPlayer);
     const rows=await postWithFallback(`${SUPABASE_URL}/rest/v1/player_trades`,[
       {league_code:_leagueCode,team_id:team.id,team_name:team.name,team_name_snapshot:team.name,player_from_slug:tradeContext.fromSlug,player_to_slug:tradeContext.toSlug,player_from_name:formatName(fromPlayer.player_name),player_to_name:formatName(toPlayer.player_name),player_from_position:normalizePos(fromPlayer.position),player_to_position:normalizePos(toPlayer.position),player_from_team:fromPlayer.team||null,player_to_team:toPlayer.team||null,from_slot_group:fromSlot.group,from_slot_index:fromSlot.index,to_slot_group:'B',to_slot_index:toSlot.index,date_from_acquired:dateFromAcquired,date_traded:now,points_accumulated_at_trade:pointsAtTrade,swap_note:swapNote},
@@ -1590,7 +1600,6 @@
     document.getElementById('modal-trade').classList.add('hidden');
     tradeContext=null; benchSearchQuery='';
     document.getElementById('bench-search').value='';
-    document.getElementById('swap-note-input').value='';
     document.getElementById('trade-to-list').innerHTML='';
     document.getElementById('trade-confirm-btn').disabled=true;
     resetCompareIn();
