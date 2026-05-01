@@ -48,6 +48,16 @@
     header h1 { font-family: 'Bebas Neue', cursive; font-size: clamp(1.6rem, 3vw, 2.4rem); letter-spacing: 5px; text-shadow: 0 0 30px rgba(200,16,46,0.4), 0 2px 8px rgba(0,0,0,0.8); line-height: 1; }
     header h1 span { color: var(--gold); }
     header p { color: var(--silver); font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase; margin-top: 0.2rem; }
+    /* ── Season stats timestamp badge ── */
+    .stats-season-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem; font-weight: 600;
+      color: rgba(255,255,255,0.35); letter-spacing: 1px;
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 20px; padding: 2px 10px; margin-top: 0.4rem;
+      cursor: help;
+    }
+    .stats-season-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: pulse 2s ease-in-out infinite; }
     .league-badge-row { display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin-top: 0.55rem; }
     .league-badge-label { font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem; font-weight: 700; color: var(--silver); letter-spacing: 2px; text-transform: uppercase; }
     .league-badge-code { font-family: 'Bebas Neue', cursive; font-size: 0.95rem; letter-spacing: 3px; color: var(--gold); background: rgba(255,184,28,0.1); border: 1px solid rgba(255,184,28,0.3); border-radius: 5px; padding: 2px 12px; cursor: pointer; transition: background 0.15s, border-color 0.15s; }
@@ -58,9 +68,14 @@
     .btn-share-pool:hover { background: rgba(255,184,28,0.2); }
     .btn-share-pool:disabled { opacity: 0.4; cursor: default; }
 
-    /* ── Team switcher ── */
+    /* ── Team switcher — horizontal scroll ── */
     .team-switcher-wrap { max-width: 1100px; width: 100%; margin: 0 auto; padding: 0.5rem 1.25rem 0; flex-shrink: 0; }
-    .team-switcher { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; padding-bottom: 4px; }
+    .team-switcher {
+      display: flex; align-items: stretch; gap: 5px;
+      overflow-x: auto; padding-bottom: 4px;
+      scrollbar-width: none;
+    }
+    .team-switcher::-webkit-scrollbar { display: none; }
     .team-pill-switcher { display: flex; flex-direction: column; align-items: center; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 7px; padding: 5px 10px 4px; cursor: pointer; flex-shrink: 0; transition: background 0.15s, border-color 0.15s; position: relative; min-width: 80px; }
     .team-pill-switcher:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.18); }
     .team-pill-switcher.active { background: rgba(255,184,28,0.1); border-color: rgba(255,184,28,0.4); }
@@ -73,7 +88,7 @@
     .team-pill-btn { font-family: 'Bebas Neue', cursive; font-size: 0.65rem; letter-spacing: 1px; background: none; border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.35); border-radius: 3px; padding: 1px 5px; cursor: pointer; transition: color 0.15s, border-color 0.15s, background 0.15s; }
     .team-pill-btn:hover { color: white; border-color: rgba(255,255,255,0.35); background: rgba(255,255,255,0.07); }
     .team-pill-btn.delete:hover { color: var(--red); border-color: rgba(200,16,46,0.4); background: rgba(200,16,46,0.08); }
-    .btn-add-team { display: flex; align-items: center; justify-content: center; gap: 5px; font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 2px; background: rgba(255,184,28,0.06); border: 1px dashed rgba(255,184,28,0.25); color: rgba(255,184,28,0.6); border-radius: 7px; padding: 5px 14px; cursor: pointer; flex-shrink: 0; transition: background 0.15s, color 0.15s, border-color 0.15s; min-width: 100px; height: 100%; }
+    .btn-add-team { display: flex; align-items: center; justify-content: center; gap: 5px; font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 2px; background: rgba(255,184,28,0.06); border: 1px dashed rgba(255,184,28,0.25); color: rgba(255,184,28,0.6); border-radius: 7px; padding: 5px 14px; cursor: pointer; flex-shrink: 0; transition: background 0.15s, color 0.15s, border-color 0.15s; min-width: 100px; }
     .btn-add-team:hover { background: rgba(255,184,28,0.12); color: var(--gold); border-color: rgba(255,184,28,0.5); }
 
     /* ── Pool layout ── */
@@ -94,11 +109,37 @@
     .btn-generate-team:disabled { opacity: 0.4; cursor: default; }
     .btn-clear-team { font-family: 'Bebas Neue', cursive; font-size: 0.8rem; letter-spacing: 1.5px; background: none; border: 1px solid rgba(200,16,46,0.25); color: rgba(200,16,46,0.6); border-radius: 5px; padding: 3px 10px; cursor: pointer; transition: background 0.15s, color 0.15s, border-color 0.15s; }
     .btn-clear-team:hover { background: rgba(200,16,46,0.12); color: var(--red); border-color: rgba(200,16,46,0.5); }
-    .btn-start-season { font-family: 'Bebas Neue', cursive; font-size: 0.8rem; letter-spacing: 1.5px; background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.3); color: var(--green); border-radius: 5px; padding: 3px 10px; cursor: pointer; transition: background 0.15s, color 0.15s, border-color 0.15s; }
-    .btn-start-season:hover { background: rgba(34,197,94,0.16); border-color: rgba(34,197,94,0.55); }
+
+    /* ── Ultimate Team keep-picks toggle ── */
+    .keep-picks-row {
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 0.5rem; flex-shrink: 0;
+      padding: 5px 8px; background: rgba(255,184,28,0.04);
+      border: 1px solid rgba(255,184,28,0.12); border-radius: 6px;
+    }
+    .keep-picks-toggle {
+      position: relative; width: 30px; height: 16px; flex-shrink: 0;
+    }
+    .keep-picks-toggle input { opacity: 0; width: 0; height: 0; }
+    .keep-picks-slider {
+      position: absolute; inset: 0; background: rgba(255,255,255,0.12);
+      border-radius: 8px; cursor: pointer; transition: background 0.2s;
+    }
+    .keep-picks-slider::before {
+      content: ''; position: absolute; width: 12px; height: 12px;
+      left: 2px; top: 2px; background: white; border-radius: 50%;
+      transition: transform 0.2s;
+    }
+    .keep-picks-toggle input:checked + .keep-picks-slider { background: var(--gold); }
+    .keep-picks-toggle input:checked + .keep-picks-slider::before { transform: translateX(14px); }
+    .keep-picks-label { font-family: 'Barlow Condensed', sans-serif; font-size: 0.78rem; font-weight: 600; color: rgba(255,255,255,0.4); letter-spacing: 0.5px; }
+    .keep-picks-label.on { color: var(--gold); }
 
     /* ── Scoring legend ── */
-    .scoring-legend { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 0.6rem; flex-shrink: 0; }
+    /* ── Scoring legend collapsible on mobile ── */
+    .scoring-legend-wrap { flex-shrink: 0; margin-bottom: 0.6rem; }
+    .scoring-legend-toggle { display: none; width: 100%; font-family: 'Bebas Neue', cursive; font-size: 0.78rem; letter-spacing: 2px; color: var(--silver); background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 5px; padding: 4px 10px; cursor: pointer; text-align: left; margin-bottom: 4px; }
+    .scoring-legend { display: flex; flex-wrap: wrap; gap: 4px; }
     .scoring-legend-pill { display: flex; align-items: center; gap: 5px; border-radius: 5px; padding: 3px 8px; flex: 1; min-width: 0; transition: opacity 0.2s; }
     .scoring-legend-pill.dimmed { opacity: 0.25; }
     .scoring-legend-pill.F { background: rgba(255,122,138,0.07); border: 1px solid rgba(255,122,138,0.18); }
@@ -111,6 +152,8 @@
     .scoring-legend-rules { font-size: 0.68rem; color: rgba(255,255,255,0.4); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
     /* ── Cap bar ── */
+    /* ── Cap bar collapsible on mobile ── */
+    .cap-bar-toggle { display: none; width: 100%; font-family: 'Bebas Neue', cursive; font-size: 0.78rem; letter-spacing: 2px; color: var(--silver); background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 5px; padding: 4px 10px; cursor: pointer; text-align: left; margin-bottom: 4px; }
     .cap-bar-wrap { margin-bottom: 0.7rem; flex-shrink: 0; background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 7px; padding: 0.55rem 0.85rem; transition: border-color 0.3s, background 0.3s; }
     .cap-bar-wrap.warning { border-color: rgba(245,158,11,0.4); background: rgba(245,158,11,0.04); }
     .cap-bar-wrap.over { border-color: rgba(200,16,46,0.4); background: rgba(200,16,46,0.04); }
@@ -140,6 +183,9 @@
     .roster-slots { display: flex; flex-direction: column; gap: 3px; }
     .roster-slot { border-radius: 5px; transition: border-color 0.15s, background 0.15s; }
     .roster-slot.empty { display: flex; align-items: center; gap: 8px; border: 1px dashed rgba(255,255,255,0.1); border-radius: 5px; padding: 7px 10px; cursor: default; min-height: 50px; }
+    /* drag-over highlight */
+    .roster-slot.drag-over { border-color: rgba(96,165,250,0.6) !important; background: rgba(96,165,250,0.1) !important; }
+    .roster-slot.drag-source { opacity: 0.45; }
     .slot-num { font-family: 'Bebas Neue', cursive; font-size: 1rem; color: rgba(255,255,255,0.15); width: 20px; text-align: center; flex-shrink: 0; }
     .roster-empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1.5rem 1rem; text-align: center; gap: 0.5rem; background: rgba(255,255,255,0.02); border: 1px dashed rgba(255,255,255,0.07); border-radius: 8px; margin-bottom: 0.5rem; }
     .roster-empty-icon { font-size: 1.8rem; opacity: 0.4; }
@@ -150,12 +196,32 @@
     /* ── Player cards (roster left panel) ── */
     .player-card { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); border-radius: 5px; padding: 5px 8px 5px 10px; cursor: default; user-select: none; transition: background 0.15s, border-color 0.15s; }
     .player-card:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.14); }
-    .player-card.in-roster { background: rgba(255,184,28,0.05); border-color: rgba(255,184,28,0.15); cursor: pointer; position: relative; }
+    /* drag handle */
+    .drag-handle {
+      cursor: grab; color: rgba(255,255,255,0.18); font-size: 0.85rem;
+      padding: 0 3px; flex-shrink: 0; line-height: 1;
+      transition: color 0.15s;
+    }
+    .drag-handle:hover { color: rgba(255,255,255,0.5); }
+    .drag-handle:active { cursor: grabbing; }
+    .player-card.in-roster { background: rgba(255,184,28,0.05); border-color: rgba(255,184,28,0.15); position: relative; }
     .player-card.in-roster:hover { background: rgba(255,184,28,0.1); }
-    .player-card.in-roster::after { content: '⇄ swap'; position: absolute; right: 6px; bottom: 3px; font-family: 'Bebas Neue', cursive; font-size: 0.58rem; letter-spacing: 1px; color: rgba(255,184,28,0.35); opacity: 0; transition: opacity 0.15s; pointer-events: none; }
-    .player-card.in-roster:hover::after { opacity: 1; }
-    body.view-only .player-card.in-roster::after { display: none; }
+    /* Swap hint pulse on roster cards */
+    .player-card.in-roster .swap-hint {
+      position: absolute; right: 34px; top: 50%; transform: translateY(-50%);
+      font-family: 'Bebas Neue', cursive; font-size: 0.58rem; letter-spacing: 1px;
+      color: rgba(255,184,28,0.45); opacity: 0; transition: opacity 0.15s;
+      pointer-events: none; white-space: nowrap;
+    }
+    .player-card.in-roster:hover .swap-hint { opacity: 1; }
+    /* When swap mode active, pulse the source card differently */
+    body.swap-active .player-card.in-roster:not(.swap-source) .swap-hint { display: none; }
+    body.swap-active .player-card.in-roster { cursor: default; }
+    .player-card.in-roster.clickable { cursor: pointer; }
     .player-card.swap-source { border-color: #60a5fa !important; background: rgba(96,165,250,0.12) !important; box-shadow: 0 0 0 2px rgba(96,165,250,0.35); }
+    /* swap-source pulse */
+    @keyframes swap-pulse { 0%,100%{ box-shadow:0 0 0 2px rgba(96,165,250,0.35); } 50%{ box-shadow:0 0 0 4px rgba(96,165,250,0.55),0 0 14px rgba(96,165,250,0.3); } }
+    .player-card.swap-source { animation: swap-pulse 1.4s ease-in-out infinite; }
     .claimed-badge { font-family: 'Bebas Neue', cursive; font-size: 0.6rem; letter-spacing: 1px; background: rgba(200,16,46,0.15); border: 1px solid rgba(200,16,46,0.25); color: rgba(255,122,138,0.8); border-radius: 3px; padding: 1px 5px; flex-shrink: 0; white-space: nowrap; max-width: 72px; overflow: hidden; text-overflow: ellipsis; }
     .inj-flag { font-family: 'Bebas Neue', cursive; font-size: 0.58rem; letter-spacing: 1px; background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.3); color: #f59e0b; border-radius: 3px; padding: 1px 5px; flex-shrink: 0; white-space: nowrap; cursor: help; }
     .swap-banner { display: none; background: rgba(96,165,250,0.12); border: 1px solid rgba(96,165,250,0.35); border-radius: 7px; padding: 7px 12px; font-size: 0.82rem; color: #93c5fd; margin-bottom: 0.5rem; flex-shrink: 0; align-items: center; gap: 8px; }
@@ -207,15 +273,79 @@
     .search-input::placeholder { color: rgba(168,178,190,0.35); }
     .search-input:focus { border-color: rgba(255,255,255,0.22); }
 
+    /* ── Salary range slider ── */
+    .salary-filter-row {
+      display: flex; align-items: center; gap: 8px;
+      background: rgba(255,255,255,0.03); border: 1px solid var(--line);
+      border-radius: 6px; padding: 5px 10px; margin-bottom: 0.4rem; flex-shrink: 0;
+    }
+    .salary-filter-label { font-family: 'Bebas Neue', cursive; font-size: 0.72rem; letter-spacing: 2px; color: var(--silver); white-space: nowrap; }
+    .salary-filter-value { font-family: 'Bebas Neue', cursive; font-size: 0.85rem; color: var(--gold); white-space: nowrap; min-width: 40px; }
+    .salary-slider {
+      flex: 1; -webkit-appearance: none; appearance: none;
+      height: 3px; background: rgba(255,255,255,0.12); border-radius: 2px; outline: none; cursor: pointer;
+    }
+    .salary-slider::-webkit-slider-thumb {
+      -webkit-appearance: none; appearance: none;
+      width: 14px; height: 14px; border-radius: 50%;
+      background: var(--gold); cursor: pointer; border: 2px solid var(--rink);
+      box-shadow: 0 0 6px rgba(255,184,28,0.5);
+    }
+    .salary-slider::-moz-range-thumb {
+      width: 14px; height: 14px; border-radius: 50%;
+      background: var(--gold); cursor: pointer; border: 2px solid var(--rink);
+    }
+    .salary-reset-btn {
+      font-family: 'Bebas Neue', cursive; font-size: 0.68rem; letter-spacing: 1px;
+      background: none; border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.3);
+      border-radius: 3px; padding: 1px 6px; cursor: pointer; white-space: nowrap;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .salary-reset-btn:hover { color: white; border-color: rgba(255,255,255,0.35); }
+
     /* ── EFF legend (compact) ── */
     .eff-legend { display: flex; align-items: center; gap: 8px; background: rgba(34,197,94,0.06); border: 1px solid rgba(34,197,94,0.15); border-radius: 6px; padding: 4px 10px; margin-bottom: 0.4rem; flex-shrink: 0; }
     .eff-legend-badge { font-family: 'Bebas Neue', cursive; font-size: 0.72rem; letter-spacing: 1.5px; color: #22c55e; background: rgba(34,197,94,0.12); border-radius: 3px; padding: 1px 6px; flex-shrink: 0; }
-    .eff-legend-text { font-size: 0.72rem; color: rgba(255,255,255,0.4); letter-spacing: 0.2px; }
+    .eff-legend-text { font-size: 0.72rem; color: rgba(255,255,255,0.4); letter-spacing: 0.2px; flex: 1; }
     .eff-legend-text strong { color: rgba(255,255,255,0.65); font-weight: 600; }
+    /* ── EFF tooltip trigger ── */
+    .eff-info-btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 16px; height: 16px; border-radius: 50%;
+      background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.3);
+      color: #22c55e; font-size: 0.65rem; font-weight: 700; cursor: help;
+      flex-shrink: 0; font-family: sans-serif; line-height: 1;
+      position: relative;
+    }
+    .eff-info-tooltip {
+      display: none; position: absolute; bottom: calc(100% + 6px); left: 50%;
+      transform: translateX(-50%); width: 220px;
+      background: #0d1b2e; border: 1px solid rgba(34,197,94,0.3);
+      border-radius: 7px; padding: 8px 10px; z-index: 200;
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.75rem;
+      color: rgba(255,255,255,0.65); line-height: 1.5; text-align: left;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    }
+    .eff-info-tooltip strong { color: #22c55e; }
+    .eff-info-btn:hover .eff-info-tooltip { display: block; }
 
-    /* ── NHL team strip — wrapping multi-row ── */
-    .nhl-team-strip-wrap { margin-bottom: 0.45rem; flex-shrink: 0; }
-    .nhl-team-strip { display: flex; gap: 3px; flex-wrap: wrap; padding-bottom: 2px; }
+    /* ── NHL team strip — horizontal scroll with fade edges ── */
+    .nhl-team-strip-wrap {
+      margin-bottom: 0.45rem; flex-shrink: 0;
+      position: relative;
+    }
+    /* fade edges */
+    .nhl-team-strip-wrap::before,
+    .nhl-team-strip-wrap::after {
+      content: ''; position: absolute; top: 0; bottom: 0; width: 28px; z-index: 2; pointer-events: none;
+    }
+    .nhl-team-strip-wrap::before { left: 0; background: linear-gradient(to right, var(--rink), transparent); }
+    .nhl-team-strip-wrap::after  { right: 0; background: linear-gradient(to left, var(--rink), transparent); }
+    .nhl-team-strip {
+      display: flex; gap: 4px; overflow-x: auto; padding-bottom: 3px;
+      scrollbar-width: none;
+    }
+    .nhl-team-strip::-webkit-scrollbar { display: none; }
     .nhl-team-pill {
       display: flex; align-items: center; gap: 3px;
       padding: 3px 7px; border-radius: 5px;
@@ -236,7 +366,7 @@
     .swap-banner.active { display: flex; }
 
     /* ═══════════════════════════════════════════════════════════════════
-       NEW: COMPACT TABLE POOL LIST
+       COMPACT TABLE POOL LIST
     ═══════════════════════════════════════════════════════════════════ */
     .pool-table-wrap {
       flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden;
@@ -251,7 +381,6 @@
       font-family: 'Barlow Condensed', sans-serif;
     }
 
-    /* Sticky header */
     .pool-table thead { position: sticky; top: 0; z-index: 10; }
     .pool-table thead tr { background: #0b1929; border-bottom: 1px solid rgba(255,255,255,0.12); }
     .pool-table th {
@@ -267,7 +396,6 @@
     .pool-table th.sort-active { color: var(--gold); }
     .pool-table th .sort-arrow { display: inline-block; margin-left: 3px; font-size: 0.6rem; vertical-align: middle; opacity: 0.7; }
 
-    /* Column widths */
     .col-player { width: auto; }
     .col-gp  { width: 38px; }
     .col-g   { width: 36px; }
@@ -280,7 +408,6 @@
     body.goalie-filter .col-gaa, body.goalie-filter .td-gaa { display: table-cell; }
     .col-act { width: 38px; }
 
-    /* Table rows */
     .pool-table tbody tr {
       border-bottom: 1px solid rgba(255,255,255,0.04);
       transition: background 0.1s;
@@ -292,14 +419,18 @@
     .pool-table tbody tr.row-swap-target:hover { background: rgba(96,165,250,0.1); }
     .pool-table tbody tr.row-can-add:hover { background: rgba(255,184,28,0.05); }
 
-    /* Claimed rows — pushed to bottom, dimmed */
-    .pool-table tbody tr.row-claimed {
-      opacity: 0.32;
-      pointer-events: none;
-    }
-    .pool-table tbody tr.row-owned-active {
-      opacity: 0.32;
-      pointer-events: none;
+    .pool-table tbody tr.row-claimed { opacity: 0.32; pointer-events: none; }
+    .pool-table tbody tr.row-owned-active { opacity: 0.32; pointer-events: none; }
+
+    /* Top EFF highlight */
+    .pool-table tbody tr.row-top-eff { background: rgba(34,197,94,0.04); }
+    .pool-table tbody tr.row-top-eff:hover { background: rgba(34,197,94,0.09); }
+    .pool-table tbody tr.row-top-eff .td-eff { color: #4ade80; }
+
+    /* Pinned compare row in pool */
+    .pool-table tbody tr.row-pinned-compare {
+      background: rgba(255,184,28,0.07); border-top: 1px solid rgba(255,184,28,0.2);
+      border-bottom: 1px solid rgba(255,184,28,0.2);
     }
 
     .pool-table td {
@@ -311,7 +442,6 @@
     }
     .pool-table td:last-child { border-right: none; }
 
-    /* Player cell */
     .td-player {
       text-align: left; padding-left: 8px; padding-right: 6px;
       display: flex; align-items: center; gap: 6px;
@@ -326,8 +456,9 @@
     .td-name { font-weight: 700; font-size: 0.88rem; color: white; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; min-width: 0; }
     .td-flag { font-family: 'Bebas Neue', cursive; font-size: 0.55rem; letter-spacing: 1px; background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.3); color: #f59e0b; border-radius: 3px; padding: 1px 4px; flex-shrink: 0; }
     .td-claimed-tag { font-family: 'Bebas Neue', cursive; font-size: 0.55rem; letter-spacing: 1px; background: rgba(200,16,46,0.15); border: 1px solid rgba(200,16,46,0.2); color: rgba(255,122,138,0.7); border-radius: 3px; padding: 1px 4px; flex-shrink: 0; max-width: 70px; overflow: hidden; text-overflow: ellipsis; }
+    /* pin compare badge */
+    .td-pin-badge { font-family: 'Bebas Neue', cursive; font-size: 0.55rem; letter-spacing: 1px; background: rgba(255,184,28,0.15); border: 1px solid rgba(255,184,28,0.35); color: var(--gold); border-radius: 3px; padding: 1px 4px; flex-shrink: 0; }
 
-    /* Stat cells */
     .td-gp   { color: rgba(255,255,255,0.45); }
     .td-g    { color: #ff7a8a; }
     .td-a    { color: #7db4ff; }
@@ -335,7 +466,6 @@
     .td-cap  { color: rgba(255,255,255,0.6); font-size: 0.82rem; }
     .td-eff  { color: #22c55e; font-family: 'Bebas Neue', cursive; font-size: 0.95rem; }
 
-    /* Action cell */
     .td-act { padding: 0 5px; }
     .tbl-add-btn {
       display: inline-flex; align-items: center; justify-content: center;
@@ -356,6 +486,18 @@
       transition: background 0.12s;
     }
     .tbl-swap-btn:hover { background: rgba(96,165,250,0.2); }
+    /* compare pin button */
+    .tbl-pin-btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 26px; height: 22px;
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 4px; color: rgba(255,255,255,0.35); cursor: pointer;
+      font-size: 0.75rem; line-height: 1;
+      transition: background 0.12s, color 0.12s, border-color 0.12s;
+    }
+    .tbl-pin-btn:hover { background: rgba(255,184,28,0.1); color: var(--gold); border-color: rgba(255,184,28,0.3); }
+    .tbl-pin-btn.pinned { background: rgba(255,184,28,0.12); color: var(--gold); border-color: rgba(255,184,28,0.4); }
+    .td-act-wrap { display: flex; gap: 3px; justify-content: center; align-items: center; }
 
     /* ── CAP IMPACT TOOLTIP ── */
     .cap-tooltip {
@@ -377,26 +519,58 @@
     .cap-tooltip-val.gold { color: var(--gold); }
     .cap-tooltip-sep { height: 1px; background: rgba(255,255,255,0.08); margin: 4px 0; }
 
-    /* ── Divider row between available / claimed ── */
     .claimed-divider td {
       padding: 5px 10px; font-family: 'Bebas Neue', cursive; font-size: 0.68rem;
       letter-spacing: 2px; color: rgba(255,255,255,0.2);
       background: rgba(255,255,255,0.02); text-align: left; border-top: 1px solid rgba(255,255,255,0.06);
     }
 
-    /* ── Load more sentinel ── */
     .load-more-btn { width: 100%; padding: 8px; font-family: 'Bebas Neue', cursive; font-size: 0.82rem; letter-spacing: 2px; background: rgba(255,184,28,0.05); border: none; border-top: 1px solid var(--line); color: rgba(255,184,28,0.6); cursor: pointer; transition: background 0.15s; }
     .load-more-btn:hover { background: rgba(255,184,28,0.1); }
     .loading-msg, .empty-msg { text-align: center; color: var(--silver); font-size: 0.9rem; padding: 2rem 0; letter-spacing: 1px; }
     .retry-btn { font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 1.5px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: white; border-radius: 5px; padding: 2px 12px; cursor: pointer; margin-left: 8px; transition: background 0.15s; }
     .retry-btn:hover { background: rgba(255,255,255,0.12); }
 
+    /* ── Compare drawer ── */
+    .compare-drawer {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 300;
+      background: #0d1b2e; border-top: 1px solid rgba(255,184,28,0.3);
+      transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+      box-shadow: 0 -8px 40px rgba(0,0,0,0.6);
+    }
+    .compare-drawer.open { transform: translateY(0); }
+    .compare-drawer-inner { max-width: 1100px; margin: 0 auto; padding: 10px 1.25rem 12px; }
+    .compare-drawer-header {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 8px;
+    }
+    .compare-drawer-title { font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 3px; color: var(--silver); flex: 1; }
+    .compare-drawer-title span { color: var(--gold); }
+    .compare-drawer-close { background: none; border: none; color: rgba(255,255,255,0.3); cursor: pointer; font-size: 1rem; padding: 2px 4px; border-radius: 3px; transition: color 0.15s; }
+    .compare-drawer-close:hover { color: white; }
+    .compare-grid { display: grid; grid-template-columns: 1fr 1px 1fr; gap: 0; align-items: start; }
+    .compare-divider { background: rgba(255,255,255,0.07); align-self: stretch; }
+    .compare-player { padding: 0 16px; }
+    .compare-player:first-child { padding-left: 0; }
+    .compare-player:last-child { padding-right: 0; }
+    .compare-player-name { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 2px; color: white; display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+    .compare-player-name .cp-pos { font-size: 0.65rem; padding: 1px 5px; border-radius: 3px; }
+    .compare-stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+    .compare-stat { display: flex; flex-direction: column; align-items: center; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); border-radius: 5px; padding: 4px 6px; }
+    .compare-stat-val { font-family: 'Bebas Neue', cursive; font-size: 1.1rem; letter-spacing: 0.5px; }
+    .compare-stat-lbl { font-family: 'Bebas Neue', cursive; font-size: 0.6rem; letter-spacing: 2px; color: rgba(255,255,255,0.3); margin-top: 1px; }
+    .compare-stat.winner .compare-stat-val { color: var(--green); }
+    .compare-stat.loser  .compare-stat-val { color: rgba(255,255,255,0.3); }
+    .compare-stat.tie    .compare-stat-val { color: rgba(255,255,255,0.65); }
+    .compare-vs { font-family: 'Bebas Neue', cursive; font-size: 0.75rem; letter-spacing: 3px; color: rgba(255,255,255,0.2); text-align: center; padding-top: 28px; }
+    .compare-add-row { margin-top: 8px; display: flex; justify-content: center; }
+    .compare-placeholder { display: flex; align-items: center; justify-content: center; height: 80px; color: rgba(255,255,255,0.2); font-size: 0.8rem; letter-spacing: 1px; font-family: 'Bebas Neue', cursive; }
+
     /* ── Overview ── */
     .pool-overview { max-width: 1100px; width: 100%; margin: 0 auto; padding: 0.75rem 1.25rem 1rem; flex: 1; }
     .pool-overview h2 { font-family: 'Bebas Neue', cursive; font-size: 1.1rem; letter-spacing: 4px; color: white; margin-bottom: 0.75rem; }
     .pool-overview h2 span { color: var(--gold); }
     .overview-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
-    .overview-card { background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; cursor: pointer; transition: background 0.15s, border-color 0.15s; }
+    .overview-card { background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; cursor: pointer; transition: background 0.15s, border-color 0.15s; position: relative; }
     .overview-card:hover { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.16); }
     .overview-card-name { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 3px; color: white; margin-bottom: 6px; }
     .overview-card-stats { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -404,6 +578,15 @@
     .overview-stat strong { color: white; font-weight: 700; }
     .overview-progress-bar { height: 3px; background: rgba(255,255,255,0.07); border-radius: 2px; margin-top: 8px; overflow: hidden; }
     .overview-progress-fill { height: 100%; border-radius: 2px; background: linear-gradient(90deg, var(--gold), #e6a800); transition: width 0.3s; }
+    /* rank badge */
+    .overview-rank {
+      position: absolute; top: 10px; right: 12px;
+      font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 1px;
+    }
+    .overview-rank.rank-1 { color: var(--gold); }
+    .overview-rank.rank-2 { color: var(--silver); }
+    .overview-rank.rank-3 { color: #cd7f32; }
+    .overview-rank.rank-other { color: rgba(255,255,255,0.2); }
 
     /* ── Edit bar ── */
     .edit-bar { max-width: 1100px; width: 100%; margin: 0 auto; padding: 0.4rem 1.25rem; display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; flex-shrink: 0; }
@@ -426,6 +609,8 @@
     /* ── Toast ── */
     .toast { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--gold); color: var(--rink); font-family: 'Bebas Neue', cursive; font-size: 1.1rem; letter-spacing: 2px; padding: 0.5rem 1.8rem; border-radius: 4px; box-shadow: 0 4px 20px rgba(0,0,0,0.4); transition: transform 0.3s ease; pointer-events: none; z-index: 9999; }
     .toast.show { transform: translateX(-50%) translateY(0); }
+    /* push toast up when compare drawer is open */
+    .compare-drawer.open ~ .toast { bottom: 9rem; }
 
     /* ── Modal ── */
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 1rem; }
@@ -457,7 +642,8 @@
     .pw-error { color:rgba(200,16,46,0.8);font-size:0.8rem;margin-top:0.5rem;min-height:1em;letter-spacing:1px; }
 
     body.view-only .btn-generate-team,
-    body.view-only .btn-clear-team { display: none; }
+    body.view-only .btn-clear-team,
+    body.view-only .keep-picks-row { display: none; }
 
     /* ── Mobile ── */
     @media (max-width: 860px) {
@@ -483,6 +669,16 @@
       .share-row { flex-direction: column; align-items: stretch; gap: 6px; padding: 0 1rem; }
       .btn-share-pool { width: 100%; }
       .overview-grid { grid-template-columns: 1fr 1fr; }
+      /* collapsible scoring legend on mobile */
+      .scoring-legend-toggle { display: block; }
+      .scoring-legend.collapsed { display: none; }
+      /* collapsible cap bar on mobile */
+      .cap-bar-toggle { display: block; }
+      .cap-bar-wrap.collapsed { display: none; }
+      /* compare drawer */
+      .compare-grid { grid-template-columns: 1fr; }
+      .compare-divider { display: none; }
+      .compare-player:last-child { border-top: 1px solid rgba(255,255,255,0.06); margin-top: 8px; padding-top: 8px; }
     }
     @media (min-width: 861px) { .mobile-tabs { display: none; } }
     @media (max-width: 500px) {
@@ -507,14 +703,31 @@
   </div>
 </div>
 <script>
+  /* ── Password gate: localStorage with 7-day expiry ── */
   (function(){
-    if(sessionStorage.getItem('pool_auth')==='1') document.getElementById('pw-gate').style.display='none';
-    document.getElementById('pw-input').addEventListener('keydown',e=>{ if(e.key==='Enter') checkPw(); });
+    const PW_KEY = 'pool_auth_v2';
+    const TTL = 7 * 24 * 60 * 60 * 1000;
+    try {
+      const raw = localStorage.getItem(PW_KEY);
+      if (raw) {
+        const { ts } = JSON.parse(raw);
+        if (Date.now() - ts < TTL) {
+          document.getElementById('pw-gate').style.display = 'none';
+        }
+      }
+    } catch(e) {}
+    document.getElementById('pw-input').addEventListener('keydown', e => { if(e.key==='Enter') checkPw(); });
   })();
+
   function checkPw(){
-    const input=document.getElementById('pw-input'), err=document.getElementById('pw-error');
-    if(input.value==='parieur2026'){ sessionStorage.setItem('pool_auth','1'); document.getElementById('pw-gate').style.display='none'; }
-    else { input.classList.add('error'); err.textContent='Incorrect password.'; setTimeout(()=>input.classList.remove('error'),400); input.value=''; input.focus(); }
+    const input = document.getElementById('pw-input'), err = document.getElementById('pw-error');
+    if(input.value === 'parieur2026'){
+      try { localStorage.setItem('pool_auth_v2', JSON.stringify({ ts: Date.now() })); } catch(e){}
+      document.getElementById('pw-gate').style.display = 'none';
+    } else {
+      input.classList.add('error'); err.textContent = 'Incorrect password.';
+      setTimeout(() => input.classList.remove('error'), 400); input.value = ''; input.focus();
+    }
   }
 </script>
 
@@ -535,6 +748,10 @@
 <header>
   <h1>Hockey <span>Pool</span></h1>
   <p>2025–26 Season · Build your team · Click + to add players</p>
+  <div class="stats-season-badge" title="Stats are from the 2025–26 NHL regular season. Data refreshes periodically.">
+    <span class="dot"></span>
+    <span id="stats-timestamp-label">2025–26 Stats</span>
+  </div>
   <div class="league-badge-row" id="league-badge-row" style="display:none">
     <span class="league-badge-label">League</span>
     <button class="league-badge-code" id="league-badge" onclick="copyLeagueLink()" title="Copy league link">—</button>
@@ -583,6 +800,21 @@
 <!-- Cap impact tooltip (global) -->
 <div class="cap-tooltip" id="cap-tooltip"></div>
 
+<!-- Compare drawer -->
+<div class="compare-drawer" id="compare-drawer">
+  <div class="compare-drawer-inner">
+    <div class="compare-drawer-header">
+      <div class="compare-drawer-title">Compare <span>Players</span></div>
+      <button class="compare-drawer-close" onclick="clearCompare()" title="Close compare">✕</button>
+    </div>
+    <div class="compare-grid" id="compare-grid">
+      <div class="compare-placeholder" id="compare-slot-a">Pin a player to compare →</div>
+      <div class="compare-divider"></div>
+      <div class="compare-placeholder" id="compare-slot-b">Pin a second player →</div>
+    </div>
+  </div>
+</div>
+
 <div class="pool-layout" id="pool-layout">
   <!-- LEFT: Your Team -->
   <div class="your-team-panel" id="your-team-panel">
@@ -594,12 +826,27 @@
       </div>
     </div>
 
-    <div class="scoring-legend" id="scoring-legend">
-      <div class="scoring-legend-pill F"><span class="scoring-legend-pos">F</span><span class="scoring-legend-rules" id="legend-f">G=1pt · A=1pt</span></div>
-      <div class="scoring-legend-pill D"><span class="scoring-legend-pos">D</span><span class="scoring-legend-rules" id="legend-d">G=2pts · A=1pt</span></div>
-      <div class="scoring-legend-pill G"><span class="scoring-legend-pos">G</span><span class="scoring-legend-rules" id="legend-g">W=2pts · SO=3pts</span></div>
+    <!-- Keep picks toggle -->
+    <div class="keep-picks-row" id="keep-picks-row">
+      <label class="keep-picks-toggle">
+        <input type="checkbox" id="keep-picks-chk">
+        <span class="keep-picks-slider"></span>
+      </label>
+      <span class="keep-picks-label" id="keep-picks-label">Keep my picks, fill the rest</span>
     </div>
 
+    <!-- Scoring legend (collapsible on mobile) -->
+    <div class="scoring-legend-wrap">
+      <button class="scoring-legend-toggle" id="scoring-legend-toggle" onclick="toggleScoringLegend()">▾ Scoring Rules</button>
+      <div class="scoring-legend" id="scoring-legend">
+        <div class="scoring-legend-pill F"><span class="scoring-legend-pos">F</span><span class="scoring-legend-rules" id="legend-f">G=1pt · A=1pt</span></div>
+        <div class="scoring-legend-pill D"><span class="scoring-legend-pos">D</span><span class="scoring-legend-rules" id="legend-d">G=2pts · A=1pt</span></div>
+        <div class="scoring-legend-pill G"><span class="scoring-legend-pos">G</span><span class="scoring-legend-rules" id="legend-g">W=2pts · SO=3pts</span></div>
+      </div>
+    </div>
+
+    <!-- Cap bar (collapsible on mobile) -->
+    <button class="cap-bar-toggle" id="cap-bar-toggle" onclick="toggleCapBar()">▾ Salary Cap</button>
     <div class="cap-bar-wrap" id="cap-bar-wrap">
       <div class="cap-remaining-row">
         <span class="cap-remaining-label">Remaining <span id="cap-status-icon">✓</span></span>
@@ -624,20 +871,20 @@
 
     <div class="roster-section">
       <div class="section-label">Forwards <span class="count" id="fwd-count">0 / 12</span></div>
-      <div class="roster-slots" id="slots-F"></div>
+      <div class="roster-slots" id="slots-F" data-group="F"></div>
     </div>
     <div class="roster-section">
       <div class="section-label">Defensemen <span class="count" id="def-count">0 / 6</span></div>
-      <div class="roster-slots" id="slots-D"></div>
+      <div class="roster-slots" id="slots-D" data-group="D"></div>
     </div>
     <div class="roster-section">
       <div class="section-label">Goalies <span class="count" id="gol-count">0 / 2</span></div>
-      <div class="roster-slots" id="slots-G"></div>
+      <div class="roster-slots" id="slots-G" data-group="G"></div>
     </div>
     <div class="roster-section">
       <div class="section-label">Bench <span class="count" id="bench-count">0 / 6</span></div>
       <div class="bench-note" id="bench-note">Bench players do not count against the cap and do not contribute to scoring.</div>
-      <div class="roster-slots" id="slots-B"></div>
+      <div class="roster-slots" id="slots-B" data-group="B"></div>
     </div>
   </div>
 
@@ -655,12 +902,31 @@
       <input class="search-input" id="search-input" type="text" placeholder="🔍 Search player…" oninput="debouncedRenderPool()" autocomplete="off">
     </div>
 
-    <div class="eff-legend">
-      <span class="eff-legend-badge">EFF</span>
-      <span class="eff-legend-text"><strong>Pts ÷ √Cap($M)</strong> — rewards elite production, not just cheap deals</span>
+    <!-- Salary range slider -->
+    <div class="salary-filter-row">
+      <span class="salary-filter-label">Max Cap</span>
+      <input type="range" class="salary-slider" id="salary-slider" min="600" max="14000" step="100" value="14000" oninput="onSalarySlide(this.value)">
+      <span class="salary-filter-value" id="salary-filter-display">All</span>
+      <button class="salary-reset-btn" onclick="resetSalaryFilter()">Reset</button>
     </div>
 
-    <!-- NHL team strip — single horizontal scroll -->
+    <div class="eff-legend">
+      <span class="eff-legend-badge">EFF</span>
+      <span class="eff-legend-text"><strong>Pts ÷ √Cap($M)</strong> — rewards elite production</span>
+      <span class="eff-info-btn" tabindex="0" role="tooltip" aria-label="Efficiency explained">
+        ?
+        <div class="eff-info-tooltip">
+          <strong>Efficiency (EFF)</strong> = Pool Points ÷ √Cap(M)<br><br>
+          A player earning <strong>80 pts</strong> at <strong>$4M</strong> scores<br>
+          80 ÷ √4 = <strong>40 EFF</strong>.<br><br>
+          A player earning <strong>80 pts</strong> at <strong>$9M</strong> scores<br>
+          80 ÷ √9 = <strong>26.7 EFF</strong>.<br><br>
+          Higher EFF = better value for your cap dollar. The top 10 EFF players are <span style="color:#22c55e;">highlighted in green</span>.
+        </div>
+      </span>
+    </div>
+
+    <!-- NHL team strip -->
     <div class="nhl-team-strip-wrap">
       <div class="nhl-team-strip" id="nhl-team-strip"></div>
     </div>
@@ -758,9 +1024,55 @@
   let _clearPending = false, _clearTimer = null, _undoSnapshot = null;
   let _modalMode = null, _modalTargetId = null;
   let _deleteTarget = null, _deleteTimer = null;
+  let _salaryMaxFilter = 14000; // in $100k units (14000 = $14M = no filter effectively)
+  let _compareA = null, _compareB = null; // pinned player slugs for compare
+  let _topEffSlugs = new Set();
 
   let _scoring = { f_points:1, d_goals:1, d_assists:1, g_wins:2, g_shutouts:3 };
 
+  // ── Collapsible controls ──────────────────────────────────────────────────
+  let _scoringLegendOpen = true, _capBarOpen = true;
+  function toggleScoringLegend() {
+    _scoringLegendOpen = !_scoringLegendOpen;
+    const el = document.getElementById('scoring-legend');
+    const btn = document.getElementById('scoring-legend-toggle');
+    el.classList.toggle('collapsed', !_scoringLegendOpen);
+    btn.textContent = (_scoringLegendOpen ? '▾' : '▸') + ' Scoring Rules';
+  }
+  function toggleCapBar() {
+    _capBarOpen = !_capBarOpen;
+    const el = document.getElementById('cap-bar-wrap');
+    const btn = document.getElementById('cap-bar-toggle');
+    el.classList.toggle('collapsed', !_capBarOpen);
+    btn.textContent = (_capBarOpen ? '▾' : '▸') + ' Salary Cap';
+  }
+
+  // ── Salary filter ─────────────────────────────────────────────────────────
+  function onSalarySlide(val) {
+    _salaryMaxFilter = parseInt(val);
+    const display = document.getElementById('salary-filter-display');
+    display.textContent = _salaryMaxFilter >= 14000 ? 'All' : `≤$${(_salaryMaxFilter / 100).toFixed(1)}M`;
+    debouncedRenderPool();
+  }
+  function resetSalaryFilter() {
+    _salaryMaxFilter = 14000;
+    document.getElementById('salary-slider').value = 14000;
+    document.getElementById('salary-filter-display').textContent = 'All';
+    renderPool();
+  }
+
+  // ── Stats timestamp ───────────────────────────────────────────────────────
+  function updateStatsTimestamp() {
+    const el = document.getElementById('stats-timestamp-label');
+    if (!el) return;
+    const cached = sessionStorage.getItem('hp_players_v3');
+    if (cached) {
+      const now = new Date();
+      el.textContent = `2025–26 Stats · Loaded ${now.toLocaleTimeString('en-CA', { hour:'2-digit', minute:'2-digit' })}`;
+    }
+  }
+
+  // ── Scoring legend ────────────────────────────────────────────────────────
   function updateScoringLegend() {
     const fRules = [];
     if (_scoring.f_points) fRules.push(`G=${_scoring.f_points}pt`, `A=${_scoring.f_points}pt`);
@@ -1019,6 +1331,14 @@
     p._eff=poolScore(p)/Math.sqrt(capM);
     return p._eff;
   }
+
+  function computeTopEffSlugs() {
+    const withEff = allPlayers.filter(p => p.cap_hit && poolScore(p) > 0)
+      .map(p => ({ slug: p.puckpedia_slug, eff: effScore(p) }));
+    withEff.sort((a,b) => b.eff - a.eff);
+    _topEffSlugs = new Set(withEff.slice(0, 10).map(x => x.slug));
+  }
+
   function playerSortKey(p) {
     if (activeSort==='points') return poolScore(p);
     if (activeSort==='value')  return effScore(p);
@@ -1027,9 +1347,9 @@
     if (activeSort==='wins')   return p.wins??0;
     if (activeSort==='shutouts') return p.shutouts??0;
     if (activeSort==='save_pct') return p.save_pct??0;
-    if (activeSort==='gaa')    return -(p.gaa??99); // lower is better, invert for desc sort
+    if (activeSort==='gaa')    return -(p.gaa??99);
     if (activeSort==='gp')     return p.games_played??0;
-    return p.cap_hit||0; // salary
+    return p.cap_hit||0;
   }
 
   function isLikelyInactive(p) {
@@ -1091,6 +1411,8 @@
         sessionStorage.setItem(PLAYERS_CACHE_KEY,JSON.stringify(allPlayers));
       }
       slugMap._cache=null;
+      computeTopEffSlugs();
+      updateStatsTimestamp();
       buildNHLTeamStrip();
       if (_leagueCode) {
         document.body.classList.add('view-only');
@@ -1182,6 +1504,10 @@
     renderPool();
     renderOverview();
     updateActiveTeamLabel();
+    // update keep-picks label
+    const chk = document.getElementById('keep-picks-chk');
+    const lbl = document.getElementById('keep-picks-label');
+    if (lbl) lbl.className = 'keep-picks-label' + (chk?.checked ? ' on' : '');
   }
 
   // ── Team switcher ─────────────────────────────────────────────────────────
@@ -1218,19 +1544,34 @@
     clearTimeout(_deleteTimer); _deleteTimer=setTimeout(()=>{ _deleteTarget=null; },3000);
   }
 
-  // ── Overview ──────────────────────────────────────────────────────────────
+  // ── Overview — sorted by total pts with rank badges ────────────────────
   function renderOverview() {
     const grid=document.getElementById('overview-grid'); grid.innerHTML='';
-    for (const t of teams) {
+    const teamData = teams.map(t => {
       const roster=rosterFromSlugs(t.roster);
       const players=[...roster.F,...roster.D,...roster.G,...(roster.B||[])].filter(Boolean);
       const filled=players.length, pts=players.reduce((s,p)=>s+poolScore(p),0);
       const cap=players.reduce((s,p)=>s+(p.cap_hit||0),0), pct=(filled/26)*100;
+      return { t, filled, pts, cap, pct };
+    }).sort((a, b) => b.pts - a.pts); // sort by pool points desc
+
+    teamData.forEach(({ t, filled, pts, cap, pct }, idx) => {
+      const rank = idx + 1;
+      const rankLabel = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`;
+      const rankClass = rank <= 3 ? `rank-${rank}` : 'rank-other';
       const card=document.createElement('div'); card.className='overview-card';
-      card.innerHTML=`<div class="overview-card-name">${t.name}</div><div class="overview-card-stats"><span class="overview-stat"><strong>${filled}</strong>/26</span><span class="overview-stat"><strong>${pts}</strong> pts</span><span class="overview-stat"><strong>$${(cap/1_000_000).toFixed(1)}M</strong></span></div><div class="overview-progress-bar"><div class="overview-progress-fill" style="width:${pct}%"></div></div>`;
+      card.innerHTML=`
+        <div class="overview-rank ${rankClass}">${rankLabel}</div>
+        <div class="overview-card-name">${t.name}</div>
+        <div class="overview-card-stats">
+          <span class="overview-stat"><strong>${filled}</strong>/26</span>
+          <span class="overview-stat"><strong>${pts}</strong> pts</span>
+          <span class="overview-stat"><strong>$${(cap/1_000_000).toFixed(1)}M</strong></span>
+        </div>
+        <div class="overview-progress-bar"><div class="overview-progress-fill" style="width:${pct}%"></div></div>`;
       card.addEventListener('click',()=>{ switchTeam(t.id); if(window.innerWidth<=860) switchMobileTab('team'); else showView('draft'); });
       grid.appendChild(card);
-    }
+    });
   }
 
   let _currentView='draft';
@@ -1268,7 +1609,7 @@
     }
   }
 
-  // ── NHL team strip (compact horizontal) ──────────────────────────────────
+  // ── NHL team strip ────────────────────────────────────────────────────────
   function buildNHLTeamStrip() {
     const nhlTeams=[...new Set(allPlayers.map(p=>p.team).filter(Boolean))].sort();
     const strip=document.getElementById('nhl-team-strip'); strip.innerHTML='';
@@ -1295,21 +1636,23 @@
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // NEW: COMPACT TABLE POOL RENDER
+  // COMPACT TABLE POOL RENDER
   // ═══════════════════════════════════════════════════════════════════════════
 
-  // Update sort arrows in header
   function updateSortArrows() {
-    const colMap = { salary:'sa-salary', points:'sa-points', value:'sa-value', goals:'sa-goals', assists:'sa-assists', gp:'sa-gp', wins:'sa-wins', shutouts:'sa-shutouts', save_pct:'sa-save_pct', gaa:'sa-gaa' };
-    Object.entries(colMap).forEach(([sort, id]) => {
-      const el = document.getElementById(id);
-      if (!el) return;
-      if (sort === activeSort) {
-        el.textContent = activeSortDir === 'desc' ? '↓' : '↑';
-      } else {
-        el.textContent = '';
-      }
-    });
+    const colMap = {
+      salary:'sa-salary', points:'sa-points', value:'sa-value',
+      goals:'sa-goals', assists:'sa-assists', gp:'sa-gp',
+      wins:'sa-wins', shutouts:'sa-shutouts', save_pct:'sa-save_pct', gaa:'sa-gaa'
+    };
+    // clear all
+    document.querySelectorAll('.sort-arrow').forEach(el => el.textContent = '');
+    // set active
+    const activeId = colMap[activeSort];
+    if (activeId) {
+      const el = document.getElementById(activeId);
+      if (el) el.textContent = activeSortDir === 'desc' ? '↓' : '↑';
+    }
     document.querySelectorAll('.pool-table th').forEach(th => {
       th.classList.toggle('sort-active', th.dataset.sort === activeSort);
     });
@@ -1319,8 +1662,8 @@
     _virtualStart = 0;
     const query = document.getElementById('search-input').value.toLowerCase().trim();
     const claimed = allClaimedSlugs(), activeSlugs = activeRosterSlugs(), claimedBy = claimedByMap();
+    const salaryMaxHit = _salaryMaxFilter >= 14000 ? Infinity : _salaryMaxFilter * 100_000;
 
-    // Filter
     let available = [], claimedRows = [];
     for (const p of allPlayers) {
       if (!p.player_name) continue;
@@ -1328,11 +1671,15 @@
       if (activeNHLTeam !== 'ALL' && p.team !== activeNHLTeam) continue;
       if (query && !p.player_name.toLowerCase().includes(query) &&
           !(formatName(p.player_name).toLowerCase().includes(query))) continue;
-
+      // salary filter (only on available players)
       const slug = p.puckpedia_slug;
       const inActive = activeSlugs.has(slug);
       const claimedLive = liveDraftedSlugs.has(slug);
       const claimedOther = claimedLive || (!inActive && claimed.has(slug));
+
+      if (!inActive && !claimedOther) {
+        if ((p.cap_hit||0) > salaryMaxHit) continue;
+      }
 
       if (inActive || claimedOther) {
         claimedRows.push({ p, inActive, claimedOther, claimedTeamName: claimedBy[slug] || (claimedLive ? 'Live Draft' : null) });
@@ -1341,16 +1688,13 @@
       }
     }
 
-    // Sort available rows
     available.sort((a, b) => {
       const diff = playerSortKey(b) - playerSortKey(a);
       return activeSortDir === 'desc' ? diff : -diff;
     });
 
-    // Cache for virtual scroll
     _filteredCache = { available, claimedRows };
 
-    // Update count label
     const countLabel = document.getElementById('pool-count-label');
     if (countLabel) countLabel.textContent = `(${available.length} available)`;
 
@@ -1374,13 +1718,11 @@
 
     const fragment = document.createDocumentFragment();
 
-    // Render available players (virtualized: show first VIRTUAL_PAGE)
     const visibleAvailable = available.slice(0, VIRTUAL_PAGE);
     for (const p of visibleAvailable) {
       fragment.appendChild(makeTableRow(p, false, null, false, isViewOnly, currentCap));
     }
 
-    // Sentinel row for auto-load on scroll
     if (available.length > VIRTUAL_PAGE) {
       const tr = document.createElement('tr');
       tr.className = 'load-more-sentinel';
@@ -1388,7 +1730,6 @@
       fragment.appendChild(tr);
     }
 
-    // Claimed divider
     if (claimedRows.length > 0) {
       const divTr = document.createElement('tr');
       divTr.className = 'claimed-divider';
@@ -1412,11 +1753,9 @@
     const roster = activeRoster();
     const currentCap = [...roster.F, ...roster.D, ...roster.G].filter(Boolean).reduce((s, p) => s + (p.cap_hit || 0), 0);
 
-    // Remove existing sentinel and claimed section
     const loadMoreRow = tbody.querySelector('.load-more-sentinel');
     if (loadMoreRow) loadMoreRow.remove();
     const claimedDivider = tbody.querySelector('.claimed-divider');
-    // remove claimed divider and everything after it
     if (claimedDivider) {
       let next = claimedDivider;
       while (next) { const n2 = next.nextElementSibling; next.remove(); next = n2; }
@@ -1461,6 +1800,8 @@
     const capAfter = currentCap + (p.cap_hit || 0);
     const capLeft = CAP_MAX - capAfter;
     const wouldOverCap = pos !== 'B' && capAfter > CAP_MAX;
+    const isTopEff = _topEffSlugs.has(slug) && !ownedByActive && !claimedByOther;
+    const isPinnedA = _compareA === slug, isPinnedB = _compareB === slug;
 
     const tr = document.createElement('tr');
     tr.dataset.slug = slug;
@@ -1469,18 +1810,19 @@
     else if (claimedByOther) tr.classList.add('row-claimed');
     else if (swapMode) tr.classList.add('row-swap-target');
     else if (canAct) tr.classList.add('row-can-add');
+    if (isTopEff) tr.classList.add('row-top-eff');
+    if (isPinnedA || isPinnedB) tr.classList.add('row-pinned-compare');
 
-    // Player cell (built as a div inside td for flex layout)
     const playerCellContent = `
       <div class="td-player">
         ${logoSrc ? `<img class="td-player-logo" src="${logoSrc}" alt="${abbr}">` : `<div class="td-player-logo-placeholder"></div>`}
         <span class="td-pos ${pos}">${pos}</span>
         <span class="td-name">${formatName(p.player_name)}</span>
         ${inactive ? `<span class="td-flag" title="0 GP — may be injured">0GP</span>` : ''}
+        ${isPinnedA || isPinnedB ? `<span class="td-pin-badge">📌 ${isPinnedA ? 'A' : 'B'}</span>` : ''}
         ${claimedTeamName ? `<span class="td-claimed-tag">${claimedTeamName}</span>` : ''}
       </div>`;
 
-    // Stats
     let gpVal = p.games_played != null ? p.games_played : '—';
     let gVal, aVal, ptsVal;
     if (pos === 'G') {
@@ -1489,9 +1831,7 @@
       if (p.save_pct != null) {
         const svColor = p.save_pct > 0.910 ? '#22c55e' : p.save_pct >= 0.900 ? '#ffb81c' : 'rgba(255,255,255,0.4)';
         ptsVal = `<span style="color:${svColor};font-weight:600;">${p.save_pct.toFixed(3)}</span>`;
-      } else {
-        ptsVal = '—';
-      }
+      } else { ptsVal = '—'; }
     } else {
       gVal = p.goals != null ? p.goals : '—';
       aVal = p.assists != null ? p.assists : '—';
@@ -1505,14 +1845,21 @@
       gaaVal = `<span style="color:${gaaColor};font-weight:600;">${gaa.toFixed(2)}</span>`;
     }
 
-    // Action button
-    let actBtn = '';
+    // Action buttons
+    let actBtns = '';
     if (canAct) {
+      const pinIcon = (isPinnedA || isPinnedB) ? '📌' : '☰';
+      const pinClass = (isPinnedA || isPinnedB) ? 'pinned' : '';
       if (swapMode) {
-        actBtn = `<button class="tbl-swap-btn" title="Swap in">⇄</button>`;
+        actBtns = `<button class="tbl-swap-btn" title="Swap in">⇄</button>`;
       } else {
-        actBtn = `<button class="tbl-add-btn" title="Add to team">+</button>`;
+        actBtns = `<button class="tbl-add-btn" title="Add to team">+</button><button class="tbl-pin-btn ${pinClass}" title="${isPinnedA||isPinnedB?'Unpin':'Pin to compare'}" data-slug="${slug}">${isPinnedA||isPinnedB?'📌':'⚖'}</button>`;
       }
+    } else if (!isViewOnly && !swapMode) {
+      // allow pinning even for claimed/owned rows
+      const pinIcon = (isPinnedA || isPinnedB) ? '📌' : '⚖';
+      const pinClass = (isPinnedA || isPinnedB) ? 'pinned' : '';
+      actBtns = `<button class="tbl-pin-btn ${pinClass}" title="${isPinnedA||isPinnedB?'Unpin':'Pin to compare'}" data-slug="${slug}">${pinIcon}</button>`;
     }
 
     const isGoalieRow = pos === 'G';
@@ -1528,28 +1875,150 @@
       <td class="td-pts">${ptsVal}</td>
       <td class="td-cap">${p.cap_hit ? `$${capM}M` : '—'}</td>
       <td class="td-eff">${eff}</td>
-      <td class="td-act">${actBtn}</td>
+      <td class="td-act"><div class="td-act-wrap">${actBtns}</div></td>
     `;
 
-    // Cap impact tooltip on hover (available players only)
     if (canAct && p.cap_hit) {
       tr.addEventListener('mouseenter', (e) => showCapTooltip(e, p, currentCap, capLeft, wouldOverCap, pts, eff));
       tr.addEventListener('mousemove', moveCapTooltip);
       tr.addEventListener('mouseleave', hideCapTooltip);
     }
 
-    // Click handlers
+    // Add button
     if (canAct) {
-      const btn = tr.querySelector('.tbl-add-btn, .tbl-swap-btn');
-      if (btn) {
-        btn.addEventListener('click', (e) => { e.stopPropagation(); tapAddPlayer(p, pos); });
-      }
-      if (swapMode) {
-        tr.addEventListener('click', () => tapAddPlayer(p, pos));
-      }
+      const addBtn = tr.querySelector('.tbl-add-btn, .tbl-swap-btn');
+      if (addBtn) addBtn.addEventListener('click', (e) => { e.stopPropagation(); tapAddPlayer(p, pos); });
+      if (swapMode) tr.addEventListener('click', () => tapAddPlayer(p, pos));
+    }
+
+    // Pin button
+    const pinBtn = tr.querySelector('.tbl-pin-btn');
+    if (pinBtn) {
+      pinBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleComparePin(slug); });
     }
 
     return tr;
+  }
+
+  // ── Compare (pin) system ──────────────────────────────────────────────────
+  function toggleComparePin(slug) {
+    const m = slugMap();
+    if (_compareA === slug) { _compareA = null; }
+    else if (_compareB === slug) { _compareB = null; }
+    else if (!_compareA) { _compareA = slug; }
+    else if (!_compareB) { _compareB = slug; }
+    else { _compareA = _compareB; _compareB = slug; }
+    renderCompareDrawer();
+    renderPool(); // re-render to update pin badges
+  }
+
+  function clearCompare() {
+    _compareA = null; _compareB = null;
+    renderCompareDrawer(); renderPool();
+  }
+
+  function renderCompareDrawer() {
+    const drawer = document.getElementById('compare-drawer');
+    const m = slugMap();
+    const pA = _compareA ? m[_compareA] : null;
+    const pB = _compareB ? m[_compareB] : null;
+    const isOpen = pA || pB;
+    drawer.classList.toggle('open', !!isOpen);
+
+    if (!isOpen) return;
+
+    const grid = document.getElementById('compare-grid');
+    grid.innerHTML = '';
+
+    const renderSlot = (p, label) => {
+      if (!p) {
+        const ph = document.createElement('div');
+        ph.className = 'compare-placeholder';
+        ph.textContent = `Pin a ${label} player →`;
+        return ph;
+      }
+      const pos = normalizePos(p.position);
+      const posColor = pos==='F'?'#ff7a8a':pos==='D'?'#7db4ff':'#ffb81c';
+      const pts = poolScore(p);
+      const eff = p.cap_hit ? effScore(p).toFixed(1) : '—';
+      const capStr = p.cap_hit ? `$${(p.cap_hit/1_000_000).toFixed(2)}M` : '—';
+      const gp = p.games_played ?? '—';
+
+      // Stat rows for comparison
+      const isGoalie = pos === 'G';
+      const stats = isGoalie ? [
+        { lbl:'W', val: p.wins??0, key:'wins' },
+        { lbl:'SO', val: p.shutouts??0, key:'shutouts' },
+        { lbl:'GAA', val: p.gaa!=null?parseFloat(p.gaa).toFixed(2):'—', key:'gaa', lowerBetter:true },
+        { lbl:'SV%', val: p.save_pct!=null?p.save_pct.toFixed(3):'—', key:'save_pct' },
+        { lbl:'PTS', val: pts, key:'pts' },
+        { lbl:'EFF', val: eff, key:'eff' },
+        { lbl:'CAP', val: capStr, key:'cap', noCompare:true },
+        { lbl:'GP', val: gp, key:'gp' },
+      ] : [
+        { lbl:'G', val: p.goals??0, key:'goals' },
+        { lbl:'A', val: p.assists??0, key:'assists' },
+        { lbl:'PTS', val: pts, key:'pts' },
+        { lbl:'EFF', val: eff, key:'eff' },
+        { lbl:'CAP', val: capStr, key:'cap', noCompare:true },
+        { lbl:'GP', val: gp, key:'gp' },
+      ];
+
+      const statsGrid = document.createElement('div');
+      statsGrid.className = 'compare-stats-grid';
+      stats.forEach(s => {
+        const cell = document.createElement('div');
+        cell.className = 'compare-stat';
+        cell.dataset.key = s.key;
+        // Winner/loser class applied after both rendered
+        const valEl = document.createElement('div');
+        valEl.className = 'compare-stat-val';
+        valEl.textContent = s.val;
+        const lblEl = document.createElement('div');
+        lblEl.className = 'compare-stat-lbl';
+        lblEl.textContent = s.lbl;
+        cell.appendChild(valEl);
+        cell.appendChild(lblEl);
+        statsGrid.appendChild(cell);
+      });
+
+      const wrap = document.createElement('div');
+      wrap.className = 'compare-player';
+      wrap.innerHTML = `<div class="compare-player-name"><span class="td-pos cp-pos ${pos}" style="background:${pos==='F'?'rgba(200,16,46,0.18)':pos==='D'?'rgba(26,58,110,0.45)':'rgba(255,184,28,0.14)'};">${pos}</span>${formatName(p.player_name)}</div>`;
+      wrap.appendChild(statsGrid);
+      return wrap;
+    };
+
+    const slotA = renderSlot(pA, 'first');
+    const vsDiv = document.createElement('div');
+    vsDiv.className = 'compare-divider';
+    const slotB = renderSlot(pB, 'second');
+
+    grid.appendChild(slotA);
+    grid.appendChild(vsDiv);
+    grid.appendChild(slotB);
+
+    // Apply winner/loser coloring if both are present
+    if (pA && pB) {
+      const cellsA = slotA.querySelectorAll('.compare-stat');
+      const cellsB = slotB.querySelectorAll('.compare-stat');
+      cellsA.forEach((cellA, i) => {
+        const cellB = cellsB[i];
+        if (!cellA || !cellB) return;
+        const key = cellA.dataset.key;
+        if (['cap','gaa'].includes(key)) return; // skip or lower-is-better
+        const vA = parseFloat(cellA.querySelector('.compare-stat-val').textContent);
+        const vB = parseFloat(cellB.querySelector('.compare-stat-val').textContent);
+        if (isNaN(vA) || isNaN(vB)) return;
+
+        const aWins = key === 'gaa' ? vA < vB : vA > vB;
+        const bWins = key === 'gaa' ? vB < vA : vB > vA;
+
+        if (aWins) { cellA.classList.add('winner'); cellB.classList.add('loser'); }
+        else if (bWins) { cellB.classList.add('winner'); cellA.classList.add('loser'); }
+        else { cellA.classList.add('tie'); cellB.classList.add('tie'); }
+      });
+    }
   }
 
   // ── Cap impact tooltip ────────────────────────────────────────────────────
@@ -1570,52 +2039,22 @@
       const gaaVal = p.gaa != null ? parseFloat(p.gaa).toFixed(2) : '—';
       const gaaColor = p.gaa == null ? '' : parseFloat(p.gaa) < 2.5 ? 'green' : parseFloat(p.gaa) < 3.0 ? 'gold' : '';
       statsHtml = `
-      <div class="cap-tooltip-row">
-        <span class="cap-tooltip-label">WINS</span>
-        <span class="cap-tooltip-val gold">${p.wins ?? '—'}</span>
-      </div>
-      <div class="cap-tooltip-row">
-        <span class="cap-tooltip-label">SHUTOUTS</span>
-        <span class="cap-tooltip-val gold">${p.shutouts ?? '—'}</span>
-      </div>
-      <div class="cap-tooltip-row">
-        <span class="cap-tooltip-label">GAA</span>
-        <span class="cap-tooltip-val ${gaaColor}">${gaaVal}</span>
-      </div>
-      <div class="cap-tooltip-row">
-        <span class="cap-tooltip-label">SV%</span>
-        <span class="cap-tooltip-val ${svColor}">${svPct}</span>
-      </div>
-      <div class="cap-tooltip-row">
-        <span class="cap-tooltip-label">POOL PTS</span>
-        <span class="cap-tooltip-val gold">${pts}</span>
-      </div>`;
+      <div class="cap-tooltip-row"><span class="cap-tooltip-label">WINS</span><span class="cap-tooltip-val gold">${p.wins ?? '—'}</span></div>
+      <div class="cap-tooltip-row"><span class="cap-tooltip-label">SHUTOUTS</span><span class="cap-tooltip-val gold">${p.shutouts ?? '—'}</span></div>
+      <div class="cap-tooltip-row"><span class="cap-tooltip-label">GAA</span><span class="cap-tooltip-val ${gaaColor}">${gaaVal}</span></div>
+      <div class="cap-tooltip-row"><span class="cap-tooltip-label">SV%</span><span class="cap-tooltip-val ${svColor}">${svPct}</span></div>
+      <div class="cap-tooltip-row"><span class="cap-tooltip-label">POOL PTS</span><span class="cap-tooltip-val gold">${pts}</span></div>`;
     } else {
       statsHtml = `
-      <div class="cap-tooltip-row">
-        <span class="cap-tooltip-label">POOL PTS</span>
-        <span class="cap-tooltip-val gold">${pts}</span>
-      </div>
-      <div class="cap-tooltip-row">
-        <span class="cap-tooltip-label">EFFICIENCY</span>
-        <span class="cap-tooltip-val green">${eff}</span>
-      </div>`;
+      <div class="cap-tooltip-row"><span class="cap-tooltip-label">POOL PTS</span><span class="cap-tooltip-val gold">${pts}</span></div>
+      <div class="cap-tooltip-row"><span class="cap-tooltip-label">EFFICIENCY</span><span class="cap-tooltip-val green">${eff}</span></div>`;
     }
 
     _tooltip.innerHTML = `
-      <div class="cap-tooltip-row">
-        <span class="cap-tooltip-label">CAP HIT</span>
-        <span class="cap-tooltip-val gold">$${(p.cap_hit/1_000_000).toFixed(2)}M</span>
-      </div>
+      <div class="cap-tooltip-row"><span class="cap-tooltip-label">CAP HIT</span><span class="cap-tooltip-val gold">$${(p.cap_hit/1_000_000).toFixed(2)}M</span></div>
       <div class="cap-tooltip-sep"></div>
-      <div class="cap-tooltip-row">
-        <span class="cap-tooltip-label">CAP AFTER ADD</span>
-        <span class="cap-tooltip-val ${remColor}">$${(capAfter/1_000_000).toFixed(1)}M / $95.5M</span>
-      </div>
-      <div class="cap-tooltip-row">
-        <span class="cap-tooltip-label">REMAINING</span>
-        <span class="cap-tooltip-val ${remColor}">${remaining >= 0 ? '$' + (remaining/1_000_000).toFixed(1) + 'M left' : '$' + (Math.abs(remaining)/1_000_000).toFixed(1) + 'M over'}</span>
-      </div>
+      <div class="cap-tooltip-row"><span class="cap-tooltip-label">CAP AFTER ADD</span><span class="cap-tooltip-val ${remColor}">$${(capAfter/1_000_000).toFixed(1)}M / $95.5M</span></div>
+      <div class="cap-tooltip-row"><span class="cap-tooltip-label">REMAINING</span><span class="cap-tooltip-val ${remColor}">${remaining >= 0 ? '$' + (remaining/1_000_000).toFixed(1) + 'M left' : '$' + (Math.abs(remaining)/1_000_000).toFixed(1) + 'M over'}</span></div>
       <div class="cap-tooltip-sep"></div>
       ${statsHtml}
     `;
@@ -1641,6 +2080,7 @@
   function enterSwap(group, index) {
     if (swapMode && swapMode.group === group && swapMode.index === index) { cancelSwap(); return; }
     swapMode = { group, index };
+    document.body.classList.add('swap-active');
     document.getElementById('swap-banner').classList.add('active');
     refreshRoster();
     if (activeFilter !== group && group !== 'B') {
@@ -1656,6 +2096,7 @@
 
   function cancelSwap() {
     swapMode = null;
+    document.body.classList.remove('swap-active');
     document.getElementById('swap-banner').classList.remove('active');
     refreshRoster(); renderPool();
   }
@@ -1681,6 +2122,7 @@
       if (otherSlugs.includes(slug)) return;
       t.roster[swapGroup][swapMode.index] = slug;
       swapMode = null;
+      document.body.classList.remove('swap-active');
       document.getElementById('swap-banner').classList.remove('active');
       refreshRoster(); renderPool(); renderTeamSwitcher(); renderOverview();
       toast(`🔄 Swapped in ${formatName(player.player_name)}`);
@@ -1704,12 +2146,72 @@
     savePool();
   }
 
-  // ── Remove ────────────────────────────────────────────────────────────────
+  // ── Remove with undo toast ─────────────────────────────────────────────────
   function removeFromRoster(group, index) {
     const t = activeTeam(); if (!t) return;
+    const slug = t.roster[group][index];
+    const m = slugMap();
+    const playerName = slug && m[slug] ? formatName(m[slug].player_name) : 'Player';
     t.roster[group][index] = null;
+    _undoSnapshot = { type:'remove', id:t.id, group, index, slug };
     refreshRoster(); renderPool(); renderTeamSwitcher(); renderOverview();
     savePool();
+    toastWithUndo(`Removed ${playerName}`);
+  }
+
+  // ── Drag-and-drop within same group ───────────────────────────────────────
+  let _dragGroup = null, _dragIndex = null;
+
+  function initDragForSlot(slotEl, group, index, hasPlayer) {
+    if (!hasPlayer) {
+      // drop target only
+      slotEl.addEventListener('dragover', e => {
+        if (_dragGroup !== group) return;
+        e.preventDefault();
+        slotEl.classList.add('drag-over');
+      });
+      slotEl.addEventListener('dragleave', () => slotEl.classList.remove('drag-over'));
+      slotEl.addEventListener('drop', e => {
+        e.preventDefault();
+        slotEl.classList.remove('drag-over');
+        if (_dragGroup !== group || _dragIndex === null) return;
+        commitDragSwap(group, _dragIndex, index);
+      });
+      return;
+    }
+
+    slotEl.setAttribute('draggable', 'true');
+    slotEl.addEventListener('dragstart', e => {
+      _dragGroup = group; _dragIndex = index;
+      slotEl.classList.add('drag-source');
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    slotEl.addEventListener('dragend', () => {
+      slotEl.classList.remove('drag-source');
+      document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+      _dragGroup = null; _dragIndex = null;
+    });
+    slotEl.addEventListener('dragover', e => {
+      if (_dragGroup !== group) return;
+      e.preventDefault();
+      slotEl.classList.add('drag-over');
+    });
+    slotEl.addEventListener('dragleave', () => slotEl.classList.remove('drag-over'));
+    slotEl.addEventListener('drop', e => {
+      e.preventDefault();
+      slotEl.classList.remove('drag-over');
+      if (_dragGroup !== group || _dragIndex === null || _dragIndex === index) return;
+      commitDragSwap(group, _dragIndex, index);
+    });
+  }
+
+  function commitDragSwap(group, fromIdx, toIdx) {
+    const t = activeTeam(); if (!t) return;
+    const r = t.roster[group];
+    const tmp = r[fromIdx];
+    r[fromIdx] = r[toIdx];
+    r[toIdx] = tmp;
+    refreshRoster(); renderPool(); renderTeamSwitcher(); renderOverview(); savePool();
   }
 
   // ── Refresh roster UI ─────────────────────────────────────────────────────
@@ -1724,6 +2226,7 @@
     const roster = activeRoster();
     const totalFilled = [...roster.F, ...roster.D, ...roster.G, ...(roster.B || [])].filter(Boolean).length;
     const isBlank = totalFilled === 0;
+    const isViewOnly = document.body.classList.contains('view-only');
 
     for (const [group, { containerId, max, countId }] of Object.entries(SLOT_CFG)) {
       const container = document.getElementById(containerId); container.innerHTML = '';
@@ -1740,8 +2243,16 @@
         const player = roster[group][i];
         const slot = document.createElement('div');
         slot.className = 'roster-slot' + (player ? '' : ' empty');
-        if (player) { filled++; slot.appendChild(makeRosterCard(player, group, i)); }
-        else { slot.innerHTML = `<span class="slot-num">${i + 1}</span>`; slot.addEventListener('click', () => { if (swapMode) cancelSwap(); }); }
+        if (player) {
+          filled++;
+          const card = makeRosterCard(player, group, i);
+          slot.appendChild(card);
+          if (!isViewOnly) initDragForSlot(slot, group, i, true);
+        } else {
+          slot.innerHTML = `<span class="slot-num">${i + 1}</span>`;
+          slot.addEventListener('click', () => { if (swapMode) cancelSwap(); });
+          if (!isViewOnly) initDragForSlot(slot, group, i, false);
+        }
         container.appendChild(slot);
       }
       const countEl = document.getElementById(countId);
@@ -1754,7 +2265,9 @@
 
   function makeRosterCard(player, group, index) {
     const el = document.createElement('div');
-    el.className = 'player-card in-roster' + (swapMode && swapMode.group === group && swapMode.index === index ? ' swap-source' : '');
+    const isSwapSource = swapMode && swapMode.group === group && swapMode.index === index;
+    const isViewOnly = document.body.classList.contains('view-only');
+    el.className = 'player-card in-roster' + (isSwapSource ? ' swap-source' : '') + (!isViewOnly ? ' clickable' : '');
     const salary = player.cap_hit ? '$' + player.cap_hit.toLocaleString() : '';
     const actualPos = normalizePos(player.position), displayPos = group === 'B' ? actualPos : group;
     const gpBox = player.games_played != null ? `<div class="stat-box stat-box-gp"><div class="stat-box-main">${player.games_played}</div><div class="stat-box-label">GP</div></div>` : '';
@@ -1767,11 +2280,17 @@
     const abbr = TEAM_ABBR[player.team];
     const logoHtml = abbr ? `<img class="card-team-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}">` : '';
     const injFlag = isLikelyInactive(player) ? `<span class="inj-flag" title="0 games played — may be injured or scratched">0 GP</span>` : '';
-    const removeBtn = document.body.classList.contains('view-only') ? '' : `<button class="remove-btn" aria-label="Remove">✕</button>`;
-    el.innerHTML = `<span class="pos-badge ${displayPos}">${displayPos}</span>${logoHtml}<div class="player-info"><div class="player-name">${formatName(player.player_name)}</div><div class="player-salary">${salary}</div></div>${statBoxHtml}${injFlag}${removeBtn}`;
-    if (!document.body.classList.contains('view-only')) {
+    const dragHandleHtml = !isViewOnly ? `<span class="drag-handle" title="Drag to reorder">⠿</span>` : '';
+    const removeBtn = !isViewOnly ? `<button class="remove-btn" aria-label="Remove">✕</button>` : '';
+    const swapHint = !isViewOnly ? `<span class="swap-hint">⇄ swap</span>` : '';
+    el.innerHTML = `${dragHandleHtml}<span class="pos-badge ${displayPos}">${displayPos}</span>${logoHtml}<div class="player-info"><div class="player-name">${formatName(player.player_name)}</div><div class="player-salary">${salary}</div></div>${statBoxHtml}${injFlag}${swapHint}${removeBtn}`;
+    if (!isViewOnly) {
       el.querySelector('.remove-btn').addEventListener('click', e => { e.stopPropagation(); removeFromRoster(group, index); });
-      el.addEventListener('click', () => enterSwap(group, index));
+      // clicking the card (not drag handle or remove) enters swap
+      el.addEventListener('click', (e) => {
+        if (e.target.classList.contains('drag-handle') || e.target.classList.contains('remove-btn')) return;
+        enterSwap(group, index);
+      });
     }
     return el;
   }
@@ -1810,22 +2329,32 @@
     const btn = document.querySelector('.btn-clear-team');
     btn.textContent = '✕ Clear'; btn.style.borderColor = ''; btn.style.color = '';
     const t = activeTeam(); if (!t) return;
-    _undoSnapshot = { id: t.id, roster: { F: [...t.roster.F], D: [...t.roster.D], G: [...t.roster.G], B: [...(t.roster.B || [])] } };
+    _undoSnapshot = { type:'clear', id: t.id, roster: { F: [...t.roster.F], D: [...t.roster.D], G: [...t.roster.G], B: [...(t.roster.B || [])] } };
     t.roster = emptyRosterSlugs();
     renderAll(); savePool(); toastWithUndo('Team cleared');
   }
 
   function toastWithUndo(msg) {
     const el = document.getElementById('toast');
-    el.innerHTML = `${msg} <button onclick="undoClear()" style="background:none;border:1px solid rgba(7,17,31,0.4);border-radius:3px;color:var(--rink);font-family:'Bebas Neue',cursive;font-size:0.85rem;letter-spacing:1px;cursor:pointer;padding:1px 8px;margin-left:8px;">Undo</button>`;
+    el.innerHTML = `${msg} <button onclick="undoClear()" style="background:none;border:1px solid rgba(7,17,31,0.4);border-radius:3px;color:var(--rink);font-family:'Bebas Neue',cursive;font-size:0.85rem;letter-spacing:1px;cursor:pointer;padding:1px 8px;margin-left:8px;pointer-events:all;">Undo</button>`;
+    el.style.pointerEvents = 'auto';
     el.classList.add('show'); clearTimeout(_tt);
-    _tt = setTimeout(() => { el.classList.remove('show'); _undoSnapshot = null; }, 5000);
+    _tt = setTimeout(() => { el.classList.remove('show'); el.style.pointerEvents='none'; _undoSnapshot = null; }, 5000);
   }
 
   function undoClear() {
     if (!_undoSnapshot) return;
-    const t = teams.find(t => t.id === _undoSnapshot.id);
-    if (t) { t.roster = _undoSnapshot.roster; _undoSnapshot = null; renderAll(); savePool(); toast('✓ Restored'); }
+    const snap = _undoSnapshot;
+    const t = teams.find(t => t.id === snap.id);
+    if (t) {
+      if (snap.type === 'clear') {
+        t.roster = snap.roster;
+      } else if (snap.type === 'remove') {
+        t.roster[snap.group][snap.index] = snap.slug;
+      }
+      _undoSnapshot = null;
+      renderAll(); savePool(); toast('✓ Restored');
+    }
   }
 
   // ── Ultimate Team ─────────────────────────────────────────────────────────
@@ -1839,14 +2368,21 @@
 
   function _runUltimateTeam(btn, label) {
     const t = activeTeam(); if (!t) return;
+    const keepPicks = document.getElementById('keep-picks-chk')?.checked ?? false;
     const otherClaimed = new Set();
     for (const other of teams) {
       if (other.id === t.id) continue;
       [...other.roster.F, ...other.roster.D, ...other.roster.G, ...(other.roster.B || [])].forEach(s => { if (s) otherClaimed.add(s); });
     }
-    const locked = rosterFromSlugs({ F: t.roster.F, D: t.roster.D, G: t.roster.G, B: t.roster.B || Array(6).fill(null) });
+
+    // If keepPicks, locked = current roster picks; otherwise start fresh
+    const lockedRaw = keepPicks
+      ? { F: t.roster.F, D: t.roster.D, G: t.roster.G, B: t.roster.B || Array(6).fill(null) }
+      : { F: Array(12).fill(null), D: Array(6).fill(null), G: Array(2).fill(null), B: Array(6).fill(null) };
+    const locked = rosterFromSlugs(lockedRaw);
     const lockedSlugs = new Set([...locked.F, ...locked.D, ...locked.G, ...(locked.B || [])].filter(Boolean).map(p => p.puckpedia_slug));
     const lockedCap = [...locked.F, ...locked.D, ...locked.G, ...(locked.B || [])].filter(Boolean).reduce((s, p) => s + (p.cap_hit || 0), 0);
+
     const stat = poolScore;
     const byPos = { F: [], D: [], G: [] };
     for (const p of allPlayers) {
@@ -1854,10 +2390,15 @@
       byPos[normalizePos(p.position)].push(p);
     }
     for (const g of ['F', 'D', 'G']) byPos[g].sort((a, b) => stat(b) - stat(a));
+
     function cheapestCap(g, n, excludeSlugs) { return byPos[g].filter(p => !excludeSlugs.has(p.puckpedia_slug)).slice(-n).reduce((s, p) => s + p.cap_hit, 0); }
     let best = null;
     for (let attempt = 0; attempt < 200; attempt++) {
-      const picked = { F: [...locked.F.filter(Boolean)], D: [...locked.D.filter(Boolean)], G: [...locked.G.filter(Boolean)] };
+      const picked = {
+        F: [...locked.F.filter(Boolean)],
+        D: [...locked.D.filter(Boolean)],
+        G: [...locked.G.filter(Boolean)],
+      };
       let capUsed = lockedCap; let failed = false;
       for (const g of ['F', 'D', 'G']) {
         const needed = SLOT_CFG[g].max - picked[g].length; if (needed <= 0) continue;
@@ -1890,9 +2431,16 @@
       B: t.roster.B || Array(6).fill(null),
     };
     renderAll(); savePool();
-    toast(`⚡ Built · ${best.totalPts} pts · $${(best.capUsed / 1_000_000).toFixed(1)}M used`);
+    const modeLabel = keepPicks ? ' (keeping your picks)' : '';
+    toast(`⚡ Built${modeLabel} · ${best.totalPts} pts · $${(best.capUsed / 1_000_000).toFixed(1)}M used`);
     label.textContent = '⚡ Ultimate Team'; btn.disabled = false;
   }
+
+  // Keep-picks label reactive
+  document.getElementById('keep-picks-chk')?.addEventListener('change', function() {
+    const lbl = document.getElementById('keep-picks-label');
+    if (lbl) lbl.className = 'keep-picks-label' + (this.checked ? ' on' : '');
+  });
 
   // ── Share ─────────────────────────────────────────────────────────────────
   const _logoCache = {};
@@ -1967,7 +2515,7 @@
   let _tt;
   function toast(msg) {
     const el = document.getElementById('toast');
-    el.textContent = msg; el.classList.add('show');
+    el.textContent = msg; el.style.pointerEvents = 'none'; el.classList.add('show');
     clearTimeout(_tt); _tt = setTimeout(() => el.classList.remove('show'), 2200);
   }
 
@@ -1986,28 +2534,33 @@
       thG.title = isGoalie ? 'Wins' : 'Goals';
       thG.dataset.sort = isGoalie ? 'wins' : 'goals';
       thG.onclick = () => setSort(thG.dataset.sort, thG);
-      thG.querySelector('.sort-arrow').id = isGoalie ? 'sa-wins' : 'sa-goals';
+      // update sort-arrow id correctly
+      const arrow = thG.querySelector('.sort-arrow');
+      if (arrow) arrow.id = isGoalie ? 'sa-wins' : 'sa-goals';
       thG.childNodes[0].textContent = isGoalie ? 'W ' : 'G ';
     }
     if (thA) {
       thA.title = isGoalie ? 'Shutouts' : 'Assists';
       thA.dataset.sort = isGoalie ? 'shutouts' : 'assists';
       thA.onclick = () => setSort(thA.dataset.sort, thA);
-      thA.querySelector('.sort-arrow').id = isGoalie ? 'sa-shutouts' : 'sa-assists';
+      const arrow = thA.querySelector('.sort-arrow');
+      if (arrow) arrow.id = isGoalie ? 'sa-shutouts' : 'sa-assists';
       thA.childNodes[0].textContent = isGoalie ? 'SO ' : 'A ';
     }
     if (thPts) {
       thPts.title = isGoalie ? 'Save Percentage' : 'Pool Points';
       thPts.dataset.sort = isGoalie ? 'save_pct' : 'points';
       thPts.onclick = () => setSort(thPts.dataset.sort, thPts);
-      thPts.querySelector('.sort-arrow').id = isGoalie ? 'sa-save_pct' : 'sa-points';
+      const arrow = thPts.querySelector('.sort-arrow');
+      if (arrow) arrow.id = isGoalie ? 'sa-save_pct' : 'sa-points';
       thPts.childNodes[0].textContent = isGoalie ? 'SV% ' : 'PTS ';
     }
 
-    if (isGoalie && (activeSort === 'goals' || activeSort === 'assists' || activeSort === 'points')) {
-      activeSort = 'wins';
-    } else if (!isGoalie && (activeSort === 'wins' || activeSort === 'shutouts' || activeSort === 'save_pct' || activeSort === 'gaa')) {
-      activeSort = 'points';
+    // Reset sort to sensible default when switching positions
+    if (isGoalie && ['goals','assists','points'].includes(activeSort)) {
+      activeSort = 'wins'; activeSortDir = 'desc';
+    } else if (!isGoalie && ['wins','shutouts','save_pct','gaa'].includes(activeSort)) {
+      activeSort = 'points'; activeSortDir = 'desc';
     }
 
     document.querySelectorAll('.scoring-legend-pill').forEach(pill => {
@@ -2030,7 +2583,7 @@
 
   // ── Keyboard ──────────────────────────────────────────────────────────────
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') { if (swapMode) cancelSwap(); closeModal(); }
+    if (e.key === 'Escape') { if (swapMode) cancelSwap(); closeModal(); clearCompare(); }
     if (e.key === 'Enter' && !document.getElementById('modal-overlay').classList.contains('hidden')) confirmModal();
   });
   document.getElementById('modal-overlay').addEventListener('click', e => { if (e.target === document.getElementById('modal-overlay')) closeModal(); });
@@ -2041,7 +2594,7 @@
   initMobileTabs();
   loadScoringSettings().then(() => loadPlayers());
 
-  // Auto-load on scroll: observe sentinel rows in the pool-table-wrap scroller
+  // Auto-load on scroll sentinel
   const _scrollRoot = document.getElementById('pool-table-wrap');
   const _sentinelObserver = new IntersectionObserver((entries) => {
     for (const entry of entries) {
