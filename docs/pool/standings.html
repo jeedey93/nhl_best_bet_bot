@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pool Standings | Parieur Discipliné</title>
     <link rel="icon" type="image/png" href="../parieur_discipline_icon_1024.png">
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,900;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,900;1,400&display=swap"
+          rel="stylesheet">
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         :root {
@@ -356,6 +357,66 @@
         .pw-btn { margin-top: 1rem; width: 100%; background: var(--red); color: white; border: none; border-radius: 8px; padding: 0.75rem; font-family: 'Bebas Neue', cursive; font-size: 1.2rem; letter-spacing: 3px; cursor: pointer; transition: background 0.2s; }
         .pw-btn:hover { background: #e0122e; }
         .pw-error { color: rgba(200,16,46,0.8); font-size: 0.8rem; margin-top: 0.5rem; min-height: 1em; letter-spacing: 1px; }
+
+        /* ── FREE AGENTS ── */
+        .fa-controls {
+          display: flex; align-items: center; gap: 0.6rem;
+          margin-bottom: 1rem; flex-wrap: wrap;
+        }
+        .fa-search {
+          flex: 1; min-width: 160px;
+          background: rgba(255,255,255,0.05);
+          border: 1px solid rgba(255,255,255,0.12);
+          border-radius: 7px; padding: 0.45rem 0.85rem;
+          color: white; font-family: 'Barlow Condensed', sans-serif;
+          font-size: 0.9rem; letter-spacing: 1px; outline: none;
+          transition: border-color 0.2s;
+        }
+        .fa-search:focus { border-color: rgba(255,184,28,0.45); }
+        .fa-search::placeholder { color: rgba(255,255,255,0.25); }
+        .fa-pos-pills { display: flex; gap: 4px; flex-shrink: 0; }
+        .fa-pill {
+          font-family: 'Bebas Neue', cursive; font-size: 0.82rem;
+          letter-spacing: 2px; padding: 4px 13px; border-radius: 6px;
+          cursor: pointer; border: 1px solid rgba(255,255,255,0.1);
+          color: var(--silver); background: rgba(255,255,255,0.04);
+          transition: background 0.15s, border-color 0.15s, color 0.15s;
+        }
+        .fa-pill:hover { color: white; background: rgba(255,255,255,0.08); }
+        .fa-pill.active { background: rgba(255,184,28,0.1); border-color: rgba(255,184,28,0.4); color: var(--gold); }
+        .fa-pill.F.active { background: rgba(255,122,138,0.1); border-color: rgba(255,122,138,0.4); color: var(--pink); }
+        .fa-pill.D.active { background: rgba(125,180,255,0.1); border-color: rgba(125,180,255,0.4); color: var(--blue); }
+        .fa-pill.G.active { background: rgba(255,184,28,0.1); border-color: rgba(255,184,28,0.4); color: var(--gold); }
+        .fa-count { font-size: 0.75rem; font-weight: 700; color: rgba(255,255,255,0.3); letter-spacing: 1px; flex-shrink: 0; }
+        .fa-table { background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+        .fa-row {
+          display: grid;
+          grid-template-columns: 30px 1fr 48px 55px 55px 55px 60px;
+          align-items: center; padding: 0.55rem 1rem; gap: 0.4rem;
+          border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .fa-row:last-child { border-bottom: none; }
+        .fa-row.header {
+          background: rgba(255,255,255,0.03);
+          border-bottom: 1px solid rgba(255,255,255,0.1);
+          padding: 0.4rem 1rem; cursor: default;
+        }
+        @media (max-width: 560px) {
+          .fa-row { grid-template-columns: 26px 1fr 40px 40px 60px; }
+          .fa-col-hide { display: none; }
+        }
+        .fa-rank { font-family: 'Bebas Neue', cursive; font-size: 0.95rem; color: var(--silver); text-align: center; }
+        .fa-player-info { display: flex; align-items: center; gap: 0.45rem; min-width: 0; }
+        .fa-logo { width: 20px; height: 20px; object-fit: contain; flex-shrink: 0; }
+        .fa-name { font-size: 0.88rem; font-weight: 700; color: white; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .fa-pos-badge { font-family: 'Bebas Neue', cursive; font-size: 0.68rem; letter-spacing: 1px; border-radius: 3px; padding: 1px 5px; flex-shrink: 0; }
+        .fa-pos-badge.F { background: rgba(255,122,138,0.15); color: var(--pink); }
+        .fa-pos-badge.D { background: rgba(125,180,255,0.15); color: var(--blue); }
+        .fa-pos-badge.G { background: rgba(255,184,28,0.15); color: var(--gold); }
+        .fa-stat { font-size: 0.82rem; font-weight: 700; color: var(--silver); text-align: right; }
+        .fa-pts { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 1px; color: var(--gold); text-align: right; }
+        .fa-cap { font-size: 0.8rem; font-weight: 700; color: rgba(255,255,255,0.4); text-align: right; }
+        .fa-empty { text-align: center; color: var(--silver); font-size: 0.88rem; letter-spacing: 1px; padding: 2.5rem 0; }
     </style>
 </head>
 <body>
@@ -439,6 +500,9 @@
 
     const CACHE_KEY = 'hp_players_v3';
     const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
+    let faFilter = 'ALL';   // position filter
+    let faSearch = '';       // name search
 
     const TEAM_ABBR = {
       'anaheim-ducks':'ANA','boston-bruins':'BOS','buffalo-sabres':'BUF','calgary-flames':'CGY',
@@ -816,6 +880,7 @@
           <div class="view-tab ${activeView==='standings'?'active':''}" onclick="setView('standings')">Standings</div>
           <div class="view-tab ${activeView==='team'?'active':''}"      onclick="setView('team')">Team Detail</div>
           <div class="view-tab ${activeView==='pool'?'active':''}"      onclick="setView('pool')">Pool Leaders</div>
+          <div class="view-tab ${activeView==='fa'?'active':''}"        onclick="setView('fa')">Free Agents</div>
         </div>
         <div id="view-standings" style="display:${activeView==='standings'?'block':'none'}">
           ${buildInsights(sorted, leaderPts)}
@@ -832,6 +897,7 @@
           <div class="team-detail visible">${activeTeam ? buildDetail(activeTeam, sorted, leaderPts) : ''}</div>
         </div>
         <div id="view-pool" style="display:${activeView==='pool'?'block':'none'}">${buildPoolLeaders()}</div>
+        <div id="view-fa" style="display:${activeView==='fa'?'block':'none'}">${buildFreeAgents()}</div>
       `;
 
       window.scrollTo({ top: scrollY, behavior: 'instant' });
