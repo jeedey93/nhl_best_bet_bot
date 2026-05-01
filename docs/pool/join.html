@@ -1008,7 +1008,7 @@
   let _clearPending = false, _clearTimer = null, _undoSnapshot = null;
   let _modalMode = null, _modalTargetId = null;
   let _deleteTarget = null, _deleteTimer = null;
-  let _salaryMaxFilter = 14000; // in $100k units (14000 = $14M = no filter effectively)
+  let _salaryMaxFilter = 2000; // in $10k units (2000 = $20M = no filter effectively)
   let _compareA = null, _compareB = null; // pinned player slugs for compare
   let _topEffSlugs = new Set();
 
@@ -1035,7 +1035,7 @@
   function onSalarySlide(val) {
     _salaryMaxFilter = parseInt(val);
     const display = document.getElementById('salary-filter-display');
-    display.textContent = _salaryMaxFilter >= 14000 ? 'All' : `≤$${(_salaryMaxFilter / 100).toFixed(1)}M`;
+    display.textContent = _salaryMaxFilter >= 2000 ? 'All' : `≤$${(_salaryMaxFilter / 100).toFixed(2).replace(/\.?0+$/, '')}M`;
     debouncedRenderPool();
   }
   function resetSalaryFilter() {
