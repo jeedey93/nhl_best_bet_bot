@@ -39,6 +39,7 @@ ALTER TABLE player_trades ADD COLUMN IF NOT EXISTS from_slot_group text;
 ALTER TABLE player_trades ADD COLUMN IF NOT EXISTS from_slot_index integer;
 ALTER TABLE player_trades ADD COLUMN IF NOT EXISTS to_slot_group text;
 ALTER TABLE player_trades ADD COLUMN IF NOT EXISTS to_slot_index integer;
+ALTER TABLE player_trades ADD COLUMN IF NOT EXISTS swap_note text;
 CREATE INDEX IF NOT EXISTS idx_trades_league_team_id ON player_trades(league_code, team_id);
 
 CREATE OR REPLACE FUNCTION execute_pool_trade(
@@ -47,7 +48,8 @@ CREATE OR REPLACE FUNCTION execute_pool_trade(
   p_team_name text,
   p_player_from_slug text,
   p_player_to_slug text,
-  p_date_traded timestamp DEFAULT now()
+  p_date_traded timestamp DEFAULT now(),
+  p_swap_note text DEFAULT NULL
 ) RETURNS jsonb
 LANGUAGE plpgsql
 SECURITY DEFINER
@@ -214,7 +216,8 @@ BEGIN
     player_from_position, player_to_position,
     player_from_team, player_to_team,
     from_slot_group, from_slot_index, to_slot_group, to_slot_index,
-    date_from_acquired, date_traded, points_accumulated_at_trade
+    date_from_acquired, date_traded, points_accumulated_at_trade,
+    swap_note
   ) VALUES (
     p_league_code, v_team_id, v_team_name, v_team_name,
     p_player_from_slug, p_player_to_slug,
@@ -227,7 +230,8 @@ BEGIN
     v_to_norm,
     v_from_team, v_to_team,
     v_from_group, v_from_index, 'B', v_to_index,
-    COALESCE(v_hold_date, p_date_traded), p_date_traded, 0
+    COALESCE(v_hold_date, p_date_traded), p_date_traded, 0,
+    p_swap_note
   );
 
   RETURN jsonb_build_object(
@@ -257,8 +261,8 @@ GRANT ALL ON player_trades TO public;
 GRANT ALL ON player_trades TO anon;
 
 -- Grant function execution to both roles
-GRANT EXECUTE ON FUNCTION execute_pool_trade(text, text, text, text, text, timestamp) TO public;
-GRANT EXECUTE ON FUNCTION execute_pool_trade(text, text, text, text, text, timestamp) TO anon;
+GRANT EXECUTE ON FUNCTION execute_pool_trade(text, text, text, text, text, timestamp, text) TO public;
+GRANT EXECUTE ON FUNCTION execute_pool_trade(text, text, text, text, text, timestamp, text) TO anon;
 
 -- ===== OPTIONAL: Enable RLS with policies if needed =====
 -- Uncomment the following if you want to enable RLS for security:
