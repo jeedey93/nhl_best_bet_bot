@@ -273,7 +273,7 @@
   .search-participant:focus{border-color:rgba(255,184,28,0.5);}
   #share-card{position:fixed;left:-9999px;top:0;width:720px;
     background:#07111f;font-family:'Barlow Condensed',sans-serif;color:white;
-    padding:0;overflow:hidden;}
+    padding:0;overflow:hidden;visibility:hidden;}
 
   .games-scroller{width:100%;background:rgba(0,0,0,0.3);border-bottom:1px solid rgba(255,255,255,0.07);
     padding:12px 0;display:none;}
@@ -1219,7 +1219,7 @@ function buildShareCardHTML(rows, title, totalCount, pot, date){
       <div style="display:flex;gap:6px;margin-bottom:24px;align-items:flex-end;padding:0 4px;">${podium}</div>
 
       <!-- Divider -->
-      <div style="height:1px;background:linear-gradient(90deg,transparent,rgba(255,184,28,0.3),transparent);margin-bottom:2px;"></div>
+      <div style="height:1px;background:rgba(255,184,28,0.3);margin-bottom:2px;"></div>
     </div>
 
     <!-- Table -->
@@ -1419,7 +1419,13 @@ async function sharePersonalCard(row, rank, leaderScore, totalCount, btn){
   if(!card){ card=document.createElement('div'); card.id='share-card'; document.body.appendChild(card); }
   await resolveLogos(TEAMS.filter(t=>row.picks[t]>0));
   card.innerHTML = buildPersonalCardHTML(row, rank, leaderScore, totalCount);
-  await new Promise(r=>setTimeout(r,150));
+
+  // Force full layout before capture
+  card.style.left = '-9999px';
+  card.style.visibility = 'hidden';
+  void card.offsetHeight;
+  await new Promise(r=>setTimeout(r,200));
+
   try{
     const canvas = await html2canvas(card,{
       scale:2,
@@ -1428,7 +1434,11 @@ async function sharePersonalCard(row, rank, leaderScore, totalCount, btn){
       backgroundColor:'#07111f',
       logging:false,
       imageTimeout:15000,
-      onclone(clonedDoc){ clonedDoc.body.style.backgroundImage = 'none'; }
+      onclone(clonedDoc){
+        clonedDoc.body.style.backgroundImage = 'none';
+        const clonedCard = clonedDoc.getElementById('share-card');
+        if(clonedCard){ clonedCard.style.visibility='visible'; clonedCard.style.left='0'; }
+      }
     });
     const blob = await canvasToPngBlob(canvas);
     if(!blob) throw new Error('Could not generate image blob.');
@@ -1487,7 +1497,12 @@ async function shareLeaderboard(){
   await resolveLogos(TEAMS);
   card.innerHTML = buildShareCardHTML(rows, title, totalCount, pot, date);
 
-  await new Promise(r=>setTimeout(r,150));
+  // Move card into viewport so browser fully lays it out before html2canvas clones it
+  card.style.left = '-9999px';
+  card.style.visibility = 'hidden';
+  card.style.top = '0';
+  void card.offsetHeight; // force reflow
+  await new Promise(r=>setTimeout(r,200));
 
   try{
     const canvas = await html2canvas(card,{
@@ -1498,9 +1513,9 @@ async function shareLeaderboard(){
       logging:false,
       imageTimeout:15000,
       onclone(clonedDoc){
-        // Strip body background-image so html2canvas never tries to rasterise
-        // a radial-gradient into a pattern canvas — that causes the 0×0 error.
         clonedDoc.body.style.backgroundImage = 'none';
+        const clonedCard = clonedDoc.getElementById('share-card');
+        if(clonedCard){ clonedCard.style.visibility='visible'; clonedCard.style.left='0'; }
       }
     });
     const blob = await canvasToPngBlob(canvas);
