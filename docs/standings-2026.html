@@ -1181,7 +1181,7 @@ function buildShareCardHTML(rows, title, totalCount, pot, date){
       .filter(x=>x.earned>0).sort((a,b)=>b.earned-a.earned);
     const mvp = teamEarnings[0];
     const mvpPill = mvp ? (logoSrc(mvp.team)
-      ? `<span style="display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:20px;padding:2px 8px 2px 4px;margin-left:6px;vertical-align:middle;white-space:nowrap;"><img src="${logoSrc(mvp.team)}" style="width:16px;height:16px;object-fit:contain;"><span style="font-family:'Bebas Neue',sans-serif;font-size:14px;color:#ffb81c;line-height:1;">${mvp.earned}pts</span></span>`
+      ? `<span style="display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:20px;padding:2px 8px 2px 4px;margin-left:6px;vertical-align:middle;white-space:nowrap;"><img src="${logoSrc(mvp.team)}" width="16" height="16" style="width:16px;height:16px;object-fit:contain;"><span style="font-family:'Bebas Neue',sans-serif;font-size:14px;color:#ffb81c;line-height:1;">${mvp.earned}pts</span></span>`
       : `<span style="font-family:'Bebas Neue',sans-serif;font-size:13px;color:#ffb81c;margin-left:5px;">${shortTeamName(mvp.team)} ${mvp.earned}pts</span>`
     ) : '';
     return `<tr style="background:${rowBg};">
@@ -1203,7 +1203,7 @@ function buildShareCardHTML(rows, title, totalCount, pot, date){
       <!-- Header -->
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;">
         <div style="display:flex;align-items:center;gap:12px;">
-          <img src="${_logoDataCache['parieur_discipline_icon_1024.png'] || 'parieur_discipline_icon_1024.png'}" style="width:48px;height:48px;border-radius:10px;object-fit:cover;box-shadow:0 3px 12px rgba(0,0,0,0.6);flex-shrink:0;">
+          <img src="${_logoDataCache['parieur_discipline_icon_1024.png'] || 'parieur_discipline_icon_1024.png'}" width="48" height="48" style="width:48px;height:48px;border-radius:10px;object-fit:cover;box-shadow:0 3px 12px rgba(0,0,0,0.6);flex-shrink:0;">
           <div>
             <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;color:#ffffff;letter-spacing:4px;line-height:1;">PARIEUR DISCIPLINÉ</div>
             <div style="font-size:12px;color:#94a3b8;letter-spacing:2px;text-transform:uppercase;margin-top:2px;">NHL Playoffs 2026 · ${title}</div>
@@ -1244,56 +1244,39 @@ function buildShareCardHTML(rows, title, totalCount, pot, date){
     </div>`;
 }
 
-// ── Logo fetcher — SVG → PNG data URL so html2canvas can render it ────────────
+// ── Logo fetcher — SVG → base64 data URL so html2canvas can render it ──────────
 const _logoDataCache = {};
 async function fetchLogoDataUrl(url){
   if(_logoDataCache[url] !== undefined) return _logoDataCache[url];
-  // Mark in-progress to avoid duplicate fetches
-  _logoDataCache[url] = '';
+  _logoDataCache[url] = ''; // mark in-progress
   try{
     const res = await fetch(url);
     if(!res.ok) return '';
     const mime = res.headers.get('content-type') || '';
-    const sz = 64;
     if(mime.includes('svg') || url.endsWith('.svg')){
-      // SVGs loaded as blob URLs report naturalWidth=0; inject explicit dimensions first
+      // Inject explicit width/height on the root <svg> so html2canvas never
+      // encounters a 0×0 intrinsic size when rasterising the image as a pattern.
       let svg = await res.text();
-      // Ensure root <svg> has width/height so the browser rasterises at a known size
-      svg = svg.replace(/<svg([^>]*)>/, (m, attrs) => {
-        if(!/\bwidth=/.test(attrs)) attrs += ` width="${sz}"`;
-        if(!/\bheight=/.test(attrs)) attrs += ` height="${sz}"`;
+      svg = svg.replace(/<svg([^>]*)>/i, (m, attrs) => {
+        if(!/\bwidth\s*=/.test(attrs)) attrs += ' width="64"';
+        if(!/\bheight\s*=/.test(attrs)) attrs += ' height="64"';
         return `<svg${attrs}>`;
       });
-      const blob = new Blob([svg], {type:'image/svg+xml'});
-      const blobUrl = URL.createObjectURL(blob);
-      const png = await new Promise(resolve => {
-        const img = new Image();
-        img.width = sz; img.height = sz;
-        img.onload = () => {
-          const w = img.naturalWidth || sz;
-          const h = img.naturalHeight || sz;
-          const c = document.createElement('canvas');
-          c.width = w; c.height = h;
-          c.getContext('2d').drawImage(img, 0, 0, w, h);
-          URL.revokeObjectURL(blobUrl);
-          resolve(c.toDataURL('image/png'));
-        };
-        img.onerror = () => { URL.revokeObjectURL(blobUrl); resolve(''); };
-        img.src = blobUrl;
-      });
-      _logoDataCache[url] = png;
-      return png;
+      const b64 = btoa(unescape(encodeURIComponent(svg)));
+      const dataUrl = `data:image/svg+xml;base64,${b64}`;
+      _logoDataCache[url] = dataUrl;
+      return dataUrl;
     } else {
-      // PNG/JPEG — convert to data URL via blob reader
+      // PNG/JPEG — read as data URL via FileReader
       const blob = await res.blob();
-      const png = await new Promise(resolve => {
+      const dataUrl = await new Promise(resolve => {
         const reader = new FileReader();
         reader.onload = () => resolve(reader.result || '');
         reader.onerror = () => resolve('');
         reader.readAsDataURL(blob);
       });
-      _logoDataCache[url] = png;
-      return png;
+      _logoDataCache[url] = dataUrl;
+      return dataUrl;
     }
   }catch(e){ return ''; }
 }
@@ -1369,7 +1352,7 @@ function buildPersonalCardHTML(row, rank, leaderScore, totalCount){
     const winsEarned = wins>0 ? `${wins}W · ${earned}pts` : earned>0 ? `${earned}pts` : '';
     const logoUrl = logoSrc(t);
     const logoEl = logoUrl
-      ? `<img src="${logoUrl}" style="width:20px;height:20px;object-fit:contain;flex-shrink:0;opacity:${isElim?'0.25':'0.9'};">`
+      ? `<img src="${logoUrl}" width="20" height="20" style="width:20px;height:20px;object-fit:contain;flex-shrink:0;opacity:${isElim?'0.25':'0.9'};">`
       : '';
     return `<div style="display:flex;align-items:center;gap:6px;background:${tileBg};border:${tileBorder};border-radius:6px;padding:5px 10px;font-size:0.8rem;">
       <span style="font-family:'Bebas Neue',sans-serif;font-size:20px;${ptsStyle}line-height:1;flex-shrink:0;">${p}<span style="font-size:11px;opacity:0.6;"> pts</span></span>
