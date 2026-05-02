@@ -126,6 +126,14 @@
     }
     .save-status.show { opacity: 1; }
     .save-status.error { color: var(--red); }
+    .dirty-badge {
+      text-align: center; font-size: 0.74rem; letter-spacing: 1.2px;
+      color: #f59e0b; margin-top: 0.35rem; opacity: 0; transition: opacity 0.2s;
+    }
+    .dirty-badge.show { opacity: 1; }
+    .field-meta { display: flex; justify-content: space-between; margin-top: 0.35rem; min-height: 1rem; }
+    .field-count { font-size: 0.68rem; color: rgba(255,255,255,0.38); letter-spacing: 0.8px; }
+    .field-error { font-size: 0.72rem; color: #f87171; letter-spacing: 0.5px; }
 
     /* ── Season baseline ── */
     .season-zone {
@@ -343,7 +351,7 @@ function checkPoolPw(){
 <div id="save-overlay" class="hidden">
   <div class="pw-box">
     <h2>⚙️ Save Settings</h2>
-    <p>CONFIRM PASSWORD TO SAVE</p>
+    <p id="save-modal-desc">CONFIRM PASSWORD TO SAVE</p>
     <input id="pw-input" class="pw-input" type="password" placeholder="Password" autocomplete="off">
     <button class="pw-btn" onclick="confirmSave()">SAVE</button>
     <div class="pw-error" id="pw-error"></div>
@@ -375,6 +383,10 @@ function checkPoolPw(){
       <div class="score-input-wrap" style="flex:1; min-width:0; justify-content:flex-end;">
         <input class="score-input" id="league_name" type="text" maxlength="48" placeholder="Enter league name" style="width:100%;max-width:260px;text-align:left;letter-spacing:1px;font-family:'Barlow Condensed',sans-serif;font-size:1rem;">
       </div>
+    </div>
+    <div class="field-meta">
+      <span id="league-name-error" class="field-error"></span>
+      <span id="league-name-count" class="field-count">0/48</span>
     </div>
   </div>
 
@@ -458,6 +470,7 @@ function checkPoolPw(){
   </div>
 
   <button class="btn-save" id="btn-save" onclick="promptSave()">💾 Save Settings</button>
+  <div id="dirty-badge" class="dirty-badge">Unsaved changes</div>
   <div class="save-status" id="save-status"></div>
 
   <!-- Formula preview -->
@@ -518,6 +531,8 @@ function checkPoolPw(){
   if (!_leagueCode) window.location.replace('/pool');
 
   let _currentLeagueName = '';
+  let _initialFormState = null;
+  let _isDirty = false;
 
   // Wire nav links
   document.getElementById('nav-draft').href = `/pool/join?league=${_leagueCode}`;
@@ -547,6 +562,54 @@ function checkPoolPw(){
     return '';
   }
 
+  function updateLeagueNameMeta() {
+    const el = document.getElementById('league_name');
+    const val = normalizeLeagueName(el?.value || '');
+    const err = validateLeagueName(val);
+    const errEl = document.getElementById('league-name-error');
+    const countEl = document.getElementById('league-name-count');
+    if (errEl) errEl.textContent = err;
+    if (countEl) countEl.textContent = `${val.length}/48`;
+    return !err;
+  }
+
+  function currentFormState() {
+    const v = getValues();
+    return {
+      league_name: normalizeLeagueName(document.getElementById('league_name')?.value),
+      f_points: v.f_points,
+      d_goals: v.d_goals,
+      d_assists: v.d_assists,
+      g_wins: v.g_wins,
+      g_shutouts: v.g_shutouts,
+      max_trades_per_team: v.max_trades_per_team,
+    };
+  }
+
+  function updateDirtyState() {
+    if (!_initialFormState) return;
+    const now = currentFormState();
+    _isDirty = JSON.stringify(now) !== JSON.stringify(_initialFormState);
+    document.getElementById('dirty-badge')?.classList.toggle('show', _isDirty);
+  }
+
+  function markPristine() {
+    _initialFormState = currentFormState();
+    _isDirty = false;
+    document.getElementById('dirty-badge')?.classList.remove('show');
+  }
+
+  function changedFieldsSummary() {
+    if (!_initialFormState) return [];
+    const now = currentFormState();
+    const labels = {
+      league_name: 'League Name', f_points: 'Forward Points', d_goals: 'Defence Goals',
+      d_assists: 'Defence Assists', g_wins: 'Goalie Wins', g_shutouts: 'Goalie Shutouts',
+      max_trades_per_team: 'Max Trades'
+    };
+    return Object.keys(labels).filter(k => now[k] !== _initialFormState[k]).map(k => labels[k]);
+  }
+
   async function loadLeagueMeta() {
     try {
       const r = await fetch(`${SUPABASE_URL}/rest/v1/pool_leagues?code=eq.${_leagueCode}&select=name`, { headers: sbHeaders() });
@@ -559,6 +622,7 @@ function checkPoolPw(){
         const leagueInput = document.getElementById('league_name');
         if (leagueInput) leagueInput.value = name;
       }
+      updateLeagueNameMeta();
     } catch (_) {}
   }
 
@@ -581,6 +645,8 @@ function checkPoolPw(){
       }
     } catch(e) {}
     updateFormula();
+    updateLeagueNameMeta();
+    markPristine();
   }
 
   function getValues() {
@@ -834,6 +900,12 @@ function checkPoolPw(){
       setStatus(nameErr, true, 5000);
       return;
     }
+    const changed = changedFieldsSummary();
+    if (!changed.length) {
+      setStatus('No changes to save.', false, 2500);
+      return;
+    }
+    document.getElementById('save-modal-desc').textContent = `CONFIRM SAVE (${changed.join(', ')})`;
     const overlay = document.getElementById('save-overlay');
     document.getElementById('pw-input').value = '';
     document.getElementById('pw-error').textContent = '';
@@ -873,15 +945,27 @@ function checkPoolPw(){
       return;
     }
     try {
+      let leagueErr = '';
+      let settingsErr = '';
+      let leagueSaved = false;
+      let settingsSaved = false;
+
       if (nextLeagueName !== _currentLeagueName) {
         const leagueRes = await fetch(`${SUPABASE_URL}/rest/v1/pool_leagues?code=eq.${_leagueCode}`, {
           method: 'PATCH',
           headers: sbHeaders({ 'Prefer': 'return=minimal' }),
           body: JSON.stringify({ name: nextLeagueName, updated_at: new Date().toISOString() }),
         });
-        if (!leagueRes.ok) throw new Error(`league-name-${leagueRes.status}`);
-        _currentLeagueName = nextLeagueName;
-        setLeagueHeader(nextLeagueName);
+        if (!leagueRes.ok) {
+          const txt = await leagueRes.text();
+          leagueErr = `Name update failed (${leagueRes.status})${txt ? ': ' + txt : ''}`;
+        } else {
+          _currentLeagueName = nextLeagueName;
+          setLeagueHeader(nextLeagueName);
+          leagueSaved = true;
+        }
+      } else {
+        leagueSaved = true;
       }
 
       const res = await fetch(`${SUPABASE_URL}/rest/v1/pool_settings`, {
@@ -889,12 +973,27 @@ function checkPoolPw(){
         headers: sbHeaders({ 'Prefer': 'resolution=merge-duplicates,return=minimal' }),
         body: JSON.stringify({ league_code: _leagueCode, ...v, updated_at: new Date().toISOString() }),
       });
-      if (!res.ok) throw new Error(res.status);
-      status.textContent = '✓ Settings saved';
-      status.className = 'save-status show';
-      setTimeout(() => status.classList.remove('show'), 3000);
+      if (!res.ok) {
+        const txt = await res.text();
+        settingsErr = `Scoring save failed (${res.status})${txt ? ': ' + txt : ''}`;
+      } else {
+        settingsSaved = true;
+      }
+
+      if (leagueSaved && settingsSaved) {
+        status.textContent = '✓ Settings saved';
+        status.className = 'save-status show';
+        markPristine();
+        setTimeout(() => status.classList.remove('show'), 3000);
+      } else if (leagueSaved || settingsSaved) {
+        status.textContent = `Partial save: ${leagueErr || settingsErr}`;
+        status.className = 'save-status show error';
+      } else {
+        status.textContent = [leagueErr, settingsErr].filter(Boolean).join(' | ') || 'Failed to save.';
+        status.className = 'save-status show error';
+      }
     } catch(e) {
-      status.textContent = 'Failed to save. Please try again.';
+      status.textContent = `Failed to save: ${e?.message || 'Unknown error'}`;
       status.className = 'save-status show error';
     }
 
@@ -973,6 +1072,19 @@ function checkPoolPw(){
   document.getElementById('delete-overlay').addEventListener('click', e => {
     if (e.target === document.getElementById('delete-overlay'))
       document.getElementById('delete-overlay').classList.add('hidden');
+  });
+
+  ['league_name','f_points','d_goals','d_assists','g_wins','g_shutouts','max_trades_per_team'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', () => {
+      if (id === 'league_name') updateLeagueNameMeta();
+      updateDirtyState();
+    });
+  });
+
+  window.addEventListener('beforeunload', (e) => {
+    if (!_isDirty) return;
+    e.preventDefault();
+    e.returnValue = '';
   });
 
   loadSettings();
