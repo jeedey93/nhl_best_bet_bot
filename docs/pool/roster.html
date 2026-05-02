@@ -1755,17 +1755,60 @@
   }
 
   function renderAllTeams() {
-    document.getElementById('allteams-content').innerHTML = buildAllTeamsUI();
+    const container = document.getElementById('allteams-content');
+    // If controls already exist, only update the results area to preserve search input focus
+    const existingControls = container.querySelector('.at-controls');
+    if (existingControls) {
+      // Update sort button active states without rebuilding controls
+      container.querySelectorAll('.at-sort-btn').forEach(btn => {
+        btn.classList.toggle('active',
+          (btn.textContent.trim() === 'By Points' && atSortMode === 'pts') ||
+          (btn.textContent.trim() === 'By Salary' && atSortMode === 'salary') ||
+          (btn.textContent.trim() === 'By Name' && atSortMode === 'name')
+        );
+      });
+      let resultsEl = container.querySelector('.at-results');
+      if (!resultsEl) {
+        resultsEl = document.createElement('div');
+        resultsEl.className = 'at-results';
+        container.appendChild(resultsEl);
+      }
+      resultsEl.innerHTML = buildAllTeamsResults();
+    } else {
+      container.innerHTML = buildAllTeamsUI();
+    }
   }
 
   function renderFa() {
-    document.getElementById('fa-content').innerHTML = buildFreeAgents();
+    const container = document.getElementById('fa-content');
+    // If controls already exist, only update the results area to preserve search input focus
+    if (container.querySelector('.fa-controls')) {
+      // Update pill active states and count without rebuilding controls
+      container.querySelectorAll('.fa-pill').forEach(pill => {
+        const text = pill.textContent.trim();
+        const pillPos = text === 'All' ? 'ALL' : text;
+        pill.classList.toggle('active', pillPos === _faFilter);
+      });
+      const results = buildFaResults();
+      // Update count in controls bar
+      const countEl = container.querySelector('.fa-count');
+      if (countEl) countEl.textContent = results.count + ' players';
+      let resultsEl = container.querySelector('.fa-results');
+      if (!resultsEl) {
+        resultsEl = document.createElement('div');
+        resultsEl.className = 'fa-results';
+        container.appendChild(resultsEl);
+      }
+      resultsEl.innerHTML = results.html;
+    } else {
+      container.innerHTML = buildFreeAgents();
+    }
   }
 
   function setFaFilter(pos) { _faFilter = pos; renderFa(); }
   function setFaSearch(val) { _faSearch = val; renderFa(); }
 
-  function buildFreeAgents() {
+  function buildFaResults() {
     const draftedSlugs = new Set(
       teams.flatMap(t => [
         ...(t.roster.F || []),
@@ -1795,10 +1838,6 @@
     const totalCount = fas.length;
     const pos = _faFilter;
 
-    const pills = ['ALL','F','D','G'].map(p =>
-      `<div class="fa-pill ${p} ${_faFilter===p?'active':''}" onclick="setFaFilter('${p}')">${p==='ALL'?'All':p}</div>`
-    ).join('');
-
     const rows = fas.slice(0, 50).map((p, i) => {
       const abbr = TEAM_ABBR[p.team];
       const logo = abbr ? `<img class="fa-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}">` : '';
@@ -1821,14 +1860,7 @@
       </div>`;
     }).join('');
 
-    return `
-      <div class="fa-controls">
-        <input class="fa-search" type="text" placeholder="Search player…"
-          value="${_faSearch.replace(/"/g, '&quot;')}"
-          oninput="setFaSearch(this.value)">
-        <div class="fa-pos-pills">${pills}</div>
-        <span class="fa-count">${totalCount} players</span>
-      </div>
+    const html = `
       <div class="fa-table">
         <div class="fa-row header">
           <div></div>
@@ -1842,6 +1874,25 @@
         ${rows || `<div class="fa-empty">No free agents match your search.</div>`}
       </div>
       ${fas.length > 50 ? `<div style="text-align:center;color:var(--silver);font-size:0.8rem;padding:0.75rem;letter-spacing:1px">Showing top 50 of ${fas.length} — refine with search or position filter</div>` : ''}
+    `;
+    return { count: totalCount, html };
+  }
+
+  function buildFreeAgents() {
+    const pills = ['ALL','F','D','G'].map(p =>
+      `<div class="fa-pill ${p} ${_faFilter===p?'active':''}" onclick="setFaFilter('${p}')">${p==='ALL'?'All':p}</div>`
+    ).join('');
+    const results = buildFaResults();
+
+    return `
+      <div class="fa-controls">
+        <input class="fa-search" type="text" placeholder="Search player…"
+          value="${_faSearch.replace(/"/g, '&quot;')}"
+          oninput="setFaSearch(this.value)">
+        <div class="fa-pos-pills">${pills}</div>
+        <span class="fa-count">${results.count} players</span>
+      </div>
+      <div class="fa-results">${results.html}</div>
     `;
   }
 
@@ -1860,6 +1911,10 @@
         </div>
       </div>`;
 
+    return controlsHtml + `<div class="at-results">` + buildAllTeamsResults() + `</div>`;
+  }
+
+  function buildAllTeamsResults() {
     // Show player search result banner
     let searchResultHtml = '';
     if (atPlayerSearch.trim()) {
@@ -1884,7 +1939,7 @@
       }
     }
 
-    return controlsHtml + searchResultHtml + buildAllTeams(teams);
+    return searchResultHtml + buildAllTeams(teams);
   }
 
   function buildAllTeams(teamsInput) {
