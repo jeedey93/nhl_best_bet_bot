@@ -3,6 +3,10 @@
 
 Matches players by normalised full name (first + last, lowercase, no accents).
 Run after scrape_nhl_players.py so rows already exist.
+
+Also populates:
+  injury_status  — from roster endpoint injuryStatus field
+  last5_game_pts — last 5 games pool points (oldest→newest) from game-log endpoint
 """
 
 import re
@@ -11,6 +15,7 @@ import time
 import unicodedata
 import argparse
 import requests
+import json
 from datetime import datetime, timezone
 from dotenv import load_dotenv
 import os
@@ -88,6 +93,49 @@ def fetch_team_stats(abbr: str) -> tuple[list[dict], list[dict]]:
         return [], []
 
 
+def fetch_roster_injury_map(abbr: str) -> dict[int, str]:
+    """Return {playerId: injuryStatus} for a team from the roster endpoint."""
+    url = f"https://api-web.nhle.com/v1/roster/{abbr}/{SEASON}"
+    try:
+        r = SESSION.get(url, timeout=15)
+        r.raise_for_status()
+        data = r.json()
+    except Exception as e:
+        print(f"    ⚠️  roster {abbr}: {e}")
+        return {}
+    result = {}
+    for group in ("forwards", "defensemen", "goalies"):
+        for p in data.get(group, []):
+            pid = p.get("id")
+            status = p.get("injuryStatus") or "Active"
+            if pid:
+                result[pid] = status
+    return result
+
+
+def fetch_last5_game_pts(player_id: int, position: str, scoring: dict) -> list[int]:
+    """Return list of pool-points for the last ≤5 games (oldest→newest)."""
+    url = f"https://api-web.nhle.com/v1/player/{player_id}/game-log/{SEASON}/2"
+    try:
+        r = SESSION.get(url, timeout=15)
+        r.raise_for_status()
+        games = r.json().get("gameLog", [])
+    except Exception:
+        return []
+
+    pos = position.upper() if position else "F"
+    is_goalie = pos == "G"
+    pts_list = []
+    for g in games[-5:]:
+        if is_goalie:
+            w = 1 if g.get("decision", "").upper() == "W" else 0
+            so = g.get("shutouts", 0) or 0
+            pts_list.append(w * scoring["g_wins"] + so * scoring["g_shutouts"])
+        else:
+            pts_list.append(g.get("points", 0) or 0)
+    return pts_list
+
+
 def build_stats_map(skaters: list[dict], goalies: list[dict]) -> dict[str, dict]:
     """Key: normalised full name → stats dict."""
     result = {}
@@ -103,6 +151,7 @@ def build_stats_map(skaters: list[dict], goalies: list[dict]) -> dict[str, dict]
             "shutouts":     None,
             "save_pct":     None,
             "gaa":          None,
+            "_position":    "F",
         }
     for g in goalies:
         name = normalize(f"{g['firstName']['default']} {g['lastName']['default']}")
@@ -116,6 +165,7 @@ def build_stats_map(skaters: list[dict], goalies: list[dict]) -> dict[str, dict]
             "shutouts":     g.get("shutouts"),
             "save_pct":     g.get("savePercentage") if g.get("savePercentage") is not None else g.get("savePctg"),
             "gaa":          g.get("goalsAgainstAverage"),
+            "_position":    "G",
         }
     return result
 
@@ -132,9 +182,13 @@ def upsert_stats(rows: list[dict]) -> None:
 def main():
     parser = argparse.ArgumentParser(description="Fetch NHL season stats → Supabase")
     parser.add_argument("--team", help="Single team slug (e.g. boston-bruins)")
+    parser.add_argument("--no-extras", action="store_true", help="Skip injury/sparkline fetching (faster)")
     args = parser.parse_args()
 
     teams = [args.team] if args.team else list(NHL_TEAM_ABBR.keys())
+
+    # Default scoring multipliers (matches pool defaults)
+    scoring = {"g_wins": 2, "g_shutouts": 3}
 
     print(f"📊  NHL Stats Scraper — {SEASON} regular season → Supabase")
     print("─" * 50)
@@ -151,6 +205,9 @@ def main():
         print(f"  🏒  {slug} ({abbr})")
         skaters, goalies = fetch_team_stats(abbr)
         stats_map = build_stats_map(skaters, goalies)
+
+        # Injury status map: {playerId → status}
+        injury_map = {} if args.no_extras else fetch_roster_injury_map(abbr)
 
         # Fetch existing DB rows for this team
         db_rows = supabase.table("nhl_players").select(
@@ -176,10 +233,28 @@ def main():
                 stats = next((v for k, v in stats_map.items() if k.endswith(last_key) and last_key), None)
 
             if stats:
+                player_id = stats.get("nhl_player_id")
+                position  = stats.get("_position", "F")
+
+                # Injury status
+                injury_status = injury_map.get(player_id, "Active") if player_id and not args.no_extras else "Active"
+
+                # Last-5-game sparkline
+                if player_id and not args.no_extras:
+                    last5 = fetch_last5_game_pts(player_id, position, scoring)
+                    time.sleep(0.05)   # be gentle per-player
+                else:
+                    last5 = None
+
+                # Strip internal fields before upsert
+                clean_stats = {k: v for k, v in stats.items() if not k.startswith("_")}
+
                 updates.append({
-                    "puckpedia_slug": row["puckpedia_slug"],
-                    "updated_at":     now,
-                    **stats,
+                    "puckpedia_slug":  row["puckpedia_slug"],
+                    "updated_at":      now,
+                    "injury_status":   injury_status,
+                    "last5_game_pts":  json.dumps(last5) if last5 is not None else None,
+                    **clean_stats,
                 })
                 total_matched += 1
             else:
