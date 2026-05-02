@@ -1087,7 +1087,7 @@
          const now = new Date();
          const daysSinceAcq = Math.floor((now - acqDate) / (1000 * 60 * 60 * 24));
 
-         const tenureEnd = t.date_traded ? fmt(t.date_traded) : `<span style="color:var(--green)">${fmt(acqDate)} → Now (${daysSinceAcq}d)</span>`;
+         const tenureEnd = t.date_traded ? fmt(t.date_traded) : `<span style="color:var(--green)">${fmt(acqDate)} → Now</span>`;
          const tenure = tenureEnd;
          let col1='—', col2='—', col3='—', pts;
 
@@ -1130,7 +1130,7 @@
          const acqRaw = team?.acquisitions?.[p._slug];
          const acqDate = (typeof acqRaw === 'object' && acqRaw?.date) ? new Date(acqRaw.date) : null;
          const daysSinceAcq = acqDate ? Math.floor((new Date() - acqDate) / (1000 * 60 * 60 * 24)) : 0;
-         const tenureDisplay = acqDate ? `<span style="color:var(--green)">${fmt(acqDate)} → Now (${daysSinceAcq}d)</span>` : `<span style="color:var(--green)">Now</span>`;
+         const tenureDisplay = acqDate ? `<span style="color:var(--green)">${fmt(acqDate)} → Now</span>` : `<span style="color:var(--green)">Now</span>`;
 
          return `<div class="hist-row current">
            <span class="hist-pos ${pos}">${pos}</span>
