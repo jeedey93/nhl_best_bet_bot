@@ -954,7 +954,7 @@ function checkPoolPw(){
         const leagueRes = await fetch(`${SUPABASE_URL}/rest/v1/pool_leagues?code=eq.${_leagueCode}`, {
           method: 'PATCH',
           headers: sbHeaders({ 'Prefer': 'return=minimal' }),
-          body: JSON.stringify({ name: nextLeagueName, updated_at: new Date().toISOString() }),
+          body: JSON.stringify({ name: nextLeagueName }),
         });
         if (!leagueRes.ok) {
           const txt = await leagueRes.text();
