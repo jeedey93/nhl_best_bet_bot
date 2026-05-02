@@ -45,10 +45,7 @@
           color: var(--gold); letter-spacing: 4px; text-decoration: none;
           flex-shrink: 0;
         }
-        /* Desktop links */
-        .site-nav-links {
-          display: flex; align-items: center; gap: 0.5rem;
-        }
+        .site-nav-links { display: flex; align-items: center; gap: 0.5rem; }
         .site-nav-links a {
           font-family: 'Barlow Condensed', sans-serif; font-size: 1rem; font-weight: 600;
           color: var(--silver); text-decoration: none; padding: 0.3rem 0.8rem;
@@ -57,18 +54,13 @@
         }
         .site-nav-links a:hover { color: white; background: rgba(255,255,255,0.07); }
         .site-nav-links a.active { color: var(--gold); background: rgba(255,184,28,0.1); }
-        /* Hamburger — only on mobile */
         .nav-hamburger {
           display: none; flex-direction: column; justify-content: center; gap: 5px;
           width: 36px; height: 36px; cursor: pointer; border: none;
           background: none; padding: 6px; border-radius: 6px;
         }
-        .nav-hamburger span {
-          display: block; height: 2px; background: var(--silver);
-          border-radius: 2px; transition: background 0.15s;
-        }
+        .nav-hamburger span { display: block; height: 2px; background: var(--silver); border-radius: 2px; transition: background 0.15s; }
         .nav-hamburger:hover span { background: white; }
-        /* Mobile drawer */
         .nav-drawer {
           display: none; position: fixed; top: var(--nav-h); left: 0; right: 0; bottom: 0;
           z-index: 99; background: rgba(7,17,31,0.97); backdrop-filter: blur(16px);
@@ -149,46 +141,112 @@
         .skeleton-row:nth-child(3) { opacity: 0.65; animation-delay: 0.2s; }
         .skeleton-row:nth-child(4) { opacity: 0.5; animation-delay: 0.3s; }
         .skeleton-row:nth-child(5) { opacity: 0.35; animation-delay: 0.4s; }
-        @keyframes skeleton-pulse {
-          0%, 100% { opacity: 0.4; } 50% { opacity: 0.7; }
-        }
+        @keyframes skeleton-pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 0.7; } }
 
-        /* ── LEADERBOARD ── */
+        /* ══════════════════════════════════════════════════
+           FEATURE 1: LEADERBOARD — tier polish
+        ══════════════════════════════════════════════════ */
         .leaderboard {
           background: rgba(255,255,255,0.03); border: 1px solid var(--line);
           border-radius: 12px; overflow: hidden; margin-bottom: 1.75rem;
         }
+
+        /* 1st place: gold tint + left glow bar */
+        .lb-row.rank-1 {
+          background: linear-gradient(90deg, rgba(255,184,28,0.07) 0%, rgba(255,184,28,0.02) 60%, transparent 100%);
+          border-left: 3px solid rgba(255,184,28,0.6);
+        }
+        .lb-row.rank-1:hover {
+          background: linear-gradient(90deg, rgba(255,184,28,0.12) 0%, rgba(255,184,28,0.05) 60%, transparent 100%);
+        }
+
+        /* 2nd place: silver-tinted */
+        .lb-row.rank-2 {
+          background: linear-gradient(90deg, rgba(192,200,212,0.05) 0%, transparent 60%);
+          border-left: 3px solid rgba(192,200,212,0.3);
+        }
+
+        /* 3rd place: bronze-tinted */
+        .lb-row.rank-3 {
+          background: linear-gradient(90deg, rgba(205,127,50,0.05) 0%, transparent 60%);
+          border-left: 3px solid rgba(205,127,50,0.3);
+        }
+
+        /* Subtle divider between podium (top 3) and the rest */
+        .lb-tier-divider {
+          height: 1px;
+          background: linear-gradient(90deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.04) 50%, transparent 100%);
+          margin: 0;
+          position: relative;
+        }
+        .lb-tier-divider::after {
+          content: 'REST OF FIELD';
+          position: absolute;
+          right: 0.75rem;
+          top: 50%;
+          transform: translateY(-50%);
+          font-family: 'Barlow Condensed', sans-serif;
+          font-size: 0.55rem;
+          font-weight: 700;
+          letter-spacing: 2px;
+          color: rgba(255,255,255,0.2);
+          background: #07111f;
+          padding: 0 6px;
+        }
+
         .lb-row {
           display: grid;
           grid-template-columns: 36px 1fr 60px 60px 60px 60px;
           align-items: center; padding: 0.65rem 1rem; gap: 0.5rem;
           border-bottom: 1px solid rgba(255,255,255,0.05);
           cursor: pointer; transition: background 0.15s;
+          /* default: no left border colour — ranks 4+ */
+          border-left: 3px solid transparent;
         }
         .lb-row:last-child { border-bottom: none; }
         .lb-row:hover { background: rgba(255,255,255,0.04); }
-        .lb-row.active { background: rgba(255,184,28,0.07); border-left: 2px solid var(--gold); }
+        .lb-row.active { background: rgba(255,184,28,0.07); border-left-color: var(--gold) !important; }
         .lb-row.header {
           background: rgba(255,255,255,0.03);
           border-bottom: 1px solid rgba(255,255,255,0.1);
           cursor: default; padding: 0.45rem 1rem;
+          border-left: 3px solid transparent;
         }
         .lb-row.header:hover { background: rgba(255,255,255,0.03); }
-        @media (min-width: 861px) {
-          .lb-row { padding: 0.85rem 1.25rem; }
-        }
-        /* Hide Pt/GP + Eff columns on very small screens */
+        @media (min-width: 861px) { .lb-row { padding: 0.85rem 1.25rem; } }
         @media (max-width: 480px) {
           .lb-row { grid-template-columns: 30px 1fr 56px 56px; }
           .lb-col-hide { display: none; }
         }
-        .lb-rank { font-family: 'Bebas Neue', cursive; font-size: 1.1rem; letter-spacing: 1px; color: var(--silver); text-align: center; }
-        .lb-rank.gold { color: var(--gold); }
+
+        /* Rank cell — crown on 1st, medals for 2nd/3rd */
+        .lb-rank {
+          display: flex; align-items: center; justify-content: center;
+          font-family: 'Bebas Neue', cursive; font-size: 1.1rem; letter-spacing: 1px;
+          color: var(--silver); text-align: center; position: relative;
+        }
+        .lb-rank.gold   { color: var(--gold); }
         .lb-rank.silver { color: #c0c8d4; }
         .lb-rank.bronze { color: #cd7f32; }
+
+        /* Crown sits above the number for 1st place */
+        .lb-rank-crown {
+          display: flex; flex-direction: column; align-items: center; gap: 1px;
+        }
+        .lb-rank-crown-icon {
+          font-size: 0.65rem; line-height: 1;
+          filter: drop-shadow(0 0 4px rgba(255,184,28,0.8));
+          animation: crown-glow 3s ease-in-out infinite;
+        }
+        @keyframes crown-glow {
+          0%, 100% { filter: drop-shadow(0 0 3px rgba(255,184,28,0.6)); }
+          50%       { filter: drop-shadow(0 0 8px rgba(255,184,28,1));   }
+        }
+        .lb-rank-num { font-family: 'Bebas Neue', cursive; font-size: 1.1rem; letter-spacing: 1px; }
+
         .lb-name { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 2px; color: white; }
         .lb-row.active .lb-name { color: var(--gold); }
-        @media (min-width: 861px) { .lb-rank { font-size: 1.3rem; } .lb-name { font-size: 1.15rem; } }
+        @media (min-width: 861px) { .lb-rank-num { font-size: 1.3rem; } .lb-name { font-size: 1.15rem; } }
         .lb-stat { font-family: 'Barlow Condensed', sans-serif; font-size: 0.85rem; font-weight: 700; color: var(--silver); text-align: right; }
         .lb-stat.pts { color: white; font-size: 1rem; }
         .lb-row.active .lb-stat.pts { color: var(--gold); }
@@ -198,18 +256,65 @@
         .lb-col-label { font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem; font-weight: 700; color: rgba(255,255,255,0.3); text-align: right; letter-spacing: 2px; text-transform: uppercase; }
         .lb-col-label.left { text-align: left; }
 
-        /* ── INSIGHTS ── */
-        .insights { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.6rem; margin-bottom: 1.75rem; }
-        @media (max-width: 600px) { .insights { grid-template-columns: 1fr; } }
+        /* ══════════════════════════════════════════════════
+           FEATURE 2: INSIGHTS — balanced grid
+        ══════════════════════════════════════════════════ */
+
+        /*
+          Smart grid: fills row-by-row.
+          3 cards → first card stretches to fill the gap (col-span trick via last-child rule).
+          4 cards → clean 2×2.
+          2 cards → side by side.
+        */
+        .insights {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 0.6rem;
+          margin-bottom: 1.75rem;
+        }
+
+        /* When there's an odd number of cards, the last one spans both columns */
+        .insights .insight-card:last-child:nth-child(odd) {
+          grid-column: 1 / -1;
+          /* Cap max-width so it doesn't look stretched on wide screens */
+          max-width: 100%;
+          /* Internal layout becomes horizontal on wide screens */
+          flex-direction: row;
+          align-items: center;
+          gap: 0.75rem;
+        }
+        .insights .insight-card:last-child:nth-child(odd) .insight-sub {
+          margin-left: auto;
+          text-align: right;
+          flex-shrink: 0;
+        }
+
+        @media (max-width: 600px) {
+          .insights { grid-template-columns: 1fr; }
+          .insights .insight-card:last-child:nth-child(odd) {
+            grid-column: auto;
+            flex-direction: column;
+          }
+          .insights .insight-card:last-child:nth-child(odd) .insight-sub {
+            margin-left: 0; text-align: left;
+          }
+        }
+
         .insight-card {
           background: rgba(255,255,255,0.03); border: 1px solid var(--line);
           border-radius: 10px; padding: 0.7rem 0.9rem;
           display: flex; flex-direction: column; gap: 0.2rem;
+          transition: border-color 0.2s, background 0.2s;
         }
+        .insight-card:hover { background: rgba(255,255,255,0.05); }
         .insight-card.gold  { border-color: rgba(255,184,28,0.25);  background: rgba(255,184,28,0.04); }
         .insight-card.green { border-color: rgba(34,197,94,0.25);   background: rgba(34,197,94,0.04); }
         .insight-card.red   { border-color: rgba(200,16,46,0.25);   background: rgba(200,16,46,0.04); }
         .insight-card.blue  { border-color: rgba(125,180,255,0.25); background: rgba(125,180,255,0.04); }
+        .insight-card.gold:hover  { background: rgba(255,184,28,0.07); }
+        .insight-card.green:hover { background: rgba(34,197,94,0.07); }
+        .insight-card.red:hover   { background: rgba(200,16,46,0.07); }
+        .insight-card.blue:hover  { background: rgba(125,180,255,0.07); }
         .insight-label { font-size: 0.68rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.35); }
         .insight-icon { font-size: 1rem; line-height: 1; margin-bottom: 0.1rem; }
         .insight-main { font-family: 'Bebas Neue', cursive; font-size: 1.05rem; letter-spacing: 1.5px; color: white; line-height: 1.2; }
@@ -250,28 +355,84 @@
         .detail-badge.filled { background: rgba(34,197,94,0.1); color: var(--green); border: 1px solid rgba(34,197,94,0.25); }
         .detail-badge.eff { background: rgba(125,180,255,0.1); color: var(--blue); border: 1px solid rgba(125,180,255,0.25); }
 
-        /* ── POS SCORE BAR ── */
+        /* ══════════════════════════════════════════════════
+           FEATURE 3: POS SCORES BAR — rank badges
+        ══════════════════════════════════════════════════ */
         .pos-scores-bar { display: flex; gap: 0.5rem; margin-bottom: 1.25rem; }
         @media (max-width: 480px) { .pos-scores-bar { flex-wrap: wrap; } }
+
         .pos-score-block {
           flex: 1; background: rgba(255,255,255,0.03);
-          border: 1px solid var(--line); border-radius: 8px; padding: 0.6rem 0.75rem; text-align: center;
+          border: 1px solid var(--line); border-radius: 8px;
+          padding: 0.6rem 0.75rem; text-align: center;
+          position: relative; overflow: hidden;
         }
         .pos-score-block.F { border-color: rgba(255,122,138,0.2); }
         .pos-score-block.D { border-color: rgba(125,180,255,0.2); }
         .pos-score-block.G { border-color: rgba(255,184,28,0.2); }
         .pos-score-block.B { border-color: rgba(255,255,255,0.12); }
-        .pos-score-val { font-family: 'Bebas Neue', cursive; font-size: 1.6rem; letter-spacing: 2px; line-height: 1; }
+
+        /* 1st-place glow on pos block */
+        .pos-score-block.rank-1st {
+          box-shadow: inset 0 0 0 1px rgba(255,184,28,0.35), 0 0 12px rgba(255,184,28,0.08);
+        }
+        .pos-score-block.rank-1st::before {
+          content: '';
+          position: absolute; inset: 0;
+          background: linear-gradient(135deg, rgba(255,184,28,0.06) 0%, transparent 60%);
+          pointer-events: none;
+        }
+
+        .pos-score-val {
+          font-family: 'Bebas Neue', cursive; font-size: 1.6rem;
+          letter-spacing: 2px; line-height: 1;
+        }
         @media (min-width: 861px) { .pos-score-val { font-size: 2rem; } }
         .pos-score-block.F .pos-score-val { color: var(--pink); }
         .pos-score-block.D .pos-score-val { color: var(--blue); }
         .pos-score-block.G .pos-score-val { color: var(--gold); }
         .pos-score-block.B .pos-score-val { color: var(--silver); }
-        .pos-score-label { font-size: 0.68rem; font-weight: 700; color: var(--silver); letter-spacing: 2px; text-transform: uppercase; margin-top: 2px; }
+        .pos-score-label {
+          font-size: 0.68rem; font-weight: 700; color: var(--silver);
+          letter-spacing: 2px; text-transform: uppercase; margin-top: 2px;
+        }
+
+        /* Rank badge — positioned bottom-right inside the block */
+        .pos-rank-badge {
+          display: inline-flex; align-items: center; gap: 2px;
+          margin-top: 5px;
+          font-family: 'Bebas Neue', cursive; font-size: 0.62rem; letter-spacing: 1px;
+          border-radius: 3px; padding: 1px 6px;
+          line-height: 1.4;
+        }
+        .pos-rank-badge.r1 {
+          color: var(--gold);
+          background: rgba(255,184,28,0.15);
+          border: 1px solid rgba(255,184,28,0.3);
+        }
+        .pos-rank-badge.r2 {
+          color: #c0c8d4;
+          background: rgba(192,200,212,0.1);
+          border: 1px solid rgba(192,200,212,0.2);
+        }
+        .pos-rank-badge.r3 {
+          color: #cd7f32;
+          background: rgba(205,127,50,0.1);
+          border: 1px solid rgba(205,127,50,0.2);
+        }
+        .pos-rank-badge.rmid {
+          color: rgba(255,255,255,0.4);
+          background: rgba(255,255,255,0.04);
+          border: 1px solid rgba(255,255,255,0.08);
+        }
+        .pos-rank-badge.rlast {
+          color: rgba(255,80,80,0.6);
+          background: rgba(255,80,80,0.05);
+          border: 1px solid rgba(255,80,80,0.15);
+        }
 
         /* ── HIST TABLE ── */
         .hist-table { background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; margin-bottom: 1.25rem; }
-        /* 7 cols desktop, collapse on mobile */
         .hist-header-row,
         .hist-row {
           display: grid;
@@ -286,13 +447,13 @@
         .hist-header-row { background: rgba(255,255,255,0.04); border-bottom: 1px solid rgba(255,255,255,0.1); padding: 0.35rem 0.75rem; }
         .hist-row { border-bottom: 1px solid rgba(255,255,255,0.04); }
         .hist-row:last-child { border-bottom: none; }
-        .hist-row.past { background: rgba(255,80,80,0.04); }
+        .hist-row.past    { background: rgba(255,80,80,0.04); }
         .hist-row.current { background: rgba(34,197,94,0.04); }
-        .hist-row.total { background: rgba(255,255,255,0.04); border-top: 1px solid rgba(255,255,255,0.1); }
+        .hist-row.total   { background: rgba(255,255,255,0.04); border-top: 1px solid rgba(255,255,255,0.1); }
         .hist-pos { font-family: 'Bebas Neue', cursive; font-size: 0.7rem; letter-spacing: 1px; border-radius: 3px; padding: 1px 5px; text-align: center; }
         .hist-pos.F { background: rgba(255,122,138,0.15); color: var(--pink); }
         .hist-pos.D { background: rgba(125,180,255,0.15); color: var(--blue); }
-        .hist-pos.G { background: rgba(255,184,28,0.15); color: var(--gold); }
+        .hist-pos.G { background: rgba(255,184,28,0.15);  color: var(--gold); }
         .hist-name { font-size: 0.9rem; font-weight: 700; color: white; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: flex; align-items: center; gap: 0.4rem; }
         .hist-name.past { color: var(--silver); }
         .hist-name img { width: 20px; height: 20px; object-fit: contain; flex-shrink: 0; }
@@ -357,9 +518,6 @@
         .pw-btn { margin-top: 1rem; width: 100%; background: var(--red); color: white; border: none; border-radius: 8px; padding: 0.75rem; font-family: 'Bebas Neue', cursive; font-size: 1.2rem; letter-spacing: 3px; cursor: pointer; transition: background 0.2s; }
         .pw-btn:hover { background: #e0122e; }
         .pw-error { color: rgba(200,16,46,0.8); font-size: 0.8rem; margin-top: 0.5rem; min-height: 1em; letter-spacing: 1px; }
-
-        /* ── FREE AGENTS ── */
-        /* ── FREE AGENTS tab removed — see roster.html ── */
     </style>
 </head>
 <body>
@@ -379,7 +537,6 @@
 <nav class="site-nav">
     <div class="site-nav-inner">
         <a class="site-nav-brand" href="../index.html">Parieur Discipliné</a>
-        <!-- Desktop links -->
         <div class="site-nav-links">
             <a href="/pool" id="nav-home">Home</a>
             <a href="" id="nav-draft">Draft</a>
@@ -388,14 +545,12 @@
             <a href="" id="nav-trades">Roster</a>
             <a href="" id="nav-settings">Settings</a>
         </div>
-        <!-- Mobile hamburger -->
         <button class="nav-hamburger" id="hamburger" aria-label="Open menu" onclick="toggleDrawer()">
             <span></span><span></span><span></span>
         </button>
     </div>
 </nav>
 
-<!-- Mobile nav drawer -->
 <div class="nav-drawer" id="nav-drawer">
     <a href="/pool">Home</a>
     <a href="" id="nav-drawer-draft">Draft</a>
@@ -417,7 +572,6 @@
         </div>
     </header>
     <div id="content">
-        <!-- Skeleton loader -->
         <div style="margin-bottom:1.25rem">
             <div class="skeleton-row"></div>
             <div class="skeleton-row"></div>
@@ -433,16 +587,9 @@
     const SUPABASE_URL = 'https://fifurqlitkywtmhgtzeu.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZpZnVycWxpdGt5d3RtaGd0emV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3MDIyMjQsImV4cCI6MjA5MjI3ODIyNH0.KPVPj1qwbSJJMyLR_-AhDcRs0vi2sUU6qbFQ-kH53C0';
 
-    // Password: hashed to avoid plaintext in source.
-    // SHA-256 of "parieur2026" — computed once at page load, compared against stored hash.
-    const PW_HASH = 'b2b0c0a7e2f3c7d5e9a1f4b6c8e0d2a4f5b7c9e1d3a5f7b9c1e3d5a7f9b1c3';
-    // NOTE: The hash above is a placeholder. In practice, run:
-    //   crypto.subtle.digest('SHA-256', new TextEncoder().encode('parieur2026'))
-    // and store the hex result. We compute and compare dynamically below.
-    const PW_PLAIN = 'parieur2026'; // used only for hashing comparison in-browser
-
+    const PW_PLAIN = 'parieur2026';
     const CACHE_KEY = 'hp_players_v3';
-    const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+    const CACHE_TTL_MS = 5 * 60 * 1000;
 
     const TEAM_ABBR = {
       'anaheim-ducks':'ANA','boston-bruins':'BOS','buffalo-sabres':'BUF','calgary-flames':'CGY',
@@ -458,16 +605,12 @@
     };
 
     // ── PASSWORD GATE ────────────────────────────────────────────────────────────
-    // We use SHA-256 hashing so the plaintext password is never stored in sessionStorage
-    // or compared in plaintext. A dedicated server-side auth would be even better,
-    // but this is a significant improvement over the previous approach.
     async function hashPassword(pw) {
       const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pw));
       return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
     }
 
     (async function initGate() {
-      // Check stored hash against expected hash of the correct password
       const expectedHash = await hashPassword(PW_PLAIN);
       const storedHash = sessionStorage.getItem('pool_auth_hash');
       if (storedHash === expectedHash) {
@@ -476,7 +619,6 @@
       document.getElementById('pw-input').addEventListener('keydown', e => {
         if (e.key === 'Enter') checkPw();
       });
-      // Store expected hash globally so checkPw can use it
       window._expectedPwHash = expectedHash;
     })();
 
@@ -503,11 +645,8 @@
       const drawer = document.getElementById('nav-drawer');
       const isOpen = drawer.classList.toggle('open');
       document.getElementById('hamburger').setAttribute('aria-expanded', isOpen);
-      // Prevent body scroll when drawer is open
       document.body.style.overflow = isOpen ? 'hidden' : '';
     }
-
-    // Close drawer if user clicks outside it
     document.addEventListener('click', function(e) {
       const drawer = document.getElementById('nav-drawer');
       const hamburger = document.getElementById('hamburger');
@@ -528,11 +667,9 @@
     let activeView = sessionStorage.getItem('pool_view') || 'standings';
     if (activeView === 'allteams') activeView = 'standings';
 
-    // Memoized computed values — cleared when data changes
     let _cache = {};
     function clearCache() { _cache = {}; }
 
-    // Memoized slug map
     function slugMap() {
       if (!_cache.slugMap) {
         _cache.slugMap = Object.fromEntries(allPlayers.map(p => [p.puckpedia_slug, p]));
@@ -540,17 +677,14 @@
       return _cache.slugMap;
     }
 
-    // Memoized team total points
     function teamTotalPts(team) {
       if (!_cache.teamPts) _cache.teamPts = {};
       if (_cache.teamPts[team.id] !== undefined) return _cache.teamPts[team.id];
       const s = teamSubScores(team);
-      const total = s.F + s.D + s.G + s.B;
-      _cache.teamPts[team.id] = total;
-      return total;
+      _cache.teamPts[team.id] = s.F + s.D + s.G + s.B;
+      return _cache.teamPts[team.id];
     }
 
-    // Memoized sorted teams
     function sortedTeams() {
       if (!_cache.sorted) {
         _cache.sorted = [...teams].sort((a, b) => teamTotalPts(b) - teamTotalPts(a));
@@ -558,7 +692,6 @@
       return _cache.sorted;
     }
 
-    // Memoized drafted players list
     function allDraftedPlayers() {
       if (!_cache.drafted) {
         const list = [];
@@ -603,7 +736,6 @@
 
     function poolScoreOwned(p, team, slug) {
       const snap = team?.acquisitions?.[slug];
-      // Handle both object with stats_snapshot and simple date string
       const snapData = (typeof snap === 'object' && snap !== null) ? snap.stats_snapshot : null;
       if (!snapData) return poolScore(p);
       const pos = normalizePos(p.position);
@@ -643,17 +775,10 @@
     }
 
     // ── ROSTER HELPERS ───────────────────────────────────────────────────────────
-    /**
-     * Safely parse a player name. Handles:
-     *  - "Last, First" → "First Last"
-     *  - "First Last" → unchanged
-     *  - multiple commas: "Last, Jr., First" → takes last token as first name
-     */
     function formatName(n) {
       if (!n) return '';
       if (n.includes(',')) {
         const parts = n.split(',').map(s => s.trim()).filter(Boolean);
-        // Standard "Last, First" — take [1] as first, [0] as last
         if (parts.length >= 2) return `${parts[parts.length - 1]} ${parts[0]}`;
       }
       return n;
@@ -673,18 +798,10 @@
     function teamSubScores(team) {
       if (!_cache.subScores) _cache.subScores = {};
       if (_cache.subScores[team.id]) return _cache.subScores[team.id];
-      const rs = team.roster;
-      const r = rosterPlayers(rs);
-      // Bench players are scored using the same positional rules —
-      // they count toward total points (was previously hardcoded to 0).
+      const r = rosterPlayers(team.roster);
       const scoreGroup = (players) =>
         players.filter(Boolean).reduce((s, p) => s + poolScoreOwned(p, team, p._slug), 0);
-      const result = {
-        F: scoreGroup(r.F),
-        D: scoreGroup(r.D),
-        G: scoreGroup(r.G),
-        B: scoreGroup(r.B),
-      };
+      const result = { F: scoreGroup(r.F), D: scoreGroup(r.D), G: scoreGroup(r.G), B: scoreGroup(r.B) };
       _cache.subScores[team.id] = result;
       return result;
     }
@@ -698,14 +815,36 @@
       return [...(rs.F||[]), ...(rs.D||[]), ...(rs.G||[]), ...(rs.B||[])].filter(Boolean).length;
     }
 
+    /* ── FEATURE 3 HELPER: compute per-position rank for a given team ── */
+    function posRankForTeam(team, pos) {
+      // Rank teams by their sub-score for this position
+      const ranked = [...teams]
+        .map(t => ({ id: t.id, score: teamSubScores(t)[pos] }))
+        .sort((a, b) => b.score - a.score);
+      return ranked.findIndex(r => r.id === team.id) + 1; // 1-indexed
+    }
+
+    function posRankLabel(rank, total) {
+      const ordinal = n => {
+        const s = ['th','st','nd','rd'];
+        const v = n % 100;
+        return n + (s[(v-20)%10] || s[v] || s[0]);
+      };
+      if (rank === 1) return { text: `👑 ${ordinal(rank)}`, cls: 'r1' };
+      if (rank === 2) return { text: `${ordinal(rank)}`, cls: 'r2' };
+      if (rank === 3) return { text: `${ordinal(rank)}`, cls: 'r3' };
+      if (rank === total) return { text: `${ordinal(rank)} of ${total}`, cls: 'rlast' };
+      return { text: `${ordinal(rank)} of ${total}`, cls: 'rmid' };
+    }
+
     // ── NAV SETUP ────────────────────────────────────────────────────────────────
     function initNav() {
       const links = {
-        'nav-draft':         `/pool/join?league=${_leagueCode}`,
-        'nav-live-draft':    `/pool/live-draft?league=${_leagueCode}`,
-        'nav-standings':     `/pool/standings?league=${_leagueCode}`,
-        'nav-trades':        `/pool/roster?league=${_leagueCode}`,
-        'nav-settings':      `/pool/settings?league=${_leagueCode}`,
+        'nav-draft':              `/pool/join?league=${_leagueCode}`,
+        'nav-live-draft':         `/pool/live-draft?league=${_leagueCode}`,
+        'nav-standings':          `/pool/standings?league=${_leagueCode}`,
+        'nav-trades':             `/pool/roster?league=${_leagueCode}`,
+        'nav-settings':           `/pool/settings?league=${_leagueCode}`,
         'nav-drawer-draft':       `/pool/join?league=${_leagueCode}`,
         'nav-drawer-live-draft':  `/pool/live-draft?league=${_leagueCode}`,
         'nav-drawer-standings':   `/pool/standings?league=${_leagueCode}`,
@@ -725,7 +864,6 @@
       initNav();
       await loadScoringSettings();
 
-      // Fetch league name for the badge
       fetch(`${SUPABASE_URL}/rest/v1/pool_leagues?code=eq.${_leagueCode}&select=name`, {
         headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
       }).then(r => r.json()).then(rows => {
@@ -734,15 +872,13 @@
       }).catch(() => {});
 
       try {
-        // ── Player cache with TTL ──────────────────────────────────────────────
         let cacheHit = false;
         try {
           const raw = sessionStorage.getItem(CACHE_KEY);
           if (raw) {
             const { ts, data } = JSON.parse(raw);
             if (Date.now() - ts < CACHE_TTL_MS && Array.isArray(data) && data.length) {
-              allPlayers = data;
-              cacheHit = true;
+              allPlayers = data; cacheHit = true;
             }
           }
         } catch(_) {}
@@ -754,15 +890,11 @@
           );
           if (!res.ok) throw new Error(res.status);
           allPlayers = await res.json();
-          try {
-            sessionStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), data: allPlayers }));
-          } catch(_) { /* storage quota exceeded — just continue without caching */ }
+          try { sessionStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), data: allPlayers })); } catch(_) {}
         }
 
-        // Clear computed caches whenever player data refreshes
         clearCache();
 
-        // ── Rosters ───────────────────────────────────────────────────────────
         const rRes = await fetch(
           `${SUPABASE_URL}/rest/v1/pool_rosters?league_code=eq.${_leagueCode}&select=data`,
           { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
@@ -787,8 +919,6 @@
           }
         }));
 
-        // ── Trades ────────────────────────────────────────────────────────────
-        // Reset before fetching so a partial load doesn't leave stale state
         currentTrades = [];
         const tRes = await fetch(
           `${SUPABASE_URL}/rest/v1/player_trades?league_code=eq.${_leagueCode}&select=team_id,player_to_slug,player_to_name,player_to_position,date_from_acquired,date_traded,points_accumulated_at_trade&order=date_from_acquired.asc`,
@@ -796,7 +926,6 @@
         );
         if (tRes.ok) currentTrades = await tRes.json();
 
-        // Pick default active team
         const sorted = sortedTeams();
         activeTeamId = sorted[0]?.id || teams[0]?.id;
 
@@ -809,7 +938,6 @@
     }
 
     // ── RENDER ────────────────────────────────────────────────────────────────────
-    // Stores scroll position and restores it after re-render to avoid jump.
     function render() {
       const scrollY = window.scrollY;
       const sorted = sortedTeams();
@@ -862,15 +990,10 @@
       btn.disabled = true;
       status.textContent = 'Syncing…';
       status.className = 'sync-status';
-
-      // Invalidate player cache so fresh data is fetched after sync
       try { sessionStorage.removeItem(CACHE_KEY); } catch(_) {}
-
       try {
         const res = await fetch('/api/sync-pool-stats', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({})
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({})
         });
         const data = await res.json();
         if (res.status === 200) {
@@ -917,7 +1040,7 @@
         }
       }
 
-      // 2. Best efficiency (pts per $M cap)
+      // 2. Best efficiency
       const effTeams = sorted.map(t => {
         const cap = teamCapUsed(t.roster);
         const pts = teamTotalPts(t);
@@ -930,13 +1053,13 @@
           `${best.eff.toFixed(2)} pts per $M — best in pool`));
       }
 
-      // 3. Best steal: highest pts-to-cap ratio among all owned players
+      // 3. Best steal
       const allP = [];
       teams.forEach(t => {
         const rp = rosterPlayers(t.roster);
         [...rp.F, ...rp.D, ...rp.G].filter(Boolean).forEach(p => {
-          const pts   = poolScoreOwned(p, t, p._slug);
-          const capM  = (p.cap_hit || 0) / 1e6;
+          const pts  = poolScoreOwned(p, t, p._slug);
+          const capM = (p.cap_hit || 0) / 1e6;
           if (pts > 0 && capM > 0) allP.push({ p, t, pts, capM, ratio: pts / capM });
         });
       });
@@ -948,7 +1071,7 @@
           `${steal.pts} pts · $${steal.capM.toFixed(1)}M · owned by ${steal.t.name}`));
       }
 
-      // 4. Worst contract: lowest pts-to-cap (min $2M, min 1 pt)
+      // 4. Worst contract
       const expensive = allP.filter(x => x.capM >= 2 && x.pts >= 1).sort((a, b) => a.ratio - b.ratio);
       if (expensive.length) {
         const bust = expensive[0];
@@ -962,8 +1085,10 @@
 
     // ── LEADERBOARD ───────────────────────────────────────────────────────────────
     function buildLeaderboard(sorted, leaderPts) {
-      const rc = i => i===0?'gold':i===1?'silver':i===2?'bronze':'';
-      const rows = sorted.map((t, i) => {
+      const n = sorted.length;
+
+      // Build rows, inserting the divider after the 3rd place row
+      const rowsHtml = sorted.map((t, i) => {
         const pts = teamTotalPts(t);
         const cap = teamCapUsed(t.roster);
         const gap = i === 0 ? 'Leader' : `−${leaderPts - pts}`;
@@ -975,14 +1100,41 @@
           return s + (d?.gamesPlayed ?? p.games_played ?? 0);
         }, 0);
         const ppg = totalGP > 0 ? (pts / totalGP).toFixed(2) : '—';
-        return `<div class="lb-row ${t.id===activeTeamId?'active':''}" onclick="selectTeam('${t.id}')">
-          <div class="lb-rank ${rc(i)}">${i+1}</div>
+
+        // Rank CSS class and inner HTML for the rank cell
+        const rankNum = i + 1;
+        let rankCls = '';
+        let rankInner = '';
+        if (rankNum === 1) {
+          rankCls = 'gold';
+          rankInner = `<div class="lb-rank-crown"><span class="lb-rank-crown-icon">👑</span><span class="lb-rank-num">${rankNum}</span></div>`;
+        } else if (rankNum === 2) {
+          rankCls = 'silver';
+          rankInner = `<span class="lb-rank-num">${rankNum}</span>`;
+        } else if (rankNum === 3) {
+          rankCls = 'bronze';
+          rankInner = `<span class="lb-rank-num">${rankNum}</span>`;
+        } else {
+          rankInner = `<span class="lb-rank-num">${rankNum}</span>`;
+        }
+
+        // Tier CSS class on the row itself
+        const tierCls = rankNum <= 3 ? ` rank-${rankNum}` : '';
+
+        const row = `<div class="lb-row${tierCls} ${t.id===activeTeamId?'active':''}" onclick="selectTeam('${t.id}')">
+          <div class="lb-rank ${rankCls}">${rankInner}</div>
           <div class="lb-name">${t.name}</div>
           <div class="lb-stat lb-col-hide">${ppg}</div>
           <div class="lb-stat lb-col-hide">${eff}</div>
           <div class="lb-stat pts">${pts}</div>
           <div class="lb-stat ${i===0?'gap leader':'gap'}">${gap}</div>
         </div>`;
+
+        // Insert the divider after 3rd place (but only if there are more teams)
+        if (rankNum === 3 && n > 3) {
+          return row + `<div class="lb-tier-divider"></div>`;
+        }
+        return row;
       }).join('');
 
       return `<div class="leaderboard">
@@ -994,7 +1146,7 @@
           <div class="lb-col-label">Pts</div>
           <div class="lb-col-label">Gap</div>
         </div>
-        ${rows}
+        ${rowsHtml}
       </div>`;
     }
 
@@ -1013,10 +1165,24 @@
       const eff = cap > 0 ? (totalPts / (cap / 1e6)).toFixed(1) : '—';
       const rank = sorted.findIndex(t => t.id === team.id) + 1;
       const gap = rank === 1 ? 'Leading 🏆' : `${leaderPts - totalPts} pts behind 1st`;
+      const n = teams.length;
 
       const hasF = roster.F.some(Boolean);
       const hasD = roster.D.some(Boolean);
       const hasG = roster.G.some(Boolean);
+
+      // ── Pos-score blocks with rank badges ──────────────────────────────────
+      function posBlock(pos, label, val) {
+        const r = posRankForTeam(team, pos);
+        const { text: rankText, cls: rankCls } = posRankLabel(r, n);
+        const is1st = r === 1;
+        return `
+          <div class="pos-score-block ${pos}${is1st ? ' rank-1st' : ''}">
+            <div class="pos-score-val">${val}</div>
+            <div class="pos-score-label">${label}</div>
+            <div class="pos-rank-badge ${rankCls}">${rankText}</div>
+          </div>`;
+      }
 
       return `
         <div class="detail-header">
@@ -1032,10 +1198,10 @@
           </div>
         </div>
         <div class="pos-scores-bar">
-          <div class="pos-score-block F"><div class="pos-score-val">${sub.F}</div><div class="pos-score-label">Forwards</div></div>
-          <div class="pos-score-block D"><div class="pos-score-val">${sub.D}</div><div class="pos-score-label">Defence</div></div>
-          <div class="pos-score-block G"><div class="pos-score-val">${sub.G}</div><div class="pos-score-label">Goalies</div></div>
-          <div class="pos-score-block B"><div class="pos-score-val">${sub.B}</div><div class="pos-score-label">Bench</div></div>
+          ${posBlock('F', 'Forwards',  sub.F)}
+          ${posBlock('D', 'Defence',   sub.D)}
+          ${posBlock('G', 'Goalies',   sub.G)}
+          ${posBlock('B', 'Bench',     sub.B)}
         </div>
         ${hasF ? buildHistTable(team, 'F', 'Forwards') : '<div class="msg" style="padding:0.5rem 0;font-size:0.8rem;text-align:left;color:rgba(255,255,255,0.25)">No forwards drafted yet.</div>'}
         ${hasD ? buildHistTable(team, 'D', 'Defence')  : '<div class="msg" style="padding:0.5rem 0;font-size:0.8rem;text-align:left;color:rgba(255,255,255,0.25)">No defencemen drafted yet.</div>'}
@@ -1056,7 +1222,6 @@
       );
       const seenSlugs = new Set(trades.map(t => t.player_to_slug));
 
-      // Current players with no trade record (drafted at start)
       const currentNoDraft = (team.roster[pos] || [])
         .filter(s => s && currentSlugs.has(s) && !seenSlugs.has(s))
         .map(s => m[s] ? { ...m[s], _slug: s } : null)
@@ -1064,7 +1229,6 @@
 
       if (!trades.length && !currentNoDraft.length) return '';
 
-      // Header: hide GP/G/A stat columns on mobile via .hist-col-hide
       const colHeader = `
         <div class="hist-header-row">
           <div></div>
@@ -1076,74 +1240,71 @@
           <div class="lb-col-label">Pts</div>
         </div>`;
 
-       const tradeRows = trades.map(t => {
-         const isCurrent = currentSlugs.has(t.player_to_slug) && !t.date_traded;
-         const p = m[t.player_to_slug];
-         const abbr = p ? TEAM_ABBR[p.team] : null;
-         const logo = abbr ? `<img src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}">` : '';
+      const tradeRows = trades.map(t => {
+        const isCurrent = currentSlugs.has(t.player_to_slug) && !t.date_traded;
+        const p = m[t.player_to_slug];
+        const abbr = p ? TEAM_ABBR[p.team] : null;
+        const logo = abbr ? `<img src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}">` : '';
 
-         // Calculate days since acquisition
-         const acqDate = new Date(t.date_from_acquired);
-         const now = new Date();
-         const daysSinceAcq = Math.floor((now - acqDate) / (1000 * 60 * 60 * 24));
+        const acqDate = new Date(t.date_from_acquired);
+        // ── FIX: removed "(Xd)" — just show "Apr 5 → Now"
+        const tenureEnd = t.date_traded
+          ? fmt(t.date_traded)
+          : `<span style="color:var(--green)">${fmt(acqDate)} → Now</span>`;
 
-         const tenureEnd = t.date_traded ? fmt(t.date_traded) : `<span style="color:var(--green)">${fmt(acqDate)} → Now</span>`;
-         const tenure = tenureEnd;
-         let col1='—', col2='—', col3='—', pts;
+        let col1='—', col2='—', col3='—', pts;
 
-         if (isCurrent && p) {
-           const d = ownedStatsDelta(p, team, p._slug);
-           if (d) {
-             if (pos === 'G') { col1 = d.wins; col2 = d.shutouts; col3 = d.gamesPlayed; }
-             else             { col1 = d.gamesPlayed; col2 = d.goals; col3 = d.assists; }
-           }
-           pts = poolScoreOwned(p, team, p._slug);
-         } else {
-           // For traded-away players, show stats from trade record if available
-           pts = t.points_accumulated_at_trade ?? '—';
-           // Stats not available for past players — show '—'
-         }
+        if (isCurrent && p) {
+          const d = ownedStatsDelta(p, team, p._slug);
+          if (d) {
+            if (pos === 'G') { col1 = d.wins; col2 = d.shutouts; col3 = d.gamesPlayed; }
+            else             { col1 = d.gamesPlayed; col2 = d.goals; col3 = d.assists; }
+          }
+          pts = poolScoreOwned(p, team, p._slug);
+        } else {
+          pts = t.points_accumulated_at_trade ?? '—';
+        }
 
-         return `<div class="hist-row ${isCurrent?'current':'past'}">
-           <span class="hist-pos ${pos}">${pos}</span>
-           <span class="hist-name${isCurrent?'':' past'}">${logo}${t.player_to_name || t.player_to_slug}</span>
-           <span class="hist-tenure hist-col-hide">${tenure}</span>
-           <span class="hist-stat">${col1}</span>
-           <span class="hist-stat">${col2}</span>
-           <span class="hist-stat hist-col-hide">${col3}</span>
-           <span class="hist-pts">${pts}</span>
-         </div>`;
-       });
+        return `<div class="hist-row ${isCurrent?'current':'past'}">
+          <span class="hist-pos ${pos}">${pos}</span>
+          <span class="hist-name${isCurrent?'':' past'}">${logo}${t.player_to_name || t.player_to_slug}</span>
+          <span class="hist-tenure hist-col-hide">${tenureEnd}</span>
+          <span class="hist-stat">${col1}</span>
+          <span class="hist-stat">${col2}</span>
+          <span class="hist-stat hist-col-hide">${col3}</span>
+          <span class="hist-pts">${pts}</span>
+        </div>`;
+      });
 
-       const draftRows = currentNoDraft.map(p => {
-         const abbr = TEAM_ABBR[p.team];
-         const logo = abbr ? `<img src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}">` : '';
-         const d = ownedStatsDelta(p, team, p._slug);
-         let col1='—', col2='—', col3='—';
-         if (d) {
-           if (pos === 'G') { col1 = d.wins; col2 = d.shutouts; col3 = d.gamesPlayed; }
-           else             { col1 = d.gamesPlayed; col2 = d.goals; col3 = d.assists; }
-         }
-         const pts = poolScoreOwned(p, team, p._slug);
+      const draftRows = currentNoDraft.map(p => {
+        const abbr = TEAM_ABBR[p.team];
+        const logo = abbr ? `<img src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}">` : '';
+        const d = ownedStatsDelta(p, team, p._slug);
+        let col1='—', col2='—', col3='—';
+        if (d) {
+          if (pos === 'G') { col1 = d.wins; col2 = d.shutouts; col3 = d.gamesPlayed; }
+          else             { col1 = d.gamesPlayed; col2 = d.goals; col3 = d.assists; }
+        }
+        const pts = poolScoreOwned(p, team, p._slug);
 
-         // Get acquisition date from team.acquisitions
-         const acqRaw = team?.acquisitions?.[p._slug];
-         const acqDate = (typeof acqRaw === 'object' && acqRaw?.date) ? new Date(acqRaw.date) : null;
-         const daysSinceAcq = acqDate ? Math.floor((new Date() - acqDate) / (1000 * 60 * 60 * 24)) : 0;
-         const tenureDisplay = acqDate ? `<span style="color:var(--green)">${fmt(acqDate)} → Now</span>` : `<span style="color:var(--green)">Now</span>`;
+        const acqRaw = team?.acquisitions?.[p._slug];
+        const acqDate = (typeof acqRaw === 'object' && acqRaw?.date) ? new Date(acqRaw.date) : null;
+        // ── FIX: removed "(Xd)" — just show "Apr 5 → Now"
+        const tenureDisplay = acqDate
+          ? `<span style="color:var(--green)">${fmt(acqDate)} → Now</span>`
+          : `<span style="color:var(--green)">Now</span>`;
 
-         return `<div class="hist-row current">
-           <span class="hist-pos ${pos}">${pos}</span>
-           <span class="hist-name">${logo}${formatName(p.player_name)}</span>
-           <span class="hist-tenure hist-col-hide">${tenureDisplay}</span>
-           <span class="hist-stat">${col1}</span>
-           <span class="hist-stat">${col2}</span>
-           <span class="hist-stat hist-col-hide">${col3}</span>
-           <span class="hist-pts">${pts}</span>
-         </div>`;
-       });
+        return `<div class="hist-row current">
+          <span class="hist-pos ${pos}">${pos}</span>
+          <span class="hist-name">${logo}${formatName(p.player_name)}</span>
+          <span class="hist-tenure hist-col-hide">${tenureDisplay}</span>
+          <span class="hist-stat">${col1}</span>
+          <span class="hist-stat">${col2}</span>
+          <span class="hist-stat hist-col-hide">${col3}</span>
+          <span class="hist-pts">${pts}</span>
+        </div>`;
+      });
 
-      // Total: sum only numeric values
       const allPts = [
         ...trades.map(t => {
           if (currentSlugs.has(t.player_to_slug) && !t.date_traded) {
