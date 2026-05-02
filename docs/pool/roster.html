@@ -217,6 +217,26 @@
       50%       { box-shadow: 0 0 0 3px rgba(245,158,11,0); }
     }
 
+    /* ── ROSTER LEGEND ── */
+    .roster-legend {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1rem;
+      padding: 0.4rem 0.75rem; margin-bottom: 0.4rem;
+      background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 7px; font-family: 'Barlow Condensed', sans-serif;
+    }
+    .legend-label { font-size: 0.6rem; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: rgba(255,255,255,0.3); margin-right: 4px; }
+    .legend-group { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+    .legend-divider { width: 1px; height: 16px; background: rgba(255,255,255,0.1); flex-shrink: 0; }
+    .legend-item { display: flex; align-items: center; gap: 4px; font-size: 0.68rem; color: rgba(255,255,255,0.5); white-space: nowrap; }
+    .legend-item svg { flex-shrink: 0; }
+    /* Reuse status-dot size for legend dots */
+    .legend-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .legend-dot.active  { background: #22c55e; }
+    .legend-dot.dtd     { background: #f59e0b; }
+    .legend-dot.ir      { background: #ef4444; }
+    .legend-dot.unknown { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.2); }
+    @media (max-width: 480px) { .roster-legend { display: none; } }
+
     /* Logo cell */
     .cell-logo { display: flex; align-items: center; justify-content: center; }
     .cell-logo img { width: 20px; height: 20px; object-fit: contain; }
@@ -1424,7 +1444,24 @@
           ${bulkMode ? '✕ Exit Bulk Mode' : '⇄ Bulk Swap'}
         </button>
       </div>
-    </div><div class="roster-table">`;
+    </div>
+    <div class="roster-legend">
+      <div class="legend-group">
+        <span class="legend-label">Status</span>
+        <span class="legend-item"><span class="legend-dot active"></span>Active</span>
+        <span class="legend-item"><span class="legend-dot dtd"></span>Day-To-Day</span>
+        <span class="legend-item"><span class="legend-dot ir"></span>IR / Out</span>
+        <span class="legend-item"><span class="legend-dot unknown"></span>Unknown</span>
+      </div>
+      <div class="legend-divider"></div>
+      <div class="legend-group">
+        <span class="legend-label">Last 5 Games</span>
+        <span class="legend-item"><svg width="30" height="10" viewBox="0 0 30 10"><path d="M2,8 L15,2 L28,2" fill="none" stroke="#22c55e" stroke-width="1.5" stroke-linecap="round"/></svg>Hot</span>
+        <span class="legend-item"><svg width="30" height="10" viewBox="0 0 30 10"><path d="M2,2 L15,8 L28,8" fill="none" stroke="#f87171" stroke-width="1.5" stroke-linecap="round"/></svg>Cold</span>
+        <span class="legend-item"><svg width="30" height="10" viewBox="0 0 30 10"><path d="M2,5 L28,5" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/></svg>Steady</span>
+      </div>
+    </div>
+    <div class="roster-table">`;
 
     if(activeCount){
       ['F','D','G'].forEach(pos=>{
