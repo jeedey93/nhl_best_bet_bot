@@ -43,23 +43,31 @@ export default async function handler(req, res) {
       }
     } else {
       // Production (Vercel): Trigger GitHub Actions workflow
-      const gitHubToken = process.env.GH_API_TOKEN;
+      const gitHubToken = (process.env.GH_API_TOKEN || process.env.GITHUB_TOKEN || process.env.GITHUB_PAT || '').trim();
+      const owner = process.env.GITHUB_OWNER || 'jeedey93';
+      const repo = process.env.GITHUB_REPO || 'parieur-discipline-bot';
+      const workflowId = process.env.GITHUB_SYNC_WORKFLOW || 'update_pool_stats.yml';
+      const ref = process.env.GITHUB_REF || 'master';
+
       if (!gitHubToken) {
         return res.status(500).json({
           error: 'GitHub token not configured in Vercel environment variables'
         });
       }
 
+      const dispatchUrl = `https://api.github.com/repos/${owner}/${repo}/actions/workflows/${workflowId}/dispatches`;
+
       const response = await fetch(
-        'https://api.github.com/repos/I854351/parieur-discipline-bot/actions/workflows/update_pool_stats.yml/dispatches',
+        dispatchUrl,
         {
           method: 'POST',
           headers: {
             'Accept': 'application/vnd.github.v3+json',
             'Authorization': `token ${gitHubToken}`,
             'Content-Type': 'application/json',
+            'User-Agent': 'Parieur-Discipline-Bot',
           },
-          body: JSON.stringify({ ref: 'master' }),
+          body: JSON.stringify({ ref }),
         }
       );
 
@@ -69,6 +77,7 @@ export default async function handler(req, res) {
         return res.status(response.status).json({
           error: `GitHub API error: ${response.statusText}`,
           details: error,
+          target: { owner, repo, workflowId, ref },
         });
       }
 
