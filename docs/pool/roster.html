@@ -660,7 +660,7 @@
   const SUPABASE_URL = 'https://fifurqlitkywtmhgtzeu.supabase.co';
   const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZpZnVycWxpdGt5d3RtaGd0emV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3MDIyMjQsImV4cCI6MjA5MjI3ODIyNH0.KPVPj1qwbSJJMyLR_-AhDcRs0vi2sUU6qbFQ-kH53C0';
   const CAP_MAX = 95_500_000;
-  const PLAYER_CACHE_KEY = 'hp_players_v5';
+  const PLAYER_CACHE_KEY = 'hp_players_v6'; // bumped: adds injury_status + last5_game_pts
   const UNDO_WINDOW_SECONDS = 15;
 
   /* ── FEATURE 2: NHL team primary colors (RGB) ── */
@@ -857,8 +857,11 @@
   function buildSparklineSvg(p, slug) {
     // Try to use last5_game_pts column stored in DB (array of ints, most recent last)
     let pts = [];
-    if (Array.isArray(p.last5_game_pts) && p.last5_game_pts.length >= 3) {
-      pts = p.last5_game_pts.slice(-5);
+    let raw5 = p.last5_game_pts;
+    // Supabase may return JSONB as a string — parse if needed
+    if (typeof raw5 === 'string') { try { raw5 = JSON.parse(raw5); } catch(_) { raw5 = null; } }
+    if (Array.isArray(raw5) && raw5.length >= 3) {
+      pts = raw5.slice(-5);
     } else {
       // Synthetic: approximate last-5 from season pace with mild jitter seeded by slug
       const gp = Number(p.games_played ?? p.gp ?? 0);
@@ -1040,8 +1043,10 @@
           if(!Array.isArray(allPlayers)||!allPlayers.length) throw new Error('empty');
           const hasAnySavePct = allPlayers.some(p => p && p.save_pct !== null && p.save_pct !== undefined);
           const hasAnyHeadshotId = allPlayers.some(p => p && p.nhl_player_id !== null && p.nhl_player_id !== undefined && String(p.nhl_player_id).trim() !== '');
+          const hasAnyInjury = allPlayers.some(p => p && 'injury_status' in p);
           if(!hasAnySavePct) throw new Error('stale-save-pct-cache');
           if(!hasAnyHeadshotId) throw new Error('stale-headshot-cache');
+          if(!hasAnyInjury) throw new Error('stale-injury-cache');
         }catch(_){ sessionStorage.removeItem(PLAYER_CACHE_KEY); sessionStorage.removeItem(PLAYER_CACHE_KEY+'_time'); allPlayers=[]; }
       }
       else{ sessionStorage.removeItem(PLAYER_CACHE_KEY); sessionStorage.removeItem(PLAYER_CACHE_KEY+'_time'); allPlayers=[]; }
