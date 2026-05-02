@@ -1412,20 +1412,40 @@ async function sharePersonalCard(row, rank, leaderScore, totalCount, btn){
   await new Promise(r=>setTimeout(r,150));
   try{
     const canvas = await html2canvas(card,{scale:2,useCORS:true,backgroundColor:'#07111f',logging:false});
+    const blob = await canvasToPngBlob(canvas);
+    if(!blob) throw new Error('Could not generate image blob.');
     if(navigator.share && navigator.canShare){
-      const blob = await new Promise(res=>canvas.toBlob(res,'image/png'));
       const file = new File([blob],`my-picks-${date}.png`,{type:'image/png'});
       if(navigator.canShare({files:[file]})){
         await navigator.share({files:[file]});
         return;
       }
     }
-    const link = document.createElement('a');
-    link.download = `my-picks-${date}.png`;
-    link.href = canvas.toDataURL('image/png');
-    link.click();
+    downloadBlob(blob, `my-picks-${date}.png`);
   }catch(e){ if(e.name!=='AbortError') console.error(e); }
   finally{ btn.textContent=origText; btn.disabled=false; }
+}
+
+function canvasToPngBlob(canvas){
+  return new Promise((resolve) => {
+    try{
+      canvas.toBlob((b)=>resolve(b||null),'image/png');
+    }catch(_){
+      resolve(null);
+    }
+  });
+}
+
+function downloadBlob(blob, filename){
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  link.style.display = 'none';
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 800);
 }
 
 async function shareLeaderboard(){
@@ -1453,10 +1473,11 @@ async function shareLeaderboard(){
 
   try{
     const canvas = await html2canvas(card,{scale:2,useCORS:true,backgroundColor:'#07111f',logging:false});
+    const blob = await canvasToPngBlob(canvas);
+    if(!blob) throw new Error('Could not generate image blob.');
 
     // Use native share sheet (mobile + desktop Chrome/Edge/Safari)
     if(navigator.share && navigator.canShare){
-      const blob = await new Promise(res=>canvas.toBlob(res,'image/png'));
       const file = new File([blob], `standings-${date}.png`, {type:'image/png'});
       if(navigator.canShare({files:[file]})){
         await navigator.share({ files:[file] });
@@ -1464,10 +1485,7 @@ async function shareLeaderboard(){
       }
     }
     // Fallback: download
-    const link = document.createElement('a');
-    link.download = `standings-${date}.png`;
-    link.href = canvas.toDataURL('image/png');
-    link.click();
+    downloadBlob(blob, `standings-${date}.png`);
   }catch(e){
     if(e.name!=='AbortError'){
       alert('Could not generate image. Please try again.');
