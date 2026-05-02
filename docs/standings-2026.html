@@ -1203,7 +1203,7 @@ function buildShareCardHTML(rows, title, totalCount, pot, date){
       <!-- Header -->
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;">
         <div style="display:flex;align-items:center;gap:12px;">
-          <img src="https://parieurdiscipline.com/parieur_discipline_icon_1024.png" style="width:48px;height:48px;border-radius:10px;object-fit:cover;box-shadow:0 3px 12px rgba(0,0,0,0.6);flex-shrink:0;">
+          <img src="${_logoDataCache['parieur_discipline_icon_1024.png'] || 'parieur_discipline_icon_1024.png'}" style="width:48px;height:48px;border-radius:10px;object-fit:cover;box-shadow:0 3px 12px rgba(0,0,0,0.6);flex-shrink:0;">
           <div>
             <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;color:#ffffff;letter-spacing:4px;line-height:1;">PARIEUR DISCIPLINÉ</div>
             <div style="font-size:12px;color:#94a3b8;letter-spacing:2px;text-transform:uppercase;margin-top:2px;">NHL Playoffs 2026 · ${title}</div>
@@ -1275,7 +1275,10 @@ async function fetchLogoDataUrl(url){
 }
 async function resolveLogos(teams){
   const urls = [...new Set(teams.map(t=>TEAM_LOGO[t]).filter(Boolean))];
-  await Promise.all(urls.map(fetchLogoDataUrl));
+  await Promise.all([
+    ...urls.map(fetchLogoDataUrl),
+    fetchLogoDataUrl('parieur_discipline_icon_1024.png'),
+  ]);
 }
 function logoSrc(team){ return _logoDataCache[TEAM_LOGO[team]] || ''; }
 
@@ -1411,7 +1414,7 @@ async function sharePersonalCard(row, rank, leaderScore, totalCount, btn){
   card.innerHTML = buildPersonalCardHTML(row, rank, leaderScore, totalCount);
   await new Promise(r=>setTimeout(r,150));
   try{
-    const canvas = await html2canvas(card,{scale:2,useCORS:true,backgroundColor:'#07111f',logging:false});
+    const canvas = await html2canvas(card,{scale:2,useCORS:true,allowTaint:false,backgroundColor:'#07111f',logging:false,imageTimeout:15000});
     const blob = await canvasToPngBlob(canvas);
     if(!blob) throw new Error('Could not generate image blob.');
     if(navigator.share && navigator.canShare){
@@ -1422,7 +1425,7 @@ async function sharePersonalCard(row, rank, leaderScore, totalCount, btn){
       }
     }
     downloadBlob(blob, `my-picks-${date}.png`);
-  }catch(e){ if(e.name!=='AbortError') console.error(e); }
+  }catch(e){ if(e.name!=='AbortError') console.error('sharePersonalCard error:', e); }
   finally{ btn.textContent=origText; btn.disabled=false; }
 }
 
@@ -1472,7 +1475,7 @@ async function shareLeaderboard(){
   await new Promise(r=>setTimeout(r,150));
 
   try{
-    const canvas = await html2canvas(card,{scale:2,useCORS:true,backgroundColor:'#07111f',logging:false});
+    const canvas = await html2canvas(card,{scale:2,useCORS:true,allowTaint:false,backgroundColor:'#07111f',logging:false,imageTimeout:15000});
     const blob = await canvasToPngBlob(canvas);
     if(!blob) throw new Error('Could not generate image blob.');
 
