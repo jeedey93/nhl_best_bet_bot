@@ -951,18 +951,36 @@ function checkPoolPw(){
       let settingsSaved = false;
 
       if (nextLeagueName !== _currentLeagueName) {
-        const leagueRes = await fetch(`${SUPABASE_URL}/rest/v1/pool_leagues?code=eq.${_leagueCode}`, {
+        const leagueRes = await fetch(`${SUPABASE_URL}/rest/v1/pool_leagues?code=eq.${_leagueCode}&select=code,name`, {
           method: 'PATCH',
-          headers: sbHeaders({ 'Prefer': 'return=minimal' }),
+          headers: sbHeaders({ 'Prefer': 'return=representation' }),
           body: JSON.stringify({ name: nextLeagueName }),
         });
         if (!leagueRes.ok) {
           const txt = await leagueRes.text();
           leagueErr = `Name update failed (${leagueRes.status})${txt ? ': ' + txt : ''}`;
         } else {
-          _currentLeagueName = nextLeagueName;
-          setLeagueHeader(nextLeagueName);
-          leagueSaved = true;
+          // PATCH can return no rows if code filter did not match; fallback to UPSERT by code.
+          const patchedRows = await leagueRes.json().catch(() => []);
+          if (Array.isArray(patchedRows) && patchedRows.length > 0) {
+            _currentLeagueName = nextLeagueName;
+            setLeagueHeader(nextLeagueName);
+            leagueSaved = true;
+          } else {
+            const upsertRes = await fetch(`${SUPABASE_URL}/rest/v1/pool_leagues?on_conflict=code`, {
+              method: 'POST',
+              headers: sbHeaders({ 'Prefer': 'resolution=merge-duplicates,return=representation' }),
+              body: JSON.stringify({ code: _leagueCode, name: nextLeagueName }),
+            });
+            if (!upsertRes.ok) {
+              const txt = await upsertRes.text();
+              leagueErr = `Name upsert failed (${upsertRes.status})${txt ? ': ' + txt : ''}`;
+            } else {
+              _currentLeagueName = nextLeagueName;
+              setLeagueHeader(nextLeagueName);
+              leagueSaved = true;
+            }
+          }
         }
       } else {
         leagueSaved = true;
