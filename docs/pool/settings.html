@@ -365,6 +365,19 @@ function checkPoolPw(){
   <h1 class="page-title">League <span>Settings</span></h1>
   <p class="page-sub" id="league-sub">Loading…</p>
 
+  <div class="settings-card">
+    <div class="settings-card-title"><span>League Identity</span></div>
+    <div class="score-row" style="align-items:flex-start; gap: 0.75rem;">
+      <div class="score-label" style="flex:1; min-width:0;">
+        <span class="score-label-main">League Name</span>
+        <span class="score-label-sub">Shown across pool pages and standings headers</span>
+      </div>
+      <div class="score-input-wrap" style="flex:1; min-width:0; justify-content:flex-end;">
+        <input class="score-input" id="league_name" type="text" maxlength="48" placeholder="Enter league name" style="width:100%;max-width:260px;text-align:left;letter-spacing:1px;font-family:'Barlow Condensed',sans-serif;font-size:1rem;">
+      </div>
+    </div>
+  </div>
+
   <!-- Forwards -->
   <div class="settings-card">
     <div class="settings-card-title"><span class="pos-badge F">F</span> <span>Forwards</span></div>
@@ -504,6 +517,8 @@ function checkPoolPw(){
   const _leagueCode = new URLSearchParams(window.location.search).get('league') || null;
   if (!_leagueCode) window.location.replace('/pool');
 
+  let _currentLeagueName = '';
+
   // Wire nav links
   document.getElementById('nav-draft').href = `/pool/join?league=${_leagueCode}`;
   document.getElementById('nav-live-draft').href = `/pool/live-draft?league=${_leagueCode}`;
@@ -511,18 +526,45 @@ function checkPoolPw(){
   document.getElementById('nav-trades').href = `/pool/roster?league=${_leagueCode}`;
   document.getElementById('nav-settings').href = `/pool/settings?league=${_leagueCode}`;
   document.getElementById('league-sub').textContent = `League ${_leagueCode}`;
-  fetch(`${SUPABASE_URL}/rest/v1/pool_leagues?code=eq.${_leagueCode}&select=name`, { headers: sbHeaders() })
-    .then(r => r.json()).then(rows => {
-      const name = rows[0]?.name;
-      if (name) document.getElementById('league-sub').textContent = `${name} · ${_leagueCode}`;
-    }).catch(() => {});
 
   function sbHeaders(extra = {}) {
     return { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', ...extra };
   }
 
+  function normalizeLeagueName(raw) {
+    return String(raw || '').replace(/\s+/g, ' ').trim();
+  }
+
+  function setLeagueHeader(name) {
+    const safe = normalizeLeagueName(name);
+    document.getElementById('league-sub').textContent = safe ? `${safe} · ${_leagueCode}` : `League ${_leagueCode}`;
+  }
+
+  function validateLeagueName(name) {
+    if (!name) return 'League name cannot be empty.';
+    if (name.length < 3) return 'League name must be at least 3 characters.';
+    if (name.length > 48) return 'League name must be 48 characters or less.';
+    return '';
+  }
+
+  async function loadLeagueMeta() {
+    try {
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/pool_leagues?code=eq.${_leagueCode}&select=name`, { headers: sbHeaders() });
+      if (!r.ok) return;
+      const rows = await r.json();
+      const name = normalizeLeagueName(rows[0]?.name || '');
+      _currentLeagueName = name;
+      if (name) {
+        setLeagueHeader(name);
+        const leagueInput = document.getElementById('league_name');
+        if (leagueInput) leagueInput.value = name;
+      }
+    } catch (_) {}
+  }
+
   // Load settings from Supabase
   async function loadSettings() {
+    await loadLeagueMeta();
     try {
       const res = await fetch(`${SUPABASE_URL}/rest/v1/pool_settings?league_code=eq.${_leagueCode}&select=f_points,d_goals,d_assists,g_wins,g_shutouts,max_trades_per_team`, { headers: sbHeaders() });
       if (res.ok) {
@@ -786,6 +828,12 @@ function checkPoolPw(){
   });
 
   function promptSave() {
+    const leagueName = normalizeLeagueName(document.getElementById('league_name')?.value);
+    const nameErr = validateLeagueName(leagueName);
+    if (nameErr) {
+      setStatus(nameErr, true, 5000);
+      return;
+    }
     const overlay = document.getElementById('save-overlay');
     document.getElementById('pw-input').value = '';
     document.getElementById('pw-error').textContent = '';
@@ -815,7 +863,27 @@ function checkPoolPw(){
     status.className = 'save-status';
 
     const v = getValues();
+    const nextLeagueName = normalizeLeagueName(document.getElementById('league_name')?.value);
+    const nameErr = validateLeagueName(nextLeagueName);
+    if (nameErr) {
+      status.textContent = nameErr;
+      status.className = 'save-status show error';
+      btn.disabled = false;
+      btn.textContent = '💾 Save Settings';
+      return;
+    }
     try {
+      if (nextLeagueName !== _currentLeagueName) {
+        const leagueRes = await fetch(`${SUPABASE_URL}/rest/v1/pool_leagues?code=eq.${_leagueCode}`, {
+          method: 'PATCH',
+          headers: sbHeaders({ 'Prefer': 'return=minimal' }),
+          body: JSON.stringify({ name: nextLeagueName, updated_at: new Date().toISOString() }),
+        });
+        if (!leagueRes.ok) throw new Error(`league-name-${leagueRes.status}`);
+        _currentLeagueName = nextLeagueName;
+        setLeagueHeader(nextLeagueName);
+      }
+
       const res = await fetch(`${SUPABASE_URL}/rest/v1/pool_settings`, {
         method: 'POST',
         headers: sbHeaders({ 'Prefer': 'resolution=merge-duplicates,return=minimal' }),
