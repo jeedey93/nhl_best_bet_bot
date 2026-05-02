@@ -603,6 +603,7 @@
 
     function poolScoreOwned(p, team, slug) {
       const snap = team?.acquisitions?.[slug];
+      // Handle both object with stats_snapshot and simple date string
       const snapData = (typeof snap === 'object' && snap !== null) ? snap.stats_snapshot : null;
       if (!snapData) return poolScore(p);
       const pos = normalizePos(p.position);
@@ -1075,59 +1076,72 @@
           <div class="lb-col-label">Pts</div>
         </div>`;
 
-      const tradeRows = trades.map(t => {
-        const isCurrent = currentSlugs.has(t.player_to_slug) && !t.date_traded;
-        const p = m[t.player_to_slug];
-        const abbr = p ? TEAM_ABBR[p.team] : null;
-        const logo = abbr ? `<img src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}">` : '';
-        const tenureEnd = t.date_traded ? fmt(t.date_traded) : `<span style="color:var(--green)">Now</span>`;
-        const tenure = `${fmt(t.date_from_acquired)} → ${tenureEnd}`;
-        let col1='—', col2='—', col3='—', pts;
+       const tradeRows = trades.map(t => {
+         const isCurrent = currentSlugs.has(t.player_to_slug) && !t.date_traded;
+         const p = m[t.player_to_slug];
+         const abbr = p ? TEAM_ABBR[p.team] : null;
+         const logo = abbr ? `<img src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}">` : '';
 
-        if (isCurrent && p) {
-          const d = ownedStatsDelta(p, team, p._slug);
-          if (d) {
-            if (pos === 'G') { col1 = d.wins; col2 = d.shutouts; col3 = d.gamesPlayed; }
-            else             { col1 = d.gamesPlayed; col2 = d.goals; col3 = d.assists; }
-          }
-          pts = poolScoreOwned(p, team, p._slug);
-        } else {
-          // For traded-away players, show stats from trade record if available
-          pts = t.points_accumulated_at_trade ?? '—';
-          // Stats not available for past players — show '—'
-        }
+         // Calculate days since acquisition
+         const acqDate = new Date(t.date_from_acquired);
+         const now = new Date();
+         const daysSinceAcq = Math.floor((now - acqDate) / (1000 * 60 * 60 * 24));
 
-        return `<div class="hist-row ${isCurrent?'current':'past'}">
-          <span class="hist-pos ${pos}">${pos}</span>
-          <span class="hist-name${isCurrent?'':' past'}">${logo}${t.player_to_name || t.player_to_slug}</span>
-          <span class="hist-tenure hist-col-hide">${tenure}</span>
-          <span class="hist-stat">${col1}</span>
-          <span class="hist-stat">${col2}</span>
-          <span class="hist-stat hist-col-hide">${col3}</span>
-          <span class="hist-pts">${pts}</span>
-        </div>`;
-      });
+         const tenureEnd = t.date_traded ? fmt(t.date_traded) : `<span style="color:var(--green)">${fmt(acqDate)} → Now (${daysSinceAcq}d)</span>`;
+         const tenure = tenureEnd;
+         let col1='—', col2='—', col3='—', pts;
 
-      const draftRows = currentNoDraft.map(p => {
-        const abbr = TEAM_ABBR[p.team];
-        const logo = abbr ? `<img src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}">` : '';
-        const d = ownedStatsDelta(p, team, p._slug);
-        let col1='—', col2='—', col3='—';
-        if (d) {
-          if (pos === 'G') { col1 = d.wins; col2 = d.shutouts; col3 = d.gamesPlayed; }
-          else             { col1 = d.gamesPlayed; col2 = d.goals; col3 = d.assists; }
-        }
-        const pts = poolScoreOwned(p, team, p._slug);
-        return `<div class="hist-row current">
-          <span class="hist-pos ${pos}">${pos}</span>
-          <span class="hist-name">${logo}${formatName(p.player_name)}</span>
-          <span class="hist-tenure hist-col-hide"><span style="color:var(--green)">Now</span></span>
-          <span class="hist-stat">${col1}</span>
-          <span class="hist-stat">${col2}</span>
-          <span class="hist-stat hist-col-hide">${col3}</span>
-          <span class="hist-pts">${pts}</span>
-        </div>`;
-      });
+         if (isCurrent && p) {
+           const d = ownedStatsDelta(p, team, p._slug);
+           if (d) {
+             if (pos === 'G') { col1 = d.wins; col2 = d.shutouts; col3 = d.gamesPlayed; }
+             else             { col1 = d.gamesPlayed; col2 = d.goals; col3 = d.assists; }
+           }
+           pts = poolScoreOwned(p, team, p._slug);
+         } else {
+           // For traded-away players, show stats from trade record if available
+           pts = t.points_accumulated_at_trade ?? '—';
+           // Stats not available for past players — show '—'
+         }
+
+         return `<div class="hist-row ${isCurrent?'current':'past'}">
+           <span class="hist-pos ${pos}">${pos}</span>
+           <span class="hist-name${isCurrent?'':' past'}">${logo}${t.player_to_name || t.player_to_slug}</span>
+           <span class="hist-tenure hist-col-hide">${tenure}</span>
+           <span class="hist-stat">${col1}</span>
+           <span class="hist-stat">${col2}</span>
+           <span class="hist-stat hist-col-hide">${col3}</span>
+           <span class="hist-pts">${pts}</span>
+         </div>`;
+       });
+
+       const draftRows = currentNoDraft.map(p => {
+         const abbr = TEAM_ABBR[p.team];
+         const logo = abbr ? `<img src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}">` : '';
+         const d = ownedStatsDelta(p, team, p._slug);
+         let col1='—', col2='—', col3='—';
+         if (d) {
+           if (pos === 'G') { col1 = d.wins; col2 = d.shutouts; col3 = d.gamesPlayed; }
+           else             { col1 = d.gamesPlayed; col2 = d.goals; col3 = d.assists; }
+         }
+         const pts = poolScoreOwned(p, team, p._slug);
+
+         // Get acquisition date from team.acquisitions
+         const acqRaw = team?.acquisitions?.[p._slug];
+         const acqDate = (typeof acqRaw === 'object' && acqRaw?.date) ? new Date(acqRaw.date) : null;
+         const daysSinceAcq = acqDate ? Math.floor((new Date() - acqDate) / (1000 * 60 * 60 * 24)) : 0;
+         const tenureDisplay = acqDate ? `<span style="color:var(--green)">${fmt(acqDate)} → Now (${daysSinceAcq}d)</span>` : `<span style="color:var(--green)">Now</span>`;
+
+         return `<div class="hist-row current">
+           <span class="hist-pos ${pos}">${pos}</span>
+           <span class="hist-name">${logo}${formatName(p.player_name)}</span>
+           <span class="hist-tenure hist-col-hide">${tenureDisplay}</span>
+           <span class="hist-stat">${col1}</span>
+           <span class="hist-stat">${col2}</span>
+           <span class="hist-stat hist-col-hide">${col3}</span>
+           <span class="hist-pts">${pts}</span>
+         </div>`;
+       });
 
       // Total: sum only numeric values
       const allPts = [
