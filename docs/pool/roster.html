@@ -1176,23 +1176,35 @@
 
   async function confirmBulkSwap() {
     if(!bulkActiveSlug||!bulkBenchSlug) return;
+    if(isSubmittingTrade) return;
     const team=teams.find(t=>t.id===activeTeamId);
     if(!team) return;
     if(isTradeLimitReached(team)){ alert(`Swap limit reached (${_maxTradesPerTeam}).`); return; }
-    const fromSlot=findPlayerSlot(team,bulkActiveSlug);
-    tradeContext={fromSlug:bulkActiveSlug,fromSlot,teamId:team.id,toSlug:bulkBenchSlug,swapReason:'regular'};
+    const fromSlug=bulkActiveSlug;
+    const toSlug=bulkBenchSlug;
+    const fromSlot=findPlayerSlot(team,fromSlug);
+    const fromPlayer=getPlayer(fromSlug);
+    const toPlayer=getPlayer(toSlug);
+    if(!fromSlot||fromSlot.group==='B'){ alert('Selected active player is no longer on the active roster.'); return; }
+    if(normalizePos(fromPlayer.position)!==normalizePos(toPlayer.position)){ alert('Bulk swap requires one active player and one bench player of the same position.'); return; }
+    const confirmBtn=document.getElementById('bulk-confirm-btn');
+    tradeContext={fromSlug,fromSlot,teamId:team.id,toSlug,swapReason:'regular'};
     exitBulkMode();
+    isSubmittingTrade=true;
+    if(confirmBtn){ confirmBtn.disabled=true; confirmBtn.textContent='Executing...'; }
     try{
-      const fromPlayer=getPlayer(bulkActiveSlug);
-      const toPlayer=getPlayer(bulkBenchSlug);
       const usedRpc=await executeTradeRpc(team);
       if(!usedRpc) await executeTradeLegacy(team);
-      await waitForTradeHistory(team,bulkActiveSlug,bulkBenchSlug,12);
+      await waitForTradeHistory(team,fromSlug,toSlug,12);
       await load(activeTeamId);
       showLastTradeBanner(fromPlayer,toPlayer);
-      openUndoModal(team,bulkActiveSlug,bulkBenchSlug,fromPlayer,toPlayer);
+      openUndoModal(team,fromSlug,toSlug,fromPlayer,toPlayer);
     }catch(e){ alert(e?.message||'Error executing swap'); await load(activeTeamId); }
-    finally{ tradeContext=null; }
+    finally{
+      isSubmittingTrade=false;
+      if(confirmBtn){ confirmBtn.disabled=true; confirmBtn.textContent='Swap Selected'; }
+      tradeContext=null;
+    }
   }
 
   /* ═══════════════════════════════════════════════════
@@ -1323,6 +1335,7 @@
         <div class="cell-stat ${pos==='G' ? (goalieSv.muted ? 'muted' : 'gold') : 'gold'}">${pos==='G' ? goalieSv.value : points}</div>
         <div class="cell-trend">${buildSparklineSvg(p, slug)}</div>
         <div class="cell-cap">${capMicroGaugeHtml(p.cap_hit || 0, teamCapTotal)}</div>
+        <div class="cell-action">${actionHtml}</div>
       </div>`;
   }
 
@@ -1356,6 +1369,7 @@
       <div class="col-hd">${labels.stat3}</div>
       <div class="col-hd">Trend</div>
       <div class="col-hd">Cap</div>
+      <div class="col-hd"></div>
     </div>`;
   }
 
