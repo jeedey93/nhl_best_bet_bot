@@ -1185,24 +1185,43 @@
     const fromSlot=findPlayerSlot(team,fromSlug);
     const fromPlayer=getPlayer(fromSlug);
     const toPlayer=getPlayer(toSlug);
+    if(!fromPlayer||!toPlayer){ alert('Selected players could not be found. Please select them again.'); return; }
     if(!fromSlot||fromSlot.group==='B'){ alert('Selected active player is no longer on the active roster.'); return; }
     if(normalizePos(fromPlayer.position)!==normalizePos(toPlayer.position)){ alert('Bulk swap requires one active player and one bench player of the same position.'); return; }
     const confirmBtn=document.getElementById('bulk-confirm-btn');
     tradeContext={fromSlug,fromSlot,teamId:team.id,toSlug,swapReason:'regular'};
-    exitBulkMode();
     isSubmittingTrade=true;
     if(confirmBtn){ confirmBtn.disabled=true; confirmBtn.textContent='Executing...'; }
     try{
       const usedRpc=await executeTradeRpc(team);
       if(!usedRpc) await executeTradeLegacy(team);
-      await waitForTradeHistory(team,fromSlug,toSlug,12);
+      const tradeLogged=await waitForTradeHistory(team,fromSlug,toSlug,12);
+      if(!tradeLogged) console.warn('Bulk swap executed but not yet visible in history.');
+      bulkMode=false;
+      bulkActiveSlug=null;
+      bulkBenchSlug=null;
+      document.getElementById('bulk-swap-bar').classList.add('hidden');
       await load(activeTeamId);
       showLastTradeBanner(fromPlayer,toPlayer);
       openUndoModal(team,fromSlug,toSlug,fromPlayer,toPlayer);
-    }catch(e){ alert(e?.message||'Error executing swap'); await load(activeTeamId); }
+    }catch(e){
+      if(/Outgoing player is not on the active roster/i.test(e?.message||'')){
+        await waitForTradeHistory(team,fromSlug,toSlug,6);
+        bulkMode=false;
+        bulkActiveSlug=null;
+        bulkBenchSlug=null;
+        document.getElementById('bulk-swap-bar').classList.add('hidden');
+        await load(activeTeamId);
+        return;
+      }
+      alert(e?.message||'Error executing swap');
+      console.error(e);
+      await load(activeTeamId);
+    }
     finally{
       isSubmittingTrade=false;
-      if(confirmBtn){ confirmBtn.disabled=true; confirmBtn.textContent='Swap Selected'; }
+      if(bulkMode) updateBulkBar();
+      else if(confirmBtn){ confirmBtn.disabled=true; confirmBtn.textContent='Swap Selected'; confirmBtn.style.color=''; }
       tradeContext=null;
     }
   }
@@ -1354,7 +1373,7 @@
       <div class="col-hd">${labels.stat3}</div>
       <div class="col-hd">Cap</div>
       <div class="col-hd">Trend</div>
-      <div class="col-hd"></div>
+      <div class="col-hd">${bulkMode ? 'Select' : ''}</div>
     </div>`;
   }
 
@@ -1369,7 +1388,7 @@
       <div class="col-hd">${labels.stat3}</div>
       <div class="col-hd">Trend</div>
       <div class="col-hd">Cap</div>
-      <div class="col-hd"></div>
+      <div class="col-hd">${bulkMode ? 'Select' : ''}</div>
     </div>`;
   }
 
