@@ -502,8 +502,8 @@ function calcScore(participant){
   const roundScores=[0,0,0,0];
   TEAMS.forEach(team=>{
     const pts=participant.picks[team]||0;
-    ROUND_MULT.forEach((mult,ri)=>{
-      roundScores[ri]+=pts*mult*results[team][ri];
+    ROUND_MULT.forEach((_,ri)=>{
+      roundScores[ri]+=pts*(results[team]?.[ri]||0);
     });
   });
   return roundScores;
