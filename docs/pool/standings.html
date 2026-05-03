@@ -857,9 +857,7 @@
     function poolScoreOwned(p, team, slug) {
       const latestTrade = latestIncomingTrade(team?.id, slug);
       if (latestTrade && teamHasPlayerSlug(team, slug)) {
-        const key = tradeWindowKey(latestTrade, true);
-        const liveWindow = _windowPtsByTradeKey[key];
-        if (slug === '/player/sebastian-aho') console.log('[DEBUG aho]', { latestTrade, key, liveWindow, windowKeys: Object.keys(_windowPtsByTradeKey) });
+        const liveWindow = _windowPtsByTradeKey[tradeWindowKey(latestTrade, true)];
         if (typeof liveWindow === 'number' && Number.isFinite(liveWindow)) return liveWindow;
       }
       const s = _resolveSnapshot(team, slug);
@@ -1233,7 +1231,7 @@
       const tradeRows = trades.map(t => {
         const isCurrent = activeSlugSet.has(t.player_to_slug);
         const tradeKey = tradeWindowKey(t, isCurrent);
-        const p = m[t.player_to_slug];
+        const p = m[t.player_to_slug] ? { ...m[t.player_to_slug], _slug: t.player_to_slug } : null;
         const abbr = p ? TEAM_ABBR[p.team] : null;
         const logo = abbr ? `<img src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}">` : '';
         const acqDate = t.date_from_acquired ? new Date(t.date_from_acquired) : ACTIVE_ACQUIRED_FALLBACK_DATE;
