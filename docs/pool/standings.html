@@ -673,7 +673,12 @@
 
     function slugMap() {
       if (!_cache.slugMap) {
-        _cache.slugMap = Object.fromEntries(allPlayers.map(p => [p.puckpedia_slug, p]));
+        const entries = [];
+        allPlayers.forEach(p => {
+          entries.push([p.puckpedia_slug, p]);
+          entries.push([`/player/${p.puckpedia_slug}`, p]);
+        });
+        _cache.slugMap = Object.fromEntries(entries);
       }
       return _cache.slugMap;
     }
