@@ -25,7 +25,7 @@
       --team-accent-b: 46;
       --team-accent: rgba(var(--team-accent-r), var(--team-accent-g), var(--team-accent-b), 1);
     }
-    body { background: var(--rink); background-image: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(26,58,110,0.6) 0%, transparent 70%); min-height: 100vh; font-family: 'Barlow Condensed', sans-serif; color: white; padding-top: var(--nav-h); }
+    body { background: var(--rink); background-image: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(26,58,110,0.6) 0%, transparent 70%); min-height: 100vh; font-family: 'Barlow Condensed', sans-serif; color: white; padding-top: var(--nav-h); scroll-padding-top: calc(var(--nav-h) + 10px); }
 
     /* ── NAV ── */
     .site-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(7,17,31,0.92); border-bottom: 1px solid var(--line); backdrop-filter: blur(12px); }
@@ -57,7 +57,7 @@
     /* ── STICKY TEAM SELECTOR ── */
     .sticky-team-bar {
       position: sticky;
-      top: var(--nav-h);
+      top: calc(var(--nav-h) + env(safe-area-inset-top, 0px));
       z-index: 90;
       background: rgba(7,17,31,0.96);
       border-bottom: 1px solid rgba(255,255,255,0.07);
@@ -95,6 +95,12 @@
       margin-bottom: 0.65rem; position: relative;
       transition: border-left-color 0.5s ease;
     }
+    .summary-bar.flash-success { animation: summaryPulse 0.75s ease-out; }
+    @keyframes summaryPulse {
+      0% { box-shadow: 0 0 0 0 rgba(34,197,94,0.0); background: rgba(34,197,94,0.02); }
+      35% { box-shadow: 0 0 0 3px rgba(34,197,94,0.15); background: rgba(34,197,94,0.08); }
+      100% { box-shadow: 0 0 0 0 rgba(34,197,94,0.0); background: rgba(255,255,255,0.03); }
+    }
     .summary-bar-item { flex: 1; padding: 0.45rem 0.75rem; border-right: 1px solid rgba(255,255,255,0.07); min-width: 0; position: relative; }
     .summary-bar-item:last-child { border-right: none; }
     .summary-bar-item.warn { background: rgba(245,158,11,0.06); }
@@ -105,6 +111,7 @@
     .summary-value.green { color: var(--green); }
     .summary-value.red { color: #f87171; }
     .summary-value.animating { animation: numPop 0.4s cubic-bezier(0.34,1.56,0.64,1); }
+    .summary-subhint { font-family: 'Barlow Condensed', sans-serif; font-size: 0.58rem; color: rgba(255,255,255,0.34); letter-spacing: 0.9px; margin-top: 2px; }
     @keyframes numPop { 0%{transform:scale(1.0);} 40%{transform:scale(1.18);} 100%{transform:scale(1.0);} }
 
     /* Cap gauge */
@@ -239,12 +246,13 @@
 
     /* Logo cell */
     .cell-logo { display: flex; align-items: center; justify-content: center; }
-    .cell-logo img { width: 20px; height: 20px; object-fit: contain; }
+    .cell-logo img { width: 20px; height: 20px; object-fit: contain; opacity: 0.62; transition: opacity 0.15s; }
+    .roster-row:hover .cell-logo img { opacity: 0.85; }
 
     /* Name cell */
     .cell-name { display: flex; flex-direction: column; justify-content: center; min-width: 0; padding: 0 0.4rem 0 0.3rem; }
     .cell-name-main { font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 0.8px; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.1; }
-    .cell-name-sub { font-family: 'Barlow Condensed', sans-serif; font-size: 0.62rem; color: rgba(255,255,255,0.36); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.1; }
+    .cell-name-sub { font-family: 'Barlow Condensed', sans-serif; font-size: 0.62rem; color: rgba(255,255,255,0.48); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.1; }
     .slot-badge { display: inline-block; font-family: 'Bebas Neue', cursive; font-size: 0.6rem; letter-spacing: 0.8px; color: rgba(255,255,255,0.35); background: rgba(255,255,255,0.07); border-radius: 3px; padding: 0px 4px; margin-right: 3px; vertical-align: middle; line-height: 1.4; }
 
     /* Status label in sub-name */
@@ -255,6 +263,7 @@
 
     /* Stat cells */
     .cell-stat { text-align: center; font-family: 'Bebas Neue', cursive; font-size: 0.88rem; letter-spacing: 0.8px; color: white; }
+    .cell-stat.cell-key-stat { font-size: 0.98rem; color: var(--gold); text-shadow: 0 0 10px rgba(255,184,28,0.16); }
     .cell-stat.gold { color: var(--gold); }
     .cell-stat.muted { color: rgba(255,255,255,0.45); font-size: 0.78rem; }
     .cell-stat.approx { color: rgba(245,158,11,0.6); }
@@ -454,7 +463,7 @@
 
     /* ── VIEW TABS ── */
     .roster-view-tabs { display: flex; gap: 4px; margin-bottom: 0.75rem; background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 8px; padding: 3px; }
-    .roster-view-tab { font-family: 'Bebas Neue', cursive; font-size: 0.82rem; letter-spacing: 2px; padding: 5px 14px; border-radius: 5px; cursor: pointer; flex: 1; text-align: center; color: var(--silver); transition: background 0.15s, color 0.15s; }
+    .roster-view-tab { font-family: 'Bebas Neue', cursive; font-size: 0.82rem; letter-spacing: 2px; padding: 5px 14px; border-radius: 5px; cursor: pointer; flex: 1; text-align: center; color: var(--silver); transition: background 0.15s, color 0.15s; background: transparent; border: none; }
     .roster-view-tab:hover { color: white; }
     .roster-view-tab.active { background: rgba(255,184,28,0.12); color: var(--gold); }
 
@@ -463,9 +472,11 @@
       .summary-bar { flex-wrap: wrap; }
       .summary-bar-item { flex: 1 1 45%; border-right: none; border-bottom: 1px solid rgba(255,255,255,0.07); }
       .roster-col-header { display: none; }
-      .roster-row { grid-template-columns: 26px 22px 1fr 38px 42px 44px 72px; height: auto; padding: 0.4rem 0.75rem; }
+      .roster-row { grid-template-columns: 24px 22px 1fr 42px 70px; height: auto; padding: 0.42rem 0.7rem; }
       .roster-row .cell-gp, .roster-row .cell-g, .roster-row .cell-a, .roster-row .cell-cap { display: none; }
-      .bench-row { grid-template-columns: 26px 22px 1fr 38px 42px 44px; }
+      .roster-row .cell-spark, .roster-row .cell-trend { display: none; }
+      .roster-row.bench-row { grid-template-columns: 24px 22px 1fr 42px 70px; }
+      .cell-action { justify-content: flex-end; }
       .trade-header-row, .trade-header-row.league { display: none; }
       .trade-row, .trade-row.league { grid-template-columns: 1fr 1fr; height: auto; padding: 0.5rem 0.75rem; gap: 0.4rem; }
       .compare-grid { grid-template-columns: 1fr; gap: 0.4rem; }
@@ -557,7 +568,7 @@
 
   <div class="last-trade-banner hidden" id="last-trade-banner">
     <div class="last-trade-banner-icon">✅</div>
-    <div class="last-trade-banner-text" id="last-trade-banner-text"></div>
+    <div class="last-trade-banner-text" id="last-trade-banner-text" aria-live="polite"></div>
     <button class="last-trade-banner-close" onclick="document.getElementById('last-trade-banner').classList.add('hidden')" aria-label="Dismiss">✕</button>
   </div>
 
@@ -570,9 +581,9 @@
   <div class="team-accent-bar" id="team-accent-bar"></div>
 
   <div class="roster-view-tabs" id="roster-view-tabs">
-    <div class="roster-view-tab active" id="tab-roster" onclick="setRosterView('roster')">My Roster</div>
-    <div class="roster-view-tab" id="tab-allteams" onclick="setRosterView('allteams')">All Teams</div>
-    <div class="roster-view-tab" id="tab-fa" onclick="setRosterView('fa')">Free Agents</div>
+    <button type="button" class="roster-view-tab active" id="tab-roster" onclick="setRosterView('roster')">My Roster</button>
+    <button type="button" class="roster-view-tab" id="tab-allteams" onclick="setRosterView('allteams')">All Teams</button>
+    <button type="button" class="roster-view-tab" id="tab-fa" onclick="setRosterView('fa')">Free Agents</button>
   </div>
 
   <!-- BULK SWAP BAR -->
@@ -620,9 +631,10 @@
       <div class="form-label">Pick from bench</div>
       <div class="bench-search-wrap">
         <span class="bench-search-icon">🔍</span>
+        <label class="sr-only" for="bench-search">Search bench players</label>
         <input class="form-input" id="bench-search" placeholder="Search bench players…" oninput="filterBenchList(this.value)" autocomplete="off">
       </div>
-      <div class="player-selector" id="trade-to-list" aria-live="polite"></div>
+      <div class="player-selector" id="trade-to-list" aria-live="polite" aria-label="Bench player options"></div>
     </div>
     <div class="form-group">
       <div class="form-label">Swap Type</div>
@@ -767,6 +779,16 @@
   document.getElementById('nav-trades').href      = `/pool/roster?league=${_leagueCode}`;
   document.getElementById('nav-settings').href    = `/pool/settings?league=${_leagueCode}`;
 
+  function syncNavOffset(){
+    const nav=document.querySelector('.site-nav');
+    if(!nav) return;
+    const navH=Math.max(44,Math.round(nav.getBoundingClientRect().height));
+    document.documentElement.style.setProperty('--nav-h',`${navH}px`);
+  }
+  syncNavOffset();
+  window.addEventListener('load',syncNavOffset);
+  window.addEventListener('resize',syncNavOffset,{passive:true});
+
   window.addEventListener('scroll', () => {
     const bar = document.getElementById('sticky-team-bar');
     if (bar) bar.classList.toggle('shadowed', window.scrollY > 10);
@@ -851,7 +873,7 @@
     const status = _injuryMap[slug] || { status: 'unknown', label: '' };
     const dotCls = status.status;
     const dotTitle = dotCls === 'active' ? 'Active' : dotCls === 'dtd' ? 'Day-to-Day' : dotCls === 'ir' ? 'Injured Reserve' : dotCls === 'nrp' ? 'Non-Roster / Suspended' : 'Status Unknown';
-    const dotHtml = `<span class="status-dot ${dotCls}" title="${dotTitle}"></span>`;
+    const dotHtml = `<span class="status-dot ${dotCls}" role="img" aria-label="${escapeHtml(dotTitle)}" title="${escapeHtml(dotTitle)}"></span>`;
     if (candidates.length) {
       const encoded = candidates.map(u => encodeURIComponent(u)).join('|');
       return `<img class="headshot-img" src="${candidates[0]}" alt="" loading="lazy" data-headshot-index="0" data-headshot-urls="${encoded}" onerror="handleHeadshotError(this)"><span class="headshot-placeholder" style="display:none">👤</span>${dotHtml}`;
@@ -882,7 +904,7 @@
     } else {
       // Synthetic: approximate last-5 from season pace with mild jitter seeded by slug
       const gp = Number(p.games_played ?? p.gp ?? 0);
-      if (gp < 3) return `<svg class="sparkline-svg" width="44" height="18" viewBox="0 0 44 18"><line x1="2" y1="9" x2="42" y2="9" stroke="rgba(255,255,255,0.12)" stroke-width="1" stroke-dasharray="3 2"/></svg>`;
+      if (gp < 3) return `<svg class="sparkline-svg" width="44" height="18" viewBox="0 0 44 18" role="img" aria-label="Not enough games for trend" title="Not enough games for trend"><line x1="2" y1="9" x2="42" y2="9" stroke="rgba(255,255,255,0.12)" stroke-width="1" stroke-dasharray="3 2"/></svg>`;
       const pos = normalizePos(p.position);
       let seasonPts;
       if (pos === 'G') seasonPts = (p.wins ?? 0) * _scoring.g_wins + (p.shutouts ?? 0) * _scoring.g_shutouts;
@@ -917,10 +939,30 @@
 
     const strokeColor = trendCls === 'up-trend' ? '#22c55e' : trendCls === 'down-trend' ? '#f87171' : 'rgba(255,255,255,0.35)';
 
-    return `<svg class="sparkline-svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" title="Last ${n} games">
+    const ptsLabel = pts.map(v => Number(v).toFixed(Number.isInteger(Number(v)) ? 0 : 1)).join(', ');
+    const sparkTitle = `Last ${n} games pts: ${ptsLabel}`;
+    return `<svg class="sparkline-svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="${escapeHtml(sparkTitle)}" title="${escapeHtml(sparkTitle)}">
       <path d="${pathD}" fill="none" stroke="${strokeColor}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
       ${dots}
     </svg>`;
+  }
+
+  function flashSwapImpact(){
+    const summaryBar=document.getElementById('summary-bar');
+    if(summaryBar){
+      summaryBar.classList.remove('flash-success');
+      void summaryBar.offsetWidth;
+      summaryBar.classList.add('flash-success');
+      setTimeout(()=>summaryBar.classList.remove('flash-success'),800);
+    }
+    ['sv-trades','sv-cap-rem','sv-cap-used'].forEach(id=>{
+      const el=document.getElementById(id);
+      if(!el) return;
+      el.classList.remove('animating');
+      void el.offsetWidth;
+      el.classList.add('animating');
+      setTimeout(()=>el.classList.remove('animating'),450);
+    });
   }
 
   /* ── FEATURE 5: Per-player cap micro gauge ── */
@@ -1271,6 +1313,7 @@
         <div class="summary-bar-item ${capRemaining<0?'warn':'good'}">
           <div class="summary-label">Cap Remaining</div>
           <div class="summary-value ${capRemaining<0?'red':'green'}" id="sv-cap-rem">${formatCap(capRemaining)}</div>
+          <div class="summary-subhint">Projected space at deadline</div>
         </div>
         <div class="summary-bar-item">
           <div class="summary-label">Active Players</div>
@@ -1293,6 +1336,9 @@
     const assists = pos === 'G' ? (p.shutouts ?? 0) : (p.assists ?? 0);
     const points = p.points ?? ((p.goals ?? 0) + (p.assists ?? 0));
     const goalieSv = pos === 'G' ? goalieSvDisplay(p) : null;
+    const keyStatClass = pos === 'G'
+      ? (goalieSv.muted ? 'cell-stat muted' : 'cell-stat cell-key-stat gold')
+      : 'cell-stat cell-key-stat gold';
     const acqDate = acquiredAt ? new Date(acquiredAt).toLocaleDateString('en-CA', {month:'short',day:'numeric'}) : '?';
     const isBulkSelected = bulkMode && bulkActiveSlug === slug;
     const teamCapTotal = teamMainCap(team);
@@ -1317,7 +1363,7 @@
         <div class="cell-stat cell-gp">${gp}</div>
         <div class="cell-stat cell-g">${goals}</div>
         <div class="cell-stat cell-a">${assists}</div>
-        <div class="cell-stat ${pos==='G' ? (goalieSv.muted ? 'muted' : 'gold') : 'gold'}">${pos==='G' ? goalieSv.value : points}</div>
+        <div class="${keyStatClass}">${pos==='G' ? goalieSv.value : points}</div>
         <div class="cell-cap">${capMicroGaugeHtml(p.cap_hit || 0, teamCapTotal)}</div>
         <div class="cell-spark">${buildSparklineSvg(p, slug)}</div>
         <div class="cell-action">${actionHtml}</div>
@@ -1332,6 +1378,9 @@
     const assists = pos === 'G' ? (p.shutouts ?? 0) : (p.assists ?? 0);
     const points = p.points ?? ((p.goals ?? 0) + (p.assists ?? 0));
     const goalieSv = pos === 'G' ? goalieSvDisplay(p) : null;
+    const keyStatClass = pos === 'G'
+      ? (goalieSv.muted ? 'cell-stat muted' : 'cell-stat cell-key-stat gold')
+      : 'cell-stat cell-key-stat gold';
     const teamCapTotal = teamMainCap(team);
     const isBulkSelected = bulkMode && bulkBenchSlug === slug;
 
@@ -1351,7 +1400,7 @@
         <div class="cell-stat cell-gp">${gp}</div>
         <div class="cell-stat cell-g">${goals}</div>
         <div class="cell-stat cell-a">${assists}</div>
-        <div class="cell-stat ${pos==='G' ? (goalieSv.muted ? 'muted' : 'gold') : 'gold'}">${pos==='G' ? goalieSv.value : points}</div>
+        <div class="${keyStatClass}">${pos==='G' ? goalieSv.value : points}</div>
         <div class="cell-trend">${buildSparklineSvg(p, slug)}</div>
         <div class="cell-cap">${capMicroGaugeHtml(p.cap_hit || 0, teamCapTotal)}</div>
         <div class="cell-action">${actionHtml}</div>
@@ -1820,6 +1869,7 @@
     const text=document.getElementById('last-trade-banner-text');
     text.innerHTML=`✅ Swap complete: <strong>${escapeHtml(formatName(fromPlayer.player_name))}</strong> → bench &nbsp;|&nbsp; <strong>${escapeHtml(formatName(toPlayer.player_name))}</strong> → active roster`;
     banner.classList.remove('hidden');
+    flashSwapImpact();
   }
 
   function openUndoModal(team,fromSlug,toSlug,fromPlayer,toPlayer){
