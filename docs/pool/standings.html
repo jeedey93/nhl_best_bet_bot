@@ -1220,12 +1220,18 @@
       const currentSlugs = new Set(
         [...team.roster.F, ...team.roster.D, ...team.roster.G, ...(team.roster.B||[])].filter(Boolean)
       );
+      const activeSlugSet = new Set((team.roster[pos] || []).filter(Boolean));
       const m = slugMap();
       const fmt = d => new Date(d).toLocaleDateString('en-CA', { month: 'short', day: 'numeric' });
 
-      const trades = currentTrades.filter(t =>
-        t.team_id === team.id && t.player_to_slug && normalizePos(t.player_to_position) === pos
-      );
+      const trades = currentTrades.filter(t => {
+        if (t.team_id !== team.id || !t.player_to_slug) return false;
+        // Use the live player position from slugMap as the ground truth,
+        // falling back to the stored position if the player isn't in the map.
+        const livePos = m[t.player_to_slug] ? normalizePos(m[t.player_to_slug].position) : null;
+        const storedPos = t.player_to_position ? normalizePos(t.player_to_position) : null;
+        return (livePos || storedPos) === pos;
+      });
       const seenSlugs = new Set(trades.map(t => t.player_to_slug));
 
       const currentNoDraft = (team.roster[pos] || [])

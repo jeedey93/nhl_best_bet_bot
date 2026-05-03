@@ -1732,7 +1732,12 @@
     team.roster[fromSlot.group][fromSlot.index]=tradeContext.toSlug;
     team.roster.B[toSlot.index]=tradeContext.fromSlug;
     if(!team.acquisitions) team.acquisitions={};
-    team.acquisitions[tradeContext.toSlug]={date:now,stats_snapshot:captureStatsSnapshot(toPlayer)};
+    // Only create a new snapshot if the player doesn't already have one.
+    // If they have a season-baseline snapshot, preserve it so their stats
+    // count from the baseline date, not from when this swap happened.
+    if(!team.acquisitions[tradeContext.toSlug]){
+      team.acquisitions[tradeContext.toSlug]={date:now,stats_snapshot:captureStatsSnapshot(toPlayer)};
+    }
     try{
       await saveRostersToSupabase();
       tradeRecordId=(await createTradeRecord(team,dateFromAcquired,fromPlayer,toPlayer,fromSlot,toSlot,now))?.id||null;
