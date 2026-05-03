@@ -583,7 +583,7 @@
     const SUPABASE_URL = 'https://fifurqlitkywtmhgtzeu.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZpZnVycWxpdGt5d3RtaGd0emV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3MDIyMjQsImV4cCI6MjA5MjI3ODIyNH0.KPVPj1qwbSJJMyLR_-AhDcRs0vi2sUU6qbFQ-kH53C0';
     const PW_PLAIN = 'parieur2026';
-    const CACHE_KEY = 'hp_players_v3';
+    const CACHE_KEY = 'hp_players_v4';
     const CACHE_TTL_MS = 5 * 60 * 1000;
     const ACTIVE_ACQUIRED_FALLBACK_DATE = new Date('2025-09-01T00:00:00Z');
 
@@ -644,6 +644,8 @@
     if (!_leagueCode) window.location.replace('/pool');
 
     let allPlayers = [], teams = [], currentTrades = [], activeTeamId = null;
+    let _windowPtsByTradeKey = {};
+    const _gameLogCache = new Map();
     let activeView = sessionStorage.getItem('pool_view') || 'standings';
     if (activeView === 'allteams') activeView = 'standings';
 
@@ -708,6 +710,116 @@
       if (pos === 'G') return (p.wins ?? 0) * _scoring.g_wins + (p.shutouts ?? 0) * _scoring.g_shutouts;
       if (pos === 'D') return (p.goals ?? 0) * _scoring.d_goals + (p.assists ?? 0) * _scoring.d_assists;
       return (p.points ?? 0) * _scoring.f_points;
+    }
+
+    function toIsoDay(v) {
+      const d = new Date(v);
+      if (Number.isNaN(d.getTime())) return null;
+      return d.toISOString().slice(0, 10);
+    }
+    function seasonFromDate(v) {
+      const d = new Date(v);
+      if (Number.isNaN(d.getTime())) return null;
+      const y = d.getUTCFullYear();
+      const m = d.getUTCMonth() + 1;
+      const startY = m >= 7 ? y : y - 1;
+      return `${startY}${startY + 1}`;
+    }
+    function seasonsForRange(startDate, endDate) {
+      const s1 = seasonFromDate(startDate);
+      const s2 = seasonFromDate(endDate);
+      if (!s1 && !s2) return [];
+      if (!s1) return [s2];
+      if (!s2 || s1 === s2) return [s1];
+      return [s1, s2];
+    }
+    function scoreGameForPool(game, pos) {
+      if (pos === 'G') {
+        const win = String(game?.decision || '').toUpperCase() === 'W' ? 1 : 0;
+        const shutouts = Number(game?.shutouts ?? 0) || 0;
+        return win * _scoring.g_wins + shutouts * _scoring.g_shutouts;
+      }
+      if (pos === 'D') {
+        const g = Number(game?.goals ?? 0) || 0;
+        const a = Number(game?.assists ?? 0) || 0;
+        return g * _scoring.d_goals + a * _scoring.d_assists;
+      }
+      const pts = Number(game?.points ?? (Number(game?.goals ?? 0) || 0) + (Number(game?.assists ?? 0) || 0)) || 0;
+      return pts * _scoring.f_points;
+    }
+    function gameDateStr(game) {
+      return game?.gameDate || game?.gameDateUTC || game?.date || game?.game?.gameDate || game?.game?.date || null;
+    }
+    async function fetchPlayerGameLog(playerId, season) {
+      const key = `${playerId}:${season}`;
+      if (_gameLogCache.has(key)) return _gameLogCache.get(key);
+      const url = `https://api-web.nhle.com/v1/player/${playerId}/game-log/${season}/2`;
+      const p = fetch(url)
+        .then(r => r.ok ? r.json() : { games: [] })
+        .then(data => Array.isArray(data?.games) ? data.games : [])
+        .catch(() => []);
+      _gameLogCache.set(key, p);
+      return p;
+    }
+    async function computeWindowPointsForPlayer(playerId, pos, startDate, endDate) {
+      const startDay = toIsoDay(startDate);
+      const endDay = toIsoDay(endDate);
+      if (!playerId || !startDay || !endDay) return null;
+      const seasons = seasonsForRange(startDate, endDate);
+      if (!seasons.length) return null;
+      let total = 0;
+      for (const season of seasons) {
+        const games = await fetchPlayerGameLog(playerId, season);
+        games.forEach(g => {
+          const gDay = toIsoDay(gameDateStr(g));
+          if (!gDay) return;
+          if (gDay >= startDay && gDay <= endDay) total += scoreGameForPool(g, pos);
+        });
+      }
+      return total;
+    }
+    function tradeWindowKey(trade) {
+      return [trade?.team_id || '', trade?.player_to_slug || '', trade?.date_from_acquired || '', trade?.date_traded || ''].join('|');
+    }
+    async function runWithConcurrency(items, worker, limit = 6) {
+      if (!items.length) return;
+      let i = 0;
+      async function runner() {
+        while (i < items.length) {
+          const idx = i++;
+          await worker(items[idx], idx);
+        }
+      }
+      const count = Math.min(limit, items.length);
+      await Promise.all(Array.from({ length: count }, () => runner()));
+    }
+    async function precomputeTradeWindowPoints() {
+      if (!Array.isArray(currentTrades) || !currentTrades.length) return;
+      const activeByTeamSlug = new Set();
+      teams.forEach(t => {
+        [...(t.roster.F || []), ...(t.roster.D || []), ...(t.roster.G || []), ...(t.roster.B || [])]
+          .filter(Boolean)
+          .forEach(slug => activeByTeamSlug.add(`${t.id}|${slug}`));
+      });
+      const candidates = currentTrades.filter(t => {
+        if (!t?.team_id || !t?.player_to_slug || !t?.date_from_acquired || !t?.date_traded) return false;
+        return !activeByTeamSlug.has(`${t.team_id}|${t.player_to_slug}`);
+      });
+      let changed = false;
+      await runWithConcurrency(candidates, async (trade) => {
+        const key = tradeWindowKey(trade);
+        if (_windowPtsByTradeKey[key] !== undefined) return;
+        const p = slugMap()[trade.player_to_slug];
+        const playerId = p?.nhl_player_id;
+        const pos = normalizePos(p?.position || trade?.player_to_position);
+        if (!playerId || !pos) return;
+        const pts = await computeWindowPointsForPlayer(playerId, pos, trade.date_from_acquired, trade.date_traded);
+        if (typeof pts === 'number' && Number.isFinite(pts)) {
+          _windowPtsByTradeKey[key] = pts;
+          changed = true;
+        }
+      }, 6);
+      if (changed) render();
     }
 
     /*
@@ -835,6 +947,7 @@
     async function load() {
       initNav();
       await loadScoringSettings();
+      _windowPtsByTradeKey = {};
       fetch(`${SUPABASE_URL}/rest/v1/pool_leagues?code=eq.${_leagueCode}&select=name`,
         { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } })
         .then(r => r.json()).then(rows => { const n = rows[0]?.name; if (n) document.getElementById('league-badge').textContent = `${n} · ${_leagueCode}`; })
@@ -846,7 +959,7 @@
           if (raw) { const { ts, data } = JSON.parse(raw); if (Date.now() - ts < CACHE_TTL_MS && Array.isArray(data) && data.length) { allPlayers = data; cacheHit = true; } }
         } catch(_) {}
         if (!cacheHit) {
-          const res = await fetch(`${SUPABASE_URL}/rest/v1/nhl_players?select=puckpedia_slug,player_name,position,cap_hit,team,goals,assists,points,wins,shutouts,games_played,save_pct&order=cap_hit.desc&limit=1000`,
+          const res = await fetch(`${SUPABASE_URL}/rest/v1/nhl_players?select=puckpedia_slug,player_name,position,cap_hit,team,goals,assists,points,wins,shutouts,games_played,save_pct,nhl_player_id&order=cap_hit.desc&limit=1000`,
             { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } });
           if (!res.ok) throw new Error(res.status);
           allPlayers = await res.json();
@@ -875,6 +988,7 @@
         if (tRes.ok) currentTrades = await tRes.json();
         activeTeamId = sortedTeams()[0]?.id || teams[0]?.id;
         render();
+        precomputeTradeWindowPoints().catch(() => {});
       } catch(e) {
         document.getElementById('content').innerHTML = `<div class="msg">Failed to load data. <button class="btn-refresh" onclick="load()">Retry</button></div>`;
       }
@@ -1095,6 +1209,7 @@
 
       const tradeRows = trades.map(t => {
         const isCurrent = activeSlugSet.has(t.player_to_slug);
+        const tradeKey = tradeWindowKey(t);
         const p = m[t.player_to_slug];
         const abbr = p ? TEAM_ABBR[p.team] : null;
         const logo = abbr ? `<img src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}">` : '';
@@ -1110,7 +1225,7 @@
           else             { col1 = d.gamesPlayed; col2 = d.goals; col3 = d.assists; }
           pts = poolScoreOwned(p, team, p._slug);
         } else {
-          pts = t.points_accumulated_at_trade ?? '—';
+          pts = _windowPtsByTradeKey[tradeKey] ?? t.points_accumulated_at_trade ?? '—';
         }
 
         return `<div class="hist-row ${isCurrent?'current':'past'}">
@@ -1149,6 +1264,8 @@
       const allPts = [
         ...trades.map(t => {
           if (activeSlugSet.has(t.player_to_slug)) { const p = m[t.player_to_slug]; return p ? poolScoreOwned(p, team, p._slug) : 0; }
+          const keyed = _windowPtsByTradeKey[tradeWindowKey(t)];
+          if (typeof keyed === 'number') return keyed;
           return typeof t.points_accumulated_at_trade === 'number' ? t.points_accumulated_at_trade : 0;
         }),
         ...currentNoDraft.map(p => poolScoreOwned(p, team, p._slug)),
