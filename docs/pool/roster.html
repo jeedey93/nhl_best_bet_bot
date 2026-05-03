@@ -297,10 +297,10 @@
 
     /* ── TRADE HISTORY TABLE ── */
     .trades-list { background: rgba(255,255,255,0.025); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; margin-bottom: 0.65rem; }
-    .trade-header-row { display: grid; grid-template-columns: 1fr 90px 1fr 80px 100px; gap: 0.5rem; padding: 0.3rem 0.75rem; background: rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .trade-header-row { display: grid; grid-template-columns: 1fr 90px 1fr 120px; gap: 0.5rem; padding: 0.3rem 0.75rem; background: rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.08); }
     .trade-header-cell { font-family: 'Barlow Condensed', sans-serif; font-size: 0.6rem; font-weight: 700; color: rgba(255,255,255,0.28); letter-spacing: 1.8px; text-transform: uppercase; }
     .trade-header-cell.center { text-align: center; }
-    .trade-row { display: grid; grid-template-columns: 1fr 90px 1fr 80px 100px; gap: 0.5rem; padding: 0 0.75rem; min-height: 38px; border-bottom: 1px solid rgba(255,255,255,0.04); align-items: center; transition: background 0.12s; }
+    .trade-row { display: grid; grid-template-columns: 1fr 90px 1fr 120px; gap: 0.5rem; padding: 0 0.75rem; min-height: 38px; border-bottom: 1px solid rgba(255,255,255,0.04); align-items: center; transition: background 0.12s; }
     .trade-row:last-child { border-bottom: none; }
     .trade-row:hover { background: rgba(255,255,255,0.02); }
     .trade-header-row.league { grid-template-columns: 110px 1fr 1fr 90px; }
@@ -315,9 +315,6 @@
 
     .date-tag { display: inline-flex; align-items: center; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.07); border-radius: 4px; padding: 0.2rem 0.45rem; }
     .date-tag-value { font-family: 'Bebas Neue', cursive; font-size: 0.78rem; letter-spacing: 0.5px; color: var(--silver); }
-    .pts-tag { display: inline-flex; flex-direction: column; align-items: center; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); border-radius: 5px; padding: 0.15rem 0.45rem; }
-    .pts-tag-label { font-family: 'Barlow Condensed', sans-serif; font-size: 0.55rem; font-weight: 700; color: rgba(255,255,255,0.3); letter-spacing: 0.8px; text-transform: uppercase; }
-    .pts-tag-value { font-family: 'Bebas Neue', cursive; font-size: 0.88rem; letter-spacing: 1px; color: var(--silver); }
 
     /* ── EMPTY STATES ── */
     .empty-state { text-align: center; padding: 2rem 1rem; }
@@ -1501,13 +1498,11 @@
           <div class="trade-header-cell">Sent to bench</div>
           <div class="trade-header-cell center">Date</div>
           <div class="trade-header-cell">Activated</div>
-          <div class="trade-header-cell center">Pts at swap</div>
           <div class="trade-header-cell">Note</div>
         </div>`;
       teamTrades.forEach(trade=>{
         const pFrom=trade.player_from_name?{player_name:trade.player_from_name,team:trade.player_from_team,position:trade.player_from_position}:getPlayer(trade.player_from_slug);
         const pTo=trade.player_to_name?{player_name:trade.player_to_name,team:trade.player_to_team,position:trade.player_to_position}:getPlayer(trade.player_to_slug);
-        const ptsAtTrade=trade.points_accumulated_at_trade??0;
         const abbrFrom=TEAM_ABBR[pFrom.team]||'';
         const abbrTo=TEAM_ABBR[pTo.team]||'';
         html+=`
@@ -1528,9 +1523,6 @@
                 <div class="player-name">${escapeHtml(formatName(pTo.player_name))}</div>
                 <div class="player-meta">${trade.to_slot_group?`${trade.to_slot_group}${(trade.to_slot_index??0)+1} · `:''}Activated from bench</div>
               </div>
-            </div>
-            <div style="display:flex;justify-content:center;align-items:center;">
-              <div class="pts-tag"><span class="pts-tag-label">At swap</span><span class="pts-tag-value">${ptsAtTrade}</span></div>
             </div>
             <div class="trade-note">${trade.swap_note ? escapeHtml(trade.swap_note) : '<span style="color:rgba(255,255,255,0.2)">—</span>'}</div>
           </div>`;
