@@ -737,34 +737,38 @@
 
     function poolScoreOwned(p, team, slug) {
       const snap = team?.acquisitions?.[slug];
-      const snapData = (typeof snap === 'object' && snap !== null) ? snap.stats_snapshot : null;
-      if (!snapData) return poolScore(p);
+      // No acquisition entry = original draft pick, count full season stats
+      if (snap === undefined) return poolScore(p);
+      // Entry exists but snapshot is null = broken snapshot, treat as zero (count from acquisition date)
+      const s = (snap.stats_snapshot) || { points: 0, goals: 0, assists: 0, wins: 0, shutouts: 0, games_played: 0 };
       const pos = normalizePos(p.position);
       if (pos === 'G') {
-        const wins = Math.max(0, (p.wins ?? 0) - (snapData.wins ?? 0));
-        const so   = Math.max(0, (p.shutouts ?? 0) - (snapData.shutouts ?? 0));
+        const wins = Math.max(0, (p.wins ?? 0) - (s.wins ?? 0));
+        const so   = Math.max(0, (p.shutouts ?? 0) - (s.shutouts ?? 0));
         return wins * _scoring.g_wins + so * _scoring.g_shutouts;
       }
       if (pos === 'D') {
-        const g = Math.max(0, (p.goals ?? 0) - (snapData.goals ?? 0));
-        const a = Math.max(0, (p.assists ?? 0) - (snapData.assists ?? 0));
+        const g = Math.max(0, (p.goals ?? 0) - (s.goals ?? 0));
+        const a = Math.max(0, (p.assists ?? 0) - (s.assists ?? 0));
         return g * _scoring.d_goals + a * _scoring.d_assists;
       }
-      return Math.max(0, ((p.points ?? 0) - (snapData.points ?? 0))) * _scoring.f_points;
+      return Math.max(0, ((p.points ?? 0) - (s.points ?? 0))) * _scoring.f_points;
     }
 
     function ownedStatsDelta(p, team, slug) {
       const snap = team?.acquisitions?.[slug];
-      const snapData = (typeof snap === 'object' && snap !== null) ? snap.stats_snapshot : null;
-      if (!snapData) return null;
+      // No acquisition entry = original draft pick, no delta to show
+      if (snap === undefined) return null;
+      // Entry exists but snapshot is null = treat as zero snapshot
+      const s = (snap.stats_snapshot) || { points: 0, goals: 0, assists: 0, wins: 0, shutouts: 0, games_played: 0 };
       return {
         pos: normalizePos(p.position),
-        goals:       Math.max(0, (p.goals ?? 0)       - (snapData.goals ?? 0)),
-        assists:     Math.max(0, (p.assists ?? 0)     - (snapData.assists ?? 0)),
-        points:      Math.max(0, (p.points ?? 0)      - (snapData.points ?? 0)),
-        wins:        Math.max(0, (p.wins ?? 0)        - (snapData.wins ?? 0)),
-        shutouts:    Math.max(0, (p.shutouts ?? 0)    - (snapData.shutouts ?? 0)),
-        gamesPlayed: Math.max(0, (p.games_played ?? 0)- (snapData.games_played ?? 0)),
+        goals:       Math.max(0, (p.goals ?? 0)       - (s.goals ?? 0)),
+        assists:     Math.max(0, (p.assists ?? 0)     - (s.assists ?? 0)),
+        points:      Math.max(0, (p.points ?? 0)      - (s.points ?? 0)),
+        wins:        Math.max(0, (p.wins ?? 0)        - (s.wins ?? 0)),
+        shutouts:    Math.max(0, (p.shutouts ?? 0)    - (s.shutouts ?? 0)),
+        gamesPlayed: Math.max(0, (p.games_played ?? 0)- (s.games_played ?? 0)),
       };
     }
 

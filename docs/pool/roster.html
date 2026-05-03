@@ -1732,10 +1732,9 @@
     team.roster[fromSlot.group][fromSlot.index]=tradeContext.toSlug;
     team.roster.B[toSlot.index]=tradeContext.fromSlug;
     if(!team.acquisitions) team.acquisitions={};
-    // Only create a new snapshot if the player doesn't already have one.
-    // If they have a season-baseline snapshot, preserve it so their stats
-    // count from the baseline date, not from when this swap happened.
-    if(!team.acquisitions[tradeContext.toSlug]){
+    // Create snapshot if none exists, OR if existing entry has a null snapshot (repair broken state).
+    const existingAcq = team.acquisitions[tradeContext.toSlug];
+    if(!existingAcq || !existingAcq.stats_snapshot){
       team.acquisitions[tradeContext.toSlug]={date:now,stats_snapshot:captureStatsSnapshot(toPlayer)};
     }
     try{
