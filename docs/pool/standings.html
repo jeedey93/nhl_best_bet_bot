@@ -654,12 +654,7 @@
 
     function slugMap() {
       if (!_cache.slugMap) {
-        const entries = [];
-        allPlayers.forEach(p => {
-          entries.push([p.puckpedia_slug, p]);
-          entries.push([`/player/${p.puckpedia_slug}`, p]);
-        });
-        _cache.slugMap = Object.fromEntries(entries);
+        _cache.slugMap = Object.fromEntries(allPlayers.map(p => [p.puckpedia_slug, p]));
       }
       return _cache.slugMap;
     }
@@ -756,7 +751,11 @@
       const url = `https://api-web.nhle.com/v1/player/${playerId}/game-log/${season}/2`;
       const p = fetch(url)
         .then(r => r.ok ? r.json() : { games: [] })
-        .then(data => Array.isArray(data?.games) ? data.games : [])
+        .then(data => {
+          if (Array.isArray(data?.games)) return data.games;
+          if (Array.isArray(data?.gameLog)) return data.gameLog;
+          return [];
+        })
         .catch(() => []);
       _gameLogCache.set(key, p);
       return p;
@@ -778,8 +777,21 @@
       }
       return total;
     }
-    function tradeWindowKey(trade) {
-      return [trade?.team_id || '', trade?.player_to_slug || '', trade?.date_from_acquired || '', trade?.date_traded || ''].join('|');
+    function tradeWindowKey(trade, isCurrent = false) {
+      const endMarker = isCurrent ? 'NOW' : (trade?.date_traded || '');
+      return [trade?.team_id || '', trade?.player_to_slug || '', trade?.date_from_acquired || '', endMarker].join('|');
+    }
+    function teamHasPlayerSlug(team, slug) {
+      if (!team || !slug) return false;
+      return [...(team.roster?.F || []), ...(team.roster?.D || []), ...(team.roster?.G || []), ...(team.roster?.B || [])].includes(slug);
+    }
+    function latestIncomingTrade(teamId, slug) {
+      if (!teamId || !slug || !Array.isArray(currentTrades)) return null;
+      for (let i = currentTrades.length - 1; i >= 0; i--) {
+        const t = currentTrades[i];
+        if (t?.team_id === teamId && t?.player_to_slug === slug && t?.date_from_acquired) return t;
+      }
+      return null;
     }
     async function runWithConcurrency(items, worker, limit = 6) {
       if (!items.length) return;
@@ -802,18 +814,22 @@
           .forEach(slug => activeByTeamSlug.add(`${t.id}|${slug}`));
       });
       const candidates = currentTrades.filter(t => {
-        if (!t?.team_id || !t?.player_to_slug || !t?.date_from_acquired || !t?.date_traded) return false;
-        return !activeByTeamSlug.has(`${t.team_id}|${t.player_to_slug}`);
+        if (!t?.team_id || !t?.player_to_slug || !t?.date_from_acquired) return false;
+        const isCurrent = activeByTeamSlug.has(`${t.team_id}|${t.player_to_slug}`);
+        if (isCurrent) return true;
+        return !!t?.date_traded;
       });
       let changed = false;
       await runWithConcurrency(candidates, async (trade) => {
-        const key = tradeWindowKey(trade);
+        const isCurrent = activeByTeamSlug.has(`${trade.team_id}|${trade.player_to_slug}`);
+        const key = tradeWindowKey(trade, isCurrent);
         if (_windowPtsByTradeKey[key] !== undefined) return;
         const p = slugMap()[trade.player_to_slug];
         const playerId = p?.nhl_player_id;
         const pos = normalizePos(p?.position || trade?.player_to_position);
         if (!playerId || !pos) return;
-        const pts = await computeWindowPointsForPlayer(playerId, pos, trade.date_from_acquired, trade.date_traded);
+        const endDate = isCurrent ? new Date().toISOString() : trade.date_traded;
+        const pts = await computeWindowPointsForPlayer(playerId, pos, trade.date_from_acquired, endDate);
         if (typeof pts === 'number' && Number.isFinite(pts)) {
           _windowPtsByTradeKey[key] = pts;
           changed = true;
@@ -839,6 +855,13 @@
     }
 
     function poolScoreOwned(p, team, slug) {
+      const latestTrade = latestIncomingTrade(team?.id, slug);
+      if (latestTrade && teamHasPlayerSlug(team, slug)) {
+        const key = tradeWindowKey(latestTrade, true);
+        const liveWindow = _windowPtsByTradeKey[key];
+        if (slug === '/player/sebastian-aho') console.log('[DEBUG aho]', { latestTrade, key, liveWindow, windowKeys: Object.keys(_windowPtsByTradeKey) });
+        if (typeof liveWindow === 'number' && Number.isFinite(liveWindow)) return liveWindow;
+      }
       const s = _resolveSnapshot(team, slug);
       const pos = normalizePos(p.position);
       if (pos === 'G') {
@@ -1209,7 +1232,7 @@
 
       const tradeRows = trades.map(t => {
         const isCurrent = activeSlugSet.has(t.player_to_slug);
-        const tradeKey = tradeWindowKey(t);
+        const tradeKey = tradeWindowKey(t, isCurrent);
         const p = m[t.player_to_slug];
         const abbr = p ? TEAM_ABBR[p.team] : null;
         const logo = abbr ? `<img src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}">` : '';
