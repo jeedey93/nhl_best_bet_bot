@@ -855,11 +855,6 @@
     }
 
     function poolScoreOwned(p, team, slug) {
-      const latestTrade = latestIncomingTrade(team?.id, slug);
-      if (latestTrade && teamHasPlayerSlug(team, slug)) {
-        const liveWindow = _windowPtsByTradeKey[tradeWindowKey(latestTrade, true)];
-        if (typeof liveWindow === 'number' && Number.isFinite(liveWindow)) return liveWindow;
-      }
       const s = _resolveSnapshot(team, slug);
       const pos = normalizePos(p.position);
       if (pos === 'G') {
@@ -1009,7 +1004,7 @@
         if (tRes.ok) currentTrades = await tRes.json();
         activeTeamId = sortedTeams()[0]?.id || teams[0]?.id;
         render();
-        precomputeTradeWindowPoints().catch(() => {});
+        // precomputeTradeWindowPoints disabled — NHL API blocks CORS from production; snapshot system handles all point calculations.
       } catch(e) {
         document.getElementById('content').innerHTML = `<div class="msg">Failed to load data. <button class="btn-refresh" onclick="load()">Retry</button></div>`;
       }
