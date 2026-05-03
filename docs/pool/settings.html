@@ -488,7 +488,10 @@ function checkPoolPw(){
         <span class="season-zone-label">Start season from 0 owned points</span>
         <span class="season-zone-sub">Creates a fresh snapshot for every currently rostered player in all teams. Standings/trades then count only points earned after this baseline.</span>
       </div>
-      <button class="btn-start-season" id="btn-start-season" onclick="startSeasonBaseline()">Start Season</button>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:0.5rem;flex-shrink:0;">
+        <input type="date" id="season-start-date" class="filter-input" style="width:160px;padding:0.4rem 0.6rem;font-family:'Barlow Condensed',sans-serif;font-size:0.9rem;">
+        <button class="btn-start-season" id="btn-start-season" onclick="startSeasonBaseline()">Start Season</button>
+      </div>
     </div>
   </div>
 
@@ -830,7 +833,16 @@ function checkPoolPw(){
     const btn = document.getElementById('btn-start-season');
     const status = document.getElementById('save-status');
 
-    const confirmed = window.confirm('Start season baseline now? This will overwrite all existing acquisition snapshots and reset owned points to 0 from this moment.');
+    const dateInput = document.getElementById('season-start-date');
+    const dateVal = dateInput?.value; // YYYY-MM-DD
+    if (!dateVal) {
+      status.textContent = 'Please select a season start date.';
+      status.className = 'save-status show error';
+      setTimeout(() => status.classList.remove('show'), 3000);
+      return;
+    }
+
+    const confirmed = window.confirm(`Start season baseline on ${dateVal}? This will overwrite all existing acquisition snapshots and reset owned points to 0 from that date.`);
     if (!confirmed) return;
 
     btn.disabled = true;
@@ -849,6 +861,8 @@ function checkPoolPw(){
       const rows = await rosterRes.json();
       if (!rows.length || !rows[0].data?.teams?.length) throw new Error('No teams found for this league');
 
+      // Use noon UTC on the chosen date so the date displays correctly in all timezones
+      const seasonDate = new Date(`${dateVal}T12:00:00.000Z`).toISOString();
       const now = new Date().toISOString();
       let snapCount = 0;
       const data = rows[0].data;
@@ -859,7 +873,7 @@ function checkPoolPw(){
           for (const slug of (team.roster?.[group] || []).filter(Boolean)) {
             const p = playerMap[slug];
             if (!p) continue;
-            acquisitions[slug] = { date: now, stats_snapshot: captureStatsSnapshot(p) };
+            acquisitions[slug] = { date: seasonDate, stats_snapshot: captureStatsSnapshot(p) };
             snapCount += 1;
           }
         }
@@ -876,7 +890,7 @@ function checkPoolPw(){
         throw new Error(`Failed saving baseline (${saveRes.status}): ${body}`);
       }
 
-      status.textContent = `✓ Season baseline created (${snapCount} player snapshots)`;
+      status.textContent = `✓ Season baseline set to ${dateVal} (${snapCount} player snapshots)`;
       status.className = 'save-status show';
       setTimeout(() => status.classList.remove('show'), 4000);
     } catch (e) {
@@ -1086,6 +1100,11 @@ function checkPoolPw(){
     e.preventDefault();
     e.returnValue = '';
   });
+
+  // Default season start date to today
+  const _todayISO = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD in local time
+  const _seasonDateInput = document.getElementById('season-start-date');
+  if (_seasonDateInput) _seasonDateInput.value = _todayISO;
 
   loadSettings();
 </script>

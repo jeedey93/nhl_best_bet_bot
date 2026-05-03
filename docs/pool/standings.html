@@ -590,6 +590,7 @@
     const PW_PLAIN = 'parieur2026';
     const CACHE_KEY = 'hp_players_v3';
     const CACHE_TTL_MS = 5 * 60 * 1000;
+    const ACTIVE_ACQUIRED_FALLBACK_DATE = new Date('2025-09-01T00:00:00Z');
 
     const TEAM_ABBR = {
       'anaheim-ducks':'ANA','boston-bruins':'BOS','buffalo-sabres':'BUF','calgary-flames':'CGY',
@@ -793,6 +794,12 @@
         G: (rs.G || []).map(resolve),
         B: (rs.B || []).map(resolve),
       };
+    }
+
+    function resolveActiveAcquiredDate(team, slug) {
+      const acqRaw = team?.acquisitions?.[slug];
+      const acqDate = (typeof acqRaw === 'object' && acqRaw?.date) ? new Date(acqRaw.date) : null;
+      return (acqDate && !Number.isNaN(acqDate.getTime())) ? acqDate : ACTIVE_ACQUIRED_FALLBACK_DATE;
     }
 
     function teamSubScores(team) {
@@ -1245,7 +1252,7 @@
         const abbr = p ? TEAM_ABBR[p.team] : null;
         const logo = abbr ? `<img src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}">` : '';
 
-        const acqDate = new Date(t.date_from_acquired);
+        const acqDate = t.date_from_acquired ? new Date(t.date_from_acquired) : ACTIVE_ACQUIRED_FALLBACK_DATE;
         // ── FIX: removed "(Xd)" — just show "Apr 5 → Now"
         const tenureEnd = t.date_traded
           ? fmt(t.date_traded)
@@ -1286,12 +1293,8 @@
         }
         const pts = poolScoreOwned(p, team, p._slug);
 
-        const acqRaw = team?.acquisitions?.[p._slug];
-        const acqDate = (typeof acqRaw === 'object' && acqRaw?.date) ? new Date(acqRaw.date) : null;
-        // ── FIX: removed "(Xd)" — just show "Apr 5 → Now"
-        const tenureDisplay = acqDate
-          ? `<span style="color:var(--green)">${fmt(acqDate)} → Now</span>`
-          : `<span style="color:var(--green)">Now</span>`;
+        const acqDate = resolveActiveAcquiredDate(team, p._slug);
+        const tenureDisplay = `<span style="color:var(--green)">${fmt(acqDate)} → Now</span>`;
 
         return `<div class="hist-row current">
           <span class="hist-pos ${pos}">${pos}</span>
