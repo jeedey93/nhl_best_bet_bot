@@ -1253,16 +1253,19 @@
         </div>`;
 
       const tradeRows = trades.map(t => {
-        const isCurrent = currentSlugs.has(t.player_to_slug) && !t.date_traded;
+        // A player is "current" if they are actively in this position's roster slot right now,
+        // regardless of whether a historical date_traded exists (handles re-activated players).
+        const isCurrent = activeSlugSet.has(t.player_to_slug);
         const p = m[t.player_to_slug];
         const abbr = p ? TEAM_ABBR[p.team] : null;
         const logo = abbr ? `<img src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}">` : '';
 
         const acqDate = t.date_from_acquired ? new Date(t.date_from_acquired) : ACTIVE_ACQUIRED_FALLBACK_DATE;
-        // ── FIX: removed "(Xd)" — just show "Apr 5 → Now"
-        const tenureEnd = t.date_traded
-          ? fmt(t.date_traded)
-          : `<span style="color:var(--green)">${fmt(acqDate)} → Now</span>`;
+        const tenureEnd = isCurrent
+          ? `<span style="color:var(--green)">${fmt(acqDate)} → Now</span>`
+          : t.date_traded
+            ? fmt(t.date_traded)
+            : `<span style="color:var(--green)">${fmt(acqDate)} → Now</span>`;
 
         let col1='—', col2='—', col3='—', pts;
 
@@ -1315,7 +1318,7 @@
 
       const allPts = [
         ...trades.map(t => {
-          if (currentSlugs.has(t.player_to_slug) && !t.date_traded) {
+          if (activeSlugSet.has(t.player_to_slug)) {
             const p = m[t.player_to_slug];
             return p ? poolScoreOwned(p, team, p._slug) : 0;
           }
