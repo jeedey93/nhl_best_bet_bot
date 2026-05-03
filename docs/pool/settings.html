@@ -222,6 +222,12 @@
       display: flex; align-items: center; justify-content: center;
     }
     #delete-overlay.hidden { display: none; }
+    #season-overlay {
+      position: fixed; inset: 0; z-index: 999;
+      background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+      display: flex; align-items: center; justify-content: center;
+    }
+    #season-overlay.hidden { display: none; }
     .pw-box {
       background: rgba(15,25,45,0.97); border: 1px solid rgba(255,255,255,0.1);
       border-radius: 14px; padding: 2.5rem 2rem; width: 320px; max-width: 90vw; text-align: center;
@@ -366,6 +372,16 @@ function checkPoolPw(){
     <input id="del-pw-input" class="pw-input" type="password" placeholder="Password" autocomplete="off">
     <button class="pw-btn" style="background:var(--red);" onclick="confirmDelete()">DELETE LEAGUE</button>
     <div class="pw-error" id="del-pw-error"></div>
+  </div>
+</div>
+
+<!-- Season baseline confirmation modal -->
+<div id="season-overlay" class="hidden">
+  <div class="pw-box">
+    <h2 style="color:var(--green);">🚀 Start Season</h2>
+    <p id="season-modal-desc">This will overwrite all acquisition snapshots and reset owned points to 0 from this date.</p>
+    <button class="pw-btn" style="background:var(--green);color:var(--rink);margin-top:1.2rem;" onclick="confirmStartSeason()">CONFIRM</button>
+    <button class="pw-btn" style="background:transparent;color:var(--silver);border:1px solid rgba(255,255,255,0.15);margin-top:0.5rem;" onclick="document.getElementById('season-overlay').classList.add('hidden')">CANCEL</button>
   </div>
 </div>
 
@@ -830,20 +846,26 @@ function checkPoolPw(){
   }
 
   async function startSeasonBaseline() {
-    const btn = document.getElementById('btn-start-season');
-    const status = document.getElementById('save-status');
-
     const dateInput = document.getElementById('season-start-date');
-    const dateVal = dateInput?.value; // YYYY-MM-DD
+    const dateVal = dateInput?.value;
     if (!dateVal) {
+      const status = document.getElementById('save-status');
       status.textContent = 'Please select a season start date.';
       status.className = 'save-status show error';
       setTimeout(() => status.classList.remove('show'), 3000);
       return;
     }
+    document.getElementById('season-modal-desc').textContent =
+      `Start season baseline on ${dateVal}? This will overwrite all existing acquisition snapshots and reset owned points to 0 from that date.`;
+    document.getElementById('season-overlay').classList.remove('hidden');
+  }
 
-    const confirmed = window.confirm(`Start season baseline on ${dateVal}? This will overwrite all existing acquisition snapshots and reset owned points to 0 from that date.`);
-    if (!confirmed) return;
+  async function confirmStartSeason() {
+    document.getElementById('season-overlay').classList.add('hidden');
+
+    const btn = document.getElementById('btn-start-season');
+    const status = document.getElementById('save-status');
+    const dateVal = document.getElementById('season-start-date')?.value;
 
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner"></span>Starting…';
@@ -861,9 +883,12 @@ function checkPoolPw(){
       const rows = await rosterRes.json();
       if (!rows.length || !rows[0].data?.teams?.length) throw new Error('No teams found for this league');
 
-      // Use noon UTC on the chosen date so the date displays correctly in all timezones
       const seasonDate = new Date(`${dateVal}T12:00:00.000Z`).toISOString();
       const now = new Date().toISOString();
+      // If the season start date is today or in the past, snapshot at zero —
+      // the season has already begun so all current stats count from day 1.
+      // If it's a future date, snapshot current stats so only post-baseline gains count.
+      const seasonIsInFuture = new Date(seasonDate) > new Date();
       let snapCount = 0;
       const data = rows[0].data;
 
@@ -873,7 +898,10 @@ function checkPoolPw(){
           for (const slug of (team.roster?.[group] || []).filter(Boolean)) {
             const p = playerMap[slug];
             if (!p) continue;
-            acquisitions[slug] = { date: seasonDate, stats_snapshot: captureStatsSnapshot(p) };
+            const snapshot = seasonIsInFuture
+              ? captureStatsSnapshot(p)
+              : { points: 0, goals: 0, assists: 0, wins: 0, shutouts: 0, games_played: 0 };
+            acquisitions[slug] = { date: seasonDate, stats_snapshot: snapshot };
             snapCount += 1;
           }
         }
@@ -1086,6 +1114,14 @@ function checkPoolPw(){
   document.getElementById('delete-overlay').addEventListener('click', e => {
     if (e.target === document.getElementById('delete-overlay'))
       document.getElementById('delete-overlay').classList.add('hidden');
+  });
+  document.getElementById('season-overlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('season-overlay'))
+      document.getElementById('season-overlay').classList.add('hidden');
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && !document.getElementById('season-overlay').classList.contains('hidden'))
+      document.getElementById('season-overlay').classList.add('hidden');
   });
 
   ['league_name','f_points','d_goals','d_assists','g_wins','g_shutouts','max_trades_per_team'].forEach(id => {
