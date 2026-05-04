@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trade Proposals – Redesign Preview</title>
+    <title>Trade Proposals</title>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,900;1,400&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -27,14 +27,6 @@
           padding: 2rem 1rem;
         }
         .page-wrap { max-width: 1000px; margin: 0 auto; }
-
-        /* ── DEMO NOTE ── */
-        .demo-note {
-          background: rgba(125,180,255,0.08); border: 1px solid rgba(125,180,255,0.2);
-          border-radius: 8px; padding: 0.6rem 1rem; margin-bottom: 1.5rem;
-          font-size: 0.82rem; color: rgba(255,255,255,0.5); letter-spacing: 0.5px;
-        }
-        .demo-note strong { color: var(--blue); font-family: 'Bebas Neue', cursive; letter-spacing: 1px; }
 
         /* ════════════════════════════════════════
            PROPOSAL MODE SWITCHER
@@ -200,24 +192,6 @@
         .tsb-arrows { font-size: 1.1rem; color: rgba(255,255,255,0.2); display: flex; align-items: center; padding: 0 4px; }
         .tsb-divider { width: 1px; background: rgba(255,255,255,0.07); align-self: stretch; margin: 0 4px; }
 
-        /* Impact bar */
-        .tsb-impact { margin-top: 0.6rem; padding-top: 0.6rem; border-top: 1px solid rgba(255,255,255,0.06); }
-        .tsb-impact-row { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
-        .impact-item { display: flex; align-items: baseline; gap: 5px; }
-        .impact-label { font-size: 0.62rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,0.3); }
-        .impact-value { font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 0.5px; }
-        .impact-value.pos { color: var(--green); }
-        .impact-value.neg { color: #f87171; }
-        .impact-value.neutral { color: var(--silver); }
-        .impact-value.warn { color: var(--amber); }
-        .impact-flag {
-          font-family: 'Bebas Neue', cursive; font-size: 0.62rem; letter-spacing: 1px;
-          border-radius: 4px; padding: 1px 7px; margin-left: auto;
-        }
-        .impact-flag.ok { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.25); color: var(--green); }
-        .impact-flag.warn { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.25); color: var(--amber); }
-        .impact-flag.err { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.25); color: #f87171; }
-
         /* Action row */
         .tsb-actions { display: flex; align-items: center; gap: 8px; margin-top: 0.65rem; }
         .tsb-note {
@@ -244,17 +218,7 @@
         /* ════════════════════════════════════════
            PROPOSAL CARDS VIEW
         ════════════════════════════════════════ */
-        .proposal-filter-row {
-          display: flex; align-items: center; gap: 8px; margin-bottom: 0.85rem; flex-wrap: wrap;
-        }
-        .pf-pill {
-          font-family: 'Bebas Neue', cursive; font-size: 0.72rem; letter-spacing: 1.5px;
-          padding: 4px 14px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1);
-          color: var(--silver); background: transparent; cursor: pointer; transition: all 0.15s;
-        }
-        .pf-pill:hover { color: white; }
-        .pf-pill.active { background: rgba(255,184,28,0.1); border-color: rgba(255,184,28,0.4); color: var(--gold); }
-        .pf-count { font-size: 0.72rem; color: rgba(255,255,255,0.25); letter-spacing: 1px; margin-left: auto; }
+        .pf-count { font-size: 0.72rem; color: rgba(255,255,255,0.25); letter-spacing: 1px; }
 
         .proposal-card {
           background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
@@ -281,6 +245,8 @@
         .pc-status.withdrawn { background: rgba(255,255,255,0.06); color: var(--silver); border: 1px solid rgba(255,255,255,0.1); }
         .pc-status.accepted { background: rgba(34,197,94,0.12); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
         .pc-date { font-size: 0.67rem; color: rgba(255,255,255,0.22); }
+        .pc-delete-btn { background: none; border: none; color: rgba(255,255,255,0.3); cursor: pointer; font-size: 0.85rem; padding: 0 0 0 4px; line-height: 1; transition: color 0.15s; margin-left: auto; }
+        .pc-delete-btn:hover { color: #f87171; }
 
         /* Comparative players layout */
         .pc-compare {
@@ -301,22 +267,6 @@
         .pc-player-stat { font-family: 'Barlow Condensed', sans-serif; font-size: 0.68rem; color: rgba(255,255,255,0.35); margin-left: auto; white-space: nowrap; }
         .pc-empty { color: rgba(255,255,255,0.18); font-size: 0.72rem; font-style: italic; padding: 3px 0; }
 
-        /* Impact strip */
-        .pc-impact-strip {
-          display: flex; align-items: center; gap: 0;
-          border-top: 1px solid rgba(255,255,255,0.05); background: rgba(0,0,0,0.08);
-        }
-        .pc-impact-item {
-          flex: 1; padding: 0.3rem 0.7rem; text-align: center;
-          border-right: 1px solid rgba(255,255,255,0.05);
-        }
-        .pc-impact-item:last-child { border-right: none; }
-        .pc-impact-label { font-size: 0.58rem; font-weight: 700; color: rgba(255,255,255,0.28); letter-spacing: 1px; text-transform: uppercase; }
-        .pc-impact-val { font-family: 'Bebas Neue', cursive; font-size: 0.82rem; letter-spacing: 0.5px; }
-        .pc-impact-val.pos { color: var(--green); }
-        .pc-impact-val.neg { color: #f87171; }
-        .pc-impact-val.neutral { color: var(--silver); }
-
         .pc-note { font-size: 0.73rem; color: rgba(255,255,255,0.3); font-style: italic; padding: 0.4rem 0.9rem; border-top: 1px solid rgba(255,255,255,0.04); }
 
         .pc-footer {
@@ -327,8 +277,6 @@
           font-family: 'Bebas Neue', cursive; font-size: 0.7rem; letter-spacing: 1.5px;
           padding: 4px 12px; border-radius: 5px; cursor: pointer; transition: all 0.15s;
         }
-        .pc-action-btn.withdraw { border: 1px solid rgba(255,80,80,0.3); background: transparent; color: rgba(255,100,100,0.7); }
-        .pc-action-btn.withdraw:hover { background: rgba(255,80,80,0.1); border-color: rgba(255,80,80,0.6); color: #ff6464; }
         .pc-action-btn.counter { border: 1px solid rgba(125,180,255,0.3); background: transparent; color: var(--blue); }
         .pc-action-btn.counter:hover { background: rgba(125,180,255,0.1); border-color: rgba(125,180,255,0.5); }
         .pc-received-msg { font-size: 0.7rem; color: rgba(125,180,255,0.5); letter-spacing: 0.4px; }
@@ -337,17 +285,12 @@
         @media (max-width: 560px) {
           .pc-compare { grid-template-columns: 1fr; }
           .pc-compare-arrow { display: none; }
-          .pc-impact-strip { flex-wrap: wrap; }
           .split-panels { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
 <div class="page-wrap">
-
-    <div class="demo-note">
-        <strong>Preview</strong> — This file demonstrates the redesigned Trade Proposals UI. Use the tabs below to switch between the split-screen builder and the proposals feed. All interactivity is wired up with mock data.
-    </div>
 
     <!-- ── VIEW TABS ── -->
     <div class="proposals-view-tabs">
@@ -441,25 +384,6 @@
                     </div>
                 </div>
 
-                <!-- Impact row -->
-                <div class="tsb-impact" id="tsb-impact" style="display:none">
-                    <div class="tsb-impact-row">
-                        <div class="impact-item">
-                            <span class="impact-label">Pts Δ</span>
-                            <span class="impact-value" id="impact-pts">—</span>
-                        </div>
-                        <div class="impact-item">
-                            <span class="impact-label">Cap Δ</span>
-                            <span class="impact-value" id="impact-cap">—</span>
-                        </div>
-                        <div class="impact-item">
-                            <span class="impact-label">Roster</span>
-                            <span class="impact-value" id="impact-roster">—</span>
-                        </div>
-                        <span class="impact-flag" id="impact-flag">VALID</span>
-                    </div>
-                </div>
-
                 <!-- Actions -->
                 <div class="tsb-actions">
                     <input class="tsb-note" id="proposal-note" placeholder='Optional note: "Open to any C, just need depth…"' maxlength="200">
@@ -476,11 +400,8 @@
     ══════════════════════════════════════════ -->
     <div id="pview-feed" style="display:none">
 
-        <div class="proposal-filter-row">
-            <button class="pf-pill active" id="pff-all" onclick="setFeedFilter('all')">All</button>
-            <button class="pf-pill" id="pff-received" onclick="setFeedFilter('received')">Received</button>
-            <button class="pf-pill" id="pff-sent" onclick="setFeedFilter('sent')">Sent</button>
-            <span class="pf-count" id="feed-count">5 proposals</span>
+        <div style="display:flex;align-items:center;justify-content:flex-end;margin-bottom:0.6rem;">
+            <span class="pf-count" id="feed-count"></span>
         </div>
 
         <div id="feed-list"></div>
@@ -490,86 +411,19 @@
 </div><!-- .page-wrap -->
 
 <script>
-    /* ══════════════════════════════════════════
-       MOCK DATA
-    ══════════════════════════════════════════ */
-    const MY_TEAM = { id: 'team-1', name: 'Les Glorieux' };
+    const SUPABASE_URL = 'https://fifurqlitkywtmhgtzeu.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZpZnVycWxpdGt5d3RtaGd0emV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3MDIyMjQsImV4cCI6MjA5MjI3ODIyNH0.KPVPj1qwbSJJMyLR_-AhDcRs0vi2sUU6qbFQ-kH53C0';
+    const SB_HEADERS = { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' };
 
-    const TEAMS = [
-      { id: 'team-2', name: 'Oilers Army' },
-      { id: 'team-3', name: 'Leaf Nation' },
-      { id: 'team-4', name: 'Sens Nation' },
-      { id: 'team-5', name: 'Habs Fans' },
-    ];
+    const _leagueCode = new URLSearchParams(window.location.search).get('league') || null;
 
-    const MY_ROSTER = [
-      { slug: 'auston-matthews', name: 'Auston Matthews', pos: 'F', pts: 76, cap: 13.25, team: 'TOR', onBlock: false },
-      { slug: 'sam-reinhart', name: 'Sam Reinhart', pos: 'F', pts: 68, cap: 8.0, team: 'FLA', onBlock: true },
-      { slug: 'brady-tkachuk', name: 'Brady Tkachuk', pos: 'F', pts: 55, cap: 9.5, team: 'OTT', onBlock: false },
-      { slug: 'mikko-rantanen', name: 'Mikko Rantanen', pos: 'F', pts: 82, cap: 9.25, team: 'COL', onBlock: false },
-      { slug: 'charlie-mcavoy', name: 'Charlie McAvoy', pos: 'D', pts: 48, cap: 9.0, team: 'BOS', onBlock: false },
-      { slug: 'cale-makar', name: 'Cale Makar', pos: 'D', pts: 74, cap: 9.0, team: 'COL', onBlock: true },
-      { slug: 'igor-shesterkin', name: 'Igor Shesterkin', pos: 'G', pts: 52, cap: 11.5, team: 'NYR', onBlock: false },
-    ];
-
-    const TEAM_ROSTERS = {
-      'team-2': [
-        { slug: 'leon-draisaitl', name: 'Leon Draisaitl', pos: 'F', pts: 94, cap: 8.5, team: 'EDM', onBlock: true },
-        { slug: 'zach-hyman', name: 'Zach Hyman', pos: 'F', pts: 41, cap: 5.5, team: 'EDM', onBlock: false },
-        { slug: 'evan-bouchard', name: 'Evan Bouchard', pos: 'D', pts: 62, cap: 7.9, team: 'EDM', onBlock: false },
-        { slug: 'Connor-hellebuyck', name: 'Connor Hellebuyck', pos: 'G', pts: 66, cap: 8.5, team: 'WPG', onBlock: false },
-      ],
-      'team-3': [
-        { slug: 'william-nylander', name: 'William Nylander', pos: 'F', pts: 78, cap: 11.5, team: 'TOR', onBlock: false },
-        { slug: 'mitch-marner', name: 'Mitch Marner', pos: 'F', pts: 88, cap: 10.9, team: 'TOR', onBlock: true },
-        { slug: 'jake-muzzin', name: 'Jake Muzzin', pos: 'D', pts: 22, cap: 5.625, team: 'TOR', onBlock: false },
-        { slug: 'ilya-samsonov', name: 'Ilya Samsonov', pos: 'G', pts: 28, cap: 1.8, team: 'TOR', onBlock: false },
-      ],
-      'team-4': [
-        { slug: 'tim-stutzle', name: 'Tim Stutzle', pos: 'F', pts: 72, cap: 7.85, team: 'OTT', onBlock: false },
-        { slug: 'claude-giroux', name: 'Claude Giroux', pos: 'F', pts: 48, cap: 6.5, team: 'OTT', onBlock: true },
-        { slug: 'thomas-chabot', name: 'Thomas Chabot', pos: 'D', pts: 44, cap: 8.0, team: 'OTT', onBlock: false },
-      ],
-      'team-5': [
-        { slug: 'nick-suzuki', name: 'Nick Suzuki', pos: 'F', pts: 71, cap: 7.875, team: 'MTL', onBlock: false },
-        { slug: 'cole-caufield', name: 'Cole Caufield', pos: 'F', pts: 52, cap: 6.525, team: 'MTL', onBlock: true },
-        { slug: 'kaiden-guhle', name: 'Kaiden Guhle', pos: 'D', pts: 33, cap: 2.825, team: 'MTL', onBlock: false },
-        { slug: 'samuel-montembeault', name: 'Samuel Montembeault', pos: 'G', pts: 34, cap: 3.15, team: 'MTL', onBlock: false },
-      ],
-    };
-
-    const MOCK_PROPOSALS = [
-      {
-        id: 'p1', fromId: 'team-2', fromName: 'Oilers Army', toId: 'team-1', toName: 'Les Glorieux',
-        offered: [{ name: 'Leon Draisaitl', pos: 'F', pts: 94, cap: 8.5 }],
-        requested: [{ name: 'Mikko Rantanen', pos: 'F', pts: 82, cap: 9.25 }],
-        note: 'Need the youth upside. Draisaitl still elite, just older.', status: 'pending', date: '2025-04-18'
-      },
-      {
-        id: 'p2', fromId: 'team-3', fromName: 'Leaf Nation', toId: 'team-1', toName: 'Les Glorieux',
-        offered: [{ name: 'Mitch Marner', pos: 'F', pts: 88, cap: 10.9 }],
-        requested: [{ name: 'Cale Makar', pos: 'D', pts: 74, cap: 9.0 }, { name: 'Igor Shesterkin', pos: 'G', pts: 52, cap: 11.5 }],
-        note: '', status: 'pending', date: '2025-04-20'
-      },
-      {
-        id: 'p3', fromId: 'team-1', fromName: 'Les Glorieux', toId: 'team-4', toName: 'Sens Nation',
-        offered: [{ name: 'Brady Tkachuk', pos: 'F', pts: 55, cap: 9.5 }],
-        requested: [{ name: 'Tim Stutzle', pos: 'F', pts: 72, cap: 7.85 }],
-        note: 'Tkachuk for a younger piece with more upside.', status: 'pending', date: '2025-04-19'
-      },
-      {
-        id: 'p4', fromId: 'team-1', fromName: 'Les Glorieux', toId: 'team-5', toName: 'Habs Fans',
-        offered: [{ name: 'Sam Reinhart', pos: 'F', pts: 68, cap: 8.0 }],
-        requested: [{ name: 'Nick Suzuki', pos: 'F', pts: 71, cap: 7.875 }, { name: 'Cole Caufield', pos: 'F', pts: 52, cap: 6.525 }],
-        note: '', status: 'withdrawn', date: '2025-04-12'
-      },
-      {
-        id: 'p5', fromId: 'team-2', fromName: 'Oilers Army', toId: 'team-1', toName: 'Les Glorieux',
-        offered: [{ name: 'Zach Hyman', pos: 'F', pts: 41, cap: 5.5 }, { name: 'Connor Hellebuyck', pos: 'G', pts: 66, cap: 8.5 }],
-        requested: [{ name: 'Cale Makar', pos: 'D', pts: 74, cap: 9.0 }],
-        note: 'Goalie + winger for your D-man. Fills multiple holes.', status: 'pending', date: '2025-04-21'
-      },
-    ];
+    /* ── live data ── */
+    let MY_TEAM = null;
+    let TEAMS = [];
+    let MY_ROSTER = [];
+    let TEAM_ROSTERS = {};
+    let proposals = {};
+    let _playerMap = {};
 
     /* ══════════════════════════════════════════
        STATE
@@ -584,6 +438,165 @@
       requestSearch: '',
       feedFilter: 'all',
     };
+
+    /* ══════════════════════════════════════════
+       HELPERS
+    ══════════════════════════════════════════ */
+    function escH(v) {
+      return String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+
+    function normPos(pos) {
+      if (!pos) return 'F';
+      const p = pos.toUpperCase();
+      if (p.includes('G')) return 'G';
+      if (p === 'D' || p.includes('LD') || p.includes('RD')) return 'D';
+      return 'F';
+    }
+
+    function formatName(n) {
+      if (!n) return '';
+      if (n.includes(',')) { const [l, f] = n.split(',').map(s => s.trim()); return `${f} ${l}`; }
+      return n;
+    }
+
+    function slugToName(slug) {
+      return slug?.split('/').pop()?.replace(/-/g, ' ') || slug || '';
+    }
+
+    function playerFromSlug(slug) {
+      return _playerMap[slug] || _playerMap[`/player/${slug}`] || null;
+    }
+
+    function rosterToList(team, tradingBlock) {
+      const slugs = [
+        ...new Set([
+          ...(team.roster.F || []),
+          ...(team.roster.D || []),
+          ...(team.roster.G || []),
+        ].filter(Boolean))
+      ];
+      return slugs.map(slug => {
+        const p = playerFromSlug(slug);
+        const pos = p ? normPos(p.position) : 'F';
+        const onBlock = !!tradingBlock[slug];
+        return {
+          slug,
+          name: p ? formatName(p.player_name) : slugToName(slug),
+          pos,
+          pts: p ? (p.points ?? 0) : 0,
+          cap: p ? ((p.cap_hit ?? 0) / 1e6) : 0,
+          team: p ? (p.team ?? '') : '',
+          onBlock,
+        };
+      });
+    }
+
+    /* ══════════════════════════════════════════
+       LOAD
+    ══════════════════════════════════════════ */
+    async function load() {
+      if (!_leagueCode) { showError('No league code found.'); return; }
+
+      try {
+        // Fetch roster data
+        const rRes = await fetch(
+          `${SUPABASE_URL}/rest/v1/pool_rosters?league_code=eq.${_leagueCode}&select=data`,
+          { headers: SB_HEADERS }
+        );
+        if (!rRes.ok) throw new Error(`pool_rosters ${rRes.status}`);
+        const rRows = await rRes.json();
+        if (!rRows.length) { showError('No league data found.'); return; }
+
+        const data = rRows[0].data || {};
+        const rawTeams = data.teams || [];
+        const tradingBlock = data.tradingBlock || {};
+        proposals = data.proposals || {};
+
+        // Determine active team (first team in list, same as roster.html default)
+        const activeId = data.activeTeamId || rawTeams[0]?.id;
+
+        // Fetch players
+        const pRes = await fetch(
+          `${SUPABASE_URL}/rest/v1/nhl_players?select=puckpedia_slug,player_name,position,cap_hit,team,points,goals,assists,wins,shutouts,games_played&order=cap_hit.desc&limit=1000`,
+          { headers: SB_HEADERS }
+        );
+        if (pRes.ok) {
+          const players = await pRes.json();
+          players.forEach(p => {
+            _playerMap[p.puckpedia_slug] = p;
+            _playerMap[`/player/${p.puckpedia_slug}`] = p;
+          });
+        }
+
+        // Build MY_TEAM and TEAMS
+        MY_TEAM = null;
+        TEAMS = [];
+        TEAM_ROSTERS = {};
+
+        rawTeams.forEach((t, idx) => {
+          const team = {
+            id: t.id || `team-${idx}`,
+            name: t.name || `Team ${idx + 1}`,
+            roster: {
+              F: Array.isArray(t.roster?.F) ? t.roster.F : [],
+              D: Array.isArray(t.roster?.D) ? t.roster.D : [],
+              G: Array.isArray(t.roster?.G) ? t.roster.G : [],
+            },
+          };
+          if (team.id === activeId) {
+            MY_TEAM = team;
+            MY_ROSTER = rosterToList(team, tradingBlock);
+          } else {
+            TEAMS.push(team);
+            TEAM_ROSTERS[team.id] = rosterToList(team, tradingBlock);
+          }
+        });
+
+        if (!MY_TEAM) {
+          // Fallback: first team is mine
+          const t = rawTeams[0];
+          if (t) {
+            MY_TEAM = { id: t.id || 'team-0', name: t.name || 'My Team', roster: { F: t.roster?.F||[], D: t.roster?.D||[], G: t.roster?.G||[] } };
+            MY_ROSTER = rosterToList(MY_TEAM, tradingBlock);
+          }
+        }
+
+        init();
+      } catch (e) {
+        console.error(e);
+        showError('Failed to load league data.');
+      }
+    }
+
+    function showError(msg) {
+      document.querySelector('.page-wrap').innerHTML = `<div style="text-align:center;padding:3rem 1rem;color:rgba(255,255,255,0.4);font-size:0.9rem;letter-spacing:1px">${msg}</div>`;
+    }
+
+    /* ══════════════════════════════════════════
+       SAVE
+    ══════════════════════════════════════════ */
+    async function saveProposals() {
+      // Re-fetch current data, merge proposals, then save
+      const rRes = await fetch(
+        `${SUPABASE_URL}/rest/v1/pool_rosters?league_code=eq.${_leagueCode}&select=data`,
+        { headers: SB_HEADERS }
+      );
+      if (!rRes.ok) throw new Error(`fetch failed ${rRes.status}`);
+      const rows = await rRes.json();
+      const data = rows[0]?.data || {};
+      data.proposals = proposals;
+
+      const res = await fetch(
+        `${SUPABASE_URL}/rest/v1/pool_rosters?on_conflict=league_code`,
+        {
+          method: 'POST',
+          headers: { ...SB_HEADERS, 'Prefer': 'resolution=merge-duplicates,return=minimal' },
+          body: JSON.stringify({ league_code: _leagueCode, data, updated_at: new Date().toISOString() }),
+        }
+      );
+      if (!res.ok) throw new Error(`save failed ${res.status}`);
+    }
 
     /* ══════════════════════════════════════════
        VIEW SWITCHING
@@ -612,7 +625,7 @@
     function renderTargetPills() {
       const container = document.getElementById('target-pills');
       container.innerHTML = TEAMS.map(t =>
-        `<button class="ttp${state.targetTeamId === t.id ? ' selected' : ''}" onclick="selectTarget('${t.id}','${escH(t.name)}')">${escH(t.name)}</button>`
+        `<button class="ttp${state.targetTeamId === t.id ? ' selected' : ''}" onclick="selectTarget('${escH(t.id)}','${escH(t.name)}')">${escH(t.name)}</button>`
       ).join('');
     }
 
@@ -622,8 +635,7 @@
       renderTargetPills();
       document.getElementById('request-team-label').textContent = name;
       document.getElementById('split-panels').classList.remove('locked');
-      const roster = TEAM_ROSTERS[id] || [];
-      renderPanel('request', roster);
+      renderPanel('request', TEAM_ROSTERS[id] || []);
       updateStepIndicator();
       updateSummaryBar();
     }
@@ -649,11 +661,11 @@
         const isSel = selected.has(p.slug);
         const selClass = isSel ? (side === 'offer' ? ' selected-offer' : ' selected-request') : '';
         const tbBadge = p.onBlock ? `<span class="tb-badge">📤</span>` : '';
-        return `<div class="panel-player-row${selClass}" onclick="togglePlayer('${side}','${p.slug}')">
+        return `<div class="panel-player-row${selClass}" onclick="togglePlayer('${side}','${escH(p.slug)}')">
           <div class="ppr-check">${isSel ? '✓' : ''}</div>
           <div class="ppr-info">
             <div class="ppr-name">${escH(p.name)}${tbBadge}</div>
-            <div class="ppr-meta">${p.team} · $${p.cap.toFixed(2)}M</div>
+            <div class="ppr-meta">${escH(p.team)} · $${p.cap.toFixed(2)}M</div>
           </div>
           <span class="pos-pill ${p.pos}">${p.pos}</span>
           <div class="ppr-pts">${p.pts}</div>
@@ -665,10 +677,8 @@
       const set = side === 'offer' ? state.offered : state.requested;
       if (set.has(slug)) set.delete(slug);
       else set.add(slug);
-      const roster = side === 'offer' ? MY_ROSTER : (TEAM_ROSTERS[state.targetTeamId] || []);
-      renderPanel(side, roster);
-      const count = document.getElementById(`${side}-count`);
-      count.textContent = set.size;
+      renderPanel(side, side === 'offer' ? MY_ROSTER : (TEAM_ROSTERS[state.targetTeamId] || []));
+      document.getElementById(`${side}-count`).textContent = set.size;
       updateSummaryBar();
       updateStepIndicator();
     }
@@ -676,22 +686,19 @@
     function filterPanel(side, val) {
       if (side === 'offer') state.offerSearch = val;
       else state.requestSearch = val;
-      const roster = side === 'offer' ? MY_ROSTER : (TEAM_ROSTERS[state.targetTeamId] || []);
-      renderPanel(side, roster);
+      renderPanel(side, side === 'offer' ? MY_ROSTER : (TEAM_ROSTERS[state.targetTeamId] || []));
     }
 
     function setPanelPos(side, pos) {
       if (side === 'offer') state.offerPosFilter = pos;
       else state.requestPosFilter = pos;
-      // Update filter buttons
       ['ALL','F','D','G'].forEach(p => {
         const btn = document.getElementById(`${side}-filter-${p}`);
         if (!btn) return;
         btn.className = `ppf ${p === 'ALL' ? 'ALL' : p}`;
         if (p === pos) btn.classList.add(p === 'ALL' ? 'active-all' : 'active');
       });
-      const roster = side === 'offer' ? MY_ROSTER : (TEAM_ROSTERS[state.targetTeamId] || []);
-      renderPanel(side, roster);
+      renderPanel(side, side === 'offer' ? MY_ROSTER : (TEAM_ROSTERS[state.targetTeamId] || []));
     }
 
     /* ══════════════════════════════════════════
@@ -711,65 +718,22 @@
       const hasAny = state.offered.size > 0 || state.requested.size > 0;
       bar.classList.toggle('empty', !hasAny);
 
-      if (!state.offered.size) {
-        offerChips.innerHTML = `<span class="tsb-empty-hint">Click players on the left</span>`;
-      } else {
-        offerChips.innerHTML = [...state.offered].map(slug => {
-          const p = map[slug]; if (!p) return '';
-          return `<span class="tsb-chip offer" onclick="togglePlayer('offer','${slug}')" title="Click to remove">
-            <span>${escH(p.name)}</span> ✕
-          </span>`;
-        }).join('');
-      }
+      offerChips.innerHTML = !state.offered.size
+        ? `<span class="tsb-empty-hint">Click players on the left</span>`
+        : [...state.offered].map(slug => {
+            const p = map[slug]; if (!p) return '';
+            return `<span class="tsb-chip offer" onclick="togglePlayer('offer','${escH(slug)}')" title="Click to remove"><span>${escH(p.name)}</span> ✕</span>`;
+          }).join('');
 
-      if (!state.requested.size) {
-        requestChips.innerHTML = `<span class="tsb-empty-hint">Click players on the right</span>`;
-      } else {
-        requestChips.innerHTML = [...state.requested].map(slug => {
-          const p = map[slug]; if (!p) return '';
-          return `<span class="tsb-chip request" onclick="togglePlayer('request','${slug}')" title="Click to remove">
-            <span>${escH(p.name)}</span> ✕
-          </span>`;
-        }).join('');
-      }
+      requestChips.innerHTML = !state.requested.size
+        ? `<span class="tsb-empty-hint">Click players on the right</span>`
+        : [...state.requested].map(slug => {
+            const p = map[slug]; if (!p) return '';
+            return `<span class="tsb-chip request" onclick="togglePlayer('request','${escH(slug)}')" title="Click to remove"><span>${escH(p.name)}</span> ✕</span>`;
+          }).join('');
 
-      // Impact calculations
-      const impactDiv = document.getElementById('tsb-impact');
       const sendBtn = document.getElementById('send-btn');
-
-      if (hasAny && state.targetTeamId) {
-        impactDiv.style.display = '';
-        let ptsDelta = 0, capDelta = 0;
-        [...state.offered].forEach(s => { const p = map[s]; if (p) { ptsDelta -= p.pts; capDelta -= p.cap; } });
-        [...state.requested].forEach(s => { const p = map[s]; if (p) { ptsDelta += p.pts; capDelta += p.cap; } });
-
-        const ptsEl = document.getElementById('impact-pts');
-        const capEl = document.getElementById('impact-cap');
-        const rosterEl = document.getElementById('impact-roster');
-        const flagEl = document.getElementById('impact-flag');
-
-        ptsEl.textContent = (ptsDelta >= 0 ? '+' : '') + ptsDelta + ' pts';
-        ptsEl.className = 'impact-value ' + (ptsDelta > 0 ? 'pos' : ptsDelta < 0 ? 'neg' : 'neutral');
-
-        capEl.textContent = (capDelta >= 0 ? '+$' : '-$') + Math.abs(capDelta).toFixed(2) + 'M';
-        capEl.className = 'impact-value ' + (capDelta > 0 ? 'neg' : capDelta < 0 ? 'pos' : 'neutral');
-
-        const rosterDiff = state.requested.size - state.offered.size;
-        rosterEl.textContent = rosterDiff === 0 ? 'Even' : (rosterDiff > 0 ? '+' + rosterDiff : rosterDiff) + ' spots';
-        rosterEl.className = 'impact-value ' + (rosterDiff !== 0 ? 'warn' : 'neutral');
-
-        // Validity flag
-        const overCap = capDelta > 5;
-        const rosterIssue = Math.abs(rosterDiff) > 2;
-        if (overCap) { flagEl.textContent = 'OVER CAP'; flagEl.className = 'impact-flag err'; }
-        else if (rosterIssue) { flagEl.textContent = 'CHECK ROSTER'; flagEl.className = 'impact-flag warn'; }
-        else { flagEl.textContent = 'VALID'; flagEl.className = 'impact-flag ok'; }
-
-        sendBtn.disabled = overCap || (!state.offered.size && !state.requested.size);
-      } else {
-        impactDiv.style.display = 'none';
-        sendBtn.disabled = !hasAny || !state.targetTeamId;
-      }
+      sendBtn.disabled = !hasAny || !state.targetTeamId;
     }
 
     function updateStepIndicator() {
@@ -801,79 +765,110 @@
       updateStepIndicator();
     }
 
-    function sendProposal() {
-      alert('Proposal sent! (In production, this calls saveProposals() and reloads.)');
-      clearProposal();
-      setPView('feed');
+    async function sendProposal() {
+      const targetTeam = TEAMS.find(t => t.id === state.targetTeamId);
+      if (!targetTeam || (!state.offered.size && !state.requested.size)) return;
+
+      const btn = document.getElementById('send-btn');
+      btn.disabled = true;
+      btn.textContent = 'Sending…';
+
+      const id = `prop-${Date.now()}-${Math.random().toString(36).slice(2,7)}`;
+      proposals[id] = {
+        id,
+        fromTeamId: MY_TEAM.id,
+        fromTeamName: MY_TEAM.name,
+        toTeamId: targetTeam.id,
+        toTeamName: targetTeam.name,
+        offeredSlugs: [...state.offered],
+        requestedSlugs: [...state.requested],
+        note: document.getElementById('proposal-note').value.trim().slice(0, 200),
+        status: 'pending',
+        createdAt: new Date().toISOString(),
+      };
+
+      try {
+        await saveProposals();
+        clearProposal();
+        setPView('feed');
+      } catch (e) {
+        delete proposals[id];
+        btn.disabled = false;
+        btn.textContent = 'Send Proposal';
+        alert('Failed to send proposal. Please try again.');
+      }
+    }
+
+    async function deleteProposal(id) {
+      if (!proposals[id]) return;
+      delete proposals[id];
+      try {
+        await saveProposals();
+        renderFeed();
+      } catch (e) {
+        alert('Failed to delete proposal.');
+        await load();
+      }
     }
 
     /* ══════════════════════════════════════════
        FEED
     ══════════════════════════════════════════ */
-    function setFeedFilter(f) {
-      state.feedFilter = f;
-      ['all','received','sent'].forEach(v => {
-        document.getElementById('pff-' + v)?.classList.toggle('active', v === f);
-      });
-      renderFeed();
-    }
-
     function renderFeed() {
-      let props = MOCK_PROPOSALS;
-      if (state.feedFilter === 'received') props = props.filter(p => p.toId === MY_TEAM.id);
-      if (state.feedFilter === 'sent') props = props.filter(p => p.fromId === MY_TEAM.id);
+      if (!MY_TEAM) return;
+      const props = Object.values(proposals)
+        .filter(p => p.fromTeamId === MY_TEAM.id || p.toTeamId === MY_TEAM.id)
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
       const count = document.getElementById('feed-count');
       if (count) count.textContent = props.length + ' proposal' + (props.length !== 1 ? 's' : '');
 
+      const feedBadge = document.getElementById('feed-badge');
+      const pending = Object.values(proposals).filter(p => p.status === 'pending' && p.toTeamId === MY_TEAM.id).length;
+      if (feedBadge) { feedBadge.textContent = pending || ''; feedBadge.style.display = pending ? 'inline-block' : 'none'; }
+
       const list = document.getElementById('feed-list');
       if (!list) return;
 
-      if (!props.length) {
-        list.innerHTML = `<div style="text-align:center;padding:2.5rem 1rem;color:rgba(255,255,255,0.2);font-size:0.85rem;letter-spacing:1px">No proposals in this category.</div>`;
-        return;
-      }
-
-      list.innerHTML = props.map(p => buildProposalCard(p)).join('');
+      list.innerHTML = props.length
+        ? props.map(p => buildProposalCard(p)).join('')
+        : `<div style="text-align:center;padding:2.5rem 1rem;color:rgba(255,255,255,0.2);font-size:0.85rem;letter-spacing:1px">No proposals yet.</div>`;
     }
 
     function buildProposalCard(p) {
-      const isSent = p.fromId === MY_TEAM.id;
-      const dirLabel = isSent ? 'Sent' : 'Received';
-      const counterName = isSent ? p.toName : p.fromName;
-      const dateStr = new Date(p.date).toLocaleDateString('en-CA', { month: 'short', day: 'numeric' });
+      const isSent = p.fromTeamId === MY_TEAM.id;
+      const counterName = isSent ? p.toTeamName : p.fromTeamName;
+      const dateStr = new Date(p.createdAt).toLocaleDateString('en-CA', { month: 'short', day: 'numeric' });
 
-      // Impact calcs
-      const offPts = p.offered.reduce((s, x) => s + x.pts, 0);
-      const reqPts = p.requested.reduce((s, x) => s + x.pts, 0);
-      const offCap = p.offered.reduce((s, x) => s + x.cap, 0);
-      const reqCap = p.requested.reduce((s, x) => s + x.cap, 0);
-      const ptsDelta = reqPts - offPts;
-      const capDelta = reqCap - offCap;
-
-      function playerRow(player) {
+      function playerRow(slug) {
+        const info = playerFromSlug(slug);
+        const name = info ? formatName(info.player_name) : slugToName(slug);
+        const pos = info ? normPos(info.position) : 'F';
+        const pts = info ? (info.points ?? 0) : 0;
+        const cap = info ? ((info.cap_hit ?? 0) / 1e6) : 0;
         return `<div class="pc-player-row">
-          <span class="pos-pill ${player.pos}">${player.pos}</span>
-          <span class="pc-player-name">${escH(player.name)}</span>
-          <span class="pc-player-stat">${player.pts}pts · $${player.cap.toFixed(2)}M</span>
+          <span class="pos-pill ${pos}">${pos}</span>
+          <span class="pc-player-name">${escH(name)}</span>
+          <span class="pc-player-stat">${pts}pts · $${cap.toFixed(2)}M</span>
         </div>`;
       }
 
-      const offerSide = p.offered.length ? p.offered.map(playerRow).join('') : `<div class="pc-empty">Nothing offered</div>`;
-      const reqSide = p.requested.length ? p.requested.map(playerRow).join('') : `<div class="pc-empty">Nothing requested</div>`;
+      const offeredSlugs = p.offeredSlugs || [];
+      const requestedSlugs = p.requestedSlugs || [];
+      const offerSide = offeredSlugs.length ? offeredSlugs.map(playerRow).join('') : `<div class="pc-empty">Nothing offered</div>`;
+      const reqSide = requestedSlugs.length ? requestedSlugs.map(playerRow).join('') : `<div class="pc-empty">Nothing requested</div>`;
 
-      const footer = isSent && p.status === 'pending'
-        ? `<div class="pc-footer"><button class="pc-action-btn withdraw" onclick="alert('Proposal withdrawn.')">Withdraw</button></div>`
-        : !isSent && p.status === 'pending'
-          ? `<div class="pc-footer"><span class="pc-received-msg">Contact ${escH(p.fromName)} to discuss</span><button class="pc-action-btn counter" onclick="setPView('build');alert('Pre-filled counter-proposal.')">Counter →</button></div>`
-          : '';
+      const footer = !isSent && p.status === 'pending'
+        ? `<div class="pc-footer"><span class="pc-received-msg">Contact ${escH(p.fromTeamName)} to discuss</span><button class="pc-action-btn counter" onclick="counterProposal('${escH(p.id)}')">Counter →</button></div>`
+        : '';
 
       return `<div class="proposal-card ${isSent ? 'sent' : 'received'}">
         <div class="pc-header">
-          <span class="pc-badge-dir ${isSent ? 'sent' : 'received'}">${dirLabel}</span>
+          <span class="pc-badge-dir ${isSent ? 'sent' : 'received'}">${isSent ? 'Sent' : 'Received'}</span>
           <span class="pc-team-name">${escH(counterName)}</span>
-          <span class="pc-status ${p.status}">${p.status.toUpperCase()}</span>
+          <span class="pc-status ${escH(p.status)}">${p.status.toUpperCase()}</span>
           <span class="pc-date">${dateStr}</span>
+          <button class="pc-delete-btn" onclick="deleteProposal('${escH(p.id)}')" title="Delete">✕</button>
         </div>
         <div class="pc-compare">
           <div class="pc-compare-side">
@@ -886,35 +881,34 @@
             ${reqSide}
           </div>
         </div>
-        <div class="pc-impact-strip">
-          <div class="pc-impact-item">
-            <div class="pc-impact-label">Pts Δ</div>
-            <div class="pc-impact-val ${ptsDelta > 0 ? 'pos' : ptsDelta < 0 ? 'neg' : 'neutral'}">${ptsDelta >= 0 ? '+' : ''}${ptsDelta}</div>
-          </div>
-          <div class="pc-impact-item">
-            <div class="pc-impact-label">Cap Δ</div>
-            <div class="pc-impact-val ${capDelta > 0 ? 'neg' : capDelta < 0 ? 'pos' : 'neutral'}">${capDelta >= 0 ? '+$' : '-$'}${Math.abs(capDelta).toFixed(2)}M</div>
-          </div>
-          <div class="pc-impact-item">
-            <div class="pc-impact-label">Giving</div>
-            <div class="pc-impact-val neutral">${p.offered.length} player${p.offered.length !== 1 ? 's' : ''}</div>
-          </div>
-          <div class="pc-impact-item">
-            <div class="pc-impact-label">Getting</div>
-            <div class="pc-impact-val neutral">${p.requested.length} player${p.requested.length !== 1 ? 's' : ''}</div>
-          </div>
-        </div>
         ${p.note ? `<div class="pc-note">"${escH(p.note)}"</div>` : ''}
         ${footer}
       </div>`;
     }
 
-    function escH(v) {
-      return String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    function counterProposal(id) {
+      const p = proposals[id];
+      if (!p) return;
+      state.targetTeamId = p.fromTeamId;
+      state.offered = new Set(p.requestedSlugs || []);
+      state.requested = new Set(p.offeredSlugs || []);
+      renderTargetPills();
+      const targetTeam = TEAMS.find(t => t.id === p.fromTeamId);
+      if (targetTeam) {
+        document.getElementById('request-team-label').textContent = targetTeam.name;
+        document.getElementById('split-panels').classList.remove('locked');
+        renderPanel('request', TEAM_ROSTERS[targetTeam.id] || []);
+      }
+      renderPanel('offer', MY_ROSTER);
+      document.getElementById('offer-count').textContent = state.offered.size;
+      document.getElementById('request-count').textContent = state.requested.size;
+      updateSummaryBar();
+      updateStepIndicator();
+      setPView('build');
     }
 
     // Boot
-    init();
+    load();
 </script>
 </body>
 </html>
