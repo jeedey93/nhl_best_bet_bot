@@ -280,6 +280,9 @@
         }
         .pc-action-btn.counter { border: 1px solid rgba(125,180,255,0.3); background: transparent; color: var(--blue); }
         .pc-action-btn.counter:hover { background: rgba(125,180,255,0.1); border-color: rgba(125,180,255,0.5); }
+        .pc-action-btn.execute { border: none; background: var(--green); color: #07111f; }
+        .pc-action-btn.execute:hover { background: #34d371; }
+        .pc-action-btn.execute:disabled { background: rgba(34,197,94,0.25); color: rgba(255,255,255,0.3); cursor: not-allowed; }
         .pc-received-msg { font-size: 0.7rem; color: rgba(125,180,255,0.5); letter-spacing: 0.4px; }
 
         /* ── Responsive ── */
@@ -898,8 +901,11 @@
       const offerSide = offeredSlugs.length ? offeredSlugs.map(playerRow).join('') : `<div class="pc-empty">Nothing offered</div>`;
       const reqSide = requestedSlugs.length ? requestedSlugs.map(playerRow).join('') : `<div class="pc-empty">Nothing requested</div>`;
 
-      const footer = !isSent && p.status === 'pending'
-        ? `<div class="pc-footer"><span class="pc-received-msg">Contact ${escH(p.fromTeamName)} to discuss</span><button class="pc-action-btn counter" onclick="counterProposal('${escH(p.id)}')">Counter →</button></div>`
+      const footer = p.status === 'pending'
+        ? `<div class="pc-footer">
+            ${!isSent ? `<span class="pc-received-msg">Contact ${escH(p.fromTeamName)} to discuss</span><button class="pc-action-btn counter" onclick="counterProposal('${escH(p.id)}')">Counter →</button>` : ''}
+            <button class="pc-action-btn execute" id="exec-btn-${escH(p.id)}" onclick="executeTrade('${escH(p.id)}')">⇄ Execute Trade</button>
+           </div>`
         : '';
 
       return `<div class="proposal-card ${isSent ? 'sent' : 'received'}">
@@ -945,6 +951,125 @@
       updateSummaryBar();
       updateStepIndicator();
       setPView('build');
+    }
+
+    /* ══════════════════════════════════════════
+       EXECUTE TRADE
+    ══════════════════════════════════════════ */
+    function captureSnapshot(slug) {
+      const p = _playerMap[slug] || _playerMap[`/player/${slug}`];
+      if (!p) return { points: 0, goals: 0, assists: 0, wins: 0, shutouts: 0, games_played: 0 };
+      return {
+        points: p.points ?? 0,
+        goals: p.goals ?? 0,
+        assists: p.assists ?? 0,
+        wins: p.wins ?? 0,
+        shutouts: p.shutouts ?? 0,
+        games_played: p.games_played ?? 0,
+      };
+    }
+
+    function applyTradeToRoster(team, incoming, outgoing) {
+      // incoming: slugs coming INTO this team; outgoing: slugs leaving this team
+      // Move outgoing out of any position group, move incoming in (preserving slot if possible,
+      // else appending to the matching position group or bench)
+      const now = new Date().toISOString();
+      if (!team.acquisitions) team.acquisitions = {};
+
+      for (const slug of outgoing) {
+        // Remove from roster (any group)
+        for (const g of ['F', 'D', 'G', 'B']) {
+          if (!team.roster[g]) continue;
+          const idx = team.roster[g].indexOf(slug);
+          if (idx !== -1) { team.roster[g].splice(idx, 1); break; }
+        }
+        // Keep acquisition record so historical points are preserved — don't delete it
+      }
+
+      for (const slug of incoming) {
+        // Determine position group
+        const p = _playerMap[slug] || _playerMap[`/player/${slug}`];
+        let group = 'F';
+        if (p) {
+          const pos = (p.position || '').toUpperCase();
+          if (pos === 'D' || pos.includes('LD') || pos.includes('RD')) group = 'D';
+          else if (pos.includes('G')) group = 'G';
+        }
+        if (!team.roster[group]) team.roster[group] = [];
+        team.roster[group].push(slug);
+
+        // Set acquisition snapshot so points only count from today
+        if (!team.acquisitions[slug] || !team.acquisitions[slug].stats_snapshot) {
+          team.acquisitions[slug] = { date: now, stats_snapshot: captureSnapshot(slug) };
+        }
+      }
+    }
+
+    async function executeTrade(proposalId) {
+      const p = proposals[proposalId];
+      if (!p || p.status !== 'pending') return;
+
+      const btn = document.getElementById(`exec-btn-${proposalId}`);
+      if (btn) { btn.disabled = true; btn.textContent = 'Executing…'; }
+
+      try {
+        // Re-fetch latest data to avoid overwriting concurrent changes
+        const rRes = await fetch(
+          `${SUPABASE_URL}/rest/v1/pool_rosters?league_code=eq.${_leagueCode}&select=data`,
+          { headers: SB_HEADERS }
+        );
+        if (!rRes.ok) throw new Error(`fetch failed ${rRes.status}`);
+        const rows = await rRes.json();
+        const data = rows[0]?.data || {};
+
+        const rawTeams = data.teams || [];
+        const fromTeam = rawTeams.find(t => t.id === p.fromTeamId);
+        const toTeam = rawTeams.find(t => t.id === p.toTeamId);
+        if (!fromTeam || !toTeam) throw new Error('One or both teams not found.');
+
+        // fromTeam gives up offeredSlugs, receives requestedSlugs
+        applyTradeToRoster(fromTeam, p.requestedSlugs || [], p.offeredSlugs || []);
+        // toTeam gives up requestedSlugs, receives offeredSlugs
+        applyTradeToRoster(toTeam, p.offeredSlugs || [], p.requestedSlugs || []);
+
+        // Mark proposal accepted and cancel other pending proposals that involve any traded player
+        const tradedSlugs = new Set([...(p.offeredSlugs || []), ...(p.requestedSlugs || [])]);
+        const allProposals = data.proposals || {};
+        allProposals[proposalId].status = 'accepted';
+        for (const [id, prop] of Object.entries(allProposals)) {
+          if (id === proposalId || prop.status !== 'pending') continue;
+          const involved = [...(prop.offeredSlugs || []), ...(prop.requestedSlugs || [])];
+          if (involved.some(s => tradedSlugs.has(s))) prop.status = 'withdrawn';
+        }
+
+        // Save
+        const res = await fetch(
+          `${SUPABASE_URL}/rest/v1/pool_rosters?on_conflict=league_code`,
+          {
+            method: 'POST',
+            headers: { ...SB_HEADERS, 'Prefer': 'resolution=merge-duplicates,return=minimal' },
+            body: JSON.stringify({ league_code: _leagueCode, data, updated_at: new Date().toISOString() }),
+          }
+        );
+        if (!res.ok) throw new Error(`save failed ${res.status}`);
+
+        // Reload local state
+        proposals = allProposals;
+        _allTeams.forEach(t => {
+          const updated = rawTeams.find(r => r.id === t.id);
+          if (updated) { t.roster = updated.roster; t.acquisitions = updated.acquisitions; }
+        });
+        TEAM_ROSTERS = {};
+        _allTeams.forEach(t => { TEAM_ROSTERS[t.id] = rosterToList(t, data.tradingBlock || {}); });
+        const updatedMy = rawTeams.find(r => r.id === MY_TEAM.id);
+        if (updatedMy) { MY_TEAM.roster = updatedMy.roster; MY_TEAM.acquisitions = updatedMy.acquisitions; MY_ROSTER = rosterToList(MY_TEAM, data.tradingBlock || {}); }
+
+        renderFeed();
+      } catch (e) {
+        console.error(e);
+        alert('Failed to execute trade: ' + (e.message || e));
+        if (btn) { btn.disabled = false; btn.textContent = '⇄ Execute Trade'; }
+      }
     }
 
     // Boot
