@@ -4,430 +4,570 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trade Proposals</title>
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,900;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
         :root {
-          --rink: #07111f;
-          --red: #c8102e;
-          --gold: #ffb81c;
-          --silver: #a8b2be;
-          --green: #22c55e;
-          --blue: #7db4ff;
-          --pink: #ff7a8a;
-          --amber: #f59e0b;
-          --line: rgba(255,255,255,0.08);
+          --rink:   #07111f;
+          --gold:   #ffb81c;
+          --pink:   #ff7a8a;
+          --blue:   #7db4ff;
+          --green:  #22c55e;
+          --amber:  #f59e0b;
+          --silver: rgba(255,255,255,0.5);
+          --dim:    rgba(255,255,255,0.08);
+          --panel:  rgba(255,255,255,0.035);
         }
+
         body {
           background: var(--rink);
-          background-image: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(26,58,110,0.6) 0%, transparent 70%);
+          background-image: radial-gradient(ellipse 80% 40% at 50% -5%, rgba(26,58,110,0.55) 0%, transparent 65%);
           min-height: 100vh;
           font-family: 'Barlow Condensed', sans-serif;
-          color: white;
-          padding: 2rem 1rem;
+          color: #fff;
+          padding: 24px 16px 48px;
         }
-        .page-wrap { max-width: 1000px; margin: 0 auto; }
 
-        /* ════════════════════════════════════════
-           PROPOSAL MODE SWITCHER
-        ════════════════════════════════════════ */
-        .proposals-view-tabs {
-          display: flex; gap: 4px; margin-bottom: 1rem;
-          background: rgba(255,255,255,0.03); border: 1px solid var(--line);
-          border-radius: 8px; padding: 3px;
-        }
-        .pvt { font-family: 'Bebas Neue', cursive; font-size: 0.82rem; letter-spacing: 2px;
-          padding: 5px 18px; border-radius: 5px; cursor: pointer; flex: 1; text-align: center;
-          color: var(--silver); transition: all 0.15s; background: transparent; border: none; }
-        .pvt:hover { color: white; }
-        .pvt.active { background: rgba(255,184,28,0.12); color: var(--gold); }
+        .shell { max-width: 940px; margin: 0 auto; }
 
-        /* ════════════════════════════════════════
-           SPLIT-SCREEN BUILDER
-        ════════════════════════════════════════ */
-        .builder-container { display: flex; flex-direction: column; gap: 0.75rem; }
+        /* ─── Scrollbar ─── */
+        ::-webkit-scrollbar { width: 3px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 2px; }
 
-        /* Step indicator */
-        .builder-steps {
-          display: flex; align-items: center; gap: 0; margin-bottom: 0.25rem;
+        /* ═══════════════════════════════════════
+           TOP BAR
+        ═══════════════════════════════════════ */
+        .topbar {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-bottom: 20px;
+          gap: 12px;
+          flex-wrap: wrap;
         }
-        .step-item {
-          display: flex; align-items: center; gap: 0.5rem;
-          font-family: 'Bebas Neue', cursive; font-size: 0.78rem; letter-spacing: 2px;
-          color: rgba(255,255,255,0.28);
+
+        /* Team badge */
+        .team-badge {
+          display: flex;
+          align-items: center;
+          gap: 9px;
+          background: rgba(255,255,255,0.04);
+          border: 1px solid rgba(255,255,255,0.1);
+          border-radius: 9px;
+          padding: 6px 12px 6px 7px;
+          cursor: pointer;
+          transition: background 0.15s, border-color 0.15s;
+          position: relative;
         }
-        .step-item.active { color: var(--gold); }
-        .step-item.done { color: rgba(34,197,94,0.7); }
-        .step-num {
-          width: 20px; height: 20px; border-radius: 50%; border: 1px solid currentColor;
+        .team-badge:hover { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.18); }
+        .team-avatar {
+          width: 28px; height: 28px; border-radius: 7px;
+          background: rgba(255,184,28,0.18); border: 1px solid rgba(255,184,28,0.3);
           display: flex; align-items: center; justify-content: center;
-          font-size: 0.65rem; flex-shrink: 0;
+          font-family: 'Bebas Neue', cursive; font-size: 11px; letter-spacing: 0.5px; color: var(--gold);
         }
-        .step-connector { flex: 1; height: 1px; background: rgba(255,255,255,0.08); margin: 0 8px; }
+        .team-badge-text {}
+        .team-badge-label { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.3); line-height: 1; margin-bottom: 2px; }
+        .team-badge-name { font-family: 'Bebas Neue', cursive; font-size: 14px; letter-spacing: 1px; line-height: 1; }
+        .team-badge-chevron { font-size: 9px; color: rgba(255,255,255,0.25); margin-left: 3px; transition: transform 0.15s; }
+        .team-badge.open .team-badge-chevron { transform: rotate(180deg); }
 
-        /* Target team selector */
-        .target-team-section { }
-        .section-eyebrow {
-          font-family: 'Barlow Condensed', sans-serif; font-size: 0.62rem; font-weight: 700;
-          letter-spacing: 1.8px; text-transform: uppercase; color: rgba(255,255,255,0.3);
-          margin-bottom: 0.5rem;
+        /* Team dropdown */
+        .team-dropdown {
+          position: absolute;
+          top: calc(100% + 5px);
+          left: 0;
+          min-width: 200px;
+          background: rgba(10,20,36,0.98);
+          border: 1px solid rgba(255,255,255,0.12);
+          border-radius: 10px;
+          padding: 6px;
+          z-index: 100;
+          display: none;
+          backdrop-filter: blur(16px);
         }
-        .target-team-pills { display: flex; flex-wrap: wrap; gap: 6px; }
-        .ttp {
-          font-family: 'Bebas Neue', cursive; font-size: 0.78rem; letter-spacing: 1.5px;
-          padding: 5px 14px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1);
-          color: var(--silver); background: transparent; cursor: pointer; transition: all 0.15s;
+        .team-badge.open .team-dropdown { display: block; }
+        .td-item {
+          display: flex; align-items: center; gap: 8px;
+          padding: 7px 10px; border-radius: 6px;
+          font-family: 'Bebas Neue', cursive; font-size: 13px; letter-spacing: 1px;
+          color: rgba(255,255,255,0.55); cursor: pointer; transition: all 0.12s;
         }
-        .ttp:hover { border-color: rgba(255,184,28,0.4); color: var(--gold); }
-        .ttp.selected { background: rgba(255,184,28,0.12); border-color: rgba(255,184,28,0.5); color: var(--gold); }
+        .td-item:hover { background: rgba(255,255,255,0.05); color: #fff; }
+        .td-item.active { color: var(--gold); }
+        .td-dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,0.15); flex-shrink: 0; }
+        .td-dot.active { background: rgba(255,184,28,0.6); }
 
-        /* ── SPLIT PANELS ── */
-        .split-panels {
-          display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
-          transition: opacity 0.2s;
+        /* View tabs */
+        .view-tabs {
+          display: flex;
+          background: rgba(255,255,255,0.04);
+          border: 1px solid rgba(255,255,255,0.08);
+          border-radius: 9px;
+          padding: 3px;
+          gap: 3px;
         }
-        .split-panels.locked { opacity: 0.35; pointer-events: none; }
-        @media (max-width: 600px) { .split-panels { grid-template-columns: 1fr; } }
+        .vtab {
+          font-family: 'Bebas Neue', cursive; font-size: 13px; letter-spacing: 1.5px;
+          padding: 6px 18px; border-radius: 7px;
+          cursor: pointer; border: none; background: transparent;
+          color: rgba(255,255,255,0.35); transition: all 0.15s;
+          position: relative;
+        }
+        .vtab:hover { color: rgba(255,255,255,0.7); }
+        .vtab.active { background: rgba(255,255,255,0.07); color: #fff; }
+        .vtab-badge {
+          position: absolute; top: 3px; right: 6px;
+          width: 6px; height: 6px; border-radius: 50%;
+          background: var(--gold); display: none;
+        }
 
-        .split-panel {
-          background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.08);
-          border-radius: 10px; overflow: hidden; display: flex; flex-direction: column;
-          min-height: 240px;
+        /* ═══════════════════════════════════════
+           BUILD VIEW
+        ═══════════════════════════════════════ */
+        .section-label {
+          font-size: 10px; letter-spacing: 1.8px; text-transform: uppercase;
+          color: rgba(255,255,255,0.28); margin-bottom: 9px;
         }
-        .split-panel-header {
-          display: flex; align-items: center; gap: 0.5rem; padding: 0.55rem 0.75rem;
+
+        /* Target pills */
+        .target-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+        .tpill {
+          font-family: 'Bebas Neue', cursive; font-size: 13px; letter-spacing: 1px;
+          padding: 5px 15px; border-radius: 20px;
+          border: 1px solid rgba(255,255,255,0.1);
+          color: rgba(255,255,255,0.4); background: transparent;
+          cursor: pointer; transition: all 0.15s;
+        }
+        .tpill:hover { border-color: rgba(255,255,255,0.25); color: rgba(255,255,255,0.8); }
+        .tpill.sel { background: rgba(255,184,28,0.1); border-color: rgba(255,184,28,0.4); color: var(--gold); }
+
+        /* Split panels */
+        .panels { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+        @media (max-width: 560px) { .panels { grid-template-columns: 1fr; } }
+
+        .panel {
+          background: var(--panel); border: 1px solid rgba(255,255,255,0.08);
+          border-radius: 12px; overflow: hidden; display: flex; flex-direction: column;
+        }
+
+        .panel-head {
+          display: flex; align-items: center; gap: 7px;
+          padding: 10px 13px 9px;
           border-bottom: 1px solid rgba(255,255,255,0.06);
         }
-        .split-panel-title { font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 2px; }
-        .split-panel-title.offer { color: var(--pink); }
-        .split-panel-title.request { color: var(--blue); }
-        .split-panel-team { font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem; color: rgba(255,255,255,0.35); margin-left: auto; letter-spacing: 0.5px; }
-        .split-panel-count { font-family: 'Bebas Neue', cursive; font-size: 0.72rem; letter-spacing: 1px;
-          background: rgba(255,255,255,0.07); border-radius: 20px; padding: 1px 8px; color: var(--silver); margin-left: 4px; }
-
-        /* Search within panel */
-        .panel-search {
-          display: flex; align-items: center; gap: 0; border-bottom: 1px solid rgba(255,255,255,0.06);
+        .panel-title { font-family: 'Bebas Neue', cursive; font-size: 14px; letter-spacing: 1.5px; }
+        .panel-title.offer { color: var(--pink); }
+        .panel-title.req   { color: var(--blue); }
+        .panel-sel-count {
+          font-size: 10px; letter-spacing: 1px;
+          background: rgba(255,255,255,0.06); border-radius: 20px;
+          padding: 2px 8px; color: rgba(255,255,255,0.4);
+          margin-left: auto;
         }
-        .panel-search-icon { padding: 0 0.6rem; color: rgba(255,255,255,0.25); font-size: 0.8rem; }
+        .panel-sel-count.has-offer { background: rgba(255,122,138,0.12); color: var(--pink); }
+        .panel-sel-count.has-req   { background: rgba(125,180,255,0.12); color: var(--blue); }
+
+        /* Toolbar: pos chips + search in one row */
+        .panel-toolbar {
+          display: flex; align-items: center; gap: 5px;
+          padding: 7px 10px; border-bottom: 1px solid rgba(255,255,255,0.04);
+        }
+        .pchip {
+          font-family: 'Bebas Neue', cursive; font-size: 10px; letter-spacing: 1px;
+          padding: 3px 9px; border-radius: 4px;
+          border: 1px solid rgba(255,255,255,0.08);
+          color: rgba(255,255,255,0.32); background: transparent;
+          cursor: pointer; transition: all 0.12s; flex-shrink: 0;
+        }
+        .pchip.a-all { border-color: rgba(255,255,255,0.2);  color: rgba(255,255,255,0.7);  background: rgba(255,255,255,0.05); }
+        .pchip.a-F   { border-color: rgba(255,122,138,0.4);  color: var(--pink);  background: rgba(255,122,138,0.08); }
+        .pchip.a-D   { border-color: rgba(125,180,255,0.4);  color: var(--blue);  background: rgba(125,180,255,0.08); }
+        .pchip.a-G   { border-color: rgba(255,184,28,0.4);   color: var(--gold);  background: rgba(255,184,28,0.08); }
+
+        .panel-search {
+          flex: 1; display: flex; align-items: center;
+          background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07);
+          border-radius: 6px; padding: 0 8px; gap: 5px;
+        }
+        .search-ico { font-size: 11px; color: rgba(255,255,255,0.2); }
         .panel-search input {
-          flex: 1; background: transparent; border: none; color: white; font-family: 'Barlow Condensed', sans-serif;
-          font-size: 0.82rem; padding: 0.38rem 0.5rem 0.38rem 0; outline: none; letter-spacing: 0.5px;
+          flex: 1; background: transparent; border: none; outline: none;
+          color: #fff; font-family: 'Barlow Condensed', sans-serif;
+          font-size: 12px; padding: 4px 0; letter-spacing: 0.3px;
         }
         .panel-search input::placeholder { color: rgba(255,255,255,0.2); }
 
-        /* Pos filter pills */
-        .panel-pos-filter { display: flex; gap: 4px; padding: 0.35rem 0.65rem; border-bottom: 1px solid rgba(255,255,255,0.04); }
-        .ppf {
-          font-family: 'Bebas Neue', cursive; font-size: 0.65rem; letter-spacing: 1px;
-          padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1);
-          color: rgba(255,255,255,0.4); background: transparent; cursor: pointer; transition: all 0.12s;
-        }
-        .ppf:hover { color: white; }
-        .ppf.ALL.active, .ppf.active-all { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.2); color: white; }
-        .ppf.F.active { background: rgba(255,122,138,0.12); border-color: rgba(255,122,138,0.4); color: var(--pink); }
-        .ppf.D.active { background: rgba(125,180,255,0.12); border-color: rgba(125,180,255,0.4); color: var(--blue); }
-        .ppf.G.active { background: rgba(255,184,28,0.12); border-color: rgba(255,184,28,0.4); color: var(--gold); }
-
         /* Player list */
-        .panel-player-list { flex: 1; overflow-y: auto; max-height: 280px; }
-        .panel-player-row {
-          display: grid; grid-template-columns: 20px 1fr auto auto; gap: 8px; align-items: center;
-          padding: 0.38rem 0.65rem; border-bottom: 1px solid rgba(255,255,255,0.03);
-          cursor: pointer; transition: background 0.1s; user-select: none;
+        .player-list { flex: 1; overflow-y: auto; max-height: 280px; }
+        .pr {
+          display: grid; grid-template-columns: 17px 1fr auto 34px;
+          gap: 8px; align-items: center;
+          padding: 7px 13px; border-bottom: 1px solid rgba(255,255,255,0.03);
+          cursor: pointer; transition: background 0.1s;
         }
-        .panel-player-row:hover { background: rgba(255,255,255,0.03); }
-        .panel-player-row.selected-offer { background: rgba(255,122,138,0.06); border-left: 2px solid rgba(255,122,138,0.45); }
-        .panel-player-row.selected-request { background: rgba(125,180,255,0.06); border-left: 2px solid rgba(125,180,255,0.45); }
-        .ppr-check {
-          width: 16px; height: 16px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.15);
-          display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-          font-size: 0.6rem; transition: all 0.12s;
-        }
-        .selected-offer .ppr-check { background: var(--pink); border-color: var(--pink); color: #07111f; }
-        .selected-request .ppr-check { background: var(--blue); border-color: var(--blue); color: #07111f; }
-        .ppr-info { min-width: 0; }
-        .ppr-name { font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 0.8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.1; }
-        .ppr-meta { font-size: 0.65rem; color: rgba(255,255,255,0.35); }
-        .ppr-pts { font-family: 'Bebas Neue', cursive; font-size: 0.82rem; color: var(--gold); letter-spacing: 0.5px; }
-        .pos-pill {
-          font-family: 'Bebas Neue', cursive; font-size: 0.58rem; letter-spacing: 0.8px;
-          border-radius: 3px; padding: 1px 4px; flex-shrink: 0;
-        }
-        .pos-pill.F { background: rgba(255,122,138,0.15); color: var(--pink); }
-        .pos-pill.D { background: rgba(125,180,255,0.15); color: var(--blue); }
-        .pos-pill.G { background: rgba(255,184,28,0.15); color: var(--gold); }
-        .tb-badge { font-family: 'Bebas Neue', cursive; font-size: 0.55rem; letter-spacing: 1px;
-          color: var(--amber); background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.25);
-          border-radius: 3px; padding: 0 4px; margin-left: 4px; vertical-align: middle; }
-        .panel-player-row.on-block:not(.selected-offer):not(.selected-request) { background: rgba(245,158,11,0.05); border-left: 2px solid rgba(245,158,11,0.35); }
+        .pr:last-child { border-bottom: none; }
+        .pr:hover { background: rgba(255,255,255,0.025); }
+        .pr.s-offer { background: rgba(255,122,138,0.07); border-left: 2px solid rgba(255,122,138,0.5); padding-left: 11px; }
+        .pr.s-req   { background: rgba(125,180,255,0.07); border-left: 2px solid rgba(125,180,255,0.5); padding-left: 11px; }
+        .pr.on-block:not(.s-offer):not(.s-req) { border-left: 2px solid rgba(245,158,11,0.4); padding-left: 11px; }
 
-        /* ── FLOATING TRADE SUMMARY BAR ── */
-        .trade-summary-bar {
-          background: rgba(12,22,38,0.97); border: 1px solid rgba(255,255,255,0.1);
-          border-radius: 12px; padding: 0.75rem 1rem; transition: all 0.25s;
-          backdrop-filter: blur(12px);
+        .pr-check {
+          width: 16px; height: 16px; border-radius: 4px;
+          border: 1px solid rgba(255,255,255,0.15);
+          display: flex; align-items: center; justify-content: center;
+          font-size: 8px; flex-shrink: 0; transition: all 0.12s;
         }
-        .trade-summary-bar.empty { opacity: 0.45; }
+        .s-offer .pr-check { background: var(--pink); border-color: var(--pink); color: var(--rink); }
+        .s-req   .pr-check { background: var(--blue); border-color: var(--blue); color: var(--rink); }
 
-        .tsb-row { display: flex; align-items: stretch; gap: 8px; }
+        .pr-info {}
+        .pr-name {
+          font-family: 'Bebas Neue', cursive; font-size: 14px; letter-spacing: 0.8px;
+          line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .pr-meta { font-size: 11px; color: rgba(255,255,255,0.3); margin-top: 1px; }
 
-        .tsb-side { flex: 1; min-width: 0; }
-        .tsb-side-label { font-family: 'Barlow Condensed', sans-serif; font-size: 0.6rem; font-weight: 700;
-          letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 6px; }
-        .tsb-side-label.offer { color: rgba(255,122,138,0.7); }
-        .tsb-side-label.request { color: rgba(125,180,255,0.7); }
-        .tsb-chips { display: flex; flex-wrap: wrap; gap: 4px; min-height: 28px; align-items: flex-start; }
-        .tsb-chip {
+        .pos-tag {
+          font-family: 'Bebas Neue', cursive; font-size: 10px; letter-spacing: 0.8px;
+          padding: 2px 5px; border-radius: 3px; text-align: center;
+        }
+        .pos-tag.F { background: rgba(255,122,138,0.14); color: var(--pink); }
+        .pos-tag.D { background: rgba(125,180,255,0.14); color: var(--blue); }
+        .pos-tag.G { background: rgba(255,184,28,0.14);  color: var(--gold); }
+
+        .block-tag {
+          display: inline; font-family: 'Bebas Neue', cursive; font-size: 9px; letter-spacing: 1px;
+          color: var(--amber); background: rgba(245,158,11,0.12);
+          border: 1px solid rgba(245,158,11,0.22);
+          border-radius: 3px; padding: 0 4px; margin-left: 5px; vertical-align: middle;
+        }
+
+        .pr-pts { font-family: 'Bebas Neue', cursive; font-size: 14px; color: var(--gold); text-align: right; }
+
+        .panel-empty {
+          padding: 2rem 1rem; text-align: center;
+          font-size: 12px; color: rgba(255,255,255,0.2); letter-spacing: 0.4px; line-height: 1.6;
+        }
+
+        /* ═══════════════════════════════════════
+           SUMMARY BAR
+        ═══════════════════════════════════════ */
+        .summary-bar {
+          background: rgba(255,255,255,0.03);
+          border: 1px solid rgba(255,255,255,0.1);
+          border-radius: 12px; padding: 13px 15px;
+          transition: border-color 0.2s;
+        }
+        .summary-bar.has-content { border-color: rgba(255,255,255,0.14); }
+
+        .sb-top { display: grid; grid-template-columns: 1fr 32px 1fr; gap: 8px; align-items: start; margin-bottom: 11px; }
+        .sb-side-label {
+          font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 700;
+          margin-bottom: 6px;
+        }
+        .sb-side-label.offer { color: rgba(255,122,138,0.6); }
+        .sb-side-label.req   { color: rgba(125,180,255,0.6); }
+
+        .sb-chips { display: flex; flex-wrap: wrap; gap: 4px; min-height: 26px; }
+        .sb-chip {
           display: inline-flex; align-items: center; gap: 4px;
-          font-family: 'Bebas Neue', cursive; font-size: 0.72rem; letter-spacing: 0.8px;
-          border-radius: 20px; padding: 2px 8px; cursor: pointer;
-          transition: all 0.12s; max-width: 150px; overflow: hidden;
+          font-family: 'Bebas Neue', cursive; font-size: 11px; letter-spacing: 0.8px;
+          padding: 3px 9px; border-radius: 20px;
+          cursor: pointer; max-width: 150px; overflow: hidden; transition: all 0.12s;
         }
-        .tsb-chip span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .tsb-chip.offer { background: rgba(255,122,138,0.1); border: 1px solid rgba(255,122,138,0.3); color: var(--pink); }
-        .tsb-chip.offer:hover { background: rgba(239,68,68,0.15); border-color: rgba(239,68,68,0.5); color: #f87171; }
-        .tsb-chip.request { background: rgba(125,180,255,0.1); border: 1px solid rgba(125,180,255,0.3); color: var(--blue); }
-        .tsb-chip.request:hover { background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.4); color: #f87171; }
-        .tsb-empty-hint { font-size: 0.72rem; color: rgba(255,255,255,0.2); font-style: italic; padding: 4px 0; }
-        .tsb-arrows { font-size: 1.1rem; color: rgba(255,255,255,0.2); display: flex; align-items: center; padding: 0 4px; }
-        .tsb-divider { width: 1px; background: rgba(255,255,255,0.07); align-self: stretch; margin: 0 4px; }
+        .sb-chip span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .sb-chip-x { opacity: 0.5; font-size: 9px; flex-shrink: 0; }
+        .sb-chip.offer { background: rgba(255,122,138,0.1); border: 1px solid rgba(255,122,138,0.25); color: var(--pink); }
+        .sb-chip.offer:hover { background: rgba(239,68,68,0.15); border-color: rgba(239,68,68,0.45); }
+        .sb-chip.req   { background: rgba(125,180,255,0.1); border: 1px solid rgba(125,180,255,0.25); color: var(--blue); }
+        .sb-chip.req:hover { background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.4); color: #f87171; }
+        .sb-hint { font-size: 11px; color: rgba(255,255,255,0.2); font-style: italic; padding: 3px 0; }
 
-        /* Action row */
-        .tsb-actions { display: flex; align-items: center; gap: 8px; margin-top: 0.65rem; }
-        .tsb-note {
-          flex: 1; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
-          border-radius: 6px; color: white; font-family: 'Barlow Condensed', sans-serif;
-          font-size: 0.82rem; padding: 5px 10px; resize: none; height: 32px; overflow: hidden;
-        }
-        .tsb-note:focus { outline: none; border-color: rgba(255,184,28,0.4); }
-        .tsb-note::placeholder { color: rgba(255,255,255,0.2); }
-        .btn-send-proposal {
-          font-family: 'Bebas Neue', cursive; font-size: 0.82rem; letter-spacing: 2px;
-          background: var(--gold); color: #07111f; border: none; border-radius: 7px;
-          padding: 7px 20px; cursor: pointer; transition: background 0.15s; white-space: nowrap; flex-shrink: 0;
-        }
-        .btn-send-proposal:hover { background: #ffd04d; }
-        .btn-send-proposal:disabled { background: rgba(255,184,28,0.25); color: rgba(255,255,255,0.3); cursor: not-allowed; }
-        .btn-clear-proposal {
-          font-family: 'Bebas Neue', cursive; font-size: 0.78rem; letter-spacing: 1px;
-          background: transparent; color: var(--silver); border: 1px solid rgba(255,255,255,0.1);
-          border-radius: 7px; padding: 7px 12px; cursor: pointer; transition: all 0.15s; flex-shrink: 0;
-        }
-        .btn-clear-proposal:hover { border-color: rgba(255,255,255,0.3); color: white; }
+        .sb-arrow { display: flex; align-items: center; justify-content: center; padding-top: 20px; font-size: 17px; color: rgba(255,255,255,0.14); }
 
-        /* ════════════════════════════════════════
-           PROPOSAL CARDS VIEW
-        ════════════════════════════════════════ */
-        .pf-count { font-size: 0.72rem; color: rgba(255,255,255,0.25); letter-spacing: 1px; }
+        .sb-actions { display: flex; align-items: center; gap: 8px; }
+        .sb-note {
+          flex: 1; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+          border-radius: 7px; color: #fff; font-family: 'Barlow Condensed', sans-serif;
+          font-size: 12px; padding: 7px 10px; outline: none; transition: border-color 0.15s;
+        }
+        .sb-note:focus { border-color: rgba(255,184,28,0.35); }
+        .sb-note::placeholder { color: rgba(255,255,255,0.2); }
 
-        .proposal-card {
-          background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+        .btn-clear {
+          font-family: 'Bebas Neue', cursive; font-size: 12px; letter-spacing: 1.5px;
+          background: transparent; color: rgba(255,255,255,0.38);
+          border: 1px solid rgba(255,255,255,0.1);
+          border-radius: 7px; padding: 7px 13px; cursor: pointer;
+          transition: all 0.15s; white-space: nowrap; flex-shrink: 0;
+        }
+        .btn-clear:hover { border-color: rgba(255,255,255,0.25); color: rgba(255,255,255,0.75); }
+
+        .btn-send {
+          font-family: 'Bebas Neue', cursive; font-size: 12px; letter-spacing: 2px;
+          background: var(--gold); color: var(--rink); border: none;
+          border-radius: 7px; padding: 8px 20px; cursor: pointer;
+          transition: background 0.15s; white-space: nowrap; flex-shrink: 0;
+        }
+        .btn-send:hover { background: #ffd04d; }
+        .btn-send:disabled { background: rgba(255,184,28,0.2); color: rgba(255,255,255,0.25); cursor: not-allowed; }
+
+        /* ═══════════════════════════════════════
+           FEED VIEW
+        ═══════════════════════════════════════ */
+        .feed-toprow {
+          display: flex; align-items: center; justify-content: space-between;
+          margin-bottom: 14px; gap: 10px; flex-wrap: wrap;
+        }
+        .feed-count { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.3); }
+
+        .feed-filters { display: flex; gap: 4px; }
+        .ff {
+          font-family: 'Bebas Neue', cursive; font-size: 11px; letter-spacing: 1.5px;
+          padding: 4px 12px; border-radius: 5px;
+          border: 1px solid rgba(255,255,255,0.08); background: transparent;
+          color: rgba(255,255,255,0.32); cursor: pointer; transition: all 0.12s;
+        }
+        .ff:hover { color: rgba(255,255,255,0.65); border-color: rgba(255,255,255,0.15); }
+        .ff.act { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.16); color: rgba(255,255,255,0.85); }
+
+        /* Proposal cards */
+        .prop-card {
+          background: var(--panel); border: 1px solid rgba(255,255,255,0.08);
           border-radius: 12px; margin-bottom: 10px; overflow: hidden;
           transition: border-color 0.2s, box-shadow 0.2s;
         }
-        .proposal-card:hover { border-color: rgba(255,255,255,0.14); box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
-        .proposal-card.received { border-left: 3px solid rgba(125,180,255,0.5); }
-        .proposal-card.sent { border-left: 3px solid rgba(255,184,28,0.4); }
+        .prop-card:hover { border-color: rgba(255,255,255,0.14); box-shadow: 0 4px 24px rgba(0,0,0,0.25); }
+        .prop-card.dir-recv { border-left: 3px solid rgba(125,180,255,0.45); }
+        .prop-card.dir-sent { border-left: 3px solid rgba(255,184,28,0.4); }
+        .prop-card.dir-recv.accepted { border-left: 3px solid rgba(34,197,94,0.5); }
 
-        .pc-header {
-          display: flex; align-items: center; gap: 8px; padding: 0.65rem 0.9rem;
-          border-bottom: 1px solid rgba(255,255,255,0.06); flex-wrap: wrap;
+        .pc-head {
+          display: flex; align-items: center; gap: 8px;
+          padding: 10px 14px; border-bottom: 1px solid rgba(255,255,255,0.05);
+          flex-wrap: wrap;
         }
-        .pc-badge-dir {
-          font-family: 'Bebas Neue', cursive; font-size: 0.65rem; letter-spacing: 2px;
-          border-radius: 4px; padding: 2px 7px;
+        .dir-badge {
+          font-family: 'Bebas Neue', cursive; font-size: 10px; letter-spacing: 2px;
+          padding: 2px 8px; border-radius: 4px; flex-shrink: 0;
         }
-        .pc-badge-dir.received { background: rgba(125,180,255,0.12); color: var(--blue); border: 1px solid rgba(125,180,255,0.25); }
-        .pc-badge-dir.sent { background: rgba(255,184,28,0.1); color: var(--gold); border: 1px solid rgba(255,184,28,0.25); }
-        .pc-team-name { font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 1px; }
-        .pc-status { font-family: 'Bebas Neue', cursive; font-size: 0.6rem; letter-spacing: 1.5px; padding: 2px 7px; border-radius: 3px; margin-left: auto; }
-        .pc-status.pending { background: rgba(255,184,28,0.15); color: var(--gold); border: 1px solid rgba(255,184,28,0.3); }
-        .pc-status.withdrawn { background: rgba(255,255,255,0.06); color: var(--silver); border: 1px solid rgba(255,255,255,0.1); }
-        .pc-status.accepted { background: rgba(34,197,94,0.12); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
-        .pc-date { font-size: 0.67rem; color: rgba(255,255,255,0.22); }
-        .pc-delete-btn { background: none; border: none; color: rgba(255,255,255,0.3); cursor: pointer; font-size: 0.85rem; padding: 0 0 0 4px; line-height: 1; transition: color 0.15s; margin-left: auto; }
-        .pc-delete-btn:hover { color: #f87171; }
+        .dir-badge.recv { background: rgba(125,180,255,0.1); border: 1px solid rgba(125,180,255,0.2); color: var(--blue); }
+        .dir-badge.sent { background: rgba(255,184,28,0.1); border: 1px solid rgba(255,184,28,0.2); color: var(--gold); }
 
-        /* Comparative players layout */
-        .pc-compare {
-          display: grid; grid-template-columns: 1fr 48px 1fr; gap: 0; align-items: stretch;
+        .pc-teams {
+          display: flex; align-items: center; gap: 6px;
+          font-family: 'Bebas Neue', cursive; font-size: 15px; letter-spacing: 0.8px;
         }
-        .pc-compare-side { padding: 0.7rem 0.9rem; }
-        .pc-compare-side + .pc-compare-side { border-left: 1px solid rgba(255,255,255,0.05); }
-        .pc-compare-arrow {
+        .pc-teams-sep { font-size: 12px; color: rgba(255,255,255,0.2); }
+
+        .pc-status {
+          font-family: 'Bebas Neue', cursive; font-size: 10px; letter-spacing: 1.5px;
+          padding: 2px 8px; border-radius: 4px; margin-left: auto; flex-shrink: 0;
+        }
+        .pc-status.pending   { background: rgba(255,184,28,0.12); border: 1px solid rgba(255,184,28,0.25);  color: var(--gold); }
+        .pc-status.accepted  { background: rgba(34,197,94,0.1);   border: 1px solid rgba(34,197,94,0.25);   color: var(--green); }
+        .pc-status.withdrawn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.35); }
+
+        .pc-date { font-size: 11px; color: rgba(255,255,255,0.22); flex-shrink: 0; }
+        .pc-del {
+          background: none; border: none; color: rgba(255,255,255,0.22);
+          cursor: pointer; font-size: 14px; padding: 0 2px; line-height: 1;
+          transition: color 0.15s; margin-left: 2px; flex-shrink: 0;
+        }
+        .pc-del:hover { color: #f87171; }
+
+        /* Compare body */
+        .pc-body { display: grid; grid-template-columns: 1fr 38px 1fr; }
+        @media (max-width: 500px) {
+          .pc-body { grid-template-columns: 1fr; }
+          .pc-arrow-col { display: none; }
+        }
+        .pc-side { padding: 10px 14px; }
+        .pc-side + .pc-side { border-left: 1px solid rgba(255,255,255,0.04); }
+        .pc-side-label {
+          font-family: 'Bebas Neue', cursive; font-size: 10px; letter-spacing: 1.5px;
+          margin-bottom: 7px;
+        }
+        .pc-side-label.offer { color: rgba(255,122,138,0.65); }
+        .pc-side-label.req   { color: rgba(125,180,255,0.65); }
+        .pc-arrow-col {
           display: flex; align-items: center; justify-content: center;
-          font-size: 1rem; color: rgba(255,255,255,0.15); background: rgba(255,255,255,0.02);
-          border-left: 1px solid rgba(255,255,255,0.04); border-right: 1px solid rgba(255,255,255,0.04);
+          font-size: 14px; color: rgba(255,255,255,0.1);
+          background: rgba(255,255,255,0.015);
+          border-left: 1px solid rgba(255,255,255,0.04);
+          border-right: 1px solid rgba(255,255,255,0.04);
         }
-        .pc-side-label { font-family: 'Bebas Neue', cursive; font-size: 0.65rem; letter-spacing: 1.5px; margin-bottom: 0.4rem; }
-        .pc-side-label.offer { color: var(--pink); }
-        .pc-side-label.request { color: var(--blue); }
-        .pc-player-row { display: flex; align-items: center; gap: 7px; padding: 3px 0; }
-        .pc-player-name { font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 0.8px; color: white; }
-        .pc-player-stat { font-family: 'Barlow Condensed', sans-serif; font-size: 0.68rem; color: rgba(255,255,255,0.35); margin-left: auto; white-space: nowrap; }
-        .pc-empty { color: rgba(255,255,255,0.18); font-size: 0.72rem; font-style: italic; padding: 3px 0; }
 
-        .pc-note { font-size: 0.73rem; color: rgba(255,255,255,0.3); font-style: italic; padding: 0.4rem 0.9rem; border-top: 1px solid rgba(255,255,255,0.04); }
+        .pc-player { display: flex; align-items: center; gap: 7px; padding: 3px 0; }
+        .pc-p-name { font-family: 'Bebas Neue', cursive; font-size: 13px; letter-spacing: 0.8px; }
+        .pc-p-stat { font-size: 11px; color: rgba(255,255,255,0.28); margin-left: auto; white-space: nowrap; }
+        .pc-empty  { font-size: 11px; color: rgba(255,255,255,0.18); font-style: italic; padding: 3px 0; }
 
-        .pc-footer {
+        .pc-note { font-size: 12px; color: rgba(255,255,255,0.3); font-style: italic; padding: 8px 14px; border-top: 1px solid rgba(255,255,255,0.04); }
+
+        .pc-foot {
           display: flex; align-items: center; justify-content: flex-end; gap: 8px;
-          padding: 0.45rem 0.9rem; border-top: 1px solid rgba(255,255,255,0.05);
+          padding: 9px 14px; border-top: 1px solid rgba(255,255,255,0.05);
         }
-        .pc-action-btn {
-          font-family: 'Bebas Neue', cursive; font-size: 0.7rem; letter-spacing: 1.5px;
-          padding: 4px 12px; border-radius: 5px; cursor: pointer; transition: all 0.15s;
+        .btn-counter {
+          font-family: 'Bebas Neue', cursive; font-size: 11px; letter-spacing: 1.5px;
+          padding: 5px 13px; border-radius: 6px;
+          border: 1px solid rgba(125,180,255,0.3); background: transparent;
+          color: var(--blue); cursor: pointer; transition: all 0.15s;
         }
-        .pc-action-btn.counter { border: 1px solid rgba(125,180,255,0.3); background: transparent; color: var(--blue); }
-        .pc-action-btn.counter:hover { background: rgba(125,180,255,0.1); border-color: rgba(125,180,255,0.5); }
-        .pc-action-btn.execute { border: none; background: var(--green); color: #07111f; }
-        .pc-action-btn.execute:hover { background: #34d371; }
-        .pc-action-btn.execute:disabled { background: rgba(34,197,94,0.25); color: rgba(255,255,255,0.3); cursor: not-allowed; }
-        .pc-received-msg { font-size: 0.7rem; color: rgba(125,180,255,0.5); letter-spacing: 0.4px; }
+        .btn-counter:hover { background: rgba(125,180,255,0.1); border-color: rgba(125,180,255,0.5); }
+        .btn-exec {
+          font-family: 'Bebas Neue', cursive; font-size: 11px; letter-spacing: 1.5px;
+          padding: 6px 14px; border-radius: 6px; border: none;
+          background: var(--green); color: var(--rink); cursor: pointer; transition: background 0.15s;
+        }
+        .btn-exec:hover { background: #34d371; }
+        .btn-exec:disabled { background: rgba(34,197,94,0.25); color: rgba(255,255,255,0.3); cursor: not-allowed; }
 
-        /* ── Responsive ── */
-        @media (max-width: 560px) {
-          .pc-compare { grid-template-columns: 1fr; }
-          .pc-compare-arrow { display: none; }
-          .split-panels { grid-template-columns: 1fr; }
+        /* ─── Empty / error states ─── */
+        .state-msg {
+          text-align: center; padding: 3rem 1rem;
+          font-size: 13px; color: rgba(255,255,255,0.2); letter-spacing: 0.5px; line-height: 1.8;
         }
     </style>
 </head>
 <body>
-<div class="page-wrap">
+<div class="shell">
 
-    <!-- ── MY TEAM SELECTOR ── -->
-    <div id="my-team-selector" style="display:none;margin-bottom:1rem;background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:0.75rem 1rem;">
-        <div class="section-eyebrow" style="margin-bottom:0.5rem">Which team is yours?</div>
-        <div id="my-team-pills" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
-    </div>
-
-    <!-- ── VIEW TABS ── -->
-    <div class="proposals-view-tabs">
-        <button class="pvt active" id="pvt-build" onclick="setPView('build')">New Proposal</button>
-        <button class="pvt" id="pvt-feed" onclick="setPView('feed')">Proposals Feed <span id="feed-badge" style="display:inline-block;background:rgba(255,184,28,0.2);color:var(--gold);border-radius:20px;padding:0 6px;font-size:0.65rem;margin-left:4px;letter-spacing:1px;">2</span></button>
-    </div>
-
-    <!-- ══════════════════════════════════════════
-         BUILD VIEW
-    ══════════════════════════════════════════ -->
-    <div id="pview-build">
-        <div class="builder-container">
-
-            <!-- Step bar -->
-            <div class="builder-steps">
-                <div class="step-item done" id="step1-indicator"><span class="step-num">✓</span>Pick Team</div>
-                <div class="step-connector"></div>
-                <div class="step-item active" id="step2-indicator"><span class="step-num">2</span>Select Players</div>
-                <div class="step-connector"></div>
-                <div class="step-item" id="step3-indicator"><span class="step-num">3</span>Send</div>
+    <!-- ══════════════════════════
+         TOP BAR
+    ══════════════════════════ -->
+    <div class="topbar">
+        <!-- Team badge / dropdown -->
+        <div class="team-badge" id="team-badge" onclick="toggleTeamDropdown(event)">
+            <div class="team-avatar" id="team-avatar">??</div>
+            <div class="team-badge-text">
+                <div class="team-badge-label">Your team</div>
+                <div class="team-badge-name" id="team-badge-name">Loading…</div>
             </div>
-
-            <!-- Target team -->
-            <div class="target-team-section">
-                <div class="section-eyebrow">Send proposal to</div>
-                <div class="target-team-pills" id="target-pills"></div>
-            </div>
-
-            <!-- Split panels -->
-            <div class="split-panels" id="split-panels">
-                <!-- LEFT: Your roster (offer) -->
-                <div class="split-panel">
-                    <div class="split-panel-header">
-                        <span class="split-panel-title offer">You Offer</span>
-                        <span class="split-panel-count" id="offer-count">0</span>
-                        <span class="split-panel-team">Your Team</span>
-                    </div>
-                    <div class="panel-search">
-                        <span class="panel-search-icon">🔍</span>
-                        <input type="text" placeholder="Filter players…" oninput="filterPanel('offer', this.value)" id="offer-search">
-                    </div>
-                    <div class="panel-pos-filter">
-                        <button class="ppf ALL active-all" id="offer-filter-ALL" onclick="setPanelPos('offer','ALL')">All</button>
-                        <button class="ppf F" id="offer-filter-F" onclick="setPanelPos('offer','F')">F</button>
-                        <button class="ppf D" id="offer-filter-D" onclick="setPanelPos('offer','D')">D</button>
-                        <button class="ppf G" id="offer-filter-G" onclick="setPanelPos('offer','G')">G</button>
-                    </div>
-                    <div class="panel-player-list" id="offer-list"></div>
-                </div>
-
-                <!-- RIGHT: Target team's roster (request) -->
-                <div class="split-panel">
-                    <div class="split-panel-header">
-                        <span class="split-panel-title request">You Request</span>
-                        <span class="split-panel-count" id="request-count">0</span>
-                        <span class="split-panel-team" id="request-team-label">Select a team →</span>
-                    </div>
-                    <div class="panel-search">
-                        <span class="panel-search-icon">🔍</span>
-                        <input type="text" placeholder="Filter players…" oninput="filterPanel('request', this.value)" id="request-search">
-                    </div>
-                    <div class="panel-pos-filter">
-                        <button class="ppf ALL active-all" id="request-filter-ALL" onclick="setPanelPos('request','ALL')">All</button>
-                        <button class="ppf F" id="request-filter-F" onclick="setPanelPos('request','F')">F</button>
-                        <button class="ppf D" id="request-filter-D" onclick="setPanelPos('request','D')">D</button>
-                        <button class="ppf G" id="request-filter-G" onclick="setPanelPos('request','G')">G</button>
-                    </div>
-                    <div class="panel-player-list" id="request-list">
-                        <div style="padding:1.5rem;text-align:center;color:rgba(255,255,255,0.2);font-size:0.78rem;letter-spacing:0.5px">
-                            ← Select a team to see their roster
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Floating summary bar -->
-            <div class="trade-summary-bar empty" id="summary-bar">
-                <div class="tsb-row">
-                    <div class="tsb-side">
-                        <div class="tsb-side-label offer">Giving Up</div>
-                        <div class="tsb-chips" id="offer-chips">
-                            <span class="tsb-empty-hint">Click players on the left to add</span>
-                        </div>
-                    </div>
-                    <div class="tsb-arrows">⇄</div>
-                    <div class="tsb-side">
-                        <div class="tsb-side-label request">Receiving</div>
-                        <div class="tsb-chips" id="request-chips">
-                            <span class="tsb-empty-hint">Click players on the right to add</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Actions -->
-                <div class="tsb-actions">
-                    <input class="tsb-note" id="proposal-note" placeholder='Optional note: "Open to any C, just need depth…"' maxlength="200">
-                    <button class="btn-clear-proposal" onclick="clearProposal()">Clear</button>
-                    <button class="btn-send-proposal" id="send-btn" disabled onclick="sendProposal()">Send Proposal</button>
-                </div>
-            </div>
-
-        </div><!-- .builder-container -->
-    </div><!-- #pview-build -->
-
-    <!-- ══════════════════════════════════════════
-         FEED VIEW
-    ══════════════════════════════════════════ -->
-    <div id="pview-feed" style="display:none">
-
-        <div style="display:flex;align-items:center;justify-content:flex-end;margin-bottom:0.6rem;">
-            <span class="pf-count" id="feed-count"></span>
+            <div class="team-badge-chevron">▾</div>
+            <div class="team-dropdown" id="team-dropdown"></div>
         </div>
 
-        <div id="feed-list"></div>
-
+        <!-- View tabs -->
+        <div class="view-tabs">
+            <button class="vtab active" id="vtab-build" onclick="setView('build')">New Proposal</button>
+            <button class="vtab" id="vtab-feed" onclick="setView('feed')">
+                Feed
+                <span class="vtab-badge" id="feed-badge"></span>
+            </button>
+        </div>
     </div>
 
-</div><!-- .page-wrap -->
+    <!-- ══════════════════════════
+         BUILD VIEW
+    ══════════════════════════ -->
+    <div id="view-build">
+
+        <div class="section-label">Send proposal to</div>
+        <div class="target-pills" id="target-pills"></div>
+
+        <div class="panels">
+            <!-- OFFER panel -->
+            <div class="panel">
+                <div class="panel-head">
+                    <span class="panel-title offer">You Offer</span>
+                    <span class="panel-sel-count" id="offer-count">0 selected</span>
+                </div>
+                <div class="panel-toolbar">
+                    <button class="pchip a-all" id="offer-chip-ALL" onclick="setPosFilter('offer','ALL')">All</button>
+                    <button class="pchip" id="offer-chip-F"   onclick="setPosFilter('offer','F')">F</button>
+                    <button class="pchip" id="offer-chip-D"   onclick="setPosFilter('offer','D')">D</button>
+                    <button class="pchip" id="offer-chip-G"   onclick="setPosFilter('offer','G')">G</button>
+                    <div class="panel-search">
+                        <span class="search-ico">⌕</span>
+                        <input type="text" id="offer-search" placeholder="Search…" oninput="filterPanel('offer',this.value)">
+                    </div>
+                </div>
+                <div class="player-list" id="offer-list"></div>
+            </div>
+
+            <!-- REQUEST panel -->
+            <div class="panel">
+                <div class="panel-head">
+                    <span class="panel-title req">You Request</span>
+                    <span class="panel-sel-count" id="req-count">0 selected</span>
+                </div>
+                <div class="panel-toolbar">
+                    <button class="pchip a-all" id="req-chip-ALL" onclick="setPosFilter('req','ALL')">All</button>
+                    <button class="pchip" id="req-chip-F"   onclick="setPosFilter('req','F')">F</button>
+                    <button class="pchip" id="req-chip-D"   onclick="setPosFilter('req','D')">D</button>
+                    <button class="pchip" id="req-chip-G"   onclick="setPosFilter('req','G')">G</button>
+                    <div class="panel-search">
+                        <span class="search-ico">⌕</span>
+                        <input type="text" id="req-search" placeholder="Search…" oninput="filterPanel('req',this.value)">
+                    </div>
+                </div>
+                <div class="player-list" id="req-list">
+                    <div class="panel-empty">← Pick a team above to see their roster</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary bar -->
+        <div class="summary-bar" id="summary-bar">
+            <div class="sb-top">
+                <div>
+                    <div class="sb-side-label offer">Giving up</div>
+                    <div class="sb-chips" id="offer-chips"><span class="sb-hint">Select players on the left</span></div>
+                </div>
+                <div class="sb-arrow">⇄</div>
+                <div>
+                    <div class="sb-side-label req">Receiving</div>
+                    <div class="sb-chips" id="req-chips"><span class="sb-hint">Select players on the right</span></div>
+                </div>
+            </div>
+            <div class="sb-actions">
+                <input class="sb-note" id="proposal-note" placeholder='Optional note… "Need depth at C, open to anything"' maxlength="200">
+                <button class="btn-clear" onclick="clearProposal()">Clear</button>
+                <button class="btn-send" id="send-btn" disabled onclick="sendProposal()">Send</button>
+            </div>
+        </div>
+
+    </div><!-- #view-build -->
+
+    <!-- ══════════════════════════
+         FEED VIEW
+    ══════════════════════════ -->
+    <div id="view-feed" style="display:none">
+        <div class="feed-toprow">
+            <span class="feed-count" id="feed-count"></span>
+            <div class="feed-filters">
+                <button class="ff act" onclick="setFeedFilter('all',this)">All</button>
+                <button class="ff" onclick="setFeedFilter('recv',this)">Received</button>
+                <button class="ff" onclick="setFeedFilter('sent',this)">Sent</button>
+                <button class="ff" onclick="setFeedFilter('accepted',this)">Completed</button>
+            </div>
+        </div>
+        <div id="feed-list"></div>
+    </div>
+
+</div><!-- .shell -->
 
 <script>
+    /* ══════════════════════════════════════════
+       CONFIG
+    ══════════════════════════════════════════ */
     const SUPABASE_URL = 'https://fifurqlitkywtmhgtzeu.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZpZnVycWxpdGt5d3RtaGd0emV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3MDIyMjQsImV4cCI6MjA5MjI3ODIyNH0.KPVPj1qwbSJJMyLR_-AhDcRs0vi2sUU6qbFQ-kH53C0';
-    const SB_HEADERS = { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' };
-
+    const SB_HEADERS = {
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${SUPABASE_KEY}`,
+      'Content-Type': 'application/json'
+    };
     const _leagueCode = new URLSearchParams(window.location.search).get('league') || null;
 
-    /* ── live data ── */
+    /* ══════════════════════════════════════════
+       LIVE DATA
+    ══════════════════════════════════════════ */
     let MY_TEAM = null;
     let TEAMS = [];
     let MY_ROSTER = [];
@@ -442,22 +582,23 @@
     ══════════════════════════════════════════ */
     let state = {
       targetTeamId: null,
-      offered: new Set(),
+      offered:   new Set(),
       requested: new Set(),
-      offerPosFilter: 'ALL',
-      requestPosFilter: 'ALL',
+      offerPos:  'ALL',
+      reqPos:    'ALL',
       offerSearch: '',
-      requestSearch: '',
-      feedFilter: 'all',
+      reqSearch:   '',
+      feedFilter:  'all',
     };
 
     /* ══════════════════════════════════════════
-       HELPERS
+       UTILS
     ══════════════════════════════════════════ */
     function escH(v) {
-      return String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+      return String(v ?? '').replace(/[&<>"']/g, c =>
+        ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c])
+      );
     }
-
     function normPos(pos) {
       if (!pos) return 'F';
       const p = pos.toUpperCase();
@@ -465,71 +606,58 @@
       if (p === 'D' || p.includes('LD') || p.includes('RD')) return 'D';
       return 'F';
     }
-
     function formatName(n) {
       if (!n) return '';
-      if (n.includes(',')) { const [l, f] = n.split(',').map(s => s.trim()); return `${f} ${l}`; }
+      if (n.includes(',')) { const [l,f] = n.split(',').map(s=>s.trim()); return `${f} ${l}`; }
       return n;
     }
-
     function slugToName(slug) {
-      return slug?.split('/').pop()?.replace(/-/g, ' ') || slug || '';
+      return slug?.split('/').pop()?.replace(/-/g,' ') || slug || '';
     }
-
     function playerFromSlug(slug) {
       return _playerMap[slug] || _playerMap[`/player/${slug}`] || null;
     }
-
+    function initials(name) {
+      return name.split(' ').map(w=>w[0]||'').slice(0,2).join('').toUpperCase() || '??';
+    }
     function rosterToList(team, tradingBlock) {
-      const slugs = [
-        ...new Set([
-          ...(team.roster.F || []),
-          ...(team.roster.D || []),
-          ...(team.roster.G || []),
-        ].filter(Boolean))
-      ];
+      const slugs = [...new Set([
+        ...(team.roster.F || []),
+        ...(team.roster.D || []),
+        ...(team.roster.G || []),
+      ].filter(Boolean))];
       return slugs.map(slug => {
         const p = playerFromSlug(slug);
         const pos = p ? normPos(p.position) : 'F';
-        const onBlock = !!tradingBlock[slug];
         return {
           slug,
-          name: p ? formatName(p.player_name) : slugToName(slug),
+          name:    p ? formatName(p.player_name) : slugToName(slug),
           pos,
-          pts: p ? (p.points ?? 0) : 0,
-          cap: p ? ((p.cap_hit ?? 0) / 1e6) : 0,
-          team: p ? (p.team ?? '') : '',
-          onBlock,
+          pts:     p ? (p.points ?? 0) : 0,
+          cap:     p ? ((p.cap_hit ?? 0) / 1e6) : 0,
+          onBlock: !!tradingBlock[slug],
         };
       });
+    }
+    function allPlayers() {
+      const all = [...MY_ROSTER, ...Object.values(TEAM_ROSTERS).flat()];
+      return Object.fromEntries(all.map(p => [p.slug, p]));
     }
 
     /* ══════════════════════════════════════════
        LOAD
     ══════════════════════════════════════════ */
     async function load() {
-      if (!_leagueCode) { showError('No league code found.'); return; }
-
+      if (!_leagueCode) { showError('No league code in URL. Add <code>?league=YOUR_CODE</code> to the URL.'); return; }
       try {
-        // Fetch roster data
-        const rRes = await fetch(
-          `${SUPABASE_URL}/rest/v1/pool_rosters?league_code=eq.${_leagueCode}&select=data`,
-          { headers: SB_HEADERS }
-        );
+        const [rRes, pRes] = await Promise.all([
+          fetch(`${SUPABASE_URL}/rest/v1/pool_rosters?league_code=eq.${_leagueCode}&select=data`, { headers: SB_HEADERS }),
+          fetch(`${SUPABASE_URL}/rest/v1/nhl_players?select=puckpedia_slug,player_name,position,cap_hit,team,points,goals,assists,wins,shutouts,games_played&order=cap_hit.desc&limit=1000`, { headers: SB_HEADERS }),
+        ]);
         if (!rRes.ok) throw new Error(`pool_rosters ${rRes.status}`);
         const rRows = await rRes.json();
-        if (!rRows.length) { showError('No league data found.'); return; }
+        if (!rRows.length) { showError('No data found for this league.'); return; }
 
-        const data = rRows[0].data || {};
-        const rawTeams = data.teams || [];
-        const tradingBlock = data.tradingBlock || {};
-        proposals = data.proposals || {};
-
-        // Fetch players
-        const pRes = await fetch(
-          `${SUPABASE_URL}/rest/v1/nhl_players?select=puckpedia_slug,player_name,position,cap_hit,team,points,goals,assists,wins,shutouts,games_played&order=cap_hit.desc&limit=1000`,
-          { headers: SB_HEADERS }
-        );
         if (pRes.ok) {
           const players = await pRes.json();
           players.forEach(p => {
@@ -538,10 +666,14 @@
           });
         }
 
-        // Build all teams into a flat list
-        const allTeams = rawTeams.map((t, idx) => ({
-          id: t.id || `team-${idx}`,
-          name: t.name || `Team ${idx + 1}`,
+        const data = rRows[0].data || {};
+        const rawTeams  = data.teams || [];
+        const tradingBlock = data.tradingBlock || {};
+        proposals = data.proposals || {};
+
+        const allTeams = rawTeams.map((t,i) => ({
+          id:     t.id || `team-${i}`,
+          name:   t.name || `Team ${i+1}`,
           roster: {
             F: Array.isArray(t.roster?.F) ? t.roster.F : [],
             D: Array.isArray(t.roster?.D) ? t.roster.D : [],
@@ -549,36 +681,33 @@
           },
         }));
 
-        // Build roster lookup for all teams
         TEAM_ROSTERS = {};
-        allTeams.forEach(team => {
-          TEAM_ROSTERS[team.id] = rosterToList(team, tradingBlock);
-        });
+        allTeams.forEach(t => { TEAM_ROSTERS[t.id] = rosterToList(t, tradingBlock); });
 
-        // Determine selected "my team" — localStorage wins, then activeId, then first
         const storageKey = `myTeam_${_leagueCode}`;
-        const savedId = localStorage.getItem(storageKey);
-        const preferredId = savedId || data.activeTeamId || allTeams[0]?.id;
-        const chosenTeam = allTeams.find(t => t.id === preferredId) || allTeams[0];
+        const savedId    = localStorage.getItem(storageKey);
+        const chosen     = allTeams.find(t => t.id === savedId) || allTeams.find(t => t.id === data.activeTeamId) || allTeams[0];
 
-        setMyTeam(chosenTeam, allTeams, tradingBlock);
-        renderMyTeamSelector(allTeams, tradingBlock);
-        init();
-      } catch (e) {
+        setMyTeam(chosen, allTeams, tradingBlock);
+        renderTeamDropdown();
+        renderTargetPills();
+        renderPanel('offer', MY_ROSTER);
+        updateSummaryBar();
+        updateFeedBadge();
+      } catch(e) {
         console.error(e);
-        showError('Failed to load league data.');
+        showError('Failed to load league data. Check your connection and try again.');
       }
     }
 
     function showError(msg) {
-      document.querySelector('.page-wrap').innerHTML = `<div style="text-align:center;padding:3rem 1rem;color:rgba(255,255,255,0.4);font-size:0.9rem;letter-spacing:1px">${msg}</div>`;
+      document.querySelector('.shell').innerHTML = `<div class="state-msg">${msg}</div>`;
     }
 
     /* ══════════════════════════════════════════
        SAVE
     ══════════════════════════════════════════ */
     async function saveProposals() {
-      // Re-fetch current data, merge proposals, then save
       const rRes = await fetch(
         `${SUPABASE_URL}/rest/v1/pool_rosters?league_code=eq.${_leagueCode}&select=data`,
         { headers: SB_HEADERS }
@@ -587,7 +716,6 @@
       const rows = await rRes.json();
       const data = rows[0]?.data || {};
       data.proposals = proposals;
-
       const res = await fetch(
         `${SUPABASE_URL}/rest/v1/pool_rosters?on_conflict=league_code`,
         {
@@ -600,69 +728,73 @@
     }
 
     /* ══════════════════════════════════════════
-       VIEW SWITCHING
-    ══════════════════════════════════════════ */
-    function setPView(v) {
-      document.getElementById('pview-build').style.display = v === 'build' ? '' : 'none';
-      document.getElementById('pview-feed').style.display = v === 'feed' ? '' : 'none';
-      document.getElementById('pvt-build').classList.toggle('active', v === 'build');
-      document.getElementById('pvt-feed').classList.toggle('active', v === 'feed');
-      if (v === 'feed') renderFeed();
-    }
-
-    /* ══════════════════════════════════════════
-       MY TEAM SELECTION
+       MY TEAM
     ══════════════════════════════════════════ */
     function setMyTeam(team, allTeams, tradingBlock) {
       MY_TEAM = team;
       MY_ROSTER = rosterToList(team, tradingBlock || _tradingBlock);
       TEAMS = (allTeams || _allTeams).filter(t => t.id !== team.id);
-      _allTeams = allTeams || _allTeams;
+      _allTeams    = allTeams    || _allTeams;
       _tradingBlock = tradingBlock || _tradingBlock;
-      const storageKey = `myTeam_${_leagueCode}`;
-      localStorage.setItem(storageKey, team.id);
+      localStorage.setItem(`myTeam_${_leagueCode}`, team.id);
+
+      // Update badge
+      document.getElementById('team-avatar').textContent    = initials(team.name);
+      document.getElementById('team-badge-name').textContent = team.name;
     }
 
-    function renderMyTeamSelector(allTeams, tradingBlock) {
-      const selector = document.getElementById('my-team-selector');
-      const pills = document.getElementById('my-team-pills');
-      if (!selector || !pills) return;
-      selector.style.display = '';
-      pills.innerHTML = (allTeams || _allTeams).map(t =>
-        `<button class="ttp${MY_TEAM && MY_TEAM.id === t.id ? ' selected' : ''}"
-          onclick="chooseMyTeam('${escH(t.id)}')">${escH(t.name)}</button>`
+    function toggleTeamDropdown(e) {
+      e.stopPropagation();
+      document.getElementById('team-badge').classList.toggle('open');
+    }
+
+    document.addEventListener('click', () => {
+      document.getElementById('team-badge')?.classList.remove('open');
+    });
+
+    function renderTeamDropdown() {
+      const dd = document.getElementById('team-dropdown');
+      dd.innerHTML = (_allTeams || []).map(t =>
+        `<div class="td-item${MY_TEAM && t.id === MY_TEAM.id ? ' active' : ''}" onclick="chooseMyTeam(event,'${escH(t.id)}')">
+          <div class="td-dot${MY_TEAM && t.id === MY_TEAM.id ? ' active' : ''}"></div>
+          ${escH(t.name)}
+        </div>`
       ).join('');
     }
 
-    function chooseMyTeam(id) {
+    function chooseMyTeam(e, id) {
+      e.stopPropagation();
       const team = _allTeams.find(t => t.id === id);
-      if (!team || (MY_TEAM && team.id === MY_TEAM.id)) return;
+      if (!team || (MY_TEAM && team.id === MY_TEAM.id)) {
+        document.getElementById('team-badge').classList.remove('open');
+        return;
+      }
       setMyTeam(team, null, null);
-      // Reset any in-progress proposal since your roster changed
       clearProposal();
-      renderMyTeamSelector();
+      renderTeamDropdown();
       renderTargetPills();
       renderPanel('offer', MY_ROSTER);
-      renderFeed();
+      updateFeedBadge();
+      document.getElementById('team-badge').classList.remove('open');
     }
 
     /* ══════════════════════════════════════════
-       INIT
+       VIEW SWITCHING
     ══════════════════════════════════════════ */
-    function init() {
-      renderTargetPills();
-      renderPanel('offer', MY_ROSTER);
-      updateSummaryBar();
-      renderFeed();
+    function setView(v) {
+      document.getElementById('view-build').style.display = v === 'build' ? '' : 'none';
+      document.getElementById('view-feed').style.display  = v === 'feed'  ? '' : 'none';
+      document.getElementById('vtab-build').classList.toggle('active', v === 'build');
+      document.getElementById('vtab-feed').classList.toggle('active',  v === 'feed');
+      if (v === 'feed') renderFeed();
     }
 
     /* ══════════════════════════════════════════
        TARGET TEAM
     ══════════════════════════════════════════ */
     function renderTargetPills() {
-      const container = document.getElementById('target-pills');
-      container.innerHTML = TEAMS.map(t =>
-        `<button class="ttp${state.targetTeamId === t.id ? ' selected' : ''}" onclick="selectTarget('${escH(t.id)}','${escH(t.name)}')">${escH(t.name)}</button>`
+      document.getElementById('target-pills').innerHTML = TEAMS.map(t =>
+        `<button class="tpill${state.targetTeamId === t.id ? ' sel' : ''}" onclick="selectTarget('${escH(t.id)}','${escH(t.name)}')">${escH(t.name)}</button>`
       ).join('');
     }
 
@@ -670,142 +802,129 @@
       state.targetTeamId = id;
       state.requested = new Set();
       renderTargetPills();
-      document.getElementById('request-team-label').textContent = name;
-      document.getElementById('split-panels').classList.remove('locked');
-      renderPanel('request', TEAM_ROSTERS[id] || []);
-      updateStepIndicator();
+      renderPanel('req', TEAM_ROSTERS[id] || []);
       updateSummaryBar();
+      updateCountBadge('req');
     }
 
     /* ══════════════════════════════════════════
        PANELS
     ══════════════════════════════════════════ */
     function renderPanel(side, roster) {
-      const list = document.getElementById(`${side}-list`);
-      const posF = state[side === 'offer' ? 'offerPosFilter' : 'requestPosFilter'];
-      const search = state[side === 'offer' ? 'offerSearch' : 'requestSearch'].toLowerCase();
-      let players = roster;
-      if (posF !== 'ALL') players = players.filter(p => p.pos === posF);
-      if (search) players = players.filter(p => p.name.toLowerCase().includes(search));
-      // Trading block players first, then by points desc
-      players = [...players].sort((a, b) => {
-        if (a.onBlock !== b.onBlock) return a.onBlock ? -1 : 1;
-        return b.pts - a.pts;
-      });
+      const isOffer = side === 'offer';
+      const source  = roster ?? (isOffer ? MY_ROSTER : (TEAM_ROSTERS[state.targetTeamId] || []));
+      const posF    = isOffer ? state.offerPos : state.reqPos;
+      const search  = (isOffer ? state.offerSearch : state.reqSearch).toLowerCase();
+      const sel     = isOffer ? state.offered : state.requested;
+      const el      = document.getElementById(`${side}-list`);
 
-      if (!players.length) {
-        list.innerHTML = `<div style="padding:1.2rem;text-align:center;color:rgba(255,255,255,0.2);font-size:0.75rem">No players match</div>`;
+      if (!isOffer && !state.targetTeamId) {
+        el.innerHTML = `<div class="panel-empty">← Pick a team above to see their roster</div>`;
         return;
       }
 
-      const selected = side === 'offer' ? state.offered : state.requested;
-      list.innerHTML = players.map(p => {
-        const isSel = selected.has(p.slug);
-        const selClass = isSel ? (side === 'offer' ? ' selected-offer' : ' selected-request') : '';
-        const tbBadge = p.onBlock ? `<span class="tb-badge">BLOCK</span>` : '';
-        const blockClass = p.onBlock ? ' on-block' : '';
-        return `<div class="panel-player-row${selClass}${blockClass}" onclick="togglePlayer('${side}','${escH(p.slug)}')">
-          <div class="ppr-check">${isSel ? '✓' : ''}</div>
-          <div class="ppr-info">
-            <div class="ppr-name">${escH(p.name)}${tbBadge}</div>
-            <div class="ppr-meta">$${p.cap.toFixed(2)}M · ${p.pts}pts</div>
+      let players = [...source];
+      if (posF !== 'ALL') players = players.filter(p => p.pos === posF);
+      if (search)         players = players.filter(p => p.name.toLowerCase().includes(search));
+      players.sort((a,b) => { if (a.onBlock !== b.onBlock) return a.onBlock ? -1 : 1; return b.pts - a.pts; });
+
+      if (!players.length) {
+        el.innerHTML = `<div class="panel-empty">No players match</div>`;
+        return;
+      }
+
+      const selClass = isOffer ? 's-offer' : 's-req';
+      el.innerHTML = players.map(p => {
+        const isSel = sel.has(p.slug);
+        const rowClass = isSel ? ` ${selClass}` : (p.onBlock ? ' on-block' : '');
+        const blockTag = p.onBlock ? `<span class="block-tag">BLOCK</span>` : '';
+        return `<div class="pr${rowClass}" onclick="togglePlayer('${side}','${escH(p.slug)}')">
+          <div class="pr-check">${isSel ? '✓' : ''}</div>
+          <div class="pr-info">
+            <div class="pr-name">${escH(p.name)}${blockTag}</div>
+            <div class="pr-meta">$${p.cap.toFixed(2)}M · ${p.pts} pts</div>
           </div>
-          <span class="pos-pill ${p.pos}">${p.pos}</span>
-          <div class="ppr-pts">${p.pts}</div>
+          <div class="pos-tag ${p.pos}">${p.pos}</div>
+          <div class="pr-pts">${p.pts}</div>
         </div>`;
       }).join('');
     }
 
     function togglePlayer(side, slug) {
-      const set = side === 'offer' ? state.offered : state.requested;
-      if (set.has(slug)) set.delete(slug);
-      else set.add(slug);
-      renderPanel(side, side === 'offer' ? MY_ROSTER : (TEAM_ROSTERS[state.targetTeamId] || []));
-      document.getElementById(`${side}-count`).textContent = set.size;
+      const sel = side === 'offer' ? state.offered : state.requested;
+      sel.has(slug) ? sel.delete(slug) : sel.add(slug);
+      renderPanel(side);
+      updateCountBadge(side);
       updateSummaryBar();
-      updateStepIndicator();
     }
 
     function filterPanel(side, val) {
       if (side === 'offer') state.offerSearch = val;
-      else state.requestSearch = val;
-      renderPanel(side, side === 'offer' ? MY_ROSTER : (TEAM_ROSTERS[state.targetTeamId] || []));
+      else state.reqSearch = val;
+      renderPanel(side);
     }
 
-    function setPanelPos(side, pos) {
-      if (side === 'offer') state.offerPosFilter = pos;
-      else state.requestPosFilter = pos;
+    function setPosFilter(side, pos) {
+      if (side === 'offer') state.offerPos = pos;
+      else state.reqPos = pos;
       ['ALL','F','D','G'].forEach(p => {
-        const btn = document.getElementById(`${side}-filter-${p}`);
+        const btn = document.getElementById(`${side}-chip-${p}`);
         if (!btn) return;
-        btn.className = `ppf ${p === 'ALL' ? 'ALL' : p}`;
-        if (p === pos) btn.classList.add(p === 'ALL' ? 'active-all' : 'active');
+        btn.className = 'pchip' + (p === pos ? (pos === 'ALL' ? ' a-all' : ` a-${pos}`) : '');
       });
-      renderPanel(side, side === 'offer' ? MY_ROSTER : (TEAM_ROSTERS[state.targetTeamId] || []));
+      renderPanel(side);
+    }
+
+    function updateCountBadge(side) {
+      const sel   = side === 'offer' ? state.offered : state.requested;
+      const badge = document.getElementById(side === 'offer' ? 'offer-count' : 'req-count');
+      const cls   = side === 'offer' ? 'has-offer' : 'has-req';
+      badge.textContent = sel.size ? `${sel.size} selected` : '0 selected';
+      badge.classList.toggle(cls, sel.size > 0);
     }
 
     /* ══════════════════════════════════════════
        SUMMARY BAR
     ══════════════════════════════════════════ */
-    function getAllPlayers() {
-      const all = [...MY_ROSTER, ...Object.values(TEAM_ROSTERS).flat()];
-      return Object.fromEntries(all.map(p => [p.slug, p]));
-    }
-
     function updateSummaryBar() {
-      const bar = document.getElementById('summary-bar');
-      const offerChips = document.getElementById('offer-chips');
-      const requestChips = document.getElementById('request-chips');
-      const map = getAllPlayers();
-
+      const map = allPlayers();
       const hasAny = state.offered.size > 0 || state.requested.size > 0;
-      bar.classList.toggle('empty', !hasAny);
 
-      offerChips.innerHTML = !state.offered.size
-        ? `<span class="tsb-empty-hint">Click players on the left</span>`
-        : [...state.offered].map(slug => {
-            const p = map[slug]; if (!p) return '';
-            return `<span class="tsb-chip offer" onclick="togglePlayer('offer','${escH(slug)}')" title="Click to remove"><span>${escH(p.name)}</span> ✕</span>`;
-          }).join('');
+      document.getElementById('summary-bar').classList.toggle('has-content', hasAny);
 
-      requestChips.innerHTML = !state.requested.size
-        ? `<span class="tsb-empty-hint">Click players on the right</span>`
-        : [...state.requested].map(slug => {
-            const p = map[slug]; if (!p) return '';
-            return `<span class="tsb-chip request" onclick="togglePlayer('request','${escH(slug)}')" title="Click to remove"><span>${escH(p.name)}</span> ✕</span>`;
-          }).join('');
+      document.getElementById('offer-chips').innerHTML = state.offered.size
+        ? [...state.offered].map(s => {
+            const p = map[s]; if (!p) return '';
+            return `<span class="sb-chip offer" onclick="togglePlayer('offer','${escH(s)}')"><span>${escH(p.name)}</span><span class="sb-chip-x">✕</span></span>`;
+          }).join('')
+        : `<span class="sb-hint">Select players on the left</span>`;
 
-      const sendBtn = document.getElementById('send-btn');
-      sendBtn.disabled = !hasAny || !state.targetTeamId;
-    }
+      document.getElementById('req-chips').innerHTML = state.requested.size
+        ? [...state.requested].map(s => {
+            const p = map[s]; if (!p) return '';
+            return `<span class="sb-chip req" onclick="togglePlayer('req','${escH(s)}')"><span>${escH(p.name)}</span><span class="sb-chip-x">✕</span></span>`;
+          }).join('')
+        : `<span class="sb-hint">Select players on the right</span>`;
 
-    function updateStepIndicator() {
-      const s1 = document.getElementById('step1-indicator');
-      const s2 = document.getElementById('step2-indicator');
-      const s3 = document.getElementById('step3-indicator');
-      const hasTeam = !!state.targetTeamId;
-      const hasPlayers = state.offered.size > 0 || state.requested.size > 0;
-
-      s1.className = 'step-item ' + (hasTeam ? 'done' : 'active');
-      s1.querySelector('.step-num').textContent = hasTeam ? '✓' : '1';
-      s2.className = 'step-item ' + (!hasTeam ? '' : hasPlayers ? 'done' : 'active');
-      s2.querySelector('.step-num').textContent = hasPlayers && hasTeam ? '✓' : '2';
-      s3.className = 'step-item ' + (hasPlayers && hasTeam ? 'active' : '');
+      document.getElementById('send-btn').disabled = !hasAny || !state.targetTeamId;
     }
 
     function clearProposal() {
-      state.offered = new Set();
+      state.offered   = new Set();
       state.requested = new Set();
       state.targetTeamId = null;
+      state.offerSearch = ''; state.reqSearch = '';
+      state.offerPos = 'ALL'; state.reqPos = 'ALL';
+
+      document.getElementById('offer-search').value = '';
+      document.getElementById('req-search').value   = '';
+      document.getElementById('proposal-note').value = '';
+      setPosFilter('offer','ALL'); setPosFilter('req','ALL');
+      updateCountBadge('offer');   updateCountBadge('req');
       renderTargetPills();
       renderPanel('offer', MY_ROSTER);
-      document.getElementById('request-list').innerHTML = `<div style="padding:1.5rem;text-align:center;color:rgba(255,255,255,0.2);font-size:0.78rem">← Select a team to see their roster</div>`;
-      document.getElementById('request-team-label').textContent = 'Select a team →';
-      document.getElementById('offer-count').textContent = '0';
-      document.getElementById('request-count').textContent = '0';
-      document.getElementById('proposal-note').value = '';
+      document.getElementById('req-list').innerHTML = `<div class="panel-empty">← Pick a team above to see their roster</div>`;
       updateSummaryBar();
-      updateStepIndicator();
     }
 
     async function sendProposal() {
@@ -813,120 +932,121 @@
       if (!targetTeam || (!state.offered.size && !state.requested.size)) return;
 
       const btn = document.getElementById('send-btn');
-      btn.disabled = true;
-      btn.textContent = 'Sending…';
+      btn.disabled = true; btn.textContent = 'Sending…';
 
       const id = `prop-${Date.now()}-${Math.random().toString(36).slice(2,7)}`;
       proposals[id] = {
         id,
-        fromTeamId: MY_TEAM.id,
-        fromTeamName: MY_TEAM.name,
-        toTeamId: targetTeam.id,
-        toTeamName: targetTeam.name,
-        offeredSlugs: [...state.offered],
+        fromTeamId:     MY_TEAM.id,
+        fromTeamName:   MY_TEAM.name,
+        toTeamId:       targetTeam.id,
+        toTeamName:     targetTeam.name,
+        offeredSlugs:   [...state.offered],
         requestedSlugs: [...state.requested],
-        note: document.getElementById('proposal-note').value.trim().slice(0, 200),
-        status: 'pending',
-        createdAt: new Date().toISOString(),
+        note:           document.getElementById('proposal-note').value.trim().slice(0,200),
+        status:         'pending',
+        createdAt:      new Date().toISOString(),
       };
 
       try {
         await saveProposals();
         clearProposal();
-        setPView('feed');
-      } catch (e) {
+        updateFeedBadge();
+        setView('feed');
+      } catch(e) {
         delete proposals[id];
-        btn.disabled = false;
-        btn.textContent = 'Send Proposal';
+        btn.disabled = false; btn.textContent = 'Send';
         alert('Failed to send proposal. Please try again.');
-      }
-    }
-
-    async function deleteProposal(id) {
-      if (!proposals[id]) return;
-      delete proposals[id];
-      try {
-        await saveProposals();
-        renderFeed();
-      } catch (e) {
-        alert('Failed to delete proposal.');
-        await load();
       }
     }
 
     /* ══════════════════════════════════════════
        FEED
     ══════════════════════════════════════════ */
+    function updateFeedBadge() {
+      const pending = Object.values(proposals).filter(p => p.status === 'pending').length;
+      const badge   = document.getElementById('feed-badge');
+      badge.style.display = pending ? 'inline-block' : 'none';
+    }
+
+    function setFeedFilter(f, el) {
+      state.feedFilter = f;
+      document.querySelectorAll('.ff').forEach(b => b.classList.remove('act'));
+      el.classList.add('act');
+      renderFeed();
+    }
+
     function renderFeed() {
-      const props = Object.values(proposals)
-        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      let props = Object.values(proposals).sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+      const f = state.feedFilter;
+      if (f === 'recv')     props = props.filter(p => p.toTeamId === MY_TEAM?.id);
+      if (f === 'sent')     props = props.filter(p => p.fromTeamId === MY_TEAM?.id);
+      if (f === 'accepted') props = props.filter(p => p.status === 'accepted');
 
       const count = document.getElementById('feed-count');
-      if (count) count.textContent = props.length + ' proposal' + (props.length !== 1 ? 's' : '');
-
-      const feedBadge = document.getElementById('feed-badge');
-      const pending = Object.values(proposals).filter(p => p.status === 'pending').length;
-      if (feedBadge) { feedBadge.textContent = pending || ''; feedBadge.style.display = pending ? 'inline-block' : 'none'; }
+      if (count) count.textContent = `${props.length} proposal${props.length !== 1 ? 's' : ''}`;
 
       const list = document.getElementById('feed-list');
       if (!list) return;
-
       list.innerHTML = props.length
-        ? props.map(p => buildProposalCard(p)).join('')
-        : `<div style="text-align:center;padding:2.5rem 1rem;color:rgba(255,255,255,0.2);font-size:0.85rem;letter-spacing:1px">No proposals yet.</div>`;
+        ? props.map(buildCard).join('')
+        : `<div class="state-msg">No proposals here yet.</div>`;
     }
 
-    function buildProposalCard(p) {
+    function buildCard(p) {
       const isSent = MY_TEAM && p.fromTeamId === MY_TEAM.id;
-      const counterName = isSent ? p.toTeamName : p.fromTeamName;
-      const dateStr = new Date(p.createdAt).toLocaleDateString('en-CA', { month: 'short', day: 'numeric' });
+      const dateStr = new Date(p.createdAt).toLocaleDateString('en-CA', { month:'short', day:'numeric' });
 
       function playerRow(slug) {
         const info = playerFromSlug(slug);
         const name = info ? formatName(info.player_name) : slugToName(slug);
-        const pos = info ? normPos(info.position) : 'F';
-        const pts = info ? (info.points ?? 0) : 0;
-        const cap = info ? ((info.cap_hit ?? 0) / 1e6) : 0;
-        return `<div class="pc-player-row">
-          <span class="pos-pill ${pos}">${pos}</span>
-          <span class="pc-player-name">${escH(name)}</span>
-          <span class="pc-player-stat">${pts}pts · $${cap.toFixed(2)}M</span>
+        const pos  = info ? normPos(info.position) : 'F';
+        const pts  = info ? (info.points ?? 0) : 0;
+        const cap  = info ? ((info.cap_hit ?? 0) / 1e6) : 0;
+        return `<div class="pc-player">
+          <span class="pos-tag ${pos}">${pos}</span>
+          <span class="pc-p-name">${escH(name)}</span>
+          <span class="pc-p-stat">${pts}pts · $${cap.toFixed(2)}M</span>
         </div>`;
       }
 
-      const offeredSlugs = p.offeredSlugs || [];
-      const requestedSlugs = p.requestedSlugs || [];
-      const offerSide = offeredSlugs.length ? offeredSlugs.map(playerRow).join('') : `<div class="pc-empty">Nothing offered</div>`;
-      const reqSide = requestedSlugs.length ? requestedSlugs.map(playerRow).join('') : `<div class="pc-empty">Nothing requested</div>`;
+      const offered   = (p.offeredSlugs   || []);
+      const requested = (p.requestedSlugs || []);
+      const offerHTML = offered.length   ? offered.map(playerRow).join('')   : `<div class="pc-empty">Nothing offered</div>`;
+      const reqHTML   = requested.length ? requested.map(playerRow).join('') : `<div class="pc-empty">Nothing requested</div>`;
 
       const footer = p.status === 'pending'
-        ? `<div class="pc-footer">
-            <button class="pc-action-btn execute" id="exec-btn-${escH(p.id)}" onclick="executeTrade('${escH(p.id)}')">⇄ Execute Trade</button>
-           </div>`
+        ? `<div class="pc-foot">
+            ${!isSent ? `<button class="btn-counter" onclick="counterProposal('${escH(p.id)}')">Counter</button>` : ''}
+            <button class="btn-exec" id="exec-${escH(p.id)}" onclick="executeTrade('${escH(p.id)}')">⇄ Execute</button>
+          </div>`
         : '';
 
-      const dirLabel = isSent ? 'Sent' : (MY_TEAM && p.toTeamId === MY_TEAM.id ? 'Received' : '');
-      const dirClass = isSent ? 'sent' : (MY_TEAM && p.toTeamId === MY_TEAM.id ? 'received' : 'received');
+      const dirClass  = isSent ? 'dir-sent' : 'dir-recv';
+      const dirLabel  = isSent ? 'Sent' : (MY_TEAM && p.toTeamId === MY_TEAM.id ? 'Received' : '');
+      const cardClass = `prop-card ${dirClass}${p.status === 'accepted' ? ' accepted' : ''}`;
 
-      return `<div class="proposal-card ${isSent ? 'sent' : 'received'}">
-        <div class="pc-header">
-          ${dirLabel ? `<span class="pc-badge-dir ${dirClass}">${dirLabel}</span>` : ''}
-          <span class="pc-team-name">${escH(p.fromTeamName)}</span>
-          <span style="font-family:'Bebas Neue',cursive;font-size:0.75rem;color:rgba(255,255,255,0.25);padding:0 4px">→</span>
-          <span class="pc-team-name">${escH(p.toTeamName)}</span>
+      return `<div class="${cardClass}">
+        <div class="pc-head">
+          ${dirLabel ? `<span class="dir-badge ${isSent ? 'sent' : 'recv'}">${dirLabel}</span>` : ''}
+          <div class="pc-teams">
+            <span>${escH(p.fromTeamName)}</span>
+            <span class="pc-teams-sep">→</span>
+            <span>${escH(p.toTeamName)}</span>
+          </div>
           <span class="pc-status ${escH(p.status)}">${p.status.toUpperCase()}</span>
           <span class="pc-date">${dateStr}</span>
-          <button class="pc-delete-btn" onclick="deleteProposal('${escH(p.id)}')" title="Delete">✕</button>
+          <button class="pc-del" onclick="deleteProposal('${escH(p.id)}')" title="Delete">✕</button>
         </div>
-        <div class="pc-compare">
-          <div class="pc-compare-side">
+        <div class="pc-body">
+          <div class="pc-side">
             <div class="pc-side-label offer">${escH(p.fromTeamName)}</div>
-            ${offerSide}
+            ${offerHTML}
           </div>
-          <div class="pc-compare-arrow">⇄</div>
-          <div class="pc-compare-side">
-            <div class="pc-side-label request">${escH(p.toTeamName)}</div>
-            ${reqSide}
+          <div class="pc-arrow-col">⇄</div>
+          <div class="pc-side">
+            <div class="pc-side-label req">${escH(p.toTeamName)}</div>
+            ${reqHTML}
           </div>
         </div>
         ${p.note ? `<div class="pc-note">"${escH(p.note)}"</div>` : ''}
@@ -934,25 +1054,32 @@
       </div>`;
     }
 
-    function counterProposal(id) {
-      const p = proposals[id];
-      if (!p) return;
-      state.targetTeamId = p.fromTeamId;
-      state.offered = new Set(p.requestedSlugs || []);
-      state.requested = new Set(p.offeredSlugs || []);
-      renderTargetPills();
-      const targetTeam = TEAMS.find(t => t.id === p.fromTeamId);
-      if (targetTeam) {
-        document.getElementById('request-team-label').textContent = targetTeam.name;
-        document.getElementById('split-panels').classList.remove('locked');
-        renderPanel('request', TEAM_ROSTERS[targetTeam.id] || []);
+    async function deleteProposal(id) {
+      if (!proposals[id]) return;
+      delete proposals[id];
+      try {
+        await saveProposals();
+        updateFeedBadge();
+        renderFeed();
+      } catch(e) {
+        alert('Failed to delete proposal.');
+        load();
       }
+    }
+
+    function counterProposal(id) {
+      const p = proposals[id]; if (!p) return;
+      state.targetTeamId = p.fromTeamId;
+      state.offered      = new Set(p.requestedSlugs || []);
+      state.requested    = new Set(p.offeredSlugs   || []);
+      renderTargetPills();
+      const target = TEAMS.find(t => t.id === p.fromTeamId);
+      if (target) renderPanel('req', TEAM_ROSTERS[target.id] || []);
       renderPanel('offer', MY_ROSTER);
-      document.getElementById('offer-count').textContent = state.offered.size;
-      document.getElementById('request-count').textContent = state.requested.size;
+      updateCountBadge('offer');
+      updateCountBadge('req');
       updateSummaryBar();
-      updateStepIndicator();
-      setPView('build');
+      setView('build');
     }
 
     /* ══════════════════════════════════════════
@@ -960,91 +1087,69 @@
     ══════════════════════════════════════════ */
     function captureSnapshot(slug) {
       const p = _playerMap[slug] || _playerMap[`/player/${slug}`];
-      if (!p) return { points: 0, goals: 0, assists: 0, wins: 0, shutouts: 0, games_played: 0 };
+      if (!p) return { points:0, goals:0, assists:0, wins:0, shutouts:0, games_played:0 };
       return {
-        points: p.points ?? 0,
-        goals: p.goals ?? 0,
-        assists: p.assists ?? 0,
-        wins: p.wins ?? 0,
-        shutouts: p.shutouts ?? 0,
-        games_played: p.games_played ?? 0,
+        points: p.points ?? 0, goals: p.goals ?? 0, assists: p.assists ?? 0,
+        wins: p.wins ?? 0, shutouts: p.shutouts ?? 0, games_played: p.games_played ?? 0,
       };
     }
 
     function applyTradeToRoster(team, incoming, outgoing) {
-      // incoming: slugs coming INTO this team; outgoing: slugs leaving this team
-      // Move outgoing out of any position group, move incoming in (preserving slot if possible,
-      // else appending to the matching position group or bench)
       const now = new Date().toISOString();
       if (!team.acquisitions) team.acquisitions = {};
-
       for (const slug of outgoing) {
-        // Remove from roster (any group)
-        for (const g of ['F', 'D', 'G', 'B']) {
+        for (const g of ['F','D','G','B']) {
           if (!team.roster[g]) continue;
-          const idx = team.roster[g].indexOf(slug);
-          if (idx !== -1) { team.roster[g].splice(idx, 1); break; }
+          const i = team.roster[g].indexOf(slug);
+          if (i !== -1) { team.roster[g].splice(i,1); break; }
         }
-        // Keep acquisition record so historical points are preserved — don't delete it
       }
-
       for (const slug of incoming) {
-        // Determine position group
         const p = _playerMap[slug] || _playerMap[`/player/${slug}`];
-        let group = 'F';
+        let grp = 'F';
         if (p) {
-          const pos = (p.position || '').toUpperCase();
-          if (pos === 'D' || pos.includes('LD') || pos.includes('RD')) group = 'D';
-          else if (pos.includes('G')) group = 'G';
+          const pos = (p.position||'').toUpperCase();
+          if (pos==='D'||pos.includes('LD')||pos.includes('RD')) grp='D';
+          else if (pos.includes('G')) grp='G';
         }
-        if (!team.roster[group]) team.roster[group] = [];
-        team.roster[group].push(slug);
-
-        // Set acquisition snapshot so points only count from today
-        if (!team.acquisitions[slug] || !team.acquisitions[slug].stats_snapshot) {
+        if (!team.roster[grp]) team.roster[grp] = [];
+        team.roster[grp].push(slug);
+        if (!team.acquisitions[slug]?.stats_snapshot)
           team.acquisitions[slug] = { date: now, stats_snapshot: captureSnapshot(slug) };
-        }
       }
     }
 
     async function executeTrade(proposalId) {
       const p = proposals[proposalId];
       if (!p || p.status !== 'pending') return;
-
-      const btn = document.getElementById(`exec-btn-${proposalId}`);
+      const btn = document.getElementById(`exec-${proposalId}`);
       if (btn) { btn.disabled = true; btn.textContent = 'Executing…'; }
 
       try {
-        // Re-fetch latest data to avoid overwriting concurrent changes
         const rRes = await fetch(
           `${SUPABASE_URL}/rest/v1/pool_rosters?league_code=eq.${_leagueCode}&select=data`,
           { headers: SB_HEADERS }
         );
         if (!rRes.ok) throw new Error(`fetch failed ${rRes.status}`);
         const rows = await rRes.json();
-        const data = rows[0]?.data || {};
-
+        const data  = rows[0]?.data || {};
         const rawTeams = data.teams || [];
         const fromTeam = rawTeams.find(t => t.id === p.fromTeamId);
-        const toTeam = rawTeams.find(t => t.id === p.toTeamId);
+        const toTeam   = rawTeams.find(t => t.id === p.toTeamId);
         if (!fromTeam || !toTeam) throw new Error('One or both teams not found.');
 
-        // fromTeam gives up offeredSlugs, receives requestedSlugs
-        applyTradeToRoster(fromTeam, p.requestedSlugs || [], p.offeredSlugs || []);
-        // toTeam gives up requestedSlugs, receives offeredSlugs
-        applyTradeToRoster(toTeam, p.offeredSlugs || [], p.requestedSlugs || []);
+        applyTradeToRoster(fromTeam, p.requestedSlugs||[], p.offeredSlugs||[]);
+        applyTradeToRoster(toTeam,   p.offeredSlugs||[], p.requestedSlugs||[]);
 
-        // Mark proposal accepted and cancel other pending proposals that involve any traded player
-        const tradedSlugs = new Set([...(p.offeredSlugs || []), ...(p.requestedSlugs || [])]);
-        const allProposals = data.proposals || {};
-        allProposals[proposalId].status = 'accepted';
-        for (const [id, prop] of Object.entries(allProposals)) {
+        const tradedSlugs = new Set([...(p.offeredSlugs||[]),...(p.requestedSlugs||[])]);
+        const allProps = data.proposals || {};
+        allProps[proposalId].status = 'accepted';
+        for (const [id, prop] of Object.entries(allProps)) {
           if (id === proposalId || prop.status !== 'pending') continue;
-          const involved = [...(prop.offeredSlugs || []), ...(prop.requestedSlugs || [])];
+          const involved = [...(prop.offeredSlugs||[]),...(prop.requestedSlugs||[])];
           if (involved.some(s => tradedSlugs.has(s))) prop.status = 'withdrawn';
         }
 
-        // Save
         const res = await fetch(
           `${SUPABASE_URL}/rest/v1/pool_rosters?on_conflict=league_code`,
           {
@@ -1055,26 +1160,29 @@
         );
         if (!res.ok) throw new Error(`save failed ${res.status}`);
 
-        // Reload local state
-        proposals = allProposals;
+        proposals = allProps;
         _allTeams.forEach(t => {
-          const updated = rawTeams.find(r => r.id === t.id);
-          if (updated) { t.roster = updated.roster; t.acquisitions = updated.acquisitions; }
+          const u = rawTeams.find(r => r.id === t.id);
+          if (u) { t.roster = u.roster; t.acquisitions = u.acquisitions; }
         });
         TEAM_ROSTERS = {};
-        _allTeams.forEach(t => { TEAM_ROSTERS[t.id] = rosterToList(t, data.tradingBlock || {}); });
+        _allTeams.forEach(t => { TEAM_ROSTERS[t.id] = rosterToList(t, data.tradingBlock||{}); });
         const updatedMy = rawTeams.find(r => r.id === MY_TEAM.id);
-        if (updatedMy) { MY_TEAM.roster = updatedMy.roster; MY_TEAM.acquisitions = updatedMy.acquisitions; MY_ROSTER = rosterToList(MY_TEAM, data.tradingBlock || {}); }
-
+        if (updatedMy) {
+          MY_TEAM.roster = updatedMy.roster;
+          MY_TEAM.acquisitions = updatedMy.acquisitions;
+          MY_ROSTER = rosterToList(MY_TEAM, data.tradingBlock||{});
+        }
+        updateFeedBadge();
         renderFeed();
-      } catch (e) {
+      } catch(e) {
         console.error(e);
-        alert('Failed to execute trade: ' + (e.message || e));
-        if (btn) { btn.disabled = false; btn.textContent = '⇄ Execute Trade'; }
+        alert('Failed to execute trade: ' + (e.message||e));
+        if (btn) { btn.disabled = false; btn.textContent = '⇄ Execute'; }
       }
     }
 
-    // Boot
+    /* ─── Boot ─── */
     load();
 </script>
 </body>
