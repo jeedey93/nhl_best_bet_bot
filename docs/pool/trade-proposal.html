@@ -858,16 +858,14 @@
        FEED
     ══════════════════════════════════════════ */
     function renderFeed() {
-      if (!MY_TEAM) return;
       const props = Object.values(proposals)
-        .filter(p => p.fromTeamId === MY_TEAM.id || p.toTeamId === MY_TEAM.id)
         .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
       const count = document.getElementById('feed-count');
       if (count) count.textContent = props.length + ' proposal' + (props.length !== 1 ? 's' : '');
 
       const feedBadge = document.getElementById('feed-badge');
-      const pending = Object.values(proposals).filter(p => p.status === 'pending' && p.toTeamId === MY_TEAM.id).length;
+      const pending = Object.values(proposals).filter(p => p.status === 'pending').length;
       if (feedBadge) { feedBadge.textContent = pending || ''; feedBadge.style.display = pending ? 'inline-block' : 'none'; }
 
       const list = document.getElementById('feed-list');
@@ -879,7 +877,7 @@
     }
 
     function buildProposalCard(p) {
-      const isSent = p.fromTeamId === MY_TEAM.id;
+      const isSent = MY_TEAM && p.fromTeamId === MY_TEAM.id;
       const counterName = isSent ? p.toTeamName : p.fromTeamName;
       const dateStr = new Date(p.createdAt).toLocaleDateString('en-CA', { month: 'short', day: 'numeric' });
 
@@ -903,27 +901,31 @@
 
       const footer = p.status === 'pending'
         ? `<div class="pc-footer">
-            ${!isSent ? `<span class="pc-received-msg">Contact ${escH(p.fromTeamName)} to discuss</span><button class="pc-action-btn counter" onclick="counterProposal('${escH(p.id)}')">Counter →</button>` : ''}
             <button class="pc-action-btn execute" id="exec-btn-${escH(p.id)}" onclick="executeTrade('${escH(p.id)}')">⇄ Execute Trade</button>
            </div>`
         : '';
 
+      const dirLabel = isSent ? 'Sent' : (MY_TEAM && p.toTeamId === MY_TEAM.id ? 'Received' : '');
+      const dirClass = isSent ? 'sent' : (MY_TEAM && p.toTeamId === MY_TEAM.id ? 'received' : 'received');
+
       return `<div class="proposal-card ${isSent ? 'sent' : 'received'}">
         <div class="pc-header">
-          <span class="pc-badge-dir ${isSent ? 'sent' : 'received'}">${isSent ? 'Sent' : 'Received'}</span>
-          <span class="pc-team-name">${escH(counterName)}</span>
+          ${dirLabel ? `<span class="pc-badge-dir ${dirClass}">${dirLabel}</span>` : ''}
+          <span class="pc-team-name">${escH(p.fromTeamName)}</span>
+          <span style="font-family:'Bebas Neue',cursive;font-size:0.75rem;color:rgba(255,255,255,0.25);padding:0 4px">→</span>
+          <span class="pc-team-name">${escH(p.toTeamName)}</span>
           <span class="pc-status ${escH(p.status)}">${p.status.toUpperCase()}</span>
           <span class="pc-date">${dateStr}</span>
           <button class="pc-delete-btn" onclick="deleteProposal('${escH(p.id)}')" title="Delete">✕</button>
         </div>
         <div class="pc-compare">
           <div class="pc-compare-side">
-            <div class="pc-side-label offer">${isSent ? 'You Offer' : 'They Offer'}</div>
+            <div class="pc-side-label offer">${escH(p.fromTeamName)}</div>
             ${offerSide}
           </div>
           <div class="pc-compare-arrow">⇄</div>
           <div class="pc-compare-side">
-            <div class="pc-side-label request">${isSent ? 'You Request' : 'They Request'}</div>
+            <div class="pc-side-label request">${escH(p.toTeamName)}</div>
             ${reqSide}
           </div>
         </div>
