@@ -876,11 +876,9 @@
   function updateProposalTabBadge() {
     const badge = document.getElementById('proposals-tab-badge');
     if (!badge) return;
-    const pending = Object.values(proposals).filter(p =>
-      p.status === 'pending' && p.toTeamId === activeTeamId
-    ).length;
-    badge.textContent = pending;
-    badge.classList.toggle('visible', pending > 0);
+    const total = Object.values(proposals).length;
+    badge.textContent = total;
+    badge.classList.toggle('visible', total > 0);
   }
 
   function prefillProposalFrom(slug, fromTeamId) {
