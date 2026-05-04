@@ -160,6 +160,7 @@
         .tb-badge { font-family: 'Bebas Neue', cursive; font-size: 0.55rem; letter-spacing: 1px;
           color: var(--amber); background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.25);
           border-radius: 3px; padding: 0 4px; margin-left: 4px; vertical-align: middle; }
+        .panel-player-row.on-block:not(.selected-offer):not(.selected-request) { background: rgba(245,158,11,0.05); border-left: 2px solid rgba(245,158,11,0.35); }
 
         /* ── FLOATING TRADE SUMMARY BAR ── */
         .trade-summary-bar {
@@ -291,6 +292,12 @@
 </head>
 <body>
 <div class="page-wrap">
+
+    <!-- ── MY TEAM SELECTOR ── -->
+    <div id="my-team-selector" style="display:none;margin-bottom:1rem;background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:0.75rem 1rem;">
+        <div class="section-eyebrow" style="margin-bottom:0.5rem">Which team is yours?</div>
+        <div id="my-team-pills" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+    </div>
 
     <!-- ── VIEW TABS ── -->
     <div class="proposals-view-tabs">
@@ -424,6 +431,8 @@
     let TEAM_ROSTERS = {};
     let proposals = {};
     let _playerMap = {};
+    let _allTeams = [];
+    let _tradingBlock = {};
 
     /* ══════════════════════════════════════════
        STATE
@@ -513,9 +522,6 @@
         const tradingBlock = data.tradingBlock || {};
         proposals = data.proposals || {};
 
-        // Determine active team (first team in list, same as roster.html default)
-        const activeId = data.activeTeamId || rawTeams[0]?.id;
-
         // Fetch players
         const pRes = await fetch(
           `${SUPABASE_URL}/rest/v1/nhl_players?select=puckpedia_slug,player_name,position,cap_hit,team,points,goals,assists,wins,shutouts,games_played&order=cap_hit.desc&limit=1000`,
@@ -529,39 +535,31 @@
           });
         }
 
-        // Build MY_TEAM and TEAMS
-        MY_TEAM = null;
-        TEAMS = [];
-        TEAM_ROSTERS = {};
+        // Build all teams into a flat list
+        const allTeams = rawTeams.map((t, idx) => ({
+          id: t.id || `team-${idx}`,
+          name: t.name || `Team ${idx + 1}`,
+          roster: {
+            F: Array.isArray(t.roster?.F) ? t.roster.F : [],
+            D: Array.isArray(t.roster?.D) ? t.roster.D : [],
+            G: Array.isArray(t.roster?.G) ? t.roster.G : [],
+          },
+        }));
 
-        rawTeams.forEach((t, idx) => {
-          const team = {
-            id: t.id || `team-${idx}`,
-            name: t.name || `Team ${idx + 1}`,
-            roster: {
-              F: Array.isArray(t.roster?.F) ? t.roster.F : [],
-              D: Array.isArray(t.roster?.D) ? t.roster.D : [],
-              G: Array.isArray(t.roster?.G) ? t.roster.G : [],
-            },
-          };
-          if (team.id === activeId) {
-            MY_TEAM = team;
-            MY_ROSTER = rosterToList(team, tradingBlock);
-          } else {
-            TEAMS.push(team);
-            TEAM_ROSTERS[team.id] = rosterToList(team, tradingBlock);
-          }
+        // Build roster lookup for all teams
+        TEAM_ROSTERS = {};
+        allTeams.forEach(team => {
+          TEAM_ROSTERS[team.id] = rosterToList(team, tradingBlock);
         });
 
-        if (!MY_TEAM) {
-          // Fallback: first team is mine
-          const t = rawTeams[0];
-          if (t) {
-            MY_TEAM = { id: t.id || 'team-0', name: t.name || 'My Team', roster: { F: t.roster?.F||[], D: t.roster?.D||[], G: t.roster?.G||[] } };
-            MY_ROSTER = rosterToList(MY_TEAM, tradingBlock);
-          }
-        }
+        // Determine selected "my team" — localStorage wins, then activeId, then first
+        const storageKey = `myTeam_${_leagueCode}`;
+        const savedId = localStorage.getItem(storageKey);
+        const preferredId = savedId || data.activeTeamId || allTeams[0]?.id;
+        const chosenTeam = allTeams.find(t => t.id === preferredId) || allTeams[0];
 
+        setMyTeam(chosenTeam, allTeams, tradingBlock);
+        renderMyTeamSelector(allTeams, tradingBlock);
         init();
       } catch (e) {
         console.error(e);
@@ -610,6 +608,42 @@
     }
 
     /* ══════════════════════════════════════════
+       MY TEAM SELECTION
+    ══════════════════════════════════════════ */
+    function setMyTeam(team, allTeams, tradingBlock) {
+      MY_TEAM = team;
+      MY_ROSTER = rosterToList(team, tradingBlock || _tradingBlock);
+      TEAMS = (allTeams || _allTeams).filter(t => t.id !== team.id);
+      _allTeams = allTeams || _allTeams;
+      _tradingBlock = tradingBlock || _tradingBlock;
+      const storageKey = `myTeam_${_leagueCode}`;
+      localStorage.setItem(storageKey, team.id);
+    }
+
+    function renderMyTeamSelector(allTeams, tradingBlock) {
+      const selector = document.getElementById('my-team-selector');
+      const pills = document.getElementById('my-team-pills');
+      if (!selector || !pills) return;
+      selector.style.display = '';
+      pills.innerHTML = (allTeams || _allTeams).map(t =>
+        `<button class="ttp${MY_TEAM && MY_TEAM.id === t.id ? ' selected' : ''}"
+          onclick="chooseMyTeam('${escH(t.id)}')">${escH(t.name)}</button>`
+      ).join('');
+    }
+
+    function chooseMyTeam(id) {
+      const team = _allTeams.find(t => t.id === id);
+      if (!team || (MY_TEAM && team.id === MY_TEAM.id)) return;
+      setMyTeam(team, null, null);
+      // Reset any in-progress proposal since your roster changed
+      clearProposal();
+      renderMyTeamSelector();
+      renderTargetPills();
+      renderPanel('offer', MY_ROSTER);
+      renderFeed();
+    }
+
+    /* ══════════════════════════════════════════
        INIT
     ══════════════════════════════════════════ */
     function init() {
@@ -650,6 +684,11 @@
       let players = roster;
       if (posF !== 'ALL') players = players.filter(p => p.pos === posF);
       if (search) players = players.filter(p => p.name.toLowerCase().includes(search));
+      // Trading block players first, then by points desc
+      players = [...players].sort((a, b) => {
+        if (a.onBlock !== b.onBlock) return a.onBlock ? -1 : 1;
+        return b.pts - a.pts;
+      });
 
       if (!players.length) {
         list.innerHTML = `<div style="padding:1.2rem;text-align:center;color:rgba(255,255,255,0.2);font-size:0.75rem">No players match</div>`;
@@ -660,12 +699,13 @@
       list.innerHTML = players.map(p => {
         const isSel = selected.has(p.slug);
         const selClass = isSel ? (side === 'offer' ? ' selected-offer' : ' selected-request') : '';
-        const tbBadge = p.onBlock ? `<span class="tb-badge">📤</span>` : '';
-        return `<div class="panel-player-row${selClass}" onclick="togglePlayer('${side}','${escH(p.slug)}')">
+        const tbBadge = p.onBlock ? `<span class="tb-badge">BLOCK</span>` : '';
+        const blockClass = p.onBlock ? ' on-block' : '';
+        return `<div class="panel-player-row${selClass}${blockClass}" onclick="togglePlayer('${side}','${escH(p.slug)}')">
           <div class="ppr-check">${isSel ? '✓' : ''}</div>
           <div class="ppr-info">
             <div class="ppr-name">${escH(p.name)}${tbBadge}</div>
-            <div class="ppr-meta">${escH(p.team)} · $${p.cap.toFixed(2)}M</div>
+            <div class="ppr-meta">$${p.cap.toFixed(2)}M · ${p.pts}pts</div>
           </div>
           <span class="pos-pill ${p.pos}">${p.pos}</span>
           <div class="ppr-pts">${p.pts}</div>
