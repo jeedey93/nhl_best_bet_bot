@@ -457,7 +457,7 @@
             <button class="vtab active" id="vtab-build" onclick="setView('build')">New Proposal</button>
             <button class="vtab" id="vtab-feed" onclick="setView('feed')">
                 Feed
-                <span class="vtab-badge" id="feed-badge"></span>
+                <span id="feed-badge" style="display:none;margin-left:6px;background:rgba(255,184,28,0.18);color:var(--gold);border-radius:20px;padding:1px 7px;font-size:10px;letter-spacing:1px;vertical-align:middle;"></span>
             </button>
         </div>
     </div>
@@ -964,9 +964,10 @@
        FEED
     ══════════════════════════════════════════ */
     function updateFeedBadge() {
-      const pending = Object.values(proposals).filter(p => p.status === 'pending').length;
-      const badge   = document.getElementById('feed-badge');
-      badge.style.display = pending ? 'inline-block' : 'none';
+      const total = Object.values(proposals).length;
+      const badge = document.getElementById('feed-badge');
+      badge.textContent   = total;
+      badge.style.display = total ? 'inline-block' : 'none';
     }
 
     function setFeedFilter(f, el) {
