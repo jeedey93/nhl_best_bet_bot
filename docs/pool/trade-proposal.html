@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trade Proposals – Redesign Preview</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,900;1,400&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+          --rink: #07111f;
+          --red: #c8102e;
+          --gold: #ffb81c;
+          --silver: #a8b2be;
+          --green: #22c55e;
+          --blue: #7db4ff;
+          --pink: #ff7a8a;
+          --amber: #f59e0b;
+          --line: rgba(255,255,255,0.08);
+        }
+        body {
+          background: var(--rink);
+          background-image: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(26,58,110,0.6) 0%, transparent 70%);
+          min-height: 100vh;
+          font-family: 'Barlow Condensed', sans-serif;
+          color: white;
+          padding: 2rem 1rem;
+        }
+        .page-wrap { max-width: 1000px; margin: 0 auto; }
+
+        /* ── DEMO NOTE ── */
+        .demo-note {
+          background: rgba(125,180,255,0.08); border: 1px solid rgba(125,180,255,0.2);
+          border-radius: 8px; padding: 0.6rem 1rem; margin-bottom: 1.5rem;
+          font-size: 0.82rem; color: rgba(255,255,255,0.5); letter-spacing: 0.5px;
+        }
+        .demo-note strong { color: var(--blue); font-family: 'Bebas Neue', cursive; letter-spacing: 1px; }
+
+        /* ════════════════════════════════════════
+           PROPOSAL MODE SWITCHER
+        ════════════════════════════════════════ */
+        .proposals-view-tabs {
+          display: flex; gap: 4px; margin-bottom: 1rem;
+          background: rgba(255,255,255,0.03); border: 1px solid var(--line);
+          border-radius: 8px; padding: 3px;
+        }
+        .pvt { font-family: 'Bebas Neue', cursive; font-size: 0.82rem; letter-spacing: 2px;
+          padding: 5px 18px; border-radius: 5px; cursor: pointer; flex: 1; text-align: center;
+          color: var(--silver); transition: all 0.15s; background: transparent; border: none; }
+        .pvt:hover { color: white; }
+        .pvt.active { background: rgba(255,184,28,0.12); color: var(--gold); }
+
+        /* ════════════════════════════════════════
+           SPLIT-SCREEN BUILDER
+        ════════════════════════════════════════ */
+        .builder-container { display: flex; flex-direction: column; gap: 0.75rem; }
+
+        /* Step indicator */
+        .builder-steps {
+          display: flex; align-items: center; gap: 0; margin-bottom: 0.25rem;
+        }
+        .step-item {
+          display: flex; align-items: center; gap: 0.5rem;
+          font-family: 'Bebas Neue', cursive; font-size: 0.78rem; letter-spacing: 2px;
+          color: rgba(255,255,255,0.28);
+        }
+        .step-item.active { color: var(--gold); }
+        .step-item.done { color: rgba(34,197,94,0.7); }
+        .step-num {
+          width: 20px; height: 20px; border-radius: 50%; border: 1px solid currentColor;
+          display: flex; align-items: center; justify-content: center;
+          font-size: 0.65rem; flex-shrink: 0;
+        }
+        .step-connector { flex: 1; height: 1px; background: rgba(255,255,255,0.08); margin: 0 8px; }
+
+        /* Target team selector */
+        .target-team-section { }
+        .section-eyebrow {
+          font-family: 'Barlow Condensed', sans-serif; font-size: 0.62rem; font-weight: 700;
+          letter-spacing: 1.8px; text-transform: uppercase; color: rgba(255,255,255,0.3);
+          margin-bottom: 0.5rem;
+        }
+        .target-team-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+        .ttp {
+          font-family: 'Bebas Neue', cursive; font-size: 0.78rem; letter-spacing: 1.5px;
+          padding: 5px 14px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1);
+          color: var(--silver); background: transparent; cursor: pointer; transition: all 0.15s;
+        }
+        .ttp:hover { border-color: rgba(255,184,28,0.4); color: var(--gold); }
+        .ttp.selected { background: rgba(255,184,28,0.12); border-color: rgba(255,184,28,0.5); color: var(--gold); }
+
+        /* ── SPLIT PANELS ── */
+        .split-panels {
+          display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+          transition: opacity 0.2s;
+        }
+        .split-panels.locked { opacity: 0.35; pointer-events: none; }
+        @media (max-width: 600px) { .split-panels { grid-template-columns: 1fr; } }
+
+        .split-panel {
+          background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.08);
+          border-radius: 10px; overflow: hidden; display: flex; flex-direction: column;
+          min-height: 240px;
+        }
+        .split-panel-header {
+          display: flex; align-items: center; gap: 0.5rem; padding: 0.55rem 0.75rem;
+          border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        .split-panel-title { font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 2px; }
+        .split-panel-title.offer { color: var(--pink); }
+        .split-panel-title.request { color: var(--blue); }
+        .split-panel-team { font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem; color: rgba(255,255,255,0.35); margin-left: auto; letter-spacing: 0.5px; }
+        .split-panel-count { font-family: 'Bebas Neue', cursive; font-size: 0.72rem; letter-spacing: 1px;
+          background: rgba(255,255,255,0.07); border-radius: 20px; padding: 1px 8px; color: var(--silver); margin-left: 4px; }
+
+        /* Search within panel */
+        .panel-search {
+          display: flex; align-items: center; gap: 0; border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        .panel-search-icon { padding: 0 0.6rem; color: rgba(255,255,255,0.25); font-size: 0.8rem; }
+        .panel-search input {
+          flex: 1; background: transparent; border: none; color: white; font-family: 'Barlow Condensed', sans-serif;
+          font-size: 0.82rem; padding: 0.38rem 0.5rem 0.38rem 0; outline: none; letter-spacing: 0.5px;
+        }
+        .panel-search input::placeholder { color: rgba(255,255,255,0.2); }
+
+        /* Pos filter pills */
+        .panel-pos-filter { display: flex; gap: 4px; padding: 0.35rem 0.65rem; border-bottom: 1px solid rgba(255,255,255,0.04); }
+        .ppf {
+          font-family: 'Bebas Neue', cursive; font-size: 0.65rem; letter-spacing: 1px;
+          padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1);
+          color: rgba(255,255,255,0.4); background: transparent; cursor: pointer; transition: all 0.12s;
+        }
+        .ppf:hover { color: white; }
+        .ppf.ALL.active, .ppf.active-all { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.2); color: white; }
+        .ppf.F.active { background: rgba(255,122,138,0.12); border-color: rgba(255,122,138,0.4); color: var(--pink); }
+        .ppf.D.active { background: rgba(125,180,255,0.12); border-color: rgba(125,180,255,0.4); color: var(--blue); }
+        .ppf.G.active { background: rgba(255,184,28,0.12); border-color: rgba(255,184,28,0.4); color: var(--gold); }
+
+        /* Player list */
+        .panel-player-list { flex: 1; overflow-y: auto; max-height: 280px; }
+        .panel-player-row {
+          display: grid; grid-template-columns: 20px 1fr auto auto; gap: 8px; align-items: center;
+          padding: 0.38rem 0.65rem; border-bottom: 1px solid rgba(255,255,255,0.03);
+          cursor: pointer; transition: background 0.1s; user-select: none;
+        }
+        .panel-player-row:hover { background: rgba(255,255,255,0.03); }
+        .panel-player-row.selected-offer { background: rgba(255,122,138,0.06); border-left: 2px solid rgba(255,122,138,0.45); }
+        .panel-player-row.selected-request { background: rgba(125,180,255,0.06); border-left: 2px solid rgba(125,180,255,0.45); }
+        .ppr-check {
+          width: 16px; height: 16px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.15);
+          display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+          font-size: 0.6rem; transition: all 0.12s;
+        }
+        .selected-offer .ppr-check { background: var(--pink); border-color: var(--pink); color: #07111f; }
+        .selected-request .ppr-check { background: var(--blue); border-color: var(--blue); color: #07111f; }
+        .ppr-info { min-width: 0; }
+        .ppr-name { font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 0.8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.1; }
+        .ppr-meta { font-size: 0.65rem; color: rgba(255,255,255,0.35); }
+        .ppr-pts { font-family: 'Bebas Neue', cursive; font-size: 0.82rem; color: var(--gold); letter-spacing: 0.5px; }
+        .pos-pill {
+          font-family: 'Bebas Neue', cursive; font-size: 0.58rem; letter-spacing: 0.8px;
+          border-radius: 3px; padding: 1px 4px; flex-shrink: 0;
+        }
+        .pos-pill.F { background: rgba(255,122,138,0.15); color: var(--pink); }
+        .pos-pill.D { background: rgba(125,180,255,0.15); color: var(--blue); }
+        .pos-pill.G { background: rgba(255,184,28,0.15); color: var(--gold); }
+        .tb-badge { font-family: 'Bebas Neue', cursive; font-size: 0.55rem; letter-spacing: 1px;
+          color: var(--amber); background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.25);
+          border-radius: 3px; padding: 0 4px; margin-left: 4px; vertical-align: middle; }
+
+        /* ── FLOATING TRADE SUMMARY BAR ── */
+        .trade-summary-bar {
+          background: rgba(12,22,38,0.97); border: 1px solid rgba(255,255,255,0.1);
+          border-radius: 12px; padding: 0.75rem 1rem; transition: all 0.25s;
+          backdrop-filter: blur(12px);
+        }
+        .trade-summary-bar.empty { opacity: 0.45; }
+
+        .tsb-row { display: flex; align-items: stretch; gap: 8px; }
+
+        .tsb-side { flex: 1; min-width: 0; }
+        .tsb-side-label { font-family: 'Barlow Condensed', sans-serif; font-size: 0.6rem; font-weight: 700;
+          letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 6px; }
+        .tsb-side-label.offer { color: rgba(255,122,138,0.7); }
+        .tsb-side-label.request { color: rgba(125,180,255,0.7); }
+        .tsb-chips { display: flex; flex-wrap: wrap; gap: 4px; min-height: 28px; align-items: flex-start; }
+        .tsb-chip {
+          display: inline-flex; align-items: center; gap: 4px;
+          font-family: 'Bebas Neue', cursive; font-size: 0.72rem; letter-spacing: 0.8px;
+          border-radius: 20px; padding: 2px 8px; cursor: pointer;
+          transition: all 0.12s; max-width: 150px; overflow: hidden;
+        }
+        .tsb-chip span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .tsb-chip.offer { background: rgba(255,122,138,0.1); border: 1px solid rgba(255,122,138,0.3); color: var(--pink); }
+        .tsb-chip.offer:hover { background: rgba(239,68,68,0.15); border-color: rgba(239,68,68,0.5); color: #f87171; }
+        .tsb-chip.request { background: rgba(125,180,255,0.1); border: 1px solid rgba(125,180,255,0.3); color: var(--blue); }
+        .tsb-chip.request:hover { background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.4); color: #f87171; }
+        .tsb-empty-hint { font-size: 0.72rem; color: rgba(255,255,255,0.2); font-style: italic; padding: 4px 0; }
+        .tsb-arrows { font-size: 1.1rem; color: rgba(255,255,255,0.2); display: flex; align-items: center; padding: 0 4px; }
+        .tsb-divider { width: 1px; background: rgba(255,255,255,0.07); align-self: stretch; margin: 0 4px; }
+
+        /* Impact bar */
+        .tsb-impact { margin-top: 0.6rem; padding-top: 0.6rem; border-top: 1px solid rgba(255,255,255,0.06); }
+        .tsb-impact-row { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+        .impact-item { display: flex; align-items: baseline; gap: 5px; }
+        .impact-label { font-size: 0.62rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,0.3); }
+        .impact-value { font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 0.5px; }
+        .impact-value.pos { color: var(--green); }
+        .impact-value.neg { color: #f87171; }
+        .impact-value.neutral { color: var(--silver); }
+        .impact-value.warn { color: var(--amber); }
+        .impact-flag {
+          font-family: 'Bebas Neue', cursive; font-size: 0.62rem; letter-spacing: 1px;
+          border-radius: 4px; padding: 1px 7px; margin-left: auto;
+        }
+        .impact-flag.ok { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.25); color: var(--green); }
+        .impact-flag.warn { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.25); color: var(--amber); }
+        .impact-flag.err { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.25); color: #f87171; }
+
+        /* Action row */
+        .tsb-actions { display: flex; align-items: center; gap: 8px; margin-top: 0.65rem; }
+        .tsb-note {
+          flex: 1; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+          border-radius: 6px; color: white; font-family: 'Barlow Condensed', sans-serif;
+          font-size: 0.82rem; padding: 5px 10px; resize: none; height: 32px; overflow: hidden;
+        }
+        .tsb-note:focus { outline: none; border-color: rgba(255,184,28,0.4); }
+        .tsb-note::placeholder { color: rgba(255,255,255,0.2); }
+        .btn-send-proposal {
+          font-family: 'Bebas Neue', cursive; font-size: 0.82rem; letter-spacing: 2px;
+          background: var(--gold); color: #07111f; border: none; border-radius: 7px;
+          padding: 7px 20px; cursor: pointer; transition: background 0.15s; white-space: nowrap; flex-shrink: 0;
+        }
+        .btn-send-proposal:hover { background: #ffd04d; }
+        .btn-send-proposal:disabled { background: rgba(255,184,28,0.25); color: rgba(255,255,255,0.3); cursor: not-allowed; }
+        .btn-clear-proposal {
+          font-family: 'Bebas Neue', cursive; font-size: 0.78rem; letter-spacing: 1px;
+          background: transparent; color: var(--silver); border: 1px solid rgba(255,255,255,0.1);
+          border-radius: 7px; padding: 7px 12px; cursor: pointer; transition: all 0.15s; flex-shrink: 0;
+        }
+        .btn-clear-proposal:hover { border-color: rgba(255,255,255,0.3); color: white; }
+
+        /* ════════════════════════════════════════
+           PROPOSAL CARDS VIEW
+        ════════════════════════════════════════ */
+        .proposal-filter-row {
+          display: flex; align-items: center; gap: 8px; margin-bottom: 0.85rem; flex-wrap: wrap;
+        }
+        .pf-pill {
+          font-family: 'Bebas Neue', cursive; font-size: 0.72rem; letter-spacing: 1.5px;
+          padding: 4px 14px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1);
+          color: var(--silver); background: transparent; cursor: pointer; transition: all 0.15s;
+        }
+        .pf-pill:hover { color: white; }
+        .pf-pill.active { background: rgba(255,184,28,0.1); border-color: rgba(255,184,28,0.4); color: var(--gold); }
+        .pf-count { font-size: 0.72rem; color: rgba(255,255,255,0.25); letter-spacing: 1px; margin-left: auto; }
+
+        .proposal-card {
+          background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+          border-radius: 12px; margin-bottom: 10px; overflow: hidden;
+          transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .proposal-card:hover { border-color: rgba(255,255,255,0.14); box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+        .proposal-card.received { border-left: 3px solid rgba(125,180,255,0.5); }
+        .proposal-card.sent { border-left: 3px solid rgba(255,184,28,0.4); }
+
+        .pc-header {
+          display: flex; align-items: center; gap: 8px; padding: 0.65rem 0.9rem;
+          border-bottom: 1px solid rgba(255,255,255,0.06); flex-wrap: wrap;
+        }
+        .pc-badge-dir {
+          font-family: 'Bebas Neue', cursive; font-size: 0.65rem; letter-spacing: 2px;
+          border-radius: 4px; padding: 2px 7px;
+        }
+        .pc-badge-dir.received { background: rgba(125,180,255,0.12); color: var(--blue); border: 1px solid rgba(125,180,255,0.25); }
+        .pc-badge-dir.sent { background: rgba(255,184,28,0.1); color: var(--gold); border: 1px solid rgba(255,184,28,0.25); }
+        .pc-team-name { font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 1px; }
+        .pc-status { font-family: 'Bebas Neue', cursive; font-size: 0.6rem; letter-spacing: 1.5px; padding: 2px 7px; border-radius: 3px; margin-left: auto; }
+        .pc-status.pending { background: rgba(255,184,28,0.15); color: var(--gold); border: 1px solid rgba(255,184,28,0.3); }
+        .pc-status.withdrawn { background: rgba(255,255,255,0.06); color: var(--silver); border: 1px solid rgba(255,255,255,0.1); }
+        .pc-status.accepted { background: rgba(34,197,94,0.12); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+        .pc-date { font-size: 0.67rem; color: rgba(255,255,255,0.22); }
+
+        /* Comparative players layout */
+        .pc-compare {
+          display: grid; grid-template-columns: 1fr 48px 1fr; gap: 0; align-items: stretch;
+        }
+        .pc-compare-side { padding: 0.7rem 0.9rem; }
+        .pc-compare-side + .pc-compare-side { border-left: 1px solid rgba(255,255,255,0.05); }
+        .pc-compare-arrow {
+          display: flex; align-items: center; justify-content: center;
+          font-size: 1rem; color: rgba(255,255,255,0.15); background: rgba(255,255,255,0.02);
+          border-left: 1px solid rgba(255,255,255,0.04); border-right: 1px solid rgba(255,255,255,0.04);
+        }
+        .pc-side-label { font-family: 'Bebas Neue', cursive; font-size: 0.65rem; letter-spacing: 1.5px; margin-bottom: 0.4rem; }
+        .pc-side-label.offer { color: var(--pink); }
+        .pc-side-label.request { color: var(--blue); }
+        .pc-player-row { display: flex; align-items: center; gap: 7px; padding: 3px 0; }
+        .pc-player-name { font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 0.8px; color: white; }
+        .pc-player-stat { font-family: 'Barlow Condensed', sans-serif; font-size: 0.68rem; color: rgba(255,255,255,0.35); margin-left: auto; white-space: nowrap; }
+        .pc-empty { color: rgba(255,255,255,0.18); font-size: 0.72rem; font-style: italic; padding: 3px 0; }
+
+        /* Impact strip */
+        .pc-impact-strip {
+          display: flex; align-items: center; gap: 0;
+          border-top: 1px solid rgba(255,255,255,0.05); background: rgba(0,0,0,0.08);
+        }
+        .pc-impact-item {
+          flex: 1; padding: 0.3rem 0.7rem; text-align: center;
+          border-right: 1px solid rgba(255,255,255,0.05);
+        }
+        .pc-impact-item:last-child { border-right: none; }
+        .pc-impact-label { font-size: 0.58rem; font-weight: 700; color: rgba(255,255,255,0.28); letter-spacing: 1px; text-transform: uppercase; }
+        .pc-impact-val { font-family: 'Bebas Neue', cursive; font-size: 0.82rem; letter-spacing: 0.5px; }
+        .pc-impact-val.pos { color: var(--green); }
+        .pc-impact-val.neg { color: #f87171; }
+        .pc-impact-val.neutral { color: var(--silver); }
+
+        .pc-note { font-size: 0.73rem; color: rgba(255,255,255,0.3); font-style: italic; padding: 0.4rem 0.9rem; border-top: 1px solid rgba(255,255,255,0.04); }
+
+        .pc-footer {
+          display: flex; align-items: center; justify-content: flex-end; gap: 8px;
+          padding: 0.45rem 0.9rem; border-top: 1px solid rgba(255,255,255,0.05);
+        }
+        .pc-action-btn {
+          font-family: 'Bebas Neue', cursive; font-size: 0.7rem; letter-spacing: 1.5px;
+          padding: 4px 12px; border-radius: 5px; cursor: pointer; transition: all 0.15s;
+        }
+        .pc-action-btn.withdraw { border: 1px solid rgba(255,80,80,0.3); background: transparent; color: rgba(255,100,100,0.7); }
+        .pc-action-btn.withdraw:hover { background: rgba(255,80,80,0.1); border-color: rgba(255,80,80,0.6); color: #ff6464; }
+        .pc-action-btn.counter { border: 1px solid rgba(125,180,255,0.3); background: transparent; color: var(--blue); }
+        .pc-action-btn.counter:hover { background: rgba(125,180,255,0.1); border-color: rgba(125,180,255,0.5); }
+        .pc-received-msg { font-size: 0.7rem; color: rgba(125,180,255,0.5); letter-spacing: 0.4px; }
+
+        /* ── Responsive ── */
+        @media (max-width: 560px) {
+          .pc-compare { grid-template-columns: 1fr; }
+          .pc-compare-arrow { display: none; }
+          .pc-impact-strip { flex-wrap: wrap; }
+          .split-panels { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+<div class="page-wrap">
+
+    <div class="demo-note">
+        <strong>Preview</strong> — This file demonstrates the redesigned Trade Proposals UI. Use the tabs below to switch between the split-screen builder and the proposals feed. All interactivity is wired up with mock data.
+    </div>
+
+    <!-- ── VIEW TABS ── -->
+    <div class="proposals-view-tabs">
+        <button class="pvt active" id="pvt-build" onclick="setPView('build')">New Proposal</button>
+        <button class="pvt" id="pvt-feed" onclick="setPView('feed')">Proposals Feed <span id="feed-badge" style="display:inline-block;background:rgba(255,184,28,0.2);color:var(--gold);border-radius:20px;padding:0 6px;font-size:0.65rem;margin-left:4px;letter-spacing:1px;">2</span></button>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         BUILD VIEW
+    ══════════════════════════════════════════ -->
+    <div id="pview-build">
+        <div class="builder-container">
+
+            <!-- Step bar -->
+            <div class="builder-steps">
+                <div class="step-item done" id="step1-indicator"><span class="step-num">✓</span>Pick Team</div>
+                <div class="step-connector"></div>
+                <div class="step-item active" id="step2-indicator"><span class="step-num">2</span>Select Players</div>
+                <div class="step-connector"></div>
+                <div class="step-item" id="step3-indicator"><span class="step-num">3</span>Send</div>
+            </div>
+
+            <!-- Target team -->
+            <div class="target-team-section">
+                <div class="section-eyebrow">Send proposal to</div>
+                <div class="target-team-pills" id="target-pills"></div>
+            </div>
+
+            <!-- Split panels -->
+            <div class="split-panels" id="split-panels">
+                <!-- LEFT: Your roster (offer) -->
+                <div class="split-panel">
+                    <div class="split-panel-header">
+                        <span class="split-panel-title offer">You Offer</span>
+                        <span class="split-panel-count" id="offer-count">0</span>
+                        <span class="split-panel-team">Your Team</span>
+                    </div>
+                    <div class="panel-search">
+                        <span class="panel-search-icon">🔍</span>
+                        <input type="text" placeholder="Filter players…" oninput="filterPanel('offer', this.value)" id="offer-search">
+                    </div>
+                    <div class="panel-pos-filter">
+                        <button class="ppf ALL active-all" id="offer-filter-ALL" onclick="setPanelPos('offer','ALL')">All</button>
+                        <button class="ppf F" id="offer-filter-F" onclick="setPanelPos('offer','F')">F</button>
+                        <button class="ppf D" id="offer-filter-D" onclick="setPanelPos('offer','D')">D</button>
+                        <button class="ppf G" id="offer-filter-G" onclick="setPanelPos('offer','G')">G</button>
+                    </div>
+                    <div class="panel-player-list" id="offer-list"></div>
+                </div>
+
+                <!-- RIGHT: Target team's roster (request) -->
+                <div class="split-panel">
+                    <div class="split-panel-header">
+                        <span class="split-panel-title request">You Request</span>
+                        <span class="split-panel-count" id="request-count">0</span>
+                        <span class="split-panel-team" id="request-team-label">Select a team →</span>
+                    </div>
+                    <div class="panel-search">
+                        <span class="panel-search-icon">🔍</span>
+                        <input type="text" placeholder="Filter players…" oninput="filterPanel('request', this.value)" id="request-search">
+                    </div>
+                    <div class="panel-pos-filter">
+                        <button class="ppf ALL active-all" id="request-filter-ALL" onclick="setPanelPos('request','ALL')">All</button>
+                        <button class="ppf F" id="request-filter-F" onclick="setPanelPos('request','F')">F</button>
+                        <button class="ppf D" id="request-filter-D" onclick="setPanelPos('request','D')">D</button>
+                        <button class="ppf G" id="request-filter-G" onclick="setPanelPos('request','G')">G</button>
+                    </div>
+                    <div class="panel-player-list" id="request-list">
+                        <div style="padding:1.5rem;text-align:center;color:rgba(255,255,255,0.2);font-size:0.78rem;letter-spacing:0.5px">
+                            ← Select a team to see their roster
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Floating summary bar -->
+            <div class="trade-summary-bar empty" id="summary-bar">
+                <div class="tsb-row">
+                    <div class="tsb-side">
+                        <div class="tsb-side-label offer">Giving Up</div>
+                        <div class="tsb-chips" id="offer-chips">
+                            <span class="tsb-empty-hint">Click players on the left to add</span>
+                        </div>
+                    </div>
+                    <div class="tsb-arrows">⇄</div>
+                    <div class="tsb-side">
+                        <div class="tsb-side-label request">Receiving</div>
+                        <div class="tsb-chips" id="request-chips">
+                            <span class="tsb-empty-hint">Click players on the right to add</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Impact row -->
+                <div class="tsb-impact" id="tsb-impact" style="display:none">
+                    <div class="tsb-impact-row">
+                        <div class="impact-item">
+                            <span class="impact-label">Pts Δ</span>
+                            <span class="impact-value" id="impact-pts">—</span>
+                        </div>
+                        <div class="impact-item">
+                            <span class="impact-label">Cap Δ</span>
+                            <span class="impact-value" id="impact-cap">—</span>
+                        </div>
+                        <div class="impact-item">
+                            <span class="impact-label">Roster</span>
+                            <span class="impact-value" id="impact-roster">—</span>
+                        </div>
+                        <span class="impact-flag" id="impact-flag">VALID</span>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="tsb-actions">
+                    <input class="tsb-note" id="proposal-note" placeholder='Optional note: "Open to any C, just need depth…"' maxlength="200">
+                    <button class="btn-clear-proposal" onclick="clearProposal()">Clear</button>
+                    <button class="btn-send-proposal" id="send-btn" disabled onclick="sendProposal()">Send Proposal</button>
+                </div>
+            </div>
+
+        </div><!-- .builder-container -->
+    </div><!-- #pview-build -->
+
+    <!-- ══════════════════════════════════════════
+         FEED VIEW
+    ══════════════════════════════════════════ -->
+    <div id="pview-feed" style="display:none">
+
+        <div class="proposal-filter-row">
+            <button class="pf-pill active" id="pff-all" onclick="setFeedFilter('all')">All</button>
+            <button class="pf-pill" id="pff-received" onclick="setFeedFilter('received')">Received</button>
+            <button class="pf-pill" id="pff-sent" onclick="setFeedFilter('sent')">Sent</button>
+            <span class="pf-count" id="feed-count">5 proposals</span>
+        </div>
+
+        <div id="feed-list"></div>
+
+    </div>
+
+</div><!-- .page-wrap -->
+
+<script>
+    /* ══════════════════════════════════════════
+       MOCK DATA
+    ══════════════════════════════════════════ */
+    const MY_TEAM = { id: 'team-1', name: 'Les Glorieux' };
+
+    const TEAMS = [
+      { id: 'team-2', name: 'Oilers Army' },
+      { id: 'team-3', name: 'Leaf Nation' },
+      { id: 'team-4', name: 'Sens Nation' },
+      { id: 'team-5', name: 'Habs Fans' },
+    ];
+
+    const MY_ROSTER = [
+      { slug: 'auston-matthews', name: 'Auston Matthews', pos: 'F', pts: 76, cap: 13.25, team: 'TOR', onBlock: false },
+      { slug: 'sam-reinhart', name: 'Sam Reinhart', pos: 'F', pts: 68, cap: 8.0, team: 'FLA', onBlock: true },
+      { slug: 'brady-tkachuk', name: 'Brady Tkachuk', pos: 'F', pts: 55, cap: 9.5, team: 'OTT', onBlock: false },
+      { slug: 'mikko-rantanen', name: 'Mikko Rantanen', pos: 'F', pts: 82, cap: 9.25, team: 'COL', onBlock: false },
+      { slug: 'charlie-mcavoy', name: 'Charlie McAvoy', pos: 'D', pts: 48, cap: 9.0, team: 'BOS', onBlock: false },
+      { slug: 'cale-makar', name: 'Cale Makar', pos: 'D', pts: 74, cap: 9.0, team: 'COL', onBlock: true },
+      { slug: 'igor-shesterkin', name: 'Igor Shesterkin', pos: 'G', pts: 52, cap: 11.5, team: 'NYR', onBlock: false },
+    ];
+
+    const TEAM_ROSTERS = {
+      'team-2': [
+        { slug: 'leon-draisaitl', name: 'Leon Draisaitl', pos: 'F', pts: 94, cap: 8.5, team: 'EDM', onBlock: true },
+        { slug: 'zach-hyman', name: 'Zach Hyman', pos: 'F', pts: 41, cap: 5.5, team: 'EDM', onBlock: false },
+        { slug: 'evan-bouchard', name: 'Evan Bouchard', pos: 'D', pts: 62, cap: 7.9, team: 'EDM', onBlock: false },
+        { slug: 'Connor-hellebuyck', name: 'Connor Hellebuyck', pos: 'G', pts: 66, cap: 8.5, team: 'WPG', onBlock: false },
+      ],
+      'team-3': [
+        { slug: 'william-nylander', name: 'William Nylander', pos: 'F', pts: 78, cap: 11.5, team: 'TOR', onBlock: false },
+        { slug: 'mitch-marner', name: 'Mitch Marner', pos: 'F', pts: 88, cap: 10.9, team: 'TOR', onBlock: true },
+        { slug: 'jake-muzzin', name: 'Jake Muzzin', pos: 'D', pts: 22, cap: 5.625, team: 'TOR', onBlock: false },
+        { slug: 'ilya-samsonov', name: 'Ilya Samsonov', pos: 'G', pts: 28, cap: 1.8, team: 'TOR', onBlock: false },
+      ],
+      'team-4': [
+        { slug: 'tim-stutzle', name: 'Tim Stutzle', pos: 'F', pts: 72, cap: 7.85, team: 'OTT', onBlock: false },
+        { slug: 'claude-giroux', name: 'Claude Giroux', pos: 'F', pts: 48, cap: 6.5, team: 'OTT', onBlock: true },
+        { slug: 'thomas-chabot', name: 'Thomas Chabot', pos: 'D', pts: 44, cap: 8.0, team: 'OTT', onBlock: false },
+      ],
+      'team-5': [
+        { slug: 'nick-suzuki', name: 'Nick Suzuki', pos: 'F', pts: 71, cap: 7.875, team: 'MTL', onBlock: false },
+        { slug: 'cole-caufield', name: 'Cole Caufield', pos: 'F', pts: 52, cap: 6.525, team: 'MTL', onBlock: true },
+        { slug: 'kaiden-guhle', name: 'Kaiden Guhle', pos: 'D', pts: 33, cap: 2.825, team: 'MTL', onBlock: false },
+        { slug: 'samuel-montembeault', name: 'Samuel Montembeault', pos: 'G', pts: 34, cap: 3.15, team: 'MTL', onBlock: false },
+      ],
+    };
+
+    const MOCK_PROPOSALS = [
+      {
+        id: 'p1', fromId: 'team-2', fromName: 'Oilers Army', toId: 'team-1', toName: 'Les Glorieux',
+        offered: [{ name: 'Leon Draisaitl', pos: 'F', pts: 94, cap: 8.5 }],
+        requested: [{ name: 'Mikko Rantanen', pos: 'F', pts: 82, cap: 9.25 }],
+        note: 'Need the youth upside. Draisaitl still elite, just older.', status: 'pending', date: '2025-04-18'
+      },
+      {
+        id: 'p2', fromId: 'team-3', fromName: 'Leaf Nation', toId: 'team-1', toName: 'Les Glorieux',
+        offered: [{ name: 'Mitch Marner', pos: 'F', pts: 88, cap: 10.9 }],
+        requested: [{ name: 'Cale Makar', pos: 'D', pts: 74, cap: 9.0 }, { name: 'Igor Shesterkin', pos: 'G', pts: 52, cap: 11.5 }],
+        note: '', status: 'pending', date: '2025-04-20'
+      },
+      {
+        id: 'p3', fromId: 'team-1', fromName: 'Les Glorieux', toId: 'team-4', toName: 'Sens Nation',
+        offered: [{ name: 'Brady Tkachuk', pos: 'F', pts: 55, cap: 9.5 }],
+        requested: [{ name: 'Tim Stutzle', pos: 'F', pts: 72, cap: 7.85 }],
+        note: 'Tkachuk for a younger piece with more upside.', status: 'pending', date: '2025-04-19'
+      },
+      {
+        id: 'p4', fromId: 'team-1', fromName: 'Les Glorieux', toId: 'team-5', toName: 'Habs Fans',
+        offered: [{ name: 'Sam Reinhart', pos: 'F', pts: 68, cap: 8.0 }],
+        requested: [{ name: 'Nick Suzuki', pos: 'F', pts: 71, cap: 7.875 }, { name: 'Cole Caufield', pos: 'F', pts: 52, cap: 6.525 }],
+        note: '', status: 'withdrawn', date: '2025-04-12'
+      },
+      {
+        id: 'p5', fromId: 'team-2', fromName: 'Oilers Army', toId: 'team-1', toName: 'Les Glorieux',
+        offered: [{ name: 'Zach Hyman', pos: 'F', pts: 41, cap: 5.5 }, { name: 'Connor Hellebuyck', pos: 'G', pts: 66, cap: 8.5 }],
+        requested: [{ name: 'Cale Makar', pos: 'D', pts: 74, cap: 9.0 }],
+        note: 'Goalie + winger for your D-man. Fills multiple holes.', status: 'pending', date: '2025-04-21'
+      },
+    ];
+
+    /* ══════════════════════════════════════════
+       STATE
+    ══════════════════════════════════════════ */
+    let state = {
+      targetTeamId: null,
+      offered: new Set(),
+      requested: new Set(),
+      offerPosFilter: 'ALL',
+      requestPosFilter: 'ALL',
+      offerSearch: '',
+      requestSearch: '',
+      feedFilter: 'all',
+    };
+
+    /* ══════════════════════════════════════════
+       VIEW SWITCHING
+    ══════════════════════════════════════════ */
+    function setPView(v) {
+      document.getElementById('pview-build').style.display = v === 'build' ? '' : 'none';
+      document.getElementById('pview-feed').style.display = v === 'feed' ? '' : 'none';
+      document.getElementById('pvt-build').classList.toggle('active', v === 'build');
+      document.getElementById('pvt-feed').classList.toggle('active', v === 'feed');
+      if (v === 'feed') renderFeed();
+    }
+
+    /* ══════════════════════════════════════════
+       INIT
+    ══════════════════════════════════════════ */
+    function init() {
+      renderTargetPills();
+      renderPanel('offer', MY_ROSTER);
+      updateSummaryBar();
+      renderFeed();
+    }
+
+    /* ══════════════════════════════════════════
+       TARGET TEAM
+    ══════════════════════════════════════════ */
+    function renderTargetPills() {
+      const container = document.getElementById('target-pills');
+      container.innerHTML = TEAMS.map(t =>
+        `<button class="ttp${state.targetTeamId === t.id ? ' selected' : ''}" onclick="selectTarget('${t.id}','${escH(t.name)}')">${escH(t.name)}</button>`
+      ).join('');
+    }
+
+    function selectTarget(id, name) {
+      state.targetTeamId = id;
+      state.requested = new Set();
+      renderTargetPills();
+      document.getElementById('request-team-label').textContent = name;
+      document.getElementById('split-panels').classList.remove('locked');
+      const roster = TEAM_ROSTERS[id] || [];
+      renderPanel('request', roster);
+      updateStepIndicator();
+      updateSummaryBar();
+    }
+
+    /* ══════════════════════════════════════════
+       PANELS
+    ══════════════════════════════════════════ */
+    function renderPanel(side, roster) {
+      const list = document.getElementById(`${side}-list`);
+      const posF = state[side === 'offer' ? 'offerPosFilter' : 'requestPosFilter'];
+      const search = state[side === 'offer' ? 'offerSearch' : 'requestSearch'].toLowerCase();
+      let players = roster;
+      if (posF !== 'ALL') players = players.filter(p => p.pos === posF);
+      if (search) players = players.filter(p => p.name.toLowerCase().includes(search));
+
+      if (!players.length) {
+        list.innerHTML = `<div style="padding:1.2rem;text-align:center;color:rgba(255,255,255,0.2);font-size:0.75rem">No players match</div>`;
+        return;
+      }
+
+      const selected = side === 'offer' ? state.offered : state.requested;
+      list.innerHTML = players.map(p => {
+        const isSel = selected.has(p.slug);
+        const selClass = isSel ? (side === 'offer' ? ' selected-offer' : ' selected-request') : '';
+        const tbBadge = p.onBlock ? `<span class="tb-badge">📤</span>` : '';
+        return `<div class="panel-player-row${selClass}" onclick="togglePlayer('${side}','${p.slug}')">
+          <div class="ppr-check">${isSel ? '✓' : ''}</div>
+          <div class="ppr-info">
+            <div class="ppr-name">${escH(p.name)}${tbBadge}</div>
+            <div class="ppr-meta">${p.team} · $${p.cap.toFixed(2)}M</div>
+          </div>
+          <span class="pos-pill ${p.pos}">${p.pos}</span>
+          <div class="ppr-pts">${p.pts}</div>
+        </div>`;
+      }).join('');
+    }
+
+    function togglePlayer(side, slug) {
+      const set = side === 'offer' ? state.offered : state.requested;
+      if (set.has(slug)) set.delete(slug);
+      else set.add(slug);
+      const roster = side === 'offer' ? MY_ROSTER : (TEAM_ROSTERS[state.targetTeamId] || []);
+      renderPanel(side, roster);
+      const count = document.getElementById(`${side}-count`);
+      count.textContent = set.size;
+      updateSummaryBar();
+      updateStepIndicator();
+    }
+
+    function filterPanel(side, val) {
+      if (side === 'offer') state.offerSearch = val;
+      else state.requestSearch = val;
+      const roster = side === 'offer' ? MY_ROSTER : (TEAM_ROSTERS[state.targetTeamId] || []);
+      renderPanel(side, roster);
+    }
+
+    function setPanelPos(side, pos) {
+      if (side === 'offer') state.offerPosFilter = pos;
+      else state.requestPosFilter = pos;
+      // Update filter buttons
+      ['ALL','F','D','G'].forEach(p => {
+        const btn = document.getElementById(`${side}-filter-${p}`);
+        if (!btn) return;
+        btn.className = `ppf ${p === 'ALL' ? 'ALL' : p}`;
+        if (p === pos) btn.classList.add(p === 'ALL' ? 'active-all' : 'active');
+      });
+      const roster = side === 'offer' ? MY_ROSTER : (TEAM_ROSTERS[state.targetTeamId] || []);
+      renderPanel(side, roster);
+    }
+
+    /* ══════════════════════════════════════════
+       SUMMARY BAR
+    ══════════════════════════════════════════ */
+    function getAllPlayers() {
+      const all = [...MY_ROSTER, ...Object.values(TEAM_ROSTERS).flat()];
+      return Object.fromEntries(all.map(p => [p.slug, p]));
+    }
+
+    function updateSummaryBar() {
+      const bar = document.getElementById('summary-bar');
+      const offerChips = document.getElementById('offer-chips');
+      const requestChips = document.getElementById('request-chips');
+      const map = getAllPlayers();
+
+      const hasAny = state.offered.size > 0 || state.requested.size > 0;
+      bar.classList.toggle('empty', !hasAny);
+
+      if (!state.offered.size) {
+        offerChips.innerHTML = `<span class="tsb-empty-hint">Click players on the left</span>`;
+      } else {
+        offerChips.innerHTML = [...state.offered].map(slug => {
+          const p = map[slug]; if (!p) return '';
+          return `<span class="tsb-chip offer" onclick="togglePlayer('offer','${slug}')" title="Click to remove">
+            <span>${escH(p.name)}</span> ✕
+          </span>`;
+        }).join('');
+      }
+
+      if (!state.requested.size) {
+        requestChips.innerHTML = `<span class="tsb-empty-hint">Click players on the right</span>`;
+      } else {
+        requestChips.innerHTML = [...state.requested].map(slug => {
+          const p = map[slug]; if (!p) return '';
+          return `<span class="tsb-chip request" onclick="togglePlayer('request','${slug}')" title="Click to remove">
+            <span>${escH(p.name)}</span> ✕
+          </span>`;
+        }).join('');
+      }
+
+      // Impact calculations
+      const impactDiv = document.getElementById('tsb-impact');
+      const sendBtn = document.getElementById('send-btn');
+
+      if (hasAny && state.targetTeamId) {
+        impactDiv.style.display = '';
+        let ptsDelta = 0, capDelta = 0;
+        [...state.offered].forEach(s => { const p = map[s]; if (p) { ptsDelta -= p.pts; capDelta -= p.cap; } });
+        [...state.requested].forEach(s => { const p = map[s]; if (p) { ptsDelta += p.pts; capDelta += p.cap; } });
+
+        const ptsEl = document.getElementById('impact-pts');
+        const capEl = document.getElementById('impact-cap');
+        const rosterEl = document.getElementById('impact-roster');
+        const flagEl = document.getElementById('impact-flag');
+
+        ptsEl.textContent = (ptsDelta >= 0 ? '+' : '') + ptsDelta + ' pts';
+        ptsEl.className = 'impact-value ' + (ptsDelta > 0 ? 'pos' : ptsDelta < 0 ? 'neg' : 'neutral');
+
+        capEl.textContent = (capDelta >= 0 ? '+$' : '-$') + Math.abs(capDelta).toFixed(2) + 'M';
+        capEl.className = 'impact-value ' + (capDelta > 0 ? 'neg' : capDelta < 0 ? 'pos' : 'neutral');
+
+        const rosterDiff = state.requested.size - state.offered.size;
+        rosterEl.textContent = rosterDiff === 0 ? 'Even' : (rosterDiff > 0 ? '+' + rosterDiff : rosterDiff) + ' spots';
+        rosterEl.className = 'impact-value ' + (rosterDiff !== 0 ? 'warn' : 'neutral');
+
+        // Validity flag
+        const overCap = capDelta > 5;
+        const rosterIssue = Math.abs(rosterDiff) > 2;
+        if (overCap) { flagEl.textContent = 'OVER CAP'; flagEl.className = 'impact-flag err'; }
+        else if (rosterIssue) { flagEl.textContent = 'CHECK ROSTER'; flagEl.className = 'impact-flag warn'; }
+        else { flagEl.textContent = 'VALID'; flagEl.className = 'impact-flag ok'; }
+
+        sendBtn.disabled = overCap || (!state.offered.size && !state.requested.size);
+      } else {
+        impactDiv.style.display = 'none';
+        sendBtn.disabled = !hasAny || !state.targetTeamId;
+      }
+    }
+
+    function updateStepIndicator() {
+      const s1 = document.getElementById('step1-indicator');
+      const s2 = document.getElementById('step2-indicator');
+      const s3 = document.getElementById('step3-indicator');
+      const hasTeam = !!state.targetTeamId;
+      const hasPlayers = state.offered.size > 0 || state.requested.size > 0;
+
+      s1.className = 'step-item ' + (hasTeam ? 'done' : 'active');
+      s1.querySelector('.step-num').textContent = hasTeam ? '✓' : '1';
+      s2.className = 'step-item ' + (!hasTeam ? '' : hasPlayers ? 'done' : 'active');
+      s2.querySelector('.step-num').textContent = hasPlayers && hasTeam ? '✓' : '2';
+      s3.className = 'step-item ' + (hasPlayers && hasTeam ? 'active' : '');
+    }
+
+    function clearProposal() {
+      state.offered = new Set();
+      state.requested = new Set();
+      state.targetTeamId = null;
+      renderTargetPills();
+      renderPanel('offer', MY_ROSTER);
+      document.getElementById('request-list').innerHTML = `<div style="padding:1.5rem;text-align:center;color:rgba(255,255,255,0.2);font-size:0.78rem">← Select a team to see their roster</div>`;
+      document.getElementById('request-team-label').textContent = 'Select a team →';
+      document.getElementById('offer-count').textContent = '0';
+      document.getElementById('request-count').textContent = '0';
+      document.getElementById('proposal-note').value = '';
+      updateSummaryBar();
+      updateStepIndicator();
+    }
+
+    function sendProposal() {
+      alert('Proposal sent! (In production, this calls saveProposals() and reloads.)');
+      clearProposal();
+      setPView('feed');
+    }
+
+    /* ══════════════════════════════════════════
+       FEED
+    ══════════════════════════════════════════ */
+    function setFeedFilter(f) {
+      state.feedFilter = f;
+      ['all','received','sent'].forEach(v => {
+        document.getElementById('pff-' + v)?.classList.toggle('active', v === f);
+      });
+      renderFeed();
+    }
+
+    function renderFeed() {
+      let props = MOCK_PROPOSALS;
+      if (state.feedFilter === 'received') props = props.filter(p => p.toId === MY_TEAM.id);
+      if (state.feedFilter === 'sent') props = props.filter(p => p.fromId === MY_TEAM.id);
+
+      const count = document.getElementById('feed-count');
+      if (count) count.textContent = props.length + ' proposal' + (props.length !== 1 ? 's' : '');
+
+      const list = document.getElementById('feed-list');
+      if (!list) return;
+
+      if (!props.length) {
+        list.innerHTML = `<div style="text-align:center;padding:2.5rem 1rem;color:rgba(255,255,255,0.2);font-size:0.85rem;letter-spacing:1px">No proposals in this category.</div>`;
+        return;
+      }
+
+      list.innerHTML = props.map(p => buildProposalCard(p)).join('');
+    }
+
+    function buildProposalCard(p) {
+      const isSent = p.fromId === MY_TEAM.id;
+      const dirLabel = isSent ? 'Sent' : 'Received';
+      const counterName = isSent ? p.toName : p.fromName;
+      const dateStr = new Date(p.date).toLocaleDateString('en-CA', { month: 'short', day: 'numeric' });
+
+      // Impact calcs
+      const offPts = p.offered.reduce((s, x) => s + x.pts, 0);
+      const reqPts = p.requested.reduce((s, x) => s + x.pts, 0);
+      const offCap = p.offered.reduce((s, x) => s + x.cap, 0);
+      const reqCap = p.requested.reduce((s, x) => s + x.cap, 0);
+      const ptsDelta = reqPts - offPts;
+      const capDelta = reqCap - offCap;
+
+      function playerRow(player) {
+        return `<div class="pc-player-row">
+          <span class="pos-pill ${player.pos}">${player.pos}</span>
+          <span class="pc-player-name">${escH(player.name)}</span>
+          <span class="pc-player-stat">${player.pts}pts · $${player.cap.toFixed(2)}M</span>
+        </div>`;
+      }
+
+      const offerSide = p.offered.length ? p.offered.map(playerRow).join('') : `<div class="pc-empty">Nothing offered</div>`;
+      const reqSide = p.requested.length ? p.requested.map(playerRow).join('') : `<div class="pc-empty">Nothing requested</div>`;
+
+      const footer = isSent && p.status === 'pending'
+        ? `<div class="pc-footer"><button class="pc-action-btn withdraw" onclick="alert('Proposal withdrawn.')">Withdraw</button></div>`
+        : !isSent && p.status === 'pending'
+          ? `<div class="pc-footer"><span class="pc-received-msg">Contact ${escH(p.fromName)} to discuss</span><button class="pc-action-btn counter" onclick="setPView('build');alert('Pre-filled counter-proposal.')">Counter →</button></div>`
+          : '';
+
+      return `<div class="proposal-card ${isSent ? 'sent' : 'received'}">
+        <div class="pc-header">
+          <span class="pc-badge-dir ${isSent ? 'sent' : 'received'}">${dirLabel}</span>
+          <span class="pc-team-name">${escH(counterName)}</span>
+          <span class="pc-status ${p.status}">${p.status.toUpperCase()}</span>
+          <span class="pc-date">${dateStr}</span>
+        </div>
+        <div class="pc-compare">
+          <div class="pc-compare-side">
+            <div class="pc-side-label offer">${isSent ? 'You Offer' : 'They Offer'}</div>
+            ${offerSide}
+          </div>
+          <div class="pc-compare-arrow">⇄</div>
+          <div class="pc-compare-side">
+            <div class="pc-side-label request">${isSent ? 'You Request' : 'They Request'}</div>
+            ${reqSide}
+          </div>
+        </div>
+        <div class="pc-impact-strip">
+          <div class="pc-impact-item">
+            <div class="pc-impact-label">Pts Δ</div>
+            <div class="pc-impact-val ${ptsDelta > 0 ? 'pos' : ptsDelta < 0 ? 'neg' : 'neutral'}">${ptsDelta >= 0 ? '+' : ''}${ptsDelta}</div>
+          </div>
+          <div class="pc-impact-item">
+            <div class="pc-impact-label">Cap Δ</div>
+            <div class="pc-impact-val ${capDelta > 0 ? 'neg' : capDelta < 0 ? 'pos' : 'neutral'}">${capDelta >= 0 ? '+$' : '-$'}${Math.abs(capDelta).toFixed(2)}M</div>
+          </div>
+          <div class="pc-impact-item">
+            <div class="pc-impact-label">Giving</div>
+            <div class="pc-impact-val neutral">${p.offered.length} player${p.offered.length !== 1 ? 's' : ''}</div>
+          </div>
+          <div class="pc-impact-item">
+            <div class="pc-impact-label">Getting</div>
+            <div class="pc-impact-val neutral">${p.requested.length} player${p.requested.length !== 1 ? 's' : ''}</div>
+          </div>
+        </div>
+        ${p.note ? `<div class="pc-note">"${escH(p.note)}"</div>` : ''}
+        ${footer}
+      </div>`;
+    }
+
+    function escH(v) {
+      return String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+
+    // Boot
+    init();
+</script>
+</body>
+</html>
