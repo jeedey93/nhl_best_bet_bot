@@ -84,37 +84,80 @@ def extract_picks_from_html(html_path):
 
 
 def extract_picks_from_dual_bet(dual_bet_path):
-    """Extract picks from dual_bet_of_the_day.txt"""
+    """Extract picks and inline reasoning from dual_bet_of_the_day.txt"""
     if not os.path.exists(dual_bet_path):
         return None, None
 
     with open(dual_bet_path, 'r', encoding='utf-8') as f:
         content = f.read()
 
-    nhl_pick = None
-    nba_pick = None
+    def _win_prob_from_prediction_file(sport, pick_text, odds):
+        """Find today's prediction file and extract the win probability for this pick."""
+        from datetime import date
+        today = date.today().isoformat()
+        pred_dir = Path(f'data/predictions/{sport}')
+        candidate = pred_dir / f'{sport}_daily_predictions_{today}.txt'
+        if not candidate.exists():
+            files = sorted(pred_dir.glob(f'{sport}_daily_predictions_*.txt'))
+            candidate = files[-1] if files else None
+        if not candidate:
+            return ''
+        text = candidate.read_text(encoding='utf-8')
+        lines = text.splitlines()
+        # Find the line that has both a team name from pick_text AND the odds value
+        pick_words = [w for w in pick_text.lower().split() if len(w) > 3][:3]
+        for i, line in enumerate(lines):
+            line_lower = line.lower()
+            if str(odds) in line and any(w in line_lower for w in pick_words):
+                # Found the pick line — search forward for win probability
+                for j in range(i, min(i + 8, len(lines))):
+                    m = re.search(r'Win Probability[:\s]+(\d+(?:\.\d+)?)\s*%', lines[j], re.IGNORECASE)
+                    if m:
+                        return m.group(1)
+        return ''
 
-    # Extract NHL pick — handles both "PICK #1 ... NHL 🏒" and "PICK – NHL 🏒" formats
-    nhl_match = re.search(r'PICK.*?NHL.*?🏒\s*(.+?)\s*(?:vs\s*.+?)?\s*@\s*([\d.]+)', content)
-    if nhl_match:
-        pick_text = nhl_match.group(1).strip()
-        odds = nhl_match.group(2)
-        nhl_pick = {
+    def parse_section(header_pattern, accent_color, sport):
+        m = re.search(header_pattern, content)
+        if not m:
+            return None
+
+        pick_line = m.group(0)
+        icon_m = re.search(r'🏒|🏀', pick_line)
+        after_icon = pick_line[icon_m.end():].strip() if icon_m else pick_line
+        odds_match = re.search(r'@\s*([\d.]+)', after_icon)
+        if not odds_match:
+            return None
+        odds = odds_match.group(1)
+        pick_text = after_icon[:odds_match.start()].strip().rstrip('vs').strip()
+
+        # Collect reasoning lines between this header and the next ⸻
+        header_end = m.end()
+        separator = content.find('⸻', header_end)
+        reasoning_block = content[header_end:separator if separator != -1 else len(content)]
+
+        reasoning_lines = []
+        for line in reasoning_block.splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            if line.startswith('Two sports') or line.startswith('We follow'):
+                break
+            if re.match(r'Confidence Level:', line):
+                continue
+            reasoning_lines.append(line)
+
+        win_prob = _win_prob_from_prediction_file(sport, pick_text, odds)
+
+        return {
             'text': pick_text,
             'odds': odds,
-            'html': f"{pick_text}<br/><span style='font-size: 14px; color: #93c5fd;'>@{odds}</span>"
+            'html': f"{pick_text}<br/><span style='font-size: 14px; color: {accent_color};'>@{odds}</span>",
+            'reasoning_lines': reasoning_lines,
+            'win_probability': win_prob,
         }
 
-    # Extract NBA pick — handles both "PICK #2 ... NBA 🏀" and "PICK – NBA 🏀" formats
-    nba_match = re.search(r'PICK.*?NBA.*?🏀\s*(.+?)\s*(?:vs\s*.+?)?\s*@\s*([\d.]+)', content)
-    if nba_match:
-        pick_text = nba_match.group(1).strip()
-        odds = nba_match.group(2)
-        nba_pick = {
-            'text': pick_text,
-            'odds': odds,
-            'html': f"{pick_text}<br/><span style='font-size: 14px; color: #fed7aa;'>@{odds}</span>"
-        }
+    nhl_pick = parse_section(r'PICK.*?NHL.*?🏒.+', '#93c5fd', 'nhl')
+    nba_pick = parse_section(r'PICK.*?NBA.*?🏀.+', '#fed7aa', 'nba')
 
     return nhl_pick, nba_pick
 
@@ -156,29 +199,22 @@ def generate_reasoning_html(pick_data):
     if not pick_data:
         return ""
 
-    reasoning = pick_data.get('reasoning', '')
+    reasoning_lines = pick_data.get('reasoning_lines') or []
     win_prob = pick_data.get('win_probability', '')
 
-    if not reasoning:
-        return ""
-
-    # Parse the reasoning into bullet points
-    # The reasoning is already formatted with emoji headers and descriptions
-    lines = reasoning.strip().split('\n')
+    # Fall back to parsing the 'reasoning' string field (used when called with HTML-sourced pick)
+    if not reasoning_lines:
+        reasoning = pick_data.get('reasoning', '')
+        if not reasoning:
+            return ""
+        reasoning_lines = [l.strip() for l in reasoning.strip().split('\n') if l.strip()]
 
     bullets_html = ""
-    for line in lines:
-        line = line.strip()
-        if not line:
-            continue
-
-        # Check if this is a bullet point line (starts with emoji or bullet)
+    for line in reasoning_lines:
         if line.startswith('•') or line.startswith('-'):
-            line = line[1:].strip()  # Remove bullet
+            line = line[1:].strip()
 
-        # Check if it's a header line (contains **)
         if '**' in line:
-            # Extract emoji and bold text
             parts = re.split(r'\*\*(.*?)\*\*', line)
             if len(parts) >= 2:
                 emoji = parts[0].strip()
@@ -195,12 +231,13 @@ def generate_reasoning_html(pick_data):
                                       </tr>
                                     </table>"""
         else:
-            # Regular description line (should be rare with current format)
             if line:
                 bullets_html += f"""
                                     <p style="margin: 0 auto 12px auto; width: 100%; max-width: 450px; padding: 0 15px; color: rgba(255,255,255,0.85); font-size: 12px; font-family: Arial, sans-serif; line-height: 1.5; text-align: center; box-sizing: border-box;">{line}</p>"""
 
-    # Add win probability if available
+    if not bullets_html:
+        return ""
+
     prob_html = ""
     if win_prob:
         prob_html = f"""
@@ -253,41 +290,27 @@ def main():
     email_template_path = '.github/workflows/email_body.html'
     output_path = '/tmp/email_body.html'
 
-    print("🎯 Extracting picks from dual_bet_of_the_day.txt...")
+    print("🎯 Extracting picks and reasoning from dual_bet_of_the_day.txt...")
     nhl_pick_info, nba_pick_info = extract_picks_from_dual_bet(dual_bet_path)
 
     nhl_pick_html = nhl_pick_info['html'] if nhl_pick_info else "Check website for today's pick"
     nba_pick_html = nba_pick_info['html'] if nba_pick_info else "Check website for today's pick"
 
-    print(f"NHL Pick: {nhl_pick_html[:50]}...")
-    print(f"NBA Pick: {nba_pick_html[:50]}...")
+    print(f"NHL Pick: {nhl_pick_html[:80]}...")
+    print(f"NBA Pick: {nba_pick_html[:80]}...")
 
-    # Extract picks from HTML for reasoning
-    print("\n📊 Extracting reasoning from daily-picks.html...")
-    nhl_picks, nba_picks = extract_picks_from_html(html_path)
+    nhl_reasoning_html = generate_reasoning_html(nhl_pick_info) if nhl_pick_info else ""
+    nba_reasoning_html = generate_reasoning_html(nba_pick_info) if nba_pick_info else ""
 
-    if not nhl_picks and not nba_picks:
-        print("⚠️  No picks found in HTML file, continuing without reasoning...")
+    if nhl_reasoning_html:
+        print(f"✅ NHL reasoning generated ({len(nhl_pick_info.get('reasoning_lines', []))} bullet(s))")
+    else:
+        print("⚠️  No NHL reasoning found")
 
-    # Match picks to get reasoning
-    nhl_reasoning_html = ""
-    nba_reasoning_html = ""
-
-    if nhl_pick_info and nhl_picks:
-        nhl_match = match_pick_to_reasoning(nhl_pick_info, nhl_picks)
-        if nhl_match:
-            print(f"✅ Found NHL reasoning: {nhl_match.get('pick', '')}")
-            nhl_reasoning_html = generate_reasoning_html(nhl_match)
-        else:
-            print("⚠️  Could not match NHL pick to reasoning")
-
-    if nba_pick_info and nba_picks:
-        nba_match = match_pick_to_reasoning(nba_pick_info, nba_picks)
-        if nba_match:
-            print(f"✅ Found NBA reasoning: {nba_match.get('pick', '')}")
-            nba_reasoning_html = generate_reasoning_html(nba_match)
-        else:
-            print("⚠️  Could not match NBA pick to reasoning")
+    if nba_reasoning_html:
+        print(f"✅ NBA reasoning generated ({len(nba_pick_info.get('reasoning_lines', []))} bullet(s))")
+    else:
+        print("⚠️  No NBA reasoning found")
 
     # Read email template
     with open(email_template_path, 'r', encoding='utf-8') as f:
