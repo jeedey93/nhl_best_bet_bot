@@ -15,8 +15,6 @@
           --blue:   #7db4ff;
           --green:  #22c55e;
           --amber:  #f59e0b;
-          --silver: rgba(255,255,255,0.5);
-          --dim:    rgba(255,255,255,0.08);
           --panel:  rgba(255,255,255,0.035);
         }
 
@@ -118,12 +116,6 @@
         }
         .vtab:hover { color: rgba(255,255,255,0.7); }
         .vtab.active { background: rgba(255,255,255,0.07); color: #fff; }
-        .vtab-badge {
-          position: absolute; top: 3px; right: 6px;
-          width: 6px; height: 6px; border-radius: 50%;
-          background: var(--gold); display: none;
-        }
-
         /* ═══════════════════════════════════════
            BUILD VIEW
         ═══════════════════════════════════════ */
@@ -212,7 +204,9 @@
         .pr:hover { background: rgba(255,255,255,0.025); }
         .pr.s-offer { background: rgba(255,122,138,0.07); border-left: 2px solid rgba(255,122,138,0.5); padding-left: 11px; }
         .pr.s-req   { background: rgba(125,180,255,0.07); border-left: 2px solid rgba(125,180,255,0.5); padding-left: 11px; }
-        .pr.on-block:not(.s-offer):not(.s-req) { border-left: 2px solid rgba(245,158,11,0.4); padding-left: 11px; }
+        .pr.on-block { border-left: 2px solid rgba(245,158,11,0.4); padding-left: 11px; }
+        .pr.s-offer.on-block { border-left: 2px solid rgba(255,122,138,0.5); }
+        .pr.s-req.on-block   { border-left: 2px solid rgba(125,180,255,0.5); }
 
         .pr-check {
           width: 16px; height: 16px; border-radius: 4px;
@@ -315,9 +309,42 @@
         .btn-send:hover { background: #ffd04d; }
         .btn-send:disabled { background: rgba(255,184,28,0.2); color: rgba(255,255,255,0.25); cursor: not-allowed; }
 
+        .sb-cap-row {
+          display: flex; align-items: center; justify-content: space-between;
+          margin-bottom: 11px; padding: 6px 10px; border-radius: 8px;
+          background: rgba(255,255,255,0.025); font-size: 11px; letter-spacing: 0.5px;
+          color: rgba(255,255,255,0.4);
+        }
+        .sb-cap-row.surplus  { background: rgba(34,197,94,0.07);  color: rgba(34,197,94,0.8);  }
+        .sb-cap-row.deficit  { background: rgba(255,122,138,0.07); color: rgba(255,122,138,0.8); }
+        .sb-cap-label { letter-spacing: 1.2px; text-transform: uppercase; font-size: 10px; }
+        .sb-cap-val   { font-family: 'Bebas Neue', cursive; font-size: 13px; letter-spacing: 1px; }
+
+        /* Trade value dot on proposal cards */
+        .tv-dot {
+          width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+          margin-left: auto; margin-right: 2px;
+        }
+        .tv-dot.fair   { background: var(--green); }
+        .tv-dot.slight { background: var(--amber); }
+        .tv-dot.lopsided { background: var(--pink); }
+
+        /* Feed empty state */
+        .feed-empty {
+          text-align: center; padding: 3.5rem 1rem;
+          color: rgba(255,255,255,0.18); line-height: 2;
+        }
+        .feed-empty svg { display: block; margin: 0 auto 14px; opacity: 0.18; }
+        .feed-empty p { font-size: 12px; letter-spacing: 0.5px; }
+
+        /* Optimistic confirm flash */
+        @keyframes sentFlash { 0%,100%{ opacity:1; } 50%{ opacity:0.6; } }
+        .btn-send.sent-ok {
+          background: var(--green); color: var(--rink);
+          animation: sentFlash 0.4s ease;
+        }
+
         /* ═══════════════════════════════════════
-           FEED VIEW
-        ═══════════════════════════════════════ */
         .feed-toprow {
           display: flex; align-items: center; justify-content: space-between;
           margin-bottom: 14px; gap: 10px; flex-wrap: wrap;
@@ -456,7 +483,8 @@
         <div class="view-tabs">
             <button class="vtab active" id="vtab-build" onclick="setView('build')">New Proposal</button>
             <button class="vtab" id="vtab-feed" onclick="setView('feed')">
-                Feed
+                Proposals
+                <span id="feed-badge" style="display:none;margin-left:6px;background:rgba(255,184,28,0.18);color:var(--gold);border-radius:20px;padding:1px 7px;font-size:10px;letter-spacing:1px;vertical-align:middle;"></span>
             </button>
         </div>
     </div>
@@ -524,6 +552,10 @@
                     <div class="sb-chips" id="req-chips"><span class="sb-hint">Select players on the right</span></div>
                 </div>
             </div>
+            <div class="sb-cap-row" id="sb-cap-row" style="display:none">
+                <span class="sb-cap-label">Net cap</span>
+                <span class="sb-cap-val" id="sb-cap-val">—</span>
+            </div>
             <div class="sb-actions">
                 <input class="sb-note" id="proposal-note" placeholder='Optional note… "Need depth at C, open to anything"' maxlength="200">
                 <button class="btn-clear" onclick="clearProposal()">Clear</button>
@@ -575,6 +607,7 @@
     let _playerMap = {};
     let _allTeams = [];
     let _tradingBlock = {};
+    let _allPlayerCache = null;
 
     /* ══════════════════════════════════════════
        STATE
@@ -639,9 +672,12 @@
       });
     }
     function allPlayers() {
+      if (_allPlayerCache) return _allPlayerCache;
       const all = [...MY_ROSTER, ...Object.values(TEAM_ROSTERS).flat()];
-      return Object.fromEntries(all.map(p => [p.slug, p]));
+      _allPlayerCache = Object.fromEntries(all.map(p => [p.slug, p]));
+      return _allPlayerCache;
     }
+    function invalidatePlayerCache() { _allPlayerCache = null; }
 
     /* ══════════════════════════════════════════
        LOAD
@@ -682,6 +718,7 @@
 
         TEAM_ROSTERS = {};
         allTeams.forEach(t => { TEAM_ROSTERS[t.id] = rosterToList(t, tradingBlock); });
+        invalidatePlayerCache();
 
         const storageKey = `myTeam_${_leagueCode}`;
         const savedId    = localStorage.getItem(storageKey);
@@ -835,7 +872,7 @@
       const selClass = isOffer ? 's-offer' : 's-req';
       el.innerHTML = players.map(p => {
         const isSel = sel.has(p.slug);
-        const rowClass = isSel ? ` ${selClass}` : (p.onBlock ? ' on-block' : '');
+        const rowClass = [isSel ? selClass : '', p.onBlock ? 'on-block' : ''].filter(Boolean).map(c => ' ' + c).join('');
         const blockTag = p.onBlock ? `<span class="block-tag">BLOCK</span>` : '';
         return `<div class="pr${rowClass}" onclick="togglePlayer('${side}','${escH(p.slug)}')">
           <div class="pr-check">${isSel ? '✓' : ''}</div>
@@ -905,6 +942,21 @@
           }).join('')
         : `<span class="sb-hint">Select players on the right</span>`;
 
+      // Cap hit row
+      const capRow = document.getElementById('sb-cap-row');
+      const capVal = document.getElementById('sb-cap-val');
+      if (state.offered.size > 0 || state.requested.size > 0) {
+        const giveCap = [...state.offered].reduce((s, sl) => s + (map[sl]?.cap ?? 0), 0);
+        const recvCap = [...state.requested].reduce((s, sl) => s + (map[sl]?.cap ?? 0), 0);
+        const diff = recvCap - giveCap;
+        const sign = diff > 0 ? '+' : '';
+        capVal.textContent = `${sign}$${diff.toFixed(2)}M  (giving $${giveCap.toFixed(2)}M · receiving $${recvCap.toFixed(2)}M)`;
+        capRow.className = `sb-cap-row${diff > 0.1 ? ' surplus' : diff < -0.1 ? ' deficit' : ''}`;
+        capRow.style.display = '';
+      } else {
+        capRow.style.display = 'none';
+      }
+
       document.getElementById('send-btn').disabled = !hasAny || !state.targetTeamId;
     }
 
@@ -949,9 +1001,14 @@
 
       try {
         await saveProposals();
-        clearProposal();
+        btn.textContent = '✓ Sent';
+        btn.classList.add('sent-ok');
         updateFeedBadge();
-        setView('feed');
+        setTimeout(() => {
+          btn.classList.remove('sent-ok');
+          clearProposal();
+          setView('feed');
+        }, 700);
       } catch(e) {
         delete proposals[id];
         btn.disabled = false; btn.textContent = 'Send';
@@ -990,7 +1047,15 @@
       if (!list) return;
       list.innerHTML = props.length
         ? props.map(buildCard).join('')
-        : `<div class="state-msg">No proposals here yet.</div>`;
+        : `<div class="feed-empty">
+            <svg width="52" height="28" viewBox="0 0 52 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <ellipse cx="26" cy="14" rx="26" ry="14" fill="white"/>
+              <ellipse cx="26" cy="14" rx="23" ry="11" fill="#07111f"/>
+              <path d="M3 14 Q26 4 49 14" stroke="white" stroke-width="1.2" fill="none" opacity="0.4"/>
+              <path d="M3 14 Q26 24 49 14" stroke="white" stroke-width="1.2" fill="none" opacity="0.4"/>
+            </svg>
+            <p>No proposals here yet.</p>
+          </div>`;
     }
 
     function buildCard(p) {
@@ -1015,6 +1080,18 @@
       const offerHTML = offered.length   ? offered.map(playerRow).join('')   : `<div class="pc-empty">Nothing offered</div>`;
       const reqHTML   = requested.length ? requested.map(playerRow).join('') : `<div class="pc-empty">Nothing requested</div>`;
 
+      // Trade value dot
+      const offPts = offered.reduce((s, sl) => { const i = playerFromSlug(sl); return s + (i?.points ?? 0); }, 0);
+      const reqPts = requested.reduce((s, sl) => { const i = playerFromSlug(sl); return s + (i?.points ?? 0); }, 0);
+      const total  = offPts + reqPts;
+      let tvClass = 'fair';
+      if (total > 0) {
+        const ratio = Math.max(offPts, reqPts) / total;
+        if (ratio > 0.65) tvClass = 'lopsided';
+        else if (ratio > 0.55) tvClass = 'slight';
+      }
+      const tvDot = `<span class="tv-dot ${tvClass}" title="Trade value: ${offPts} vs ${reqPts} pts"></span>`;
+
       const footer = p.status === 'pending'
         ? `<div class="pc-foot">
             ${!isSent ? `<button class="btn-counter" onclick="counterProposal('${escH(p.id)}')">Counter</button>` : ''}
@@ -1034,6 +1111,7 @@
             <span class="pc-teams-sep">→</span>
             <span>${escH(p.toTeamName)}</span>
           </div>
+          ${tvDot}
           <span class="pc-status ${escH(p.status)}">${p.status.toUpperCase()}</span>
           <span class="pc-date">${dateStr}</span>
           <button class="pc-del" onclick="deleteProposal('${escH(p.id)}')" title="Delete">✕</button>
@@ -1167,6 +1245,7 @@
         });
         TEAM_ROSTERS = {};
         _allTeams.forEach(t => { TEAM_ROSTERS[t.id] = rosterToList(t, data.tradingBlock||{}); });
+        invalidatePlayerCache();
         const updatedMy = rawTeams.find(r => r.id === MY_TEAM.id);
         if (updatedMy) {
           MY_TEAM.roster = updatedMy.roster;
@@ -1183,6 +1262,11 @@
     }
 
     /* ─── Boot ─── */
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && document.getElementById('view-build').style.display !== 'none') {
+        clearProposal();
+      }
+    });
     load();
 </script>
 </body>
