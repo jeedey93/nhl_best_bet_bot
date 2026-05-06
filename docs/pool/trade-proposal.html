@@ -4,229 +4,296 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trade Proposals</title>
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         :root {
-          --rink:   #07111f;
-          --gold:   #ffb81c;
-          --pink:   #ff7a8a;
-          --blue:   #7db4ff;
-          --green:  #22c55e;
-          --amber:  #f59e0b;
-          --panel:  rgba(255,255,255,0.035);
+          --rink:     #07111f;
+          --rink-2:   #0c1a2e;
+          --rink-3:   #111f35;
+          --gold:     #ffb81c;
+          --gold-dim: rgba(255,184,28,0.15);
+          --pink:     #ff7a8a;
+          --pink-dim: rgba(255,122,138,0.12);
+          --blue:     #7db4ff;
+          --blue-dim: rgba(125,180,255,0.12);
+          --green:    #22c55e;
+          --amber:    #f59e0b;
+          --panel:    rgba(255,255,255,0.03);
+          --border:   rgba(255,255,255,0.08);
+          --border-hi:rgba(255,255,255,0.14);
+          --text-dim: rgba(255,255,255,0.5);
+          --text-mute:rgba(255,255,255,0.28);
+          --radius:   13px;
         }
 
         body {
           background: var(--rink);
-          background-image: radial-gradient(ellipse 80% 40% at 50% -5%, rgba(26,58,110,0.55) 0%, transparent 65%);
+          background-image:
+            radial-gradient(ellipse 90% 50% at 50% -10%, rgba(26,58,110,0.6) 0%, transparent 65%),
+            radial-gradient(ellipse 40% 30% at 80% 90%, rgba(10,30,60,0.4) 0%, transparent 60%);
           min-height: 100vh;
           font-family: 'Barlow Condensed', sans-serif;
           color: #fff;
-          padding: 24px 16px 48px;
+          padding: 0 0 64px;
         }
-
-        .shell { max-width: 940px; margin: 0 auto; }
 
         /* ─── Scrollbar ─── */
         ::-webkit-scrollbar { width: 3px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 2px; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
 
         /* ═══════════════════════════════════════
-           TOP BAR
+           HEADER
         ═══════════════════════════════════════ */
-        .topbar {
-          display: flex;
-          align-items: center;
+        .header {
+          position: sticky; top: 0; z-index: 50;
+          background: rgba(7,17,31,0.85);
+          backdrop-filter: blur(20px) saturate(1.4);
+          border-bottom: 1px solid var(--border);
+          padding: 0 24px;
+        }
+
+        .header-inner {
+          max-width: 960px; margin: 0 auto;
+          display: flex; align-items: center;
           justify-content: space-between;
-          margin-bottom: 20px;
-          gap: 12px;
-          flex-wrap: wrap;
+          height: 64px; gap: 16px;
         }
 
         /* Team badge */
         .team-badge {
-          display: flex;
-          align-items: center;
-          gap: 9px;
+          display: flex; align-items: center; gap: 10px;
           background: rgba(255,255,255,0.04);
-          border: 1px solid rgba(255,255,255,0.1);
-          border-radius: 9px;
-          padding: 6px 12px 6px 7px;
+          border: 1px solid var(--border);
+          border-radius: 10px; padding: 7px 13px 7px 8px;
           cursor: pointer;
           transition: background 0.15s, border-color 0.15s;
-          position: relative;
+          position: relative; user-select: none;
         }
-        .team-badge:hover { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.18); }
+        .team-badge:hover { background: rgba(255,255,255,0.07); border-color: var(--border-hi); }
         .team-avatar {
-          width: 28px; height: 28px; border-radius: 7px;
-          background: rgba(255,184,28,0.18); border: 1px solid rgba(255,184,28,0.3);
+          width: 32px; height: 32px; border-radius: 8px;
+          background: rgba(255,184,28,0.15);
+          border: 1px solid rgba(255,184,28,0.3);
           display: flex; align-items: center; justify-content: center;
-          font-family: 'Bebas Neue', cursive; font-size: 11px; letter-spacing: 0.5px; color: var(--gold);
+          font-family: 'Bebas Neue', cursive; font-size: 13px;
+          letter-spacing: 0.5px; color: var(--gold);
         }
-        .team-badge-text {}
-        .team-badge-label { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.3); line-height: 1; margin-bottom: 2px; }
-        .team-badge-name { font-family: 'Bebas Neue', cursive; font-size: 14px; letter-spacing: 1px; line-height: 1; }
-        .team-badge-chevron { font-size: 9px; color: rgba(255,255,255,0.25); margin-left: 3px; transition: transform 0.15s; }
+        .team-badge-label {
+          font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase;
+          color: var(--text-mute); line-height: 1; margin-bottom: 3px;
+        }
+        .team-badge-name {
+          font-family: 'Bebas Neue', cursive; font-size: 15px;
+          letter-spacing: 1px; line-height: 1;
+        }
+        .team-badge-chevron {
+          font-size: 9px; color: var(--text-mute); margin-left: 2px;
+          transition: transform 0.15s;
+        }
         .team-badge.open .team-badge-chevron { transform: rotate(180deg); }
 
         /* Team dropdown */
         .team-dropdown {
-          position: absolute;
-          top: calc(100% + 5px);
-          left: 0;
-          min-width: 200px;
+          position: absolute; top: calc(100% + 6px); left: 0;
+          min-width: 210px;
           background: rgba(10,20,36,0.98);
-          border: 1px solid rgba(255,255,255,0.12);
-          border-radius: 10px;
-          padding: 6px;
-          z-index: 100;
-          display: none;
-          backdrop-filter: blur(16px);
+          border: 1px solid var(--border-hi);
+          border-radius: 11px; padding: 6px;
+          z-index: 100; display: none;
+          backdrop-filter: blur(20px);
+          box-shadow: 0 12px 40px rgba(0,0,0,0.5);
         }
-        .team-badge.open .team-dropdown { display: block; }
+        .team-badge.open .team-dropdown { display: block; animation: dropIn 0.15s ease; }
+        @keyframes dropIn { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:translateY(0); } }
+
         .td-item {
-          display: flex; align-items: center; gap: 8px;
-          padding: 7px 10px; border-radius: 6px;
+          display: flex; align-items: center; gap: 9px;
+          padding: 8px 11px; border-radius: 7px;
           font-family: 'Bebas Neue', cursive; font-size: 13px; letter-spacing: 1px;
-          color: rgba(255,255,255,0.55); cursor: pointer; transition: all 0.12s;
+          color: var(--text-dim); cursor: pointer; transition: all 0.12s;
         }
         .td-item:hover { background: rgba(255,255,255,0.05); color: #fff; }
         .td-item.active { color: var(--gold); }
-        .td-dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,0.15); flex-shrink: 0; }
-        .td-dot.active { background: rgba(255,184,28,0.6); }
+        .td-dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,0.12); flex-shrink: 0; }
+        .td-dot.active { background: rgba(255,184,28,0.7); box-shadow: 0 0 6px rgba(255,184,28,0.4); }
 
         /* View tabs */
         .view-tabs {
           display: flex;
           background: rgba(255,255,255,0.04);
-          border: 1px solid rgba(255,255,255,0.08);
-          border-radius: 9px;
-          padding: 3px;
-          gap: 3px;
+          border: 1px solid var(--border);
+          border-radius: 10px; padding: 3px; gap: 3px;
         }
         .vtab {
           font-family: 'Bebas Neue', cursive; font-size: 13px; letter-spacing: 1.5px;
-          padding: 6px 18px; border-radius: 7px;
+          padding: 7px 20px; border-radius: 8px;
           cursor: pointer; border: none; background: transparent;
-          color: rgba(255,255,255,0.35); transition: all 0.15s;
-          position: relative;
+          color: var(--text-mute); transition: all 0.15s;
         }
         .vtab:hover { color: rgba(255,255,255,0.7); }
-        .vtab.active { background: rgba(255,255,255,0.07); color: #fff; }
+        .vtab.active {
+          background: rgba(255,255,255,0.08);
+          color: #fff;
+          box-shadow: 0 1px 0 rgba(255,255,255,0.06) inset;
+        }
+
+        /* ═══════════════════════════════════════
+           SHELL
+        ═══════════════════════════════════════ */
+        .shell { max-width: 960px; margin: 0 auto; padding: 28px 24px 0; }
+
         /* ═══════════════════════════════════════
            BUILD VIEW
         ═══════════════════════════════════════ */
         .section-label {
-          font-size: 10px; letter-spacing: 1.8px; text-transform: uppercase;
-          color: rgba(255,255,255,0.28); margin-bottom: 9px;
+          font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+          color: var(--text-mute); margin-bottom: 10px;
         }
 
         /* Target pills */
-        .target-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+        .target-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px; }
         .tpill {
           font-family: 'Bebas Neue', cursive; font-size: 13px; letter-spacing: 1px;
-          padding: 5px 15px; border-radius: 20px;
-          border: 1px solid rgba(255,255,255,0.1);
-          color: rgba(255,255,255,0.4); background: transparent;
+          padding: 6px 16px; border-radius: 20px;
+          border: 1px solid var(--border);
+          color: var(--text-mute); background: transparent;
           cursor: pointer; transition: all 0.15s;
         }
-        .tpill:hover { border-color: rgba(255,255,255,0.25); color: rgba(255,255,255,0.8); }
-        .tpill.sel { background: rgba(255,184,28,0.1); border-color: rgba(255,184,28,0.4); color: var(--gold); }
+        .tpill:hover { border-color: var(--border-hi); color: rgba(255,255,255,0.85); background: rgba(255,255,255,0.03); }
+        .tpill.sel {
+          background: var(--gold-dim);
+          border-color: rgba(255,184,28,0.45);
+          color: var(--gold);
+          box-shadow: 0 0 0 1px rgba(255,184,28,0.1);
+        }
 
         /* Split panels */
-        .panels { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+        .panels { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
         @media (max-width: 560px) { .panels { grid-template-columns: 1fr; } }
 
         .panel {
-          background: var(--panel); border: 1px solid rgba(255,255,255,0.08);
-          border-radius: 12px; overflow: hidden; display: flex; flex-direction: column;
+          background: var(--rink-2);
+          border: 1px solid var(--border);
+          border-radius: var(--radius); overflow: hidden;
+          display: flex; flex-direction: column;
+          transition: border-color 0.2s;
         }
+        .panel:focus-within { border-color: var(--border-hi); }
 
         .panel-head {
-          display: flex; align-items: center; gap: 7px;
-          padding: 10px 13px 9px;
-          border-bottom: 1px solid rgba(255,255,255,0.06);
+          display: flex; align-items: center; gap: 8px;
+          padding: 12px 14px 11px;
+          border-bottom: 1px solid var(--border);
+          background: rgba(255,255,255,0.015);
         }
-        .panel-title { font-family: 'Bebas Neue', cursive; font-size: 14px; letter-spacing: 1.5px; }
+        .panel-icon { font-size: 14px; opacity: 0.6; }
+        .panel-title { font-family: 'Bebas Neue', cursive; font-size: 15px; letter-spacing: 1.5px; }
         .panel-title.offer { color: var(--pink); }
         .panel-title.req   { color: var(--blue); }
         .panel-sel-count {
           font-size: 10px; letter-spacing: 1px;
-          background: rgba(255,255,255,0.06); border-radius: 20px;
-          padding: 2px 8px; color: rgba(255,255,255,0.4);
-          margin-left: auto;
+          background: rgba(255,255,255,0.05);
+          border: 1px solid var(--border);
+          border-radius: 20px; padding: 2px 9px;
+          color: var(--text-mute); margin-left: auto;
+          transition: all 0.2s;
         }
-        .panel-sel-count.has-offer { background: rgba(255,122,138,0.12); color: var(--pink); }
-        .panel-sel-count.has-req   { background: rgba(125,180,255,0.12); color: var(--blue); }
+        .panel-sel-count.has-offer {
+          background: var(--pink-dim);
+          border-color: rgba(255,122,138,0.25);
+          color: var(--pink);
+        }
+        .panel-sel-count.has-req {
+          background: var(--blue-dim);
+          border-color: rgba(125,180,255,0.25);
+          color: var(--blue);
+        }
 
-        /* Toolbar: pos chips + search in one row */
+        /* Toolbar */
         .panel-toolbar {
           display: flex; align-items: center; gap: 5px;
-          padding: 7px 10px; border-bottom: 1px solid rgba(255,255,255,0.04);
+          padding: 8px 11px;
+          border-bottom: 1px solid rgba(255,255,255,0.04);
+          background: rgba(255,255,255,0.01);
         }
         .pchip {
           font-family: 'Bebas Neue', cursive; font-size: 10px; letter-spacing: 1px;
-          padding: 3px 9px; border-radius: 4px;
-          border: 1px solid rgba(255,255,255,0.08);
-          color: rgba(255,255,255,0.32); background: transparent;
+          padding: 4px 10px; border-radius: 5px;
+          border: 1px solid var(--border);
+          color: var(--text-mute); background: transparent;
           cursor: pointer; transition: all 0.12s; flex-shrink: 0;
         }
-        .pchip.a-all { border-color: rgba(255,255,255,0.2);  color: rgba(255,255,255,0.7);  background: rgba(255,255,255,0.05); }
-        .pchip.a-F   { border-color: rgba(255,122,138,0.4);  color: var(--pink);  background: rgba(255,122,138,0.08); }
-        .pchip.a-D   { border-color: rgba(125,180,255,0.4);  color: var(--blue);  background: rgba(125,180,255,0.08); }
-        .pchip.a-G   { border-color: rgba(255,184,28,0.4);   color: var(--gold);  background: rgba(255,184,28,0.08); }
+        .pchip.a-all { border-color: rgba(255,255,255,0.18); color: rgba(255,255,255,0.75); background: rgba(255,255,255,0.06); }
+        .pchip.a-F   { border-color: rgba(255,122,138,0.4);  color: var(--pink); background: var(--pink-dim); }
+        .pchip.a-D   { border-color: rgba(125,180,255,0.4);  color: var(--blue); background: var(--blue-dim); }
+        .pchip.a-G   { border-color: rgba(255,184,28,0.4);   color: var(--gold); background: var(--gold-dim); }
 
         .panel-search {
           flex: 1; display: flex; align-items: center;
-          background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07);
-          border-radius: 6px; padding: 0 8px; gap: 5px;
+          background: rgba(255,255,255,0.04);
+          border: 1px solid var(--border);
+          border-radius: 7px; padding: 0 9px; gap: 5px;
+          transition: border-color 0.15s;
         }
-        .search-ico { font-size: 11px; color: rgba(255,255,255,0.2); }
+        .panel-search:focus-within { border-color: rgba(255,255,255,0.18); }
+        .search-ico { font-size: 12px; color: var(--text-mute); }
         .panel-search input {
           flex: 1; background: transparent; border: none; outline: none;
           color: #fff; font-family: 'Barlow Condensed', sans-serif;
-          font-size: 12px; padding: 4px 0; letter-spacing: 0.3px;
+          font-size: 13px; padding: 5px 0; letter-spacing: 0.3px;
         }
-        .panel-search input::placeholder { color: rgba(255,255,255,0.2); }
+        .panel-search input::placeholder { color: var(--text-mute); }
 
         /* Player list */
-        .player-list { flex: 1; overflow-y: auto; max-height: 280px; }
+        .player-list { flex: 1; overflow-y: auto; max-height: 300px; }
+
         .pr {
-          display: grid; grid-template-columns: 17px 1fr auto 34px;
-          gap: 8px; align-items: center;
-          padding: 7px 13px; border-bottom: 1px solid rgba(255,255,255,0.03);
+          display: grid; grid-template-columns: 18px 1fr auto 40px;
+          gap: 9px; align-items: center;
+          padding: 9px 14px;
+          border-bottom: 1px solid rgba(255,255,255,0.03);
           cursor: pointer; transition: background 0.1s;
+          position: relative;
         }
         .pr:last-child { border-bottom: none; }
-        .pr:hover { background: rgba(255,255,255,0.025); }
-        .pr.s-offer { background: rgba(255,122,138,0.07); border-left: 2px solid rgba(255,122,138,0.5); padding-left: 11px; }
-        .pr.s-req   { background: rgba(125,180,255,0.07); border-left: 2px solid rgba(125,180,255,0.5); padding-left: 11px; }
-        .pr.on-block { border-left: 2px solid rgba(245,158,11,0.4); padding-left: 11px; }
+        .pr:hover { background: rgba(255,255,255,0.03); }
+
+        .pr.s-offer {
+          background: rgba(255,122,138,0.06);
+          border-left: 2px solid rgba(255,122,138,0.5);
+          padding-left: 12px;
+        }
+        .pr.s-req {
+          background: rgba(125,180,255,0.06);
+          border-left: 2px solid rgba(125,180,255,0.5);
+          padding-left: 12px;
+        }
+        .pr.on-block { border-left: 2px solid rgba(245,158,11,0.4); padding-left: 12px; }
         .pr.s-offer.on-block { border-left: 2px solid rgba(255,122,138,0.5); }
         .pr.s-req.on-block   { border-left: 2px solid rgba(125,180,255,0.5); }
 
         .pr-check {
-          width: 16px; height: 16px; border-radius: 4px;
+          width: 17px; height: 17px; border-radius: 4px;
           border: 1px solid rgba(255,255,255,0.15);
           display: flex; align-items: center; justify-content: center;
-          font-size: 8px; flex-shrink: 0; transition: all 0.12s;
+          font-size: 9px; flex-shrink: 0; transition: all 0.12s;
         }
         .s-offer .pr-check { background: var(--pink); border-color: var(--pink); color: var(--rink); }
         .s-req   .pr-check { background: var(--blue); border-color: var(--blue); color: var(--rink); }
 
-        .pr-info {}
         .pr-name {
           font-family: 'Bebas Neue', cursive; font-size: 14px; letter-spacing: 0.8px;
-          line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+          line-height: 1.15; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
-        .pr-meta { font-size: 11px; color: rgba(255,255,255,0.3); margin-top: 1px; }
+        /* ← FIXED: bumped opacity from 0.28 to 0.5 for WCAG */
+        .pr-meta { font-size: 11px; color: var(--text-dim); margin-top: 1px; }
 
         .pos-tag {
           font-family: 'Bebas Neue', cursive; font-size: 10px; letter-spacing: 0.8px;
-          padding: 2px 5px; border-radius: 3px; text-align: center;
+          padding: 3px 6px; border-radius: 4px; text-align: center;
         }
         .pos-tag.F { background: rgba(255,122,138,0.14); color: var(--pink); }
         .pos-tag.D { background: rgba(125,180,255,0.14); color: var(--blue); }
@@ -235,239 +302,343 @@
         .block-tag {
           display: inline; font-family: 'Bebas Neue', cursive; font-size: 9px; letter-spacing: 1px;
           color: var(--amber); background: rgba(245,158,11,0.12);
-          border: 1px solid rgba(245,158,11,0.22);
+          border: 1px solid rgba(245,158,11,0.25);
           border-radius: 3px; padding: 0 4px; margin-left: 5px; vertical-align: middle;
         }
 
-        .pr-pts { font-family: 'Bebas Neue', cursive; font-size: 14px; color: var(--gold); text-align: right; }
+        /* Points – larger, with a subtle bar behind */
+        .pr-pts-wrap {
+          text-align: right; position: relative;
+        }
+        .pr-pts {
+          font-family: 'Bebas Neue', cursive; font-size: 16px;
+          color: var(--gold); position: relative; z-index: 1;
+          line-height: 1;
+        }
+        .pr-pts-label { font-size: 9px; letter-spacing: 0.8px; color: var(--text-mute); }
 
         .panel-empty {
-          padding: 2rem 1rem; text-align: center;
-          font-size: 12px; color: rgba(255,255,255,0.2); letter-spacing: 0.4px; line-height: 1.6;
+          padding: 3rem 1rem; text-align: center;
+          font-size: 13px; color: var(--text-mute);
+          letter-spacing: 0.4px; line-height: 1.8;
         }
+        .panel-empty-icon { font-size: 28px; display: block; margin-bottom: 10px; opacity: 0.4; }
 
         /* ═══════════════════════════════════════
            SUMMARY BAR
         ═══════════════════════════════════════ */
         .summary-bar {
-          background: rgba(255,255,255,0.03);
-          border: 1px solid rgba(255,255,255,0.1);
-          border-radius: 12px; padding: 13px 15px;
-          transition: border-color 0.2s;
+          background: var(--rink-2);
+          border: 1px solid var(--border);
+          border-radius: var(--radius); padding: 16px 17px;
+          transition: border-color 0.25s, box-shadow 0.25s;
         }
-        .summary-bar.has-content { border-color: rgba(255,255,255,0.14); }
+        .summary-bar.has-content {
+          border-color: rgba(255,255,255,0.15);
+          box-shadow: 0 0 0 1px rgba(255,255,255,0.03) inset,
+                      0 8px 32px rgba(0,0,0,0.3);
+        }
 
-        .sb-top { display: grid; grid-template-columns: 1fr 32px 1fr; gap: 8px; align-items: start; margin-bottom: 11px; }
+        .sb-top {
+          display: grid; grid-template-columns: 1fr 50px 1fr;
+          gap: 10px; align-items: start; margin-bottom: 14px;
+        }
         .sb-side-label {
-          font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 700;
-          margin-bottom: 6px;
+          font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase;
+          font-weight: 700; margin-bottom: 8px;
         }
-        .sb-side-label.offer { color: rgba(255,122,138,0.6); }
-        .sb-side-label.req   { color: rgba(125,180,255,0.6); }
+        .sb-side-label.offer { color: rgba(255,122,138,0.7); }
+        .sb-side-label.req   { color: rgba(125,180,255,0.7); }
 
-        .sb-chips { display: flex; flex-wrap: wrap; gap: 4px; min-height: 26px; }
+        .sb-chips { display: flex; flex-wrap: wrap; gap: 5px; min-height: 28px; }
         .sb-chip {
-          display: inline-flex; align-items: center; gap: 4px;
+          display: inline-flex; align-items: center; gap: 5px;
           font-family: 'Bebas Neue', cursive; font-size: 11px; letter-spacing: 0.8px;
-          padding: 3px 9px; border-radius: 20px;
-          cursor: pointer; max-width: 150px; overflow: hidden; transition: all 0.12s;
+          padding: 4px 10px; border-radius: 20px;
+          cursor: pointer; max-width: 160px; overflow: hidden;
+          transition: all 0.12s; animation: chipIn 0.15s ease;
         }
+        @keyframes chipIn { from { opacity:0; transform:scale(0.9); } to { opacity:1; transform:scale(1); } }
         .sb-chip span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .sb-chip-x { opacity: 0.5; font-size: 9px; flex-shrink: 0; }
-        .sb-chip.offer { background: rgba(255,122,138,0.1); border: 1px solid rgba(255,122,138,0.25); color: var(--pink); }
+        .sb-chip-x { opacity: 0.45; font-size: 9px; flex-shrink: 0; transition: opacity 0.12s; }
+        .sb-chip:hover .sb-chip-x { opacity: 1; }
+        .sb-chip.offer {
+          background: var(--pink-dim);
+          border: 1px solid rgba(255,122,138,0.28);
+          color: var(--pink);
+        }
         .sb-chip.offer:hover { background: rgba(239,68,68,0.15); border-color: rgba(239,68,68,0.45); }
-        .sb-chip.req   { background: rgba(125,180,255,0.1); border: 1px solid rgba(125,180,255,0.25); color: var(--blue); }
+        .sb-chip.req {
+          background: var(--blue-dim);
+          border: 1px solid rgba(125,180,255,0.28);
+          color: var(--blue);
+        }
         .sb-chip.req:hover { background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.4); color: #f87171; }
-        .sb-hint { font-size: 11px; color: rgba(255,255,255,0.2); font-style: italic; padding: 3px 0; }
+        .sb-hint { font-size: 12px; color: var(--text-mute); font-style: italic; padding: 4px 0; }
 
-        .sb-arrow { display: flex; align-items: center; justify-content: center; padding-top: 20px; font-size: 17px; color: rgba(255,255,255,0.14); }
+        /* Big animated arrow */
+        .sb-arrow-wrap {
+          display: flex; flex-direction: column;
+          align-items: center; justify-content: center;
+          padding-top: 22px; gap: 4px;
+        }
+        .sb-arrow {
+          font-size: 22px; color: rgba(255,255,255,0.18);
+          transition: color 0.25s, transform 0.25s;
+        }
+        .has-content .sb-arrow {
+          color: rgba(255,184,28,0.5);
+          animation: arrowPulse 2s ease-in-out infinite;
+        }
+        @keyframes arrowPulse {
+          0%,100% { transform: scale(1); opacity: 0.5; }
+          50%      { transform: scale(1.15); opacity: 1; }
+        }
 
+        /* Cap hit row */
+        .sb-cap-row {
+          display: flex; align-items: center; justify-content: space-between;
+          margin-bottom: 13px; padding: 8px 12px; border-radius: 9px;
+          background: rgba(255,255,255,0.025);
+          font-size: 12px; letter-spacing: 0.5px; color: var(--text-dim);
+          transition: all 0.2s;
+        }
+        .sb-cap-row.surplus  { background: rgba(34,197,94,0.07);  color: rgba(34,197,94,0.9);  }
+        .sb-cap-row.deficit  { background: rgba(255,122,138,0.07); color: rgba(255,122,138,0.9); }
+        .sb-cap-label { letter-spacing: 1.2px; text-transform: uppercase; font-size: 10px; }
+        .sb-cap-val   { font-family: 'Bebas Neue', cursive; font-size: 14px; letter-spacing: 1px; }
+
+        /* Trade value bar */
+        .sb-value-row {
+          display: flex; align-items: center; gap: 10px;
+          margin-bottom: 13px; font-size: 11px; color: var(--text-mute);
+        }
+        .tv-bar-wrap { flex: 1; height: 5px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden; }
+        .tv-bar-offer { height: 100%; border-radius: 3px; transition: width 0.35s ease; }
+        .tv-bar-req   { height: 100%; border-radius: 3px; margin-left: auto; }
+        .tv-label { font-family: 'Bebas Neue', cursive; font-size: 12px; letter-spacing: 1px; white-space: nowrap; }
+        .tv-label.offer { color: var(--pink); }
+        .tv-label.req   { color: var(--blue); }
+        .tv-verdict {
+          font-family: 'Bebas Neue', cursive; font-size: 11px; letter-spacing: 1.5px;
+          padding: 2px 10px; border-radius: 20px;
+        }
+        .tv-verdict.fair    { background: rgba(34,197,94,0.12);  border: 1px solid rgba(34,197,94,0.25);  color: var(--green); }
+        .tv-verdict.slight  { background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.25); color: var(--amber); }
+        .tv-verdict.lopsided { background: rgba(255,122,138,0.12); border: 1px solid rgba(255,122,138,0.25); color: var(--pink); }
+
+        /* Actions */
         .sb-actions { display: flex; align-items: center; gap: 8px; }
         .sb-note {
-          flex: 1; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
-          border-radius: 7px; color: #fff; font-family: 'Barlow Condensed', sans-serif;
-          font-size: 12px; padding: 7px 10px; outline: none; transition: border-color 0.15s;
+          flex: 1; background: rgba(255,255,255,0.04);
+          border: 1px solid var(--border);
+          border-radius: 8px; color: #fff;
+          font-family: 'Barlow Condensed', sans-serif;
+          font-size: 13px; padding: 8px 11px; outline: none;
+          transition: border-color 0.15s;
         }
-        .sb-note:focus { border-color: rgba(255,184,28,0.35); }
-        .sb-note::placeholder { color: rgba(255,255,255,0.2); }
+        .sb-note:focus { border-color: rgba(255,184,28,0.4); }
+        .sb-note::placeholder { color: var(--text-mute); }
 
         .btn-clear {
           font-family: 'Bebas Neue', cursive; font-size: 12px; letter-spacing: 1.5px;
-          background: transparent; color: rgba(255,255,255,0.38);
-          border: 1px solid rgba(255,255,255,0.1);
-          border-radius: 7px; padding: 7px 13px; cursor: pointer;
+          background: transparent; color: var(--text-dim);
+          border: 1px solid var(--border);
+          border-radius: 8px; padding: 8px 15px; cursor: pointer;
           transition: all 0.15s; white-space: nowrap; flex-shrink: 0;
         }
-        .btn-clear:hover { border-color: rgba(255,255,255,0.25); color: rgba(255,255,255,0.75); }
+        .btn-clear:hover { border-color: var(--border-hi); color: rgba(255,255,255,0.85); }
 
         .btn-send {
-          font-family: 'Bebas Neue', cursive; font-size: 12px; letter-spacing: 2px;
-          background: var(--gold); color: var(--rink); border: none;
-          border-radius: 7px; padding: 8px 20px; cursor: pointer;
-          transition: background 0.15s; white-space: nowrap; flex-shrink: 0;
+          font-family: 'Bebas Neue', cursive; font-size: 13px; letter-spacing: 2px;
+          background: var(--gold); color: var(--rink);
+          border: none; border-radius: 8px; padding: 9px 22px;
+          cursor: pointer; transition: background 0.15s, transform 0.1s;
+          white-space: nowrap; flex-shrink: 0; position: relative; overflow: hidden;
         }
-        .btn-send:hover { background: #ffd04d; }
-        .btn-send:disabled { background: rgba(255,184,28,0.2); color: rgba(255,255,255,0.25); cursor: not-allowed; }
+        .btn-send:hover:not(:disabled) { background: #ffd04d; transform: translateY(-1px); }
+        .btn-send:active:not(:disabled) { transform: translateY(0); }
+        .btn-send:disabled {
+          background: rgba(255,184,28,0.15);
+          color: rgba(255,255,255,0.2);
+          cursor: not-allowed;
+        }
+        @keyframes sentFlash { 0%,100%{ opacity:1; } 50%{ opacity:0.7; } }
+        .btn-send.sent-ok { background: var(--green); animation: sentFlash 0.4s ease; }
 
-        .sb-cap-row {
-          display: flex; align-items: center; justify-content: space-between;
-          margin-bottom: 11px; padding: 6px 10px; border-radius: 8px;
-          background: rgba(255,255,255,0.025); font-size: 11px; letter-spacing: 0.5px;
-          color: rgba(255,255,255,0.4);
+        /* Spinner inside send btn */
+        .btn-spin {
+          display: inline-block; width: 12px; height: 12px; border-radius: 50%;
+          border: 2px solid rgba(0,0,0,0.25); border-top-color: var(--rink);
+          animation: spin 0.6s linear infinite; vertical-align: middle; margin-right: 5px;
         }
-        .sb-cap-row.surplus  { background: rgba(34,197,94,0.07);  color: rgba(34,197,94,0.8);  }
-        .sb-cap-row.deficit  { background: rgba(255,122,138,0.07); color: rgba(255,122,138,0.8); }
-        .sb-cap-label { letter-spacing: 1.2px; text-transform: uppercase; font-size: 10px; }
-        .sb-cap-val   { font-family: 'Bebas Neue', cursive; font-size: 13px; letter-spacing: 1px; }
-
-        /* Trade value dot on proposal cards */
-        .tv-dot {
-          width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
-          margin-left: auto; margin-right: 2px;
-        }
-        .tv-dot.fair   { background: var(--green); }
-        .tv-dot.slight { background: var(--amber); }
-        .tv-dot.lopsided { background: var(--pink); }
-
-        /* Feed empty state */
-        .feed-empty {
-          text-align: center; padding: 3.5rem 1rem;
-          color: rgba(255,255,255,0.18); line-height: 2;
-        }
-        .feed-empty svg { display: block; margin: 0 auto 14px; opacity: 0.18; }
-        .feed-empty p { font-size: 12px; letter-spacing: 0.5px; }
-
-        /* Optimistic confirm flash */
-        @keyframes sentFlash { 0%,100%{ opacity:1; } 50%{ opacity:0.6; } }
-        .btn-send.sent-ok {
-          background: var(--green); color: var(--rink);
-          animation: sentFlash 0.4s ease;
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
         /* ═══════════════════════════════════════
+           FEED
+        ═══════════════════════════════════════ */
         .feed-toprow {
           display: flex; align-items: center; justify-content: space-between;
-          margin-bottom: 14px; gap: 10px; flex-wrap: wrap;
+          margin-bottom: 16px; gap: 10px; flex-wrap: wrap;
         }
-        .feed-count { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.3); }
-
+        .feed-count {
+          font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase;
+          color: var(--text-mute);
+        }
         .feed-filters { display: flex; gap: 4px; }
         .ff {
           font-family: 'Bebas Neue', cursive; font-size: 11px; letter-spacing: 1.5px;
-          padding: 4px 12px; border-radius: 5px;
-          border: 1px solid rgba(255,255,255,0.08); background: transparent;
-          color: rgba(255,255,255,0.32); cursor: pointer; transition: all 0.12s;
+          padding: 5px 13px; border-radius: 6px;
+          border: 1px solid var(--border); background: transparent;
+          color: var(--text-mute); cursor: pointer; transition: all 0.12s;
         }
-        .ff:hover { color: rgba(255,255,255,0.65); border-color: rgba(255,255,255,0.15); }
-        .ff.act { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.16); color: rgba(255,255,255,0.85); }
+        .ff:hover { color: rgba(255,255,255,0.65); border-color: var(--border-hi); }
+        .ff.act { background: rgba(255,255,255,0.07); border-color: var(--border-hi); color: rgba(255,255,255,0.9); }
 
         /* Proposal cards */
         .prop-card {
-          background: var(--panel); border: 1px solid rgba(255,255,255,0.08);
-          border-radius: 12px; margin-bottom: 10px; overflow: hidden;
+          background: var(--rink-2);
+          border: 1px solid var(--border);
+          border-radius: var(--radius); margin-bottom: 12px; overflow: hidden;
           transition: border-color 0.2s, box-shadow 0.2s;
+          animation: cardIn 0.2s ease;
         }
-        .prop-card:hover { border-color: rgba(255,255,255,0.14); box-shadow: 0 4px 24px rgba(0,0,0,0.25); }
-        .prop-card.dir-recv { border-left: 3px solid rgba(125,180,255,0.45); }
-        .prop-card.dir-sent { border-left: 3px solid rgba(255,184,28,0.4); }
-        .prop-card.dir-recv.accepted { border-left: 3px solid rgba(34,197,94,0.5); }
+        @keyframes cardIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+        .prop-card:hover { border-color: var(--border-hi); box-shadow: 0 6px 28px rgba(0,0,0,0.3); }
+        .prop-card.dir-recv { border-left: 3px solid rgba(125,180,255,0.5); }
+        .prop-card.dir-sent { border-left: 3px solid rgba(255,184,28,0.45); }
+        .prop-card.dir-recv.accepted { border-left: 3px solid rgba(34,197,94,0.55); }
 
         .pc-head {
-          display: flex; align-items: center; gap: 8px;
-          padding: 10px 14px; border-bottom: 1px solid rgba(255,255,255,0.05);
+          display: flex; align-items: center; gap: 9px;
+          padding: 11px 15px;
+          border-bottom: 1px solid rgba(255,255,255,0.05);
+          background: rgba(255,255,255,0.015);
           flex-wrap: wrap;
         }
         .dir-badge {
           font-family: 'Bebas Neue', cursive; font-size: 10px; letter-spacing: 2px;
-          padding: 2px 8px; border-radius: 4px; flex-shrink: 0;
+          padding: 3px 9px; border-radius: 5px; flex-shrink: 0;
         }
-        .dir-badge.recv { background: rgba(125,180,255,0.1); border: 1px solid rgba(125,180,255,0.2); color: var(--blue); }
-        .dir-badge.sent { background: rgba(255,184,28,0.1); border: 1px solid rgba(255,184,28,0.2); color: var(--gold); }
+        .dir-badge.recv { background: var(--blue-dim); border: 1px solid rgba(125,180,255,0.25); color: var(--blue); }
+        .dir-badge.sent { background: var(--gold-dim); border: 1px solid rgba(255,184,28,0.25); color: var(--gold); }
 
         .pc-teams {
-          display: flex; align-items: center; gap: 6px;
-          font-family: 'Bebas Neue', cursive; font-size: 15px; letter-spacing: 0.8px;
+          display: flex; align-items: center; gap: 7px;
+          font-family: 'Bebas Neue', cursive; font-size: 16px; letter-spacing: 0.8px;
         }
-        .pc-teams-sep { font-size: 12px; color: rgba(255,255,255,0.2); }
+        .pc-teams-sep { font-size: 13px; color: var(--text-mute); }
 
         .pc-status {
           font-family: 'Bebas Neue', cursive; font-size: 10px; letter-spacing: 1.5px;
-          padding: 2px 8px; border-radius: 4px; margin-left: auto; flex-shrink: 0;
+          padding: 3px 9px; border-radius: 5px; margin-left: auto; flex-shrink: 0;
         }
-        .pc-status.pending   { background: rgba(255,184,28,0.12); border: 1px solid rgba(255,184,28,0.25);  color: var(--gold); }
-        .pc-status.accepted  { background: rgba(34,197,94,0.1);   border: 1px solid rgba(34,197,94,0.25);   color: var(--green); }
-        .pc-status.withdrawn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.35); }
+        .pc-status.pending   { background: var(--gold-dim); border: 1px solid rgba(255,184,28,0.28); color: var(--gold); }
+        .pc-status.accepted  { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.28); color: var(--green); }
+        .pc-status.withdrawn { background: rgba(255,255,255,0.04); border: 1px solid var(--border); color: var(--text-mute); }
 
-        .pc-date { font-size: 11px; color: rgba(255,255,255,0.22); flex-shrink: 0; }
+        .pc-date { font-size: 11px; color: var(--text-mute); flex-shrink: 0; }
         .pc-del {
-          background: none; border: none; color: rgba(255,255,255,0.22);
+          background: none; border: none; color: var(--text-mute);
           cursor: pointer; font-size: 14px; padding: 0 2px; line-height: 1;
           transition: color 0.15s; margin-left: 2px; flex-shrink: 0;
         }
         .pc-del:hover { color: #f87171; }
 
-        /* Compare body */
-        .pc-body { display: grid; grid-template-columns: 1fr 38px 1fr; }
-        @media (max-width: 500px) {
-          .pc-body { grid-template-columns: 1fr; }
-          .pc-arrow-col { display: none; }
-        }
-        .pc-side { padding: 10px 14px; }
+        .pc-body { display: grid; grid-template-columns: 1fr 40px 1fr; }
+        @media (max-width: 500px) { .pc-body { grid-template-columns: 1fr; } .pc-arrow-col { display: none; } }
+
+        .pc-side { padding: 12px 15px; }
         .pc-side + .pc-side { border-left: 1px solid rgba(255,255,255,0.04); }
         .pc-side-label {
           font-family: 'Bebas Neue', cursive; font-size: 10px; letter-spacing: 1.5px;
-          margin-bottom: 7px;
+          margin-bottom: 9px;
         }
         .pc-side-label.offer { color: rgba(255,122,138,0.65); }
         .pc-side-label.req   { color: rgba(125,180,255,0.65); }
+
         .pc-arrow-col {
           display: flex; align-items: center; justify-content: center;
-          font-size: 14px; color: rgba(255,255,255,0.1);
-          background: rgba(255,255,255,0.015);
+          font-size: 16px; color: rgba(255,255,255,0.1);
+          background: rgba(255,255,255,0.01);
           border-left: 1px solid rgba(255,255,255,0.04);
           border-right: 1px solid rgba(255,255,255,0.04);
         }
 
-        .pc-player { display: flex; align-items: center; gap: 7px; padding: 3px 0; }
-        .pc-p-name { font-family: 'Bebas Neue', cursive; font-size: 13px; letter-spacing: 0.8px; }
-        .pc-p-stat { font-size: 11px; color: rgba(255,255,255,0.28); margin-left: auto; white-space: nowrap; }
-        .pc-empty  { font-size: 11px; color: rgba(255,255,255,0.18); font-style: italic; padding: 3px 0; }
+        .pc-player { display: flex; align-items: center; gap: 8px; padding: 4px 0; }
+        .pc-p-name { font-family: 'Bebas Neue', cursive; font-size: 14px; letter-spacing: 0.8px; }
+        /* ← FIXED: bumped from 0.28 to 0.5 */
+        .pc-p-stat { font-size: 11px; color: var(--text-dim); margin-left: auto; white-space: nowrap; }
+        .pc-empty  { font-size: 12px; color: var(--text-mute); font-style: italic; padding: 4px 0; }
 
-        .pc-note { font-size: 12px; color: rgba(255,255,255,0.3); font-style: italic; padding: 8px 14px; border-top: 1px solid rgba(255,255,255,0.04); }
+        .pc-note {
+          font-size: 12px; color: var(--text-dim); font-style: italic;
+          padding: 9px 15px; border-top: 1px solid rgba(255,255,255,0.04);
+          background: rgba(255,255,255,0.01);
+        }
 
         .pc-foot {
           display: flex; align-items: center; justify-content: flex-end; gap: 8px;
-          padding: 9px 14px; border-top: 1px solid rgba(255,255,255,0.05);
+          padding: 10px 15px; border-top: 1px solid rgba(255,255,255,0.05);
+          background: rgba(255,255,255,0.01);
         }
         .btn-counter {
           font-family: 'Bebas Neue', cursive; font-size: 11px; letter-spacing: 1.5px;
-          padding: 5px 13px; border-radius: 6px;
+          padding: 6px 14px; border-radius: 7px;
           border: 1px solid rgba(125,180,255,0.3); background: transparent;
           color: var(--blue); cursor: pointer; transition: all 0.15s;
         }
-        .btn-counter:hover { background: rgba(125,180,255,0.1); border-color: rgba(125,180,255,0.5); }
+        .btn-counter:hover { background: var(--blue-dim); border-color: rgba(125,180,255,0.5); }
         .btn-exec {
           font-family: 'Bebas Neue', cursive; font-size: 11px; letter-spacing: 1.5px;
-          padding: 6px 14px; border-radius: 6px; border: none;
-          background: var(--green); color: var(--rink); cursor: pointer; transition: background 0.15s;
+          padding: 7px 16px; border-radius: 7px; border: none;
+          background: var(--green); color: var(--rink);
+          cursor: pointer; transition: background 0.15s, transform 0.1s;
         }
-        .btn-exec:hover { background: #34d371; }
-        .btn-exec:disabled { background: rgba(34,197,94,0.25); color: rgba(255,255,255,0.3); cursor: not-allowed; }
+        .btn-exec:hover { background: #34d371; transform: translateY(-1px); }
+        .btn-exec:disabled {
+          background: rgba(34,197,94,0.2);
+          color: rgba(255,255,255,0.25);
+          cursor: not-allowed; transform: none;
+        }
 
-        /* ─── Empty / error states ─── */
+        /* Feed empty */
+        .feed-empty {
+          text-align: center; padding: 4rem 1rem;
+          color: var(--text-mute); line-height: 2;
+        }
+        .feed-empty-icon { font-size: 40px; display: block; margin-bottom: 14px; opacity: 0.3; }
+        .feed-empty p { font-size: 13px; letter-spacing: 0.5px; }
+
+        /* Misc */
         .state-msg {
           text-align: center; padding: 3rem 1rem;
-          font-size: 13px; color: rgba(255,255,255,0.2); letter-spacing: 0.5px; line-height: 1.8;
+          font-size: 13px; color: var(--text-mute);
+          letter-spacing: 0.5px; line-height: 1.8;
+        }
+
+        /* Executing overlay shimmer on card */
+        @keyframes shimmer {
+          0%   { background-position: -600px 0; }
+          100% { background-position: 600px 0; }
+        }
+        .btn-exec.loading {
+          background: linear-gradient(90deg,
+            rgba(34,197,94,0.2) 25%, rgba(34,197,94,0.4) 50%, rgba(34,197,94,0.2) 75%
+          );
+          background-size: 600px 100%;
+          animation: shimmer 1.2s infinite linear;
+          color: rgba(255,255,255,0.4);
         }
     </style>
 </head>
 <body>
-<div class="shell">
 
-    <!-- ══════════════════════════
-         TOP BAR
-    ══════════════════════════ -->
-    <div class="topbar">
+<!-- ══════════════════════════
+     STICKY HEADER
+══════════════════════════ -->
+<header class="header">
+    <div class="header-inner">
         <!-- Team badge / dropdown -->
         <div class="team-badge" id="team-badge" onclick="toggleTeamDropdown(event)">
             <div class="team-avatar" id="team-avatar">??</div>
@@ -488,6 +659,9 @@
             </button>
         </div>
     </div>
+</header>
+
+<div class="shell">
 
     <!-- ══════════════════════════
          BUILD VIEW
@@ -501,6 +675,7 @@
             <!-- OFFER panel -->
             <div class="panel">
                 <div class="panel-head">
+                    <span class="panel-icon">📤</span>
                     <span class="panel-title offer">You Offer</span>
                     <span class="panel-sel-count" id="offer-count">0 selected</span>
                 </div>
@@ -520,6 +695,7 @@
             <!-- REQUEST panel -->
             <div class="panel">
                 <div class="panel-head">
+                    <span class="panel-icon">📥</span>
                     <span class="panel-title req">You Request</span>
                     <span class="panel-sel-count" id="req-count">0 selected</span>
                 </div>
@@ -534,7 +710,10 @@
                     </div>
                 </div>
                 <div class="player-list" id="req-list">
-                    <div class="panel-empty">← Pick a team above to see their roster</div>
+                    <div class="panel-empty">
+                        <span class="panel-empty-icon">🏒</span>
+                        Pick a team above to see their roster
+                    </div>
                 </div>
             </div>
         </div>
@@ -546,14 +725,31 @@
                     <div class="sb-side-label offer">Giving up</div>
                     <div class="sb-chips" id="offer-chips"><span class="sb-hint">Select players on the left</span></div>
                 </div>
-                <div class="sb-arrow">⇄</div>
+                <div class="sb-arrow-wrap">
+                    <span class="sb-arrow">⇄</span>
+                </div>
                 <div>
                     <div class="sb-side-label req">Receiving</div>
                     <div class="sb-chips" id="req-chips"><span class="sb-hint">Select players on the right</span></div>
                 </div>
             </div>
+
+            <!-- Trade value bar -->
+            <div class="sb-value-row" id="sb-value-row" style="display:none">
+                <span class="tv-label offer" id="tv-offer-pts">0 pts</span>
+                <div class="tv-bar-wrap" id="tv-bar-wrap">
+                    <div style="display:flex;height:100%">
+                        <div class="tv-bar-offer" id="tv-bar-offer" style="background:var(--pink);width:50%"></div>
+                        <div style="flex:1;background:transparent"></div>
+                        <div class="tv-bar-req" id="tv-bar-req" style="background:var(--blue);width:50%"></div>
+                    </div>
+                </div>
+                <span class="tv-label req" id="tv-req-pts">0 pts</span>
+                <span class="tv-verdict" id="tv-verdict"></span>
+            </div>
+
             <div class="sb-cap-row" id="sb-cap-row" style="display:none">
-                <span class="sb-cap-label">Net cap</span>
+                <span class="sb-cap-label">Net cap impact</span>
                 <span class="sb-cap-val" id="sb-cap-val">—</span>
             </div>
             <div class="sb-actions">
@@ -748,7 +944,7 @@
         `${SUPABASE_URL}/rest/v1/pool_rosters?league_code=eq.${_leagueCode}&select=data`,
         { headers: SB_HEADERS }
       );
-      if (!rRes.ok) throw new Error(`fetch failed ${rRes.status}`);
+      if (!res.ok) throw new Error(`fetch failed ${rRes.status}`);
       const rows = await rRes.json();
       const data = rows[0]?.data || {};
       data.proposals = proposals;
@@ -774,7 +970,6 @@
       _tradingBlock = tradingBlock || _tradingBlock;
       localStorage.setItem(`myTeam_${_leagueCode}`, team.id);
 
-      // Update badge
       document.getElementById('team-avatar').textContent    = initials(team.name);
       document.getElementById('team-badge-name').textContent = team.name;
     }
@@ -855,7 +1050,7 @@
       const el      = document.getElementById(`${side}-list`);
 
       if (!isOffer && !state.targetTeamId) {
-        el.innerHTML = `<div class="panel-empty">← Pick a team above to see their roster</div>`;
+        el.innerHTML = `<div class="panel-empty"><span class="panel-empty-icon">🏒</span>Pick a team above to see their roster</div>`;
         return;
       }
 
@@ -881,7 +1076,10 @@
             <div class="pr-meta">$${p.cap.toFixed(2)}M · ${p.pts} pts</div>
           </div>
           <div class="pos-tag ${p.pos}">${p.pos}</div>
-          <div class="pr-pts">${p.pts}</div>
+          <div class="pr-pts-wrap">
+            <div class="pr-pts">${p.pts}</div>
+            <div class="pr-pts-label">PTS</div>
+          </div>
         </div>`;
       }).join('');
     }
@@ -942,10 +1140,10 @@
           }).join('')
         : `<span class="sb-hint">Select players on the right</span>`;
 
-      // Cap hit row
+      // Cap row
       const capRow = document.getElementById('sb-cap-row');
       const capVal = document.getElementById('sb-cap-val');
-      if (state.offered.size > 0 || state.requested.size > 0) {
+      if (hasAny) {
         const giveCap = [...state.offered].reduce((s, sl) => s + (map[sl]?.cap ?? 0), 0);
         const recvCap = [...state.requested].reduce((s, sl) => s + (map[sl]?.cap ?? 0), 0);
         const diff = recvCap - giveCap;
@@ -955,6 +1153,32 @@
         capRow.style.display = '';
       } else {
         capRow.style.display = 'none';
+      }
+
+      // Trade value bar
+      const valueRow = document.getElementById('sb-value-row');
+      if (hasAny) {
+        const offPts = [...state.offered].reduce((s, sl) => s + (map[sl]?.pts ?? 0), 0);
+        const reqPts = [...state.requested].reduce((s, sl) => s + (map[sl]?.pts ?? 0), 0);
+        const total = offPts + reqPts;
+        document.getElementById('tv-offer-pts').textContent = `${offPts} pts`;
+        document.getElementById('tv-req-pts').textContent   = `${reqPts} pts`;
+        const offerPct = total > 0 ? Math.round((offPts / total) * 100) : 50;
+        const reqPct   = 100 - offerPct;
+        document.getElementById('tv-bar-offer').style.width = offerPct + '%';
+        document.getElementById('tv-bar-req').style.width   = reqPct + '%';
+        let verdict = 'fair', verdictLabel = 'Fair';
+        if (total > 0) {
+          const ratio = Math.max(offPts, reqPts) / total;
+          if (ratio > 0.65) { verdict = 'lopsided'; verdictLabel = 'Lopsided'; }
+          else if (ratio > 0.55) { verdict = 'slight'; verdictLabel = 'Slight Edge'; }
+        }
+        const vEl = document.getElementById('tv-verdict');
+        vEl.className = `tv-verdict ${verdict}`;
+        vEl.textContent = verdictLabel;
+        valueRow.style.display = '';
+      } else {
+        valueRow.style.display = 'none';
       }
 
       document.getElementById('send-btn').disabled = !hasAny || !state.targetTeamId;
@@ -974,7 +1198,7 @@
       updateCountBadge('offer');   updateCountBadge('req');
       renderTargetPills();
       renderPanel('offer', MY_ROSTER);
-      document.getElementById('req-list').innerHTML = `<div class="panel-empty">← Pick a team above to see their roster</div>`;
+      document.getElementById('req-list').innerHTML = `<div class="panel-empty"><span class="panel-empty-icon">🏒</span>Pick a team above to see their roster</div>`;
       updateSummaryBar();
     }
 
@@ -983,7 +1207,8 @@
       if (!targetTeam || (!state.offered.size && !state.requested.size)) return;
 
       const btn = document.getElementById('send-btn');
-      btn.disabled = true; btn.textContent = 'Sending…';
+      btn.disabled = true;
+      btn.innerHTML = `<span class="btn-spin"></span>Sending…`;
 
       const id = `prop-${Date.now()}-${Math.random().toString(36).slice(2,7)}`;
       proposals[id] = {
@@ -1001,17 +1226,18 @@
 
       try {
         await saveProposals();
-        btn.textContent = '✓ Sent';
+        btn.innerHTML = '✓ Sent';
         btn.classList.add('sent-ok');
         updateFeedBadge();
         setTimeout(() => {
           btn.classList.remove('sent-ok');
+          btn.innerHTML = 'Send';
           clearProposal();
           setView('feed');
         }, 700);
       } catch(e) {
         delete proposals[id];
-        btn.disabled = false; btn.textContent = 'Send';
+        btn.disabled = false; btn.innerHTML = 'Send';
         alert('Failed to send proposal. Please try again.');
       }
     }
@@ -1048,12 +1274,7 @@
       list.innerHTML = props.length
         ? props.map(buildCard).join('')
         : `<div class="feed-empty">
-            <svg width="52" height="28" viewBox="0 0 52 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <ellipse cx="26" cy="14" rx="26" ry="14" fill="white"/>
-              <ellipse cx="26" cy="14" rx="23" ry="11" fill="#07111f"/>
-              <path d="M3 14 Q26 4 49 14" stroke="white" stroke-width="1.2" fill="none" opacity="0.4"/>
-              <path d="M3 14 Q26 24 49 14" stroke="white" stroke-width="1.2" fill="none" opacity="0.4"/>
-            </svg>
+            <span class="feed-empty-icon">🏒</span>
             <p>No proposals here yet.</p>
           </div>`;
     }
@@ -1080,18 +1301,6 @@
       const offerHTML = offered.length   ? offered.map(playerRow).join('')   : `<div class="pc-empty">Nothing offered</div>`;
       const reqHTML   = requested.length ? requested.map(playerRow).join('') : `<div class="pc-empty">Nothing requested</div>`;
 
-      // Trade value dot
-      const offPts = offered.reduce((s, sl) => { const i = playerFromSlug(sl); return s + (i?.points ?? 0); }, 0);
-      const reqPts = requested.reduce((s, sl) => { const i = playerFromSlug(sl); return s + (i?.points ?? 0); }, 0);
-      const total  = offPts + reqPts;
-      let tvClass = 'fair';
-      if (total > 0) {
-        const ratio = Math.max(offPts, reqPts) / total;
-        if (ratio > 0.65) tvClass = 'lopsided';
-        else if (ratio > 0.55) tvClass = 'slight';
-      }
-      const tvDot = `<span class="tv-dot ${tvClass}" title="Trade value: ${offPts} vs ${reqPts} pts"></span>`;
-
       const footer = p.status === 'pending'
         ? `<div class="pc-foot">
             ${!isSent ? `<button class="btn-counter" onclick="counterProposal('${escH(p.id)}')">Counter</button>` : ''}
@@ -1111,7 +1320,6 @@
             <span class="pc-teams-sep">→</span>
             <span>${escH(p.toTeamName)}</span>
           </div>
-          ${tvDot}
           <span class="pc-status ${escH(p.status)}">${p.status.toUpperCase()}</span>
           <span class="pc-date">${dateStr}</span>
           <button class="pc-del" onclick="deleteProposal('${escH(p.id)}')" title="Delete">✕</button>
@@ -1201,7 +1409,7 @@
       const p = proposals[proposalId];
       if (!p || p.status !== 'pending') return;
       const btn = document.getElementById(`exec-${proposalId}`);
-      if (btn) { btn.disabled = true; btn.textContent = 'Executing…'; }
+      if (btn) { btn.disabled = true; btn.classList.add('loading'); btn.textContent = 'Executing…'; }
 
       try {
         const rRes = await fetch(
@@ -1257,7 +1465,7 @@
       } catch(e) {
         console.error(e);
         alert('Failed to execute trade: ' + (e.message||e));
-        if (btn) { btn.disabled = false; btn.textContent = '⇄ Execute'; }
+        if (btn) { btn.disabled = false; btn.classList.remove('loading'); btn.textContent = '⇄ Execute'; }
       }
     }
 
