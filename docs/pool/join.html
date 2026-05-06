@@ -70,6 +70,25 @@
 
     /* ── Team switcher ── */
     .team-switcher-wrap { max-width: 1100px; width: 100%; margin: 0 auto; padding: 0.5rem 1.25rem 0; flex-shrink: 0; }
+    .team-switcher-order-hint {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      color: rgba(255,255,255,0.42);
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+    .team-switcher-order-hint strong {
+      font-family: 'Bebas Neue', cursive;
+      font-size: 0.82rem;
+      letter-spacing: 2px;
+      color: var(--gold);
+      font-weight: 400;
+    }
     .team-switcher {
       display: flex; align-items: center; gap: 5px;
       flex-wrap: wrap; padding-bottom: 4px;
@@ -85,6 +104,9 @@
     .team-pill-actions { display: flex; gap: 3px; margin-top: 4px; }
     .team-pill-btn { font-family: 'Bebas Neue', cursive; font-size: 0.65rem; letter-spacing: 1px; background: none; border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.35); border-radius: 3px; padding: 1px 5px; cursor: pointer; transition: color 0.15s, border-color 0.15s, background 0.15s; }
     .team-pill-btn:hover { color: white; border-color: rgba(255,255,255,0.35); background: rgba(255,255,255,0.07); }
+    .team-pill-btn.reorder { min-width: 20px; padding: 1px 4px; }
+    .team-pill-btn.reorder:disabled,
+    .team-pill-btn.reorder.disabled { opacity: 0.35; cursor: default; pointer-events: none; }
     .team-pill-btn.delete:hover { color: var(--red); border-color: rgba(200,16,46,0.4); background: rgba(200,16,46,0.08); }
     .btn-add-team { display: flex; align-items: center; justify-content: center; gap: 5px; font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 2px; background: rgba(255,184,28,0.06); border: 1px dashed rgba(255,184,28,0.25); color: rgba(255,184,28,0.6); border-radius: 7px; padding: 5px 14px; cursor: pointer; flex-shrink: 0; transition: background 0.15s, color 0.15s, border-color 0.15s; min-width: 100px; }
     .btn-add-team:hover { background: rgba(255,184,28,0.12); color: var(--gold); border-color: rgba(255,184,28,0.5); }
@@ -612,6 +634,45 @@
     .modal-btn-cancel { background: none; border-color: rgba(255,255,255,0.12); color: var(--silver); }
     .modal-btn-cancel:hover { background: rgba(255,255,255,0.06); }
 
+    /* ── Ultimate Team preview modal ── */
+    .ultimate-modal-box {
+      width: min(760px, 94vw);
+      max-height: 86vh;
+      overflow: auto;
+      background: #101b2c;
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 12px;
+      padding: 1rem 1rem 0.8rem;
+    }
+    .ultimate-modal-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 0.6rem; }
+    .ultimate-modal-title { font-family: 'Bebas Neue', cursive; font-size: 1.2rem; letter-spacing: 3px; color: white; }
+    .ultimate-modal-title span { color: var(--gold); }
+    .ultimate-modal-sub { font-size: 0.72rem; color: rgba(255,255,255,0.35); letter-spacing: 1px; }
+    .ultimate-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin-bottom: 0.65rem; }
+    .ultimate-metric { background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; }
+    .ultimate-metric .k { font-size: 0.62rem; color: rgba(255,255,255,0.35); letter-spacing: 1.5px; text-transform: uppercase; }
+    .ultimate-metric .v { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 1px; color: white; }
+    .ultimate-metric .v.gold { color: var(--gold); }
+    .ultimate-breakdown { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 8px; }
+    .ultimate-block { background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 6px; padding: 7px 8px; }
+    .ultimate-block-title { font-family: 'Bebas Neue', cursive; font-size: 0.78rem; letter-spacing: 2px; color: var(--silver); margin-bottom: 6px; }
+    .ultimate-pos-line { margin-bottom: 6px; }
+    .ultimate-pos-line:last-child { margin-bottom: 0; }
+    .ultimate-pos-tag { font-family: 'Bebas Neue', cursive; font-size: 0.66rem; letter-spacing: 1px; border-radius: 3px; padding: 1px 5px; margin-right: 5px; }
+    .ultimate-pos-tag.F { background: rgba(255,122,138,0.15); color: #ff7a8a; }
+    .ultimate-pos-tag.D { background: rgba(125,180,255,0.15); color: #7db4ff; }
+    .ultimate-pos-tag.G { background: rgba(255,184,28,0.15); color: var(--gold); }
+    .ultimate-names { font-size: 0.77rem; color: rgba(255,255,255,0.8); line-height: 1.4; }
+    .ultimate-change-list { display: flex; flex-direction: column; gap: 4px; max-height: 255px; overflow: auto; }
+    .ultimate-change-row { display: flex; align-items: center; gap: 6px; font-size: 0.77rem; padding: 3px 4px; border-radius: 4px; }
+    .ultimate-change-row.added { background: rgba(34,197,94,0.08); color: rgba(34,197,94,0.95); }
+    .ultimate-change-row.removed { background: rgba(200,16,46,0.10); color: rgba(255,122,138,0.95); }
+    .ultimate-empty { font-size: 0.75rem; color: rgba(255,255,255,0.35); }
+    @media (max-width: 760px) {
+      .ultimate-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .ultimate-breakdown { grid-template-columns: 1fr; }
+    }
+
     /* ── Password gate ── */
     #pw-gate { position:fixed;inset:0;z-index:9999;background:var(--rink);display:flex;align-items:center;justify-content:center;background-image:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(26,58,110,0.6) 0%,transparent 70%); }
     .pw-box { background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:2.5rem 2rem;width:320px;max-width:90vw;text-align:center; }
@@ -634,6 +695,7 @@
       body { display: block; overflow-x: hidden; }
       .pool-layout { grid-template-columns: 1fr; height: auto; padding: 0; }
       .team-switcher-wrap { padding: 0.5rem 0.75rem 0; }
+      .team-switcher-order-hint { font-size: 0.64rem; margin-bottom: 4px; }
       .mobile-tabs { display: flex; border-bottom: 1px solid var(--line); background: rgba(7,17,31,0.95); position: sticky; top: var(--nav-h); z-index: 50; flex-shrink: 0; }
       .mobile-tab { flex: 1; padding: 0.7rem 0.5rem; font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 2px; text-align: center; color: var(--silver); cursor: pointer; border-bottom: 2px solid transparent; transition: color 0.15s, border-color 0.15s; display: flex; align-items: center; justify-content: center; gap: 6px; }
       .mobile-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
@@ -747,6 +809,7 @@
 </header>
 
 <div class="team-switcher-wrap">
+  <div class="team-switcher-order-hint"><strong>Draft Order</strong> left to right</div>
   <div class="team-switcher" id="team-switcher"></div>
 </div>
 
@@ -769,6 +832,20 @@
     <div class="modal-btns">
       <button class="modal-btn modal-btn-cancel" onclick="closeModal()">Cancel</button>
       <button class="modal-btn modal-btn-confirm" id="modal-confirm-btn" onclick="confirmModal()">Add</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="ultimate-modal-overlay">
+  <div class="ultimate-modal-box">
+    <div class="ultimate-modal-head">
+      <div class="ultimate-modal-title">Ultimate <span>Team Preview</span></div>
+      <div class="ultimate-modal-sub" id="ultimate-modal-sub">Review before applying</div>
+    </div>
+    <div id="ultimate-modal-body"></div>
+    <div class="modal-btns" style="margin-top:0.8rem;">
+      <button class="modal-btn modal-btn-cancel" onclick="closeUltimateModal()">Cancel</button>
+      <button class="modal-btn modal-btn-confirm" onclick="applyUltimateTeamPreview()">Apply Team</button>
     </div>
   </div>
 </div>
@@ -1011,6 +1088,7 @@
   let _salaryMaxFilter = 2000; // in $10k units (2000 = $20M = no filter effectively)
   let _compareA = null, _compareB = null; // pinned player slugs for compare
   let _topEffSlugs = new Set();
+  let _ultimatePreview = null;
 
   let _scoring = { f_points:1, d_goals:1, d_assists:1, g_wins:2, g_shutouts:3 };
 
@@ -1267,6 +1345,14 @@
   function groupLabel(g) { return g==='F'?'Forward':g==='D'?'Defence':g==='B'?'Bench':'Goalie'; }
   function uid() { return 't'+Math.random().toString(36).slice(2,9); }
   function emptyRosterSlugs() { return {F:Array(12).fill(null),D:Array(6).fill(null),G:Array(2).fill(null),B:Array(6).fill(null)}; }
+  function cloneRosterSlugs(rs) {
+    return {
+      F: [...(rs?.F || Array(12).fill(null))],
+      D: [...(rs?.D || Array(6).fill(null))],
+      G: [...(rs?.G || Array(2).fill(null))],
+      B: [...(rs?.B || Array(6).fill(null))],
+    };
+  }
 
   function slugMap() {
     if (!slugMap._cache) slugMap._cache=Object.fromEntries(allPlayers.map(p=>[p.puckpedia_slug,p]));
@@ -1452,6 +1538,17 @@
     if (swapMode) cancelSwap();
     activeTeamId=id; savePool(); renderAll();
   }
+  function moveTeam(teamId, delta) {
+    const from = teams.findIndex(t => t.id === teamId);
+    if (from < 0) return;
+    const to = from + delta;
+    if (to < 0 || to >= teams.length) return;
+    const [moved] = teams.splice(from, 1);
+    teams.splice(to, 0, moved);
+    savePool();
+    renderAll();
+    toast(`Draft order: ${moved.name} moved ${delta < 0 ? 'up' : 'down'}`);
+  }
 
   // ── Modal ─────────────────────────────────────────────────────────────────
   function openAddTeamModal() {
@@ -1498,7 +1595,7 @@
   function renderTeamSwitcher() {
     const el=document.getElementById('team-switcher');
     el.innerHTML='';
-    for (const t of teams) {
+    teams.forEach((t, idx) => {
       const roster=rosterFromSlugs(t.roster);
       const filled=[...roster.F,...roster.D,...roster.G,...(roster.B||[])].filter(Boolean).length;
       const isFull=filled>=26;
@@ -1506,10 +1603,15 @@
       pill.className='team-pill-switcher'+(t.id===activeTeamId?' active':'');
       const isViewOnly=document.body.classList.contains('view-only');
       pill.innerHTML=`<div class="team-pill-name">${t.name}</div><div class="team-pill-progress ${isFull?'full':''}">${filled}/26</div>${isViewOnly?'':
-        `<div class="team-pill-actions"><button class="team-pill-btn" onclick="event.stopPropagation();openRenameModal('${t.id}')">Rename</button><button class="team-pill-btn delete" onclick="event.stopPropagation();confirmDeleteTeam('${t.id}')">✕</button></div>`}`;
+        `<div class="team-pill-actions">
+          <button class="team-pill-btn reorder ${idx===0?'disabled':''}" ${idx===0?'disabled':''} title="Move left in draft order" onclick="event.stopPropagation();moveTeam('${t.id}',-1)">←</button>
+          <button class="team-pill-btn reorder ${idx===teams.length-1?'disabled':''}" ${idx===teams.length-1?'disabled':''} title="Move right in draft order" onclick="event.stopPropagation();moveTeam('${t.id}',1)">→</button>
+          <button class="team-pill-btn" onclick="event.stopPropagation();openRenameModal('${t.id}')">Rename</button>
+          <button class="team-pill-btn delete" onclick="event.stopPropagation();confirmDeleteTeam('${t.id}')">✕</button>
+        </div>`}`;
       pill.addEventListener('click',()=>switchTeam(t.id));
       el.appendChild(pill);
-    }
+    });
     if (teams.length<MAX_TEAMS&&!document.body.classList.contains('view-only')) {
       const add=document.createElement('button');
       add.className='btn-add-team'; add.innerHTML='＋ Add Team'; add.onclick=openAddTeamModal;
@@ -2335,6 +2437,8 @@
         t.roster = snap.roster;
       } else if (snap.type === 'remove') {
         t.roster[snap.group][snap.index] = snap.slug;
+      } else if (snap.type === 'ultimate') {
+        t.roster = cloneRosterSlugs(snap.roster);
       }
       _undoSnapshot = null;
       renderAll(); savePool(); toast('✓ Restored');
@@ -2347,11 +2451,23 @@
     const btn = document.getElementById('btn-generate-team'), label = document.getElementById('btn-generate-team-label');
     btn.disabled = true;
     label.innerHTML = '<span style="display:inline-flex;align-items:center;gap:6px;"><svg style="animation:spin .7s linear infinite;width:14px;height:14px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg> Building…</span>';
-    setTimeout(() => { _runUltimateTeam(btn, label); }, 30);
+    setTimeout(() => {
+      try {
+        const preview = _runUltimateTeam();
+        if (!preview) {
+          toast('Could not fill team — try again');
+          return;
+        }
+        openUltimateModal(preview);
+      } finally {
+        label.textContent = '⚡ Ultimate Team';
+        btn.disabled = false;
+      }
+    }, 30);
   }
 
-  function _runUltimateTeam(btn, label) {
-    const t = activeTeam(); if (!t) return;
+  function _runUltimateTeam() {
+    const t = activeTeam(); if (!t) return null;
     const keepPicks = document.getElementById('keep-picks-chk')?.checked ?? false;
     const otherClaimed = new Set();
     for (const other of teams) {
@@ -2407,17 +2523,98 @@
       const totalPts = [...picked.F, ...picked.D, ...picked.G].reduce((s, p) => s + stat(p), 0);
       if (!best || totalPts > best.totalPts) best = { picked, totalPts, capUsed };
     }
-    if (!best) { toast('Could not fill team — try again'); label.textContent = '⚡ Ultimate Team'; btn.disabled = false; return; }
-    t.roster = {
+    if (!best) return null;
+    const nextRoster = {
       F: Array(12).fill(null).map((_, i) => best.picked.F[i]?.puckpedia_slug || null),
       D: Array(6).fill(null).map((_, i) => best.picked.D[i]?.puckpedia_slug || null),
       G: Array(2).fill(null).map((_, i) => best.picked.G[i]?.puckpedia_slug || null),
       B: t.roster.B || Array(6).fill(null),
     };
-    renderAll(); savePool();
-    const modeLabel = keepPicks ? ' (keeping your picks)' : '';
-    toast(`⚡ Built${modeLabel} · ${best.totalPts} pts · $${(best.capUsed / 1_000_000).toFixed(1)}M used`);
-    label.textContent = '⚡ Ultimate Team'; btn.disabled = false;
+    const prevCapRoster = [...t.roster.F, ...t.roster.D, ...t.roster.G].filter(Boolean);
+    const nextCapRoster = [...nextRoster.F, ...nextRoster.D, ...nextRoster.G].filter(Boolean);
+    const prevSet = new Set(prevCapRoster);
+    const nextSet = new Set(nextCapRoster);
+    const addedSlugs = [...nextSet].filter(s => !prevSet.has(s));
+    const removedSlugs = [...prevSet].filter(s => !nextSet.has(s));
+    const lockedCount = keepPicks ? [...lockedRaw.F, ...lockedRaw.D, ...lockedRaw.G].filter(Boolean).length : 0;
+    const keptCount = keepPicks ? [...lockedRaw.F, ...lockedRaw.D, ...lockedRaw.G].filter(s => s && nextSet.has(s)).length : 0;
+
+    return {
+      teamId: t.id,
+      keepPicks,
+      totalPts: best.totalPts,
+      capUsed: best.capUsed,
+      nextRoster,
+      addedSlugs,
+      removedSlugs,
+      lockedCount,
+      keptCount,
+    };
+  }
+
+  function openUltimateModal(preview) {
+    _ultimatePreview = preview;
+    const m = slugMap();
+    const body = document.getElementById('ultimate-modal-body');
+    const sub = document.getElementById('ultimate-modal-sub');
+    const names = (slugs) => slugs.map(s => m[s]).filter(Boolean).map(p => formatName(p.player_name));
+
+    const posSection = (pos, slugs) => {
+      const list = names(slugs);
+      return `<div class="ultimate-pos-line"><span class="ultimate-pos-tag ${pos}">${pos}</span><span class="ultimate-names">${list.length ? list.join(', ') : '—'}</span></div>`;
+    };
+    const changeRows = (slugs, cls, icon) => {
+      const list = names(slugs);
+      if (!list.length) return `<div class="ultimate-empty">No changes</div>`;
+      return list.map(n => `<div class="ultimate-change-row ${cls}"><span>${icon}</span><span>${n}</span></div>`).join('');
+    };
+
+    sub.textContent = preview.keepPicks
+      ? `${preview.keptCount}/${preview.lockedCount} locked picks preserved`
+      : 'Fresh lineup generated';
+
+    body.innerHTML = `
+      <div class="ultimate-metrics">
+        <div class="ultimate-metric"><div class="k">Projected Pts</div><div class="v gold">${preview.totalPts}</div></div>
+        <div class="ultimate-metric"><div class="k">Cap Used</div><div class="v">$${(preview.capUsed / 1_000_000).toFixed(1)}M</div></div>
+        <div class="ultimate-metric"><div class="k">Added</div><div class="v">${preview.addedSlugs.length}</div></div>
+        <div class="ultimate-metric"><div class="k">Removed</div><div class="v">${preview.removedSlugs.length}</div></div>
+      </div>
+      <div class="ultimate-breakdown">
+        <div class="ultimate-block">
+          <div class="ultimate-block-title">Generated Lineup</div>
+          ${posSection('F', preview.nextRoster.F)}
+          ${posSection('D', preview.nextRoster.D)}
+          ${posSection('G', preview.nextRoster.G)}
+        </div>
+        <div class="ultimate-block">
+          <div class="ultimate-block-title">Changes</div>
+          <div style="font-size:0.68rem;color:rgba(34,197,94,0.75);letter-spacing:1px;margin-bottom:4px;">Added</div>
+          <div class="ultimate-change-list" style="margin-bottom:8px;">${changeRows(preview.addedSlugs, 'added', '+')}</div>
+          <div style="font-size:0.68rem;color:rgba(255,122,138,0.75);letter-spacing:1px;margin-bottom:4px;">Removed</div>
+          <div class="ultimate-change-list">${changeRows(preview.removedSlugs, 'removed', '−')}</div>
+        </div>
+      </div>`;
+    document.getElementById('ultimate-modal-overlay').classList.remove('hidden');
+  }
+
+  function closeUltimateModal() {
+    document.getElementById('ultimate-modal-overlay').classList.add('hidden');
+    _ultimatePreview = null;
+  }
+
+  function applyUltimateTeamPreview() {
+    if (!_ultimatePreview) return;
+    const preview = _ultimatePreview;
+    const t = teams.find(x => x.id === preview.teamId);
+    if (!t) { closeUltimateModal(); return; }
+    _undoSnapshot = { type: 'ultimate', id: t.id, roster: cloneRosterSlugs(t.roster) };
+    t.roster = cloneRosterSlugs(preview.nextRoster);
+    renderAll();
+    savePool();
+    closeUltimateModal();
+    const modeLabel = preview.keepPicks ? ' (keeping your picks)' : '';
+    toastWithUndo(`⚡ Built${modeLabel} · ${preview.totalPts} pts · $${(preview.capUsed / 1_000_000).toFixed(1)}M used`);
   }
 
   // Keep-picks label reactive
@@ -2567,10 +2764,11 @@
 
   // ── Keyboard ──────────────────────────────────────────────────────────────
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') { if (swapMode) cancelSwap(); closeModal(); clearCompare(); }
+    if (e.key === 'Escape') { if (swapMode) cancelSwap(); closeModal(); closeUltimateModal(); clearCompare(); }
     if (e.key === 'Enter' && !document.getElementById('modal-overlay').classList.contains('hidden')) confirmModal();
   });
   document.getElementById('modal-overlay').addEventListener('click', e => { if (e.target === document.getElementById('modal-overlay')) closeModal(); });
+  document.getElementById('ultimate-modal-overlay').addEventListener('click', e => { if (e.target === document.getElementById('ultimate-modal-overlay')) closeUltimateModal(); });
 
   const debouncedRenderPool = (() => { let t; return () => { clearTimeout(t); t = setTimeout(renderPool, 150); }; })();
 
