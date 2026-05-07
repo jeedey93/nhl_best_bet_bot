@@ -130,31 +130,6 @@
     .btn-clear-team { font-family: 'Bebas Neue', cursive; font-size: 0.8rem; letter-spacing: 1.5px; background: none; border: 1px solid rgba(200,16,46,0.25); color: rgba(200,16,46,0.6); border-radius: 5px; padding: 3px 10px; cursor: pointer; transition: background 0.15s, color 0.15s, border-color 0.15s; }
     .btn-clear-team:hover { background: rgba(200,16,46,0.12); color: var(--red); border-color: rgba(200,16,46,0.5); }
 
-    /* ── Ultimate Team keep-picks toggle ── */
-    .keep-picks-row {
-      display: flex; align-items: center; gap: 8px;
-      margin-bottom: 0.5rem; flex-shrink: 0;
-      padding: 5px 8px; background: rgba(255,184,28,0.04);
-      border: 1px solid rgba(255,184,28,0.12); border-radius: 6px;
-    }
-    .keep-picks-toggle {
-      position: relative; width: 30px; height: 16px; flex-shrink: 0;
-    }
-    .keep-picks-toggle input { opacity: 0; width: 0; height: 0; }
-    .keep-picks-slider {
-      position: absolute; inset: 0; background: rgba(255,255,255,0.12);
-      border-radius: 8px; cursor: pointer; transition: background 0.2s;
-    }
-    .keep-picks-slider::before {
-      content: ''; position: absolute; width: 12px; height: 12px;
-      left: 2px; top: 2px; background: white; border-radius: 50%;
-      transition: transform 0.2s;
-    }
-    .keep-picks-toggle input:checked + .keep-picks-slider { background: var(--gold); }
-    .keep-picks-toggle input:checked + .keep-picks-slider::before { transform: translateX(14px); }
-    .keep-picks-label { font-family: 'Barlow Condensed', sans-serif; font-size: 0.78rem; font-weight: 600; color: rgba(255,255,255,0.4); letter-spacing: 0.5px; }
-    .keep-picks-label.on { color: var(--gold); }
-
     /* ── Scoring legend ── */
     /* ── Scoring legend collapsible on mobile ── */
     .scoring-legend-wrap { flex-shrink: 0; margin-bottom: 0.6rem; }
@@ -687,8 +662,7 @@
     .pw-error { color:rgba(200,16,46,0.8);font-size:0.8rem;margin-top:0.5rem;min-height:1em;letter-spacing:1px; }
 
     body.view-only .btn-generate-team,
-    body.view-only .btn-clear-team,
-    body.view-only .keep-picks-row { display: none; }
+    body.view-only .btn-clear-team { display: none; }
 
     /* ── Mobile ── */
     @media (max-width: 860px) {
@@ -887,14 +861,6 @@
       </div>
     </div>
 
-    <!-- Keep picks toggle -->
-    <div class="keep-picks-row" id="keep-picks-row">
-      <label class="keep-picks-toggle">
-        <input type="checkbox" id="keep-picks-chk">
-        <span class="keep-picks-slider"></span>
-      </label>
-      <span class="keep-picks-label" id="keep-picks-label">Keep my picks, fill the rest</span>
-    </div>
 
     <!-- Scoring legend (collapsible on mobile) -->
     <div class="scoring-legend-wrap">
@@ -1585,10 +1551,6 @@
     renderPool();
     renderOverview();
     updateActiveTeamLabel();
-    // update keep-picks label
-    const chk = document.getElementById('keep-picks-chk');
-    const lbl = document.getElementById('keep-picks-label');
-    if (lbl) lbl.className = 'keep-picks-label' + (chk?.checked ? ' on' : '');
   }
 
   // ── Team switcher ─────────────────────────────────────────────────────────
@@ -2468,17 +2430,14 @@
 
   function _runUltimateTeam() {
     const t = activeTeam(); if (!t) return null;
-    const keepPicks = document.getElementById('keep-picks-chk')?.checked ?? false;
     const otherClaimed = new Set();
     for (const other of teams) {
       if (other.id === t.id) continue;
       [...other.roster.F, ...other.roster.D, ...other.roster.G, ...(other.roster.B || [])].forEach(s => { if (s) otherClaimed.add(s); });
     }
 
-    // If keepPicks, locked = current roster picks; otherwise start fresh
-    const lockedRaw = keepPicks
-      ? { F: t.roster.F, D: t.roster.D, G: t.roster.G, B: t.roster.B || Array(6).fill(null) }
-      : { F: Array(12).fill(null), D: Array(6).fill(null), G: Array(2).fill(null), B: Array(6).fill(null) };
+    // Always lock existing roster picks — only fill empty slots
+    const lockedRaw = { F: t.roster.F, D: t.roster.D, G: t.roster.G, B: t.roster.B || Array(6).fill(null) };
     const locked = rosterFromSlugs(lockedRaw);
     const lockedSlugs = new Set([...locked.F, ...locked.D, ...locked.G, ...(locked.B || [])].filter(Boolean).map(p => p.puckpedia_slug));
     const lockedCap = [...locked.F, ...locked.D, ...locked.G, ...(locked.B || [])].filter(Boolean).reduce((s, p) => s + (p.cap_hit || 0), 0);
@@ -2535,20 +2494,15 @@
     const prevSet = new Set(prevCapRoster);
     const nextSet = new Set(nextCapRoster);
     const addedSlugs = [...nextSet].filter(s => !prevSet.has(s));
-    const removedSlugs = [...prevSet].filter(s => !nextSet.has(s));
-    const lockedCount = keepPicks ? [...lockedRaw.F, ...lockedRaw.D, ...lockedRaw.G].filter(Boolean).length : 0;
-    const keptCount = keepPicks ? [...lockedRaw.F, ...lockedRaw.D, ...lockedRaw.G].filter(s => s && nextSet.has(s)).length : 0;
+    const lockedCount = [...lockedRaw.F, ...lockedRaw.D, ...lockedRaw.G].filter(Boolean).length;
 
     return {
       teamId: t.id,
-      keepPicks,
       totalPts: best.totalPts,
       capUsed: best.capUsed,
       nextRoster,
       addedSlugs,
-      removedSlugs,
       lockedCount,
-      keptCount,
     };
   }
 
@@ -2569,8 +2523,8 @@
       return list.map(n => `<div class="ultimate-change-row ${cls}"><span>${icon}</span><span>${n}</span></div>`).join('');
     };
 
-    sub.textContent = preview.keepPicks
-      ? `${preview.keptCount}/${preview.lockedCount} locked picks preserved`
+    sub.textContent = preview.lockedCount
+      ? `${preview.lockedCount} existing picks kept · filling empty slots`
       : 'Fresh lineup generated';
 
     body.innerHTML = `
@@ -2578,7 +2532,6 @@
         <div class="ultimate-metric"><div class="k">Projected Pts</div><div class="v gold">${preview.totalPts}</div></div>
         <div class="ultimate-metric"><div class="k">Cap Used</div><div class="v">$${(preview.capUsed / 1_000_000).toFixed(1)}M</div></div>
         <div class="ultimate-metric"><div class="k">Added</div><div class="v">${preview.addedSlugs.length}</div></div>
-        <div class="ultimate-metric"><div class="k">Removed</div><div class="v">${preview.removedSlugs.length}</div></div>
       </div>
       <div class="ultimate-breakdown">
         <div class="ultimate-block">
@@ -2588,11 +2541,8 @@
           ${posSection('G', preview.nextRoster.G)}
         </div>
         <div class="ultimate-block">
-          <div class="ultimate-block-title">Changes</div>
-          <div style="font-size:0.68rem;color:rgba(34,197,94,0.75);letter-spacing:1px;margin-bottom:4px;">Added</div>
-          <div class="ultimate-change-list" style="margin-bottom:8px;">${changeRows(preview.addedSlugs, 'added', '+')}</div>
-          <div style="font-size:0.68rem;color:rgba(255,122,138,0.75);letter-spacing:1px;margin-bottom:4px;">Removed</div>
-          <div class="ultimate-change-list">${changeRows(preview.removedSlugs, 'removed', '−')}</div>
+          <div class="ultimate-block-title">Added Players</div>
+          <div class="ultimate-change-list">${changeRows(preview.addedSlugs, 'added', '+')}</div>
         </div>
       </div>`;
     document.getElementById('ultimate-modal-overlay').classList.remove('hidden');
@@ -2613,15 +2563,9 @@
     renderAll();
     savePool();
     closeUltimateModal();
-    const modeLabel = preview.keepPicks ? ' (keeping your picks)' : '';
-    toastWithUndo(`⚡ Built${modeLabel} · ${preview.totalPts} pts · $${(preview.capUsed / 1_000_000).toFixed(1)}M used`);
+    toastWithUndo(`⚡ Built · ${preview.totalPts} pts · $${(preview.capUsed / 1_000_000).toFixed(1)}M used`);
   }
 
-  // Keep-picks label reactive
-  document.getElementById('keep-picks-chk')?.addEventListener('change', function() {
-    const lbl = document.getElementById('keep-picks-label');
-    if (lbl) lbl.className = 'keep-picks-label' + (this.checked ? ' on' : '');
-  });
 
   // ── Share ─────────────────────────────────────────────────────────────────
   const _logoCache = {};
