@@ -4,344 +4,165 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a sports betting analysis bot for NHL and NBA games. It uses The Odds API to fetch games and odds, then leverages Google Gemini AI to generate disciplined betting predictions. The bot runs twice daily (7am and 3pm Montreal time) via GitHub Actions, compares predictions across time periods to identify line movement opportunities, and publishes results to GitHub Pages.
+NHL and NBA sports betting analysis bot. Fetches game schedules and odds, sends them to Google Gemini AI for predictions, compares morning vs afternoon lines for movement, and publishes results to a GitHub Pages site at parieurdiscipline.com. Runs via GitHub Actions twice daily (7am and 3pm Montreal time).
 
 ## Environment Setup
 
 ```bash
-# Create and activate virtual environment
 python3 -m venv .venv
 source .venv/bin/activate
-
-# Install dependencies
-python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
 Required environment variables in `.env`:
-- `GOOGLE_API_KEY` - Google Gemini API key
-- `ODDS_API_KEY` - The Odds API key
-- `GH_API_TOKEN` - GitHub Personal Access Token (for voting system, set in Vercel only)
-
-## Voting System
-
-The site includes a voting system on the daily picks page where visitors can vote for their favorite picks (1 vote per person per pick).
-
-**Setup:** See [VOTING_SETUP.md](VOTING_SETUP.md) for complete instructions.
-
-**How it works:**
-- Uses GitHub Issues API as database (free, no extra services)
-- Vercel Serverless Function at `/api/vote.js` handles vote storage/retrieval
-- IP address hashing ensures 1 vote per person
-- LocalStorage tracks user's votes client-side
-- Vote data stored in daily GitHub Issues titled "Votes: YYYY-MM-DD"
-
-**Files:**
-- `api/vote.js` - Serverless voting API (Vercel Serverless Function)
-- `docs/daily-picks.html` - Includes voting UI and JavaScript
-- `vercel.json` - Vercel configuration
-
-**Environment Variable:**
-- `GH_API_TOKEN` - GitHub token with `repo` scope (Production only in Vercel)
-- Fallbacks: `GITHUB_TOKEN`, `GITHUB_PAT` (for backwards compatibility)
-
-**Testing:**
-```bash
-# Get votes for today
-curl https://parieurdiscipline.com/api/vote?date=2026-03-15
-
-# Cast a vote
-curl -X POST https://parieurdiscipline.com/api/vote?date=2026-03-15 \
-  -H "Content-Type: application/json" \
-  -d '{"pickId": "nhl-pick-0"}'
-```
+- `GOOGLE_API_KEY` — Google Gemini API key
+- `ODDS_API_KEY` — The Odds API key
+- `GH_API_TOKEN` — GitHub PAT (for voting system, Vercel only)
 
 ## Key Commands
 
-### Run Daily Predictions
 ```bash
-# NHL predictions (uses today's date automatically)
-python scripts/nhl_predictions_daily_run.py
+# Generate predictions (run from repo root)
+python scripts/generate_nhl_predictions.py
+python scripts/generate_nba_predictions.py
 
-# NBA predictions (detects 7am vs 3pm run based on Montreal time)
-python scripts/nba_predictions_daily_run.py
+# Force playoff prompt mode
+PLAYOFF_MODE=true python scripts/generate_nhl_predictions.py
 
-# Manual override for NBA run time
-NBA_RUN_TIME=7am python scripts/nba_predictions_daily_run.py
-NBA_RUN_TIME=3pm python scripts/nba_predictions_daily_run.py
-```
+# Compare morning vs afternoon predictions (3pm only)
+python scripts/compare_nhl_predictions.py
+python scripts/compare_nba_predictions.py
 
-### Run Daily Results
-```bash
-# Fetch yesterday's game results and analyze predictions
-python scripts/nhl_results_daily_run.py
-python scripts/nba_results_daily_run.py
+# Generate featured picks (best plays)
+python scripts/generate_featured_picks.py --run_time 3pm
 
-# Generate combined results summary
-python scripts/total_results_daily_run.py
-```
+# Fetch results and analyze accuracy
+python scripts/analyze_nhl_results.py
+python scripts/analyze_nba_results.py
+python scripts/generate_combined_summary.py
 
-### Compare Predictions (3pm only)
-```bash
-# Compare 7am vs 3pm predictions to identify line movement
-python scripts/nhl_predictions_compare.py
-python scripts/nba_predictions_compare.py
-```
+# Rebuild website
+python scripts/generate_website.py           # final (3pm)
+python scripts/generate_website.py --preliminary  # early (7am)
+python scripts/generate_daily_picks_table.py
+python scripts/generate_early_picks_page.py
 
-### Generate Bet of the Day
-```bash
-# Extract best plays from both sports
-python scripts/dual_bet_of_the_day.py --run_time 3pm
-```
+# Games pages
+python scripts/generate_nhl_games_page.py
+python scripts/generate_nba_games_page.py
 
-### Update Latest Predictions (for GitHub Pages)
-```bash
-python scripts/update_latest_predictions.py
-```
-
-### Testing
-```bash
-# Test API connections
-python test_nhl_odds.py
-python test_nhl_games.py
-python test_nba_odds.py
-python test_nba_games.py
-```
-
-### Cache Management
-```bash
-# Clean up old cache files (keeps last 2 days)
+# Cache management
 python scripts/cleanup_cache.py
-
-# Force refresh odds (bypass cache)
 python -c "from data.odds import get_nhl_odds; get_nhl_odds(force_refresh=True)"
+
+# Test API connections
+python test_server.py
 ```
 
 ## Architecture
 
 ### Data Flow
 
-1. **Fetch Games** → `data/nhl_games.py`, `data/nba_games.py`
-   - Uses official NHL/NBA APIs to get today's schedule
-   - Returns game IDs, teams, and start times
+```
+Official NHL/NBA APIs → data/nhl_games.py, data/nba_games.py  (today's schedule)
+The Odds API          → data/odds.py  (moneyline/totals/spreads, file-cached 2hr)
+Web scrapers          → scripts/scrape_nhl_absences.py, data/starting_goalies.py
+                     ↓
+Google Gemini AI ← prompts/{sport}_prompt.txt + games + odds + history + injuries
+                     ↓
+data/predictions/nhl/  or  data/predictions/nba/  (timestamped .txt files)
+                     ↓
+compare_*.py  →  final unified prediction file  →  generate_website.py  →  docs/
+                     ↓
+analyze_*_results.py  →  data/bot_results/{sport}/  →  generate_combined_summary.py
+```
 
-2. **Fetch Odds** → `data/odds.py`
-   - Queries The Odds API for moneyline (h2h), totals (O/U), and spreads
-   - Filters to current day using Montreal timezone (America/Toronto)
-   - Maps team names between official APIs and odds providers
-   - **Uses file-based caching** (see Caching System below) to minimize API calls
+### Dual-Run System
 
-3. **Match Odds to Games** → `data/odds.py`
-   - Uses fuzzy team name mapping (`NHL_TEAM_NAME_MAP`, `NBA_TEAM_NAME_MAP`)
-   - Handles variations like "Montréal Canadiens" vs "Montreal Canadiens"
+Both sports run twice daily to capture line movement. The 7am run saves early predictions; the 3pm run generates final predictions and compares against the morning.
 
-4. **Analyze with AI** → `*_daily_run.py` scripts
-   - Reads sport-specific prompts from `prompts/` directory
-   - Injects:
-     - Today's games with odds
-     - Historical results (last 10 days for context)
-     - NHL: Current injury reports from scraper
-   - Calls Google Gemini API for analysis
-   - Saves predictions to `predictions/{sport}/`
+Run time is detected via:
+1. `NHL_RUN_TIME` / `NBA_RUN_TIME` env var (GitHub Actions sets this)
+2. Current Montreal hour: 6am–12pm → 7am run; otherwise → 3pm run
 
-5. **Compare Predictions** → `*_compare.py` scripts
-   - Reads both 7am and 3pm predictions
-   - Uses `prompts/compare_prompt.txt` to identify consensus plays
-   - Highlights line movement opportunities
-   - Generates final unified prediction file
+Output naming: `nhl_daily_predictions_7am_YYYY-MM-DD.txt`, `..._3pm_...`, `..._{date}.txt` (final comparison).
 
-6. **Results Analysis** → `*_results_daily_run.py`
-   - Fetches final scores from official APIs
-   - Compares against predictions
-   - Calculates win/loss for each pick
-   - Saves to `bot_results/{sport}/`
+### Playoff Mode
+
+Set `PLAYOFF_MODE=true` (GitHub Actions repository variable) to switch prompts from regular-season (`nhl_prompt.txt` / `nba_prompt.txt`) to playoff variants (`nhl_playoff_prompt.txt` / `nba_playoff_prompt.txt`). The comparison scripts also use `prompts/compare_prompt.txt`.
 
 ### Prompt System
 
-All AI prompts are in `prompts/`:
-- `nhl_prompt.txt` - NHL prediction template
-- `nba_prompt.txt` - NBA prediction template
-- `compare_prompt.txt` - Cross-time comparison template
-- `bet_of_the_day.txt` - Best play extraction template
+Prompts live in `prompts/` and use `{{PLACEHOLDER}}` substitution at runtime:
+- `nhl_prompt.txt` / `nhl_prompt_7am.txt` / `nhl_playoff_prompt.txt`
+- `nba_prompt.txt` / `nba_playoff_prompt.txt`
+- `compare_prompt.txt` — used by compare scripts
+- `bet_of_the_day.txt` / `summarize_bullet_points_prompt.txt`
 
-Prompts use placeholders like `{{RESULTS_TEXT}}`, `{{TODAY_DATE}}`, `{{HISTORICAL_RESULTS}}` which are replaced at runtime.
+### Caching
 
-### Dual-Run System (NBA)
-
-NBA predictions run twice daily to capture line movement:
-- **7am Montreal time**: Early odds (overnight markets)
-- **3pm Montreal time**: Updated odds (closer to game time)
-
-Scripts detect run time via:
-1. `NBA_RUN_TIME` or `NHL_RUN_TIME` environment variable (GitHub Actions)
-2. Current Montreal timezone hour (local development):
-   - **6am-12pm** → considered 7am run (versatile window for scheduling variations)
-   - **1pm-5:59am** → considered 3pm run
-
-Output files include run time suffix:
-- `nba_daily_predictions_7am_2026-03-04.txt`
-- `nba_daily_predictions_3pm_2026-03-04.txt`
-- `nba_daily_predictions_2026-03-04.txt` (final comparison result)
+- **Odds** (`data/odds_cache.py`): `data/cache/{sport}_odds_{date}.json`, 2hr TTL
+- **Standings** (`data/standings_cache.py`): `data/cache/{sport}_standings.json`, 4hr TTL
+- Both follow: check cache → return if valid → else fetch and save
 
 ### Team Name Mapping
 
-The Odds API uses different team names than official NHL/NBA APIs. Critical mappings in `data/odds.py`:
+The Odds API uses different names than official APIs. Mappings are in `data/odds.py`:
+- `NHL_TEAM_NAME_MAP` — e.g. `"Montréal" → "Montreal"`
+- `NBA_TEAM_NAME_MAP` — e.g. `"LA Clippers" → "Los Angeles Clippers"`
 
-```python
-NHL_TEAM_NAME_MAP = {
-    "Montréal": "Montreal",
-    # ... more mappings
-}
+Always update these when team names don't match.
 
-NBA_TEAM_NAME_MAP = {
-    "LA Clippers": "Los Angeles Clippers",
-    # ... more mappings
-}
-```
+### Website & Email Pipeline
 
-When adding new teams or fixing match issues, update these dictionaries.
+`generate_website.py` reads the latest prediction files and bot_results to build `docs/index.html` and `docs/daily-picks.html`. At 3pm, `generate_complete_email.py` builds an HTML email that is sent to `SUBSCRIBER_LIST` (comma-separated env var). Unsubscribe tokens are generated per-recipient and embedded in each email.
 
-### Caching System
+### GitHub Actions
 
-The bot uses file-based caching to minimize API calls and reduce costs:
+- **`daily_predictions.yml`** — runs at 10:15 and 18:15 UTC; detects 7am vs 3pm, runs predictions, compare (3pm), website rebuild, then sends emails (3pm)
+- **`daily_results.yml`** — runs at 10:00 UTC; analyzes yesterday's results, rebuilds performance dashboard
+- Other workflows: `generate_games_pages.yml`, `send_email_notification.yml`, `update_pool_stats.yml`, `update_playoff_index.yml`
 
-#### Odds Cache (`data/odds_cache.py`)
-- **Purpose**: Cache odds data from The Odds API (which has usage limits/costs)
-- **Location**: `data/cache/{sport}_odds_{date}.json`
-- **TTL**: 2 hours (balances freshness with dual-run efficiency)
-- **Behavior**:
-  - 7am run: Usually fetches fresh odds (no cache from previous day)
-  - 3pm run: May use 7am cache if still valid (< 2 hours old), saving API calls
-  - Cache keys include date to prevent stale cross-day data
-- **Usage**:
-  ```python
-  from data.odds import get_nhl_odds, get_nba_odds
+All workflows push to `master` via `GH_PAT` secret.
 
-  odds = get_nhl_odds()  # Uses cache if available
-  odds = get_nhl_odds(force_refresh=True)  # Bypass cache
-  ```
-- **Maintenance**: Old cache files automatically cleaned up by `scripts/cleanup_cache.py` (runs daily at 7am)
+### Voting System
 
-#### Standings Cache (`data/standings_cache.py`)
-- **Purpose**: Cache team standings (less volatile than odds)
-- **Location**: `data/cache/{sport}_standings.json`
-- **TTL**: 4 hours (standings change less frequently)
-- **Usage**:
-  ```python
-  from data.standings_cache import get_nhl_standings, get_nba_standings
+Vercel Serverless Function at `api/vote.js` stores votes in GitHub Issues (titled `Votes: YYYY-MM-DD`). Uses `GH_API_TOKEN` secret in Vercel. See `VOTING_SETUP.md` for setup.
 
-  standings = get_nhl_standings()  # Uses cache if available
-  standings = get_nhl_standings(force_refresh=True)  # Bypass cache
-  ```
-
-Both caching systems follow the same pattern:
-1. Check if cache file exists and is within TTL
-2. Return cached data if valid
-3. Otherwise, fetch from API and save to cache
-4. Old cache files (> 2 days) cleaned up automatically
-
-### GitHub Actions Automation
-
-Three workflows in `.github/workflows/`:
-
-1. **daily_predictions.yml** - Runs at 7am and 3pm Montreal time (11:00 and 19:00 UTC during daylight saving)
-   - Executes NHL and NBA prediction scripts
-   - Compares predictions (3pm only)
-   - Generates dual bet of the day (3pm only)
-   - Commits to `master` branch
-
-2. **daily_results.yml** - Runs at 6am Montreal time (10:00 UTC during daylight saving)
-   - Fetches yesterday's game results
-   - Analyzes prediction accuracy
-   - Commits to `master` branch
-
-3. **update_predictions.yml** - Manual trigger or scheduled
-   - Updates `LATEST_PREDICTIONS.md` for GitHub Pages
-
-All workflows use repository secrets for API keys and push via `GH_PAT` token.
-
-## File Structure
+## File Layout
 
 ```
-predictions/
-├── nhl/                           # NHL prediction outputs
-│   └── nhl_daily_predictions_YYYY-MM-DD.txt
-└── nba/                           # NBA prediction outputs
-    ├── nba_daily_predictions_7am_YYYY-MM-DD.txt
-    ├── nba_daily_predictions_3pm_YYYY-MM-DD.txt
-    └── nba_daily_predictions_YYYY-MM-DD.txt  # Final comparison
-
-bot_results/
-├── nhl/                           # NHL results analysis
-│   └── nhl_daily_results_YYYY-MM-DD.txt
-└── nba/                           # NBA results analysis
-    └── nba_daily_results_YYYY-MM-DD.txt
-
 data/
-├── nhl_games.py                   # NHL schedule API wrapper
-├── nba_games.py                   # NBA schedule API wrapper
-├── odds.py                        # The Odds API wrapper (with caching)
-├── odds_cache.py                  # Odds caching system
-├── standings_cache.py             # Standings caching system
-├── polymarket_odds.py             # Alternative odds source
-├── cache/                         # Cache directory
-│   ├── nhl_odds_YYYY-MM-DD.json   # NHL odds cache (2hr TTL)
-│   ├── nba_odds_YYYY-MM-DD.json   # NBA odds cache (2hr TTL)
-│   ├── nhl_standings.json         # NHL standings cache (4hr TTL)
-│   └── nba_standings.json         # NBA standings cache (4hr TTL)
-└── teams/                         # Team lineup files (auto-generated)
-    ├── Team_Name.txt              # Individual team lineup files
-    └── README.md                  # Documentation
+├── nhl_games.py / nba_games.py   — official API schedule wrappers
+├── odds.py                        — The Odds API wrapper + team name maps
+├── odds_cache.py / standings_cache.py
+├── starting_goalies.py
+├── predictions/nhl/ , predictions/nba/   — AI output files
+├── bot_results/nhl/ , bot_results/nba/  — results analysis files
+├── bot_results/total_results_summary.txt
+├── cache/                         — auto-managed cache files
+└── teams/                         — scraped lineup files (after 2pm)
 
-prompts/                           # AI prompt templates
+scripts/
+├── generate_nhl_predictions.py / generate_nba_predictions.py
+├── compare_nhl_predictions.py / compare_nba_predictions.py
+├── analyze_nhl_results.py / analyze_nba_results.py
+├── generate_website.py            — main site rebuild
+├── generate_featured_picks.py     — bet of the day
+├── generate_daily_picks_table.py / generate_early_picks_page.py
+├── generate_combined_summary.py / generate_performance_dashboard.py
+├── generate_complete_email.py / replace_unsub.py
+├── scrape_nhl_absences.py / scrape_nhl_daily_lines.py / scrape_nhl_stats.py
+└── cleanup_cache.py
 
-docs/                              # GitHub Pages site
-└── index.md                       # Generated daily from predictions
+prompts/                           — Gemini prompt templates
+docs/                              — GitHub Pages static site
+api/                               — Vercel serverless functions
 ```
-
-## Team Lineup Files
-
-Scraped lineup data is automatically saved to `data/teams/` when lineups are fetched (after 2pm Montreal time). Each team gets its own file containing:
-
-- **Forward Lines**: All 4 forward line combinations
-- **Defense Pairs**: All 3 defense pairings
-- **Goalies**: Starting and backup goalies
-- **Scratched/Injured**: Players who are out
-
-Files are timestamped and regenerated daily. See `data/teams/README.md` for format details.
 
 ## Important Notes
 
-- **Timezone**: All scripts use Montreal time (America/Toronto, UTC-5/4) for determining "today"
-- **API Rate Limits**: The Odds API has usage limits; caching system reduces redundant calls
-- **Caching**: Odds are cached for 2 hours, standings for 4 hours; use `force_refresh=True` to bypass
-- **Cache Cleanup**: Old cache files (>2 days) are automatically cleaned at 7am daily via GitHub Actions
-- **Historical Context**: AI analysis includes last 10 days of results for pattern recognition
-- **Team Name Consistency**: Always verify team name mappings when adding new sports or leagues
-- **Commit Messages**: GitHub Actions uses format "Add daily [dual] predictions for YYYY-MM-DD"
-- **Branch**: Main development happens on `master` branch (note: README mentions `main` as PR target)
-
-## Common Workflows
-
-### Adding a New Sport
-
-1. Create `data/{sport}_games.py` with schedule fetcher
-2. Add team name mappings to `data/odds.py`
-3. Create `prompts/{sport}_prompt.txt`
-4. Create `{sport}_predictions_daily_run.py` (copy from NBA/NHL template)
-5. Create `{sport}_results_daily_run.py`
-6. Add workflow to `.github/workflows/`
-
-### Debugging Prediction Issues
-
-1. Check team name mapping: Run `test_{sport}_odds.py` and compare team names
-2. Verify date filtering: Ensure timezone logic captures correct games
-3. Review prompt: Check if `prompts/{sport}_prompt.txt` has correct placeholders
-4. Test AI response: Run prediction script manually and inspect output
-
-### Updating AI Prompts
-
-1. Edit files in `prompts/` directory
-2. Test locally with manual run: `python scripts/{sport}_predictions_daily_run.py`
-3. Verify output format matches expected structure
-4. Commit changes - GitHub Actions will use updated prompts next run
+- **Timezone**: All date logic uses `America/Toronto` (Montreal time, UTC-4/5)
+- **Branch**: Active development on `master`; `main` is the PR target listed in README
+- **Historical context**: AI prompts include last 10 days of results for pattern recognition
+- **Goalie stats**: Cached in `data/goalie_stats_cache.json`; lineup files in `data/teams/` are regenerated daily after 2pm
