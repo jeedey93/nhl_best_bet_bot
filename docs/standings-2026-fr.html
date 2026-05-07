@@ -504,7 +504,7 @@
   <div class="lb-wrap">
     <table>
       <thead>
-        <tr><th>#</th><th>NOM</th><th>POINTS</th><th>HIER</th><th>ÉCART</th></tr>
+        <tr><th>#</th><th>NOM</th><th id="th-pts" onclick="setSort('total')" style="cursor:pointer;border-bottom:2px solid var(--gold);color:var(--gold)" title="Trier par points totaux">POINTS</th><th id="th-yest" onclick="setSort('yesterday')" style="cursor:pointer" title="Trier par points d'hier">HIER</th><th>ÉCART</th></tr>
       </thead>
       <tbody id="lb-body">
         <tr><td colspan="5" class="empty-state">
@@ -520,7 +520,7 @@
   <div class="lb-wrap">
     <table>
       <thead>
-        <tr><th>#</th><th>NOM</th><th>POINTS</th><th>HIER</th><th>ÉCART</th></tr>
+        <tr><th>#</th><th>NOM</th><th id="paid-th-pts" onclick="setSort('total')" style="cursor:pointer;border-bottom:2px solid var(--gold);color:var(--gold)" title="Trier par points totaux">POINTS</th><th id="paid-th-yest" onclick="setSort('yesterday')" style="cursor:pointer" title="Trier par points d'hier">HIER</th><th>ÉCART</th></tr>
       </thead>
       <tbody id="paid-lb-body"></tbody>
     </table>
@@ -555,6 +555,21 @@ let participants=[];
 let results={};
 let previousResults={};
 TEAMS.forEach(t=>{results[t]=[0,0,0,0];previousResults[t]=[0,0,0,0];});
+
+let _sortMode='total'; // 'total' | 'yesterday'
+function setSort(mode){
+  _sortMode=mode;
+  ['th-pts','th-yest','paid-th-pts','paid-th-yest'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el){el.style.borderBottom='';el.style.color='';}
+  });
+  const activeIds=mode==='total'?['th-pts','paid-th-pts']:['th-yest','paid-th-yest'];
+  activeIds.forEach(id=>{
+    const el=document.getElementById(id);
+    if(el){el.style.borderBottom='2px solid var(--gold)';el.style.color='var(--gold)';}
+  });
+  render();
+}
 
 // ── Initials from name ────────────────────────────────────────────────────────
 function initials(name){
@@ -665,13 +680,13 @@ function render(){
     const prev=calcScorePrev(p);
     const delta=total-prev;
     return{name:p.name,roundScores,total,delta,picks:p.picks};
-  }).sort((a,b)=>b.total-a.total);
+  }).sort((a,b)=>_sortMode==='yesterday'?b.delta-a.delta:b.total-a.total);
 
   _allRows=rows;
   _paidRows=rows.filter(r=>participants.find(p=>p.name===r.name)?.paid);
 
-  const maxScore=rows[0]?.total||1;
-  const leaderScore=rows[0]?.total||0;
+  const maxScore=rows.reduce((m,r)=>Math.max(m,r.total),0)||1;
+  const leaderScore=rows.reduce((m,r)=>Math.max(m,r.total),0);
   const totalCount=rows.length;
 
   // ── Podium ──
@@ -778,8 +793,8 @@ function render(){
   if(paidRows.length>0&&paidLb){
     if(toggleEl)toggleEl.style.display='';
     paidLb.innerHTML='';
-    const paidLeader=paidRows[0]?.total||0;
-    const paidMax=paidRows[0]?.total||1;
+    const paidLeader=paidRows.reduce((m,r)=>Math.max(m,r.total),0);
+    const paidMax=paidRows.reduce((m,r)=>Math.max(m,r.total),0)||1;
     paidRows.forEach((row,i)=>{
       const rank=i+1;
       const rankClass=rank===1?'rank-1':rank===2?'rank-2':rank===3?'rank-3':'';
