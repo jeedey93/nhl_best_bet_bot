@@ -849,29 +849,31 @@
       return { points: 0, goals: 0, assists: 0, wins: 0, shutouts: 0, games_played: 0 };
     }
     function _resolveSnapshot(team, slug) {
-      const snap = team?.acquisitions?.[slug];
-      if (snap === undefined) return _zeroSnapshot();          // original draft pick → full season
-      return snap?.stats_snapshot || _zeroSnapshot();          // acquired mid-season → delta from snapshot
+      const acq = team?.acquisitions?.[slug];
+      if (acq === undefined) return { snapshot: _zeroSnapshot(), frozen: 0 };  // draft pick → full season
+      return { snapshot: acq?.stats_snapshot || _zeroSnapshot(), frozen: acq?.frozen_points ?? 0 };
     }
 
     function poolScoreOwned(p, team, slug) {
-      const s = _resolveSnapshot(team, slug);
+      const { snapshot: s, frozen } = _resolveSnapshot(team, slug);
       const pos = normalizePos(p.position);
+      let delta;
       if (pos === 'G') {
         const wins = Math.max(0, (p.wins ?? 0) - (s.wins ?? 0));
         const so   = Math.max(0, (p.shutouts ?? 0) - (s.shutouts ?? 0));
-        return wins * _scoring.g_wins + so * _scoring.g_shutouts;
-      }
-      if (pos === 'D') {
+        delta = wins * _scoring.g_wins + so * _scoring.g_shutouts;
+      } else if (pos === 'D') {
         const g = Math.max(0, (p.goals ?? 0) - (s.goals ?? 0));
         const a = Math.max(0, (p.assists ?? 0) - (s.assists ?? 0));
-        return g * _scoring.d_goals + a * _scoring.d_assists;
+        delta = g * _scoring.d_goals + a * _scoring.d_assists;
+      } else {
+        delta = Math.max(0, ((p.points ?? 0) - (s.points ?? 0))) * _scoring.f_points;
       }
-      return Math.max(0, ((p.points ?? 0) - (s.points ?? 0))) * _scoring.f_points;
+      return frozen + delta;
     }
 
     function ownedStatsDelta(p, team, slug) {
-      const s = _resolveSnapshot(team, slug);
+      const { snapshot: s } = _resolveSnapshot(team, slug);
       return {
         pos:         normalizePos(p.position),
         goals:       Math.max(0, (p.goals ?? 0)        - (s.goals ?? 0)),

@@ -913,7 +913,18 @@
   function escapeHtml(v){ return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
   function normalizePos(pos){ if(!pos)return'F'; const p=pos.toUpperCase(); if(p.includes('G'))return'G'; if(p==='D'||p.includes('LD')||p.includes('RD'))return'D'; return'F'; }
   function poolScore(p){ const pos=normalizePos(p.position); if(pos==='G')return(p.wins??0)*_scoring.g_wins+(p.shutouts??0)*_scoring.g_shutouts; if(pos==='D')return(p.goals??0)*_scoring.d_goals+(p.assists??0)*_scoring.d_assists; return(p.points??0)*_scoring.f_points; }
-  function poolScoreOwned(p,team,slug){ const snap=team?.acquisitions?.[slug]?.stats_snapshot; if(!snap)return null; const pos=normalizePos(p.position); if(pos==='G'){const w=Math.max(0,(p.wins??0)-(snap.wins??0)),s=Math.max(0,(p.shutouts??0)-(snap.shutouts??0));return w*_scoring.g_wins+s*_scoring.g_shutouts;} if(pos==='D'){const g=Math.max(0,(p.goals??0)-(snap.goals??0)),a=Math.max(0,(p.assists??0)-(snap.assists??0));return g*_scoring.d_goals+a*_scoring.d_assists;} return Math.max(0,((p.points??0)-(snap.points??0)))*_scoring.f_points; }
+  function poolScoreOwned(p,team,slug){
+    const acq=team?.acquisitions?.[slug];
+    const snap=acq?.stats_snapshot;
+    if(!snap)return null;
+    const frozen=acq?.frozen_points??0;
+    const pos=normalizePos(p.position);
+    let delta;
+    if(pos==='G'){const w=Math.max(0,(p.wins??0)-(snap.wins??0)),s=Math.max(0,(p.shutouts??0)-(snap.shutouts??0));delta=w*_scoring.g_wins+s*_scoring.g_shutouts;}
+    else if(pos==='D'){const g=Math.max(0,(p.goals??0)-(snap.goals??0)),a=Math.max(0,(p.assists??0)-(snap.assists??0));delta=g*_scoring.d_goals+a*_scoring.d_assists;}
+    else{delta=Math.max(0,((p.points??0)-(snap.points??0)))*_scoring.f_points;}
+    return frozen+delta;
+  }
   function captureStatsSnapshot(p){ return{points:p.points??0,goals:p.goals??0,assists:p.assists??0,wins:p.wins??0,shutouts:p.shutouts??0,games_played:p.games_played??p.gp??0}; }
   function performanceSignal(p,team,slug){ const snap=team?.acquisitions?.[slug]?.stats_snapshot; const ownedPts=poolScoreOwned(p,team,slug); const gpNow=Number(p.games_played??p.gp??0); const gpSnap=Number(snap?.games_played??NaN); const gpOwned=Number.isFinite(gpSnap)?Math.max(0,gpNow-gpSnap):0; if(ownedPts===null||!gpNow||gpNow<8||gpOwned<3)return{label:'-',cls:'flat',title:'Need more games'}; const sp=poolScore(p)/gpNow; const op=ownedPts/gpOwned; const d=op-sp; if(d>0.15)return{label:'▲',cls:'up',title:`Hot streak (+${d.toFixed(2)} pts/gm)`}; if(d<-0.15)return{label:'▼',cls:'down',title:`Cooling off (${d.toFixed(2)} pts/gm)`}; return{label:'=',cls:'flat',title:'Holding pace'}; }
   function goalieSvDisplay(p){ const raw=p?.save_pct??p?.save_percentage??p?.savePercentage??p?.sv_pct??p?.savePctg??p?.savePct; if(raw===null||raw===undefined||raw==='')return{value:'-',muted:true}; const parsed=typeof raw==='string'?Number(raw.replace('%','').trim()):Number(raw); if(Number.isNaN(parsed)||!Number.isFinite(parsed)||parsed<0)return{value:'-',muted:true}; const pct=parsed<=1?parsed*100:parsed; if(!Number.isFinite(pct)||pct>100)return{value:'-',muted:true}; return{value:`${pct.toFixed(1)}%`,muted:false}; }
@@ -1763,8 +1774,33 @@
     team.roster[fromSlot.group][fromSlot.index]=tradeContext.toSlug;
     team.roster.B[toSlot.index]=tradeContext.fromSlug;
     if(!team.acquisitions)team.acquisitions={};
-    const ea=team.acquisitions[tradeContext.toSlug];
-    if(!ea||!ea.stats_snapshot)team.acquisitions[tradeContext.toSlug]={date:now,stats_snapshot:captureStatsSnapshot(tp)};
+
+    // Freeze the outgoing (benched) player's earned points at this moment.
+    // frozen_points accumulates all completed active windows so future re-activations
+    // add on top rather than resetting to the original acquisition baseline.
+    {
+      const outAcq=team.acquisitions[tradeContext.fromSlug];
+      const outSnap=outAcq?.stats_snapshot||null;
+      const earnedNow=outSnap?poolScoreOwned(fp,team,tradeContext.fromSlug):null;
+      const prevFrozen=outAcq?.frozen_points??0;
+      team.acquisitions[tradeContext.fromSlug]={
+        ...(outAcq||{}),
+        frozen_points: earnedNow!==null ? prevFrozen+earnedNow : prevFrozen,
+        bench_snapshot: captureStatsSnapshot(fp),
+      };
+    }
+
+    // For the incoming (activating) player: start a fresh earning window from now.
+    // If they've been benched before, bench_snapshot is their re-activation baseline.
+    {
+      const inAcq=team.acquisitions[tradeContext.toSlug];
+      const frozen=inAcq?.frozen_points??0;
+      team.acquisitions[tradeContext.toSlug]={
+        date: inAcq?.date||now,
+        stats_snapshot: captureStatsSnapshot(tp),
+        frozen_points: frozen,
+      };
+    }
     try{
       await saveRostersToSupabase();
       tradeRecordId=(await createTradeRecord(team,dfa,fp,tp,fromSlot,toSlot,now))?.id||null;
@@ -1819,7 +1855,18 @@
   }
 
   function openUndoModal(team,fromSlug,toSlug,fp,tp){
-    undoContext={team,fromSlug,toSlug,fromPlayer:fp,toPlayer:tp};
+    // Capture acquisition state AFTER the swap so executeUndo can restore it.
+    // prevFromAcq = what the benched player's entry looked like before this swap
+    // (we reconstruct it by removing the freeze we just applied).
+    const curFrom=team.acquisitions?.[fromSlug];
+    const prevFromAcq=curFrom
+      ? { date:curFrom.date, stats_snapshot:curFrom.stats_snapshot,
+          frozen_points: (curFrom.frozen_points??0) - (poolScoreOwned(fp,team,fromSlug)??0) }
+      : undefined;
+    const prevToAcq=team.acquisitions?.[toSlug]
+      ? JSON.parse(JSON.stringify(team.acquisitions[toSlug]))
+      : undefined;
+    undoContext={team,fromSlug,toSlug,fromPlayer:fp,toPlayer:tp,prevFromAcq,prevToAcq};
     document.getElementById('undo-desc').innerHTML=`You just moved <strong>${escapeHtml(formatName(fp.player_name))}</strong> to the bench and activated <strong>${escapeHtml(formatName(tp.player_name))}</strong>. You have ${UNDO_WINDOW_SECONDS} seconds to undo.`;
     document.getElementById('undo-countdown').textContent=UNDO_WINDOW_SECONDS;
     document.getElementById('undo-bar').style.width='100%';
@@ -1841,7 +1888,12 @@
       if(!as||bs?.group!=='B')throw new Error('Cannot find players to undo swap.');
       team.roster[as.group][as.index]=fromSlug;
       team.roster.B[bs.index]=toSlug;
-      if(team.acquisitions?.[toSlug])delete team.acquisitions[toSlug];
+      // Restore acquisition states to what they were before the swap
+      if(!team.acquisitions)team.acquisitions={};
+      if(undoContext.prevFromAcq!==undefined) team.acquisitions[fromSlug]=undoContext.prevFromAcq;
+      else delete team.acquisitions[fromSlug];
+      if(undoContext.prevToAcq!==undefined) team.acquisitions[toSlug]=undoContext.prevToAcq;
+      else delete team.acquisitions[toSlug];
       await saveRostersToSupabase();
       const tr=currentTrades.find(t=>teamTradeMatch(t,team)&&t.player_from_slug===fromSlug&&t.player_to_slug===toSlug&&t.player_from_slug!==t.player_to_slug);
       if(tr?.id)await fetch(`${SUPABASE_URL}/rest/v1/player_trades?id=eq.${tr.id}`,{method:'DELETE',headers:sbHeaders()});
@@ -1937,7 +1989,18 @@
     const SALARY_CAP=95500000,m=slugMap();
     function rp(r){return{F:(r.F||[]).map(s=>s&&m[s]?{...m[s],_slug:s}:null),D:(r.D||[]).map(s=>s&&m[s]?{...m[s],_slug:s}:null),G:(r.G||[]).map(s=>s&&m[s]?{...m[s],_slug:s}:null),B:(r.B||[]).map(s=>s&&m[s]?{...m[s],_slug:s}:null)};}
     function lps(p){const pos=normalizePos(p.position);if(pos==='G')return(p.wins??0)*_scoring.g_wins+(p.shutouts??0)*_scoring.g_shutouts;if(pos==='D')return(p.goals??0)*_scoring.d_goals+(p.assists??0)*_scoring.d_assists;return(p.points??0)*_scoring.f_points;}
-    function lpso(p,t,s){const sn=t?.acquisitions?.[s];const sd=typeof sn==='object'&&sn!==null?sn.stats_snapshot:null;if(!sd)return lps(p);const pos=normalizePos(p.position);if(pos==='G'){const w=Math.max(0,(p.wins??0)-(sd.wins??0)),so=Math.max(0,(p.shutouts??0)-(sd.shutouts??0));return w*_scoring.g_wins+so*_scoring.g_shutouts;}if(pos==='D'){const g=Math.max(0,(p.goals??0)-(sd.goals??0)),a=Math.max(0,(p.assists??0)-(sd.assists??0));return g*_scoring.d_goals+a*_scoring.d_assists;}return Math.max(0,((p.points??0)-(sd.points??0)))*_scoring.f_points;}
+    function lpso(p,t,s){
+      const acq=t?.acquisitions?.[s];
+      const sd=typeof acq==='object'&&acq!==null?acq.stats_snapshot:null;
+      if(!sd)return lps(p);
+      const frozen=acq?.frozen_points??0;
+      const pos=normalizePos(p.position);
+      let delta;
+      if(pos==='G'){const w=Math.max(0,(p.wins??0)-(sd.wins??0)),so=Math.max(0,(p.shutouts??0)-(sd.shutouts??0));delta=w*_scoring.g_wins+so*_scoring.g_shutouts;}
+      else if(pos==='D'){const g=Math.max(0,(p.goals??0)-(sd.goals??0)),a=Math.max(0,(p.assists??0)-(sd.assists??0));delta=g*_scoring.d_goals+a*_scoring.d_assists;}
+      else{delta=Math.max(0,((p.points??0)-(sd.points??0)))*_scoring.f_points;}
+      return frozen+delta;
+    }
     function capU(r){const rp2=rp(r);return[...rp2.F,...rp2.D,...rp2.G].filter(Boolean).reduce((s,p)=>s+(p.cap_hit||0),0);}
     function total(t){const r=rp(t.roster);return['F','D','G'].reduce((s,pos)=>s+r[pos].filter(Boolean).reduce((ss,p)=>ss+lpso(p,t,p._slug),0),0);}
     function filled(r){return[...(r.F||[]),...(r.D||[]),...(r.G||[]),...(r.B||[])].filter(Boolean).length;}
