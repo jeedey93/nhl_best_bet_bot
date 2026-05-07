@@ -1903,8 +1903,8 @@
       } else {
         actBtns = `<button class="tbl-add-btn" title="Add to team">+</button><button class="tbl-pin-btn ${pinClass}" title="${isPinnedA||isPinnedB?'Unpin':'Pin to compare'}" data-slug="${slug}">${isPinnedA||isPinnedB?'📌':'⚖'}</button>`;
       }
-    } else if (!isViewOnly && !swapMode) {
-      // allow pinning even for claimed/owned rows
+    } else if (!swapMode) {
+      // allow pinning even for claimed/owned rows and in view-only mode
       const pinIcon = (isPinnedA || isPinnedB) ? '📌' : '⚖';
       const pinClass = (isPinnedA || isPinnedB) ? 'pinned' : '';
       actBtns = `<button class="tbl-pin-btn ${pinClass}" title="${isPinnedA||isPinnedB?'Unpin':'Pin to compare'}" data-slug="${slug}">${pinIcon}</button>`;
