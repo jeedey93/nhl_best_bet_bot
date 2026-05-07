@@ -611,7 +611,12 @@ function render(){
     const prev=calcScorePrev(p);
     const delta=total-prev;
     return{name:p.name,roundScores,total,delta,picks:p.picks};
-  }).sort((a,b)=>_sortMode==='yesterday'?b.delta-a.delta:b.total-a.total);
+  }).sort((a,b)=>b.total-a.total);
+
+  // Stamp total-points rank before any re-sort
+  rows.forEach((r,i)=>{ r.totalRank=i+1; });
+
+  if(_sortMode==='yesterday') rows.sort((a,b)=>b.delta-a.delta);
 
   _allRows=rows;
   _paidRows=rows.filter(r=>participants.find(p=>p.name===r.name)?.paid);
@@ -629,12 +634,12 @@ function render(){
   const lb=document.getElementById('lb-body');
   lb.innerHTML='';
   rows.forEach((row,i)=>{
-    const rank=i+1;
+    const rank=row.totalRank;
     const rankClass=rank===1?'rank-1':rank===2?'rank-2':rank===3?'rank-3':'';
     const medal=rank===1?'🥇':rank===2?'🥈':rank===3?'🥉':'';
     const barPct=maxScore>0?Math.round(row.total/maxScore*100):0;
     const gap=leaderScore-row.total;
-    const gapHtml=rank===1
+    const gapHtml=gap===0
       ? `<td class="gap-cell leader">Leader</td>`
       : `<td class="gap-cell">-${gap} pts</td>`;
 
@@ -729,12 +734,12 @@ function render(){
     const paidLeader=paidRows.reduce((m,r)=>Math.max(m,r.total),0);
     const paidMax=paidRows.reduce((m,r)=>Math.max(m,r.total),0)||1;
     paidRows.forEach((row,i)=>{
-      const rank=i+1;
+      const rank=row.totalRank;
       const rankClass=rank===1?'rank-1':rank===2?'rank-2':rank===3?'rank-3':'';
       const medal=rank===1?'🥇':rank===2?'🥈':rank===3?'🥉':'';
       const barPct=paidMax>0?Math.round(row.total/paidMax*100):0;
       const gap=paidLeader-row.total;
-      const gapHtml=rank===1
+      const gapHtml=gap===0
         ?`<td class="gap-cell leader">Leader</td>`
         :`<td class="gap-cell">-${gap} pts</td>`;
 
