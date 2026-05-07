@@ -2460,15 +2460,57 @@
     }
     for (const g of ['F', 'D', 'G']) byPos[g].sort((a, b) => stat(b) - stat(a));
 
-    // Returns the sum of the n cheapest cap hits available for position g, excluding given slugs.
-    // If fewer than n players are available, returns Infinity so the candidate is rejected.
+    // Returns the n cheapest cap hits available for position g, excluding given slugs.
+    // Returns Infinity if the pool has fewer than n players (slot can't be filled).
     function cheapestCap(g, n, excludeSlugs) {
       if (n <= 0) return 0;
       const avail = byPos[g].filter(p => !excludeSlugs.has(p.puckpedia_slug));
       if (avail.length < n) return Infinity;
       return avail.slice(-n).reduce((s, p) => s + p.cap_hit, 0);
     }
+
+    // Greedy fill: for each position pick the best-scoring player that still leaves
+    // enough cap to fill all remaining slots with the cheapest available options.
+    function greedyFill(capBudget) {
+      const picked = {
+        F: [...locked.F.filter(Boolean)],
+        D: [...locked.D.filter(Boolean)],
+        G: [...locked.G.filter(Boolean)],
+      };
+      let capUsed = lockedCap;
+      for (const g of ['F', 'D', 'G']) {
+        const needed = SLOT_CFG[g].max - picked[g].length;
+        if (needed <= 0) continue;
+        const usedSlugs = new Set([...picked.F, ...picked.D, ...picked.G].map(p => p.puckpedia_slug));
+        // Candidates sorted best-score first; among ties, cheapest first to preserve cap
+        const candidates = byPos[g]
+          .filter(p => !usedSlugs.has(p.puckpedia_slug) && capUsed + p.cap_hit <= capBudget)
+          .sort((a, b) => stat(b) - stat(a) || a.cap_hit - b.cap_hit);
+        for (const p of candidates) {
+          if (picked[g].length - (locked[g]?.filter(Boolean).length || 0) >= needed) break;
+          const usedNow = new Set([...picked.F, ...picked.D, ...picked.G].map(x => x.puckpedia_slug)); usedNow.add(p.puckpedia_slug);
+          const reserve = ['F', 'D', 'G'].reduce((s, og) => {
+            const still = SLOT_CFG[og].max - picked[og].length - (og === g ? 1 : 0);
+            if (still <= 0) return s;
+            const c = cheapestCap(og, still, usedNow);
+            return c === Infinity ? Infinity : s + c;
+          }, 0);
+          if (reserve === Infinity) continue;
+          if (capUsed + p.cap_hit + reserve <= capBudget) { picked[g].push(p); capUsed += p.cap_hit; }
+        }
+        if (picked[g].length < SLOT_CFG[g].max) return null;
+      }
+      return { picked, capUsed };
+    }
+
     let best = null;
+    // First try: fill using the full cap ceiling
+    const det = greedyFill(CAP_MAX);
+    if (det) {
+      const totalPts = [...det.picked.F, ...det.picked.D, ...det.picked.G].reduce((s, p) => s + stat(p), 0);
+      best = { picked: det.picked, totalPts, capUsed: det.capUsed };
+    }
+    // Randomised attempts: shuffle within top-80% score tiers for variety
     for (let attempt = 0; attempt < 200; attempt++) {
       const picked = {
         F: [...locked.F.filter(Boolean)],
@@ -2490,7 +2532,12 @@
         for (const p of shuffled) {
           if (picked[g].length - (locked[g]?.filter(Boolean).length || 0) >= needed) break;
           const usedNow = new Set([...picked.F, ...picked.D, ...picked.G].map(x => x.puckpedia_slug)); usedNow.add(p.puckpedia_slug);
-          const reserve = ['F', 'D', 'G'].reduce((s, og) => { const still = SLOT_CFG[og].max - picked[og].length - (og === g ? 1 : 0); return still > 0 ? s + cheapestCap(og, still, usedNow) : s; }, 0);
+          const reserve = ['F', 'D', 'G'].reduce((s, og) => {
+            const still = SLOT_CFG[og].max - picked[og].length - (og === g ? 1 : 0);
+            if (still <= 0) return s;
+            const c = cheapestCap(og, still, usedNow);
+            return c === Infinity ? Infinity : s + c;
+          }, 0);
           if (reserve === Infinity) continue;
           if (capUsed + p.cap_hit + reserve <= CAP_MAX) { picked[g].push(p); capUsed += p.cap_hit; }
         }
