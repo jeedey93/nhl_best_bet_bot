@@ -200,6 +200,7 @@
     .cell-trend.up   { color: var(--green); }
     .cell-trend.down { color: #f87171; }
     .cell-trend.flat { color: rgba(255,255,255,0.45); }
+    .trend-mobile-badge { display: none; font-family: 'Bebas Neue', cursive; font-size: 0.82rem; letter-spacing: 1px; }
 
     /* Sparkline */
     .cell-spark { display: flex; align-items: center; justify-content: center; }
@@ -218,6 +219,8 @@
     .btn-swap { font-family: 'Bebas Neue', cursive; font-size: 0.7rem; letter-spacing: 1px; background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.3); color: var(--green); border-radius: 5px; padding: 2px 7px; cursor: pointer; transition: background 0.15s, border-color 0.15s; white-space: nowrap; height: 22px; line-height: 18px; }
     .btn-swap:hover:not(:disabled) { background: rgba(34,197,94,0.18); border-color: rgba(34,197,94,0.55); }
     .btn-swap:disabled { opacity: 0.38; cursor: not-allowed; color: var(--silver); background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.1); }
+    .btn-activate { background: rgba(125,180,255,0.08); border-color: rgba(125,180,255,0.3); color: var(--blue); }
+    .btn-activate:hover:not(:disabled) { background: rgba(125,180,255,0.18); border-color: rgba(125,180,255,0.55); }
 
     /* ── TRADING BLOCK BUTTON ── */
     .btn-tb {
@@ -588,6 +591,12 @@
       .roster-row { grid-template-columns: 24px 22px 1fr 42px 98px; height: auto; padding: 0.42rem 0.7rem; }
       .roster-row .cell-gp, .roster-row .cell-g, .roster-row .cell-a, .roster-row .cell-cap { display: none; }
       .roster-row .cell-spark, .roster-row .cell-trend { display: none; }
+      .roster-row .cell-spark.has-trend, .roster-row .cell-trend.has-trend { display: flex; align-items: center; justify-content: center; }
+      .roster-row .cell-spark.has-trend .sparkline-svg, .roster-row .cell-trend.has-trend .sparkline-svg { display: none; }
+      .roster-row .cell-spark.has-trend .trend-mobile-badge, .roster-row .cell-trend.has-trend .trend-mobile-badge { display: block; }
+      .trend-mobile-badge.up { color: var(--green); }
+      .trend-mobile-badge.down { color: #f87171; }
+      .trend-mobile-badge.flat { color: rgba(255,255,255,0.45); }
       .roster-row.bench-row { grid-template-columns: 24px 22px 1fr 42px 70px; }
       .cell-action { justify-content: flex-end; }
       .btn-swap { font-size: 0.66rem; padding: 2px 6px; }
@@ -1490,7 +1499,7 @@
     if(bulkMode){
       actionHtml=`<button class="btn-bulk-select ${isBulkSelected?'selected':''}" onclick="toggleBulkActivePlayer('${slug}')">${isBulkSelected?'✓ Sel':'Select'}</button>`;
     }else{
-      actionHtml=(canSwap?`<button class="btn-swap" onclick="openTradeModal('${slug}')">⇄ Swap</button>`:`<button class="btn-swap" disabled>⛔</button>`)+tbBtn;
+      actionHtml=(canSwap?`<button class="btn-swap" onclick="openTradeModal('${slug}')">⬇ Bench</button>`:`<button class="btn-swap" disabled>⛔</button>`)+tbBtn;
     }
 
     return`
@@ -1506,7 +1515,7 @@
         <div class="cell-stat cell-a">${assists}</div>
         <div class="${keyStatClass}">${pos==='G'?goalieSv.value:points}</div>
         <div class="cell-cap">${capMicroGaugeHtml(p.cap_hit||0,teamCapTotal)}</div>
-        <div class="cell-spark">${buildSparklineSvg(p,slug)}</div>
+        <div class="cell-spark has-trend">${buildSparklineSvg(p,slug)}${(sig=>(`<span class="trend-mobile-badge ${sig.cls}" title="${sig.title}">${sig.label}</span>`))(performanceSignal(p,team,slug))}</div>
         <div class="cell-action">${actionHtml}</div>
       </div>`;
   }
@@ -1534,9 +1543,9 @@
         <div class="cell-stat cell-g">${goals}</div>
         <div class="cell-stat cell-a">${assists}</div>
         <div class="${keyStatClass}">${pos==='G'?goalieSv.value:points}</div>
-        <div class="cell-trend">${buildSparklineSvg(p,slug)}</div>
+        <div class="cell-trend has-trend">${buildSparklineSvg(p,slug)}${(sig=>(`<span class="trend-mobile-badge ${sig.cls}" title="${sig.title}">${sig.label}</span>`))(performanceSignal(p,team,slug))}</div>
         <div class="cell-cap">${capMicroGaugeHtml(p.cap_hit||0,teamCapTotal)}</div>
-        <div class="cell-action">${bulkMode?`<button class="btn-bulk-select ${isBulkSelected?'selected':''}" onclick="toggleBulkBenchPlayer('${slug}')">${isBulkSelected?'✓ Sel':'Select'}</button>`:''}</div>
+        <div class="cell-action">${bulkMode?`<button class="btn-bulk-select ${isBulkSelected?'selected':''}" onclick="toggleBulkBenchPlayer('${slug}')">${isBulkSelected?'✓ Sel':'Select'}</button>`:`<button class="btn-swap btn-activate" onclick="openTradeModal('${slug}')" title="Move to active roster">⬆ Activate</button>`}</div>
       </div>`;
   }
 

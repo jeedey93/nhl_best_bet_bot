@@ -192,6 +192,13 @@
     .recent-item-date::before {
       content: '·'; color: rgba(255,255,255,0.15); font-size: 0.8rem;
     }
+    .league-team-count {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem; font-weight: 600;
+      color: rgba(255,255,255,0.35); letter-spacing: 0.5px; flex-shrink: 0;
+      display: inline-flex; align-items: center; gap: 3px;
+    }
+    .league-team-count::before { content: '·'; color: rgba(255,255,255,0.15); font-size: 0.8rem; }
+    .league-team-count.has-teams { color: var(--green); }
 
     /* Action buttons row — now two rows: primary actions + secondary */
     .recent-item-actions {
@@ -430,6 +437,7 @@
           <span class="recent-item-name">${escHtml(displayName)}</span>
           <span class="recent-item-code">${code}</span>
           ${dateLabel ? `<span class="recent-item-date">${escHtml(dateLabel)}</span>` : ''}
+          <span class="league-team-count" id="tc-${code}"></span>
         </div>
         <div class="recent-item-actions">
           <button class="recent-btn draft"      onclick="goToDraft('${code}', '${escHtml(displayName)}')">✏️ Draft</button>
@@ -442,12 +450,38 @@
         </div>
       </div>`;
     }).join('');
+    loadTeamCounts(list.map(l => l.code));
   }
 
   function escHtml(str) {
     return String(str)
       .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
       .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+
+  async function loadTeamCounts(codes) {
+    if (!codes.length) return;
+    try {
+      const res = await fetch(
+        `${SUPABASE_URL}/rest/v1/pool_rosters?league_code=in.(${codes.join(',')})&select=league_code`,
+        { headers: sbHeaders() }
+      );
+      if (!res.ok) return;
+      const rows = await res.json();
+      const counts = {};
+      for (const r of rows) counts[r.league_code] = (counts[r.league_code] || 0) + 1;
+      for (const code of codes) {
+        const el = document.getElementById(`tc-${code}`);
+        if (!el) continue;
+        const n = counts[code] || 0;
+        if (n > 0) {
+          el.textContent = `${n} team${n !== 1 ? 's' : ''}`;
+          el.classList.add('has-teams');
+        } else {
+          el.textContent = 'No teams yet';
+        }
+      }
+    } catch(e) { /* silent */ }
   }
 
   function goToDraft(code, name)    { saveRecent(code, name); window.location.href = `/pool/join?league=${code}`; }
@@ -459,6 +493,7 @@
   // ── Password modal ────────────────────────────────────────────────────────
   let _pwAction = null;
   let _deleteCode = null;
+  let _deleteName = null;
   const FOCUSABLE = 'button:not([disabled]), input, [tabindex]:not([tabindex="-1"])';
 
   function openPwModal(action, title, btnLabel) {
@@ -474,7 +509,7 @@
 
   function closePwModal() {
     document.getElementById('pw-overlay').classList.add('hidden');
-    _pwAction = null; _deleteCode = null;
+    _pwAction = null; _deleteCode = null; _deleteName = null;
     document.getElementById('btn-create').focus();
   }
 
@@ -507,10 +542,11 @@
       input.value = ''; input.focus();
       return;
     }
-    const action = _pwAction, deleteCode = _deleteCode;
-    closePwModal();
+    const action = _pwAction, deleteCode = _deleteCode, deleteName = _deleteName;
+    if (action !== 'delete') closePwModal();
+    _pwAction = null; _deleteCode = null; _deleteName = null;
     if (action === 'create') doCreateLeague();
-    else if (action === 'delete') doDelete(deleteCode);
+    else if (action === 'delete') showDeleteConfirm(deleteCode, deleteName);
   }
 
   // ── Create ────────────────────────────────────────────────────────────────
@@ -579,7 +615,21 @@
   // ── Delete ────────────────────────────────────────────────────────────────
   function promptDelete(code, name) {
     _deleteCode = code;
-    openPwModal('delete', `🗑 Delete League`, 'DELETE');
+    _deleteName = name;
+    openPwModal('delete', `🗑 Delete "${name}"`, 'DELETE');
+  }
+
+  // After password verified, show a destructive confirm step before actually deleting
+  function showDeleteConfirm(code, name) {
+    const overlay = document.getElementById('pw-overlay');
+    const box = overlay.querySelector('.pw-box');
+    box.innerHTML = `
+      <h2 style="color:#f87171;font-family:'Bebas Neue',cursive;font-size:1.6rem;letter-spacing:3px;margin-bottom:0.4rem;">⚠ Confirm Delete</h2>
+      <p style="color:rgba(255,255,255,0.6);font-size:0.85rem;letter-spacing:1px;margin-bottom:1.25rem;">This will permanently delete <strong style="color:white">${escHtml(name)}</strong> and all its roster data. This cannot be undone.</p>
+      <button onclick="doDelete('${escHtml(code)}');closePwModal();" style="width:100%;background:#c8102e;color:white;border:none;border-radius:8px;padding:0.75rem;font-family:'Bebas Neue',cursive;font-size:1.2rem;letter-spacing:3px;cursor:pointer;margin-bottom:0.5rem;transition:background 0.2s;" onmouseover="this.style.background='#e0122e'" onmouseout="this.style.background='#c8102e'">DELETE PERMANENTLY</button>
+      <button onclick="closePwModal();" style="width:100%;background:none;border:1px solid rgba(255,255,255,0.12);color:var(--silver);border-radius:8px;padding:0.6rem;font-family:'Bebas Neue',cursive;font-size:1rem;letter-spacing:2px;cursor:pointer;">Cancel</button>
+    `;
+    overlay.classList.remove('hidden');
   }
 
   async function doDelete(code) {

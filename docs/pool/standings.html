@@ -113,7 +113,13 @@
         .btn-sync:hover { background: rgba(34,197,94,0.2); border-color: rgba(34,197,94,0.5); }
         .btn-sync:disabled { opacity: 0.5; cursor: not-allowed; }
         .sync-status { font-size: 0.72rem; color: rgba(34,197,94,0.7); margin-left: 0.3rem; }
-        .sync-status.error { color: rgba(200,16,46,0.7); }
+        .sync-status.error { color: rgba(200,16,46,0.85); font-weight: 700; }
+        .last-synced-badge {
+          display: inline-flex; align-items: center; gap: 4px;
+          font-size: 0.7rem; font-weight: 600; color: rgba(255,255,255,0.3);
+          letter-spacing: 1px; white-space: nowrap;
+        }
+        .last-synced-badge .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--green); opacity: 0.7; flex-shrink: 0; }
 
         /* ── VIEW TABS ── */
         .view-tabs {
@@ -262,14 +268,8 @@
           display: grid; grid-template-columns: repeat(2, 1fr);
           gap: 0.6rem; margin-bottom: 1.75rem;
         }
-        .insights .insight-card:last-child:nth-child(odd) {
-          grid-column: 1 / -1; flex-direction: row; align-items: center; gap: 0.75rem;
-        }
-        .insights .insight-card:last-child:nth-child(odd) .insight-sub { margin-left: auto; text-align: right; flex-shrink: 0; }
         @media (max-width: 600px) {
           .insights { grid-template-columns: 1fr; }
-          .insights .insight-card:last-child:nth-child(odd) { grid-column: auto; flex-direction: column; }
-          .insights .insight-card:last-child:nth-child(odd) .insight-sub { margin-left: 0; text-align: left; }
         }
         .insight-card {
           background: rgba(255,255,255,0.03); border: 1px solid var(--line);
@@ -286,6 +286,23 @@
         .insight-card.green:hover { background: rgba(34,197,94,0.07); }
         .insight-card.red:hover   { background: rgba(200,16,46,0.07); }
         .insight-card.blue:hover  { background: rgba(125,180,255,0.07); }
+        /* First card (leader/race) gets a larger, more prominent treatment */
+        .insights .insight-card:first-child {
+          grid-column: 1 / -1;
+          flex-direction: row; align-items: center; gap: 1rem;
+          padding: 0.85rem 1.1rem;
+          border-color: rgba(255,184,28,0.35);
+          background: rgba(255,184,28,0.05);
+          box-shadow: 0 0 24px rgba(255,184,28,0.05);
+        }
+        .insights .insight-card:first-child:hover { background: rgba(255,184,28,0.09); }
+        .insights .insight-card:first-child .insight-icon { font-size: 1.6rem; flex-shrink: 0; }
+        .insights .insight-card:first-child .insight-main { font-size: 1.25rem; }
+        .insights .insight-card:first-child .insight-sub { margin-left: auto; text-align: right; flex-shrink: 0; }
+        @media (max-width: 600px) {
+          .insights .insight-card:first-child { flex-direction: column; }
+          .insights .insight-card:first-child .insight-sub { margin-left: 0; text-align: left; }
+        }
         .insight-label { font-size: 0.68rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.35); }
         .insight-icon { font-size: 1rem; line-height: 1; margin-bottom: 0.1rem; }
         .insight-main { font-family: 'Bebas Neue', cursive; font-size: 1.05rem; letter-spacing: 1.5px; color: white; line-height: 1.2; }
@@ -442,7 +459,16 @@
         .pos-leader-team { font-family: 'Bebas Neue', cursive; font-size: 0.75rem; letter-spacing: 1px; color: var(--silver); flex-shrink: 0; }
         .pos-leader-pts { font-family: 'Bebas Neue', cursive; font-size: 0.95rem; letter-spacing: 1px; color: white; min-width: 28px; text-align: right; flex-shrink: 0; }
 
-        /* FIX 6: Position badge in Pool Leaders */
+        /* "Pt/GP" tooltip on column header */
+        .col-tooltip-wrap { position: relative; display: inline-flex; align-items: center; gap: 3px; cursor: help; }
+        .col-tooltip-wrap .col-tip {
+          display: none; position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%);
+          background: #0d1b2e; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px;
+          padding: 5px 9px; white-space: nowrap; font-family: 'Barlow Condensed', sans-serif;
+          font-size: 0.72rem; font-weight: 600; color: rgba(255,255,255,0.7); letter-spacing: 0.5px;
+          box-shadow: 0 4px 16px rgba(0,0,0,0.5); pointer-events: none; z-index: 50;
+        }
+        .col-tooltip-wrap:hover .col-tip { display: block; }
         .pos-pill {
           font-family: 'Bebas Neue', cursive; font-size: 0.62rem; letter-spacing: 1px;
           border-radius: 3px; padding: 1px 5px; flex-shrink: 0;
@@ -564,6 +590,7 @@
             <div class="league-code-badge" id="league-badge-row" style="display:none">
                 League <span id="league-badge">—</span>
             </div>
+            <span class="last-synced-badge" id="last-synced-badge" style="display:none"><span class="dot"></span><span id="last-synced-text"></span></span>
             <button class="btn-sync" id="sync-btn" onclick="syncPlayerStats()" title="Manually refresh player stats from NHL API">🔄 Sync Stats</button>
             <span class="sync-status" id="sync-status"></span>
         </div>
@@ -964,6 +991,7 @@
     // ── LOAD ─────────────────────────────────────────────────────────────────────
     async function load() {
       initNav();
+      updateLastSyncedBadge();
       await loadScoringSettings();
       _windowPtsByTradeKey = {};
       fetch(`${SUPABASE_URL}/rest/v1/pool_leagues?code=eq.${_leagueCode}&select=name`,
@@ -1043,6 +1071,16 @@
     function selectTeam(id) { activeTeamId = id; activeView = 'team'; sessionStorage.setItem('pool_view', 'team'); render(); }
 
     // ── SYNC ─────────────────────────────────────────────────────────────────────
+    function updateLastSyncedBadge() {
+      const ts = sessionStorage.getItem('hp_last_synced');
+      if (!ts) return;
+      const d = new Date(Number(ts));
+      if (isNaN(d.getTime())) return;
+      const text = `Synced ${d.toLocaleTimeString('en-CA', { hour: 'numeric', minute: '2-digit' })}`;
+      const badge = document.getElementById('last-synced-badge');
+      const textEl = document.getElementById('last-synced-text');
+      if (badge && textEl) { textEl.textContent = text; badge.style.display = 'inline-flex'; }
+    }
     async function syncPlayerStats() {
       const btn = document.getElementById('sync-btn'), status = document.getElementById('sync-status');
       btn.disabled = true; status.textContent = 'Syncing…'; status.className = 'sync-status';
@@ -1050,9 +1088,18 @@
       try {
         const res = await fetch('/api/sync-pool-stats', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
         const data = await res.json();
-        if (res.status === 200) { status.textContent = '✅ Stats updated!'; setTimeout(() => location.reload(), 1500); }
-        else if (res.status === 202) { status.textContent = '✅ Sync started (check back in 5 min)'; setTimeout(() => { btn.disabled = false; status.textContent = ''; }, 4000); }
-        else { status.textContent = `❌ ${data.error || 'Failed'}`; status.className = 'sync-status error'; setTimeout(() => { btn.disabled = false; }, 3000); }
+        if (res.status === 200) {
+          sessionStorage.setItem('hp_last_synced', Date.now());
+          status.textContent = '✅ Stats updated!';
+          setTimeout(() => location.reload(), 1500);
+        }
+        else if (res.status === 202) {
+          sessionStorage.setItem('hp_last_synced', Date.now());
+          status.textContent = '✅ Sync started (check back in 5 min)';
+          updateLastSyncedBadge();
+          setTimeout(() => { btn.disabled = false; status.textContent = ''; }, 4000);
+        }
+        else { status.textContent = `❌ ${data.error || 'Failed'}`; status.className = 'sync-status error'; setTimeout(() => { btn.disabled = false; status.textContent = ''; }, 4000); }
       } catch(e) { status.textContent = '❌ ' + e.message; status.className = 'sync-status error'; btn.disabled = false; }
     }
 
@@ -1122,15 +1169,12 @@
         <div class="lb-row header">
           <div></div>
           <div class="lb-col-label left">Team</div>
-          <div class="lb-col-label lb-col-hide">Pt/GP*</div>
+          <div class="lb-col-label lb-col-hide"><span class="col-tooltip-wrap">Pt/GP<span class="col-tip">Pool pts per game played since acquisition</span></span></div>
           <div class="lb-col-label lb-col-hide">Eff.</div>
           <div class="lb-col-label">Pts</div>
           <div class="lb-col-label">Gap</div>
         </div>
         ${rowsHtml}
-      </div>
-      <div style="font-size:0.62rem;color:rgba(255,255,255,0.2);letter-spacing:1px;margin-top:-1.4rem;margin-bottom:1.75rem;text-align:right;padding-right:0.25rem">
-        * Pt/GP since acquisition date
       </div>`;
     }
 
@@ -1330,7 +1374,6 @@
                 const abbr = TEAM_ABBR[item.player.team];
                 return `<div class="pos-leader-row">
                   <div class="pos-leader-rank">${i+1}</div>
-                  <span class="pos-pill ${pos}">${pos}</span>
                   <div class="pos-leader-name">${formatName(item.player.player_name)}</div>
                   <div class="pos-leader-team">${abbr||'—'}</div>
                   <div class="pos-leader-owner">${item.owner}</div>

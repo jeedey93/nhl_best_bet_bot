@@ -98,9 +98,12 @@
     .team-pill-switcher.active { background: rgba(255,184,28,0.1); border-color: rgba(255,184,28,0.4); }
     .team-pill-name { font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 2px; color: var(--silver); white-space: nowrap; max-width: 120px; overflow: hidden; text-overflow: ellipsis; }
     .team-pill-switcher.active .team-pill-name { color: var(--gold); }
-    .team-pill-progress { font-family: 'Barlow Condensed', sans-serif; font-size: 0.65rem; font-weight: 700; color: rgba(255,255,255,0.3); letter-spacing: 0.5px; margin-top: 1px; }
+    .team-pill-progress { font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem; font-weight: 700; color: rgba(255,255,255,0.3); letter-spacing: 0.5px; margin-top: 1px; }
     .team-pill-switcher.active .team-pill-progress { color: rgba(255,184,28,0.6); }
     .team-pill-progress.full { color: var(--green) !important; }
+    .team-pill-progress-bar-wrap { width: 100%; height: 2px; background: rgba(255,255,255,0.07); border-radius: 2px; overflow: hidden; margin-top: 3px; margin-bottom: 1px; }
+    .team-pill-progress-bar { height: 100%; border-radius: 2px; background: rgba(255,184,28,0.5); transition: width 0.3s ease; }
+    .team-pill-progress-bar.full { background: var(--green); }
     .team-pill-actions { display: flex; gap: 3px; margin-top: 4px; }
     .team-pill-btn { font-family: 'Bebas Neue', cursive; font-size: 0.65rem; letter-spacing: 1px; background: none; border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.35); border-radius: 3px; padding: 1px 5px; cursor: pointer; transition: color 0.15s, border-color 0.15s, background 0.15s; }
     .team-pill-btn:hover { color: white; border-color: rgba(255,255,255,0.35); background: rgba(255,255,255,0.07); }
@@ -156,7 +159,8 @@
     .cap-remaining-label { font-family: 'Bebas Neue', cursive; font-size: 0.7rem; letter-spacing: 2px; color: var(--silver); }
     .cap-remaining-amount { font-family: 'Bebas Neue', cursive; font-size: 1.5rem; letter-spacing: 1px; color: var(--green); transition: color 0.3s; }
     .cap-bar-wrap.warning .cap-remaining-amount { color: #f59e0b; }
-    .cap-bar-wrap.over .cap-remaining-amount { color: var(--red); }
+    .cap-bar-wrap.over .cap-remaining-amount { color: var(--red); font-size: 1.6rem; animation: cap-over-pulse 1.5s ease-in-out infinite; }
+    @keyframes cap-over-pulse { 0%,100%{ text-shadow: none; } 50%{ text-shadow: 0 0 12px rgba(200,16,46,0.7); } }
     #cap-status-icon { color: var(--green); font-size: 0.65rem; }
     .cap-bar-wrap.warning #cap-status-icon { color: #f59e0b; }
     .cap-bar-wrap.over #cap-status-icon { color: var(--red); }
@@ -169,7 +173,7 @@
     .cap-fill.over { background: linear-gradient(90deg, var(--red), #8b0a1e); }
     .cap-drop-hint { display: none; margin-top: 6px; padding: 5px 8px; background: rgba(200,16,46,0.08); border: 1px solid rgba(200,16,46,0.2); border-radius: 5px; }
     .cap-bar-wrap.over .cap-drop-hint { display: block; }
-    .cap-drop-hint-label { font-family: 'Bebas Neue', cursive; font-size: 0.62rem; letter-spacing: 2px; color: rgba(200,16,46,0.7); margin-bottom: 3px; }
+    .cap-drop-hint-label { font-family: 'Bebas Neue', cursive; font-size: 0.72rem; letter-spacing: 2px; color: rgba(200,16,46,0.7); margin-bottom: 3px; }
     .cap-drop-hint-player { font-family: 'Barlow Condensed', sans-serif; font-size: 0.78rem; font-weight: 700; color: white; display: flex; align-items: center; justify-content: space-between; gap: 6px; }
     .cap-drop-hint-salary { color: rgba(200,16,46,0.8); font-size: 0.72rem; font-weight: 700; white-space: nowrap; }
 
@@ -204,7 +208,7 @@
     /* Swap hint pulse on roster cards */
     .player-card.in-roster .swap-hint {
       position: absolute; right: 34px; top: 50%; transform: translateY(-50%);
-      font-family: 'Bebas Neue', cursive; font-size: 0.58rem; letter-spacing: 1px;
+      font-family: 'Bebas Neue', cursive; font-size: 0.72rem; letter-spacing: 1px;
       color: rgba(255,184,28,0.45); opacity: 0; transition: opacity 0.15s;
       pointer-events: none; white-space: nowrap;
     }
@@ -217,8 +221,8 @@
     /* swap-source pulse */
     @keyframes swap-pulse { 0%,100%{ box-shadow:0 0 0 2px rgba(96,165,250,0.35); } 50%{ box-shadow:0 0 0 4px rgba(96,165,250,0.55),0 0 14px rgba(96,165,250,0.3); } }
     .player-card.swap-source { animation: swap-pulse 1.4s ease-in-out infinite; }
-    .claimed-badge { font-family: 'Bebas Neue', cursive; font-size: 0.6rem; letter-spacing: 1px; background: rgba(200,16,46,0.15); border: 1px solid rgba(200,16,46,0.25); color: rgba(255,122,138,0.8); border-radius: 3px; padding: 1px 5px; flex-shrink: 0; white-space: nowrap; max-width: 72px; overflow: hidden; text-overflow: ellipsis; }
-    .inj-flag { font-family: 'Bebas Neue', cursive; font-size: 0.58rem; letter-spacing: 1px; background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.3); color: #f59e0b; border-radius: 3px; padding: 1px 5px; flex-shrink: 0; white-space: nowrap; cursor: help; }
+    .claimed-badge { font-family: 'Bebas Neue', cursive; font-size: 0.72rem; letter-spacing: 1px; background: rgba(200,16,46,0.15); border: 1px solid rgba(200,16,46,0.25); color: rgba(255,122,138,0.8); border-radius: 3px; padding: 1px 5px; flex-shrink: 0; white-space: nowrap; max-width: 72px; overflow: hidden; text-overflow: ellipsis; }
+    .inj-flag { font-family: 'Bebas Neue', cursive; font-size: 0.72rem; letter-spacing: 1px; background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.3); color: #f59e0b; border-radius: 3px; padding: 1px 5px; flex-shrink: 0; white-space: nowrap; cursor: help; }
     .swap-banner { display: none; background: rgba(96,165,250,0.12); border: 1px solid rgba(96,165,250,0.35); border-radius: 7px; padding: 7px 12px; font-size: 0.82rem; color: #93c5fd; margin-bottom: 0.5rem; flex-shrink: 0; align-items: center; gap: 8px; }
     .swap-banner.active { display: flex; }
     .swap-banner-cancel { margin-left: auto; cursor: pointer; background: none; border: none; color: #93c5fd; font-size: 1rem; line-height: 1; padding: 0 2px; }
@@ -375,7 +379,8 @@
     .pool-table th:last-child { border-right: none; cursor: default; }
     .pool-table th:hover:not(:last-child) { color: white; }
     .pool-table th.sort-active { color: var(--gold); }
-    .pool-table th .sort-arrow { display: inline-block; margin-left: 3px; font-size: 0.6rem; vertical-align: middle; opacity: 0.7; }
+    .pool-table th .sort-arrow { display: inline-block; margin-left: 3px; font-size: 0.75rem; vertical-align: middle; opacity: 0; }
+    .pool-table th.sort-active .sort-arrow { opacity: 1; color: var(--gold); }
 
     .col-player { width: auto; }
     .col-gp  { width: 38px; }
@@ -435,10 +440,10 @@
     .td-pos.D { background: rgba(26,58,110,0.45); color: #7db4ff; }
     .td-pos.G { background: rgba(255,184,28,0.14); color: var(--gold); }
     .td-name { font-weight: 700; font-size: 0.88rem; color: white; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; min-width: 0; }
-    .td-flag { font-family: 'Bebas Neue', cursive; font-size: 0.55rem; letter-spacing: 1px; background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.3); color: #f59e0b; border-radius: 3px; padding: 1px 4px; flex-shrink: 0; }
-    .td-claimed-tag { font-family: 'Bebas Neue', cursive; font-size: 0.55rem; letter-spacing: 1px; background: rgba(200,16,46,0.15); border: 1px solid rgba(200,16,46,0.2); color: rgba(255,122,138,0.7); border-radius: 3px; padding: 1px 4px; flex-shrink: 0; max-width: 70px; overflow: hidden; text-overflow: ellipsis; }
+    .td-flag { font-family: 'Bebas Neue', cursive; font-size: 0.72rem; letter-spacing: 1px; background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.3); color: #f59e0b; border-radius: 3px; padding: 1px 4px; flex-shrink: 0; }
+    .td-claimed-tag { font-family: 'Bebas Neue', cursive; font-size: 0.72rem; letter-spacing: 1px; background: rgba(200,16,46,0.15); border: 1px solid rgba(200,16,46,0.2); color: rgba(255,122,138,0.7); border-radius: 3px; padding: 1px 4px; flex-shrink: 0; max-width: 70px; overflow: hidden; text-overflow: ellipsis; }
     /* pin compare badge */
-    .td-pin-badge { font-family: 'Bebas Neue', cursive; font-size: 0.55rem; letter-spacing: 1px; background: rgba(255,184,28,0.15); border: 1px solid rgba(255,184,28,0.35); color: var(--gold); border-radius: 3px; padding: 1px 4px; flex-shrink: 0; }
+    .td-pin-badge { font-family: 'Bebas Neue', cursive; font-size: 0.72rem; letter-spacing: 1px; background: rgba(255,184,28,0.15); border: 1px solid rgba(255,184,28,0.35); color: var(--gold); border-radius: 3px; padding: 1px 4px; flex-shrink: 0; }
 
     .td-gp   { color: rgba(255,255,255,0.45); }
     .td-g    { color: #ff7a8a; }
@@ -538,7 +543,7 @@
     .compare-stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
     .compare-stat { display: flex; flex-direction: column; align-items: center; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); border-radius: 5px; padding: 4px 6px; }
     .compare-stat-val { font-family: 'Bebas Neue', cursive; font-size: 1.1rem; letter-spacing: 0.5px; }
-    .compare-stat-lbl { font-family: 'Bebas Neue', cursive; font-size: 0.6rem; letter-spacing: 2px; color: rgba(255,255,255,0.3); margin-top: 1px; }
+    .compare-stat-lbl { font-family: 'Bebas Neue', cursive; font-size: 0.72rem; letter-spacing: 2px; color: rgba(255,255,255,0.3); margin-top: 1px; }
     .compare-stat.winner .compare-stat-val { color: var(--green); }
     .compare-stat.loser  .compare-stat-val { color: rgba(255,255,255,0.3); }
     .compare-stat.tie    .compare-stat-val { color: rgba(255,255,255,0.65); }
@@ -625,7 +630,7 @@
     .ultimate-modal-sub { font-size: 0.72rem; color: rgba(255,255,255,0.35); letter-spacing: 1px; }
     .ultimate-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin-bottom: 0.65rem; }
     .ultimate-metric { background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; }
-    .ultimate-metric .k { font-size: 0.62rem; color: rgba(255,255,255,0.35); letter-spacing: 1.5px; text-transform: uppercase; }
+    .ultimate-metric .k { font-size: 0.72rem; color: rgba(255,255,255,0.35); letter-spacing: 1.5px; text-transform: uppercase; }
     .ultimate-metric .v { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 1px; color: white; }
     .ultimate-metric .v.gold { color: var(--gold); }
     .ultimate-breakdown { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 8px; }
@@ -802,7 +807,8 @@
 <div class="modal-overlay hidden" id="modal-overlay">
   <div class="modal-box">
     <div class="modal-title" id="modal-title">Add <span>Team</span></div>
-    <input class="modal-input" id="modal-input" type="text" maxlength="24" placeholder="Team name…" autocomplete="off">
+    <input class="modal-input" id="modal-input" type="text" maxlength="24" placeholder="Team name…" autocomplete="off" oninput="document.getElementById('modal-char-count').textContent=this.value.length+'/24'">
+    <div style="font-size:0.7rem;color:rgba(255,255,255,0.25);text-align:right;margin-top:-0.75rem;margin-bottom:0.75rem;letter-spacing:0.5px;" id="modal-char-count">0/24</div>
     <div class="modal-btns">
       <button class="modal-btn modal-btn-cancel" onclick="closeModal()">Cancel</button>
       <button class="modal-btn modal-btn-confirm" id="modal-confirm-btn" onclick="confirmModal()">Add</button>
@@ -1523,16 +1529,19 @@
     document.getElementById('modal-input').value='';
     document.getElementById('modal-input').placeholder=`Team ${teams.length+1}`;
     document.getElementById('modal-confirm-btn').textContent='Add';
+    document.getElementById('modal-char-count').textContent='0/24';
     document.getElementById('modal-overlay').classList.remove('hidden');
     setTimeout(()=>document.getElementById('modal-input').focus(),50);
   }
   function openRenameModal(id) {
     _modalMode='rename'; _modalTargetId=id;
     const t=teams.find(t=>t.id===id);
+    const val=t?t.name:'';
     document.getElementById('modal-title').innerHTML='Rename <span>Team</span>';
-    document.getElementById('modal-input').value=t?t.name:'';
+    document.getElementById('modal-input').value=val;
     document.getElementById('modal-input').placeholder='Team name…';
     document.getElementById('modal-confirm-btn').textContent='Save';
+    document.getElementById('modal-char-count').textContent=val.length+'/24';
     document.getElementById('modal-overlay').classList.remove('hidden');
     setTimeout(()=>{ const inp=document.getElementById('modal-input'); inp.focus(); inp.select(); },50);
   }
@@ -1564,7 +1573,9 @@
       const pill=document.createElement('div');
       pill.className='team-pill-switcher'+(t.id===activeTeamId?' active':'');
       const isViewOnly=document.body.classList.contains('view-only');
-      pill.innerHTML=`<div class="team-pill-name">${t.name}</div><div class="team-pill-progress ${isFull?'full':''}">${filled}/26</div>${isViewOnly?'':
+      pill.innerHTML=`<div class="team-pill-name">${t.name}</div>
+        <div class="team-pill-progress-bar-wrap"><div class="team-pill-progress-bar${isFull?' full':''}" style="width:${Math.round(filled/26*100)}%"></div></div>
+        <div class="team-pill-progress ${isFull?'full':''}">${filled}/26</div>${isViewOnly?'':
         `<div class="team-pill-actions">
           <button class="team-pill-btn reorder ${idx===0?'disabled':''}" ${idx===0?'disabled':''} title="Move left in draft order" onclick="event.stopPropagation();moveTeam('${t.id}',-1)">←</button>
           <button class="team-pill-btn reorder ${idx===teams.length-1?'disabled':''}" ${idx===teams.length-1?'disabled':''} title="Move right in draft order" onclick="event.stopPropagation();moveTeam('${t.id}',1)">→</button>
