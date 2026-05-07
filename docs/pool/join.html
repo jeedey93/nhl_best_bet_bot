@@ -2460,6 +2460,13 @@
     }
     for (const g of ['F', 'D', 'G']) byPos[g].sort((a, b) => stat(b) - stat(a));
 
+    const capLeft = CAP_MAX - lockedCap;
+    console.log('[Ultimate] CAP_MAX', CAP_MAX, 'lockedCap', lockedCap, 'capLeft', capLeft);
+    console.log('[Ultimate] pool sizes F:', byPos.F.length, 'D:', byPos.D.length, 'G:', byPos.G.length);
+    console.log('[Ultimate] locked filled F:', locked.F.filter(Boolean).length, 'D:', locked.D.filter(Boolean).length, 'G:', locked.G.filter(Boolean).length);
+    console.log('[Ultimate] slots needed F:', SLOT_CFG.F.max - locked.F.filter(Boolean).length, 'D:', SLOT_CFG.D.max - locked.D.filter(Boolean).length, 'G:', SLOT_CFG.G.max - locked.G.filter(Boolean).length);
+    if (byPos.F.length) console.log('[Ultimate] cheapest F:', byPos.F[byPos.F.length-1]?.cap_hit, 'cheapest D:', byPos.D[byPos.D.length-1]?.cap_hit, 'cheapest G:', byPos.G[byPos.G.length-1]?.cap_hit);
+
     // Returns the sum of the n cheapest cap hits for position g, excluding given slugs.
     // Returns Infinity if fewer than n players are available.
     function cheapestCap(g, n, excludeSlugs) {
@@ -2514,7 +2521,18 @@
             if (reserve === Infinity) continue;
             if (capAfter + reserve <= CAP_MAX) { chosen = p; break; }
           }
-          if (!chosen) return null;
+          if (!chosen) {
+            console.log('[Ultimate] greedyFill FAILED at pos', g, 'slot', i, 'capUsed', capUsed, 'capLeft', CAP_MAX - capUsed, 'candidates total', candidates.length);
+            if (candidates.length > 0) {
+              const p0 = candidates[0];
+              const tempF = g === 'F' ? [...picked.F, p0] : picked.F;
+              const tempD = g === 'D' ? [...picked.D, p0] : picked.D;
+              const tempG = g === 'G' ? [...picked.G, p0] : picked.G;
+              console.log('[Ultimate]  best candidate:', p0.player_name, 'cap_hit', p0.cap_hit, 'reserve', minReserve(tempF, tempD, tempG), 'capAfter', capUsed + p0.cap_hit);
+              console.log('[Ultimate]  cheapest candidate:', candidates[candidates.length-1]?.player_name, 'cap_hit', candidates[candidates.length-1]?.cap_hit);
+            }
+            return null;
+          }
           picked[g].push(chosen);
           capUsed += chosen.cap_hit;
         }
