@@ -616,10 +616,11 @@ function render(){
   // Stamp total-points rank before any re-sort
   rows.forEach((r,i)=>{ r.totalRank=i+1; });
 
-  if(_sortMode==='yesterday') rows.sort((a,b)=>b.delta-a.delta);
-
-  _allRows=rows;
+  // Save total-sorted copies for the podium (must stay in points order)
+  _allRows=rows.slice();
   _paidRows=rows.filter(r=>participants.find(p=>p.name===r.name)?.paid);
+
+  if(_sortMode==='yesterday') rows.sort((a,b)=>b.delta-a.delta);
 
   const maxScore=rows.reduce((m,r)=>Math.max(m,r.total),0)||1;
   const leaderScore=rows.reduce((m,r)=>Math.max(m,r.total),0);
