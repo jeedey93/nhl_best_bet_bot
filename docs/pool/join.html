@@ -2417,7 +2417,17 @@
       try {
         const preview = _runUltimateTeam();
         if (!preview) {
-          toast('Could not fill team — try again');
+          // Check if locked players already exceed cap to give a helpful message
+          const t2 = activeTeam();
+          if (t2) {
+            const lRoster = rosterFromSlugs(t2.roster);
+            const lCap = [...lRoster.F, ...lRoster.D, ...lRoster.G].filter(Boolean).reduce((s, p) => s + (p.cap_hit || 0), 0);
+            if (lCap > CAP_MAX) {
+              toast('Your current picks exceed the cap — remove a player first');
+              return;
+            }
+          }
+          toast('Not enough cap space to fill remaining slots');
           return;
         }
         openUltimateModal(preview);
@@ -2450,7 +2460,14 @@
     }
     for (const g of ['F', 'D', 'G']) byPos[g].sort((a, b) => stat(b) - stat(a));
 
-    function cheapestCap(g, n, excludeSlugs) { return byPos[g].filter(p => !excludeSlugs.has(p.puckpedia_slug)).slice(-n).reduce((s, p) => s + p.cap_hit, 0); }
+    // Returns the sum of the n cheapest cap hits available for position g, excluding given slugs.
+    // If fewer than n players are available, returns Infinity so the candidate is rejected.
+    function cheapestCap(g, n, excludeSlugs) {
+      if (n <= 0) return 0;
+      const avail = byPos[g].filter(p => !excludeSlugs.has(p.puckpedia_slug));
+      if (avail.length < n) return Infinity;
+      return avail.slice(-n).reduce((s, p) => s + p.cap_hit, 0);
+    }
     let best = null;
     for (let attempt = 0; attempt < 200; attempt++) {
       const picked = {
@@ -2474,6 +2491,7 @@
           if (picked[g].length - (locked[g]?.filter(Boolean).length || 0) >= needed) break;
           const usedNow = new Set([...picked.F, ...picked.D, ...picked.G].map(x => x.puckpedia_slug)); usedNow.add(p.puckpedia_slug);
           const reserve = ['F', 'D', 'G'].reduce((s, og) => { const still = SLOT_CFG[og].max - picked[og].length - (og === g ? 1 : 0); return still > 0 ? s + cheapestCap(og, still, usedNow) : s; }, 0);
+          if (reserve === Infinity) continue;
           if (capUsed + p.cap_hit + reserve <= CAP_MAX) { picked[g].push(p); capUsed += p.cap_hit; }
         }
         if (picked[g].length < SLOT_CFG[g].max) { failed = true; break; }
