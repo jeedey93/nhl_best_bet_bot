@@ -479,14 +479,12 @@
     for (const { pos, label, slugs } of sections) {
       if (!slugs.length) continue;
       const isG = pos === 'G';
-      const colspan = isG ? 6 : 5;
+      const colspan = isG ? 6 : 6;
       let headerCols = '';
       if (isG) {
-        headerCols = `<th class="td-stat">W</th><th class="td-stat">OTL</th><th class="td-stat">SO</th>`;
-      } else if (pos === 'D') {
-        headerCols = `<th class="td-stat">G</th><th class="td-stat">A</th>`;
+        headerCols = `<th class="td-stat">GP</th><th class="td-stat">W</th><th class="td-stat">OTL</th><th class="td-stat">SO</th>`;
       } else {
-        headerCols = `<th class="td-stat">PTS</th><th class="td-stat">GP</th>`;
+        headerCols = `<th class="td-stat">GP</th><th class="td-stat">G</th><th class="td-stat">A</th><th class="td-stat">PTS</th>`;
       }
       html += `<tr><td colspan="${colspan}" class="section-header ${pos}">${label}</td></tr>`;
       html += `<tr style="background:rgba(255,255,255,0.02);border-bottom:1px solid rgba(255,255,255,0.06);">
@@ -507,11 +505,9 @@
         const logo = abbr ? `<img class="td-team-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}">` : '';
         let statCols = '';
         if (pos === 'G') {
-          statCols = `<td class="td-stat">${p.wins ?? '—'}W</td><td class="td-stat">${p.ot_losses ?? '—'}OTL</td><td class="td-stat">${p.shutouts ?? '—'}SO</td>`;
-        } else if (pos === 'D') {
-          statCols = `<td class="td-stat">${p.goals ?? '—'}G</td><td class="td-stat">${p.assists ?? '—'}A</td>`;
+          statCols = `<td class="td-stat">${p.games_played ?? '—'}</td><td class="td-stat">${p.wins ?? '—'}</td><td class="td-stat">${p.ot_losses ?? '—'}</td><td class="td-stat">${p.shutouts ?? '—'}</td>`;
         } else {
-          statCols = `<td class="td-stat">${p.points ?? '—'}PTS</td><td class="td-stat">${p.games_played ?? '—'}GP</td>`;
+          statCols = `<td class="td-stat">${p.games_played ?? '—'}</td><td class="td-stat">${p.goals ?? '—'}</td><td class="td-stat">${p.assists ?? '—'}</td><td class="td-stat">${p.points ?? '—'}</td>`;
         }
         html += `<tr class="player-row">
           <td style="width:28px;padding:0.35rem 0.5rem 0.35rem 1rem;">${logo}</td>
