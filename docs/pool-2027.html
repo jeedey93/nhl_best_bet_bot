@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pool 2026–27 Draft | Parieur Discipliné</title>
+  <meta name="description" content="Draft your 2026–27 NHL team. 12 forwards, 6 defencemen, 2 goalies under the $95.5M salary cap.">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Hockey Pool 2026–27 — Parieur Discipliné">
   <meta property="og:description" content="Draft your 2026–27 NHL team. 12 forwards, 6 defencemen, 2 goalies under the salary cap.">
@@ -289,6 +290,27 @@
     .modal-roster-summary strong { color: white; font-weight: 700; }
     .modal-roster-summary .pts { color: var(--gold); font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 1px; }
 
+    /* ── Deadline banner ── */
+    .deadline-banner { background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.2); border-radius: 7px; padding: 6px 14px; margin: 0 auto 0.6rem; max-width: 1100px; display: flex; align-items: center; gap: 8px; font-size: 0.8rem; font-weight: 600; color: rgba(245,158,11,0.9); letter-spacing: 1px; flex-shrink: 0; }
+    .deadline-banner .dl-icon { font-size: 0.9rem; }
+
+    /* ── Stats proxy notice ── */
+    .stats-notice { background: rgba(125,180,255,0.06); border: 1px solid rgba(125,180,255,0.15); border-radius: 7px; padding: 5px 12px; margin: 0 auto 0.5rem; max-width: 1100px; font-size: 0.75rem; color: rgba(125,180,255,0.7); letter-spacing: 1px; flex-shrink: 0; text-align: center; }
+
+    /* ── Success overlay ── */
+    .success-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 300; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+    .success-overlay.hidden { display: none; }
+    .success-box { background: #0d1b2e; border: 1px solid rgba(34,197,94,0.3); border-radius: 14px; padding: 2.5rem 2rem; width: 100%; max-width: 420px; text-align: center; }
+    .success-icon { font-size: 3rem; margin-bottom: 0.5rem; }
+    .success-title { font-family: 'Bebas Neue', cursive; font-size: 1.8rem; letter-spacing: 4px; color: var(--green); margin-bottom: 0.5rem; }
+    .success-sub { font-size: 0.95rem; color: var(--silver); margin-bottom: 1.5rem; line-height: 1.5; }
+    .success-sub strong { color: white; }
+    .success-btns { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+    .btn-success-primary { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 2px; background: var(--green); color: #07111f; border: none; border-radius: 7px; padding: 8px 22px; cursor: pointer; text-decoration: none; display: inline-block; transition: opacity 0.15s; }
+    .btn-success-primary:hover { opacity: 0.88; }
+    .btn-success-secondary { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 2px; background: none; color: var(--silver); border: 1px solid rgba(255,255,255,0.15); border-radius: 7px; padding: 8px 22px; cursor: pointer; display: inline-block; text-decoration: none; transition: background 0.15s, color 0.15s; }
+    .btn-success-secondary:hover { background: rgba(255,255,255,0.08); color: white; }
+
     /* ── Toast ── */
     .toast { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--gold); color: var(--rink); font-family: 'Bebas Neue', cursive; font-size: 1.1rem; letter-spacing: 2px; padding: 0.5rem 1.8rem; border-radius: 4px; box-shadow: 0 4px 20px rgba(0,0,0,0.4); transition: transform 0.3s ease; pointer-events: none; z-index: 9999; }
     .toast.show { transform: translateX(-50%) translateY(0); }
@@ -351,6 +373,27 @@
     <span id="stats-timestamp-label">2025–26 Stats</span>
   </div>
 </header>
+
+<div class="deadline-banner" style="width:100%;max-width:1100px;margin:0 auto 0.4rem;padding:6px 1.25rem;">
+  <span class="dl-icon">⏳</span>
+  <span>Deadline: <strong>October 1, 2026</strong> — submissions lock when the season opens. Entry fee: <strong>$20</strong> (paid pool) via Interac to <strong>justindo96@gmail.com</strong></span>
+</div>
+<div class="stats-notice" style="width:100%;max-width:1100px;margin:0 auto 0.4rem;padding:5px 1.25rem;">
+  ℹ Stats shown are from the <strong>2025–26</strong> regular season — used as a proxy for 2026–27 projections
+</div>
+
+<!-- Success overlay -->
+<div class="success-overlay hidden" id="success-overlay">
+  <div class="success-box">
+    <div class="success-icon">🎉</div>
+    <div class="success-title">Team Submitted!</div>
+    <div class="success-sub" id="success-sub">Your team has been entered into the pool.</div>
+    <div class="success-btns">
+      <a href="pool-2027-standings.html" class="btn-success-primary">View Standings</a>
+      <button class="btn-success-secondary" onclick="document.getElementById('success-overlay').classList.add('hidden')">Keep Editing</button>
+    </div>
+  </div>
+</div>
 
 <!-- Submit modal -->
 <div class="modal-overlay hidden" id="submit-modal">
@@ -1121,7 +1164,9 @@
       }
       if (!res.ok) throw new Error(res.status);
       closeSubmitModal();
-      toast('✓ Team submitted! Check standings soon.', 4000);
+      const sub = document.getElementById('success-sub');
+      if (sub) sub.innerHTML = `<strong>${name}</strong>'s team is in the pool${_isPaid ? ' — remember to send $20 to <strong>justindo96@gmail.com</strong> (Interac)' : ''}.`;
+      document.getElementById('success-overlay').classList.remove('hidden');
       updateSubmitBtn();
     } catch(e) {
       toast('Submit failed — check your connection');

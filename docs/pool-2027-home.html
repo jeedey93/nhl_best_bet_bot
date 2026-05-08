@@ -181,16 +181,16 @@
       <div class="stat-label">Teams Entered</div>
     </div>
     <div class="stat-cell">
+      <div class="stat-num" id="live-pot">—</div>
+      <div class="stat-label">Paid Pool Pot</div>
+    </div>
+    <div class="stat-cell">
       <div class="stat-num">$95.5M</div>
       <div class="stat-label">Salary Cap</div>
     </div>
     <div class="stat-cell">
-      <div class="stat-num">20</div>
-      <div class="stat-label">Players per Team</div>
-    </div>
-    <div class="stat-cell">
-      <div class="stat-num">1</div>
-      <div class="stat-label">Entry per Person</div>
+      <div class="stat-num">Oct 1</div>
+      <div class="stat-label">Deadline 2026</div>
     </div>
   </div>
 
@@ -247,6 +247,10 @@
     <div class="rules-card">
       <div class="rule-item">
         <div class="rule-dot"></div>
+        <div><strong>Deadline: October 1, 2026</strong> — submissions lock when the NHL season opens. You can update your pick before that date by re-submitting with the same email.</div>
+      </div>
+      <div class="rule-item">
+        <div class="rule-dot"></div>
         <div><strong>12 Forwards, 6 Defencemen, 2 Goalies</strong> — exactly 20 players total. You cannot submit until all slots are filled.</div>
       </div>
       <div class="rule-item">
@@ -270,27 +274,30 @@
 
   <!-- PRIZES -->
   <div class="section">
-    <div class="section-title">Prizes (Paid Pool)</div>
+    <div class="section-title">Prizes (Paid Pool · $20 entry)</div>
     <div class="prize-grid">
       <div class="prize-card gold">
         <div class="prize-medal">🥇</div>
         <div class="prize-place">1st Place</div>
-        <div class="prize-amount">60%</div>
-        <div class="prize-note">of the pot</div>
+        <div class="prize-amount" id="prize-1st">60%</div>
+        <div class="prize-note" id="prize-1st-note">of the pot</div>
       </div>
       <div class="prize-card silver">
         <div class="prize-medal">🥈</div>
         <div class="prize-place">2nd Place</div>
-        <div class="prize-amount">30%</div>
-        <div class="prize-note">of the pot</div>
+        <div class="prize-amount" id="prize-2nd">30%</div>
+        <div class="prize-note" id="prize-2nd-note">of the pot</div>
       </div>
       <div class="prize-card bronze">
         <div class="prize-medal">🥉</div>
         <div class="prize-place">3rd Place</div>
-        <div class="prize-amount">10%</div>
-        <div class="prize-note">of the pot</div>
+        <div class="prize-amount" id="prize-3rd">10%</div>
+        <div class="prize-note" id="prize-3rd-note">of the pot</div>
       </div>
     </div>
+    <p style="text-align:center;font-size:0.78rem;color:rgba(255,255,255,0.3);margin-top:0.75rem;letter-spacing:1px;">
+      Send $20 via <strong style="color:rgba(255,255,255,0.5);">Interac</strong> to <strong style="color:rgba(255,255,255,0.5);">justindo96@gmail.com</strong> after submitting your team
+    </p>
   </div>
 
   <!-- BOTTOM CTA -->
@@ -311,17 +318,39 @@
 
   async function loadCount() {
     try {
-      const res = await fetch(
-        `${SUPABASE_URL}/rest/v1/pool_2027_submissions?select=id`,
-        { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, Prefer: 'count=exact', Range: '0-0' } }
-      );
-      const range = res.headers.get('Content-Range');
-      const total = range ? parseInt(range.split('/')[1], 10) : 0;
-      const el = document.getElementById('live-count');
-      el.textContent = isNaN(total) ? '—' : total;
-      el.classList.remove('loading');
+      const [totalRes, paidRes] = await Promise.all([
+        fetch(`${SUPABASE_URL}/rest/v1/pool_2027_submissions?select=id`, {
+          headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, Prefer: 'count=exact', Range: '0-0' }
+        }),
+        fetch(`${SUPABASE_URL}/rest/v1/pool_2027_submissions?paid=eq.true&select=id`, {
+          headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, Prefer: 'count=exact', Range: '0-0' }
+        }),
+      ]);
+      const totalRange = totalRes.headers.get('Content-Range');
+      const paidRange  = paidRes.headers.get('Content-Range');
+      const total = totalRange ? parseInt(totalRange.split('/')[1], 10) : 0;
+      const paid  = paidRange  ? parseInt(paidRange.split('/')[1], 10)  : 0;
+      const pot = paid * 20;
+
+      const countEl = document.getElementById('live-count');
+      countEl.textContent = isNaN(total) ? '—' : total;
+      countEl.classList.remove('loading');
+
+      const potEl = document.getElementById('live-pot');
+      if (!isNaN(pot) && paid > 0) {
+        potEl.textContent = `$${pot}`;
+        document.getElementById('prize-1st').textContent = `$${Math.floor(pot * 0.6)}`;
+        document.getElementById('prize-1st-note').textContent = `(60% · ${paid} entries)`;
+        document.getElementById('prize-2nd').textContent = `$${Math.floor(pot * 0.3)}`;
+        document.getElementById('prize-2nd-note').textContent = `(30%)`;
+        document.getElementById('prize-3rd').textContent = `$${Math.floor(pot * 0.1)}`;
+        document.getElementById('prize-3rd-note').textContent = `(10%)`;
+      } else {
+        potEl.textContent = '$0';
+      }
     } catch {
       document.getElementById('live-count').textContent = '—';
+      document.getElementById('live-pot').textContent = '—';
     }
   }
 
