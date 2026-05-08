@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pool 2026–27 | Parieur Discipliné</title>
+  <meta name="description" content="Draft your 2026–27 NHL salary-cap team. Pick 12 forwards, 6 defencemen, and 2 goalies under $95.5M. Best score at season's end wins the pool.">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://parieurdiscipline.com/pool-2027/">
+  <meta property="og:title" content="Hockey Pool 2026–27 — Parieur Discipliné">
+  <meta property="og:description" content="Draft your 2026–27 NHL team against the salary cap. 12 forwards, 6 defencemen, 2 goalies. Best total score wins.">
+  <meta property="og:image" content="https://parieurdiscipline.com/parieur_discipline_icon_1024.png">
+  <meta property="og:image:width" content="1024">
+  <meta property="og:image:height" content="1024">
+  <meta property="og:site_name" content="Parieur Discipliné">
+  <meta property="og:locale" content="en_CA">
+
+  <!-- Twitter / X Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Hockey Pool 2026–27 — Parieur Discipliné">
+  <meta name="twitter:description" content="Draft your 2026–27 NHL team against the salary cap. 12 forwards, 6 defencemen, 2 goalies. Best total score wins.">
+  <meta name="twitter:image" content="https://parieurdiscipline.com/parieur_discipline_icon_1024.png">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" sizes="1024x1024" href="../parieur_discipline_icon_1024.png">
+  <link rel="apple-touch-icon" href="../parieur_discipline_icon_1024.png">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,900;1,400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --rink: #07111f;
+      --red: #c8102e;
+      --gold: #ffb81c;
+      --silver: #a8b2be;
+      --green: #22c55e;
+      --blue: #7db4ff;
+      --line: rgba(255,255,255,0.08);
+      --nav-h: 44px;
+    }
+    body {
+      background: var(--rink);
+      background-image: radial-gradient(ellipse 90% 60% at 50% -5%, rgba(26,58,110,0.7) 0%, transparent 65%);
+      min-height: 100vh;
+      font-family: 'Barlow Condensed', sans-serif;
+      color: white;
+      padding-top: var(--nav-h);
+    }
+
+    /* ── NAV ── */
+    .site-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(7,17,31,0.92); border-bottom: 1px solid var(--line); backdrop-filter: blur(12px); }
+    .site-nav-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: var(--nav-h); padding: 0 1.5rem; }
+    .site-nav-brand { font-family: 'Bebas Neue', cursive; font-size: 1.5rem; color: var(--gold); letter-spacing: 4px; text-decoration: none; flex-shrink: 0; }
+    .site-nav-links { display: flex; align-items: center; gap: 0.5rem; }
+    .site-nav-links a { font-family: 'Barlow Condensed', sans-serif; font-size: 1rem; font-weight: 600; color: var(--silver); text-decoration: none; padding: 0.3rem 0.8rem; border-radius: 5px; letter-spacing: 1.5px; transition: color 0.15s, background 0.15s; }
+    .site-nav-links a:hover { color: white; background: rgba(255,255,255,0.07); }
+    .site-nav-links a.active { color: var(--gold); background: rgba(255,184,28,0.1); }
+    .nav-hamburger { display: none; flex-direction: column; justify-content: center; gap: 5px; width: 36px; height: 36px; cursor: pointer; border: none; background: none; padding: 6px; border-radius: 6px; }
+    .nav-hamburger span { display: block; height: 2px; background: var(--silver); border-radius: 2px; transition: background 0.15s; }
+    .nav-hamburger:hover span { background: white; }
+    .nav-drawer { display: none; position: fixed; top: var(--nav-h); left: 0; right: 0; bottom: 0; z-index: 99; background: rgba(7,17,31,0.97); backdrop-filter: blur(16px); flex-direction: column; gap: 0.25rem; padding: 1.25rem 1.5rem; border-top: 1px solid var(--line); }
+    .nav-drawer.open { display: flex; }
+    .nav-drawer a { font-family: 'Bebas Neue', cursive; font-size: 1.4rem; letter-spacing: 3px; color: var(--silver); text-decoration: none; padding: 0.65rem 0.75rem; border-radius: 8px; transition: color 0.15s, background 0.15s; }
+    .nav-drawer a:hover { color: white; background: rgba(255,255,255,0.06); }
+    .nav-drawer a.active { color: var(--gold); background: rgba(255,184,28,0.08); }
+    @media (max-width: 700px) { .site-nav-links { display: none; } .nav-hamburger { display: flex; } }
+
+    /* ── PAGE ── */
+    .page-wrap { max-width: 860px; margin: 0 auto; padding: 3.5rem 1.25rem 4rem; }
+
+    /* ── HERO ── */
+    .hero { text-align: center; margin-bottom: 3rem; }
+    .hero-logo { width: 88px; height: 88px; object-fit: contain; border-radius: 18px; margin-bottom: 1rem; filter: drop-shadow(0 4px 24px rgba(200,16,46,0.35)); }
+    .hero-eyebrow { font-size: 0.78rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--silver); opacity: 0.65; margin-bottom: 0.6rem; }
+    .hero h1 { font-family: 'Bebas Neue', cursive; font-size: clamp(2.6rem, 8vw, 5rem); letter-spacing: 6px; line-height: 0.95; text-shadow: 0 0 60px rgba(200,16,46,0.35), 0 4px 16px rgba(0,0,0,0.8); margin-bottom: 0.6rem; }
+    .hero h1 span { color: var(--gold); }
+    .hero-sub { font-size: clamp(1rem, 2.5vw, 1.25rem); font-weight: 600; color: var(--silver); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 2rem; }
+    .hero-cta { display: inline-flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; justify-content: center; }
+    .btn-primary { font-family: 'Bebas Neue', cursive; font-size: 1.2rem; letter-spacing: 3px; background: var(--red); color: white; border: none; border-radius: 8px; padding: 0.65rem 2.2rem; cursor: pointer; text-decoration: none; transition: background 0.15s, transform 0.1s, box-shadow 0.15s; box-shadow: 0 4px 20px rgba(200,16,46,0.4); display: inline-block; }
+    .btn-primary:hover { background: #e01232; transform: translateY(-1px); box-shadow: 0 6px 28px rgba(200,16,46,0.5); }
+    .btn-secondary { font-family: 'Bebas Neue', cursive; font-size: 1.2rem; letter-spacing: 3px; background: rgba(255,255,255,0.06); color: var(--silver); border: 1px solid var(--line); border-radius: 8px; padding: 0.65rem 2.2rem; cursor: pointer; text-decoration: none; transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.1s; display: inline-block; }
+    .btn-secondary:hover { background: rgba(255,255,255,0.1); color: white; border-color: rgba(255,255,255,0.18); transform: translateY(-1px); }
+
+    /* ── STAT STRIP ── */
+    .stat-strip { display: flex; gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; margin-bottom: 3rem; }
+    .stat-cell { flex: 1; background: rgba(255,255,255,0.025); padding: 1rem 0.5rem; text-align: center; }
+    .stat-num { font-family: 'Bebas Neue', cursive; font-size: clamp(1.6rem, 4vw, 2.4rem); letter-spacing: 2px; color: var(--gold); line-height: 1; }
+    .stat-label { font-size: 0.7rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--silver); opacity: 0.6; margin-top: 2px; }
+    @media (max-width: 500px) { .stat-cell { padding: 0.75rem 0.25rem; } .stat-label { font-size: 0.6rem; letter-spacing: 1px; } }
+
+    /* ── SECTION ── */
+    .section { margin-bottom: 2.5rem; }
+    .section-title { font-family: 'Bebas Neue', cursive; font-size: 1.3rem; letter-spacing: 4px; color: white; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.6rem; }
+    .section-title::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+
+    /* ── HOW IT WORKS ── */
+    .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+    @media (max-width: 620px) { .steps { grid-template-columns: 1fr; } }
+    .step-card { background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 10px; padding: 1.25rem; }
+    .step-num { font-family: 'Bebas Neue', cursive; font-size: 2.2rem; letter-spacing: 2px; color: var(--red); line-height: 1; margin-bottom: 0.4rem; opacity: 0.7; }
+    .step-title { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 2.5px; color: white; margin-bottom: 0.35rem; }
+    .step-body { font-size: 0.88rem; font-weight: 400; color: var(--silver); line-height: 1.5; }
+    .step-body strong { color: white; font-weight: 700; }
+
+    /* ── SCORING ── */
+    .scoring-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+    @media (max-width: 620px) { .scoring-grid { grid-template-columns: 1fr; } }
+    .scoring-card { background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 10px; padding: 1.25rem; }
+    .scoring-pos { font-family: 'Bebas Neue', cursive; font-size: 1.05rem; letter-spacing: 3px; margin-bottom: 0.6rem; }
+    .scoring-pos.fwd { color: var(--blue); }
+    .scoring-pos.def { color: var(--gold); }
+    .scoring-pos.gol { color: var(--green); }
+    .scoring-row { display: flex; align-items: center; justify-content: space-between; padding: 0.3rem 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.88rem; color: var(--silver); }
+    .scoring-row:last-child { border-bottom: none; }
+    .scoring-row .pts { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 1px; color: var(--gold); }
+
+    /* ── ROSTER RULES ── */
+    .roster-pills { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .roster-pill { display: inline-flex; align-items: center; gap: 0.4rem; background: rgba(255,255,255,0.05); border: 1px solid var(--line); border-radius: 20px; padding: 0.35rem 1rem; font-size: 0.85rem; font-weight: 700; letter-spacing: 1px; }
+    .roster-pill .pos { font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 2px; }
+    .roster-pill.fwd .pos { color: var(--blue); }
+    .roster-pill.def .pos { color: var(--gold); }
+    .roster-pill.gol .pos { color: var(--green); }
+    .roster-pill .n { color: white; }
+    .cap-pill { display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(200,16,46,0.1); border: 1px solid rgba(200,16,46,0.25); border-radius: 20px; padding: 0.35rem 1rem; font-size: 0.85rem; font-weight: 700; letter-spacing: 1px; color: #ff8a9b; }
+    .cap-pill strong { color: white; }
+
+    /* ── PRIZES ── */
+    .prize-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+    @media (max-width: 500px) { .prize-grid { grid-template-columns: 1fr; } }
+    .prize-card { background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 10px; padding: 1.25rem; text-align: center; }
+    .prize-card.gold { border-color: rgba(255,184,28,0.3); background: rgba(255,184,28,0.05); }
+    .prize-card.silver { border-color: rgba(192,200,212,0.25); background: rgba(192,200,212,0.03); }
+    .prize-card.bronze { border-color: rgba(205,127,50,0.25); background: rgba(205,127,50,0.03); }
+    .prize-medal { font-size: 2rem; margin-bottom: 0.3rem; }
+    .prize-place { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 3px; color: var(--silver); margin-bottom: 0.25rem; }
+    .prize-amount { font-family: 'Bebas Neue', cursive; font-size: 2rem; letter-spacing: 2px; line-height: 1; }
+    .prize-card.gold .prize-amount { color: var(--gold); }
+    .prize-card.silver .prize-amount { color: var(--silver); }
+    .prize-card.bronze .prize-amount { color: #cd7f32; }
+    .prize-note { font-size: 0.75rem; font-weight: 600; color: rgba(255,255,255,0.3); letter-spacing: 1px; margin-top: 0.3rem; }
+
+    /* ── RULES CARD ── */
+    .rules-card { background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 10px; padding: 1.25rem 1.5rem; }
+    .rule-item { display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.55rem 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.92rem; color: var(--silver); line-height: 1.4; }
+    .rule-item:last-child { border-bottom: none; }
+    .rule-item strong { color: white; }
+    .rule-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--red); flex-shrink: 0; margin-top: 5px; }
+
+    /* ── BOTTOM CTA ── */
+    .bottom-cta { text-align: center; margin-top: 3rem; padding: 2.5rem 1.5rem; background: rgba(200,16,46,0.06); border: 1px solid rgba(200,16,46,0.15); border-radius: 14px; }
+    .bottom-cta p { font-size: 0.9rem; font-weight: 600; color: var(--silver); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 1.25rem; }
+
+    /* ── LIVE COUNT ── */
+    #live-count { font-family: 'Bebas Neue', cursive; font-size: 2.4rem; letter-spacing: 2px; color: var(--gold); }
+    #live-count.loading { color: rgba(255,184,28,0.3); }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="site-nav">
+  <div class="site-nav-inner">
+    <a class="site-nav-brand" href="/pool-2027/">PARIEUR</a>
+    <div class="site-nav-links">
+      <a href="/pool-2027/" class="active">Home</a>
+      <a href="/pool-2027/draft/">Draft</a>
+      <a href="/pool-2027/standings/">Standings</a>
+    </div>
+    <button class="nav-hamburger" onclick="toggleDrawer()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+<div class="nav-drawer" id="nav-drawer">
+  <a href="/pool-2027/" class="active">Home</a>
+  <a href="/pool-2027/draft/">Draft</a>
+  <a href="/pool-2027/standings/">Standings</a>
+</div>
+
+<div class="page-wrap">
+
+  <!-- HERO -->
+  <div class="hero">
+    <img src="../parieur_discipline_icon_1024.png" alt="Parieur Discipliné" class="hero-logo">
+    <div class="hero-eyebrow">Parieur Discipliné · Saison 2026–27</div>
+    <h1>HOCKEY<br><span>POOL</span></h1>
+    <div class="hero-sub">Draft your NHL team · Beat the cap · Win the pool</div>
+    <div class="hero-cta">
+      <a href="/pool-2027/draft/" class="btn-primary">Draft My Team</a>
+      <a href="/pool-2027/standings/" class="btn-secondary">View Standings</a>
+    </div>
+  </div>
+
+  <!-- LIVE COUNT -->
+  <div class="stat-strip">
+    <div class="stat-cell">
+      <div class="stat-num" id="live-count">—</div>
+      <div class="stat-label">Teams Entered</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-num" id="live-pot">—</div>
+      <div class="stat-label">Paid Pool Pot</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-num">$95.5M</div>
+      <div class="stat-label">Salary Cap</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-num">Oct 1</div>
+      <div class="stat-label">Deadline 2026</div>
+    </div>
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <div class="section">
+    <div class="section-title">How It Works</div>
+    <div class="steps">
+      <div class="step-card">
+        <div class="step-num">01</div>
+        <div class="step-title">Build Your Roster</div>
+        <div class="step-body">Pick <strong>12 forwards</strong>, <strong>6 defencemen</strong>, and <strong>2 goalies</strong> from any NHL team. Your total salary must stay under the <strong>$95.5M cap</strong>.</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">02</div>
+        <div class="step-title">Submit Your Team</div>
+        <div class="step-body">Enter your name and email. One submission per person — you can update your pick before the season locks. Choose <strong>paid</strong> or <strong>free</strong> entry.</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">03</div>
+        <div class="step-title">Accumulate Points</div>
+        <div class="step-body">Points accumulate all season based on your players' real-life stats. The team with the most points at the end of the regular season wins.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCORING -->
+  <div class="section">
+    <div class="section-title">Scoring Rules</div>
+    <div class="scoring-grid">
+      <div class="scoring-card">
+        <div class="scoring-pos fwd">Forwards</div>
+        <div class="scoring-row"><span>Goal</span><span class="pts">1 PT</span></div>
+        <div class="scoring-row"><span>Assist</span><span class="pts">1 PT</span></div>
+        <div class="scoring-row" style="font-style:italic;opacity:0.5;font-size:0.78rem;"><span>1 pt per point</span><span></span></div>
+      </div>
+      <div class="scoring-card">
+        <div class="scoring-pos def">Defencemen</div>
+        <div class="scoring-row"><span>Goal</span><span class="pts">2 PTS</span></div>
+        <div class="scoring-row"><span>Assist</span><span class="pts">1 PT</span></div>
+        <div class="scoring-row" style="font-style:italic;opacity:0.5;font-size:0.78rem;"><span>goals worth double</span><span></span></div>
+      </div>
+      <div class="scoring-card">
+        <div class="scoring-pos gol">Goalies</div>
+        <div class="scoring-row"><span>Win</span><span class="pts">2 PTS</span></div>
+        <div class="scoring-row"><span>Shutout</span><span class="pts">3 PTS</span></div>
+        <div class="scoring-row" style="font-style:italic;opacity:0.5;font-size:0.78rem;"><span>shutout stacks with win</span><span></span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROSTER RULES -->
+  <div class="section">
+    <div class="section-title">Roster Rules</div>
+    <div class="rules-card">
+      <div class="rule-item">
+        <div class="rule-dot"></div>
+        <div><strong>Deadline: October 1, 2026</strong> — submissions lock when the NHL season opens. You can update your pick before that date by re-submitting with the same email.</div>
+      </div>
+      <div class="rule-item">
+        <div class="rule-dot"></div>
+        <div><strong>12 Forwards, 6 Defencemen, 2 Goalies</strong> — exactly 20 players total. You cannot submit until all slots are filled.</div>
+      </div>
+      <div class="rule-item">
+        <div class="rule-dot"></div>
+        <div><strong>$95.5M salary cap</strong> — player cap hits are based on their current NHL contracts. The draft tool will block you from adding players that would put you over the cap.</div>
+      </div>
+      <div class="rule-item">
+        <div class="rule-dot"></div>
+        <div><strong>One entry per email address.</strong> If you re-submit with the same email, your previous team is overwritten.</div>
+      </div>
+      <div class="rule-item">
+        <div class="rule-dot"></div>
+        <div><strong>Stats used</strong> are from the 2025–26 NHL season. No trades or signings mid-pool — your pick is locked at submission time.</div>
+      </div>
+      <div class="rule-item">
+        <div class="rule-dot"></div>
+        <div><strong>Paid vs Free pool</strong> — both pools use identical scoring. The paid pool has a $20 entry fee with a cash prize; the free pool is for bragging rights.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRIZES -->
+  <div class="section">
+    <div class="section-title">Prizes (Paid Pool · $20 entry)</div>
+    <div class="prize-grid">
+      <div class="prize-card gold">
+        <div class="prize-medal">🥇</div>
+        <div class="prize-place">1st Place</div>
+        <div class="prize-amount" id="prize-1st">60%</div>
+        <div class="prize-note" id="prize-1st-note">of the pot</div>
+      </div>
+      <div class="prize-card silver">
+        <div class="prize-medal">🥈</div>
+        <div class="prize-place">2nd Place</div>
+        <div class="prize-amount" id="prize-2nd">30%</div>
+        <div class="prize-note" id="prize-2nd-note">of the pot</div>
+      </div>
+      <div class="prize-card bronze">
+        <div class="prize-medal">🥉</div>
+        <div class="prize-place">3rd Place</div>
+        <div class="prize-amount" id="prize-3rd">10%</div>
+        <div class="prize-note" id="prize-3rd-note">of the pot</div>
+      </div>
+    </div>
+    <p style="text-align:center;font-size:0.78rem;color:rgba(255,255,255,0.3);margin-top:0.75rem;letter-spacing:1px;">
+      Send $20 via <strong style="color:rgba(255,255,255,0.5);">Interac</strong> to <strong style="color:rgba(255,255,255,0.5);">justin.do@hotmail.com</strong> after submitting your team
+    </p>
+  </div>
+
+  <!-- BOTTOM CTA -->
+  <div class="bottom-cta">
+    <p>Submissions are open — draft your team before the season starts</p>
+    <a href="/pool-2027/draft/" class="btn-primary">Draft My Team Now</a>
+  </div>
+
+</div>
+
+<script>
+  const SUPABASE_URL = 'https://dvfbkrgmdvdtkxoviiwm.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR2ZmJrcmdtZHZkdGt4b3ZpaXdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQwMzM3OTUsImV4cCI6MjA0OTYwOTc5NX0.MfgAb5UWJ3jJ-KTT50EapBRRyrHlV-1POEyQwDBhT9I';
+
+  function toggleDrawer() {
+    document.getElementById('nav-drawer').classList.toggle('open');
+  }
+
+  async function loadCount() {
+    try {
+      const [totalRes, paidRes] = await Promise.all([
+        fetch(`${SUPABASE_URL}/rest/v1/pool_2027_submissions?select=id`, {
+          headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, Prefer: 'count=exact', Range: '0-0' }
+        }),
+        fetch(`${SUPABASE_URL}/rest/v1/pool_2027_submissions?paid=eq.true&select=id`, {
+          headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, Prefer: 'count=exact', Range: '0-0' }
+        }),
+      ]);
+      const totalRange = totalRes.headers.get('Content-Range');
+      const paidRange  = paidRes.headers.get('Content-Range');
+      const total = totalRange ? parseInt(totalRange.split('/')[1], 10) : 0;
+      const paid  = paidRange  ? parseInt(paidRange.split('/')[1], 10)  : 0;
+      const pot = paid * 20;
+
+      const countEl = document.getElementById('live-count');
+      countEl.textContent = isNaN(total) ? '—' : total;
+      countEl.classList.remove('loading');
+
+      const potEl = document.getElementById('live-pot');
+      if (!isNaN(pot) && paid > 0) {
+        potEl.textContent = `$${pot}`;
+        document.getElementById('prize-1st').textContent = `$${Math.floor(pot * 0.6)}`;
+        document.getElementById('prize-1st-note').textContent = `(60% · ${paid} entries)`;
+        document.getElementById('prize-2nd').textContent = `$${Math.floor(pot * 0.3)}`;
+        document.getElementById('prize-2nd-note').textContent = `(30%)`;
+        document.getElementById('prize-3rd').textContent = `$${Math.floor(pot * 0.1)}`;
+        document.getElementById('prize-3rd-note').textContent = `(10%)`;
+      } else {
+        potEl.textContent = '$0';
+      }
+    } catch {
+      document.getElementById('live-count').textContent = '—';
+      document.getElementById('live-pot').textContent = '—';
+    }
+  }
+
+  document.getElementById('live-count').classList.add('loading');
+  loadCount();
+</script>
+</body>
+</html>
