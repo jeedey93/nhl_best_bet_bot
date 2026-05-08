@@ -218,6 +218,7 @@
     .col-g     { width: 36px; }
     .col-a     { width: 36px; }
     .col-pts   { width: 42px; }
+    .col-fpts  { width: 46px; }
     .col-w     { width: 36px; }
     .col-otl   { width: 36px; }
     .col-so    { width: 36px; }
@@ -248,6 +249,7 @@
     .td-g    { color: #ff7a8a; }
     .td-a    { color: #7db4ff; }
     .td-pts  { color: var(--gold); font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 0.5px; }
+    .td-fpts { color: var(--gold); font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 0.5px; }
     .td-w    { color: #ff7a8a; }
     .td-otl  { color: rgba(255,255,255,0.4); }
     .td-so   { color: #7db4ff; }
@@ -916,6 +918,7 @@
       <th class="col-so"     onclick="setSort('shutouts',this)" data-sort="shutouts" title="Shutouts">SO  <span class="sort-arrow" id="sa-shutouts"></span></th>
       <th class="col-gaa"    onclick="setSort('gaa',this)"    data-sort="gaa"    title="Goals Against Average">GAA <span class="sort-arrow" id="sa-gaa"></span></th>
       <th class="col-svpct"  onclick="setSort('save_pct',this)" data-sort="save_pct" title="Save Percentage">SV% <span class="sort-arrow" id="sa-save_pct"></span></th>
+      <th class="col-fpts"   onclick="setSort('points',this)"  data-sort="points"   title="Fantasy Points">FPTS <span class="sort-arrow" id="sa-points"></span></th>
       <th class="col-cap"    onclick="setSort('salary',this)" data-sort="salary" title="Cap Hit">CAP <span class="sort-arrow" id="sa-salary">↓</span></th>
       <th class="col-eff"    onclick="setSort('value',this)"  data-sort="value"  title="Efficiency: Pts ÷ √Cap(M)">EFF <span class="sort-arrow" id="sa-value"></span></th>
       <th class="col-act"></th>
@@ -924,7 +927,7 @@
       <th class="col-gp"     onclick="setSort('gp',this)"     data-sort="gp"     title="Games Played">GP  <span class="sort-arrow" id="sa-gp"></span></th>
       <th class="col-g"      onclick="setSort('goals',this)"  data-sort="goals"  title="Goals">G   <span class="sort-arrow" id="sa-goals"></span></th>
       <th class="col-a"      onclick="setSort('assists',this)" data-sort="assists" title="Assists">A   <span class="sort-arrow" id="sa-assists"></span></th>
-      <th class="col-pts"    onclick="setSort('points',this)" data-sort="points" title="Pool Points">PTS <span class="sort-arrow" id="sa-points"></span></th>
+      <th class="col-fpts"   onclick="setSort('points',this)" data-sort="points" title="Fantasy Points">FPTS <span class="sort-arrow" id="sa-points"></span></th>
       <th class="col-cap"    onclick="setSort('salary',this)" data-sort="salary" title="Cap Hit">CAP <span class="sort-arrow" id="sa-salary">↓</span></th>
       <th class="col-eff"    onclick="setSort('value',this)"  data-sort="value"  title="Efficiency: Pts ÷ √Cap(M)">EFF <span class="sort-arrow" id="sa-value"></span></th>
       <th class="col-act"></th>
@@ -934,7 +937,7 @@
   function setFilter(pos, el) {
     activeFilter = pos;
     document.querySelectorAll('[data-pos]').forEach(b => b.classList.toggle('active', b.dataset.pos === pos));
-    if (activeSort === 'points' && pos === 'G') { activeSort = 'salary'; activeSortDir = 'desc'; }
+    if (activeSort === 'points' && pos === 'G') { /* keep — poolScore works for goalies too */ }
     if (activeSort === 'goals' || activeSort === 'assists') { activeSort = 'salary'; activeSortDir = 'desc'; }
     if ((activeSort === 'wins' || activeSort === 'ot_losses' || activeSort === 'shutouts' || activeSort === 'gaa' || activeSort === 'save_pct') && pos !== 'G') { activeSort = 'salary'; activeSortDir = 'desc'; }
     renderThead();
@@ -985,7 +988,7 @@
     document.querySelectorAll('.pool-table th').forEach(th => th.classList.toggle('sort-active', th.dataset.sort === activeSort));
   }
 
-  function colCount() { return activeFilter === 'G' ? 10 : 8; }
+  function colCount() { return activeFilter === 'G' ? 11 : 8; }
 
   function renderTableRows() {
     const tbody = document.getElementById('pool-tbody');
@@ -1096,6 +1099,7 @@
         <td class="td-so">${soVal}</td>
         <td class="td-gaa">${gaaVal}</td>
         <td class="td-svpct">${svpctVal}</td>
+        <td class="td-fpts">${pts}</td>
         ${capCell}${effCell}${actCell}`;
     } else {
       const gVal = p.goals != null ? p.goals : '—';
@@ -1104,7 +1108,7 @@
         <td class="td-gp">${gpVal}</td>
         <td class="td-g">${gVal}</td>
         <td class="td-a">${aVal}</td>
-        <td class="td-pts">${pts}</td>
+        <td class="td-fpts">${pts}</td>
         ${capCell}${effCell}${actCell}`;
     }
 
