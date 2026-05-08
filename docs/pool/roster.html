@@ -53,10 +53,23 @@
     .last-trade-banner-close:hover { color: white; }
     @keyframes fadeIn { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
 
-    /* ── STICKY TEAM SELECTOR ── */
+    /* ── STICKY BARS ── */
     .sticky-team-bar { position: sticky; top: calc(var(--nav-h) + env(safe-area-inset-top, 0px)); z-index: 90; background: rgba(7,17,31,0.96); border-bottom: 1px solid rgba(255,255,255,0.07); backdrop-filter: blur(14px); margin: 0 -1rem 0.75rem; padding: 0.45rem 1rem; transition: box-shadow 0.2s; }
     .sticky-team-bar.shadowed { box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
-    .team-selector { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+
+    /* Top-level league tabs */
+    .league-tabs { display: flex; gap: 3px; justify-content: center; flex-wrap: wrap; }
+    .league-tab { font-family: 'Bebas Neue', cursive; font-size: 0.82rem; letter-spacing: 2px; padding: 5px 14px; border-radius: 5px; cursor: pointer; color: var(--silver); transition: background 0.15s, color 0.15s; background: transparent; border: none; position: relative; }
+    .league-tab:hover { color: white; background: rgba(255,255,255,0.05); }
+    .league-tab.active { background: rgba(255,184,28,0.12); color: var(--gold); }
+    .league-tab.tb-tab.active { background: rgba(245,158,11,0.12); color: var(--amber); }
+    .league-tab .tab-count-badge { position: absolute; top: 2px; right: 6px; font-family: 'Barlow Condensed', sans-serif; font-size: 0.55rem; font-weight: 700; background: var(--amber); color: #07111f; border-radius: 20px; padding: 0 4px; min-width: 14px; text-align: center; line-height: 13px; display: none; }
+    .league-tab .tab-count-badge.visible { display: block; }
+
+    /* Team selector row (shown when a team is active, inside sticky-team-bar) */
+    .team-selector-bar { border-top: 1px solid rgba(255,255,255,0.06); margin: 0.35rem -1rem -0.45rem; padding: 0.35rem 1rem 0.45rem; }
+    .team-selector-bar.hidden { display: none; }
+    .team-selector { display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; }
     .team-btn { font-family: 'Bebas Neue', cursive; font-size: 0.84rem; letter-spacing: 1.5px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); color: var(--silver); border-radius: 7px; padding: 4px 12px; cursor: pointer; transition: background 0.15s, border-color 0.15s, color 0.15s; }
     .team-btn:hover { background: rgba(255,255,255,0.08); color: white; }
     .team-btn.active { background: rgba(255,184,28,0.1); border-color: rgba(255,184,28,0.4); color: var(--gold); }
@@ -575,22 +588,7 @@
     .at-summary-value { font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 1px; color: white; }
     .at-summary-value.gold { color: var(--gold); }
 
-    /* ── VIEW TABS ── */
-    .roster-view-tabs { display: flex; gap: 4px; margin-bottom: 0.75rem; background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 8px; padding: 3px; }
-    .roster-view-tab { font-family: 'Bebas Neue', cursive; font-size: 0.82rem; letter-spacing: 2px; padding: 5px 14px; border-radius: 5px; cursor: pointer; flex: 1; text-align: center; color: var(--silver); transition: background 0.15s, color 0.15s; background: transparent; border: none; position: relative; }
-    .roster-view-tab:hover { color: white; }
-    .roster-view-tab.active { background: rgba(255,184,28,0.12); color: var(--gold); }
-    /* TB tab has amber accent when active */
-    .roster-view-tab.tb-tab.active { background: rgba(245,158,11,0.12); color: var(--amber); }
-    /* count badge on TB tab */
-    .tab-count-badge {
-      position: absolute; top: 2px; right: 6px;
-      font-family: 'Barlow Condensed', sans-serif; font-size: 0.55rem; font-weight: 700;
-      background: var(--amber); color: #07111f; border-radius: 20px;
-      padding: 0 4px; min-width: 14px; text-align: center; line-height: 13px;
-      display: none;
-    }
-    .tab-count-badge.visible { display: block; }
+    /* ── VIEW TABS (legacy, unused) ── */
 
     /* ── RESPONSIVE ── */
     @media (max-width: 680px) {
@@ -710,24 +708,25 @@
   </div>
 
   <div class="sticky-team-bar" id="sticky-team-bar">
-    <div class="team-selector" id="team-selector"></div>
+    <div class="league-tabs" id="league-tabs">
+      <button type="button" class="league-tab" id="tab-leaguefeed" onclick="setRosterView('leaguefeed')">League Feed</button>
+      <button type="button" class="league-tab" id="tab-allteams"   onclick="setRosterView('allteams')">All Teams</button>
+      <button type="button" class="league-tab" id="tab-fa"         onclick="setRosterView('fa')">Free Agents</button>
+      <button type="button" class="league-tab tb-tab" id="tab-block" onclick="setRosterView('block')">
+        Trading Block
+        <span class="tab-count-badge" id="tb-tab-badge"></span>
+      </button>
+      <button type="button" class="league-tab tb-tab" id="tab-proposals" onclick="setRosterView('proposals')">
+        Proposals
+        <span class="tab-count-badge" id="proposals-tab-badge"></span>
+      </button>
+    </div>
+    <div class="team-selector-bar" id="team-selector-bar">
+      <div class="team-selector" id="team-selector"></div>
+    </div>
   </div>
 
   <div class="team-accent-bar" id="team-accent-bar"></div>
-
-  <div class="roster-view-tabs" id="roster-view-tabs">
-    <button type="button" class="roster-view-tab active" id="tab-roster"   onclick="setRosterView('roster')">My Roster</button>
-    <button type="button" class="roster-view-tab"        id="tab-allteams" onclick="setRosterView('allteams')">All Teams</button>
-    <button type="button" class="roster-view-tab"        id="tab-fa"       onclick="setRosterView('fa')">Free Agents</button>
-    <button type="button" class="roster-view-tab tb-tab" id="tab-block"    onclick="setRosterView('block')">
-      Trading Block
-      <span class="tab-count-badge" id="tb-tab-badge"></span>
-    </button>
-    <button type="button" class="roster-view-tab tb-tab" id="tab-proposals" onclick="setRosterView('proposals')">
-      Proposals
-      <span class="tab-count-badge" id="proposals-tab-badge"></span>
-    </button>
-  </div>
 
   <div class="bulk-swap-bar hidden" id="bulk-swap-bar">
     <div class="last-trade-banner-icon">⇄</div>
@@ -741,6 +740,9 @@
 
   <div id="roster-view">
     <div id="content"><div class="msg">Loading…</div></div>
+  </div>
+  <div id="leaguefeed-view" style="display:none">
+    <div id="leaguefeed-content"><div class="msg">Loading…</div></div>
   </div>
   <div id="allteams-view" style="display:none">
     <div id="allteams-content"><div class="msg">Loading…</div></div>
@@ -1514,13 +1516,15 @@
      RENDER HELPERS
   ═══════════════════════════════════════════════════ */
   function renderTeamSelector(){
-    const buttons=teams.map(t=>`<button class="team-btn ${!showLeagueFeed&&t.id===activeTeamId?'active':''}" onclick="setActiveTeam('${t.id}')">${escapeHtml(t.name)}</button>`).join('');
-    const leagueBtn=`<button class="team-btn ${showLeagueFeed?'active':''}" onclick="setLeagueFeedView()">League Feed</button>`;
-    document.getElementById('team-selector').innerHTML=buttons+leagueBtn;
+    const buttons=teams.map(t=>`<button class="team-btn ${!showLeagueFeed&&t.id===activeTeamId&&_rosterView==='team'?'active':''}" onclick="setActiveTeam('${t.id}')">${escapeHtml(t.name)}</button>`).join('');
+    document.getElementById('team-selector').innerHTML=buttons;
+    // Show team selector bar only when in team view
+    const bar=document.getElementById('team-selector-bar');
+    if(bar)bar.classList.toggle('hidden',_rosterView!=='team');
   }
 
-  function setActiveTeam(teamId){showLeagueFeed=false;activeTeamId=teamId;renderTeamSelector();render();}
-  function setLeagueFeedView(){showLeagueFeed=true;renderTeamSelector();render();}
+  function setActiveTeam(teamId){showLeagueFeed=false;activeTeamId=teamId;_rosterView='team';renderTeamSelector();updateLeagueTabActive();render();}
+  function setLeagueFeedView(){showLeagueFeed=true;setRosterView('leaguefeed');}
 
   function buildWarningBox(){
     if(!loadWarnings.length)return'';
@@ -1691,7 +1695,7 @@
         });
       }else{html+=buildEmptyState('📋','No swaps match your filters','Try clearing the team or date filter');}
       html+='</div>';
-      document.getElementById('content').innerHTML=html;
+      document.getElementById('leaguefeed-content').innerHTML=html;
       return;
     }
 
@@ -2184,16 +2188,28 @@
   /* ═══════════════════════════════════════════════════
      VIEW MANAGEMENT
   ═══════════════════════════════════════════════════ */
-  let _rosterView='roster';
+  let _rosterView='team'; // 'team' | 'leaguefeed' | 'allteams' | 'fa' | 'block' | 'proposals'
   let _faFilter='ALL', _faSearch='';
+
+  function updateLeagueTabActive(){
+    const leagueTabs=['leaguefeed','allteams','fa','block','proposals'];
+    leagueTabs.forEach(id=>{
+      document.getElementById(`tab-${id}`)?.classList.toggle('active',_rosterView===id);
+    });
+  }
 
   function setRosterView(v){
     _rosterView=v;
-    ['roster','allteams','fa','block','proposals'].forEach(id=>{
-      document.getElementById(`tab-${id}`)?.classList.toggle('active',v===id);
+    showLeagueFeed=(v==='leaguefeed');
+    // show/hide content panels
+    const allViews=['roster','leaguefeed','allteams','fa','block','proposals'];
+    allViews.forEach(id=>{
       const view=document.getElementById(`${id}-view`);
-      if(view)view.style.display=v===id?'':'none';
+      if(view)view.style.display=(v===id||(v==='team'&&id==='roster'))?'':'none';
     });
+    updateLeagueTabActive();
+    renderTeamSelector();
+    if(v==='leaguefeed')render();
     if(v==='allteams')renderAllTeams();
     if(v==='fa')renderFa();
     if(v==='block')renderTradingBlock();
