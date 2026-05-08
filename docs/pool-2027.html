@@ -711,6 +711,10 @@
     const slots = rosterSlugs[pos];
     const emptyIdx = slots.findIndex(s => !s);
     if (emptyIdx === -1) { toast(`${pos === 'F' ? 'Forward' : pos === 'D' ? 'Defence' : 'Goalie'} slots full`); return; }
+    if (currentCapUsed() + (p.cap_hit || 0) > CAP_MAX) {
+      toast(`Over cap — $${((currentCapUsed() + (p.cap_hit || 0) - CAP_MAX) / 1_000_000).toFixed(2)}M too expensive`);
+      return;
+    }
     slots[emptyIdx] = p.puckpedia_slug;
     saveDraft(); refreshRoster(); renderPool(); updateCapBar(); updateSubmitBtn();
   }
@@ -964,7 +968,8 @@
     const goalieLabelG = pos === 'G' && activeFilter !== 'G' ? `<span style="font-size:0.7rem;color:rgba(255,184,28,0.55);margin-right:2px;">W</span>` : '';
     const goalieLabelA = pos === 'G' && activeFilter !== 'G' ? `<span style="font-size:0.7rem;color:rgba(255,255,255,0.3);margin-right:2px;">SO</span>` : '';
 
-    const actBtn = isOwned ? '' : `<button class="tbl-add-btn" title="Add to team">+</button>`;
+    const wouldBust = !isOwned && capAfter > CAP_MAX;
+    const actBtn = isOwned ? '' : `<button class="tbl-add-btn" ${wouldBust ? 'disabled title="Would exceed salary cap"' : 'title="Add to team"'} style="${wouldBust ? 'opacity:0.3;cursor:not-allowed;' : ''}">+</button>`;
 
     tr.innerHTML = `
       <td style="padding:0;"><div class="td-player">
@@ -985,7 +990,7 @@
 
     if (!isOwned) {
       const addBtn = tr.querySelector('.tbl-add-btn');
-      if (addBtn) addBtn.addEventListener('click', e => { e.stopPropagation(); addPlayer(p); });
+      if (addBtn && !addBtn.disabled) addBtn.addEventListener('click', e => { e.stopPropagation(); addPlayer(p); });
       if (p.cap_hit) {
         tr.addEventListener('mouseenter', e => showCapTooltip(e, p, currentCap, capLeft, wouldOverCap, pts, eff));
         tr.addEventListener('mousemove', moveCapTooltip);
