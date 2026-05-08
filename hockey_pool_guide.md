@@ -227,6 +227,7 @@ You don't need to do anything for the following — they happen on their own:
 | Roster | Performance signal (▲ ▼ =) per player | ✅ |
 | Roster | Injury badges | ✅ |
 | Roster | Free agents tab | ✅ |
+| Roster | Drop player to free agents (with confirmation) | ✅ |
 | Roster | Trading block listing | ✅ |
 | Stats | Automatic daily sync from NHL API | ✅ |
 | Stats | Active-window scoring (points only while active) | ✅ |
@@ -243,9 +244,8 @@ These are improvements that would make the pool richer and easier to use:
 | # | Feature | Why It Would Help |
 |---|---|---|
 | 1 | **Add players directly from the Roster page** | Right now you have to go back to the Draft Builder to add a free agent — it would be faster to do it from the same page where you manage swaps |
-| 2 | **Drop a player back to free agents** | There's no way to fully release a player from a team — moving to bench is the closest option, but the player still occupies a bench slot |
-| 3 | **Draft lock once all rosters are full** | Prevent accidental changes to rosters after the draft is complete |
-| 4 | **Lock individual players** | Let the commissioner mark a player as untouchable so they can't be accidentally moved or traded |
+| 2 | **Draft lock once all rosters are full** | Prevent accidental changes to rosters after the draft is complete |
+| 3 | **Lock individual players** | Let the commissioner mark a player as untouchable so they can't be accidentally moved or traded |
 
 ### Standings & Analytics
 

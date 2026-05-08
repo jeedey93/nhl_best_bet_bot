@@ -227,6 +227,7 @@ Vous n'avez rien à faire pour les éléments suivants — ils se produisent d'e
 | Équipe | Signal de performance (▲ ▼ =) par joueur | ✅ |
 | Équipe | Badges de blessure | ✅ |
 | Équipe | Onglet agents libres | ✅ |
+| Équipe | Relâcher un joueur vers les agents libres (avec confirmation) | ✅ |
 | Équipe | Liste du bloc des échanges | ✅ |
 | Stats | Synchronisation automatique quotidienne depuis l'API NHL | ✅ |
 | Stats | Pointage par fenêtre active (points seulement quand actif) | ✅ |
@@ -243,9 +244,8 @@ Ces améliorations rendraient le pool plus riche et plus facile à utiliser :
 | # | Fonctionnalité | Pourquoi ce serait utile |
 |---|---|---|
 | 1 | **Ajouter des joueurs directement depuis la page Équipe** | Présentement, il faut retourner dans la page de repêchage pour ajouter un agent libre — ce serait plus rapide depuis la même page que les swaps |
-| 2 | **Libérer un joueur vers les agents libres** | Il n'y a pas de façon de relâcher complètement un joueur — l'envoyer au banc est la seule option, mais le joueur occupe quand même une place |
-| 3 | **Verrouillage du repêchage une fois les alignements complets** | Empêcher les modifications accidentelles une fois que le repêchage est terminé |
-| 4 | **Verrouiller des joueurs individuels** | Permettre au commissaire de marquer un joueur comme intouchable pour qu'il ne puisse pas être déplacé ou échangé par erreur |
+| 2 | **Verrouillage du repêchage une fois les alignements complets** | Empêcher les modifications accidentelles une fois que le repêchage est terminé |
+| 3 | **Verrouiller des joueurs individuels** | Permettre au commissaire de marquer un joueur comme intouchable pour qu'il ne puisse pas être déplacé ou échangé par erreur |
 
 ### Classement et analyses
 
