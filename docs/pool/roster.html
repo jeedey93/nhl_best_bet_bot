@@ -970,7 +970,7 @@
   function fallbackPlayer(slug,group='F'){ return{puckpedia_slug:slug,player_name:slug?.split('/').pop()?.replace(/-/g,' ')||slug,position:group,cap_hit:0,team:''}; }
   function getPlayer(slug,group='F'){ return slugMap()[slug]||fallbackPlayer(slug,group); }
   function teamTradeMatch(trade,team){ const byId=!!trade.team_id&&!!team.id&&trade.team_id===team.id; return byId||trade.team_name===team.name||trade.team_name_snapshot===team.name; }
-  function getTeamRealTradeCount(team){ return currentTrades.filter(t=>teamTradeMatch(t,team)&&t.player_from_slug!==t.player_to_slug).length; }
+  function getTeamRealTradeCount(team){ return currentTrades.filter(t=>teamTradeMatch(t,team)&&t.player_from_slug!==t.player_to_slug&&t.swap_note!=='Injury').length; }
   function isTradeLimitReached(team){ return _maxTradesPerTeam>0&&getTeamRealTradeCount(team)>=_maxTradesPerTeam; }
   function tradesRemaining(team){ if(_maxTradesPerTeam<=0)return null; return Math.max(0,_maxTradesPerTeam-getTeamRealTradeCount(team)); }
   function findLatestIncomingTrade(team,slug){ return currentTrades.find(t=>teamTradeMatch(t,team)&&t.player_to_slug===slug&&t.player_from_slug!==t.player_to_slug)||null; }
@@ -1596,6 +1596,7 @@
     if(!showLeagueFeed)applyTeamAccent(team);
 
     const teamTrades=[...currentTrades.filter(t=>t.player_from_slug!==t.player_to_slug&&teamTradeMatch(t,team))].sort((a,b)=>new Date(b.date_traded)-new Date(a.date_traded));
+    const teamTradeCount=teamTrades.filter(t=>t.swap_note!=='Injury').length;
     const activeCount=[...(team.roster.F||[]),...(team.roster.D||[]),...(team.roster.G||[])].filter(Boolean).length;
     const allRealTrades=[...currentTrades.filter(t=>t.player_from_slug!==t.player_to_slug)].sort((a,b)=>new Date(b.date_traded)-new Date(a.date_traded));
 
@@ -1628,7 +1629,7 @@
 
     /* ── TEAM VIEW ── */
     const canSwap=!isTradeLimitReached(team);
-    html+=buildSummaryBar(team,activeCount,teamTrades.length);
+    html+=buildSummaryBar(team,activeCount,teamTradeCount);
 
     const posLabels={F:'Forwards',D:'Defensemen',G:'Goalies'};
     html+=`<div class="section-title">Active <span>Roster</span><div class="section-title-actions"><button class="bulk-toggle-btn ${bulkMode?'active':''}" onclick="${bulkMode?'exitBulkMode':'enterBulkMode'}()">${bulkMode?'✕ Exit Bulk Mode':'⇄ Bulk Swap'}</button></div></div>`;
