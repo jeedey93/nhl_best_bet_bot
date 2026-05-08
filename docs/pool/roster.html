@@ -274,6 +274,8 @@
     .trade-header-row.league { grid-template-columns: 110px 1fr 1fr 90px; }
     .trade-row.league { grid-template-columns: 110px 1fr 1fr 90px; min-height: 38px; }
     .trade-note { font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem; color: rgba(255,255,255,0.45); font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .trade-row.released { grid-template-columns: 1fr 90px 120px; background: rgba(239,68,68,0.03); }
+    .released-tag { font-family: 'Bebas Neue', cursive; font-size: 0.7rem; letter-spacing: 1px; color: rgba(239,68,68,0.7); background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); border-radius: 4px; padding: 1px 6px; white-space: nowrap; }
     .player-info { display: flex; align-items: center; gap: 0.4rem; min-width: 0; }
     .player-logo { width: 20px; height: 20px; object-fit: contain; flex-shrink: 0; }
     .player-details { flex: 1; min-width: 0; }
@@ -1676,10 +1678,16 @@
         filtered.forEach(trade=>{
           const tt=teams.find(t=>teamTradeMatch(trade,t));
           const tn=tt?.name||trade.team_name||'Unknown';
+          const isRelease=trade.swap_note==='Released'&&trade.player_from_slug===trade.player_to_slug;
           const pF=trade.player_from_name?{player_name:trade.player_from_name,team:trade.player_from_team,position:trade.player_from_position,cap_hit:getPlayer(trade.player_from_slug)?.cap_hit}:getPlayer(trade.player_from_slug);
-          const pT=trade.player_to_name?{player_name:trade.player_to_name,team:trade.player_to_team,position:trade.player_to_position,cap_hit:getPlayer(trade.player_to_slug)?.cap_hit}:getPlayer(trade.player_to_slug);
-          const aF=TEAM_ABBR[pF.team]||'',aT=TEAM_ABBR[pT.team]||'',pos=normalizePos(pF.position||pT.position);
-          html+=`<div class="trade-row league"><div class="player-info"><div class="player-details"><div class="player-name">${escapeHtml(tn)}</div>${trade.swap_note?`<div class="player-meta">📝 ${escapeHtml(trade.swap_note)}</div>`:''}</div></div><div class="player-info">${aF?`<img class="player-logo" src="https://assets.nhle.com/logos/nhl/svg/${aF}_dark.svg" alt="${aF}" loading="lazy">`:''}<div class="player-details"><div class="player-name">${escapeHtml(formatName(pF.player_name))}</div><div class="player-meta">${pos} · ${formatCap(pF.cap_hit||0)}</div></div></div><div class="player-info">${aT?`<img class="player-logo" src="https://assets.nhle.com/logos/nhl/svg/${aT}_dark.svg" alt="${aT}" loading="lazy">`:''}<div class="player-details"><div class="player-name">${escapeHtml(formatName(pT.player_name))}</div><div class="player-meta">${pos} · ${formatCap(pT.cap_hit||0)}</div></div></div><div style="display:flex;align-items:center;"><div class="date-tag"><span class="date-tag-value">${new Date(trade.date_traded).toLocaleDateString()}</span></div></div></div>`;
+          const aF=TEAM_ABBR[pF.team]||'',pos=normalizePos(pF.position);
+          if(isRelease){
+            html+=`<div class="trade-row league" style="grid-template-columns:110px 1fr auto 90px"><div class="player-info"><div class="player-details"><div class="player-name">${escapeHtml(tn)}</div><div class="player-meta">📝 Released</div></div></div><div class="player-info">${aF?`<img class="player-logo" src="https://assets.nhle.com/logos/nhl/svg/${aF}_dark.svg" alt="${aF}" loading="lazy">`:''}<div class="player-details"><div class="player-name">${escapeHtml(formatName(pF.player_name))}</div><div class="player-meta">${pos} · ${formatCap(pF.cap_hit||0)}</div></div></div><div style="display:flex;align-items:center;"><span class="released-tag">✕ Released</span></div><div style="display:flex;align-items:center;"><div class="date-tag"><span class="date-tag-value">${new Date(trade.date_traded).toLocaleDateString()}</span></div></div></div>`;
+          }else{
+            const pT=trade.player_to_name?{player_name:trade.player_to_name,team:trade.player_to_team,position:trade.player_to_position,cap_hit:getPlayer(trade.player_to_slug)?.cap_hit}:getPlayer(trade.player_to_slug);
+            const aT=TEAM_ABBR[pT.team]||'';
+            html+=`<div class="trade-row league"><div class="player-info"><div class="player-details"><div class="player-name">${escapeHtml(tn)}</div>${trade.swap_note?`<div class="player-meta">📝 ${escapeHtml(trade.swap_note)}</div>`:''}</div></div><div class="player-info">${aF?`<img class="player-logo" src="https://assets.nhle.com/logos/nhl/svg/${aF}_dark.svg" alt="${aF}" loading="lazy">`:''}<div class="player-details"><div class="player-name">${escapeHtml(formatName(pF.player_name))}</div><div class="player-meta">${pos} · ${formatCap(pF.cap_hit||0)}</div></div></div><div class="player-info">${aT?`<img class="player-logo" src="https://assets.nhle.com/logos/nhl/svg/${aT}_dark.svg" alt="${aT}" loading="lazy">`:''}<div class="player-details"><div class="player-name">${escapeHtml(formatName(pT.player_name))}</div><div class="player-meta">${pos} · ${formatCap(pT.cap_hit||0)}</div></div></div><div style="display:flex;align-items:center;"><div class="date-tag"><span class="date-tag-value">${new Date(trade.date_traded).toLocaleDateString()}</span></div></div></div>`;
+          }
         });
       }else{html+=buildEmptyState('📋','No swaps match your filters','Try clearing the team or date filter');}
       html+='</div>';
@@ -1726,10 +1734,20 @@
     if(teamTrades.length){
       html+=`<div class="trade-header-row"><div class="trade-header-cell">Sent to bench</div><div class="trade-header-cell center">Date</div><div class="trade-header-cell">Activated</div><div class="trade-header-cell">Note</div></div>`;
       teamTrades.forEach(trade=>{
-        const pF=trade.player_from_name?{player_name:trade.player_from_name,team:trade.player_from_team,position:trade.player_from_position}:getPlayer(trade.player_from_slug);
-        const pT=trade.player_to_name?{player_name:trade.player_to_name,team:trade.player_to_team,position:trade.player_to_position}:getPlayer(trade.player_to_slug);
-        const aF=TEAM_ABBR[pF.team]||'',aT=TEAM_ABBR[pT.team]||'';
-        html+=`<div class="trade-row"><div class="player-info">${aF?`<img class="player-logo" src="https://assets.nhle.com/logos/nhl/svg/${aF}_dark.svg" alt="${aF}" loading="lazy">`:''}<div class="player-details"><div class="player-name">${escapeHtml(formatName(pF.player_name))}</div><div class="player-meta">${trade.from_slot_group?`${trade.from_slot_group}${(trade.from_slot_index??0)+1} · `:''}Since ${trade.date_from_acquired?new Date(trade.date_from_acquired).toLocaleDateString():'?'}</div></div></div><div style="display:flex;justify-content:center;align-items:center;"><div class="date-tag"><span class="date-tag-value">${new Date(trade.date_traded).toLocaleDateString()}</span></div></div><div class="player-info">${aT?`<img class="player-logo" src="https://assets.nhle.com/logos/nhl/svg/${aT}_dark.svg" alt="${aT}" loading="lazy">`:''}<div class="player-details"><div class="player-name">${escapeHtml(formatName(pT.player_name))}</div><div class="player-meta">${trade.to_slot_group?`${trade.to_slot_group}${(trade.to_slot_index??0)+1} · `:''}Activated from bench</div></div></div><div class="trade-note">${trade.swap_note?escapeHtml(trade.swap_note):'<span style="color:rgba(255,255,255,0.2)">—</span>'}</div></div>`;
+        const isRelease=trade.swap_note==='Released'&&trade.player_from_slug===trade.player_to_slug;
+        const pF=trade.player_from_name?{player_name:trade.player_from_name,team:trade.player_from_team,position:trade.player_from_position,cap_hit:getPlayer(trade.player_from_slug)?.cap_hit}:getPlayer(trade.player_from_slug);
+        const aF=TEAM_ABBR[pF.team]||'';
+        if(isRelease){
+          html+=`<div class="trade-row released">
+            <div class="player-info">${aF?`<img class="player-logo" src="https://assets.nhle.com/logos/nhl/svg/${aF}_dark.svg" alt="${aF}" loading="lazy">`:''}<div class="player-details"><div class="player-name">${escapeHtml(formatName(pF.player_name))}</div><div class="player-meta">${trade.from_slot_group||''} · Since ${trade.date_from_acquired?new Date(trade.date_from_acquired).toLocaleDateString():'?'} · ${trade.points_accumulated_at_trade??0} pts</div></div></div>
+            <div style="display:flex;justify-content:center;align-items:center;"><div class="date-tag"><span class="date-tag-value">${new Date(trade.date_traded).toLocaleDateString()}</span></div></div>
+            <div style="display:flex;align-items:center;"><span class="released-tag">✕ Released</span></div>
+          </div>`;
+        }else{
+          const pT=trade.player_to_name?{player_name:trade.player_to_name,team:trade.player_to_team,position:trade.player_to_position,cap_hit:getPlayer(trade.player_to_slug)?.cap_hit}:getPlayer(trade.player_to_slug);
+          const aT=TEAM_ABBR[pT.team]||'';
+          html+=`<div class="trade-row"><div class="player-info">${aF?`<img class="player-logo" src="https://assets.nhle.com/logos/nhl/svg/${aF}_dark.svg" alt="${aF}" loading="lazy">`:''}<div class="player-details"><div class="player-name">${escapeHtml(formatName(pF.player_name))}</div><div class="player-meta">${trade.from_slot_group?`${trade.from_slot_group}${(trade.from_slot_index??0)+1} · `:''}Since ${trade.date_from_acquired?new Date(trade.date_from_acquired).toLocaleDateString():'?'}</div></div></div><div style="display:flex;justify-content:center;align-items:center;"><div class="date-tag"><span class="date-tag-value">${new Date(trade.date_traded).toLocaleDateString()}</span></div></div><div class="player-info">${aT?`<img class="player-logo" src="https://assets.nhle.com/logos/nhl/svg/${aT}_dark.svg" alt="${aT}" loading="lazy">`:''}<div class="player-details"><div class="player-name">${escapeHtml(formatName(pT.player_name))}</div><div class="player-meta">${trade.to_slot_group?`${trade.to_slot_group}${(trade.to_slot_index??0)+1} · `:''}Activated from bench</div></div></div><div class="trade-note">${trade.swap_note?escapeHtml(trade.swap_note):'<span style="color:rgba(255,255,255,0.2)">—</span>'}</div></div>`;
+        }
       });
     }else{html+=buildEmptyState('⇄','No swaps yet','Use the Swap button on any active player');}
     html+='</div>';
@@ -2074,10 +2092,30 @@
     btn.disabled=true;btn.textContent='Releasing…';
     try{
       const slot=findPlayerSlot(team,slug);
+      const p=getPlayer(slug);
+      const now=new Date().toISOString();
+      const dfa=getAcquiredDateForActivePlayer(team,slug)||now;
+      const pts=p?poolScore(p):0;
       if(slot) team.roster[slot.group][slot.index]=null;
       if(team.acquisitions) delete team.acquisitions[slug];
       if(tradingBlock&&tradingBlock[slug]) delete tradingBlock[slug];
       await saveRostersToSupabase();
+      // Record drop in trade history using swap_note='Released' and player_to_slug=player_from_slug as sentinel
+      if(p&&slot){
+        try{
+          await postWithFallback(`${SUPABASE_URL}/rest/v1/player_trades`,[
+            {league_code:_leagueCode,team_id:team.id,team_name:team.name,team_name_snapshot:team.name,
+             player_from_slug:slug,player_to_slug:slug,
+             player_from_name:formatName(p.player_name),player_to_name:formatName(p.player_name),
+             player_from_position:normalizePos(p.position),player_to_position:normalizePos(p.position),
+             player_from_team:p.team||null,player_to_team:p.team||null,
+             from_slot_group:slot.group,from_slot_index:slot.index,
+             to_slot_group:slot.group,to_slot_index:slot.index,
+             date_from_acquired:dfa,date_traded:now,points_accumulated_at_trade:pts,
+             swap_note:'Released'}
+          ]);
+        }catch(_){}
+      }
       closeDropModal();
       showToast(`Player released to free agents`,false,'silver');
       await load(activeTeamId);
