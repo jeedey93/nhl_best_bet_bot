@@ -150,7 +150,7 @@
 
     /* Column headers */
     .roster-col-header { display: grid; grid-template-columns: 26px 22px 1fr 34px 34px 34px 38px 42px 44px 122px; gap: 0; align-items: center; padding: 0.22rem 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.07); }
-    .roster-col-header.bench-cols { grid-template-columns: 26px 22px 1fr 34px 34px 34px 38px 42px 44px 60px; }
+    .roster-col-header.bench-cols { grid-template-columns: 26px 22px 1fr 34px 34px 34px 38px 42px 44px 122px; }
     .col-hd { font-family: 'Barlow Condensed', sans-serif; font-size: 0.6rem; font-weight: 700; color: rgba(255,255,255,0.28); letter-spacing: 1.5px; text-transform: uppercase; text-align: center; }
     .col-hd.left { text-align: left; }
 
@@ -158,7 +158,7 @@
     .roster-row { display: grid; grid-template-columns: 26px 22px 1fr 34px 34px 34px 38px 42px 44px 122px; gap: 0; align-items: center; padding: 0 0.75rem; height: 38px; border-bottom: 1px solid rgba(255,255,255,0.04); transition: background 0.12s; cursor: default; }
     .roster-row:last-child { border-bottom: none; }
     .roster-row:hover { background: rgba(255,255,255,0.025); }
-    .roster-row.bench-row { grid-template-columns: 26px 22px 1fr 34px 34px 34px 38px 42px 44px 60px; background: rgba(0,0,0,0.12); }
+    .roster-row.bench-row { grid-template-columns: 26px 22px 1fr 34px 34px 34px 38px 42px 44px 122px; background: rgba(0,0,0,0.12); }
     .roster-row.bench-row:hover { background: rgba(255,255,255,0.015); }
 
     /* Headshot */
@@ -603,6 +603,7 @@
       .cell-action { justify-content: flex-end; }
       .btn-swap { font-size: 0.66rem; padding: 2px 6px; }
       .btn-tb { font-size: 0.6rem; padding: 2px 5px; }
+      .btn-drop { font-size: 0.6rem; padding: 2px 5px; }
       .trade-header-row, .trade-header-row.league { display: none; }
       .trade-row, .trade-row.league { grid-template-columns: 1fr 1fr; height: auto; padding: 0.5rem 0.75rem; gap: 0.4rem; }
       .compare-grid { grid-template-columns: 1fr; gap: 0.4rem; }
@@ -1567,8 +1568,8 @@
         <div class="cell-stat cell-g">${goals}</div>
         <div class="cell-stat cell-a">${assists}</div>
         <div class="${keyStatClass}">${pos==='G'?goalieSv.value:points}</div>
-        <div class="cell-trend has-trend">${buildSparklineSvg(p,slug)}${(sig=>(`<span class="trend-mobile-badge ${sig.cls}" title="${sig.title}">${sig.label}</span>`))(performanceSignal(p,team,slug))}</div>
         <div class="cell-cap">${capMicroGaugeHtml(p.cap_hit||0,teamCapTotal)}</div>
+        <div class="cell-trend has-trend">${buildSparklineSvg(p,slug)}${(sig=>(`<span class="trend-mobile-badge ${sig.cls}" title="${sig.title}">${sig.label}</span>`))(performanceSignal(p,team,slug))}</div>
         <div class="cell-action">${bulkMode?`<button class="btn-bulk-select ${isBulkSelected?'selected':''}" onclick="toggleBulkBenchPlayer('${slug}')">${isBulkSelected?'✓ Sel':'Select'}</button>`:`<button class="btn-swap btn-activate" onclick="openTradeModal('${slug}')" title="Move to active roster">⬆ Activate</button><button class="btn-drop" onclick="openDropModal('${slug}')" title="Release to free agents">✕ Drop</button>`}</div>
       </div>`;
   }
@@ -1583,7 +1584,7 @@
   }
   function benchColHeaders(pos){
     const l=statHeaderLabels(pos);
-    return`<div class="roster-col-header bench-cols"><div></div><div></div><div class="col-hd left">Player</div><div class="col-hd">GP</div><div class="col-hd">${l.stat1}</div><div class="col-hd">${l.stat2}</div><div class="col-hd">${l.stat3}</div><div class="col-hd">Trend</div><div class="col-hd">Cap</div><div class="col-hd">${bulkMode?'Sel':''}</div></div>`;
+    return`<div class="roster-col-header bench-cols"><div></div><div></div><div class="col-hd left">Player</div><div class="col-hd">GP</div><div class="col-hd">${l.stat1}</div><div class="col-hd">${l.stat2}</div><div class="col-hd">${l.stat3}</div><div class="col-hd">Cap</div><div class="col-hd">Trend</div><div class="col-hd">${bulkMode?'Sel':''}</div></div>`;
   }
 
   /* ═══════════════════════════════════════════════════
