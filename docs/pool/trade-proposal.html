@@ -953,7 +953,7 @@
         `${SUPABASE_URL}/rest/v1/pool_rosters?league_code=eq.${_leagueCode}&select=data`,
         { headers: SB_HEADERS }
       );
-      if (!res.ok) throw new Error(`fetch failed ${rRes.status}`);
+      if (!rRes.ok) throw new Error(`fetch failed ${rRes.status}`);
       const rows = await rRes.json();
       const data = rows[0]?.data || {};
       data.proposals = proposals;
