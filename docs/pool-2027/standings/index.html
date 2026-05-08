@@ -169,6 +169,7 @@
     .roster-table .td-pos-pill.G { background: rgba(255,184,28,0.15);  color: var(--gold); }
     .roster-table .td-name { color: white; }
     .roster-table .td-stat { text-align: right; color: var(--silver); font-size: 0.82rem; }
+    .roster-table th.td-stat { text-align: right; font-family: 'Bebas Neue', cursive; font-size: 0.68rem; letter-spacing: 2px; color: rgba(255,255,255,0.25); font-weight: 400; padding: 0.25rem 1rem; }
     .roster-table .td-pts { text-align: right; font-family: 'Bebas Neue', cursive; font-size: 0.95rem; color: var(--gold); }
     .roster-table .td-team-logo { width: 20px; height: 20px; object-fit: contain; opacity: 0.8; }
 
@@ -220,7 +221,7 @@
   <div class="scoring-info">
     <div class="scoring-chip F"><span class="scoring-chip-pos">F</span><span class="scoring-chip-rule">Pts × 1</span></div>
     <div class="scoring-chip D"><span class="scoring-chip-pos">D</span><span class="scoring-chip-rule">Goals × 2 + Assists × 1</span></div>
-    <div class="scoring-chip G"><span class="scoring-chip-pos">G</span><span class="scoring-chip-rule">Wins × 2 + Shutouts × 3</span></div>
+    <div class="scoring-chip G"><span class="scoring-chip-pos">G</span><span class="scoring-chip-rule">Wins × 2 + OT Loss × 1 + Shutouts × 3</span></div>
   </div>
 
   <div class="pool-type-bar" id="pool-type-bar">
@@ -477,7 +478,23 @@
 
     for (const { pos, label, slugs } of sections) {
       if (!slugs.length) continue;
-      html += `<tr><td colspan="5" class="section-header ${pos}">${label}</td></tr>`;
+      const isG = pos === 'G';
+      const colspan = isG ? 6 : 5;
+      let headerCols = '';
+      if (isG) {
+        headerCols = `<th class="td-stat">W</th><th class="td-stat">OTL</th><th class="td-stat">SO</th>`;
+      } else if (pos === 'D') {
+        headerCols = `<th class="td-stat">G</th><th class="td-stat">A</th>`;
+      } else {
+        headerCols = `<th class="td-stat">PTS</th><th class="td-stat">GP</th>`;
+      }
+      html += `<tr><td colspan="${colspan}" class="section-header ${pos}">${label}</td></tr>`;
+      html += `<tr style="background:rgba(255,255,255,0.02);border-bottom:1px solid rgba(255,255,255,0.06);">
+        <td style="width:28px;"></td>
+        <th style="text-align:left;font-family:'Bebas Neue',cursive;font-size:0.68rem;letter-spacing:2px;color:rgba(255,255,255,0.25);padding:0.25rem 1rem;font-weight:400;">Player</th>
+        ${headerCols}
+        <th class="td-stat" style="font-family:'Bebas Neue',cursive;font-size:0.68rem;letter-spacing:2px;color:rgba(255,255,255,0.25);font-weight:400;">FPTS</th>
+      </tr>`;
       const sorted = [...slugs].map(slug => {
         const p = playerMap[slug];
         const pts = p ? playerPoolScore(p) : 0;
