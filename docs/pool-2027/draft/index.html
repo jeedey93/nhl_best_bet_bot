@@ -174,6 +174,9 @@
     .salary-filter-row { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 6px; padding: 5px 10px; margin-bottom: 0.4rem; flex-shrink: 0; }
     .salary-filter-label { font-family: 'Bebas Neue', cursive; font-size: 0.72rem; letter-spacing: 2px; color: var(--silver); white-space: nowrap; }
     .salary-filter-value { font-family: 'Bebas Neue', cursive; font-size: 0.85rem; color: var(--gold); white-space: nowrap; min-width: 40px; }
+    .salary-cap-input { font-family: 'Bebas Neue', cursive; font-size: 0.85rem; color: var(--gold); background: rgba(255,184,28,0.06); border: 1px solid rgba(255,184,28,0.25); border-radius: 4px; padding: 1px 6px; width: 70px; outline: none; text-align: right; transition: border-color 0.15s; }
+    .salary-cap-input:focus { border-color: rgba(255,184,28,0.6); }
+    .salary-cap-input::placeholder { color: rgba(255,184,28,0.3); }
     .salary-slider { flex: 1; -webkit-appearance: none; appearance: none; height: 3px; background: rgba(255,255,255,0.12); border-radius: 2px; outline: none; cursor: pointer; }
     .salary-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 14px; height: 14px; border-radius: 50%; background: var(--gold); cursor: pointer; border: 2px solid var(--rink); box-shadow: 0 0 6px rgba(255,184,28,0.5); }
     .salary-slider::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%; background: var(--gold); cursor: pointer; border: 2px solid var(--rink); }
@@ -503,7 +506,8 @@
     <div class="salary-filter-row">
       <span class="salary-filter-label">Max Cap</span>
       <input type="range" class="salary-slider" id="salary-slider" min="75" max="2000" step="25" value="2000" oninput="onSalarySlide(this.value)">
-      <span class="salary-filter-value" id="salary-filter-display">All</span>
+      <input type="text" class="salary-cap-input" id="salary-cap-input" placeholder="All" value="" oninput="onSalaryTextInput(this.value)" onblur="onSalaryTextBlur(this.value)">
+      <span style="font-family:'Bebas Neue',cursive;font-size:0.72rem;color:rgba(255,184,28,0.45);margin-left:-4px;">M</span>
       <button class="salary-reset-btn" onclick="resetSalaryFilter()">Reset</button>
     </div>
 
@@ -719,15 +723,43 @@
   }
 
   // ── Salary filter ──────────────────────────────────────────────────────────
+  function _salaryDisplayText(val) {
+    return val >= 2000 ? '' : `${(val / 100).toFixed(2).replace(/\.?0+$/, '')}`;
+  }
   function onSalarySlide(val) {
     _salaryMaxFilter = parseInt(val);
-    document.getElementById('salary-filter-display').textContent = _salaryMaxFilter >= 2000 ? 'All' : `≤$${(_salaryMaxFilter / 100).toFixed(2).replace(/\.?0+$/, '')}M`;
+    const inp = document.getElementById('salary-cap-input');
+    inp.placeholder = _salaryMaxFilter >= 2000 ? 'All' : '';
+    inp.value = _salaryDisplayText(_salaryMaxFilter);
     debouncedRenderPool();
+  }
+  function onSalaryTextInput(val) {
+    const parsed = parseFloat(val.replace(/[^0-9.]/g, ''));
+    if (isNaN(parsed) || parsed <= 0) return;
+    const sliderVal = Math.min(2000, Math.max(75, Math.round(parsed * 100 / 25) * 25));
+    _salaryMaxFilter = sliderVal;
+    document.getElementById('salary-slider').value = sliderVal;
+    debouncedRenderPool();
+  }
+  function onSalaryTextBlur(val) {
+    const parsed = parseFloat(val.replace(/[^0-9.]/g, ''));
+    const inp = document.getElementById('salary-cap-input');
+    if (!val.trim() || isNaN(parsed) || parsed <= 0) {
+      resetSalaryFilter(); return;
+    }
+    const sliderVal = Math.min(2000, Math.max(75, Math.round(parsed * 100 / 25) * 25));
+    _salaryMaxFilter = sliderVal;
+    document.getElementById('salary-slider').value = sliderVal;
+    inp.value = _salaryDisplayText(sliderVal);
+    inp.placeholder = sliderVal >= 2000 ? 'All' : '';
+    renderPool();
   }
   function resetSalaryFilter() {
     _salaryMaxFilter = 2000;
     document.getElementById('salary-slider').value = 2000;
-    document.getElementById('salary-filter-display').textContent = 'All';
+    const inp = document.getElementById('salary-cap-input');
+    inp.value = '';
+    inp.placeholder = 'All';
     renderPool();
   }
 
