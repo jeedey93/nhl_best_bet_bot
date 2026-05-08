@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pool 2026–27 Standings | Parieur Discipliné</title>
+  <link rel="icon" type="image/png" href="parieur_discipline_icon_1024.png">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,900;1,400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --rink: #07111f;
+      --red: #c8102e;
+      --gold: #ffb81c;
+      --silver: #a8b2be;
+      --green: #22c55e;
+      --blue: #7db4ff;
+      --pink: #ff7a8a;
+      --line: rgba(255,255,255,0.08);
+      --nav-h: 44px;
+    }
+    body {
+      background: var(--rink);
+      background-image: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(26,58,110,0.6) 0%, transparent 70%);
+      min-height: 100vh;
+      font-family: 'Barlow Condensed', sans-serif;
+      color: white;
+      padding-top: var(--nav-h);
+    }
+
+    /* ── NAV ── */
+    .site-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(7,17,31,0.92); border-bottom: 1px solid var(--line); backdrop-filter: blur(12px); }
+    .site-nav-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: var(--nav-h); padding: 0 1.5rem; }
+    .site-nav-brand { font-family: 'Bebas Neue', cursive; font-size: 1.5rem; color: var(--gold); letter-spacing: 4px; text-decoration: none; flex-shrink: 0; }
+    .site-nav-links { display: flex; align-items: center; gap: 0.5rem; }
+    .site-nav-links a { font-family: 'Barlow Condensed', sans-serif; font-size: 1rem; font-weight: 600; color: var(--silver); text-decoration: none; padding: 0.3rem 0.8rem; border-radius: 5px; letter-spacing: 1.5px; transition: color 0.15s, background 0.15s; }
+    .site-nav-links a:hover { color: white; background: rgba(255,255,255,0.07); }
+    .site-nav-links a.active { color: var(--gold); background: rgba(255,184,28,0.1); }
+    .nav-hamburger { display: none; flex-direction: column; justify-content: center; gap: 5px; width: 36px; height: 36px; cursor: pointer; border: none; background: none; padding: 6px; border-radius: 6px; }
+    .nav-hamburger span { display: block; height: 2px; background: var(--silver); border-radius: 2px; }
+    .nav-drawer { display: none; position: fixed; top: var(--nav-h); left: 0; right: 0; bottom: 0; z-index: 99; background: rgba(7,17,31,0.97); backdrop-filter: blur(16px); flex-direction: column; gap: 0.25rem; padding: 1.25rem 1.5rem; border-top: 1px solid var(--line); }
+    .nav-drawer.open { display: flex; }
+    .nav-drawer a { font-family: 'Bebas Neue', cursive; font-size: 1.4rem; letter-spacing: 3px; color: var(--silver); text-decoration: none; padding: 0.65rem 0.75rem; border-radius: 8px; transition: color 0.15s, background 0.15s; }
+    .nav-drawer a.active { color: var(--gold); background: rgba(255,184,28,0.08); }
+    @media (max-width: 700px) { .site-nav-links { display: none; } .nav-hamburger { display: flex; } }
+
+    /* ── LAYOUT ── */
+    .page-wrap { max-width: 980px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+    @media (min-width: 861px) { .page-wrap { padding: 2rem 1.5rem 4rem; } }
+
+    /* ── HEADER ── */
+    header { text-align: center; margin-bottom: 1.5rem; display: flex; flex-direction: column; align-items: center; gap: 0.4rem; }
+    header h1 { font-family: 'Bebas Neue', cursive; font-size: clamp(1.8rem, 4vw, 2.8rem); letter-spacing: 5px; line-height: 1; text-shadow: 0 0 30px rgba(200,16,46,0.4), 0 2px 8px rgba(0,0,0,0.8); }
+    header h1 span { color: var(--gold); }
+    .participant-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 0.75rem; font-weight: 700; color: var(--silver); letter-spacing: 2px; text-transform: uppercase; }
+    .participant-badge .count { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 3px; color: var(--gold); background: rgba(255,184,28,0.1); border: 1px solid rgba(255,184,28,0.3); border-radius: 4px; padding: 1px 10px; }
+
+    /* ── POOL TYPE TOGGLE ── */
+    .pool-type-bar { display: flex; gap: 4px; margin-bottom: 1.25rem; background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 8px; padding: 4px; }
+    .pool-type-btn { font-family: 'Bebas Neue', cursive; letter-spacing: 2px; padding: 5px 14px; border-radius: 5px; cursor: pointer; flex: 1; text-align: center; color: var(--silver); transition: background 0.15s, color 0.15s; font-size: 0.85rem; border: none; background: none; }
+    .pool-type-btn:hover { color: white; }
+    .pool-type-btn.active { background: rgba(255,184,28,0.12); color: var(--gold); }
+    @media (min-width: 861px) { .pool-type-btn { font-size: 1rem; padding: 7px 20px; } }
+
+    /* ── SKELETON ── */
+    .skeleton-row { height: 48px; background: rgba(255,255,255,0.04); border-radius: 6px; margin-bottom: 4px; animation: skeleton-pulse 1.4s ease-in-out infinite; }
+    .skeleton-row:nth-child(2) { opacity: 0.8; animation-delay: 0.1s; }
+    .skeleton-row:nth-child(3) { opacity: 0.65; animation-delay: 0.2s; }
+    .skeleton-row:nth-child(4) { opacity: 0.5; animation-delay: 0.3s; }
+    .skeleton-row:nth-child(5) { opacity: 0.35; animation-delay: 0.4s; }
+    @keyframes skeleton-pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 0.7; } }
+
+    /* ── PODIUM ── */
+    .podium { display: flex; align-items: flex-end; justify-content: center; gap: 1rem; margin-bottom: 1.75rem; }
+    @media (max-width: 500px) { .podium { gap: 0.5rem; } }
+    .podium-spot { display: flex; flex-direction: column; align-items: center; text-align: center; }
+    .podium-medal { font-size: 1.6rem; line-height: 1; margin-bottom: 4px; }
+    .podium-name { font-family: 'Bebas Neue', cursive; font-size: clamp(0.85rem, 2vw, 1.1rem); letter-spacing: 2px; color: white; max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .podium-pts { font-family: 'Bebas Neue', cursive; font-size: clamp(1.2rem, 3vw, 1.8rem); letter-spacing: 2px; color: var(--gold); line-height: 1; margin-bottom: 2px; }
+    .podium-cap { font-size: 0.72rem; font-weight: 600; color: rgba(255,255,255,0.3); letter-spacing: 1px; margin-bottom: 6px; }
+    .podium-block { width: 100%; border-radius: 6px 6px 0 0; }
+    .podium-spot.p1 .podium-block { height: 80px; background: linear-gradient(180deg, rgba(255,184,28,0.3) 0%, rgba(255,184,28,0.1) 100%); border: 1px solid rgba(255,184,28,0.4); }
+    .podium-spot.p2 .podium-block { height: 60px; background: linear-gradient(180deg, rgba(192,200,212,0.2) 0%, rgba(192,200,212,0.06) 100%); border: 1px solid rgba(192,200,212,0.25); }
+    .podium-spot.p3 .podium-block { height: 46px; background: linear-gradient(180deg, rgba(205,127,50,0.2) 0%, rgba(205,127,50,0.06) 100%); border: 1px solid rgba(205,127,50,0.25); }
+    .podium-spot.p1 { min-width: 130px; }
+    .podium-spot.p2, .podium-spot.p3 { min-width: 100px; }
+
+    /* ── SEARCH ── */
+    .search-row { display: flex; gap: 8px; margin-bottom: 0.75rem; align-items: center; }
+    .search-input { flex: 1; background: rgba(255,255,255,0.05); border: 1px solid var(--line); border-radius: 6px; padding: 0.35rem 0.85rem; color: white; font-family: 'Barlow Condensed', sans-serif; font-size: 0.95rem; outline: none; transition: border-color 0.15s; }
+    .search-input::placeholder { color: rgba(168,178,190,0.35); }
+    .search-input:focus { border-color: rgba(255,255,255,0.22); }
+
+    /* ── LEADERBOARD ── */
+    .leaderboard { background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; margin-bottom: 1.75rem; }
+    .lb-row {
+      display: grid;
+      grid-template-columns: 36px 1fr 60px 58px 58px 58px 60px;
+      align-items: center; padding: 0.65rem 1rem; gap: 0.5rem;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      cursor: default; transition: background 0.15s;
+      border-left: 3px solid transparent;
+    }
+    .lb-row:last-child { border-bottom: none; }
+    .lb-row:hover:not(.header) { background: rgba(255,255,255,0.04); }
+    .lb-row.header { background: rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.1); padding: 0.45rem 1rem; cursor: default; }
+    .lb-row.rank-1 { background: linear-gradient(90deg, rgba(255,184,28,0.07) 0%, rgba(255,184,28,0.02) 60%, transparent 100%); border-left-color: rgba(255,184,28,0.6); }
+    .lb-row.rank-2 { background: linear-gradient(90deg, rgba(192,200,212,0.05) 0%, transparent 60%); border-left-color: rgba(192,200,212,0.3); }
+    .lb-row.rank-3 { background: linear-gradient(90deg, rgba(205,127,50,0.05) 0%, transparent 60%); border-left-color: rgba(205,127,50,0.3); }
+    .lb-tier-divider { height: 1px; background: linear-gradient(90deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.04) 50%, transparent 100%); position: relative; }
+    .lb-tier-divider::after { content: 'REST OF FIELD'; position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); font-family: 'Barlow Condensed', sans-serif; font-size: 0.55rem; font-weight: 700; letter-spacing: 2px; color: rgba(255,255,255,0.2); background: #07111f; padding: 0 6px; }
+    @media (min-width: 861px) { .lb-row { padding: 0.85rem 1.25rem; } }
+    @media (max-width: 560px) {
+      .lb-row { grid-template-columns: 30px 1fr 54px 54px; }
+      .lb-col-hide { display: none; }
+    }
+    .lb-rank { display: flex; align-items: center; justify-content: center; font-family: 'Bebas Neue', cursive; font-size: 1.1rem; letter-spacing: 1px; color: var(--silver); text-align: center; }
+    .lb-rank.gold   { color: var(--gold); }
+    .lb-rank.silver { color: #c0c8d4; }
+    .lb-rank.bronze { color: #cd7f32; }
+    .lb-rank-crown { display: flex; flex-direction: column; align-items: center; gap: 1px; }
+    .lb-rank-crown-icon { font-size: 0.65rem; line-height: 1; animation: crown-glow 3s ease-in-out infinite; }
+    @keyframes crown-glow { 0%, 100% { filter: drop-shadow(0 0 3px rgba(255,184,28,0.6)); } 50% { filter: drop-shadow(0 0 8px rgba(255,184,28,1)); } }
+    .lb-rank-num { font-family: 'Bebas Neue', cursive; font-size: 1.1rem; letter-spacing: 1px; }
+    .lb-name { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 2px; color: white; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    @media (min-width: 861px) { .lb-rank-num { font-size: 1.3rem; } .lb-name { font-size: 1.15rem; } }
+    .lb-stat { font-family: 'Barlow Condensed', sans-serif; font-size: 0.85rem; font-weight: 700; color: var(--silver); text-align: right; }
+    .lb-stat.pts { color: white; font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 1px; }
+    @media (min-width: 861px) { .lb-stat { font-size: 1rem; } .lb-stat.pts { font-size: 1.2rem; } }
+    .lb-col-label { font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem; font-weight: 700; color: rgba(255,255,255,0.3); text-align: right; letter-spacing: 2px; text-transform: uppercase; }
+    .lb-col-label.left { text-align: left; }
+    .paid-badge { font-family: 'Bebas Neue', cursive; font-size: 0.65rem; letter-spacing: 1px; background: rgba(34,197,94,0.12); border: 1px solid rgba(34,197,94,0.25); color: var(--green); border-radius: 3px; padding: 1px 5px; margin-left: 5px; vertical-align: middle; }
+
+    /* ── DETAIL DRAWER ── */
+    .detail-drawer { background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; margin-bottom: 1.75rem; }
+    .detail-drawer-header { padding: 0.75rem 1rem; display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+    .detail-drawer-name { font-family: 'Bebas Neue', cursive; font-size: 1.3rem; letter-spacing: 3px; color: white; }
+    .detail-badges { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+    .detail-badge { font-size: 0.8rem; font-weight: 700; letter-spacing: 1px; padding: 2px 10px; border-radius: 4px; }
+    .detail-badge.pts  { background: rgba(255,184,28,0.12); color: var(--gold); border: 1px solid rgba(255,184,28,0.3); }
+    .detail-badge.cap  { background: rgba(255,255,255,0.06); color: var(--silver); border: 1px solid rgba(255,255,255,0.1); }
+    .detail-close { background: none; border: none; color: rgba(255,255,255,0.3); cursor: pointer; font-size: 1rem; padding: 2px 5px; border-radius: 3px; transition: color 0.15s; }
+    .detail-close:hover { color: white; }
+    .pos-scores-bar { display: flex; gap: 0.5rem; padding: 0.75rem 1rem; border-bottom: 1px solid var(--line); }
+    @media (max-width: 480px) { .pos-scores-bar { flex-wrap: wrap; } }
+    .pos-score-block { flex: 1; background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 8px; padding: 0.5rem 0.6rem; text-align: center; }
+    .pos-score-block.F { border-color: rgba(255,122,138,0.2); }
+    .pos-score-block.D { border-color: rgba(125,180,255,0.2); }
+    .pos-score-block.G { border-color: rgba(255,184,28,0.2); }
+    .pos-score-val { font-family: 'Bebas Neue', cursive; font-size: 1.5rem; letter-spacing: 2px; line-height: 1; }
+    .pos-score-block.F .pos-score-val { color: var(--pink); }
+    .pos-score-block.D .pos-score-val { color: var(--blue); }
+    .pos-score-block.G .pos-score-val { color: var(--gold); }
+    .pos-score-label { font-size: 0.68rem; font-weight: 700; color: var(--silver); letter-spacing: 2px; text-transform: uppercase; margin-top: 2px; }
+
+    /* ── ROSTER TABLE IN DETAIL ── */
+    .roster-table { width: 100%; border-collapse: collapse; }
+    .roster-table .section-header { font-family: 'Bebas Neue', cursive; font-size: 0.78rem; letter-spacing: 3px; padding: 0.3rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .roster-table .section-header.F { color: var(--pink); background: rgba(255,122,138,0.04); }
+    .roster-table .section-header.D { color: var(--blue); background: rgba(125,180,255,0.04); }
+    .roster-table .section-header.G { color: var(--gold); background: rgba(255,184,28,0.04); }
+    .roster-table tr.player-row { border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .roster-table tr.player-row:last-child { border-bottom: none; }
+    .roster-table td { padding: 0.35rem 1rem; font-size: 0.88rem; font-weight: 600; }
+    .roster-table .td-pos-pill { font-family: 'Bebas Neue', cursive; font-size: 0.65rem; letter-spacing: 1px; border-radius: 3px; padding: 1px 5px; }
+    .roster-table .td-pos-pill.F { background: rgba(255,122,138,0.15); color: var(--pink); }
+    .roster-table .td-pos-pill.D { background: rgba(125,180,255,0.15); color: var(--blue); }
+    .roster-table .td-pos-pill.G { background: rgba(255,184,28,0.15);  color: var(--gold); }
+    .roster-table .td-name { color: white; }
+    .roster-table .td-stat { text-align: right; color: var(--silver); font-size: 0.82rem; }
+    .roster-table .td-pts { text-align: right; font-family: 'Bebas Neue', cursive; font-size: 0.95rem; color: var(--gold); }
+    .roster-table .td-team-logo { width: 20px; height: 20px; object-fit: contain; opacity: 0.8; }
+
+    /* ── MISC ── */
+    .msg { text-align: center; color: var(--silver); font-size: 0.9rem; letter-spacing: 1px; padding: 3rem 0; }
+    .btn-refresh { font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 2px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); color: var(--silver); border-radius: 6px; padding: 4px 14px; cursor: pointer; }
+    .btn-refresh:hover { background: rgba(255,255,255,0.1); color: white; }
+
+    /* ── SCORING RULES CHIP ── */
+    .scoring-info { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 1rem; }
+    .scoring-chip { display: flex; align-items: center; gap: 5px; border-radius: 5px; padding: 3px 8px; font-size: 0.72rem; }
+    .scoring-chip.F { background: rgba(255,122,138,0.07); border: 1px solid rgba(255,122,138,0.18); color: var(--pink); }
+    .scoring-chip.D { background: rgba(125,180,255,0.07); border: 1px solid rgba(125,180,255,0.18); color: var(--blue); }
+    .scoring-chip.G { background: rgba(255,184,28,0.07);  border: 1px solid rgba(255,184,28,0.18);  color: var(--gold); }
+    .scoring-chip-pos { font-family: 'Bebas Neue', cursive; font-size: 0.7rem; letter-spacing: 1.5px; }
+    .scoring-chip-rule { color: rgba(255,255,255,0.4); }
+  </style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav class="site-nav">
+  <div class="site-nav-inner">
+    <a class="site-nav-brand" href="index.html">Parieur Discipliné</a>
+    <div class="site-nav-links">
+      <a href="pool-2027.html">Draft 2027</a>
+      <a href="pool-2027-standings.html" class="active">Standings 2027</a>
+    </div>
+    <button class="nav-hamburger" id="hamburger" aria-label="Open menu" onclick="toggleDrawer()">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+<div class="nav-drawer" id="nav-drawer">
+  <a href="pool-2027.html">Draft 2027</a>
+  <a href="pool-2027-standings.html" class="active">Standings 2027</a>
+</div>
+
+<div class="page-wrap">
+  <header>
+    <h1>Pool <span>2026–27</span> Standings</h1>
+    <div class="participant-badge">
+      <span id="participant-count-label">Loading…</span>
+    </div>
+  </header>
+
+  <div class="scoring-info">
+    <div class="scoring-chip F"><span class="scoring-chip-pos">F</span><span class="scoring-chip-rule">Pts × 1</span></div>
+    <div class="scoring-chip D"><span class="scoring-chip-pos">D</span><span class="scoring-chip-rule">Goals × 2 + Assists × 1</span></div>
+    <div class="scoring-chip G"><span class="scoring-chip-pos">G</span><span class="scoring-chip-rule">Wins × 2 + Shutouts × 3</span></div>
+  </div>
+
+  <div class="pool-type-bar" id="pool-type-bar">
+    <button class="pool-type-btn active" id="btn-all"  onclick="setPoolFilter('all')">All</button>
+    <button class="pool-type-btn" id="btn-paid" onclick="setPoolFilter('paid')">💰 Paid</button>
+    <button class="pool-type-btn" id="btn-free" onclick="setPoolFilter('free')">🎮 Free</button>
+  </div>
+
+  <div class="search-row">
+    <input class="search-input" id="search-input" type="text" placeholder="🔍 Search participant…" oninput="renderAll()">
+  </div>
+
+  <div id="content">
+    <div style="margin-bottom:1.25rem">
+      <div class="skeleton-row"></div>
+      <div class="skeleton-row"></div>
+      <div class="skeleton-row"></div>
+      <div class="skeleton-row"></div>
+      <div class="skeleton-row"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const SUPABASE_URL = 'https://fifurqlitkywtmhgtzeu.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZpZnVycWxpdGt5d3RtaGd0emV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3MDIyMjQsImV4cCI6MjA5MjI3ODIyNH0.KPVPj1qwbSJJMyLR_-AhDcRs0vi2sUU6qbFQ-kH53C0';
+
+  const TEAM_ABBR = {
+    'anaheim-ducks':'ANA','boston-bruins':'BOS','buffalo-sabres':'BUF','calgary-flames':'CGY',
+    'carolina-hurricanes':'CAR','chicago-blackhawks':'CHI','colorado-avalanche':'COL',
+    'columbus-blue-jackets':'CBJ','dallas-stars':'DAL','detroit-red-wings':'DET',
+    'edmonton-oilers':'EDM','florida-panthers':'FLA','los-angeles-kings':'LAK',
+    'minnesota-wild':'MIN','montreal-canadiens':'MTL','nashville-predators':'NSH',
+    'new-jersey-devils':'NJD','new-york-islanders':'NYI','new-york-rangers':'NYR',
+    'ottawa-senators':'OTT','philadelphia-flyers':'PHI','pittsburgh-penguins':'PIT',
+    'san-jose-sharks':'SJS','seattle-kraken':'SEA','st-louis-blues':'STL',
+    'tampa-bay-lightning':'TBL','toronto-maple-leafs':'TOR','utah-hockey-club':'UTA',
+    'vancouver-canucks':'VAN','vegas-golden-knights':'VGK','washington-capitals':'WSH','winnipeg-jets':'WPG',
+  };
+
+  // ── State ──────────────────────────────────────────────────────────────────
+  let allSubmissions = [];
+  let allPlayers = [];
+  let playerMap = {};
+  let poolFilter = 'all'; // 'all' | 'paid' | 'free'
+  let activeDetailId = null;
+
+  function sbHeaders() {
+    return { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` };
+  }
+
+  // ── Helpers ────────────────────────────────────────────────────────────────
+  function formatName(name) {
+    if (!name) return '';
+    if (name.includes(',')) { const [last, first] = name.split(',').map(s => s.trim()); return `${first} ${last}`; }
+    return name;
+  }
+  function normalizePos(pos) {
+    if (!pos) return 'F';
+    const p = pos.toUpperCase();
+    if (p.includes('G')) return 'G';
+    if (p === 'D' || p.includes('LD') || p.includes('RD')) return 'D';
+    return 'F';
+  }
+  function fmtCap(n) { return n ? `$${(n / 1_000_000).toFixed(2)}M` : '—'; }
+
+  // ── Scoring ────────────────────────────────────────────────────────────────
+  function scoreTeam(roster) {
+    let fPts = 0, dPts = 0, gPts = 0;
+    for (const slug of (roster.F || [])) {
+      const p = playerMap[slug];
+      if (p) fPts += (p.points ?? 0) * 1;
+    }
+    for (const slug of (roster.D || [])) {
+      const p = playerMap[slug];
+      if (p) dPts += (p.goals ?? 0) * 2 + (p.assists ?? 0) * 1;
+    }
+    for (const slug of (roster.G || [])) {
+      const p = playerMap[slug];
+      if (p) gPts += (p.wins ?? 0) * 2 + (p.shutouts ?? 0) * 3;
+    }
+    return { fPts, dPts, gPts, total: fPts + dPts + gPts };
+  }
+
+  function playerPoolScore(p) {
+    const pos = normalizePos(p.position);
+    if (pos === 'G') return (p.wins ?? 0) * 2 + (p.shutouts ?? 0) * 3;
+    if (pos === 'D') return (p.goals ?? 0) * 2 + (p.assists ?? 0) * 1;
+    return (p.points ?? 0) * 1;
+  }
+
+  // ── Nav ────────────────────────────────────────────────────────────────────
+  function toggleDrawer() {
+    const drawer = document.getElementById('nav-drawer');
+    const isOpen = drawer.classList.toggle('open');
+    document.getElementById('hamburger').setAttribute('aria-expanded', isOpen);
+    document.body.style.overflow = isOpen ? 'hidden' : '';
+  }
+  document.addEventListener('click', function(e) {
+    const drawer = document.getElementById('nav-drawer'), hamburger = document.getElementById('hamburger');
+    if (drawer.classList.contains('open') && !drawer.contains(e.target) && !hamburger.contains(e.target)) {
+      drawer.classList.remove('open'); document.body.style.overflow = '';
+    }
+  });
+
+  // ── Pool filter ────────────────────────────────────────────────────────────
+  function setPoolFilter(f) {
+    poolFilter = f;
+    ['all','paid','free'].forEach(k => document.getElementById(`btn-${k}`).classList.toggle('active', k === f));
+    renderAll();
+  }
+
+  // ── Filtered + scored list ─────────────────────────────────────────────────
+  function getScoredList() {
+    const query = document.getElementById('search-input').value.toLowerCase().trim();
+    return allSubmissions
+      .filter(s => {
+        if (poolFilter === 'paid' && !s.paid) return false;
+        if (poolFilter === 'free' && s.paid) return false;
+        if (query && !s.name.toLowerCase().includes(query)) return false;
+        return true;
+      })
+      .map(s => ({ ...s, score: scoreTeam(s.roster) }))
+      .sort((a, b) => b.score.total - a.score.total);
+  }
+
+  // ── Render ─────────────────────────────────────────────────────────────────
+  function renderAll() {
+    const list = getScoredList();
+    const count = allSubmissions.length;
+    const paidCount = allSubmissions.filter(s => s.paid).length;
+    document.getElementById('participant-count-label').innerHTML =
+      `<span class="count">${count}</span> participant${count !== 1 ? 's' : ''} · ${paidCount} paid · ${count - paidCount} free`;
+
+    const content = document.getElementById('content');
+    if (!list.length) {
+      content.innerHTML = '<div class="msg">No submissions yet. <a href="pool-2027.html" style="color:var(--gold);">Be the first!</a></div>';
+      return;
+    }
+
+    let html = '';
+
+    // Podium (top 3)
+    if (list.length >= 1) {
+      const medals = ['🥇','🥈','🥉'];
+      const order = list.length >= 3 ? [1, 0, 2] : list.length === 2 ? [0, 1] : [0]; // silver, gold, bronze for visual layout
+      const orderedForDisplay = list.length >= 3
+        ? [list[1], list[0], list[2]]
+        : list.slice(0, list.length);
+      const classes = list.length >= 3 ? ['p2','p1','p3'] : ['p1','p2'];
+
+      html += `<div class="podium">`;
+      orderedForDisplay.forEach((sub, i) => {
+        const cls = classes[i];
+        const medal = cls === 'p1' ? '🥇' : cls === 'p2' ? '🥈' : '🥉';
+        html += `<div class="podium-spot ${cls}">
+          <div class="podium-medal">${medal}</div>
+          <div class="podium-pts">${sub.score.total}</div>
+          <div class="podium-name">${escapeHtml(sub.name)}</div>
+          <div class="podium-cap">${fmtCap(sub.cap_used)}</div>
+          <div class="podium-block"></div>
+        </div>`;
+      });
+      html += `</div>`;
+    }
+
+    // Leaderboard
+    html += `<div class="leaderboard">
+      <div class="lb-row header">
+        <div></div>
+        <div class="lb-col-label left">Name</div>
+        <div class="lb-col-label lb-col-hide">Cap</div>
+        <div class="lb-col-label lb-col-hide">F</div>
+        <div class="lb-col-label lb-col-hide">D</div>
+        <div class="lb-col-label lb-col-hide">G</div>
+        <div class="lb-col-label">Pts</div>
+      </div>`;
+
+    list.forEach((sub, i) => {
+      const rank = i + 1;
+      const rankCls = rank === 1 ? 'gold' : rank === 2 ? 'silver' : rank === 3 ? 'bronze' : '';
+      const tierCls = rank <= 3 ? ` rank-${rank}` : '';
+      const rankInner = rank === 1
+        ? `<div class="lb-rank-crown"><span class="lb-rank-crown-icon">👑</span><span class="lb-rank-num">1</span></div>`
+        : `<span class="lb-rank-num">${rank}</span>`;
+      const isActive = sub.id === activeDetailId;
+      const rowId = `lb-row-${sub.id}`;
+      html += `<div class="lb-row${tierCls}${isActive ? ' active' : ''}" id="${rowId}" onclick="toggleDetail('${sub.id}')" style="cursor:pointer;">
+        <div class="lb-rank ${rankCls}">${rankInner}</div>
+        <div class="lb-name">${escapeHtml(sub.name)}${sub.paid ? '<span class="paid-badge">PAID</span>' : ''}</div>
+        <div class="lb-stat lb-col-hide">${fmtCap(sub.cap_used)}</div>
+        <div class="lb-stat lb-col-hide">${sub.score.fPts}</div>
+        <div class="lb-stat lb-col-hide">${sub.score.dPts}</div>
+        <div class="lb-stat lb-col-hide">${sub.score.gPts}</div>
+        <div class="lb-stat pts">${sub.score.total}</div>
+      </div>`;
+      if (rank === 3 && list.length > 3) html += `<div class="lb-tier-divider"></div>`;
+    });
+
+    html += `</div>`;
+
+    // Detail drawer (if one is open)
+    if (activeDetailId) {
+      const sub = list.find(s => s.id === activeDetailId);
+      if (sub) html += buildDetailDrawer(sub);
+    }
+
+    content.innerHTML = html;
+  }
+
+  function escapeHtml(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // ── Detail drawer ──────────────────────────────────────────────────────────
+  function toggleDetail(id) {
+    activeDetailId = activeDetailId === id ? null : id;
+    renderAll();
+    if (activeDetailId) {
+      const el = document.getElementById(`lb-row-${id}`);
+      if (el) setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
+    }
+  }
+
+  function buildDetailDrawer(sub) {
+    const cap = fmtCap(sub.cap_used);
+    let html = `<div class="detail-drawer">
+      <div class="detail-drawer-header">
+        <div class="detail-drawer-name">${escapeHtml(sub.name)}</div>
+        <div class="detail-badges">
+          <span class="detail-badge pts">${sub.score.total} PTS</span>
+          <span class="detail-badge cap">${cap}</span>
+          ${sub.paid ? '<span class="detail-badge" style="background:rgba(34,197,94,0.1);color:var(--green);border:1px solid rgba(34,197,94,0.3);">PAID</span>' : ''}
+        </div>
+        <button class="detail-close" onclick="toggleDetail('${sub.id}')">✕</button>
+      </div>
+      <div class="pos-scores-bar">
+        <div class="pos-score-block F"><div class="pos-score-val">${sub.score.fPts}</div><div class="pos-score-label">Forwards</div></div>
+        <div class="pos-score-block D"><div class="pos-score-val">${sub.score.dPts}</div><div class="pos-score-label">Defence</div></div>
+        <div class="pos-score-block G"><div class="pos-score-val">${sub.score.gPts}</div><div class="pos-score-label">Goalies</div></div>
+      </div>
+      <table class="roster-table">`;
+
+    const sections = [
+      { pos: 'F', label: 'Forwards', slugs: sub.roster.F || [] },
+      { pos: 'D', label: 'Defencemen', slugs: sub.roster.D || [] },
+      { pos: 'G', label: 'Goalies', slugs: sub.roster.G || [] },
+    ];
+
+    for (const { pos, label, slugs } of sections) {
+      if (!slugs.length) continue;
+      html += `<tr><td colspan="5" class="section-header ${pos}">${label}</td></tr>`;
+      const sorted = [...slugs].map(slug => {
+        const p = playerMap[slug];
+        const pts = p ? playerPoolScore(p) : 0;
+        return { slug, p, pts };
+      }).sort((a, b) => b.pts - a.pts);
+
+      for (const { slug, p, pts } of sorted) {
+        if (!p) continue;
+        const abbr = TEAM_ABBR[p.team];
+        const logo = abbr ? `<img class="td-team-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}">` : '';
+        let statCols = '';
+        if (pos === 'G') {
+          statCols = `<td class="td-stat">${p.wins ?? '—'}W</td><td class="td-stat">${p.shutouts ?? '—'}SO</td>`;
+        } else if (pos === 'D') {
+          statCols = `<td class="td-stat">${p.goals ?? '—'}G</td><td class="td-stat">${p.assists ?? '—'}A</td>`;
+        } else {
+          statCols = `<td class="td-stat">${p.points ?? '—'}PTS</td><td class="td-stat">${p.games_played ?? '—'}GP</td>`;
+        }
+        html += `<tr class="player-row">
+          <td style="width:28px;padding:0.35rem 0.5rem 0.35rem 1rem;">${logo}</td>
+          <td class="td-name">${formatName(p.player_name)}</td>
+          ${statCols}
+          <td class="td-pts">${pts}</td>
+        </tr>`;
+      }
+    }
+
+    html += `</table></div>`;
+    return html;
+  }
+
+  // ── Load ───────────────────────────────────────────────────────────────────
+  async function load() {
+    try {
+      const [subsRes, playersRes] = await Promise.all([
+        fetch(`${SUPABASE_URL}/rest/v1/pool_2027_submissions?select=id,name,paid,roster,cap_used,submitted_at&order=submitted_at.desc`, { headers: sbHeaders() }),
+        fetch(`${SUPABASE_URL}/rest/v1/nhl_players?select=puckpedia_slug,player_name,position,cap_hit,team,goals,assists,points,wins,shutouts,games_played&limit=1000`, { headers: sbHeaders() }),
+      ]);
+
+      if (!subsRes.ok) throw new Error(`submissions: ${subsRes.status}`);
+      if (!playersRes.ok) throw new Error(`players: ${playersRes.status}`);
+
+      allSubmissions = await subsRes.json();
+      allPlayers = await playersRes.json();
+      playerMap = Object.fromEntries(allPlayers.map(p => [p.puckpedia_slug, p]));
+
+      renderAll();
+    } catch(e) {
+      document.getElementById('content').innerHTML =
+        `<div class="msg">Failed to load standings. <button class="btn-refresh" onclick="load()">Retry</button></div>`;
+    }
+  }
+
+  load();
+</script>
+</body>
+</html>
