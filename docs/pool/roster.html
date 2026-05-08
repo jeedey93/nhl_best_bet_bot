@@ -1519,7 +1519,7 @@
     document.getElementById('team-selector').innerHTML=buttons;
   }
 
-  function setActiveTeam(teamId){showLeagueFeed=false;activeTeamId=teamId;_rosterView='team';renderTeamSelector();updateLeagueTabActive();render();}
+  function setActiveTeam(teamId){showLeagueFeed=false;activeTeamId=teamId;setRosterView('team');}
   function setLeagueFeedView(){showLeagueFeed=true;setRosterView('leaguefeed');}
 
   function buildWarningBox(){
@@ -2207,7 +2207,7 @@
     });
     updateLeagueTabActive();
     renderTeamSelector();
-    if(v==='leaguefeed')render();
+    if(v==='team'||v==='leaguefeed')render();
     if(v==='allteams')renderAllTeams();
     if(v==='fa')renderFa();
     if(v==='block')renderTradingBlock();
