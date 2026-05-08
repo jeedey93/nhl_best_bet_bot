@@ -104,13 +104,18 @@
     .filter-input::placeholder { color: rgba(255,255,255,0.3); }
 
     /* ── BULK SWAP MODE ── */
-    .bulk-swap-bar { display: flex; align-items: center; gap: 0.75rem; background: rgba(125,180,255,0.08); border: 1px solid rgba(125,180,255,0.3); border-radius: 10px; padding: 0.55rem 1rem; margin-bottom: 0.65rem; }
+    .bulk-swap-bar { display: flex; align-items: flex-start; gap: 0.75rem; background: rgba(125,180,255,0.08); border: 1px solid rgba(125,180,255,0.3); border-radius: 10px; padding: 0.55rem 1rem; margin-bottom: 0.65rem; }
     .bulk-swap-bar.hidden { display: none; }
     .bulk-swap-bar-text { flex: 1; font-size: 0.82rem; color: rgba(255,255,255,0.8); letter-spacing: 0.5px; }
     .bulk-swap-bar-text strong { color: var(--blue); font-family: 'Bebas Neue', cursive; letter-spacing: 1px; }
-    .bulk-swap-selection { display: flex; gap: 0.5rem; align-items: center; }
-    .bulk-slot { font-family: 'Bebas Neue', cursive; font-size: 0.78rem; letter-spacing: 1px; background: rgba(125,180,255,0.12); border: 1px solid rgba(125,180,255,0.3); color: var(--blue); border-radius: 5px; padding: 2px 8px; }
-    .bulk-slot .x { color: rgba(255,255,255,0.4); cursor: pointer; margin-left: 4px; }
+    .bulk-swap-selection { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; margin-top: 0.35rem; }
+    .bulk-pair { display: flex; align-items: center; gap: 4px; background: rgba(125,180,255,0.08); border: 1px solid rgba(125,180,255,0.25); border-radius: 6px; padding: 2px 6px; }
+    .bulk-pair.invalid { border-color: rgba(248,113,113,0.4); background: rgba(248,113,113,0.07); }
+    .bulk-pair-arrow { color: rgba(255,255,255,0.3); font-size: 0.7rem; }
+    .bulk-slot { font-family: 'Bebas Neue', cursive; font-size: 0.78rem; letter-spacing: 1px; color: var(--blue); }
+    .bulk-slot.bench { color: var(--silver); }
+    .bulk-slot.unmatched { color: rgba(255,255,255,0.4); font-style: italic; }
+    .bulk-slot .x { color: rgba(255,255,255,0.4); cursor: pointer; margin-left: 4px; font-size: 0.65rem; }
     .bulk-slot .x:hover { color: white; }
     .btn-bulk-confirm { font-family: 'Bebas Neue', cursive; font-size: 0.78rem; letter-spacing: 1px; background: rgba(125,180,255,0.15); border: 1px solid rgba(125,180,255,0.4); color: var(--blue); border-radius: 5px; padding: 4px 12px; cursor: pointer; transition: background 0.15s; }
     .btn-bulk-confirm:hover:not(:disabled) { background: rgba(125,180,255,0.3); }
@@ -725,7 +730,7 @@
   <div class="bulk-swap-bar hidden" id="bulk-swap-bar">
     <div class="last-trade-banner-icon">⇄</div>
     <div class="bulk-swap-bar-text">
-      <strong>Bulk Swap Mode</strong> — Select one active player and one bench player of the same position to swap.
+      <strong>Bulk Swap Mode</strong> — Select active players and bench players in order. Each active is paired with the bench player selected at the same time (1st active ↔ 1st bench, etc.). All pairs must match position.
       <div class="bulk-swap-selection" id="bulk-selection-display"></div>
     </div>
     <button class="btn-bulk-confirm" id="bulk-confirm-btn" onclick="confirmBulkSwap()" disabled>Swap Selected</button>
@@ -897,7 +902,7 @@
   let tradeContext=null, isSubmittingTrade=false, showLeagueFeed=false;
   let undoContext=null, undoInterval=null;
   let leagueFilterTeam='all', leagueFilterDate='', benchSearchQuery='';
-  let bulkMode=false, bulkActiveSlug=null, bulkBenchSlug=null;
+  let bulkMode=false, bulkActiveSlugs=[], bulkBenchSlugs=[];
   let atSortMode='pts', atPlayerSearch='';
 
   /* ── TRADING BLOCK STATE ── */
@@ -1396,56 +1401,109 @@
   /* ═══════════════════════════════════════════════════
      BULK SWAP
   ═══════════════════════════════════════════════════ */
-  function enterBulkMode(){bulkMode=true;bulkActiveSlug=null;bulkBenchSlug=null;document.getElementById('bulk-swap-bar').classList.remove('hidden');render();}
-  function exitBulkMode(){bulkMode=false;bulkActiveSlug=null;bulkBenchSlug=null;document.getElementById('bulk-swap-bar').classList.add('hidden');render();}
-  function toggleBulkActivePlayer(slug){if(!bulkMode)return;bulkActiveSlug=bulkActiveSlug===slug?null:slug;updateBulkBar();render();}
-  function toggleBulkBenchPlayer(slug){if(!bulkMode)return;bulkBenchSlug=bulkBenchSlug===slug?null:slug;updateBulkBar();render();}
+  function enterBulkMode(){bulkMode=true;bulkActiveSlugs=[];bulkBenchSlugs=[];document.getElementById('bulk-swap-bar').classList.remove('hidden');render();}
+  function exitBulkMode(){bulkMode=false;bulkActiveSlugs=[];bulkBenchSlugs=[];document.getElementById('bulk-swap-bar').classList.add('hidden');render();}
+  function toggleBulkActivePlayer(slug){
+    if(!bulkMode)return;
+    const i=bulkActiveSlugs.indexOf(slug);
+    if(i===-1)bulkActiveSlugs.push(slug);else bulkActiveSlugs.splice(i,1);
+    updateBulkBar();render();
+  }
+  function toggleBulkBenchPlayer(slug){
+    if(!bulkMode)return;
+    const i=bulkBenchSlugs.indexOf(slug);
+    if(i===-1)bulkBenchSlugs.push(slug);else bulkBenchSlugs.splice(i,1);
+    updateBulkBar();render();
+  }
+
+  function getBulkPairs(){
+    const len=Math.max(bulkActiveSlugs.length,bulkBenchSlugs.length);
+    const pairs=[];
+    for(let i=0;i<len;i++){
+      pairs.push({active:bulkActiveSlugs[i]||null,bench:bulkBenchSlugs[i]||null});
+    }
+    return pairs;
+  }
 
   function updateBulkBar(){
     const display=document.getElementById('bulk-selection-display');
     const btn=document.getElementById('bulk-confirm-btn');
+    const pairs=getBulkPairs();
+    let allValid=pairs.length>0&&bulkActiveSlugs.length===bulkBenchSlugs.length&&bulkActiveSlugs.length>0;
     let html='';
-    if(bulkActiveSlug){const p=getPlayer(bulkActiveSlug);html+=`<span class="bulk-slot">Active: ${escapeHtml(formatName(p.player_name))} <span class="x" onclick="bulkActiveSlug=null;updateBulkBar();render()">✕</span></span>`;}
-    if(bulkBenchSlug){const p=getPlayer(bulkBenchSlug);html+=`<span class="bulk-slot">Bench: ${escapeHtml(formatName(p.player_name))} <span class="x" onclick="bulkBenchSlug=null;updateBulkBar();render()">✕</span></span>`;}
-    if(!bulkActiveSlug&&!bulkBenchSlug)html='<span style="font-size:0.75rem;color:rgba(255,255,255,0.4)">No players selected yet</span>';
+    if(!pairs.length){
+      html='<span style="font-size:0.75rem;color:rgba(255,255,255,0.4)">Select active then bench players in order</span>';
+    }else{
+      pairs.forEach((pair,i)=>{
+        const posMatch=pair.active&&pair.bench&&normalizePos(getPlayer(pair.active).position)===normalizePos(getPlayer(pair.bench).position);
+        if(pair.active&&pair.bench&&!posMatch)allValid=false;
+        const invalid=pair.active&&pair.bench&&!posMatch;
+        const aName=pair.active?formatName(getPlayer(pair.active).player_name):`<em>?</em>`;
+        const bName=pair.bench?formatName(getPlayer(pair.bench).player_name):`<em>?</em>`;
+        const aRemove=pair.active?`<span class="x" onclick="toggleBulkActivePlayer('${pair.active}')">✕</span>`:'';
+        const bRemove=pair.bench?`<span class="x" onclick="toggleBulkBenchPlayer('${pair.bench}')">✕</span>`:'';
+        html+=`<div class="bulk-pair${invalid?' invalid':''}">
+          <span class="bulk-slot${pair.active?'':' unmatched'}">${escapeHtml(aName)}${aRemove}</span>
+          <span class="bulk-pair-arrow">⇄</span>
+          <span class="bulk-slot bench${pair.bench?'':' unmatched'}">${escapeHtml(bName)}${bRemove}</span>
+        </div>`;
+      });
+    }
     display.innerHTML=html;
-    let valid=false;
-    if(bulkActiveSlug&&bulkBenchSlug)valid=normalizePos(getPlayer(bulkActiveSlug).position)===normalizePos(getPlayer(bulkBenchSlug).position);
-    btn.disabled=!valid;
-    if(bulkActiveSlug&&bulkBenchSlug&&!valid){btn.textContent='Position mismatch!';btn.style.color='#f87171';}
-    else{btn.textContent='Swap Selected';btn.style.color='';}
+    if(!allValid||bulkActiveSlugs.length===0){
+      btn.disabled=true;
+      btn.textContent=pairs.some(p=>p.active&&p.bench&&normalizePos(getPlayer(p.active).position)!==normalizePos(getPlayer(p.bench).position))
+        ?'Position mismatch!'
+        :bulkActiveSlugs.length!==bulkBenchSlugs.length?`${bulkActiveSlugs.length}A / ${bulkBenchSlugs.length}B — must match`
+        :'Swap Selected';
+      btn.style.color=pairs.some(p=>p.active&&p.bench&&normalizePos(getPlayer(p.active).position)!==normalizePos(getPlayer(p.bench).position))||bulkActiveSlugs.length!==bulkBenchSlugs.length?'#f87171':'';
+    }else{
+      btn.disabled=false;
+      btn.textContent=`Swap ${bulkActiveSlugs.length} Pair${bulkActiveSlugs.length>1?'s':''}`;
+      btn.style.color='';
+    }
   }
 
   async function confirmBulkSwap(){
-    if(!bulkActiveSlug||!bulkBenchSlug||isSubmittingTrade)return;
+    if(!bulkActiveSlugs.length||bulkActiveSlugs.length!==bulkBenchSlugs.length||isSubmittingTrade)return;
     const team=teams.find(t=>t.id===activeTeamId);
     if(!team)return;
-    if(isTradeLimitReached(team)){alert(`Swap limit reached (${_maxTradesPerTeam}).`);return;}
-    const fromSlug=bulkActiveSlug,toSlug=bulkBenchSlug;
-    const fromSlot=findPlayerSlot(team,fromSlug);
-    const fromPlayer=getPlayer(fromSlug),toPlayer=getPlayer(toSlug);
-    if(!fromSlot||fromSlot.group==='B'){alert('Active player is no longer on roster.');return;}
-    if(normalizePos(fromPlayer.position)!==normalizePos(toPlayer.position)){alert('Position mismatch.');return;}
+    const pairs=getBulkPairs();
+    // validate all pairs before starting
+    for(const pair of pairs){
+      if(!pair.active||!pair.bench){alert('Incomplete pair — each active must have a matching bench player.');return;}
+      if(normalizePos(getPlayer(pair.active).position)!==normalizePos(getPlayer(pair.bench).position)){alert(`Position mismatch: ${formatName(getPlayer(pair.active).player_name)} vs ${formatName(getPlayer(pair.bench).player_name)}`);return;}
+    }
+    const regularPairs=pairs.length; // all count unless set to injury
+    const afterCount=getTeamRealTradeCount(team)+regularPairs;
+    if(_maxTradesPerTeam>0&&afterCount>_maxTradesPerTeam){
+      alert(`This swap would use ${regularPairs} swap${regularPairs>1?'s':''} (${getTeamRealTradeCount(team)} used, limit ${_maxTradesPerTeam}).`);return;
+    }
     const confirmBtn=document.getElementById('bulk-confirm-btn');
-    tradeContext={fromSlug,fromSlot,teamId:team.id,toSlug,swapReason:'regular'};
     isSubmittingTrade=true;
-    if(confirmBtn){confirmBtn.disabled=true;confirmBtn.textContent='Executing...';}
+    confirmBtn.disabled=true;confirmBtn.textContent='Executing…';
     try{
-      const usedRpc=await executeTradeRpc(team);
-      if(!usedRpc)await executeTradeLegacy(team);
-      await waitForTradeHistory(team,fromSlug,toSlug,12);
-      bulkMode=false;bulkActiveSlug=null;bulkBenchSlug=null;
-      document.getElementById('bulk-swap-bar').classList.add('hidden');
+      for(let i=0;i<pairs.length;i++){
+        const {active:fromSlug,bench:toSlug}=pairs[i];
+        const fromSlot=findPlayerSlot(team,fromSlug);
+        const fromPlayer=getPlayer(fromSlug),toPlayer=getPlayer(toSlug);
+        if(!fromSlot||fromSlot.group==='B'){alert(`${formatName(fromPlayer.player_name)} is no longer on active roster.`);break;}
+        tradeContext={fromSlug,fromSlot,teamId:team.id,toSlug,swapReason:'regular'};
+        const usedRpc=await executeTradeRpc(team);
+        if(!usedRpc)await executeTradeLegacy(team);
+        await waitForTradeHistory(team,fromSlug,toSlug,8);
+        confirmBtn.textContent=pairs.length>1?`Done ${i+1}/${pairs.length}…`:'Executing…';
+      }
+      exitBulkMode();
       await load(activeTeamId);
-      showLastTradeBanner(fromPlayer,toPlayer);
-      openUndoModal(team,fromSlug,toSlug,fromPlayer,toPlayer);
+      showToast(`✅ ${pairs.length} swap${pairs.length>1?'s':''} complete`);
     }catch(e){
       if(/Outgoing player is not on the active roster/i.test(e?.message||'')){
-        await waitForTradeHistory(team,fromSlug,toSlug,6);bulkMode=false;bulkActiveSlug=null;bulkBenchSlug=null;
-        document.getElementById('bulk-swap-bar').classList.add('hidden');await load(activeTeamId);return;
+        exitBulkMode();await load(activeTeamId);return;
       }
       alert(e?.message||'Error executing swap');await load(activeTeamId);
     }finally{isSubmittingTrade=false;tradeContext=null;}
+  }
   }
 
   /* ═══════════════════════════════════════════════════
@@ -1513,7 +1571,7 @@
     const goalieSv=pos==='G'?goalieSvDisplay(p):null;
     const keyStatClass=pos==='G'?(goalieSv.muted?'cell-stat muted':'cell-stat cell-key-stat gold'):'cell-stat cell-key-stat gold';
     const acqDate=acquiredAt?new Date(acquiredAt).toLocaleDateString('en-CA',{month:'short',day:'numeric'}):'?';
-    const isBulkSelected=bulkMode&&bulkActiveSlug===slug;
+    const isBulkSelected=bulkMode&&bulkActiveSlugs.includes(slug);
     const teamCapTotal=teamMainCap(team);
     const listed=isOnBlock(slug);
 
@@ -1555,7 +1613,7 @@
     const goalieSv=pos==='G'?goalieSvDisplay(p):null;
     const keyStatClass=pos==='G'?(goalieSv.muted?'cell-stat muted':'cell-stat cell-key-stat gold'):'cell-stat cell-key-stat gold';
     const teamCapTotal=teamMainCap(team);
-    const isBulkSelected=bulkMode&&bulkBenchSlug===slug;
+    const isBulkSelected=bulkMode&&bulkBenchSlugs.includes(slug);
     return`
       <div class="roster-row bench-row pos-${pos}${isBulkSelected?' bulk-selected':''}">
         <div class="cell-logo">${abbr?`<img src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}" loading="lazy">`:''}</div>
