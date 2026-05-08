@@ -239,6 +239,8 @@
     .btn-bulk-select { font-family: 'Bebas Neue', cursive; font-size: 0.7rem; letter-spacing: 1px; background: rgba(125,180,255,0.06); border: 1px solid rgba(125,180,255,0.2); color: var(--blue); border-radius: 5px; padding: 2px 7px; cursor: pointer; height: 22px; line-height: 18px; }
     .btn-bulk-select:hover { background: rgba(125,180,255,0.15); border-color: rgba(125,180,255,0.4); }
     .btn-bulk-select.selected { background: rgba(125,180,255,0.2); border-color: rgba(125,180,255,0.6); }
+    .btn-drop { font-family: 'Bebas Neue', cursive; font-size: 0.64rem; letter-spacing: 0.8px; background: rgba(239,68,68,0.06); border: 1px solid rgba(239,68,68,0.2); color: rgba(239,68,68,0.65); border-radius: 5px; padding: 2px 6px; cursor: pointer; transition: background 0.15s, border-color 0.15s, color 0.15s; white-space: nowrap; height: 22px; line-height: 18px; flex-shrink: 0; }
+    .btn-drop:hover { background: rgba(239,68,68,0.15); border-color: rgba(239,68,68,0.45); color: #f87171; }
 
     /* ── ROSTER LEGEND ── */
     .roster-legend { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1rem; padding: 0.4rem 0.75rem; margin-bottom: 0.4rem; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 7px; font-family: 'Barlow Condensed', sans-serif; }
@@ -597,7 +599,7 @@
       .trend-mobile-badge.up { color: var(--green); }
       .trend-mobile-badge.down { color: #f87171; }
       .trend-mobile-badge.flat { color: rgba(255,255,255,0.45); }
-      .roster-row.bench-row { grid-template-columns: 24px 22px 1fr 42px 70px; }
+      .roster-row.bench-row { grid-template-columns: 24px 22px 1fr 42px 98px; }
       .cell-action { justify-content: flex-end; }
       .btn-swap { font-size: 0.66rem; padding: 2px 6px; }
       .btn-tb { font-size: 0.6rem; padding: 2px 5px; }
@@ -805,6 +807,28 @@
     <div class="modal-btns">
       <button class="modal-btn modal-btn-cancel" onclick="closeUndoModal()">Keep Swap</button>
       <button class="modal-btn modal-btn-confirm" id="undo-confirm-btn" onclick="executeUndo()">↩ Undo</button>
+    </div>
+  </div>
+</div>
+
+<!-- DROP CONFIRMATION MODAL -->
+<div class="modal-overlay hidden" id="modal-drop">
+  <div class="modal-box" style="max-width:380px">
+    <div class="modal-title">Release to <span style="color:#f87171">Free Agents</span></div>
+    <div id="drop-player-info" style="display:flex;align-items:center;gap:0.75rem;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);border-radius:8px;padding:0.65rem 0.9rem;margin-bottom:0.85rem;">
+      <div id="drop-player-logo"></div>
+      <div>
+        <div id="drop-player-name" style="font-family:'Bebas Neue',cursive;font-size:1.1rem;letter-spacing:2px;color:white;"></div>
+        <div id="drop-player-meta" style="font-size:0.75rem;color:rgba(255,255,255,0.5);letter-spacing:0.5px;margin-top:1px;"></div>
+      </div>
+    </div>
+    <div style="font-size:0.82rem;color:rgba(255,255,255,0.6);line-height:1.6;margin-bottom:1rem;">
+      This player will be permanently removed from your roster and become available as a free agent. <strong style="color:#f87171">This cannot be undone.</strong>
+    </div>
+    <div id="drop-pts-warning" style="display:none;font-size:0.78rem;color:rgba(255,184,28,0.8);background:rgba(255,184,28,0.07);border:1px solid rgba(255,184,28,0.2);border-radius:6px;padding:0.4rem 0.7rem;margin-bottom:0.85rem;"></div>
+    <div class="modal-btns">
+      <button class="modal-btn modal-btn-cancel" onclick="closeDropModal()">Cancel</button>
+      <button class="modal-btn" id="drop-confirm-btn" onclick="confirmDrop()" style="background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.4);color:#f87171;">Release Player</button>
     </div>
   </div>
 </div>
@@ -1499,7 +1523,7 @@
     if(bulkMode){
       actionHtml=`<button class="btn-bulk-select ${isBulkSelected?'selected':''}" onclick="toggleBulkActivePlayer('${slug}')">${isBulkSelected?'✓ Sel':'Select'}</button>`;
     }else{
-      actionHtml=(canSwap?`<button class="btn-swap" onclick="openTradeModal('${slug}')">⬇ Bench</button>`:`<button class="btn-swap" disabled>⛔</button>`)+tbBtn;
+      actionHtml=(canSwap?`<button class="btn-swap" onclick="openTradeModal('${slug}')">⬇ Bench</button>`:`<button class="btn-swap" disabled>⛔</button>`)+tbBtn+`<button class="btn-drop" onclick="openDropModal('${slug}')" title="Release to free agents">✕ Drop</button>`;
     }
 
     return`
@@ -1545,7 +1569,7 @@
         <div class="${keyStatClass}">${pos==='G'?goalieSv.value:points}</div>
         <div class="cell-trend has-trend">${buildSparklineSvg(p,slug)}${(sig=>(`<span class="trend-mobile-badge ${sig.cls}" title="${sig.title}">${sig.label}</span>`))(performanceSignal(p,team,slug))}</div>
         <div class="cell-cap">${capMicroGaugeHtml(p.cap_hit||0,teamCapTotal)}</div>
-        <div class="cell-action">${bulkMode?`<button class="btn-bulk-select ${isBulkSelected?'selected':''}" onclick="toggleBulkBenchPlayer('${slug}')">${isBulkSelected?'✓ Sel':'Select'}</button>`:`<button class="btn-swap btn-activate" onclick="openTradeModal('${slug}')" title="Move to active roster">⬆ Activate</button>`}</div>
+        <div class="cell-action">${bulkMode?`<button class="btn-bulk-select ${isBulkSelected?'selected':''}" onclick="toggleBulkBenchPlayer('${slug}')">${isBulkSelected?'✓ Sel':'Select'}</button>`:`<button class="btn-swap btn-activate" onclick="openTradeModal('${slug}')" title="Move to active roster">⬆ Activate</button><button class="btn-drop" onclick="openDropModal('${slug}')" title="Release to free agents">✕ Drop</button>`}</div>
       </div>`;
   }
 
@@ -1590,8 +1614,8 @@
         filtered.forEach(trade=>{
           const tt=teams.find(t=>teamTradeMatch(trade,t));
           const tn=tt?.name||trade.team_name||'Unknown';
-          const pF=trade.player_from_name?{player_name:trade.player_from_name,team:trade.player_from_team,position:trade.player_from_position}:getPlayer(trade.player_from_slug);
-          const pT=trade.player_to_name?{player_name:trade.player_to_name,team:trade.player_to_team,position:trade.player_to_position}:getPlayer(trade.player_to_slug);
+          const pF=trade.player_from_name?{player_name:trade.player_from_name,team:trade.player_from_team,position:trade.player_from_position,cap_hit:getPlayer(trade.player_from_slug)?.cap_hit}:getPlayer(trade.player_from_slug);
+          const pT=trade.player_to_name?{player_name:trade.player_to_name,team:trade.player_to_team,position:trade.player_to_position,cap_hit:getPlayer(trade.player_to_slug)?.cap_hit}:getPlayer(trade.player_to_slug);
           const aF=TEAM_ABBR[pF.team]||'',aT=TEAM_ABBR[pT.team]||'',pos=normalizePos(pF.position||pT.position);
           html+=`<div class="trade-row league"><div class="player-info"><div class="player-details"><div class="player-name">${escapeHtml(tn)}</div>${trade.swap_note?`<div class="player-meta">📝 ${escapeHtml(trade.swap_note)}</div>`:''}</div></div><div class="player-info">${aF?`<img class="player-logo" src="https://assets.nhle.com/logos/nhl/svg/${aF}_dark.svg" alt="${aF}" loading="lazy">`:''}<div class="player-details"><div class="player-name">${escapeHtml(formatName(pF.player_name))}</div><div class="player-meta">${pos} · ${formatCap(pF.cap_hit||0)}</div></div></div><div class="player-info">${aT?`<img class="player-logo" src="https://assets.nhle.com/logos/nhl/svg/${aT}_dark.svg" alt="${aT}" loading="lazy">`:''}<div class="player-details"><div class="player-name">${escapeHtml(formatName(pT.player_name))}</div><div class="player-meta">${pos} · ${formatCap(pT.cap_hit||0)}</div></div></div><div style="display:flex;align-items:center;"><div class="date-tag"><span class="date-tag-value">${new Date(trade.date_traded).toLocaleDateString()}</span></div></div></div>`;
         });
@@ -1854,6 +1878,74 @@
     document.getElementById('trade-to-list').innerHTML='';
     document.getElementById('trade-confirm-btn').disabled=true;
     resetCompareIn();updateTradePreview();
+  }
+
+  /* ══════════════════════════════════════════
+     DROP TO FREE AGENTS
+  ══════════════════════════════════════════ */
+  let _dropSlug=null;
+
+  function openDropModal(slug){
+    const team=teams.find(t=>t.id===activeTeamId);
+    if(!team)return;
+    const p=getPlayer(slug);
+    if(!p)return;
+    _dropSlug=slug;
+    const pos=normalizePos(p.position);
+    const abbr=TEAM_ABBR[p.team]||'';
+    const capStr=formatCap(p.cap_hit||0);
+    const posLabel=pos==='G'?'Goalie':pos==='D'?'Defenceman':'Forward';
+    const slot=findPlayerSlot(team,slug);
+    const isActive=slot&&slot.group!=='B';
+
+    document.getElementById('drop-player-logo').innerHTML=abbr
+      ?`<img src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}" style="width:32px;height:32px;object-fit:contain">`:'';
+    document.getElementById('drop-player-name').textContent=formatName(p.player_name);
+    document.getElementById('drop-player-meta').textContent=`${posLabel} · ${abbr||'?'} · ${capStr}`;
+
+    const ptsWarn=document.getElementById('drop-pts-warning');
+    if(isActive){
+      const pts=poolScoreOwned(p,team,slug);
+      if(pts&&pts>0){
+        ptsWarn.textContent=`⚠ This player has accumulated ${pts} pool pts — they will be lost.`;
+        ptsWarn.style.display='';
+      }else{
+        ptsWarn.style.display='none';
+      }
+    }else{
+      ptsWarn.style.display='none';
+    }
+
+    const btn=document.getElementById('drop-confirm-btn');
+    btn.disabled=false;btn.textContent='Release Player';
+    document.getElementById('modal-drop').classList.remove('hidden');
+  }
+
+  function closeDropModal(){
+    document.getElementById('modal-drop').classList.add('hidden');
+    _dropSlug=null;
+  }
+
+  async function confirmDrop(){
+    if(!_dropSlug)return;
+    const team=teams.find(t=>t.id===activeTeamId);
+    if(!team){closeDropModal();return;}
+    const slug=_dropSlug;
+    const btn=document.getElementById('drop-confirm-btn');
+    btn.disabled=true;btn.textContent='Releasing…';
+    try{
+      const slot=findPlayerSlot(team,slug);
+      if(slot) team.roster[slot.group][slot.index]=null;
+      if(team.acquisitions) delete team.acquisitions[slug];
+      if(tradingBlock&&tradingBlock[slug]) delete tradingBlock[slug];
+      await saveRostersToSupabase();
+      closeDropModal();
+      showToast(`Player released to free agents`,false,'silver');
+      await load(activeTeamId);
+    }catch(e){
+      btn.disabled=false;btn.textContent='Release Player';
+      alert(e?.message||'Failed to release player. Please try again.');
+    }
   }
 
   function showLastTradeBanner(fp,tp){
