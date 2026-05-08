@@ -757,25 +757,25 @@
 <!-- SWAP MODAL -->
 <div class="modal-overlay hidden" id="modal-trade">
   <div class="modal-box">
-    <div class="modal-title">Bench <span>Swap</span></div>
+    <div class="modal-title" id="modal-trade-title">Bench <span>Swap</span></div>
     <div class="compare-grid">
       <div class="compare-card outgoing" id="compare-out">
-        <div class="compare-role out">MOVING TO BENCH</div>
+        <div class="compare-role out" id="compare-out-role">MOVING TO BENCH</div>
         <div class="compare-name" id="compare-out-name">—</div>
         <div class="compare-stats" id="compare-out-stats"></div>
       </div>
       <div class="compare-direction">⇄</div>
       <div class="compare-card incoming empty" id="compare-in">
-        <div class="compare-role in">ACTIVATING</div>
+        <div class="compare-role in" id="compare-in-role">ACTIVATING</div>
         <div class="compare-name" id="compare-in-name">Select a player →</div>
         <div class="compare-stats" id="compare-in-stats"></div>
       </div>
     </div>
     <div class="form-group">
-      <div class="form-label">Pick from bench</div>
+      <div class="form-label" id="pick-list-label">Pick from bench</div>
       <div class="bench-search-wrap">
         <span class="bench-search-icon">🔍</span>
-        <label class="sr-only" for="bench-search">Search bench players</label>
+        <label class="sr-only" for="bench-search">Search players</label>
         <input class="form-input" id="bench-search" placeholder="Search bench players…" oninput="filterBenchList(this.value)" autocomplete="off">
       </div>
       <div class="player-selector" id="trade-to-list" aria-live="polite"></div>
@@ -1747,20 +1747,87 @@
     if(!team)return;
     if(isTradeLimitReached(team)){alert(`Swap limit reached (${_maxTradesPerTeam}) for this team.`);return;}
     const p=getPlayer(playerSlug);if(!p)return;
-    const fromSlot=findPlayerSlot(team,playerSlug);
-    if(!fromSlot||fromSlot.group==='B'){alert('Player must be in active roster to swap.');return;}
-    tradeContext={fromSlug:playerSlug,fromSlot,teamId:team.id,toSlug:null,swapReason:'regular'};
+    const slot=findPlayerSlot(team,playerSlug);
+    if(!slot)return;
     benchSearchQuery='';
     document.getElementById('bench-search').value='';
-    populateCompareOut(p,fromSlot);resetCompareIn();updateSwapReasonUI();
-    const bp=(team.roster.B||[]).map((slug,idx)=>slug?{slug,idx,player:getPlayer(slug)}:null).filter(Boolean);
-    _allBenchOptions=bp.filter(item=>normalizePos(item.player.position)===fromSlot.group);
-    const best=findBestBenchPlayer(team,playerSlug);
-    if(best)tradeContext.toSlug=best.slug;
-    renderBenchList(_allBenchOptions,best?.slug);
-    if(best)updateCompareIn(getPlayer(best.slug));
+
+    const isFromBench=slot.group==='B';
+    const pos=normalizePos(p.position);
+
+    if(isFromBench){
+      // Activate flow: bench player is fixed as the one being activated.
+      // The user picks which active player to send down.
+      tradeContext={fromSlug:null,fromSlot:null,teamId:team.id,toSlug:playerSlug,swapReason:'regular',activateMode:true};
+      document.getElementById('modal-trade-title').innerHTML='Activate <span>Player</span>';
+      document.getElementById('compare-out-role').textContent='MOVING TO BENCH';
+      document.getElementById('compare-in-role').textContent='ACTIVATING';
+      document.getElementById('pick-list-label').textContent='Pick active player to bench';
+      document.getElementById('bench-search').placeholder='Search active players…';
+      // Show the bench player on the ACTIVATING (right) side
+      populateCompareOut(p,slot); // temporarily put bench player on left so updateCompareIn can mirror it
+      document.getElementById('compare-out-name').textContent='Select a player ←';
+      document.getElementById('compare-out-stats').innerHTML='';
+      document.getElementById('compare-out').classList.add('empty');
+      updateCompareIn(p); // bench player on right (activating side)
+      // Populate list with active players of same position
+      const activeOptions=[];
+      ['F','D','G'].forEach(g=>{
+        (team.roster[g]||[]).forEach((slug,idx)=>{
+          if(!slug)return;
+          const ap=getPlayer(slug);
+          if(ap&&normalizePos(ap.position)===pos) activeOptions.push({slug,idx,player:ap,group:g});
+        });
+      });
+      _allBenchOptions=activeOptions;
+      renderActiveOptionsForBench(activeOptions,null);
+    }else{
+      // Normal bench flow: active player is fixed, user picks bench replacement
+      tradeContext={fromSlug:playerSlug,fromSlot:slot,teamId:team.id,toSlug:null,swapReason:'regular',activateMode:false};
+      document.getElementById('modal-trade-title').innerHTML='Bench <span>Swap</span>';
+      document.getElementById('compare-out-role').textContent='MOVING TO BENCH';
+      document.getElementById('compare-in-role').textContent='ACTIVATING';
+      document.getElementById('pick-list-label').textContent='Pick from bench';
+      document.getElementById('bench-search').placeholder='Search bench players…';
+      document.getElementById('compare-out').classList.remove('empty');
+      populateCompareOut(p,slot);resetCompareIn();
+      const bp=(team.roster.B||[]).map((slug,idx)=>slug?{slug,idx,player:getPlayer(slug)}:null).filter(Boolean);
+      _allBenchOptions=bp.filter(item=>normalizePos(item.player.position)===slot.group);
+      const best=findBestBenchPlayer(team,playerSlug);
+      if(best)tradeContext.toSlug=best.slug;
+      renderBenchList(_allBenchOptions,best?.slug);
+      if(best)updateCompareIn(getPlayer(best.slug));
+    }
+    updateSwapReasonUI();
     updateTradePreview();
     document.getElementById('modal-trade').classList.remove('hidden');
+  }
+
+  function renderActiveOptionsForBench(options,bestSlug){
+    const toList=document.getElementById('trade-to-list');
+    const query=benchSearchQuery;
+    const filtered=query?options.filter(item=>formatName(item.player.player_name).toLowerCase().includes(query)):options;
+    if(!filtered.length){toList.innerHTML=`<div class="bench-no-results">No eligible active players for this position.</div>`;return;}
+    const sorted=[...filtered].sort((a,b)=>poolScore(b.player)-poolScore(a.player));
+    toList.innerHTML=sorted.map(item=>{
+      const isSelected=tradeContext?.fromSlug===item.slug;
+      const slotLabel=`${item.group}${item.idx+1}`;
+      return`<div class="player-option ${isSelected?'selected':''}" onclick="selectActiveForBench(event,'${item.slug}','${item.group}',${item.idx})"><span class="player-option-name">${escapeHtml(formatName(item.player.player_name))}</span><span class="player-option-slot">${slotLabel}</span><span class="player-option-meta">${formatCap(item.player.cap_hit||0)} · ${poolScore(item.player)} pts</span></div>`;
+    }).join('');
+  }
+
+  function selectActiveForBench(ev,slug,group,idx){
+    if(!tradeContext)return;
+    tradeContext.fromSlug=slug;
+    tradeContext.fromSlot={group,index:idx};
+    document.querySelectorAll('#trade-to-list .player-option').forEach(el=>el.classList.remove('selected'));
+    ev.currentTarget.classList.add('selected');
+    const p=getPlayer(slug);
+    if(p){
+      document.getElementById('compare-out').classList.remove('empty');
+      populateCompareOut(p,{group,index:idx});
+    }
+    updateTradePreview();
   }
 
   function parseSvPctForCompare(p){const raw=p?.save_pct??p?.save_percentage??p?.savePercentage??p?.sv_pct??p?.savePctg??p?.savePct;if(raw===null||raw===undefined||raw==='')return null;const parsed=typeof raw==='string'?Number(raw.replace('%','').trim()):Number(raw);if(Number.isNaN(parsed)||!Number.isFinite(parsed)||parsed<0)return null;const pct=parsed<=1?parsed*100:parsed;if(!Number.isFinite(pct)||pct>100)return null;return pct;}
@@ -1802,7 +1869,11 @@
     benchSearchQuery=query.toLowerCase().trim();
     const filtered=benchSearchQuery?_allBenchOptions.filter(item=>formatName(item.player.player_name).toLowerCase().includes(benchSearchQuery)):_allBenchOptions;
     const team=teams.find(t=>t.id===activeTeamId);
-    renderBenchList(filtered,team?findBestBenchPlayer(team,tradeContext?.fromSlug)?.slug:null);
+    if(tradeContext?.activateMode){
+      renderActiveOptionsForBench(filtered,null);
+    }else{
+      renderBenchList(filtered,team?findBestBenchPlayer(team,tradeContext?.fromSlug)?.slug:null);
+    }
   }
 
   function selectTradeTarget(ev,slug){
@@ -1820,7 +1891,7 @@
     if(!team||!tradeContext){btn.disabled=true;ce.textContent=ae.textContent=re.textContent='—';ne.textContent='Select an eligible bench player to preview the swap.';ne.className='trade-preview-note';return;}
     if(isTradeLimitReached(team)){btn.disabled=true;ce.textContent=ae.textContent=re.textContent='—';ne.textContent=`Swap limit reached (${_maxTradesPerTeam}).`;ne.className='trade-preview-note warn';return;}
     const cc=teamMainCap(team);ce.textContent=formatCap(cc);
-    if(!tradeContext.toSlug){ae.textContent='—';re.textContent='—';btn.disabled=true;ne.textContent='Select an eligible bench player to preview the swap.';ne.className='trade-preview-note';return;}
+    if(!tradeContext.fromSlug||!tradeContext.toSlug){ae.textContent='—';re.textContent='—';btn.disabled=true;ne.textContent=tradeContext.activateMode?'Select an active player to send to bench.':'Select an eligible bench player to preview the swap.';ne.className='trade-preview-note';return;}
     const fp=getPlayer(tradeContext.fromSlug,tradeContext.fromSlot.group),tp=getPlayer(tradeContext.toSlug,tradeContext.fromSlot.group);
     const ca=cc-(fp.cap_hit||0)+(tp.cap_hit||0),cr=CAP_MAX-ca;
     ae.textContent=formatCap(ca);re.textContent=formatCap(cr);
@@ -1935,6 +2006,12 @@
 
   function closeModal(){
     document.getElementById('modal-trade').classList.add('hidden');
+    document.getElementById('modal-trade-title').innerHTML='Bench <span>Swap</span>';
+    document.getElementById('compare-out-role').textContent='MOVING TO BENCH';
+    document.getElementById('compare-in-role').textContent='ACTIVATING';
+    document.getElementById('pick-list-label').textContent='Pick from bench';
+    document.getElementById('bench-search').placeholder='Search bench players…';
+    document.getElementById('compare-out').classList.remove('empty');
     tradeContext=null;benchSearchQuery='';
     document.getElementById('bench-search').value='';
     document.getElementById('trade-to-list').innerHTML='';
