@@ -66,9 +66,8 @@
     .league-tab .tab-count-badge { position: absolute; top: 2px; right: 6px; font-family: 'Barlow Condensed', sans-serif; font-size: 0.55rem; font-weight: 700; background: var(--amber); color: #07111f; border-radius: 20px; padding: 0 4px; min-width: 14px; text-align: center; line-height: 13px; display: none; }
     .league-tab .tab-count-badge.visible { display: block; }
 
-    /* Team selector row (shown when a team is active, inside sticky-team-bar) */
+    /* Team selector row (always visible, inside sticky-team-bar) */
     .team-selector-bar { border-top: 1px solid rgba(255,255,255,0.06); margin: 0.35rem -1rem -0.45rem; padding: 0.35rem 1rem 0.45rem; }
-    .team-selector-bar.hidden { display: none; }
     .team-selector { display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; }
     .team-btn { font-family: 'Bebas Neue', cursive; font-size: 0.84rem; letter-spacing: 1.5px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); color: var(--silver); border-radius: 7px; padding: 4px 12px; cursor: pointer; transition: background 0.15s, border-color 0.15s, color 0.15s; }
     .team-btn:hover { background: rgba(255,255,255,0.08); color: white; }
@@ -1516,11 +1515,8 @@
      RENDER HELPERS
   ═══════════════════════════════════════════════════ */
   function renderTeamSelector(){
-    const buttons=teams.map(t=>`<button class="team-btn ${!showLeagueFeed&&t.id===activeTeamId&&_rosterView==='team'?'active':''}" onclick="setActiveTeam('${t.id}')">${escapeHtml(t.name)}</button>`).join('');
+    const buttons=teams.map(t=>`<button class="team-btn ${_rosterView==='team'&&t.id===activeTeamId?'active':''}" onclick="setActiveTeam('${t.id}')">${escapeHtml(t.name)}</button>`).join('');
     document.getElementById('team-selector').innerHTML=buttons;
-    // Show team selector bar only when in team view
-    const bar=document.getElementById('team-selector-bar');
-    if(bar)bar.classList.toggle('hidden',_rosterView!=='team');
   }
 
   function setActiveTeam(teamId){showLeagueFeed=false;activeTeamId=teamId;_rosterView='team';renderTeamSelector();updateLeagueTabActive();render();}
