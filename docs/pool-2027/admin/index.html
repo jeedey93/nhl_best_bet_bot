@@ -317,13 +317,13 @@
     let fPts = 0, dPts = 0, gPts = 0;
     for (const slug of (roster.F || [])) { const p = playerMap[slug]; if (p) fPts += (p.points ?? 0); }
     for (const slug of (roster.D || [])) { const p = playerMap[slug]; if (p) dPts += (p.goals ?? 0) * 2 + (p.assists ?? 0); }
-    for (const slug of (roster.G || [])) { const p = playerMap[slug]; if (p) gPts += (p.wins ?? 0) * 2 + (p.shutouts ?? 0) * 3; }
+    for (const slug of (roster.G || [])) { const p = playerMap[slug]; if (p) gPts += (p.wins ?? 0) * 2 + (p.ot_losses ?? 0) * 1 + (p.shutouts ?? 0) * 3; }
     return { fPts, dPts, gPts, total: fPts + dPts + gPts };
   }
 
   function playerScore(p) {
     const pos = normalizePos(p.position);
-    if (pos === 'G') return (p.wins ?? 0) * 2 + (p.shutouts ?? 0) * 3;
+    if (pos === 'G') return (p.wins ?? 0) * 2 + (p.ot_losses ?? 0) * 1 + (p.shutouts ?? 0) * 3;
     if (pos === 'D') return (p.goals ?? 0) * 2 + (p.assists ?? 0);
     return p.points ?? 0;
   }
@@ -548,7 +548,7 @@
     try {
       const [subsRes, playersRes] = await Promise.all([
         fetch(`${SUPABASE_URL}/rest/v1/pool_2027_submissions?select=id,name,email,paid,roster,cap_used,submitted_at&order=submitted_at.desc`, { headers: sbHeaders() }),
-        fetch(`${SUPABASE_URL}/rest/v1/nhl_players?select=puckpedia_slug,player_name,position,team,goals,assists,points,wins,shutouts&limit=1000`, { headers: sbHeaders() }),
+        fetch(`${SUPABASE_URL}/rest/v1/nhl_players?select=puckpedia_slug,player_name,position,team,goals,assists,points,wins,ot_losses,shutouts&limit=1000`, { headers: sbHeaders() }),
       ]);
       if (!subsRes.ok) throw new Error(subsRes.status);
       if (!playersRes.ok) throw new Error(playersRes.status);

@@ -300,14 +300,14 @@
     }
     for (const slug of (roster.G || [])) {
       const p = playerMap[slug];
-      if (p) gPts += (p.wins ?? 0) * 2 + (p.shutouts ?? 0) * 3;
+      if (p) gPts += (p.wins ?? 0) * 2 + (p.ot_losses ?? 0) * 1 + (p.shutouts ?? 0) * 3;
     }
     return { fPts, dPts, gPts, total: fPts + dPts + gPts };
   }
 
   function playerPoolScore(p) {
     const pos = normalizePos(p.position);
-    if (pos === 'G') return (p.wins ?? 0) * 2 + (p.shutouts ?? 0) * 3;
+    if (pos === 'G') return (p.wins ?? 0) * 2 + (p.ot_losses ?? 0) * 1 + (p.shutouts ?? 0) * 3;
     if (pos === 'D') return (p.goals ?? 0) * 2 + (p.assists ?? 0) * 1;
     return (p.points ?? 0) * 1;
   }
@@ -490,7 +490,7 @@
         const logo = abbr ? `<img class="td-team-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}">` : '';
         let statCols = '';
         if (pos === 'G') {
-          statCols = `<td class="td-stat">${p.wins ?? '—'}W</td><td class="td-stat">${p.shutouts ?? '—'}SO</td>`;
+          statCols = `<td class="td-stat">${p.wins ?? '—'}W</td><td class="td-stat">${p.ot_losses ?? '—'}OTL</td><td class="td-stat">${p.shutouts ?? '—'}SO</td>`;
         } else if (pos === 'D') {
           statCols = `<td class="td-stat">${p.goals ?? '—'}G</td><td class="td-stat">${p.assists ?? '—'}A</td>`;
         } else {
@@ -514,7 +514,7 @@
     try {
       const [subsRes, playersRes] = await Promise.all([
         fetch(`${SUPABASE_URL}/rest/v1/pool_2027_submissions?select=id,name,paid,roster,cap_used,submitted_at&order=submitted_at.desc`, { headers: sbHeaders() }),
-        fetch(`${SUPABASE_URL}/rest/v1/nhl_players?select=puckpedia_slug,player_name,position,cap_hit,team,goals,assists,points,wins,shutouts,games_played&limit=1000`, { headers: sbHeaders() }),
+        fetch(`${SUPABASE_URL}/rest/v1/nhl_players?select=puckpedia_slug,player_name,position,cap_hit,team,goals,assists,points,wins,ot_losses,shutouts,games_played&limit=1000`, { headers: sbHeaders() }),
       ]);
 
       if (!subsRes.ok) throw new Error(`submissions: ${subsRes.status}`);

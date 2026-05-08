@@ -211,16 +211,18 @@
     .pool-table th .sort-arrow { display: inline-block; margin-left: 3px; font-size: 0.75rem; vertical-align: middle; opacity: 0; }
     .pool-table th.sort-active .sort-arrow { opacity: 1; color: var(--gold); }
     .col-player { width: auto; }
-    .col-gp  { width: 38px; }
-    .col-g   { width: 36px; }
-    .col-a   { width: 36px; }
-    .col-pts { width: 42px; }
-    .col-cap { width: 62px; }
-    .col-eff { width: 46px; }
-    .col-gaa { width: 50px; display: none; }
-    .td-gaa  { display: none; }
-    body.goalie-filter .col-gaa, body.goalie-filter .td-gaa { display: table-cell; }
-    .col-act { width: 38px; }
+    .col-gp    { width: 38px; }
+    .col-g     { width: 36px; }
+    .col-a     { width: 36px; }
+    .col-pts   { width: 42px; }
+    .col-w     { width: 36px; }
+    .col-otl   { width: 36px; }
+    .col-so    { width: 36px; }
+    .col-gaa   { width: 50px; }
+    .col-svpct { width: 52px; }
+    .col-cap   { width: 62px; }
+    .col-eff   { width: 46px; }
+    .col-act   { width: 38px; }
     .pool-table tbody tr { border-bottom: 1px solid rgba(255,255,255,0.04); transition: background 0.1s; cursor: default; }
     .pool-table tbody tr:hover { background: rgba(255,255,255,0.05); }
     .pool-table tbody tr.row-can-add:hover { background: rgba(255,184,28,0.05); }
@@ -243,6 +245,11 @@
     .td-g    { color: #ff7a8a; }
     .td-a    { color: #7db4ff; }
     .td-pts  { color: var(--gold); font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 0.5px; }
+    .td-w    { color: #ff7a8a; }
+    .td-otl  { color: rgba(255,255,255,0.4); }
+    .td-so   { color: #7db4ff; }
+    .td-gaa  { color: rgba(255,255,255,0.6); font-size: 0.88rem; }
+    .td-svpct{ color: rgba(255,255,255,0.6); font-size: 0.85rem; }
     .td-cap  { color: rgba(255,255,255,0.6); font-size: 0.82rem; }
     .td-eff  { color: #22c55e; font-family: 'Bebas Neue', cursive; font-size: 0.95rem; }
     .td-act  { padding: 0 5px; }
@@ -333,7 +340,6 @@
       .search-input { width: 100%; min-width: 0; }
       .col-gp { display: none; }
       .col-g, .col-a { display: none; }
-      body.goalie-filter .col-g, body.goalie-filter .col-a { display: table-cell; }
       .scoring-legend-toggle { display: block; }
       .scoring-legend.collapsed { display: none; }
       .cap-bar-toggle { display: block; }
@@ -437,7 +443,7 @@
       <div class="scoring-legend" id="scoring-legend">
         <div class="scoring-legend-pill F"><span class="scoring-legend-pos">F</span><span class="scoring-legend-rules">G=1pt · A=1pt</span></div>
         <div class="scoring-legend-pill D"><span class="scoring-legend-pos">D</span><span class="scoring-legend-rules">G=2pts · A=1pt</span></div>
-        <div class="scoring-legend-pill G"><span class="scoring-legend-pos">G</span><span class="scoring-legend-rules">W=2pts · SO=3pts</span></div>
+        <div class="scoring-legend-pill G"><span class="scoring-legend-pos">G</span><span class="scoring-legend-rules">W=2pts · OTL=1pt · SO=3pts</span></div>
       </div>
     </div>
 
@@ -487,8 +493,7 @@
 
     <div class="pool-controls">
       <div class="pos-filter">
-        <button class="active" data-pos="ALL" onclick="setFilter('ALL',this)">All</button>
-        <button data-pos="F" onclick="setFilter('F',this)">Fwd</button>
+        <button class="active" data-pos="F" onclick="setFilter('F',this)">Fwd</button>
         <button data-pos="D" onclick="setFilter('D',this)">Def</button>
         <button data-pos="G" onclick="setFilter('G',this)">G</button>
       </div>
@@ -513,13 +518,12 @@
 
     <div class="pool-table-wrap" id="pool-table-wrap">
       <table class="pool-table" id="pool-table">
-        <thead>
+        <thead id="pool-thead">
         <tr>
           <th class="col-player" onclick="setSort('salary',this)" data-sort="salary">Player <span class="sort-arrow" id="sa-player"></span></th>
           <th class="col-gp"  onclick="setSort('gp',this)"      data-sort="gp"      title="Games Played">GP  <span class="sort-arrow" id="sa-gp"></span></th>
           <th class="col-g"   onclick="setSort('goals',this)"   data-sort="goals"   title="Goals">G   <span class="sort-arrow" id="sa-goals"></span></th>
           <th class="col-a"   onclick="setSort('assists',this)" data-sort="assists" title="Assists">A   <span class="sort-arrow" id="sa-assists"></span></th>
-          <th class="col-gaa" onclick="setSort('gaa',this)"     data-sort="gaa"     title="Goals Against Average">GAA <span class="sort-arrow" id="sa-gaa"></span></th>
           <th class="col-pts" onclick="setSort('points',this)"  data-sort="points"  title="Pool Points">PTS <span class="sort-arrow" id="sa-points"></span></th>
           <th class="col-cap" onclick="setSort('salary',this)"  data-sort="salary"  title="Cap Hit">CAP <span class="sort-arrow" id="sa-salary">↓</span></th>
           <th class="col-eff" onclick="setSort('value',this)"   data-sort="value"   title="Efficiency: Pts ÷ √Cap(M)">EFF <span class="sort-arrow" id="sa-value"></span></th>
@@ -560,7 +564,7 @@
   // ── State ──────────────────────────────────────────────────────────────────
   let allPlayers = [];
   let rosterSlugs = { F: Array(12).fill(null), D: Array(6).fill(null), G: Array(2).fill(null) };
-  let activeFilter = 'ALL', activeNHLTeam = 'ALL', activeSort = 'salary', activeSortDir = 'desc';
+  let activeFilter = 'F', activeNHLTeam = 'ALL', activeSort = 'salary', activeSortDir = 'desc';
   let _salaryMaxFilter = 2000;
   let _topEffSlugs = new Set();
   let _filteredCache = { available: [], ownedRows: [] };
@@ -593,7 +597,7 @@
 
   function poolScore(p) {
     const pos = normalizePos(p.position);
-    if (pos === 'G') return (p.wins ?? 0) * 2 + (p.shutouts ?? 0) * 3;
+    if (pos === 'G') return (p.wins ?? 0) * 2 + (p.ot_losses ?? 0) * 1 + (p.shutouts ?? 0) * 3;
     if (pos === 'D') return (p.goals ?? 0) * 2 + (p.assists ?? 0) * 1;
     return (p.points ?? 0) * 1;
   }
@@ -611,14 +615,16 @@
   }
 
   function playerSortKey(p) {
-    if (activeSort === 'points')  return poolScore(p);
-    if (activeSort === 'value')   return effScore(p);
-    if (activeSort === 'goals')   return p.goals ?? 0;
-    if (activeSort === 'assists') return p.assists ?? 0;
-    if (activeSort === 'wins')    return p.wins ?? 0;
+    if (activeSort === 'points')   return poolScore(p);
+    if (activeSort === 'value')    return effScore(p);
+    if (activeSort === 'goals')    return p.goals ?? 0;
+    if (activeSort === 'assists')  return p.assists ?? 0;
+    if (activeSort === 'wins')     return p.wins ?? 0;
+    if (activeSort === 'ot_losses') return p.ot_losses ?? 0;
     if (activeSort === 'shutouts') return p.shutouts ?? 0;
-    if (activeSort === 'gaa')     return -(p.gaa ?? 99);
-    if (activeSort === 'gp')      return p.games_played ?? 0;
+    if (activeSort === 'gaa')      return -(p.gaa ?? 99);
+    if (activeSort === 'save_pct') return p.save_pct ?? 0;
+    if (activeSort === 'gp')       return p.games_played ?? 0;
     return p.cap_hit || 0;
   }
 
@@ -867,10 +873,39 @@
   let _debounceTimer;
   function debouncedRenderPool() { clearTimeout(_debounceTimer); _debounceTimer = setTimeout(renderPool, 120); }
 
+  function renderThead() {
+    const isG = activeFilter === 'G';
+    const thead = document.getElementById('pool-thead');
+    thead.innerHTML = isG ? `<tr>
+      <th class="col-player" onclick="setSort('salary',this)" data-sort="salary">Player <span class="sort-arrow" id="sa-player"></span></th>
+      <th class="col-gp"     onclick="setSort('gp',this)"     data-sort="gp"     title="Games Played">GP  <span class="sort-arrow" id="sa-gp"></span></th>
+      <th class="col-w"      onclick="setSort('wins',this)"   data-sort="wins"   title="Wins">W   <span class="sort-arrow" id="sa-wins"></span></th>
+      <th class="col-otl"    onclick="setSort('ot_losses',this)" data-sort="ot_losses" title="Overtime Losses">OTL <span class="sort-arrow" id="sa-ot_losses"></span></th>
+      <th class="col-so"     onclick="setSort('shutouts',this)" data-sort="shutouts" title="Shutouts">SO  <span class="sort-arrow" id="sa-shutouts"></span></th>
+      <th class="col-gaa"    onclick="setSort('gaa',this)"    data-sort="gaa"    title="Goals Against Average">GAA <span class="sort-arrow" id="sa-gaa"></span></th>
+      <th class="col-svpct"  onclick="setSort('save_pct',this)" data-sort="save_pct" title="Save Percentage">SV% <span class="sort-arrow" id="sa-save_pct"></span></th>
+      <th class="col-cap"    onclick="setSort('salary',this)" data-sort="salary" title="Cap Hit">CAP <span class="sort-arrow" id="sa-salary">↓</span></th>
+      <th class="col-eff"    onclick="setSort('value',this)"  data-sort="value"  title="Efficiency: Pts ÷ √Cap(M)">EFF <span class="sort-arrow" id="sa-value"></span></th>
+      <th class="col-act"></th>
+    </tr>` : `<tr>
+      <th class="col-player" onclick="setSort('salary',this)" data-sort="salary">Player <span class="sort-arrow" id="sa-player"></span></th>
+      <th class="col-gp"     onclick="setSort('gp',this)"     data-sort="gp"     title="Games Played">GP  <span class="sort-arrow" id="sa-gp"></span></th>
+      <th class="col-g"      onclick="setSort('goals',this)"  data-sort="goals"  title="Goals">G   <span class="sort-arrow" id="sa-goals"></span></th>
+      <th class="col-a"      onclick="setSort('assists',this)" data-sort="assists" title="Assists">A   <span class="sort-arrow" id="sa-assists"></span></th>
+      <th class="col-pts"    onclick="setSort('points',this)" data-sort="points" title="Pool Points">PTS <span class="sort-arrow" id="sa-points"></span></th>
+      <th class="col-cap"    onclick="setSort('salary',this)" data-sort="salary" title="Cap Hit">CAP <span class="sort-arrow" id="sa-salary">↓</span></th>
+      <th class="col-eff"    onclick="setSort('value',this)"  data-sort="value"  title="Efficiency: Pts ÷ √Cap(M)">EFF <span class="sort-arrow" id="sa-value"></span></th>
+      <th class="col-act"></th>
+    </tr>`;
+  }
+
   function setFilter(pos, el) {
     activeFilter = pos;
     document.querySelectorAll('[data-pos]').forEach(b => b.classList.toggle('active', b.dataset.pos === pos));
-    document.body.classList.toggle('goalie-filter', pos === 'G');
+    if (activeSort === 'points' && pos === 'G') { activeSort = 'salary'; activeSortDir = 'desc'; }
+    if (activeSort === 'goals' || activeSort === 'assists') { activeSort = 'salary'; activeSortDir = 'desc'; }
+    if ((activeSort === 'wins' || activeSort === 'ot_losses' || activeSort === 'shutouts' || activeSort === 'gaa' || activeSort === 'save_pct') && pos !== 'G') { activeSort = 'salary'; activeSortDir = 'desc'; }
+    renderThead();
     renderPool();
   }
 
@@ -911,18 +946,21 @@
   }
 
   function updateSortArrows() {
-    const colMap = { salary:'sa-salary', points:'sa-points', value:'sa-value', goals:'sa-goals', assists:'sa-assists', gp:'sa-gp', gaa:'sa-gaa' };
+    const colMap = { salary:'sa-salary', points:'sa-points', value:'sa-value', goals:'sa-goals', assists:'sa-assists', gp:'sa-gp', gaa:'sa-gaa', wins:'sa-wins', ot_losses:'sa-ot_losses', shutouts:'sa-shutouts', save_pct:'sa-save_pct' };
     document.querySelectorAll('.sort-arrow').forEach(el => el.textContent = '');
     const activeId = colMap[activeSort];
     if (activeId) { const el = document.getElementById(activeId); if (el) el.textContent = activeSortDir === 'desc' ? '↓' : '↑'; }
     document.querySelectorAll('.pool-table th').forEach(th => th.classList.toggle('sort-active', th.dataset.sort === activeSort));
   }
 
+  function colCount() { return activeFilter === 'G' ? 10 : 8; }
+
   function renderTableRows() {
     const tbody = document.getElementById('pool-tbody');
     const { available, ownedRows } = _filteredCache;
+    const cc = colCount();
     if (!available.length && !ownedRows.length) {
-      tbody.innerHTML = '<tr><td colspan="9" class="empty-msg">No players found.</td></tr>';
+      tbody.innerHTML = `<tr><td colspan="${cc}" class="empty-msg">No players found.</td></tr>`;
       return;
     }
     const cap = currentCapUsed();
@@ -931,13 +969,13 @@
     if (available.length > VIRTUAL_PAGE) {
       const tr = document.createElement('tr');
       tr.className = 'load-more-sentinel';
-      tr.innerHTML = `<td colspan="9" style="padding:4px 0;text-align:center;color:rgba(255,184,28,0.4);font-family:'Bebas Neue',cursive;font-size:0.78rem;letter-spacing:2px;cursor:pointer;" onclick="loadMoreRows()">↓ ${available.length - VIRTUAL_PAGE} more — click to load</td>`;
+      tr.innerHTML = `<td colspan="${cc}" style="padding:4px 0;text-align:center;color:rgba(255,184,28,0.4);font-family:'Bebas Neue',cursive;font-size:0.78rem;letter-spacing:2px;cursor:pointer;" onclick="loadMoreRows()">↓ ${available.length - VIRTUAL_PAGE} more — click to load</td>`;
       fragment.appendChild(tr);
     }
     if (ownedRows.length) {
       const divTr = document.createElement('tr');
       divTr.className = 'claimed-divider';
-      divTr.innerHTML = `<td colspan="9">── On Your Team (${ownedRows.length})</td>`;
+      divTr.innerHTML = `<td colspan="${cc}">── On Your Team (${ownedRows.length})</td>`;
       fragment.appendChild(divTr);
       ownedRows.forEach(p => fragment.appendChild(makeTableRow(p, true, cap)));
     }
@@ -948,6 +986,7 @@
   function loadMoreRows() {
     const tbody = document.getElementById('pool-tbody');
     const { available, ownedRows } = _filteredCache;
+    const cc = colCount();
     const sentinel = tbody.querySelector('.load-more-sentinel');
     const divider = tbody.querySelector('.claimed-divider');
     let startIdx = 0;
@@ -965,13 +1004,13 @@
     if (newRemaining > 0) {
       const tr = document.createElement('tr');
       tr.className = 'load-more-sentinel';
-      tr.innerHTML = `<td colspan="9" style="padding:4px 0;text-align:center;color:rgba(255,184,28,0.4);font-family:'Bebas Neue',cursive;font-size:0.78rem;letter-spacing:2px;cursor:pointer;" onclick="loadMoreRows()">↓ ${newRemaining} more — click to load</td>`;
+      tr.innerHTML = `<td colspan="${cc}" style="padding:4px 0;text-align:center;color:rgba(255,184,28,0.4);font-family:'Bebas Neue',cursive;font-size:0.78rem;letter-spacing:2px;cursor:pointer;" onclick="loadMoreRows()">↓ ${newRemaining} more — click to load</td>`;
       fragment.appendChild(tr);
     }
     if (ownedRows.length) {
       const divTr = document.createElement('tr');
       divTr.className = 'claimed-divider';
-      divTr.innerHTML = `<td colspan="9">── On Your Team (${ownedRows.length})</td>`;
+      divTr.innerHTML = `<td colspan="${cc}">── On Your Team (${ownedRows.length})</td>`;
       fragment.appendChild(divTr);
       ownedRows.forEach(p => fragment.appendChild(makeTableRow(p, true, cap)));
     }
@@ -998,40 +1037,44 @@
     else tr.classList.add('row-can-add');
     if (isTopEff) tr.classList.add('row-top-eff');
 
-    let gpVal = p.games_played != null ? p.games_played : '—';
-    let gVal, aVal, ptsVal;
-    if (pos === 'G') {
-      gVal = p.wins != null ? p.wins : '—';
-      aVal = p.shutouts != null ? p.shutouts : '—';
-      ptsVal = p.save_pct != null ? `<span style="color:${p.save_pct > 0.910 ? '#22c55e' : p.save_pct >= 0.900 ? '#ffb81c' : 'rgba(255,255,255,0.4)'};font-weight:600;">${p.save_pct.toFixed(3)}</span>` : '—';
-    } else {
-      gVal = p.goals != null ? p.goals : '—';
-      aVal = p.assists != null ? p.assists : '—';
-      ptsVal = pts;
-    }
-    const gaaVal = (pos === 'G' && p.gaa != null) ? `<span style="color:${parseFloat(p.gaa) < 2.5 ? '#22c55e' : parseFloat(p.gaa) < 3.0 ? '#ffb81c' : 'rgba(255,255,255,0.4)'};font-weight:600;">${parseFloat(p.gaa).toFixed(2)}</span>` : '—';
-    const goalieLabelG = pos === 'G' && activeFilter !== 'G' ? `<span style="font-size:0.7rem;color:rgba(255,184,28,0.55);margin-right:2px;">W</span>` : '';
-    const goalieLabelA = pos === 'G' && activeFilter !== 'G' ? `<span style="font-size:0.7rem;color:rgba(255,255,255,0.3);margin-right:2px;">SO</span>` : '';
-
     const wouldBust = !isOwned && capAfter > CAP_MAX;
     const actBtn = isOwned ? '' : `<button class="tbl-add-btn" ${wouldBust ? 'disabled title="Would exceed salary cap"' : 'title="Add to team"'} style="${wouldBust ? 'opacity:0.3;cursor:not-allowed;' : ''}">+</button>`;
 
-    tr.innerHTML = `
-      <td style="padding:0;"><div class="td-player">
-        ${logoSrc ? `<img class="td-player-logo" src="${logoSrc}" alt="${abbr}">` : `<div class="td-player-logo-placeholder"></div>`}
-        <span class="td-pos ${pos}">${pos}</span>
-        <span class="td-name">${formatName(p.player_name)}</span>
-        ${inactive ? `<span class="td-flag" title="0 GP — may be inactive">0GP</span>` : ''}
-      </div></td>
-      <td class="td-gp">${gpVal}</td>
-      <td class="td-g">${goalieLabelG}${gVal}</td>
-      <td class="td-a">${goalieLabelA}${aVal}</td>
-      <td class="td-gaa">${gaaVal}</td>
-      <td class="td-pts">${ptsVal}</td>
-      <td class="td-cap">${p.cap_hit ? `$${capM}M` : '—'}</td>
-      <td class="td-eff">${eff}</td>
-      <td class="td-act"><div class="td-act-wrap">${actBtn}</div></td>
-    `;
+    const playerCell = `<td style="padding:0;"><div class="td-player">
+      ${logoSrc ? `<img class="td-player-logo" src="${logoSrc}" alt="${abbr}">` : `<div class="td-player-logo-placeholder"></div>`}
+      <span class="td-pos ${pos}">${pos}</span>
+      <span class="td-name">${formatName(p.player_name)}</span>
+      ${inactive ? `<span class="td-flag" title="0 GP — may be inactive">0GP</span>` : ''}
+    </div></td>`;
+    const gpVal = p.games_played != null ? p.games_played : '—';
+    const capCell = `<td class="td-cap">${p.cap_hit ? `$${capM}M` : '—'}</td>`;
+    const effCell = `<td class="td-eff">${eff}</td>`;
+    const actCell = `<td class="td-act"><div class="td-act-wrap">${actBtn}</div></td>`;
+
+    if (pos === 'G') {
+      const wVal = p.wins != null ? p.wins : '—';
+      const otlVal = p.ot_losses != null ? p.ot_losses : '—';
+      const soVal = p.shutouts != null ? p.shutouts : '—';
+      const gaaVal = p.gaa != null ? `<span style="color:${parseFloat(p.gaa) < 2.5 ? '#22c55e' : parseFloat(p.gaa) < 3.0 ? '#ffb81c' : 'rgba(255,255,255,0.4)'};font-weight:600;">${parseFloat(p.gaa).toFixed(2)}</span>` : '—';
+      const svpctVal = p.save_pct != null ? `<span style="color:${p.save_pct > 0.910 ? '#22c55e' : p.save_pct >= 0.900 ? '#ffb81c' : 'rgba(255,255,255,0.4)'};font-weight:600;">${p.save_pct.toFixed(3)}</span>` : '—';
+      tr.innerHTML = `${playerCell}
+        <td class="td-gp">${gpVal}</td>
+        <td class="td-w">${wVal}</td>
+        <td class="td-otl">${otlVal}</td>
+        <td class="td-so">${soVal}</td>
+        <td class="td-gaa">${gaaVal}</td>
+        <td class="td-svpct">${svpctVal}</td>
+        ${capCell}${effCell}${actCell}`;
+    } else {
+      const gVal = p.goals != null ? p.goals : '—';
+      const aVal = p.assists != null ? p.assists : '—';
+      tr.innerHTML = `${playerCell}
+        <td class="td-gp">${gpVal}</td>
+        <td class="td-g">${gVal}</td>
+        <td class="td-a">${aVal}</td>
+        <td class="td-pts">${pts}</td>
+        ${capCell}${effCell}${actCell}`;
+    }
 
     if (!isOwned) {
       const addBtn = tr.querySelector('.tbl-add-btn');
@@ -1056,6 +1099,7 @@
     const pos = normalizePos(p.position);
     let statsHtml = pos === 'G'
       ? `<div class="cap-tooltip-row"><span class="cap-tooltip-label">WINS</span><span class="cap-tooltip-val gold">${p.wins ?? '—'}</span></div>
+         <div class="cap-tooltip-row"><span class="cap-tooltip-label">OT LOSSES</span><span class="cap-tooltip-val">${p.ot_losses ?? '—'}</span></div>
          <div class="cap-tooltip-row"><span class="cap-tooltip-label">SHUTOUTS</span><span class="cap-tooltip-val gold">${p.shutouts ?? '—'}</span></div>
          <div class="cap-tooltip-row"><span class="cap-tooltip-label">POOL PTS</span><span class="cap-tooltip-val gold">${pts}</span></div>`
       : `<div class="cap-tooltip-row"><span class="cap-tooltip-label">POOL PTS</span><span class="cap-tooltip-val gold">${pts}</span></div>
@@ -1196,7 +1240,7 @@
       }
       if (!allPlayers.length) {
         const res = await fetch(
-          `${SUPABASE_URL}/rest/v1/nhl_players?select=puckpedia_slug,player_name,position,cap_hit,team,goals,assists,points,wins,shutouts,games_played,save_pct,gaa&order=cap_hit.desc&limit=1000`,
+          `${SUPABASE_URL}/rest/v1/nhl_players?select=puckpedia_slug,player_name,position,cap_hit,team,goals,assists,points,wins,ot_losses,shutouts,games_played,save_pct,gaa&order=cap_hit.desc&limit=1000`,
           { headers: { apikey: SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
         );
         if (!res.ok) throw new Error(res.status);
@@ -1210,6 +1254,7 @@
       buildNHLTeamStrip();
       loadDraft();
       refreshRoster();
+      renderThead();
       renderPool();
       updateCapBar();
       updateSubmitBtn();
