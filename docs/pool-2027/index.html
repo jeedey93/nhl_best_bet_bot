@@ -152,9 +152,35 @@
     .bottom-cta { text-align: center; margin-top: 3rem; padding: 2.5rem 1.5rem; background: rgba(200,16,46,0.06); border: 1px solid rgba(200,16,46,0.15); border-radius: 14px; }
     .bottom-cta p { font-size: 0.9rem; font-weight: 600; color: var(--silver); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 1.25rem; }
 
-    /* ── LIVE COUNT ── */
-    #live-count { font-family: 'Bebas Neue', cursive; font-size: 2.4rem; letter-spacing: 2px; color: var(--gold); }
-    #live-count.loading { color: rgba(255,184,28,0.3); }
+    /* ── COUNTDOWN ── */
+    .countdown-cell { flex: 1.4; }
+    .countdown-digits { display: flex; align-items: baseline; justify-content: center; gap: 2px; }
+    .cd-unit { display: flex; flex-direction: column; align-items: center; min-width: 28px; }
+    .cd-num { font-family: 'Bebas Neue', cursive; font-size: clamp(1.2rem, 3vw, 1.9rem); letter-spacing: 1px; color: var(--gold); line-height: 1; }
+    .cd-sep { font-family: 'Bebas Neue', cursive; font-size: clamp(1.2rem, 3vw, 1.9rem); color: rgba(255,184,28,0.35); line-height: 1; padding: 0 1px; align-self: flex-start; }
+    .cd-label { font-size: 0.52rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--silver); opacity: 0.5; margin-top: 1px; }
+    .cd-expired { font-family: 'Bebas Neue', cursive; font-size: 1.1rem; color: var(--red); letter-spacing: 2px; }
+
+    /* ── SOCIAL PROOF ── */
+    .social-proof { text-align: center; font-size: 0.82rem; font-weight: 600; color: rgba(255,255,255,0.35); letter-spacing: 1px; margin-top: -1.8rem; margin-bottom: 2.5rem; }
+    .social-proof strong { color: rgba(255,255,255,0.6); }
+    .social-proof a { color: var(--gold); text-decoration: none; }
+    .social-proof a:hover { text-decoration: underline; }
+
+    /* ── SCORING CTA ── */
+    .scoring-cta { text-align: center; margin-top: 1.25rem; }
+
+    /* ── FAQ ── */
+    .faq-list { display: flex; flex-direction: column; gap: 0; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+    .faq-item { border-bottom: 1px solid var(--line); }
+    .faq-item:last-child { border-bottom: none; }
+    .faq-q { display: flex; align-items: center; justify-content: space-between; padding: 0.85rem 1.25rem; cursor: pointer; font-size: 0.95rem; font-weight: 700; color: white; letter-spacing: 0.3px; background: rgba(255,255,255,0.02); transition: background 0.15s; user-select: none; gap: 1rem; }
+    .faq-q:hover { background: rgba(255,255,255,0.05); }
+    .faq-chevron { font-size: 0.8rem; color: var(--silver); flex-shrink: 0; transition: transform 0.2s; }
+    .faq-item.open .faq-chevron { transform: rotate(180deg); }
+    .faq-a { display: none; padding: 0 1.25rem 0.85rem; font-size: 0.88rem; color: var(--silver); line-height: 1.6; }
+    .faq-item.open .faq-a { display: block; }
+    .faq-a strong { color: white; }
   </style>
 </head>
 <body>
@@ -207,10 +233,23 @@
       <div class="stat-num">$95.5M</div>
       <div class="stat-label">Salary Cap</div>
     </div>
-    <div class="stat-cell">
-      <div class="stat-num">Oct 1</div>
-      <div class="stat-label">Deadline 2026</div>
+    <div class="stat-cell countdown-cell">
+      <div class="countdown-digits" id="countdown-digits">
+        <div class="cd-unit"><span class="cd-num" id="cd-d">—</span><span class="cd-label">Days</span></div>
+        <span class="cd-sep">:</span>
+        <div class="cd-unit"><span class="cd-num" id="cd-h">—</span><span class="cd-label">Hrs</span></div>
+        <span class="cd-sep">:</span>
+        <div class="cd-unit"><span class="cd-num" id="cd-m">—</span><span class="cd-label">Min</span></div>
+        <span class="cd-sep">:</span>
+        <div class="cd-unit"><span class="cd-num" id="cd-s">—</span><span class="cd-label">Sec</span></div>
+      </div>
+      <div class="stat-label">Until Deadline</div>
     </div>
+  </div>
+
+  <!-- SOCIAL PROOF -->
+  <div class="social-proof" id="social-proof" style="display:none;">
+    <strong id="social-count">—</strong> teams already drafted — <a href="/pool-2027/standings/">see the standings</a>
   </div>
 
   <!-- HOW IT WORKS -->
@@ -259,6 +298,9 @@
         <div class="scoring-row" style="font-style:italic;opacity:0.5;font-size:0.78rem;"><span>shutout stacks with win</span><span></span></div>
       </div>
     </div>
+    <div class="scoring-cta">
+      <a href="/pool-2027/draft/" class="btn-primary" style="font-size:1rem;padding:0.55rem 1.8rem;">Draft My Team →</a>
+    </div>
   </div>
 
   <!-- ROSTER RULES -->
@@ -288,6 +330,37 @@
       <div class="rule-item">
         <div class="rule-dot"></div>
         <div><strong>Paid vs Free pool</strong> — both pools use identical scoring. The paid pool has a $20 entry fee with a cash prize; the free pool is for bragging rights.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <div class="section">
+    <div class="section-title">FAQ</div>
+    <div class="faq-list">
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">Does a shutout count on top of the win? <span class="faq-chevron">▼</span></div>
+        <div class="faq-a">Yes. A shutout win earns <strong>2 + 3 = 5 pts</strong>. The shutout bonus stacks with the win — it's not either/or.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">What happens in a tie at the end of the season? <span class="faq-chevron">▼</span></div>
+        <div class="faq-a">Tiebreaker goes to the team with the <strong>lower total cap hit</strong> — rewarding smarter cap management. If still tied, the prize is split equally.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">What stats are used to score my team? <span class="faq-chevron">▼</span></div>
+        <div class="faq-a">Your team is scored using <strong>2026–27 regular season stats only</strong>. Playoffs don't count. Stats are pulled from the official NHL API.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">What if a player gets traded or retires mid-season? <span class="faq-chevron">▼</span></div>
+        <div class="faq-a">Your roster is locked at submission. If a player gets traded, their stats from their new team still count. If they retire or are placed on LTIR with 0 games, they simply score 0 — no replacement.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">Can I change my team after submitting? <span class="faq-chevron">▼</span></div>
+        <div class="faq-a">Yes — re-submit with the <strong>same email address</strong> before October 1, 2026 and your previous team is overwritten. After the deadline, picks are locked.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">What's the difference between paid and free? <span class="faq-chevron">▼</span></div>
+        <div class="faq-a">Identical scoring rules. The <strong>paid pool ($20 entry)</strong> has a cash prize split 60/30/10%. The <strong>free pool</strong> is just for bragging rights — everyone is on the same leaderboard.</div>
       </div>
     </div>
   </div>
@@ -336,6 +409,33 @@
     document.getElementById('nav-drawer').classList.toggle('open');
   }
 
+  function toggleFaq(el) {
+    el.parentElement.classList.toggle('open');
+  }
+
+  // ── Countdown ──────────────────────────────────────────────────────────────
+  const DEADLINE = new Date('2026-10-01T00:00:00-04:00');
+  function pad(n) { return String(n).padStart(2, '0'); }
+  function tickCountdown() {
+    const now = new Date();
+    const diff = DEADLINE - now;
+    if (diff <= 0) {
+      document.getElementById('countdown-digits').innerHTML = '<span class="cd-expired">LOCKED</span>';
+      return;
+    }
+    const d = Math.floor(diff / 86400000);
+    const h = Math.floor((diff % 86400000) / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    document.getElementById('cd-d').textContent = d;
+    document.getElementById('cd-h').textContent = pad(h);
+    document.getElementById('cd-m').textContent = pad(m);
+    document.getElementById('cd-s').textContent = pad(s);
+  }
+  tickCountdown();
+  setInterval(tickCountdown, 1000);
+
+  // ── Live count + pot ───────────────────────────────────────────────────────
   async function loadCount() {
     try {
       const [totalRes, paidRes] = await Promise.all([
@@ -352,9 +452,13 @@
       const paid  = paidRange  ? parseInt(paidRange.split('/')[1], 10)  : 0;
       const pot = paid * 20;
 
-      const countEl = document.getElementById('live-count');
-      countEl.textContent = isNaN(total) ? '—' : total;
-      countEl.classList.remove('loading');
+      document.getElementById('live-count').textContent = isNaN(total) ? '—' : total;
+
+      // Social proof
+      if (!isNaN(total) && total > 0) {
+        document.getElementById('social-count').textContent = total;
+        document.getElementById('social-proof').style.display = '';
+      }
 
       const potEl = document.getElementById('live-pot');
       if (!isNaN(pot) && paid > 0) {
@@ -374,7 +478,6 @@
     }
   }
 
-  document.getElementById('live-count').classList.add('loading');
   loadCount();
 </script>
 </body>
