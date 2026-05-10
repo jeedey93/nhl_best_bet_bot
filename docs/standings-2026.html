@@ -723,7 +723,7 @@ function render(){
     const delta=total-prev;
     const displayScore=roundViewIdx===-1?total:(roundScores[roundViewIdx]||0);
     return{name:p.name,roundScores,total,displayScore,delta,picks:p.picks};
-  }).sort((a,b)=>_roundView==='total'?b.total-a.total:b.displayScore-a.displayScore);
+  }).sort((a,b)=>b.total-a.total); // always sort by total first
 
   // Stamp total-points rank before any re-sort
   rows.forEach((r,i)=>{ r.totalRank=i+1; });
@@ -732,6 +732,8 @@ function render(){
   _allRows=rows.slice();
   _paidRows=rows.filter(r=>participants.find(p=>p.name===r.name)?.paid);
 
+  // Now re-sort for the selected round view or yesterday sort
+  if(_roundView!=='total') rows.sort((a,b)=>b.displayScore-a.displayScore);
   if(_sortMode==='yesterday') rows.sort((a,b)=>b.delta-a.delta);
 
   const maxScore=rows.reduce((m,r)=>Math.max(m,r.displayScore),0)||1;
