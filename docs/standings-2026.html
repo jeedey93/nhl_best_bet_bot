@@ -519,7 +519,11 @@
 <div class="heatmap-section" id="heatmap-section" style="display:none;">
   <h3>Picks Heatmap</h3>
   <p style="font-size:0.8rem;color:var(--silver);letter-spacing:1px;margin-bottom:0.75rem;opacity:0.7;">Average points assigned per team (16 = most favored)</p>
-  <div class="heatmap-sort">
+  <div class="heatmap-sort" style="display:none;">
+    <button class="hm-sort-btn active" id="hm-avg" onclick="hmSort('avg')">Avg Assigned</button>
+    <button class="hm-sort-btn" id="hm-pop" onclick="hmSort('pop')">Popular</button>
+    <button class="hm-sort-btn" id="hm-earned" onclick="hmSort('earned')">Earned</button>
+  </div>
     <button class="hm-sort-btn active" id="hm-avg" onclick="hmSort('avg')">Avg Assigned</button>
     <button class="hm-sort-btn" id="hm-pop" onclick="hmSort('pop')">Popular</button>
     <button class="hm-sort-btn" id="hm-earned" onclick="hmSort('earned')">Earned</button>
@@ -1032,31 +1036,18 @@ function renderHeatmap(){
     return{team:t,popularity,avgAssigned,totalEarned,avgPts,isElim:eliminated.has(t)};
   });
 
-  const sorted=[...teamStats].sort((a,b)=>{
-    if(_hmSort==='pop') return b.popularity-a.popularity;
-    if(_hmSort==='earned') return b.totalEarned-a.totalEarned;
-    return b.avgAssigned-a.avgAssigned; // default: avg pts assigned
-  });
+  const sorted=[...teamStats].sort((a,b)=>b.avgAssigned-a.avgAssigned);
 
   const maxAvg=sorted.reduce((m,s)=>Math.max(m,s.avgAssigned),0)||16;
-  const maxPop=sorted.reduce((m,s)=>Math.max(m,s.popularity),0)||1;
 
   grid.innerHTML=sorted.map(s=>{
     const logo=TEAM_LOGO[s.team]?`<img class="hm-logo" src="${TEAM_LOGO[s.team]}" alt="">`:'';
-    const fillPct=_hmSort==='pop'
-      ?Math.round(s.popularity/maxPop*100)
-      :Math.round(s.avgAssigned/maxAvg*100);
+    const fillPct=Math.round(s.avgAssigned/maxAvg*100);
     const elimClass=s.isElim?' elim':'';
-    const displayVal=_hmSort==='earned'
-      ?`${s.totalEarned}pts`
-      :_hmSort==='pop'
-        ?`${s.popularity}/${participants.length}`
-        :`${s.avgAssigned.toFixed(1)}`;
     return`<div class="hm-card${elimClass}">
       <div class="hm-top">${logo}<span class="hm-name">${shortTeamName(s.team)}</span></div>
       <div class="hm-stats">
-        <span class="hm-avg">${displayVal}</span>
-        <span class="hm-pop">${s.popularity}/${participants.length} top</span>
+        <span class="hm-avg">${s.avgAssigned.toFixed(1)}</span>
       </div>
       <div class="hm-heat-bar"><div class="hm-heat-fill" style="width:${fillPct}%"></div></div>
     </div>`;
