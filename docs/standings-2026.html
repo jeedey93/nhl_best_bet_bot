@@ -1017,13 +1017,14 @@ function renderHeatmap(){
   const eliminated=buildElimSet();
 
   const teamStats=TEAMS.map(t=>{
-    const pickers=participants.filter(p=>p.picks[t]>0);
+    const pickers=participants.filter(p=>(p.picks[t]||0)>=9); // top-half picks only
     const popularity=pickers.length;
-    const totalEarned=pickers.reduce((sum,p)=>{
+    const allPickers=participants.filter(p=>p.picks[t]>0);
+    const totalEarned=allPickers.reduce((sum,p)=>{
       const wins=results[t].reduce((s,w)=>s+w,0);
       return sum+(p.picks[t]||0)*wins;
     },0);
-    const avgPts=popularity>0?(totalEarned/popularity):0;
+    const avgPts=allPickers.length>0?(totalEarned/allPickers.length):0;
     return{team:t,popularity,totalEarned,avgPts,isElim:eliminated.has(t)};
   });
 
