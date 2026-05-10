@@ -520,11 +520,7 @@
 <div class="heatmap-section" id="heatmap-section" style="display:none;">
   <h3>Picks Heatmap</h3>
   <p style="font-size:0.8rem;color:var(--silver);letter-spacing:1px;margin-bottom:0.75rem;opacity:0.7;">Average points assigned per team (16 = most favored)</p>
-  <div class="heatmap-sort" style="display:none;">
-    <button class="hm-sort-btn active" id="hm-avg" onclick="hmSort('avg')">Avg Assigned</button>
-    <button class="hm-sort-btn" id="hm-pop" onclick="hmSort('pop')">Popular</button>
-    <button class="hm-sort-btn" id="hm-earned" onclick="hmSort('earned')">Earned</button>
-  </div>
+  <div class="heatmap-sort" style="display:none;"></div>
     <button class="hm-sort-btn active" id="hm-avg" onclick="hmSort('avg')">Avg Assigned</button>
     <button class="hm-sort-btn" id="hm-pop" onclick="hmSort('pop')">Popular</button>
     <button class="hm-sort-btn" id="hm-earned" onclick="hmSort('earned')">Earned</button>
@@ -984,16 +980,6 @@ const TEAM_LOGO={
 let bracketData=null;
 
 // ── Heatmap ───────────────────────────────────────────────────────────────────
-let _hmSort='avg'; // 'avg'|'pop'|'earned'
-function hmSort(mode){
-  _hmSort=mode;
-  ['avg','pop','earned'].forEach(k=>{
-    const el=document.getElementById('hm-'+k);
-    if(el)el.classList.toggle('active',k===mode);
-  });
-  renderHeatmap();
-}
-
 function buildElimSet(){
   const eliminated=new Set();
   if(!bracketData)return eliminated;
@@ -1025,16 +1011,10 @@ function renderHeatmap(){
 
   const teamStats=TEAMS.map(t=>{
     const allPickers=participants.filter(p=>p.picks[t]>0);
-    const popularity=participants.filter(p=>(p.picks[t]||0)>=9).length; // top-half picks
     const avgAssigned=allPickers.length>0
       ?(allPickers.reduce((s,p)=>s+(p.picks[t]||0),0)/allPickers.length)
       :0;
-    const totalEarned=allPickers.reduce((sum,p)=>{
-      const wins=results[t].reduce((s,w)=>s+w,0);
-      return sum+(p.picks[t]||0)*wins;
-    },0);
-    const avgPts=allPickers.length>0?(totalEarned/allPickers.length):0;
-    return{team:t,popularity,avgAssigned,totalEarned,avgPts,isElim:eliminated.has(t)};
+    return{team:t,avgAssigned,isElim:eliminated.has(t)};
   });
 
   const sorted=[...teamStats].sort((a,b)=>b.avgAssigned-a.avgAssigned);
