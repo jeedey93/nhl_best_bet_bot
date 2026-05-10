@@ -518,9 +518,9 @@
 <!-- Picks Heatmap -->
 <div class="heatmap-section" id="heatmap-section" style="display:none;">
   <h3>Picks Heatmap</h3>
-  <p style="font-size:0.8rem;color:var(--silver);letter-spacing:1px;margin-bottom:0.75rem;opacity:0.7;">Average pool points earned per team pick</p>
+  <p style="font-size:0.8rem;color:var(--silver);letter-spacing:1px;margin-bottom:0.75rem;opacity:0.7;">Average points assigned per team (16 = most favored)</p>
   <div class="heatmap-sort">
-    <button class="hm-sort-btn active" id="hm-avg" onclick="hmSort('avg')">Avg Pts</button>
+    <button class="hm-sort-btn active" id="hm-avg" onclick="hmSort('avg')">Avg Assigned</button>
     <button class="hm-sort-btn" id="hm-pop" onclick="hmSort('pop')">Popular</button>
     <button class="hm-sort-btn" id="hm-earned" onclick="hmSort('earned')">Earned</button>
   </div>
@@ -1019,37 +1019,44 @@ function renderHeatmap(){
   const eliminated=buildElimSet();
 
   const teamStats=TEAMS.map(t=>{
-    const pickers=participants.filter(p=>(p.picks[t]||0)>=9); // top-half picks only
-    const popularity=pickers.length;
     const allPickers=participants.filter(p=>p.picks[t]>0);
+    const popularity=participants.filter(p=>(p.picks[t]||0)>=9).length; // top-half picks
+    const avgAssigned=allPickers.length>0
+      ?(allPickers.reduce((s,p)=>s+(p.picks[t]||0),0)/allPickers.length)
+      :0;
     const totalEarned=allPickers.reduce((sum,p)=>{
       const wins=results[t].reduce((s,w)=>s+w,0);
       return sum+(p.picks[t]||0)*wins;
     },0);
     const avgPts=allPickers.length>0?(totalEarned/allPickers.length):0;
-    return{team:t,popularity,totalEarned,avgPts,isElim:eliminated.has(t)};
+    return{team:t,popularity,avgAssigned,totalEarned,avgPts,isElim:eliminated.has(t)};
   });
 
   const sorted=[...teamStats].sort((a,b)=>{
     if(_hmSort==='pop') return b.popularity-a.popularity;
     if(_hmSort==='earned') return b.totalEarned-a.totalEarned;
-    return b.avgPts-a.avgPts;
+    return b.avgAssigned-a.avgAssigned; // default: avg pts assigned
   });
 
-  const maxAvg=sorted.reduce((m,s)=>Math.max(m,s.avgPts),0)||1;
+  const maxAvg=sorted.reduce((m,s)=>Math.max(m,s.avgAssigned),0)||16;
   const maxPop=sorted.reduce((m,s)=>Math.max(m,s.popularity),0)||1;
 
   grid.innerHTML=sorted.map(s=>{
     const logo=TEAM_LOGO[s.team]?`<img class="hm-logo" src="${TEAM_LOGO[s.team]}" alt="">`:'';
     const fillPct=_hmSort==='pop'
       ?Math.round(s.popularity/maxPop*100)
-      :Math.round(s.avgPts/maxAvg*100);
+      :Math.round(s.avgAssigned/maxAvg*100);
     const elimClass=s.isElim?' elim':'';
+    const displayVal=_hmSort==='earned'
+      ?`${s.totalEarned}pts`
+      :_hmSort==='pop'
+        ?`${s.popularity}/${participants.length}`
+        :`${s.avgAssigned.toFixed(1)}`;
     return`<div class="hm-card${elimClass}">
       <div class="hm-top">${logo}<span class="hm-name">${shortTeamName(s.team)}</span></div>
       <div class="hm-stats">
-        <span class="hm-avg">${s.avgPts.toFixed(1)}</span>
-        <span class="hm-pop">${s.popularity}/${participants.length}</span>
+        <span class="hm-avg">${displayVal}</span>
+        <span class="hm-pop">${s.popularity}/${participants.length} top</span>
       </div>
       <div class="hm-heat-bar"><div class="hm-heat-fill" style="width:${fillPct}%"></div></div>
     </div>`;
