@@ -382,29 +382,21 @@
   /* ── Picks Heatmap ── */
   .heatmap-section{max-width:800px;margin:2.5rem auto 0;text-align:center;}
   .heatmap-section h3{font-family:'Bebas Neue',cursive;font-size:1.2rem;color:var(--gold);
-    letter-spacing:3px;margin-bottom:0.4rem;}
-  .heatmap-sort{display:flex;justify-content:center;gap:6px;margin-bottom:1rem;flex-wrap:wrap;}
-  .hm-sort-btn{font-family:'Bebas Neue',cursive;font-size:0.8rem;letter-spacing:1.5px;
-    padding:0.25rem 0.8rem;border-radius:6px;border:1px solid rgba(255,255,255,0.1);
-    background:transparent;color:rgba(255,255,255,0.45);cursor:pointer;transition:all 0.15s;}
-  .hm-sort-btn:hover{color:rgba(255,255,255,0.75);}
-  .hm-sort-btn.active{background:rgba(255,184,28,0.12);color:var(--gold);border-color:rgba(255,184,28,0.3);}
-  .heatmap-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:0 4px;}
+    letter-spacing:3px;margin-bottom:0.75rem;}
+  .heatmap-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:0 4px;}
   @media(max-width:500px){.heatmap-grid{grid-template-columns:repeat(2,1fr);}}
-  .hm-card{border-radius:8px;padding:10px 12px;position:relative;
+  .hm-card{border-radius:6px;padding:6px 8px;
     background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);
-    transition:border-color 0.2s,transform 0.15s;}
-  .hm-card:hover{transform:translateY(-2px);border-color:rgba(255,255,255,0.18);}
-  .hm-card.elim{opacity:0.45;}
-  .hm-card.elim .hm-name{text-decoration:line-through;color:rgba(255,255,255,0.35);}
-  .hm-top{display:flex;align-items:center;gap:6px;margin-bottom:5px;}
-  .hm-logo{width:24px;height:24px;object-fit:contain;flex-shrink:0;}
-  .hm-name{font-size:0.85rem;font-weight:700;color:white;letter-spacing:0.5px;flex:1;
+    transition:border-color 0.2s;}
+  .hm-card:hover{border-color:rgba(255,255,255,0.18);}
+  .hm-card.elim{opacity:0.4;}
+  .hm-card.elim .hm-name{text-decoration:line-through;color:rgba(255,255,255,0.3);}
+  .hm-row{display:flex;align-items:center;gap:6px;}
+  .hm-logo{width:18px;height:18px;object-fit:contain;flex-shrink:0;}
+  .hm-name{font-size:0.78rem;font-weight:700;color:white;flex:1;
     overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-  .hm-stats{display:flex;justify-content:space-between;align-items:baseline;}
-  .hm-avg{font-family:'Bebas Neue',cursive;font-size:1.3rem;color:var(--gold);letter-spacing:1px;line-height:1;}
-  .hm-pop{font-size:0.7rem;color:var(--silver);letter-spacing:1px;}
-  .hm-heat-bar{height:3px;border-radius:2px;margin-top:5px;background:rgba(255,184,28,0.2);}
+  .hm-avg{font-family:'Bebas Neue',cursive;font-size:1rem;color:var(--gold);letter-spacing:1px;line-height:1;flex-shrink:0;}
+  .hm-heat-bar{height:2px;border-radius:2px;margin-top:4px;background:rgba(255,184,28,0.15);}
   .hm-heat-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,rgba(255,184,28,0.4),var(--gold));}
 </style>
 </head>
@@ -520,11 +512,6 @@
 <div class="heatmap-section" id="heatmap-section" style="display:none;">
   <h3>Picks Heatmap</h3>
   <p style="font-size:0.8rem;color:var(--silver);letter-spacing:1px;margin-bottom:0.75rem;opacity:0.7;">Average points assigned per team (16 = most favored)</p>
-  <div class="heatmap-sort" style="display:none;"></div>
-    <button class="hm-sort-btn active" id="hm-avg" onclick="hmSort('avg')">Avg Assigned</button>
-    <button class="hm-sort-btn" id="hm-pop" onclick="hmSort('pop')">Popular</button>
-    <button class="hm-sort-btn" id="hm-earned" onclick="hmSort('earned')">Earned</button>
-  </div>
   <div class="heatmap-grid" id="heatmap-grid"></div>
 </div>
 
@@ -1026,10 +1013,7 @@ function renderHeatmap(){
     const fillPct=Math.round(s.avgAssigned/maxAvg*100);
     const elimClass=s.isElim?' elim':'';
     return`<div class="hm-card${elimClass}">
-      <div class="hm-top">${logo}<span class="hm-name">${shortTeamName(s.team)}</span></div>
-      <div class="hm-stats">
-        <span class="hm-avg">${s.avgAssigned.toFixed(1)}</span>
-      </div>
+      <div class="hm-row">${logo}<span class="hm-name">${shortTeamName(s.team)}</span><span class="hm-avg">${s.avgAssigned.toFixed(1)}</span></div>
       <div class="hm-heat-bar"><div class="hm-heat-fill" style="width:${fillPct}%"></div></div>
     </div>`;
   }).join('');
