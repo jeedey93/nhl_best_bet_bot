@@ -69,26 +69,44 @@ module.exports = async (req, res) => {
     generationConfig: { maxOutputTokens: 512, temperature: 0.7 },
   };
 
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+  const models = [
+    'gemini-2.5-flash',
+    'gemini-2.0-flash',
+    'gemini-2.0-flash-lite',
+    'gemini-2.5-flash-lite',
+    'gemini-1.5-flash',
+  ];
 
-  try {
-    const geminiRes = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    });
+  let lastError = null;
+  for (const model of models) {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+    try {
+      const geminiRes = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
 
-    if (!geminiRes.ok) {
-      const err = await geminiRes.text();
-      console.error('Gemini error:', err);
-      return res.status(502).json({ error: 'Gemini API error', detail: err });
+      if (geminiRes.status === 429 || geminiRes.status === 503) {
+        lastError = await geminiRes.text();
+        continue; // try next model
+      }
+
+      if (!geminiRes.ok) {
+        const err = await geminiRes.text();
+        console.error(`Gemini error (${model}):`, err);
+        return res.status(502).json({ error: 'Gemini API error', detail: err });
+      }
+
+      const data = await geminiRes.json();
+      const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text || 'No response from Gemini.';
+      return res.status(200).json({ reply, model });
+    } catch (e) {
+      lastError = e.message;
+      continue;
     }
-
-    const data = await geminiRes.json();
-    const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text || 'No response from Gemini.';
-    return res.status(200).json({ reply });
-  } catch (e) {
-    console.error('chat.js error:', e);
-    return res.status(500).json({ error: e.message });
   }
+
+  console.error('All models exhausted:', lastError);
+  return res.status(502).json({ error: 'All models quota exceeded. Please try again later.' });
 };
