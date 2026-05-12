@@ -1160,9 +1160,14 @@ with open(filename, "w") as f:
             away_team = g['away']
             home_team = g['home']
 
+            ou = g['over_under']
+            over_p = g.get('over_price')
+            under_p = g.get('under_price')
+            ou_str = f"{ou} (Over: {over_p} / Under: {under_p})" if ou and over_p else str(ou)
+
             line = (
                 f"{away_team} @ {home_team}\n"
-                f"{home_team} ML (Home): {g['home_odds']}, {away_team} ML (Away): {g['away_odds']}, O/U: {g['over_under']}\n"
+                f"{home_team} ML (Home): {g['home_odds']}, {away_team} ML (Away): {g['away_odds']}, O/U: {ou_str}\n"
                 "------\n"
             )
             f.write(line)

@@ -578,11 +578,16 @@ with open(filename, "w") as f:
                 home_away_splits_text += f"  Home Record: {away_splits['home_record']} (Win%: {away_splits['home_win_pct']:.3f})\n"
                 home_away_splits_text += f"  Away Record: {away_splits['away_record']} (Win%: {away_splits['away_win_pct']:.3f})\n"
 
+            ou = g.get('over_under')
+            over_p = g.get('over_price')
+            under_p = g.get('under_price')
+            ou_str = f"{ou} (Over: {over_p} / Under: {under_p})" if ou and over_p else str(ou)
+
             # Headline summary per game (write to file + include in predictions_text)
             line = (
                 f"{g['home']} vs {g['away']}\n"
                 f"{g['home']} ML (Home): {g.get('home_odds')}, {g['away']} ML (Away): {g.get('away_odds')}, "
-                f"O/U: {g.get('over_under')}\n"
+                f"O/U: {ou_str}\n"
                 # Added spreads summary in the headline print
                 f"Spreads: Home {g.get('spread_home_points')} ({g.get('spread_home_price')}), "
                 f"Away {g.get('spread_away_points')} ({g.get('spread_away_price')})\n"

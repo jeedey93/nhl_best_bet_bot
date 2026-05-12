@@ -256,7 +256,7 @@ def match_odds_to_games(games, odds_data, team_name_map):
             home_team = normalize(odds.get("home_team"))
             away_team = normalize(odds.get("away_team"))
             if (home_team in home_fulls and away_team in away_fulls):
-                home_odds = away_odds = over_under = None
+                home_odds = away_odds = over_under = over_price = under_price = None
                 spread_home_records = []
                 spread_away_records = []
 
@@ -272,6 +272,9 @@ def match_odds_to_games(games, odds_data, team_name_map):
                             for outcome in market["outcomes"]:
                                 if outcome["name"].lower() == "over":
                                     over_under = outcome.get("point")
+                                    over_price = outcome.get("price")
+                                elif outcome["name"].lower() == "under":
+                                    under_price = outcome.get("price")
                         elif market["key"] == "spreads":
                             for outcome in market["outcomes"]:
                                 name = outcome.get("name", "")
@@ -292,6 +295,8 @@ def match_odds_to_games(games, odds_data, team_name_map):
                     "home_odds": home_odds,
                     "away_odds": away_odds,
                     "over_under": over_under,
+                    "over_price": over_price,
+                    "under_price": under_price,
                     "spread_home_points": spread_home_points,
                     "spread_home_price": spread_home_price,
                     "spread_away_points": spread_away_points,
@@ -347,6 +352,8 @@ def match_nba_odds_to_games(games, odds_data, team_name_map=NBA_TEAM_NAME_MAP):
         home_odds = None
         away_odds = None
         over_under = None
+        over_price = None
+        under_price = None
 
         # collect spreads across all bookmakers
         spread_home_records = []  # list of {point, price}
@@ -381,7 +388,12 @@ def match_nba_odds_to_games(games, odds_data, team_name_map=NBA_TEAM_NAME_MAP):
 
                         elif mkey == "totals":
                             if over_under is None and outcomes:
-                                over_under = outcomes[0].get("point")
+                                for o in outcomes:
+                                    if o.get("name", "").lower() == "over":
+                                        over_under = o.get("point")
+                                        over_price = o.get("price")
+                                    elif o.get("name", "").lower() == "under":
+                                        under_price = o.get("price")
 
                         elif mkey == "spreads":
                             for o in outcomes:
@@ -408,7 +420,8 @@ def match_nba_odds_to_games(games, odds_data, team_name_map=NBA_TEAM_NAME_MAP):
                 "home_odds": home_odds,
                 "away_odds": away_odds,
                 "over_under": over_under,
-                "spread_home_points": spread_home_points,
+                "over_price": over_price,
+                "under_price": under_price,
                 "spread_home_price": spread_home_price,
                 "spread_away_points": spread_away_points,
                 "spread_away_price": spread_away_price,
