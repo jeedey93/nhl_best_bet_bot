@@ -874,7 +874,7 @@ function checkPoolPw(){
     status.className = 'save-status';
 
     try {
-      const playersRes = await fetch(`${SUPABASE_URL}/rest/v1/nhl_players?select=puckpedia_slug,points,goals,assists,wins,shutouts,save_pct&limit=2000`, { headers: sbHeaders() });
+      const playersRes = await fetch(`${SUPABASE_URL}/rest/v1/nhl_players?select=puckpedia_slug,points,goals,assists,wins,shutouts,save_pct,games_played&limit=2000`, { headers: sbHeaders() });
       if (!playersRes.ok) throw new Error(`Failed loading players (${playersRes.status})`);
       const players = await playersRes.json();
       const playerMap = Object.fromEntries(players.map(p => [p.puckpedia_slug, p]));
@@ -884,12 +884,9 @@ function checkPoolPw(){
       const rows = await rosterRes.json();
       if (!rows.length || !rows[0].data?.teams?.length) throw new Error('No teams found for this league');
 
-      const seasonDate = new Date(`${dateVal}T12:00:00.000Z`).toISOString();
-      const now = new Date().toISOString();
-      // If the season start date is today or in the past, snapshot at zero —
-      // the season has already begun so all current stats count from day 1.
-      // If it's a future date, snapshot current stats so only post-baseline gains count.
+      // Always snapshot current stats so only post-baseline gains count in standings.
       const seasonIsInFuture = new Date(seasonDate) > new Date();
+      void seasonIsInFuture; // kept for reference; snapshot is always current
       let snapCount = 0;
       const data = rows[0].data;
 
@@ -899,9 +896,7 @@ function checkPoolPw(){
           for (const slug of (team.roster?.[group] || []).filter(Boolean)) {
             const p = playerMap[slug];
             if (!p) continue;
-            const snapshot = seasonIsInFuture
-              ? captureStatsSnapshot(p)
-              : { points: 0, goals: 0, assists: 0, wins: 0, shutouts: 0, games_played: 0 };
+            const snapshot = captureStatsSnapshot(p);
             acquisitions[slug] = { date: seasonDate, stats_snapshot: snapshot };
             snapCount += 1;
           }
