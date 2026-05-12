@@ -121,9 +121,19 @@
     #pd-chat-send:hover { opacity: 0.9; }
     #pd-chat-send:disabled { opacity: 0.45; cursor: not-allowed; }
 
-    @media (max-width: 420px) {
-      #pd-chat-panel { width: calc(100vw - 16px); right: 8px; bottom: 80px; }
-      #pd-chat-btn { bottom: 16px; right: 16px; }
+    @media (max-width: 600px) {
+      #pd-chat-panel {
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        width: 100%; height: 100dvh;
+        border-radius: 0;
+        border: none;
+      }
+      #pd-chat-btn { bottom: 20px; right: 16px; }
+      #pd-chat-header { padding: 14px 16px; }
+      #pd-chat-input { font-size: 16px; } /* prevents iOS zoom on focus */
+      #pd-chat-send { font-size: 1rem; padding: 8px 18px; }
+      .pd-msg { font-size: 0.93rem; }
     }
   `;
   document.head.appendChild(style);
