@@ -125,7 +125,7 @@
       #pd-chat-panel {
         position: fixed;
         top: 0; left: 0; right: 0; bottom: 0;
-        width: 100%; height: 100dvh;
+        width: 100%; height: 100%;
         border-radius: 0;
         border: none;
       }
@@ -169,10 +169,21 @@
   let history = [];
   let open = false;
 
+  function applyViewport() {
+    if (window.innerWidth > 600) return;
+    const vv = window.visualViewport;
+    if (!vv) return;
+    panel.style.top    = vv.offsetTop + 'px';
+    panel.style.left   = vv.offsetLeft + 'px';
+    panel.style.width  = vv.width + 'px';
+    panel.style.height = vv.height + 'px';
+  }
+
   function togglePanel() {
     open = !open;
     panel.classList.toggle('hidden', !open);
     if (open) {
+      applyViewport();
       input.focus();
       if (messages.children.length === 0) {
         addMessage('bot', "Hi! I can answer questions about today's NHL and NBA picks. What would you like to know?");
@@ -241,4 +252,9 @@
   closeBtn.addEventListener('click', togglePanel);
   sendBtn.addEventListener('click', sendMessage);
   input.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
+
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', applyViewport);
+    window.visualViewport.addEventListener('scroll', applyViewport);
+  }
 })();
