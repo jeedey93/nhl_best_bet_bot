@@ -1,131 +1,211 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NHL Playoff Picks – Commissioner Leaderboard</title>
-<link rel="icon" type="image/png" href="parieur_discipline_icon_1024.png">
-<link rel="apple-touch-icon" href="parieur_discipline_icon_1024.png">
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
-<style>
-  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-  :root{--rink:#07111f;--red:#c8102e;--gold:#ffb81c;--silver:#a8b2be;--ice:#e8f4fd;--green:#22c55e;}
-  body{background:var(--rink);min-height:100vh;font-family:'Barlow Condensed',sans-serif;
-    background-image:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(26,58,110,0.6) 0%,transparent 70%);
-    padding:1.5rem 1rem 4rem;}
-  header{text-align:center;margin-bottom:1.5rem;}
-  .header-inner{display:flex;align-items:center;justify-content:center;gap:1rem;flex-wrap:wrap;margin-bottom:0.3rem;}
-  .brand-icon{width:52px;height:52px;border-radius:10px;object-fit:cover;box-shadow:0 4px 16px rgba(0,0,0,0.5);}
-  header h1{font-family:'Bebas Neue',cursive;font-size:clamp(2rem,5vw,3.5rem);color:white;letter-spacing:4px;
-    text-shadow:0 0 40px rgba(200,16,46,0.5);}
-  header h1 span{color:var(--gold);}
-  header p{color:var(--silver);font-size:1rem;letter-spacing:2px;text-transform:uppercase;margin-top:0.3rem;}
-  .last-saved{font-size:0.75rem;color:rgba(168,178,190,0.45);letter-spacing:1px;margin-top:0.2rem;}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NHL Playoff Picks – Commissioner Leaderboard</title>
+  <link rel="icon" type="image/png" href="parieur_discipline_icon_1024.png">
+  <link rel="apple-touch-icon" href="parieur_discipline_icon_1024.png">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{--rink:#07111f;--red:#c8102e;--gold:#ffb81c;--silver:#a8b2be;--ice:#e8f4fd;--green:#22c55e;}
+    body{background:var(--rink);min-height:100vh;font-family:'Barlow Condensed',sans-serif;
+      background-image:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(26,58,110,0.6) 0%,transparent 70%);
+      padding:1.5rem 1rem 4rem;}
+    header{text-align:center;margin-bottom:1.5rem;}
+    .header-inner{display:flex;align-items:center;justify-content:center;gap:1rem;flex-wrap:wrap;margin-bottom:0.3rem;}
+    .brand-icon{width:52px;height:52px;border-radius:10px;object-fit:cover;box-shadow:0 4px 16px rgba(0,0,0,0.5);}
+    header h1{font-family:'Bebas Neue',cursive;font-size:clamp(2rem,5vw,3.5rem);color:white;letter-spacing:4px;
+      text-shadow:0 0 40px rgba(200,16,46,0.5);}
+    header h1 span{color:var(--gold);}
+    header p{color:var(--silver);font-size:1rem;letter-spacing:2px;text-transform:uppercase;margin-top:0.3rem;}
+    .last-saved{font-size:0.75rem;color:rgba(168,178,190,0.45);letter-spacing:1px;margin-top:0.2rem;}
 
-  .main{max-width:1100px;margin:0 auto;display:flex;flex-direction:column;gap:1.5rem;}
+    .main{max-width:1100px;margin:0 auto;display:flex;flex-direction:column;gap:1.5rem;}
 
-  .top-row{display:grid;grid-template-columns:1fr 280px;gap:1.5rem;align-items:start;}
-  @media(max-width:800px){.top-row{grid-template-columns:1fr;}}
+    .top-row{display:grid;grid-template-columns:1fr 280px;gap:1.5rem;align-items:start;}
+    @media(max-width:800px){.top-row{grid-template-columns:1fr;}}
 
-  .panel{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:1.4rem;}
-  .panel h2{font-family:'Bebas Neue',cursive;font-size:1.4rem;color:var(--gold);letter-spacing:2px;
-    margin-bottom:1rem;border-bottom:1px solid rgba(255,184,28,0.2);padding-bottom:0.5rem;}
+    .panel{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:1.4rem;}
+    .panel h2{font-family:'Bebas Neue',cursive;font-size:1.4rem;color:var(--gold);letter-spacing:2px;
+      margin-bottom:1rem;border-bottom:1px solid rgba(255,184,28,0.2);padding-bottom:0.5rem;}
 
-  /* ── Participants ── */
-  .participant-chip{display:flex;align-items:center;gap:0.5rem;
-    background:rgba(255,255,255,0.05);border-radius:5px;padding:0.4rem 0.7rem;margin-bottom:5px;}
-  .participant-chip span{color:white;font-size:1rem;font-weight:600;flex:1;}
-  .load-status{font-size:0.75rem;color:var(--silver);letter-spacing:1px;}
-  .load-status.ok{color:var(--green);}
-  .load-status.err{color:var(--red);}
+    /* ── Participants ── */
+    .participant-chip{display:flex;align-items:center;gap:0.5rem;
+      background:rgba(255,255,255,0.05);border-radius:5px;padding:0.4rem 0.7rem;margin-bottom:5px;}
+    .participant-chip span{color:white;font-size:1rem;font-weight:600;flex:1;}
+    .load-status{font-size:0.75rem;color:var(--silver);letter-spacing:1px;}
+    .load-status.ok{color:var(--green);}
+    .load-status.err{color:var(--red);}
 
-  /* ── Series grid ── */
-  .series-rounds{display:flex;flex-direction:column;gap:1.5rem;}
-  .series-round-label{font-family:'Bebas Neue',cursive;font-size:0.85rem;color:rgba(255,184,28,0.6);
-    letter-spacing:3px;margin-bottom:0.6rem;border-bottom:1px solid rgba(255,184,28,0.12);padding-bottom:0.3rem;}
-  .series-list{display:flex;flex-wrap:wrap;gap:10px;}
+    /* ── Series grid ── */
+    .series-rounds{display:flex;flex-direction:column;gap:1.5rem;}
 
-  /* Series matchup card */
-  .series-card{
-    display:flex;flex-direction:column;align-items:stretch;gap:0;
-    background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);
-    border-radius:10px;overflow:hidden;width:170px;flex-shrink:0;
-    transition:border-color 0.2s,box-shadow 0.2s;}
-  .series-card.won{border-color:rgba(255,184,28,0.45);background:rgba(255,184,28,0.04);
-    box-shadow:0 0 12px rgba(255,184,28,0.1);}
-  .series-card.tbd{opacity:0.3;pointer-events:none;}
+    /* Round label row with progress badge */
+    .round-header{display:flex;align-items:center;gap:0.7rem;margin-bottom:0.6rem;
+      border-bottom:1px solid rgba(255,184,28,0.12);padding-bottom:0.3rem;}
+    .series-round-label{font-family:'Bebas Neue',cursive;font-size:0.85rem;color:rgba(255,184,28,0.6);
+      letter-spacing:3px;}
+    .round-progress{font-size:0.7rem;color:rgba(168,178,190,0.5);letter-spacing:1px;
+      background:rgba(255,255,255,0.05);border-radius:3px;padding:1px 6px;
+      font-family:'Barlow Condensed',sans-serif;font-weight:600;}
+    .round-progress.complete{color:var(--green);background:rgba(34,197,94,0.1);}
 
-  /* Each team row inside the card */
-  .series-side{display:flex;align-items:center;gap:7px;padding:8px 10px;}
-  .series-side+.series-side{border-top:1px solid rgba(255,255,255,0.06);}
-  .s-logo{width:26px;height:26px;flex-shrink:0;display:flex;align-items:center;justify-content:center;
-    background:rgba(255,255,255,0.05);border-radius:4px;overflow:hidden;}
-  .s-logo img{width:20px;height:20px;object-fit:contain;}
-  .s-name{font-size:0.8rem;font-weight:700;color:rgba(255,255,255,0.75);
-    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0;}
-  .s-name.winner{color:var(--green);}
-  .s-name.eliminated{color:rgba(255,255,255,0.2);}
+    /* Mobile: horizontal scroll strip for series cards */
+    .series-list{
+      display:flex;flex-wrap:wrap;gap:10px;
+    }
+    @media(max-width:600px){
+      .series-list{
+        flex-wrap:nowrap;
+        overflow-x:auto;
+        -webkit-overflow-scrolling:touch;
+        padding-bottom:6px;
+        scrollbar-width:thin;
+        scrollbar-color:rgba(255,184,28,0.3) transparent;
+      }
+      .series-list::-webkit-scrollbar{height:3px;}
+      .series-list::-webkit-scrollbar-track{background:transparent;}
+      .series-list::-webkit-scrollbar-thumb{background:rgba(255,184,28,0.3);border-radius:2px;}
+    }
 
-  /* Win counter */
-  .series-counter{display:flex;align-items:center;gap:3px;flex-shrink:0;margin-left:auto;}
-  .s-btn{width:22px;height:22px;border-radius:4px;border:1px solid rgba(255,255,255,0.12);
-    background:rgba(255,255,255,0.06);color:white;font-size:0.9rem;cursor:pointer;
-    display:flex;align-items:center;justify-content:center;line-height:1;
-    transition:background 0.15s,border-color 0.15s;user-select:none;}
-  .s-btn:hover{background:rgba(255,184,28,0.2);border-color:rgba(255,184,28,0.5);}
-  .s-btn:active{transform:scale(0.9);}
-  .s-wins{font-family:'Bebas Neue',cursive;font-size:1.1rem;color:white;min-width:14px;
-    text-align:center;line-height:1;}
-  .s-wins.max{color:var(--green);}
-  .s-sep{display:none;}
+    /* Series matchup card */
+    .series-card{
+      display:flex;flex-direction:column;align-items:stretch;gap:0;
+      background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);
+      border-radius:10px;overflow:hidden;
+      width:170px;min-width:150px;flex-shrink:0; /* min-width for mobile */
+      transition:border-color 0.2s,box-shadow 0.2s,opacity 0.2s;}
 
-  .lb-wrap{overflow-x:auto;}
-  table{width:100%;border-collapse:collapse;font-size:0.9rem;}
-  thead tr th{background:rgba(200,16,46,0.7);color:white;font-family:'Bebas Neue',cursive;
-    font-size:0.95rem;letter-spacing:1.5px;padding:8px 10px;text-align:center;border-bottom:2px solid var(--red);}
-  thead tr th:first-child{text-align:left;}
-  tbody tr{transition:background 0.15s;}
-  tbody tr:nth-child(even){background:rgba(255,255,255,0.025);}
-  tbody tr:hover{background:rgba(255,184,28,0.06);}
-  tbody td{padding:7px 10px;color:white;border-bottom:1px solid rgba(255,255,255,0.05);
-    text-align:center;vertical-align:middle;}
-  tbody td:first-child{text-align:left;}
-  .rank-cell{font-family:'Bebas Neue',cursive;font-size:1.2rem;}
-  .rank-1{color:#FFD700;}.rank-2{color:#C0C0C0;}.rank-3{color:#CD7F32;}
-  .name-cell{font-weight:700;font-size:1rem;}
-  .score-cell{font-family:'Bebas Neue',cursive;font-size:1.3rem;color:var(--gold);}
-  .round-score{font-size:0.85rem;color:var(--silver);}
-  .empty-state{text-align:center;padding:2rem 1rem;color:var(--silver);}
-  .empty-state p{font-size:1rem;margin-top:0.5rem;}
+    /* Won: gold border, slightly dimmed to de-emphasise completed */
+    .series-card.won{
+      border-color:rgba(255,184,28,0.3);
+      background:rgba(255,184,28,0.03);
+      opacity:0.7;}
 
-  .snapshot-btn{display:inline-flex;align-items:center;gap:0.5rem;margin-top:0.6rem;
-    background:rgba(255,184,28,0.1);border:1px solid rgba(255,184,28,0.3);border-radius:8px;
-    padding:0.5rem 1.2rem;color:var(--gold);font-family:'Bebas Neue',cursive;font-size:1rem;
-    letter-spacing:2px;cursor:pointer;transition:background 0.2s,border-color 0.2s;}
-  .snapshot-btn:hover{background:rgba(255,184,28,0.2);border-color:rgba(255,184,28,0.5);}
-  .snapshot-btn:active{transform:scale(0.97);}
-  .snapshot-status{font-size:0.75rem;color:var(--green);letter-spacing:1px;margin-left:0.5rem;opacity:0;transition:opacity 0.3s;}
-  .snapshot-status.show{opacity:1;}
-  #pw-gate{position:fixed;inset:0;z-index:9999;background:var(--rink);
-    display:flex;align-items:center;justify-content:center;
-    background-image:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(26,58,110,0.6) 0%,transparent 70%);}
-  .pw-box{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
-    border-radius:14px;padding:2.5rem 2rem;width:320px;max-width:90vw;text-align:center;}
-  .pw-box h2{font-family:'Bebas Neue',cursive;font-size:1.8rem;color:var(--gold);
-    letter-spacing:3px;margin-bottom:0.3rem;}
-  .pw-box p{color:var(--silver);font-size:0.85rem;letter-spacing:1px;margin-bottom:1.5rem;}
-  .pw-input{width:100%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);
-    border-radius:8px;padding:0.7rem 1rem;color:white;font-size:1rem;font-family:'Barlow Condensed',sans-serif;
-    letter-spacing:2px;outline:none;text-align:center;transition:border-color 0.2s;}
-  .pw-input:focus{border-color:rgba(255,184,28,0.5);}
-  .pw-input.error{border-color:rgba(200,16,46,0.7);animation:shake 0.3s;}
-  @keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-6px);}75%{transform:translateX(6px);}};
-  .pw-btn{margin-top:1rem;width:100%;background:var(--red);color:white;border:none;border-radius:8px;
-    padding:0.75rem;font-family:'Bebas Neue',cursive;font-size:1.2rem;letter-spacing:3px;
-    cursor:pointer;transition:background 0.2s;}
-  .pw-btn:hover{background:#e0122e;}
-  .pw-error{color:rgba(200,16,46,0.8);font-size:0.8rem;margin-top:0.5rem;min-height:1em;letter-spacing:1px;}
-</style>
+    /* Active (in progress, at least 1 win recorded): pulse ring */
+    .series-card.active{
+      border-color:rgba(255,184,28,0.6);
+      box-shadow:0 0 0 0 rgba(255,184,28,0.4);
+      animation:pulse-ring 2.4s ease-in-out infinite;}
+    @keyframes pulse-ring{
+      0%,100%{box-shadow:0 0 0 0 rgba(255,184,28,0.35);}
+      50%{box-shadow:0 0 0 5px rgba(255,184,28,0);}
+    }
+
+    .series-card.tbd{opacity:0.25;pointer-events:none;}
+
+    /* Each team row inside the card */
+    .series-side{display:flex;align-items:center;gap:7px;padding:8px 10px;}
+    .series-side+.series-side{border-top:1px solid rgba(255,255,255,0.06);}
+    .s-logo{width:26px;height:26px;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+      background:rgba(255,255,255,0.05);border-radius:4px;overflow:hidden;}
+    .s-logo img{width:20px;height:20px;object-fit:contain;}
+    .s-name{font-size:0.8rem;font-weight:700;color:rgba(255,255,255,0.75);
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0;}
+    .s-name.winner{color:var(--green);}
+    .s-name.eliminated{color:rgba(255,255,255,0.2);}
+
+    /* Win counter */
+    .series-counter{display:flex;align-items:center;gap:3px;flex-shrink:0;margin-left:auto;}
+    .s-btn{width:22px;height:22px;border-radius:4px;border:1px solid rgba(255,255,255,0.12);
+      background:rgba(255,255,255,0.06);color:white;font-size:0.9rem;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;line-height:1;
+      transition:background 0.15s,border-color 0.15s,opacity 0.15s;user-select:none;}
+    .s-btn:hover:not(:disabled){background:rgba(255,184,28,0.2);border-color:rgba(255,184,28,0.5);}
+    .s-btn:active:not(:disabled){transform:scale(0.9);}
+    .s-btn:disabled{opacity:0.2;cursor:not-allowed;}
+    .s-wins{font-family:'Bebas Neue',cursive;font-size:1.1rem;color:white;min-width:14px;
+      text-align:center;line-height:1;}
+    .s-wins.max{color:var(--green);}
+    .s-sep{display:none;}
+
+    /* ── Leaderboard ── */
+    .lb-wrap{overflow-x:auto;}
+    table{width:100%;border-collapse:collapse;font-size:0.9rem;}
+    thead tr th{background:rgba(200,16,46,0.7);color:white;font-family:'Bebas Neue',cursive;
+      font-size:0.95rem;letter-spacing:1.5px;padding:8px 10px;text-align:center;border-bottom:2px solid var(--red);}
+    thead tr th:first-child{text-align:left;}
+    tbody tr{transition:background 0.15s;position:relative;cursor:pointer;}
+    tbody tr:nth-child(even){background:rgba(255,255,255,0.025);}
+    tbody tr:hover{background:rgba(255,184,28,0.06);}
+
+    /* Tie: dashed bottom border on tied rows */
+    tbody tr.tied-above td{border-top:1px dashed rgba(255,184,28,0.4);}
+
+    tbody td{padding:7px 10px;color:white;border-bottom:1px solid rgba(255,255,255,0.05);
+      text-align:center;vertical-align:middle;}
+    tbody td:first-child{text-align:left;}
+    .rank-cell{font-family:'Bebas Neue',cursive;font-size:1.2rem;}
+    .rank-1{color:#FFD700;}.rank-2{color:#C0C0C0;}.rank-3{color:#CD7F32;}
+    .name-cell{font-weight:700;font-size:1rem;}
+    .score-cell{font-family:'Bebas Neue',cursive;font-size:1.3rem;color:var(--gold);}
+    .round-score{font-size:0.85rem;color:var(--silver);}
+
+    /* Score delta badge */
+    .delta{display:inline-block;font-size:0.7rem;font-weight:700;letter-spacing:0.5px;
+      border-radius:3px;padding:1px 5px;margin-left:5px;vertical-align:middle;
+      font-family:'Barlow Condensed',sans-serif;}
+    .delta.pos{background:rgba(34,197,94,0.15);color:var(--green);}
+    .delta.neg{background:rgba(200,16,46,0.12);color:rgba(200,16,46,0.8);}
+    .delta.zero{display:none;}
+
+    /* Picks tooltip */
+    .picks-tooltip{
+      display:none;position:absolute;left:0;right:0;z-index:50;
+      background:#0d1e33;border:1px solid rgba(255,184,28,0.25);border-radius:8px;
+      padding:0.7rem 1rem;box-shadow:0 8px 32px rgba(0,0,0,0.6);
+      font-size:0.8rem;color:var(--silver);line-height:1.6;
+      pointer-events:none;}
+    tbody tr:hover .picks-tooltip{display:block;}
+    .picks-tooltip strong{color:var(--gold);font-family:'Bebas Neue',cursive;font-size:0.9rem;letter-spacing:1px;}
+    .picks-tooltip .pick-row{display:flex;gap:0.5rem;justify-content:space-between;}
+    .picks-tooltip .pick-team{color:white;font-weight:600;}
+    .picks-tooltip .pick-pts{color:var(--gold);}
+
+    .empty-state{text-align:center;padding:2rem 1rem;color:var(--silver);}
+    .empty-state p{font-size:1rem;margin-top:0.5rem;}
+
+    /* Syncing indicator */
+    .sync-bar{display:flex;align-items:center;gap:0.5rem;font-size:0.75rem;
+      color:rgba(168,178,190,0.5);letter-spacing:1px;margin-bottom:0.6rem;height:18px;}
+    .sync-dot{width:7px;height:7px;border-radius:50%;background:rgba(168,178,190,0.3);flex-shrink:0;}
+    .sync-bar.syncing .sync-dot{background:var(--gold);animation:blink 0.9s ease-in-out infinite;}
+    .sync-bar.synced .sync-dot{background:var(--green);}
+    .sync-bar.error .sync-dot{background:var(--red);}
+    @keyframes blink{0%,100%{opacity:1;}50%{opacity:0.2;}}
+
+    .snapshot-btn{display:inline-flex;align-items:center;gap:0.5rem;margin-top:0.6rem;
+      background:rgba(255,184,28,0.1);border:1px solid rgba(255,184,28,0.3);border-radius:8px;
+      padding:0.5rem 1.2rem;color:var(--gold);font-family:'Bebas Neue',cursive;font-size:1rem;
+      letter-spacing:2px;cursor:pointer;transition:background 0.2s,border-color 0.2s;}
+    .snapshot-btn:hover{background:rgba(255,184,28,0.2);border-color:rgba(255,184,28,0.5);}
+    .snapshot-btn:active{transform:scale(0.97);}
+    .snapshot-status{font-size:0.75rem;color:var(--green);letter-spacing:1px;margin-left:0.5rem;opacity:0;transition:opacity 0.3s;}
+    .snapshot-status.show{opacity:1;}
+
+    /* Password gate */
+    #pw-gate{position:fixed;inset:0;z-index:9999;background:var(--rink);
+      display:flex;align-items:center;justify-content:center;
+      background-image:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(26,58,110,0.6) 0%,transparent 70%);}
+    .pw-box{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
+      border-radius:14px;padding:2.5rem 2rem;width:320px;max-width:90vw;text-align:center;}
+    .pw-box h2{font-family:'Bebas Neue',cursive;font-size:1.8rem;color:var(--gold);
+      letter-spacing:3px;margin-bottom:0.3rem;}
+    .pw-box p{color:var(--silver);font-size:0.85rem;letter-spacing:1px;margin-bottom:1.5rem;}
+    .pw-input{width:100%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);
+      border-radius:8px;padding:0.7rem 1rem;color:white;font-size:1rem;font-family:'Barlow Condensed',sans-serif;
+      letter-spacing:2px;outline:none;text-align:center;transition:border-color 0.2s;}
+    .pw-input:focus{border-color:rgba(255,184,28,0.5);}
+    .pw-input.error{border-color:rgba(200,16,46,0.7);animation:shake 0.3s;}
+    @keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-6px);}75%{transform:translateX(6px);}};
+    .pw-btn{margin-top:1rem;width:100%;background:var(--red);color:white;border:none;border-radius:8px;
+      padding:0.75rem;font-family:'Bebas Neue',cursive;font-size:1.2rem;letter-spacing:3px;
+      cursor:pointer;transition:background 0.2s;}
+    .pw-btn:hover{background:#e0122e;}
+    .pw-error{color:rgba(200,16,46,0.8);font-size:0.8rem;margin-top:0.5rem;min-height:1em;letter-spacing:1px;}
+  </style>
 </head>
 <body>
 <div id="pw-gate">
@@ -138,29 +218,29 @@
   </div>
 </div>
 <script>
-(function(){
-  if(sessionStorage.getItem('commissioner_auth')==='1'){
-    document.getElementById('pw-gate').style.display='none';
+  (function(){
+    if(sessionStorage.getItem('commissioner_auth')==='1'){
+      document.getElementById('pw-gate').style.display='none';
+    }
+    document.getElementById('pw-input').addEventListener('keydown',function(e){
+      if(e.key==='Enter')checkPw();
+    });
+  })();
+  function checkPw(){
+    const input=document.getElementById('pw-input');
+    const err=document.getElementById('pw-error');
+    if(input.value==='parieur2026'){
+      sessionStorage.setItem('commissioner_auth','1');
+      document.getElementById('pw-gate').style.display='none';
+      err.textContent='';
+    }else{
+      input.classList.add('error');
+      err.textContent='Incorrect password.';
+      setTimeout(()=>input.classList.remove('error'),400);
+      input.value='';
+      input.focus();
+    }
   }
-  document.getElementById('pw-input').addEventListener('keydown',function(e){
-    if(e.key==='Enter')checkPw();
-  });
-})();
-function checkPw(){
-  const input=document.getElementById('pw-input');
-  const err=document.getElementById('pw-error');
-  if(input.value==='parieur2026'){
-    sessionStorage.setItem('commissioner_auth','1');
-    document.getElementById('pw-gate').style.display='none';
-    err.textContent='';
-  }else{
-    input.classList.add('error');
-    err.textContent='Incorrect password.';
-    setTimeout(()=>input.classList.remove('error'),400);
-    input.value='';
-    input.focus();
-  }
-}
 </script>
 <header>
   <div class="header-inner">
@@ -178,38 +258,42 @@ function checkPw(){
 </header>
 
 <div class="main">
-  <!-- TOP ROW: Game Results (main) + Participants (sidebar) -->
   <div class="top-row">
-    <!-- LEFT: Game Results (primary) -->
+    <!-- LEFT: Game Results -->
     <div class="panel">
       <h2>🏒 Series Results</h2>
       <div class="series-rounds" id="series-rounds"><p style="color:var(--silver);font-size:0.9rem;">Loading bracket…</p></div>
     </div>
 
-    <!-- RIGHT: Participants (sidebar) -->
+    <!-- RIGHT: Participants -->
     <div class="panel">
       <h2>👥 Participants</h2>
       <div id="participant-list"><p style="color:var(--silver);font-size:0.9rem;">Loading…</p></div>
     </div>
   </div>
 
-  <!-- BOTTOM: Leaderboard (secondary reference) -->
+  <!-- BOTTOM: Leaderboard -->
   <div class="panel">
     <h2>🏆 Leaderboard</h2>
+    <!-- Sync status bar -->
+    <div class="sync-bar" id="sync-bar">
+      <div class="sync-dot"></div>
+      <span id="sync-label">Loading…</span>
+    </div>
     <div class="lb-wrap">
       <table id="lb-table">
         <thead>
-          <tr>
-            <th>#</th><th>NAME</th>
-            <th>R1</th><th>R2</th><th>CF</th><th>SC</th>
-            <th>TOTAL</th>
-          </tr>
+        <tr>
+          <th>#</th><th>NAME</th>
+          <th>R1</th><th>R2</th><th>CF</th><th>SC</th>
+          <th>TOTAL</th>
+        </tr>
         </thead>
         <tbody id="lb-body">
-          <tr><td colspan="7" class="empty-state">
-            <div style="font-size:2rem">🏒</div>
-            <p>Loading participants…</p>
-          </td></tr>
+        <tr><td colspan="7" class="empty-state">
+          <div style="font-size:2rem">🏒</div>
+          <p>Loading participants…</p>
+        </td></tr>
         </tbody>
       </table>
     </div>
@@ -217,330 +301,435 @@ function checkPw(){
 </div>
 
 <script>
-const DISPLAY_NAME={'Utah Hockey Club':'Mammoth'};
-function shortTeamName(name){
-  if(!name||name==='TBD')return name||'TBD';
-  if(DISPLAY_NAME[name])return DISPLAY_NAME[name];
-  return name.split(' ').pop();
-}
-
-const TEAMS_DATA=[
-  {name:"Buffalo Sabres",        abbr:"BUF"},
-  {name:"Boston Bruins",         abbr:"BOS"},
-  {name:"Montreal Canadiens",    abbr:"MTL"},
-  {name:"Tampa Bay Lightning",   abbr:"TBL"},
-  {name:"Carolina Hurricanes",   abbr:"CAR"},
-  {name:"Ottawa Senators",       abbr:"OTT"},
-  {name:"Pittsburgh Penguins",   abbr:"PIT"},
-  {name:"Philadelphia Flyers",   abbr:"PHI"},
-  {name:"Colorado Avalanche",    abbr:"COL"},
-  {name:"Los Angeles Kings",     abbr:"LAK"},
-  {name:"Dallas Stars",          abbr:"DAL"},
-  {name:"Minnesota Wild",        abbr:"MIN"},
-  {name:"Edmonton Oilers",       abbr:"EDM"},
-  {name:"Utah Hockey Club",      abbr:"UTA"},
-  {name:"Vegas Golden Knights",  abbr:"VGK"},
-  {name:"Anaheim Ducks",         abbr:"ANA"},
-];
-const TEAMS=TEAMS_DATA.map(t=>t.name);
-function logoUrl(abbr){return`https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg`;}
-const ROUND_MULT=[1,2,3,4];
-const ROUND_LABELS=["Round 1","Round 2","Conf. Final","Stanley Cup Final"];
-
-let participants=[];
-let results={};
-TEAMS.forEach(t=>{results[t]=[0,0,0,0];});
-
-const STORAGE_KEY='nhl_playoff_results_2026';
-const API_URL='/api/playoff-results';
-
-// ── Persist results ───────────────────────────────────────────────────────────
-function applyResults(saved){
-  TEAMS.forEach(t=>{if(saved[t])results[t]=saved[t];});
-}
-
-// Save to localStorage immediately, then sync to API in background
-function saveResults(){
-  try{localStorage.setItem(STORAGE_KEY,JSON.stringify(results));}catch(e){}
-  fetch(API_URL,{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({results})
-  }).then(r=>{
-    if(r.ok){
-      const t=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-      const el=document.getElementById('last-saved');
-      if(el)el.textContent='Last saved: '+t;
-    }
-  }).catch(()=>{});
-}
-
-// Snapshot current results as "yesterday" baseline, then save new results
-function snapshotYesterday(){
-  const btn=document.querySelector('.snapshot-btn');
-  const status=document.getElementById('snapshot-status');
-  if(btn)btn.disabled=true;
-  fetch(API_URL,{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({results})
-  }).then(r=>{
-    if(r.ok){
-      const t=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-      const el=document.getElementById('last-saved');
-      if(el)el.textContent='Last saved: '+t;
-      if(status){status.classList.add('show');setTimeout(()=>status.classList.remove('show'),2500);}
-    }
-  }).catch(()=>{}).finally(()=>{if(btn)btn.disabled=false;});
-}
-
-// On load: restore from localStorage first (instant), then fetch from API (authoritative)
-function loadResultsLocal(){
-  try{
-    const saved=localStorage.getItem(STORAGE_KEY);
-    if(saved)applyResults(JSON.parse(saved));
-  }catch(e){}
-}
-
-async function loadResultsRemote(){
-  try{
-    const resp=await fetch(API_URL+'?_='+Date.now());
-    if(!resp.ok)return;
-    const data=await resp.json();
-    if(data.success&&data.results&&Object.keys(data.results).length>0){
-      // Remote is authoritative — overwrite local
-      TEAMS.forEach(t=>{results[t]=[0,0,0,0];});
-      applyResults(data.results);
-      try{localStorage.setItem(STORAGE_KEY,JSON.stringify(results));}catch(e){}
-      buildSeriesGrid();
-      recalc();
-    }
-  }catch(e){}
-}
-
-// ── Load participants from docs/playoff/ ──────────────────────────────────────
-async function loadParticipants(){
-  const list=document.getElementById('participant-list');
-  list.innerHTML='';
-  participants=[];
-
-  let files=[];
-  try{
-    const resp=await fetch(`playoff/index.json?_=${Date.now()}`);
-    if(!resp.ok)throw new Error('index not found');
-    files=(await resp.json()).filter(f=>f!=='bracket.json');
-  }catch(e){
-    list.innerHTML=`<p style="color:var(--red);font-size:0.9rem;">Could not load playoff/index.json</p>`;
-    return;
+  const DISPLAY_NAME={'Utah Hockey Club':'Mammoth'};
+  function shortTeamName(name){
+    if(!name||name==='TBD')return name||'TBD';
+    if(DISPLAY_NAME[name])return DISPLAY_NAME[name];
+    return name.split(' ').pop();
   }
 
-  await Promise.all(files.map(async filename=>{
-    const nameRaw=filename.replace(/\.json$/i,'');
-    const nameFallback=nameRaw.split('_')[0];
-    const chip=document.createElement('div');chip.className='participant-chip';
-    const status=document.createElement('span');status.className='load-status';
+  const TEAMS_DATA=[
+    {name:"Buffalo Sabres",        abbr:"BUF"},
+    {name:"Boston Bruins",         abbr:"BOS"},
+    {name:"Montreal Canadiens",    abbr:"MTL"},
+    {name:"Tampa Bay Lightning",   abbr:"TBL"},
+    {name:"Carolina Hurricanes",   abbr:"CAR"},
+    {name:"Ottawa Senators",       abbr:"OTT"},
+    {name:"Pittsburgh Penguins",   abbr:"PIT"},
+    {name:"Philadelphia Flyers",   abbr:"PHI"},
+    {name:"Colorado Avalanche",    abbr:"COL"},
+    {name:"Los Angeles Kings",     abbr:"LAK"},
+    {name:"Dallas Stars",          abbr:"DAL"},
+    {name:"Minnesota Wild",        abbr:"MIN"},
+    {name:"Edmonton Oilers",       abbr:"EDM"},
+    {name:"Utah Hockey Club",      abbr:"UTA"},
+    {name:"Vegas Golden Knights",  abbr:"VGK"},
+    {name:"Anaheim Ducks",         abbr:"ANA"},
+  ];
+  const TEAMS=TEAMS_DATA.map(t=>t.name);
+  function logoUrl(abbr){return`https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg`;}
+  const ROUND_MULT=[1,2,3,4];
+  const ROUND_LABELS=["Round 1","Round 2","Conf. Final","Stanley Cup Final"];
 
+  let participants=[];
+  let results={};
+  TEAMS.forEach(t=>{results[t]=[0,0,0,0];});
+
+  // Snapshot of scores at last explicit save — used for deltas
+  let savedScores={}; // { participantName: totalScore }
+
+  const STORAGE_KEY='nhl_playoff_results_2026';
+  const API_URL='/api/playoff-results';
+
+  // ── Sync bar helpers ──────────────────────────────────────────────────────────
+  function setSyncState(state, label){
+    const bar=document.getElementById('sync-bar');
+    const lbl=document.getElementById('sync-label');
+    if(!bar||!lbl)return;
+    bar.className='sync-bar '+state;
+    lbl.textContent=label;
+  }
+
+  // ── Persist results ───────────────────────────────────────────────────────────
+  function applyResults(saved){
+    TEAMS.forEach(t=>{if(saved[t])results[t]=saved[t];});
+  }
+
+  // Auto-save: called whenever a +/− button is clicked
+  function saveResults(){
+    try{localStorage.setItem(STORAGE_KEY,JSON.stringify(results));}catch(e){}
+    setSyncState('syncing','Saving…');
+    fetch(API_URL,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({results})
+    }).then(r=>{
+      if(r.ok){
+        const t=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+        const el=document.getElementById('last-saved');
+        if(el)el.textContent='Last saved: '+t;
+        setSyncState('synced','Synced at '+t);
+      }else{
+        setSyncState('error','Save failed');
+      }
+    }).catch(()=>setSyncState('error','No connection'));
+  }
+
+  // Snapshot: explicit save by commissioner, also captures delta baseline
+  function snapshotYesterday(){
+    const btn=document.querySelector('.snapshot-btn');
+    const status=document.getElementById('snapshot-status');
+    if(btn)btn.disabled=true;
+
+    // Capture current scores as the new delta baseline
+    participants.forEach(p=>{
+      const roundScores=calcScore(p);
+      savedScores[p.name]=roundScores.reduce((a,b)=>a+b,0);
+    });
+
+    setSyncState('syncing','Saving…');
+    fetch(API_URL,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({results})
+    }).then(r=>{
+      if(r.ok){
+        const t=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+        const el=document.getElementById('last-saved');
+        if(el)el.textContent='Last saved: '+t;
+        if(status){status.classList.add('show');setTimeout(()=>status.classList.remove('show'),2500);}
+        setSyncState('synced','Synced at '+t);
+        recalc(); // refresh deltas (all zero after snapshot)
+      }else{
+        setSyncState('error','Save failed');
+      }
+    }).catch(()=>setSyncState('error','No connection')).finally(()=>{if(btn)btn.disabled=false;});
+  }
+
+  // On load: restore from localStorage first (instant), then fetch from API (authoritative)
+  function loadResultsLocal(){
     try{
-      const resp=await fetch(`playoff/${filename}?_=${Date.now()}`);
-      if(!resp.ok)throw new Error(resp.status);
+      const saved=localStorage.getItem(STORAGE_KEY);
+      if(saved)applyResults(JSON.parse(saved));
+    }catch(e){}
+  }
+
+  async function loadResultsRemote(){
+    setSyncState('syncing','Syncing from server…');
+    try{
+      const resp=await fetch(API_URL+'?_='+Date.now());
+      if(!resp.ok)throw new Error('not ok');
       const data=await resp.json();
-      const name=data.name||nameFallback;
-      chip.innerHTML=`<span>${name}</span>`;chip.appendChild(status);
-      list.appendChild(chip);
-      const pickMap={};
-      data.picks.forEach(p=>{pickMap[p.team]=p.points;});
-      participants.push({name,picks:pickMap});
-      status.textContent='✓';status.className='load-status ok';
+      if(data.success&&data.results&&Object.keys(data.results).length>0){
+        TEAMS.forEach(t=>{results[t]=[0,0,0,0];});
+        applyResults(data.results);
+        try{localStorage.setItem(STORAGE_KEY,JSON.stringify(results));}catch(e){}
+        buildSeriesGrid();
+        recalc();
+      }
+      const t=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+      setSyncState('synced','Synced at '+t);
     }catch(e){
-      chip.innerHTML=`<span>${nameFallback}</span>`;chip.appendChild(status);
-      list.appendChild(chip);
-      status.textContent='✗ not found';status.className='load-status err';
-    }
-  }));
-
-  recalc();
-}
-
-// ── Bracket-based series grid ─────────────────────────────────────────────────
-let bracketData=null;
-
-async function loadBracket(){
-  try{
-    const r=await fetch('playoff/bracket.json?_='+Date.now());
-    if(!r.ok)return;
-    bracketData=await r.json();
-    buildSeriesGrid();
-  }catch(e){}
-}
-
-function abbr(name){
-  const t=TEAMS_DATA.find(x=>x.name===name);
-  return t?t.abbr:null;
-}
-
-function makeWinCounter(team,roundIdx,onUpdate){
-  const wrap=document.createElement('div');wrap.className='series-counter';
-  const minus=document.createElement('button');minus.className='s-btn';minus.textContent='−';
-  const winsEl=document.createElement('span');winsEl.className='s-wins';
-  const sep=document.createElement('span');sep.className='s-sep';sep.textContent='W';
-  const plus=document.createElement('button');plus.className='s-btn';plus.textContent='+';
-
-  function refresh(){
-    const w=results[team]?.[roundIdx]||0;
-    winsEl.textContent=w;
-    winsEl.className='s-wins'+(w===4?' max':'');
-  }
-  refresh();
-
-  minus.addEventListener('click',e=>{
-    e.stopPropagation();
-    const w=results[team]?.[roundIdx]||0;
-    if(w===0)return;
-    results[team][roundIdx]=w-1;
-    refresh();recalc();onUpdate();
-  });
-  plus.addEventListener('click',e=>{
-    e.stopPropagation();
-    const w=results[team]?.[roundIdx]||0;
-    if(w===4)return;
-    results[team][roundIdx]=w+1;
-    refresh();recalc();onUpdate();
-  });
-
-  wrap.appendChild(minus);wrap.appendChild(winsEl);wrap.appendChild(sep);wrap.appendChild(plus);
-  wrap._refresh=refresh;
-  return wrap;
-}
-
-function buildSeriesCard(top,bottom,roundIdx){
-  const isTbd=!top||top==='TBD'||!bottom||bottom==='TBD';
-  const card=document.createElement('div');
-  card.className='series-card'+(isTbd?' tbd':'');
-
-  function refreshCard(){
-    const tw=results[top]?.[roundIdx]||0;
-    const bw=results[bottom]?.[roundIdx]||0;
-    const won=tw===4||bw===4;
-    card.classList.toggle('won',won);
-    const topNameEl=card.querySelector('.top-name');
-    const botNameEl=card.querySelector('.bot-name');
-    if(topNameEl){
-      topNameEl.className='s-name top-name'+(tw===4?' winner':bw===4?' eliminated':'');
-    }
-    if(botNameEl){
-      botNameEl.className='s-name bot-name'+(bw===4?' winner':tw===4?' eliminated':'');
+      setSyncState('error','Could not reach server — using cached data');
     }
   }
 
-  if(isTbd){
-    card.innerHTML=`<div class="series-side"><span class="s-name" style="color:rgba(255,255,255,0.3)">TBD</span></div>
-      <div class="series-side"><span class="s-name" style="color:rgba(255,255,255,0.3)">TBD</span></div>`;
+  // ── Load participants from docs/playoff/ ──────────────────────────────────────
+  async function loadParticipants(){
+    const list=document.getElementById('participant-list');
+    list.innerHTML='';
+    participants=[];
+
+    let files=[];
+    try{
+      const resp=await fetch(`playoff/index.json?_=${Date.now()}`);
+      if(!resp.ok)throw new Error('index not found');
+      files=(await resp.json()).filter(f=>f!=='bracket.json');
+    }catch(e){
+      list.innerHTML=`<p style="color:var(--red);font-size:0.9rem;">Could not load playoff/index.json</p>`;
+      return;
+    }
+
+    await Promise.all(files.map(async filename=>{
+      const nameRaw=filename.replace(/\.json$/i,'');
+      const nameFallback=nameRaw.split('_')[0];
+      const chip=document.createElement('div');chip.className='participant-chip';
+      const status=document.createElement('span');status.className='load-status';
+
+      try{
+        const resp=await fetch(`playoff/${filename}?_=${Date.now()}`);
+        if(!resp.ok)throw new Error(resp.status);
+        const data=await resp.json();
+        const name=data.name||nameFallback;
+        chip.innerHTML=`<span>${name}</span>`;chip.appendChild(status);
+        list.appendChild(chip);
+        const pickMap={};
+        data.picks.forEach(p=>{pickMap[p.team]=p.points;});
+        participants.push({name,picks:pickMap});
+        status.textContent='✓';status.className='load-status ok';
+      }catch(e){
+        chip.innerHTML=`<span>${nameFallback}</span>`;chip.appendChild(status);
+        list.appendChild(chip);
+        status.textContent='✗ not found';status.className='load-status err';
+      }
+    }));
+
+    recalc();
+  }
+
+  // ── Bracket-based series grid ─────────────────────────────────────────────────
+  let bracketData=null;
+
+  // Registry of all round progress update functions, keyed by round index
+  const roundProgressUpdaters=[];
+
+  async function loadBracket(){
+    try{
+      const r=await fetch('playoff/bracket.json?_='+Date.now());
+      if(!r.ok)return;
+      bracketData=await r.json();
+      buildSeriesGrid();
+    }catch(e){}
+  }
+
+  function abbr(name){
+    const t=TEAMS_DATA.find(x=>x.name===name);
+    return t?t.abbr:null;
+  }
+
+  // ── Win counter with winner-lock logic ────────────────────────────────────────
+  // seriesRef: { top, bottom } — both team names in this series
+  function makeWinCounter(team, opponent, roundIdx, onUpdate){
+    const wrap=document.createElement('div');wrap.className='series-counter';
+    const minus=document.createElement('button');minus.className='s-btn';minus.textContent='−';
+    const winsEl=document.createElement('span');winsEl.className='s-wins';
+    const sep=document.createElement('span');sep.className='s-sep';sep.textContent='W';
+    const plus=document.createElement('button');plus.className='s-btn';plus.textContent='+';
+
+    function getWins(t){return results[t]?.[roundIdx]||0;}
+
+    function refresh(){
+      const w=getWins(team);
+      const ow=getWins(opponent);
+      winsEl.textContent=w;
+      winsEl.className='s-wins'+(w===4?' max':'');
+
+      // Winner lock: if either team has 4 wins, both counters lock
+      const seriesOver=(w===4||ow===4);
+      minus.disabled=(w===0||seriesOver);
+      plus.disabled=(w===4||seriesOver);
+    }
+    refresh();
+
+    minus.addEventListener('click',e=>{
+      e.stopPropagation();
+      const w=getWins(team);
+      if(w===0)return;
+      results[team][roundIdx]=w-1;
+      refresh();recalc();onUpdate();saveResults();
+    });
+    plus.addEventListener('click',e=>{
+      e.stopPropagation();
+      const w=getWins(team);
+      if(w===4)return;
+      results[team][roundIdx]=w+1;
+      refresh();recalc();onUpdate();saveResults();
+    });
+
+    wrap.appendChild(minus);wrap.appendChild(winsEl);wrap.appendChild(sep);wrap.appendChild(plus);
+    // Expose refresh so the opponent counter can trigger it
+    wrap._refresh=refresh;
+    return wrap;
+  }
+
+  function buildSeriesCard(top, bottom, roundIdx, onRoundChange){
+    const isTbd=!top||top==='TBD'||!bottom||bottom==='TBD';
+    const card=document.createElement('div');
+    card.className='series-card'+(isTbd?' tbd':'');
+
+    let topCounter=null, botCounter=null;
+
+    function refreshCard(){
+      const tw=results[top]?.[roundIdx]||0;
+      const bw=results[bottom]?.[roundIdx]||0;
+      const won=tw===4||bw===4;
+      const active=!won&&(tw>0||bw>0);
+
+      card.classList.toggle('won',won);
+      card.classList.toggle('active',active);
+
+      const topNameEl=card.querySelector('.top-name');
+      const botNameEl=card.querySelector('.bot-name');
+      if(topNameEl) topNameEl.className='s-name top-name'+(tw===4?' winner':bw===4?' eliminated':'');
+      if(botNameEl) botNameEl.className='s-name bot-name'+(bw===4?' winner':tw===4?' eliminated':'');
+
+      // Refresh both counters so disabled state stays in sync
+      if(topCounter&&topCounter._refresh) topCounter._refresh();
+      if(botCounter&&botCounter._refresh) botCounter._refresh();
+
+      if(onRoundChange) onRoundChange();
+    }
+
+    if(isTbd){
+      card.innerHTML=`<div class="series-side"><span class="s-name" style="color:rgba(255,255,255,0.3)">TBD</span></div>
+        <div class="series-side"><span class="s-name" style="color:rgba(255,255,255,0.3)">TBD</span></div>`;
+      return card;
+    }
+
+    const topAbbr=abbr(top);
+    const botAbbr=abbr(bottom);
+    const topShort=shortTeamName(top);
+    const botShort=shortTeamName(bottom);
+
+    // Top team row
+    const topSide=document.createElement('div');topSide.className='series-side';
+    const topLogoEl=document.createElement('div');topLogoEl.className='s-logo';
+    topLogoEl.innerHTML=`<img src="${logoUrl(topAbbr)}" alt="${topAbbr}" onerror="this.style.display='none'">`;
+    const topNameEl=document.createElement('span');
+    topNameEl.className='s-name top-name';topNameEl.title=top;topNameEl.textContent=topShort;
+    topCounter=makeWinCounter(top,bottom,roundIdx,refreshCard);
+    topSide.appendChild(topLogoEl);topSide.appendChild(topNameEl);topSide.appendChild(topCounter);
+
+    // Bottom team row
+    const botSide=document.createElement('div');botSide.className='series-side';
+    const botLogoEl=document.createElement('div');botLogoEl.className='s-logo';
+    botLogoEl.innerHTML=`<img src="${logoUrl(botAbbr)}" alt="${botAbbr}" onerror="this.style.display='none'">`;
+    const botNameEl=document.createElement('span');
+    botNameEl.className='s-name bot-name';botNameEl.title=bottom;botNameEl.textContent=botShort;
+    botCounter=makeWinCounter(bottom,top,roundIdx,refreshCard);
+    botSide.appendChild(botLogoEl);botSide.appendChild(botNameEl);botSide.appendChild(botCounter);
+
+    card.appendChild(topSide);card.appendChild(botSide);
+    refreshCard();
     return card;
   }
 
-  const topAbbr=abbr(top);
-  const botAbbr=abbr(bottom);
-  const topShort=shortTeamName(top);
-  const botShort=shortTeamName(bottom);
+  function buildSeriesGrid(){
+    const container=document.getElementById('series-rounds');
+    if(!container||!bracketData)return;
+    container.innerHTML='';
+    roundProgressUpdaters.length=0;
 
-  // Top team row
-  const topSide=document.createElement('div');topSide.className='series-side';
-  const topLogoEl=document.createElement('div');topLogoEl.className='s-logo';
-  topLogoEl.innerHTML=`<img src="${logoUrl(topAbbr)}" alt="${topAbbr}" onerror="this.style.display='none'">`;
-  const topNameEl=document.createElement('span');
-  topNameEl.className='s-name top-name';topNameEl.title=top;topNameEl.textContent=topShort;
-  const topCounter=makeWinCounter(top,roundIdx,refreshCard);
-  topSide.appendChild(topLogoEl);
-  topSide.appendChild(topNameEl);
-  topSide.appendChild(topCounter);
+    bracketData.rounds.forEach((round,ri)=>{
+      const section=document.createElement('div');
 
-  // Bottom team row
-  const botSide=document.createElement('div');botSide.className='series-side';
-  const botLogoEl=document.createElement('div');botLogoEl.className='s-logo';
-  botLogoEl.innerHTML=`<img src="${logoUrl(botAbbr)}" alt="${botAbbr}" onerror="this.style.display='none'">`;
-  const botNameEl=document.createElement('span');
-  botNameEl.className='s-name bot-name';botNameEl.title=bottom;botNameEl.textContent=botShort;
-  const botCounter=makeWinCounter(bottom,roundIdx,refreshCard);
-  botSide.appendChild(botLogoEl);
-  botSide.appendChild(botNameEl);
-  botSide.appendChild(botCounter);
+      // Collect all matchups for this round to power the progress badge
+      const matchups=[];
+      (round.east||[]).forEach(m=>matchups.push(m));
+      if(round.final) matchups.push(round.final);
+      (round.west||[]).forEach(m=>matchups.push(m));
 
-  card.appendChild(topSide);card.appendChild(botSide);
-  refreshCard();
-  return card;
-}
+      // Progress badge
+      const roundHeader=document.createElement('div');roundHeader.className='round-header';
+      const lbl=document.createElement('div');lbl.className='series-round-label';
+      lbl.textContent=ROUND_LABELS[ri];
+      const badge=document.createElement('span');badge.className='round-progress';
 
-function buildSeriesGrid(){
-  const container=document.getElementById('series-rounds');
-  if(!container||!bracketData)return;
-  container.innerHTML='';
-  const roundLabels=['Round 1','Round 2','Conf. Final','Stanley Cup Final'];
+      function updateProgress(){
+        const valid=matchups.filter(([t,b])=>t&&t!=='TBD'&&b&&b!=='TBD');
+        const done=valid.filter(([t,b])=>(results[t]?.[ri]||0)===4||(results[b]?.[ri]||0)===4);
+        badge.textContent=`${done.length}/${valid.length}`;
+        badge.className='round-progress'+(done.length===valid.length&&valid.length>0?' complete':'');
+      }
+      roundProgressUpdaters.push(updateProgress);
+      updateProgress();
 
-  bracketData.rounds.forEach((round,ri)=>{
-    const section=document.createElement('div');
-    const lbl=document.createElement('div');lbl.className='series-round-label';
-    lbl.textContent=roundLabels[ri];
-    const list=document.createElement('div');list.className='series-list';
+      roundHeader.appendChild(lbl);roundHeader.appendChild(badge);
+      const list=document.createElement('div');list.className='series-list';
 
-    // East series
-    (round.east||[]).forEach(([t,b])=>list.appendChild(buildSeriesCard(t,b,ri)));
-    // Final (SCF)
-    if(round.final){
-      const[f1,f2]=round.final;
-      list.appendChild(buildSeriesCard(f1,f2,ri));
-    }
-    // West series
-    (round.west||[]).forEach(([t,b])=>list.appendChild(buildSeriesCard(t,b,ri)));
+      (round.east||[]).forEach(([t,b])=>list.appendChild(buildSeriesCard(t,b,ri,updateProgress)));
+      if(round.final){
+        const[f1,f2]=round.final;
+        list.appendChild(buildSeriesCard(f1,f2,ri,updateProgress));
+      }
+      (round.west||[]).forEach(([t,b])=>list.appendChild(buildSeriesCard(t,b,ri,updateProgress)));
 
-    section.appendChild(lbl);section.appendChild(list);
-    container.appendChild(section);
-  });
-}
-
-// ── Score calculation ─────────────────────────────────────────────────────────
-function calcScore(participant){
-  const roundScores=[0,0,0,0];
-  TEAMS.forEach(team=>{
-    const pts=participant.picks[team]||0;
-    ROUND_MULT.forEach((_,ri)=>{
-      roundScores[ri]+=pts*(results[team]?.[ri]||0);
+      section.appendChild(roundHeader);section.appendChild(list);
+      container.appendChild(section);
     });
-  });
-  return roundScores;
-}
-
-function recalc(){
-  const lb=document.getElementById('lb-body');
-  if(participants.length===0){
-    lb.innerHTML=`<tr><td colspan="7" class="empty-state"><div style="font-size:2rem">🏒</div><p>No participants loaded yet</p></td></tr>`;
-    return;
   }
-  const rows=participants.map(p=>{
-    const roundScores=calcScore(p);
-    const total=roundScores.reduce((a,b)=>a+b,0);
-    return{name:p.name,roundScores,total};
-  });
-  rows.sort((a,b)=>b.total-a.total);
-  lb.innerHTML='';
-  rows.forEach((row,i)=>{
-    const rank=i+1;
-    const rankClass=rank===1?'rank-1':rank===2?'rank-2':rank===3?'rank-3':'';
-    const medal=rank===1?'🥇':rank===2?'🥈':rank===3?'🥉':'';
-    const tr=document.createElement('tr');
-    tr.innerHTML=`
-      <td class="rank-cell ${rankClass}">${medal||rank}</td>
-      <td class="name-cell">${row.name}</td>
-      ${row.roundScores.map(s=>`<td class="round-score">${s}</td>`).join('')}
-      <td class="score-cell">${row.total}</td>
-    `;
-    lb.appendChild(tr);
-  });
-}
 
-loadResultsLocal();   // instant restore from cache
-loadBracket();        // load bracket.json and build series grid
-loadParticipants();   // fetch participant picks
-loadResultsRemote();  // fetch authoritative results from API, re-render if different
+  // ── Score calculation ─────────────────────────────────────────────────────────
+  function calcScore(participant){
+    const roundScores=[0,0,0,0];
+    TEAMS.forEach(team=>{
+      const pts=participant.picks[team]||0;
+      ROUND_MULT.forEach((_,ri)=>{
+        roundScores[ri]+=pts*(results[team]?.[ri]||0);
+      });
+    });
+    return roundScores;
+  }
+
+  // Build a sorted list of top picks for tooltip display
+  function topPicks(participant, maxItems=5){
+    return Object.entries(participant.picks)
+      .filter(([,pts])=>pts>0)
+      .sort(([,a],[,b])=>b-a)
+      .slice(0,maxItems);
+  }
+
+  function recalc(){
+    const lb=document.getElementById('lb-body');
+    if(participants.length===0){
+      lb.innerHTML=`<tr><td colspan="7" class="empty-state"><div style="font-size:2rem">🏒</div><p>No participants loaded yet</p></td></tr>`;
+      return;
+    }
+    const rows=participants.map(p=>{
+      const roundScores=calcScore(p);
+      const total=roundScores.reduce((a,b)=>a+b,0);
+      const prevTotal=savedScores[p.name]??null;
+      const delta=(prevTotal!==null)?total-prevTotal:null;
+      return{name:p.name,roundScores,total,delta,picks:p.picks};
+    });
+    rows.sort((a,b)=>b.total-a.total);
+    lb.innerHTML='';
+    rows.forEach((row,i)=>{
+      const rank=i+1;
+      const rankClass=rank===1?'rank-1':rank===2?'rank-2':rank===3?'rank-3':'';
+      const medal=rank===1?'🥇':rank===2?'🥈':rank===3?'🥉':'';
+
+      // Tie detection: tied with the row below?
+      const tiedBelow=(i<rows.length-1&&rows[i].total===rows[i+1].total);
+      // Tied with the row above? Mark this row with the dashed border class
+      const tiedAbove=(i>0&&rows[i-1].total===rows[i].total);
+
+      // Delta badge
+      let deltaBadge='';
+      if(row.delta!==null){
+        if(row.delta>0) deltaBadge=`<span class="delta pos">+${row.delta}</span>`;
+        else if(row.delta<0) deltaBadge=`<span class="delta neg">${row.delta}</span>`;
+        else deltaBadge=`<span class="delta zero">—</span>`;
+      }
+
+      // Picks tooltip: top 5 picks
+      const topPickRows=topPicks({picks:row.picks},5)
+        .map(([team,pts])=>`<div class="pick-row"><span class="pick-team">${shortTeamName(team)}</span><span class="pick-pts">${pts} pts</span></div>`)
+        .join('');
+      const tooltip=`<div class="picks-tooltip"><strong>Top Picks</strong>${topPickRows}</div>`;
+
+      const tr=document.createElement('tr');
+      if(tiedAbove) tr.classList.add('tied-above');
+      tr.innerHTML=`
+        <td class="rank-cell ${rankClass}">${medal||rank}</td>
+        <td class="name-cell">${row.name}${tiedBelow?'<span style="font-size:0.65rem;color:rgba(168,178,190,0.4);margin-left:4px;letter-spacing:0px;">TIE</span>':''}</td>
+        ${row.roundScores.map(s=>`<td class="round-score">${s}</td>`).join('')}
+        <td class="score-cell">${row.total}${deltaBadge}</td>
+        ${tooltip}
+      `;
+      lb.appendChild(tr);
+    });
+  }
+
+  // ── Boot sequence: sequential to avoid race condition ────────────────────────
+  async function boot(){
+    loadResultsLocal();          // instant local restore (synchronous)
+    await loadBracket();         // build series grid (needs results to render correctly)
+    await loadParticipants();    // load picks, then recalc once
+    await loadResultsRemote();   // overwrite with authoritative server data, recalc again
+  }
+
+  boot();
 </script>
 </body>
 </html>
