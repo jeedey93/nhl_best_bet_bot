@@ -8,43 +8,43 @@
     #pd-chat-btn {
       position: fixed; bottom: 24px; right: 24px; z-index: 9999;
       width: 52px; height: 52px; border-radius: 50%;
-      background: #c8102e; border: none; cursor: pointer;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+      background: linear-gradient(135deg, #2c5aa0 0%, #1e3a8a 100%);
+      border: none; cursor: pointer;
+      box-shadow: 0 4px 16px rgba(30,58,138,0.35);
       display: flex; align-items: center; justify-content: center;
-      font-size: 22px; transition: transform 0.2s, background 0.2s;
+      font-size: 22px; transition: transform 0.2s, box-shadow 0.2s;
     }
-    #pd-chat-btn:hover { background: #e0122e; transform: scale(1.08); }
+    #pd-chat-btn:hover { transform: scale(1.08); box-shadow: 0 6px 20px rgba(30,58,138,0.5); }
 
     #pd-chat-panel {
       position: fixed; bottom: 88px; right: 24px; z-index: 9999;
       width: 360px; height: 500px;
-      background: #07111f;
-      border: 1px solid rgba(255,255,255,0.1);
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
       border-radius: 14px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.7);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.15);
       display: flex; flex-direction: column;
-      font-family: 'Barlow Condensed', sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       overflow: hidden;
       transition: opacity 0.2s, transform 0.2s;
     }
     #pd-chat-panel.hidden { opacity: 0; pointer-events: none; transform: translateY(12px); }
 
     #pd-chat-header {
-      background: #0d1e30;
+      background: linear-gradient(135deg, #2c5aa0 0%, #1e3a8a 100%);
       padding: 12px 16px;
       display: flex; align-items: center; justify-content: space-between;
-      border-bottom: 1px solid rgba(255,255,255,0.08);
     }
     #pd-chat-header-title {
-      font-size: 1rem; font-weight: 700; letter-spacing: 1px;
-      color: #fff; text-transform: uppercase;
+      font-size: 0.95rem; font-weight: 700;
+      color: #fff;
     }
     #pd-chat-header-sub {
-      font-size: 0.75rem; color: #64748b; margin-top: 1px;
+      font-size: 0.75rem; color: rgba(255,255,255,0.7); margin-top: 2px;
     }
     #pd-chat-close {
       background: none; border: none; cursor: pointer;
-      color: #64748b; font-size: 18px; line-height: 1;
+      color: rgba(255,255,255,0.7); font-size: 18px; line-height: 1;
       padding: 2px 6px; border-radius: 4px;
       transition: color 0.15s;
     }
@@ -53,35 +53,39 @@
     #pd-chat-messages {
       flex: 1; overflow-y: auto; padding: 14px 12px;
       display: flex; flex-direction: column; gap: 10px;
-      scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.1) transparent;
+      background: #f8fafc;
+      scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent;
     }
 
     .pd-msg {
-      max-width: 82%; padding: 8px 12px;
-      border-radius: 10px; font-size: 0.9rem; line-height: 1.45;
+      max-width: 82%; padding: 9px 13px;
+      border-radius: 12px; font-size: 0.88rem; line-height: 1.5;
       word-break: break-word; white-space: pre-wrap;
     }
     .pd-msg-user {
       align-self: flex-end;
-      background: #c8102e; color: #fff;
+      background: linear-gradient(135deg, #2c5aa0 0%, #1e3a8a 100%);
+      color: #fff;
       border-bottom-right-radius: 3px;
     }
     .pd-msg-bot {
       align-self: flex-start;
-      background: rgba(255,255,255,0.07); color: #e2e8f0;
+      background: #ffffff; color: #1e293b;
+      border: 1px solid #e2e8f0;
       border-bottom-left-radius: 3px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
     }
-    .pd-msg-bot strong { color: #ffb81c; }
 
     .pd-typing {
       align-self: flex-start;
-      background: rgba(255,255,255,0.07);
-      border-radius: 10px; border-bottom-left-radius: 3px;
+      background: #ffffff; border: 1px solid #e2e8f0;
+      border-radius: 12px; border-bottom-left-radius: 3px;
       padding: 10px 14px; display: flex; gap: 5px; align-items: center;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
     }
     .pd-typing span {
       width: 7px; height: 7px; border-radius: 50%;
-      background: #64748b; display: inline-block;
+      background: #94a3b8; display: inline-block;
       animation: pd-bounce 1.2s infinite ease-in-out;
     }
     .pd-typing span:nth-child(2) { animation-delay: 0.2s; }
@@ -93,28 +97,29 @@
 
     #pd-chat-input-row {
       padding: 10px 12px;
-      border-top: 1px solid rgba(255,255,255,0.08);
+      border-top: 1px solid #e2e8f0;
+      background: #fff;
       display: flex; gap: 8px;
     }
     #pd-chat-input {
-      flex: 1; background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.12);
+      flex: 1; background: #f1f5f9;
+      border: 1px solid #e2e8f0;
       border-radius: 8px; padding: 8px 12px;
-      color: #fff; font-family: 'Barlow Condensed', sans-serif;
-      font-size: 0.95rem; outline: none;
-      transition: border-color 0.2s;
+      color: #1e293b; font-family: inherit;
+      font-size: 0.9rem; outline: none;
+      transition: border-color 0.2s, background 0.2s;
     }
-    #pd-chat-input:focus { border-color: rgba(200,16,46,0.6); }
-    #pd-chat-input::placeholder { color: #475569; }
+    #pd-chat-input:focus { border-color: #2c5aa0; background: #fff; }
+    #pd-chat-input::placeholder { color: #94a3b8; }
     #pd-chat-send {
-      background: #c8102e; border: none; border-radius: 8px;
+      background: linear-gradient(135deg, #2c5aa0 0%, #1e3a8a 100%);
+      border: none; border-radius: 8px;
       padding: 8px 14px; color: #fff; cursor: pointer;
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 0.95rem; font-weight: 700; letter-spacing: 0.5px;
-      transition: background 0.2s;
+      font-family: inherit; font-size: 0.9rem; font-weight: 600;
+      transition: opacity 0.2s;
     }
-    #pd-chat-send:hover { background: #e0122e; }
-    #pd-chat-send:disabled { opacity: 0.5; cursor: not-allowed; }
+    #pd-chat-send:hover { opacity: 0.9; }
+    #pd-chat-send:disabled { opacity: 0.45; cursor: not-allowed; }
 
     @media (max-width: 420px) {
       #pd-chat-panel { width: calc(100vw - 16px); right: 8px; bottom: 80px; }
