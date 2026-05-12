@@ -1187,8 +1187,30 @@
     } catch(e) { return false; }
   }
 
+  function _snapshotPlayer(slug) {
+    const p = allPlayers.find(x => x.puckpedia_slug === slug);
+    if (!p) return { points:0, goals:0, assists:0, wins:0, shutouts:0, games_played:0 };
+    return {
+      points: p.points ?? 0, goals: p.goals ?? 0, assists: p.assists ?? 0,
+      wins: p.wins ?? 0, shutouts: p.shutouts ?? 0, games_played: p.games_played ?? 0,
+    };
+  }
+
   async function saveToSupabase() {
     if (!_leagueCode) return;
+    // Stamp a stats snapshot for every drafted player that doesn't have one yet.
+    // This baseline is used by standings to count only points earned after draft day.
+    const now = new Date().toISOString();
+    for (const team of teams) {
+      if (!team.acquisitions) team.acquisitions = {};
+      for (const pos of ['F','D','G','B']) {
+        for (const slug of (team.roster[pos] || [])) {
+          if (slug && !team.acquisitions[slug]) {
+            team.acquisitions[slug] = { date: now, stats_snapshot: _snapshotPlayer(slug) };
+          }
+        }
+      }
+    }
     const data = { teams, activeTeamId };
     await fetch(`${SUPABASE_URL}/rest/v1/pool_rosters`,{
       method:'POST', headers:sbHeaders({'Prefer':'resolution=merge-duplicates,return=minimal'}),
