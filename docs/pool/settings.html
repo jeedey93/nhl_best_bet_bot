@@ -511,6 +511,17 @@ function checkPoolPw(){
     </div>
   </div>
 
+  <div class="season-zone" style="margin-top:1rem;">
+    <div class="season-zone-title">📸 Export</div>
+    <div class="season-zone-row">
+      <div class="season-zone-desc">
+        <span class="season-zone-label">Download roster snapshot as image</span>
+        <span class="season-zone-sub">Generates a shareable PNG of all teams with pool points since baseline.</span>
+      </div>
+      <button class="btn-start-season" id="btn-export" onclick="exportRosterImage()">Export PNG</button>
+    </div>
+  </div>
+
   <!-- Danger zone -->
   <div class="danger-zone">
     <div class="danger-zone-title">⚠ Danger Zone</div>
@@ -1121,6 +1132,166 @@ function checkPoolPw(){
   if (_seasonDateInput) _seasonDateInput.value = _todayISO;
 
   loadSettings();
+
+  async function exportRosterImage() {
+    const btn = document.getElementById('btn-export');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Generating...';
+    setStatus('', false, 0);
+    try {
+      // Load data
+      const [playersRes, rosterRes, settingsRes] = await Promise.all([
+        fetch(`${SUPABASE_URL}/rest/v1/nhl_players?select=puckpedia_slug,player_name,position,goals,assists,points,wins,shutouts,games_played&limit=2000`, { headers: sbHeaders() }),
+        fetch(`${SUPABASE_URL}/rest/v1/pool_rosters?league_code=eq.${_leagueCode}&select=data`, { headers: sbHeaders() }),
+        fetch(`${SUPABASE_URL}/rest/v1/pool_settings?league_code=eq.${_leagueCode}&select=f_points,d_goals,d_assists,g_wins,g_shutouts`, { headers: sbHeaders() }),
+      ]);
+      const players   = await playersRes.json();
+      const rosterRow = await rosterRes.json();
+      const settRows  = await settingsRes.json();
+
+      const playerMap = Object.fromEntries(players.map(p => [p.puckpedia_slug, p]));
+      const teams     = rosterRow[0]?.data?.teams || [];
+      const sc        = settRows[0] || { f_points:1, d_goals:1, d_assists:1, g_wins:2, g_shutouts:3 };
+
+      function poolPts(p, acq) {
+        const s = acq?.stats_snapshot || {};
+        const pos = (p.position || '').toUpperCase();
+        if (pos === 'G') {
+          return Math.max(0,(p.wins??0)-(s.wins??0))*sc.g_wins + Math.max(0,(p.shutouts??0)-(s.shutouts??0))*sc.g_shutouts;
+        } else if (pos === 'D') {
+          return Math.max(0,(p.goals??0)-(s.goals??0))*sc.d_goals + Math.max(0,(p.assists??0)-(s.assists??0))*sc.d_assists;
+        } else {
+          return Math.max(0,(p.points??0)-(s.points??0))*sc.f_points;
+        }
+      }
+
+      function formatName(n) {
+        if (!n) return '';
+        if (n.includes(',')) { const [last,first] = n.split(','); return `${first.trim()} ${last.trim()}`; }
+        return n;
+      }
+
+      // Build canvas
+      const PAD = 24, CARD_GAP = 16, W = 560;
+      const ROW_H = 28, HEADER_H = 44, CARD_PAD = 16;
+      const COLS = ['F','D','G','B'];
+      const POS_LABEL = { F:'Forwards', D:'Defence', G:'Goalies', B:'Bench' };
+
+      // Measure total height
+      let totalH = PAD;
+      for (const team of teams) {
+        let rows = 0;
+        for (const pos of COLS) rows += (team.roster?.[pos]||[]).filter(Boolean).length;
+        totalH += HEADER_H + CARD_PAD + rows * ROW_H + CARD_PAD + CARD_GAP;
+      }
+      totalH += PAD;
+
+      const canvas = document.createElement('canvas');
+      const DPR = 2;
+      canvas.width  = W * DPR;
+      canvas.height = totalH * DPR;
+      const ctx = canvas.getContext('2d');
+      ctx.scale(DPR, DPR);
+
+      // Background
+      ctx.fillStyle = '#07111f';
+      ctx.fillRect(0, 0, W, totalH);
+
+      // Title
+      ctx.fillStyle = '#ffffff';
+      ctx.font = `bold 18px 'Barlow Condensed', sans-serif`;
+      ctx.fillText(`${_currentLeagueName || _leagueCode} — Rosters`, PAD, PAD + 16);
+
+      let y = PAD + 36;
+
+      for (const team of teams) {
+        const acqs = team.acquisitions || {};
+        // Gather players with pts
+        const allRows = [];
+        for (const pos of COLS) {
+          for (const slug of (team.roster?.[pos]||[]).filter(Boolean)) {
+            const p = playerMap[slug];
+            if (!p) continue;
+            allRows.push({ p, acq: acqs[slug], pos });
+          }
+        }
+        const teamPts = allRows.reduce((s,r) => s + poolPts(r.p, r.acq), 0);
+        const cardH   = HEADER_H + CARD_PAD + allRows.length * ROW_H + CARD_PAD;
+
+        // Card background
+        ctx.fillStyle = 'rgba(255,255,255,0.05)';
+        roundRect(ctx, PAD, y, W - PAD*2, cardH, 10);
+        ctx.fill();
+
+        // Team header
+        ctx.fillStyle = '#ffffff';
+        ctx.font = `bold 20px 'Barlow Condensed', sans-serif`;
+        ctx.fillText(team.name || 'Unnamed', PAD + CARD_PAD, y + 28);
+        ctx.fillStyle = '#ffb81c';
+        ctx.font = `bold 20px 'Barlow Condensed', sans-serif`;
+        ctx.textAlign = 'right';
+        ctx.fillText(`${teamPts} PTS`, W - PAD - CARD_PAD, y + 28);
+        ctx.textAlign = 'left';
+
+        // Divider
+        ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(PAD + CARD_PAD, y + HEADER_H);
+        ctx.lineTo(W - PAD - CARD_PAD, y + HEADER_H);
+        ctx.stroke();
+
+        let ry = y + HEADER_H + CARD_PAD;
+        for (const { p, acq, pos } of allRows) {
+          const pts = poolPts(p, acq);
+          const posColor = pos === 'G' ? '#22c55e' : pos === 'D' ? '#60a5fa' : pos === 'B' ? '#a78bfa' : '#f9a8d4';
+          // Position badge
+          ctx.fillStyle = posColor;
+          ctx.font = `bold 11px 'Barlow Condensed', sans-serif`;
+          ctx.fillText(pos, PAD + CARD_PAD, ry + 16);
+          // Name
+          ctx.fillStyle = '#e2e8f0';
+          ctx.font = `15px 'Barlow Condensed', sans-serif`;
+          ctx.fillText(formatName(p.player_name), PAD + CARD_PAD + 24, ry + 16);
+          // Points
+          ctx.fillStyle = pts > 0 ? '#ffb81c' : '#64748b';
+          ctx.font = `bold 15px 'Barlow Condensed', sans-serif`;
+          ctx.textAlign = 'right';
+          ctx.fillText(`${pts}`, W - PAD - CARD_PAD, ry + 16);
+          ctx.textAlign = 'left';
+          ry += ROW_H;
+        }
+
+        y += cardH + CARD_GAP;
+      }
+
+      // Download
+      const link = document.createElement('a');
+      link.download = `${_leagueCode}-rosters.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      setStatus('✓ Image downloaded', false, 4000);
+    } catch(e) {
+      setStatus(e.message || 'Export failed.', true, 6000);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Export PNG';
+    }
+  }
+
+  function roundRect(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    ctx.lineTo(x + r, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.closePath();
+  }
 </script>
 </body>
 </html>
