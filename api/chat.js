@@ -6,11 +6,11 @@ function getTodayMontreal() {
 
 async function loadPredictions(date) {
   const files = [
-    `data/predictions/nhl/nhl_daily_predictions_7am_${date}.txt`,
-    `data/predictions/nhl/nhl_daily_predictions_3pm_${date}.txt`,
+    `data/predictions/nhl/daily_runs/nhl_daily_predictions_${date}_7am.txt`,
+    `data/predictions/nhl/daily_runs/nhl_daily_predictions_${date}_3pm.txt`,
     `data/predictions/nhl/nhl_daily_predictions_${date}.txt`,
-    `data/predictions/nba/nba_daily_predictions_7am_${date}.txt`,
-    `data/predictions/nba/nba_daily_predictions_3pm_${date}.txt`,
+    `data/predictions/nba/daily_runs/nba_daily_predictions_${date}_7am.txt`,
+    `data/predictions/nba/daily_runs/nba_daily_predictions_${date}_3pm.txt`,
     `data/predictions/nba/nba_daily_predictions_${date}.txt`,
   ];
 
