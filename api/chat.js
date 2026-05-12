@@ -1,31 +1,32 @@
-const fs = require('fs');
-const path = require('path');
+const GITHUB_RAW = 'https://raw.githubusercontent.com/jeedey93/nhl_best_bet_bot/master';
 
 function getTodayMontreal() {
   return new Date().toLocaleDateString('en-CA', { timeZone: 'America/Toronto' });
 }
 
-function loadPredictions(date) {
-  const root = path.join(process.cwd(), 'data', 'predictions');
+async function loadPredictions(date) {
   const files = [
-    path.join(root, 'nhl', `nhl_daily_predictions_7am_${date}.txt`),
-    path.join(root, 'nhl', `nhl_daily_predictions_3pm_${date}.txt`),
-    path.join(root, 'nhl', `nhl_daily_predictions_${date}.txt`),
-    path.join(root, 'nba', `nba_daily_predictions_7am_${date}.txt`),
-    path.join(root, 'nba', `nba_daily_predictions_3pm_${date}.txt`),
-    path.join(root, 'nba', `nba_daily_predictions_${date}.txt`),
+    `data/predictions/nhl/nhl_daily_predictions_7am_${date}.txt`,
+    `data/predictions/nhl/nhl_daily_predictions_3pm_${date}.txt`,
+    `data/predictions/nhl/nhl_daily_predictions_${date}.txt`,
+    `data/predictions/nba/nba_daily_predictions_7am_${date}.txt`,
+    `data/predictions/nba/nba_daily_predictions_3pm_${date}.txt`,
+    `data/predictions/nba/nba_daily_predictions_${date}.txt`,
   ];
 
   const sections = [];
-  for (const f of files) {
+  await Promise.all(files.map(async (f) => {
     try {
-      const content = fs.readFileSync(f, 'utf8').trim();
-      if (content) {
-        const label = path.basename(f, '.txt');
-        sections.push(`=== ${label} ===\n${content}`);
+      const res = await fetch(`${GITHUB_RAW}/${f}`);
+      if (res.ok) {
+        const content = (await res.text()).trim();
+        if (content) {
+          const label = f.split('/').pop().replace('.txt', '');
+          sections.push(`=== ${label} ===\n${content}`);
+        }
       }
     } catch (_) {}
-  }
+  }));
   return sections.join('\n\n');
 }
 
@@ -46,7 +47,7 @@ module.exports = async (req, res) => {
   }
 
   const date = getTodayMontreal();
-  const predictions = loadPredictions(date);
+  const predictions = await loadPredictions(date);
 
   const systemPrompt = predictions
     ? `You are a sports betting assistant for parieurdiscipline.com, a site that uses AI to generate daily NHL and NBA betting picks. Answer questions about today's picks, odds, and predictions concisely and confidently. Use the context below to answer — do not make up picks that aren't in the context. Today is ${date}.\n\n${predictions}`
