@@ -884,9 +884,9 @@ function checkPoolPw(){
       const rows = await rosterRes.json();
       if (!rows.length || !rows[0].data?.teams?.length) throw new Error('No teams found for this league');
 
+      const seasonDate = new Date(`${dateVal}T12:00:00.000Z`).toISOString();
+      const now = new Date().toISOString();
       // Always snapshot current stats so only post-baseline gains count in standings.
-      const seasonIsInFuture = new Date(seasonDate) > new Date();
-      void seasonIsInFuture; // kept for reference; snapshot is always current
       let snapCount = 0;
       const data = rows[0].data;
 
