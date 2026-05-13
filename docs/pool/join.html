@@ -927,8 +927,8 @@
 
     <div class="pool-controls">
       <div class="pos-filter">
-        <button class="active" data-pos="ALL" onclick="setFilter('ALL',this)">All</button>
-        <button data-pos="F" onclick="setFilter('F',this)">Fwd</button>
+        <button data-pos="ALL" onclick="setFilter('ALL',this)">All</button>
+        <button class="active" data-pos="F" onclick="setFilter('F',this)">Fwd</button>
         <button data-pos="D" onclick="setFilter('D',this)">Def</button>
         <button data-pos="G" onclick="setFilter('G',this)">G</button>
       </div>
@@ -1049,7 +1049,7 @@
   let _isEditing = false;
   let _heartbeatTimer = null;
   let _snapshotBeforeEdit = null;
-  let activeFilter = 'ALL', activeNHLTeam = 'ALL', activeSort = 'salary', activeSortDir = 'desc';
+  let activeFilter = 'F', activeNHLTeam = 'ALL', activeSort = 'points', activeSortDir = 'desc';
   let swapMode = null;
   let _virtualStart = 0;
   const VIRTUAL_PAGE = 60;
@@ -2770,6 +2770,7 @@
 
     const isGoalie = pos === 'G';
     document.body.classList.toggle('goalie-filter', isGoalie);
+    const thGP = document.getElementById('th-gp');
     const thG = document.getElementById('th-g');
     const thA = document.getElementById('th-a');
     const thPts = document.getElementById('th-pts');
