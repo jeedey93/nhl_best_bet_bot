@@ -401,7 +401,7 @@
     fetch(API_URL,{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({results})
+      body:JSON.stringify({results, previousResults: results})
     }).then(r=>{
       if(r.ok){
         const t=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});

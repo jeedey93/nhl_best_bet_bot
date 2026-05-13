@@ -63,16 +63,17 @@ module.exports = async (req, res) => {
     }
 
     if (req.method === 'POST') {
-      const { results } = req.body;
+      const { results, previousResults: explicitPrev } = req.body;
       if (!results) return res.status(400).json({ success: false, error: 'Missing results' });
 
-      // Read current results to snapshot as previousResults
-      let previousResults = null;
-      try {
-        const stored = JSON.parse(issue.body || '{}');
-        previousResults = stored.results || stored;
-      } catch {}
-
+      // Use explicit previousResults if provided, otherwise snapshot current stored results
+      let previousResults = explicitPrev || null;
+      if (!previousResults) {
+        try {
+          const stored = JSON.parse(issue.body || '{}');
+          previousResults = stored.results || stored;
+        } catch {}
+      }
       await fetch(
         `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/issues/${issue.number}`,
         {
