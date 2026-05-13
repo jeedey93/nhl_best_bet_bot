@@ -49,16 +49,12 @@
     }
     @media(max-width:600px){
       .series-list{
-        flex-wrap:nowrap;
-        overflow-x:auto;
-        -webkit-overflow-scrolling:touch;
-        padding-bottom:6px;
-        scrollbar-width:thin;
-        scrollbar-color:rgba(255,184,28,0.3) transparent;
+        flex-wrap:wrap;
+        overflow-x:visible;
+        -webkit-overflow-scrolling:auto;
+        padding-bottom:0;
       }
-      .series-list::-webkit-scrollbar{height:3px;}
-      .series-list::-webkit-scrollbar-track{background:transparent;}
-      .series-list::-webkit-scrollbar-thumb{background:rgba(255,184,28,0.3);border-radius:2px;}
+      .series-list::-webkit-scrollbar{display:none;}
     }
 
     /* Series matchup card */
@@ -68,6 +64,13 @@
       border-radius:10px;overflow:hidden;
       width:170px;min-width:150px;flex-shrink:0; /* min-width for mobile */
       transition:border-color 0.2s,box-shadow 0.2s,opacity 0.2s;}
+    @media(max-width:600px){
+      .series-card{
+        flex:1 1 calc(50% - 5px);
+        min-width:calc(50% - 5px);
+        width:auto;
+      }
+    }
 
     /* Won: gold border, slightly dimmed to de-emphasise completed */
     .series-card.won{

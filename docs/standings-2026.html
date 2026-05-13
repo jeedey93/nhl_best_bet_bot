@@ -50,6 +50,7 @@
   @media(max-width:380px){
     .site-nav-brand{font-size:0.9rem;letter-spacing:1px;}
     .site-nav-links a{font-size:0.75rem;padding:0.4rem 0.4rem;}
+    .site-nav-links a.lang-switch { display:none; }
   }
 
   /* ── Header ── */
@@ -223,41 +224,7 @@
   /* SCF card special glow */
   .b-series.scf-card{border-color:rgba(255,184,28,0.2);background:rgba(255,184,28,0.03);}
   .b-series.scf-card .b-label{color:var(--gold);font-size:0.7rem;}
-  /* Mobile — vertical timeline bracket */
-  @media(max-width:640px){
-    .bracket-headers{display:none;}
-    .bracket{
-      display:flex;
-      flex-direction:column;
-      gap:0;
-    }
-    .bracket-col{
-      padding:0;gap:0;
-      display:flex;flex-direction:column;
-    }
-    .bracket-col::before{
-      content:attr(data-label);display:block;
-      font-family:'Bebas Neue',cursive;font-size:0.6rem;
-      color:rgba(255,184,28,0.5);letter-spacing:2px;
-      text-align:center;padding:8px 0 4px;
-    }
-    .bracket-col.scf::before{color:var(--gold);}
-    /* each column scrolls horizontally */
-    .b-series-row-wrap{
-      display:flex;flex-direction:row;gap:6px;
-      overflow-x:auto;padding:0 4px 6px;
-      scrollbar-width:thin;scrollbar-color:rgba(255,255,255,0.1) transparent;
-    }
-    .b-series-row-wrap::-webkit-scrollbar{height:3px;}
-    .b-series-row-wrap::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:2px;}
-    .b-series{flex-shrink:0;width:140px;}
-    .bracket-col.scf .b-series{min-width:160px;margin:0 auto;}
-    /* divider between rounds */
-    .bracket-col+.bracket-col::before{
-      border-top:1px solid rgba(255,255,255,0.05);
-      margin-top:4px;
-    }
-  }
+  /* Mobile bracket handled by accordion CSS below */
   /* ── Leaderboard toggle ── */
   .lb-toggle{display:flex;justify-content:center;margin-bottom:1.25rem;}
   .lb-toggle-inner{display:flex;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:3px;gap:3px;}
@@ -359,11 +326,11 @@
   .gs-split-count{font-size:0.58rem;color:rgba(255,255,255,0.3);font-family:'Barlow Condensed',sans-serif;}
 
   /* ── Skeleton loading ── */
-  @keyframes shimmer{0%{background-position:-700px 0}100%{background-position:700px 0}}
+  @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
   .skeleton-row td{padding:10px 14px;}
   .skeleton-cell{display:inline-block;border-radius:4px;height:14px;
     background:linear-gradient(90deg,rgba(255,255,255,0.05) 25%,rgba(255,255,255,0.12) 50%,rgba(255,255,255,0.05) 75%);
-    background-size:700px 100%;animation:shimmer 1.4s infinite;}
+    background-size:200% 100%;animation:shimmer 1.4s infinite;}
 
   /* ── Round-by-round toggle ── */
   .round-toggle{display:flex;justify-content:center;margin-bottom:1rem;flex-wrap:wrap;gap:6px;}
@@ -398,6 +365,56 @@
   .hm-avg{font-family:'Bebas Neue',cursive;font-size:1rem;color:var(--gold);letter-spacing:1px;line-height:1;flex-shrink:0;}
   .hm-heat-bar{height:2px;border-radius:2px;margin-top:4px;background:rgba(255,184,28,0.15);}
   .hm-heat-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,rgba(255,184,28,0.4),var(--gold));}
+
+  /* ── Chevron cell ── */
+  .chevron-cell{color:rgba(255,255,255,0.2);font-size:1.1rem;width:18px;padding:0 6px 0 0;transition:color 0.15s,transform 0.15s;}
+  tr.expanded .chevron-cell{color:var(--gold);display:inline-block;transform:rotate(90deg);}
+
+  /* ── Rank chip (mobile only) ── */
+  .rank-chip{display:none;}
+  @media(max-width:500px){
+    .rank-chip{display:inline-flex;align-items:center;font-family:'Bebas Neue',cursive;font-size:0.78rem;padding:1px 5px;border-radius:10px;margin-left:4px;vertical-align:middle;}
+    .rank-chip.up{background:rgba(34,197,94,0.15);color:#22c55e;}
+    .rank-chip.down{background:rgba(248,113,113,0.12);color:#f87171;}
+    .rank-chip.same{color:rgba(255,255,255,0.2);background:transparent;}
+    .delta-cell,thead th:nth-child(4){display:none;}
+  }
+
+  /* ── Bracket accordion (mobile) ── */
+  @media(max-width:640px){
+    .bracket-headers{display:none;}
+    .bracket{display:flex;flex-direction:column;gap:0;}
+    .bracket-col{display:none;flex-direction:column;gap:6px;padding:4px 0 8px;}
+    .bracket-col.accordion-open{display:flex;}
+    .bracket-accordion-header{
+      display:flex;align-items:center;justify-content:space-between;
+      font-family:'Bebas Neue',cursive;font-size:0.85rem;letter-spacing:2px;
+      color:rgba(255,184,28,0.7);padding:10px 12px;
+      border-top:1px solid rgba(255,255,255,0.06);cursor:pointer;
+      background:rgba(255,255,255,0.02);user-select:none;
+    }
+    .bracket-accordion-header.active{color:var(--gold);background:rgba(255,184,28,0.05);}
+    .bracket-accordion-header .acc-chevron{transition:transform 0.2s;font-size:0.8rem;opacity:0.6;}
+    .bracket-accordion-header.active .acc-chevron{transform:rotate(90deg);}
+    .b-series{width:100%;}
+    .b-series-row-wrap{display:flex;flex-direction:column;gap:6px;padding:0 8px;}
+  }
+
+  /* ── Share loading overlay ── */
+  .share-loading-overlay{
+    position:fixed;inset:0;z-index:9999;
+    background:rgba(7,17,31,0.85);
+    display:flex;align-items:center;justify-content:center;
+    flex-direction:column;gap:12px;
+  }
+  .share-loading-spinner{
+    width:40px;height:40px;border-radius:50%;
+    border:3px solid rgba(255,184,28,0.2);
+    border-top-color:var(--gold);
+    animation:spin 0.8s linear infinite;
+  }
+  .share-loading-text{font-family:'Bebas Neue',cursive;font-size:1rem;letter-spacing:3px;color:var(--gold);}
+  @keyframes spin{to{transform:rotate(360deg);}}
 </style>
 </head>
 <body>
@@ -474,10 +491,10 @@
   <div class="lb-wrap">
     <table>
       <thead>
-        <tr><th>#</th><th>NAME</th><th id="th-pts" onclick="setSort('total')" style="cursor:pointer;border-bottom:2px solid var(--gold);color:var(--gold)" title="Sort by total points">POINTS</th><th id="th-yest" onclick="setSort('yesterday')" style="cursor:pointer" title="Sort by yesterday's points">YESTERDAY</th><th>GAP</th></tr>
+        <tr><th>#</th><th>NAME</th><th id="th-pts" onclick="setSort('total')" style="cursor:pointer;border-bottom:2px solid var(--gold);color:var(--gold)" title="Sort by total points">POINTS</th><th id="th-yest" onclick="setSort('yesterday')" style="cursor:pointer" title="Sort by yesterday's points">YESTERDAY</th><th>GAP</th><th style="width:18px;"></th></tr>
       </thead>
       <tbody id="lb-body">
-        <tr><td colspan="5" class="empty-state">
+        <tr><td colspan="6" class="empty-state">
           <div class="icon">🏒</div><p>Loading leaderboard…</p>
         </td></tr>
       </tbody>
@@ -490,7 +507,7 @@
   <div class="lb-wrap">
     <table>
       <thead>
-        <tr><th>#</th><th>NAME</th><th id="paid-th-pts" onclick="setSort('total')" style="cursor:pointer;border-bottom:2px solid var(--gold);color:var(--gold)" title="Sort by total points">POINTS</th><th id="paid-th-yest" onclick="setSort('yesterday')" style="cursor:pointer" title="Sort by yesterday's points">YESTERDAY</th><th>GAP</th></tr>
+        <tr><th>#</th><th>NAME</th><th id="paid-th-pts" onclick="setSort('total')" style="cursor:pointer;border-bottom:2px solid var(--gold);color:var(--gold)" title="Sort by total points">POINTS</th><th id="paid-th-yest" onclick="setSort('yesterday')" style="cursor:pointer" title="Sort by yesterday's points">YESTERDAY</th><th>GAP</th><th style="width:18px;"></th></tr>
       </thead>
       <tbody id="paid-lb-body"></tbody>
     </table>
@@ -596,7 +613,9 @@ function setSort(mode){
 
 // ── Initials from name ────────────────────────────────────────────────────────
 function initials(name){
-  return name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2)||name.slice(0,2).toUpperCase();
+  const parts = name.trim().split(/\s+/);
+  if(parts.length>=2) return (parts[0][0]+(parts[parts.length-1][0])).toUpperCase();
+  return (parts[0]||'').slice(0,2).toUpperCase();
 }
 
 // ── Load results ──────────────────────────────────────────────────────────────
@@ -773,12 +792,14 @@ function render(){
       <td class="rank-cell ${rankClass}">${medal||rank}</td>
       <td class="name-cell">
         ${row.name}${mvpBadge}
+        <span class="rank-chip ${row.delta>0?'up':row.delta<0?'down':'same'}">${row.delta>0?'↑'+row.delta:row.delta<0?'↓'+Math.abs(row.delta):'—'}</span>
         <div class="score-bar-wrap"><div class="score-bar" style="width:${barPct}%"></div></div>
         <div class="sparkbar">${sparkSegs}</div>
       </td>
       <td class="score-cell">${row.displayScore}</td>
       <td class="delta-cell ${deltaClass}">${deltaHtml}</td>
-      ${gapHtml}`;
+      ${gapHtml}
+      <td class="chevron-cell">›</td>`;
     lb.appendChild(tr);
 
     // Spotlight row (hidden by default)
@@ -819,7 +840,7 @@ function render(){
       const hotStyle=isHot?' style="border-color:rgba(255,184,28,0.5);background:rgba(255,184,28,0.08)"':'';
       return`<div class="spotlight-team${elimClass}"${hotStyle}><span class="sp-pts-assigned">${p}<span style="font-size:0.6rem;opacity:0.7;letter-spacing:0"> pts</span></span><span class="sp-name">${isHot?'🔥 ':''}${shortTeamName(t)}</span><span class="sp-wins-earned">${wins>0?`${wins}W · ${earned}pts`:earned>0?`${earned}pts`:''}</span></div>`;
     }).join('');
-    spotlightTr.innerHTML=`<td colspan="5"><div class="spotlight-inner">${teamsHtml||'<span style="color:var(--silver);font-size:0.85rem">No picks loaded</span>'}<div class="spotlight-share-row"><button class="spotlight-share-btn" onclick="event.stopPropagation();sharePersonalCard(window.__spRow_${i},${rank},${leaderScore},${totalCount},this)">📸 Share my card</button></div></div></td>`;
+    spotlightTr.innerHTML=`<td colspan="6"><div class="spotlight-inner">${teamsHtml||'<span style="color:var(--silver);font-size:0.85rem">No picks loaded</span>'}<div class="spotlight-share-row"><button class="spotlight-share-btn" onclick="event.stopPropagation();sharePersonalCard(window.__spRow_${i},${rank},${leaderScore},${totalCount},this)">📸 Share my card</button></div></div></td>`;
     window[`__spRow_${i}`]=row;
     lb.appendChild(spotlightTr);
 
@@ -828,10 +849,10 @@ function render(){
       const open=spotlightTr.style.display!=='none';
       // Close all others
       lb.querySelectorAll('.spotlight-row').forEach(r=>r.style.display='none');
-      lb.querySelectorAll('.expandable').forEach(r=>r.style.background='');
+      lb.querySelectorAll('.expandable').forEach(r=>r.classList.remove('expanded'));
       if(!open){
         spotlightTr.style.display='';
-        tr.style.background='rgba(255,184,28,0.06)';
+        tr.classList.add('expanded');
       }
     });
   });
@@ -872,11 +893,13 @@ function render(){
         <td class="rank-cell ${rankClass}">${medal||rank}</td>
         <td class="name-cell">
           ${row.name}${mvpBadge}
+          <span class="rank-chip ${row.delta>0?'up':row.delta<0?'down':'same'}">${row.delta>0?'↑'+row.delta:row.delta<0?'↓'+Math.abs(row.delta):'—'}</span>
           <div class="score-bar-wrap"><div class="score-bar" style="width:${barPct}%"></div></div>
         </td>
         <td class="score-cell">${row.displayScore??row.total}</td>
         <td class="delta-cell ${paidDeltaClass}">${paidDeltaHtml}</td>
-        ${gapHtml}`;
+        ${gapHtml}
+        <td class="chevron-cell">›</td>`;
       paidLb.appendChild(tr);
 
       // Spotlight row
@@ -912,17 +935,17 @@ function render(){
         const hotStyle=isHot?' style="border-color:rgba(255,184,28,0.5);background:rgba(255,184,28,0.08)"':'';
         return`<div class="spotlight-team${elimClass}"${hotStyle}><span class="sp-pts-assigned">${p}<span style="font-size:0.6rem;opacity:0.7;letter-spacing:0"> pts</span></span><span class="sp-name">${isHot?'🔥 ':''}${shortTeamName(t)}</span><span class="sp-wins-earned">${wins>0?`${wins}W · ${earned}pts`:earned>0?`${earned}pts`:''}</span></div>`;
       }).join('');
-      spotlightTr.innerHTML=`<td colspan="5"><div class="spotlight-inner">${teamsHtml||'<span style="color:var(--silver);font-size:0.85rem">No picks loaded</span>'}<div class="spotlight-share-row"><button class="spotlight-share-btn" onclick="event.stopPropagation();sharePersonalCard(window.__spPaidRow_${i},${rank},${paidLeader},${paidRows.length},this)">📸 Share my card</button></div></div></td>`;
+      spotlightTr.innerHTML=`<td colspan="6"><div class="spotlight-inner">${teamsHtml||'<span style="color:var(--silver);font-size:0.85rem">No picks loaded</span>'}<div class="spotlight-share-row"><button class="spotlight-share-btn" onclick="event.stopPropagation();sharePersonalCard(window.__spPaidRow_${i},${rank},${paidLeader},${paidRows.length},this)">📸 Share my card</button></div></div></td>`;
       window[`__spPaidRow_${i}`]=row;
       paidLb.appendChild(spotlightTr);
 
       tr.addEventListener('click',()=>{
         const open=spotlightTr.style.display!=='none';
         paidLb.querySelectorAll('.spotlight-row').forEach(r=>r.style.display='none');
-        paidLb.querySelectorAll('.expandable').forEach(r=>r.style.background='');
+        paidLb.querySelectorAll('.expandable').forEach(r=>r.classList.remove('expanded'));
         if(!open){
           spotlightTr.style.display='';
-          tr.style.background='rgba(255,184,28,0.06)';
+          tr.classList.add('expanded');
         }
       });
     });
@@ -1090,6 +1113,42 @@ function renderBracket(){
     <div class="bracket-col r2" data-label="R2 · EAST"><div class="b-series-row-wrap">${eastR2Html}</div></div>
     <div class="bracket-col r1" data-label="R1 · EAST"><div class="b-series-row-wrap">${eastR1Html}</div></div>
   `;
+
+  // Mobile accordion
+  if(window.innerWidth<=640){
+    const roundGroups=[
+      {label:'ROUND 1',cols:[...el.querySelectorAll('.bracket-col.r1')]},
+      {label:'ROUND 2',cols:[...el.querySelectorAll('.bracket-col.r2')]},
+      {label:'CONF. FINALS',cols:[...el.querySelectorAll('.bracket-col.cf')]},
+      {label:'STANLEY CUP FINAL',cols:[...el.querySelectorAll('.bracket-col.scf')]},
+    ].filter(g=>g.cols.length>0);
+    roundGroups.forEach((g,gi)=>{
+      const wrapper=document.createElement('div');
+      wrapper.className='bracket-acc-group';
+      const hdr=document.createElement('div');
+      hdr.className='bracket-accordion-header'+(gi===roundGroups.length-1?' active':'');
+      hdr.innerHTML=`<span>${g.label}</span><span class="acc-chevron">›</span>`;
+      const isOpen=gi===roundGroups.length-1;
+      g.cols.forEach(c=>{
+        if(isOpen)c.classList.add('accordion-open');
+        c.style.cssText='';
+      });
+      hdr.addEventListener('click',()=>{
+        const opening=!hdr.classList.contains('active');
+        roundGroups.forEach(rg=>{
+          rg.cols.forEach(c=>c.classList.remove('accordion-open'));
+        });
+        el.querySelectorAll('.bracket-accordion-header').forEach(h=>h.classList.remove('active'));
+        if(opening){
+          g.cols.forEach(c=>c.classList.add('accordion-open'));
+          hdr.classList.add('active');
+        }
+      });
+      g.cols[0].parentNode.insertBefore(wrapper,g.cols[0]);
+      wrapper.appendChild(hdr);
+      g.cols.forEach(c=>wrapper.appendChild(c));
+    });
+  }
 }
 
 // ── Toggle ────────────────────────────────────────────────────────────────────
@@ -1432,6 +1491,15 @@ function buildShareCardHTML(rows, title, totalCount, pot, date){
 
 // ── Logo fetcher — SVG → base64 data URL so html2canvas can render it ──────────
 const _logoDataCache = {};
+
+// ── Share loading overlay helpers ─────────────────────────────────────────────
+function showShareLoading(){
+  const el=document.createElement('div');
+  el.id='share-loading-overlay';el.className='share-loading-overlay';
+  el.innerHTML='<div class="share-loading-spinner"></div><div class="share-loading-text">Generating…</div>';
+  document.body.appendChild(el);
+}
+function hideShareLoading(){ document.getElementById('share-loading-overlay')?.remove(); }
 async function fetchLogoDataUrl(url){
   if(_logoDataCache[url] !== undefined) return _logoDataCache[url];
   _logoDataCache[url] = ''; // mark in-progress
@@ -1597,6 +1665,7 @@ function buildPersonalCardHTML(row, rank, leaderScore, totalCount){
 }
 
 async function sharePersonalCard(row, rank, leaderScore, totalCount, btn){
+  showShareLoading();
   const origText = btn.textContent;
   btn.textContent = '⏳';
   btn.disabled = true;
@@ -1637,7 +1706,7 @@ async function sharePersonalCard(row, rank, leaderScore, totalCount, btn){
     }
     downloadBlob(blob, `my-picks-${date}.png`);
   }catch(e){ if(e.name!=='AbortError') console.error('sharePersonalCard error:', e); }
-  finally{ btn.textContent=origText; btn.disabled=false; }
+  finally{ hideShareLoading(); btn.textContent=origText; btn.disabled=false; }
 }
 
 function canvasToPngBlob(canvas){
@@ -1667,6 +1736,7 @@ async function shareLeaderboard(){
   const isPaid = document.getElementById('btn-paid').classList.contains('active');
   const rows = isPaid ? _paidRows : _allRows;
   if(!rows.length){ alert('No data to share yet.'); return; }
+  showShareLoading();
 
   const origText = btn.textContent;
   btn.textContent = '⏳';
@@ -1723,10 +1793,14 @@ async function shareLeaderboard(){
       console.error(e);
     }
   }finally{
+    hideShareLoading();
     btn.textContent = origText;
     btn.disabled = false;
   }
 }
+
+// ── FB bar auto-dismiss ───────────────────────────────────────────────────────
+setTimeout(()=>{ const b=document.getElementById('fbBar'); if(b) b.style.display='none'; }, 5000);
 </script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
