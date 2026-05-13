@@ -265,8 +265,7 @@
       <p>Click wins · Watch the leaderboard update</p>
       <p class="last-saved" id="last-saved"></p>
       <div style="margin-top:0.4rem;display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">
-        <button class="snapshot-btn" onclick="snapshotYesterday()">📌 Set as Baseline (Yesterday)</button>
-        <button class="snapshot-btn" onclick="saveResults()" style="background:rgba(34,197,94,0.1);border-color:rgba(34,197,94,0.35);color:#22c55e;">💾 Save Results (Today)</button>
+        <button class="snapshot-btn" onclick="saveResults()">💾 Save Results</button>
         <span class="snapshot-status" id="snapshot-status">✓ Saved</span>
       </div>
     </div>
@@ -366,16 +365,24 @@
     TEAMS.forEach(t=>{if(saved[t])results[t]=saved[t];});
   }
 
-  // Auto-save: called whenever a +/− button is clicked
-  // Holds the explicitly snapshotted baseline so saveResults() can pass it without re-reading the issue
+  // Holds the previously stored results fetched fresh before each save — used as previousResults baseline
   let _snapshotBaseline = null;
 
-  function saveResults(){
+  async function saveResults(){
     try{localStorage.setItem(STORAGE_KEY,JSON.stringify(results));}catch(e){}
     setSyncState('syncing','Saving…');
-    const body = _snapshotBaseline
-      ? {results, previousResults: _snapshotBaseline}
-      : {results};
+    // Fetch current stored results fresh (direct issue endpoint, no search lag)
+    // to use as previousResults baseline
+    if (!_snapshotBaseline) {
+      try {
+        const r = await fetch(API_URL + '?_=' + Date.now());
+        if (r.ok) {
+          const data = await r.json();
+          _snapshotBaseline = data.results || null;
+        }
+      } catch(e) {}
+    }
+    const body = _snapshotBaseline ? {results, previousResults: _snapshotBaseline} : {results};
     fetch(API_URL,{
       method:'POST',
       headers:{'Content-Type':'application/json'},
@@ -394,38 +401,6 @@
   }
 
   // Snapshot: locks current results as the delta baseline (call BEFORE updating wins)
-  function snapshotYesterday(){
-    const btn=document.querySelector('.snapshot-btn');
-    const status=document.getElementById('snapshot-status');
-    if(btn)btn.disabled=true;
-
-    // Capture current scores as the new delta baseline
-    participants.forEach(p=>{
-      const roundScores=calcScore(p);
-      savedScores[p.name]=roundScores.reduce((a,b)=>a+b,0);
-    });
-
-    // Deep-copy current results as the baseline for the next Save
-    _snapshotBaseline = JSON.parse(JSON.stringify(results));
-
-    setSyncState('syncing','Saving…');
-    fetch(API_URL,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({results, previousResults: _snapshotBaseline})
-    }).then(r=>{
-      if(r.ok){
-        const t=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-        const el=document.getElementById('last-saved');
-        if(el)el.textContent='Last saved: '+t;
-        if(status){status.classList.add('show');setTimeout(()=>status.classList.remove('show'),2500);}
-        setSyncState('synced','Synced at '+t);
-        recalc();
-      }else{
-        setSyncState('error','Save failed');
-      }
-    }).catch(()=>setSyncState('error','No connection')).finally(()=>{if(btn)btn.disabled=false;});
-  }
 
   // On load: restore from localStorage first (instant), then fetch from API (authoritative)
   function loadResultsLocal(){
