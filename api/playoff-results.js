@@ -22,13 +22,27 @@ const GH_HEADERS = () => ({
   'User-Agent': 'Parieur-Discipline-Bot',
 });
 
+let _cachedIssueNumber = null;
+
 async function getOrCreateIssue() {
+  // Use direct API if we already know the issue number (avoids search index lag)
+  if (_cachedIssueNumber) {
+    const r = await fetch(
+      `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/issues/${_cachedIssueNumber}`,
+      { headers: GH_HEADERS() }
+    );
+    if (r.ok) return r.json();
+  }
+
   const search = await fetch(
     `https://api.github.com/search/issues?q=repo:${GITHUB_OWNER}/${GITHUB_REPO}+is:issue+in:title+"${encodeURIComponent(ISSUE_TITLE)}"`,
     { headers: GH_HEADERS() }
   );
   const data = await search.json();
-  if (data.total_count > 0) return data.items[0];
+  if (data.total_count > 0) {
+    _cachedIssueNumber = data.items[0].number;
+    return data.items[0];
+  }
 
   const create = await fetch(
     `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/issues`,
@@ -38,7 +52,9 @@ async function getOrCreateIssue() {
       body: JSON.stringify({ title: ISSUE_TITLE, body: '{}', labels: ['automated'] }),
     }
   );
-  return create.json();
+  const issue = await create.json();
+  _cachedIssueNumber = issue.number;
+  return issue;
 }
 
 module.exports = async (req, res) => {
