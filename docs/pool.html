@@ -441,7 +441,6 @@
         </div>
         <div class="recent-item-actions">
           <button class="recent-btn draft"      onclick="goToDraft('${code}', '${escHtml(displayName)}')">✏️ Draft</button>
-          <button class="recent-btn live-draft" onclick="goToLiveDraft('${code}')">🟢 Live Draft</button>
           <button class="recent-btn standings"  onclick="goToStandings('${code}')">📊 Standings</button>
           <button class="recent-btn trades"     onclick="goToTrades('${code}')">🗂 Roster</button>
           <button class="recent-btn settings"   onclick="goToSettings('${code}')">⚙️ Settings</button>
@@ -463,13 +462,13 @@
     if (!codes.length) return;
     try {
       const res = await fetch(
-        `${SUPABASE_URL}/rest/v1/pool_rosters?league_code=in.(${codes.join(',')})&select=league_code`,
+        `${SUPABASE_URL}/rest/v1/pool_rosters?league_code=in.(${codes.join(',')})&select=league_code,data`,
         { headers: sbHeaders() }
       );
       if (!res.ok) return;
       const rows = await res.json();
       const counts = {};
-      for (const r of rows) counts[r.league_code] = (counts[r.league_code] || 0) + 1;
+      for (const r of rows) counts[r.league_code] = r.data?.teams?.length || 0;
       for (const code of codes) {
         const el = document.getElementById(`tc-${code}`);
         if (!el) continue;
