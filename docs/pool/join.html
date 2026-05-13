@@ -393,7 +393,6 @@
     .td-gaa  { display: none; }
     body.goalie-filter .col-gaa, body.goalie-filter .td-gaa { display: table-cell; }
     .col-add { width: 32px; }
-    .col-pin { width: 32px; }
 
     .pool-table tbody tr {
       border-bottom: 1px solid rgba(255,255,255,0.04);
@@ -454,7 +453,6 @@
     .td-eff  { color: #22c55e; font-family: 'Bebas Neue', cursive; font-size: 0.95rem; }
 
     .td-act { padding: 0 4px; text-align: center; }
-    .td-pin { padding: 0 4px; text-align: center; }
     .tbl-add-btn {
       display: inline-flex; align-items: center; justify-content: center;
       width: 26px; height: 22px;
@@ -1002,11 +1000,10 @@
             EFF <span class="sort-arrow" id="sa-value"></span>
           </th>
           <th class="col-add"></th>
-          <th class="col-pin"></th>
         </tr>
         </thead>
         <tbody id="pool-tbody">
-        <tr><td colspan="10" class="loading-msg">Loading players…</td></tr>
+        <tr><td colspan="9" class="loading-msg">Loading players…</td></tr>
         </tbody>
       </table>
     </div>
@@ -1498,7 +1495,7 @@
         renderAll();
       }
     } catch(e) {
-      document.getElementById('pool-tbody').innerHTML=`<tr><td colspan="10" class="empty-msg">Failed to load players (${e.message}). <button class="retry-btn" onclick="loadPlayers()">Retry</button></td></tr>`;
+      document.getElementById('pool-tbody').innerHTML=`<tr><td colspan="9" class="empty-msg">Failed to load players (${e.message}). <button class="retry-btn" onclick="loadPlayers()">Retry</button></td></tr>`;
     }
   }
 
@@ -1792,7 +1789,7 @@
     const { available, claimedRows } = _filteredCache;
 
     if (!available.length && !claimedRows.length) {
-      tbody.innerHTML = '<tr><td colspan="10" class="empty-msg">No players found.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="9" class="empty-msg">No players found.</td></tr>';
       return;
     }
 
@@ -1811,14 +1808,14 @@
     if (available.length > VIRTUAL_PAGE) {
       const tr = document.createElement('tr');
       tr.className = 'load-more-sentinel';
-      tr.innerHTML = `<td colspan="10" style="padding:4px 0;text-align:center;color:rgba(255,184,28,0.4);font-family:'Bebas Neue',cursive;font-size:0.78rem;letter-spacing:2px;">↓ ${available.length - VIRTUAL_PAGE} more</td>`;
+      tr.innerHTML = `<td colspan="9" style="padding:4px 0;text-align:center;color:rgba(255,184,28,0.4);font-family:'Bebas Neue',cursive;font-size:0.78rem;letter-spacing:2px;">↓ ${available.length - VIRTUAL_PAGE} more</td>`;
       fragment.appendChild(tr);
     }
 
     if (claimedRows.length > 0) {
       const divTr = document.createElement('tr');
       divTr.className = 'claimed-divider';
-      divTr.innerHTML = `<td colspan="10">── Claimed / On Your Team (${claimedRows.length})</td>`;
+      divTr.innerHTML = `<td colspan="9">── Claimed / On Your Team (${claimedRows.length})</td>`;
       fragment.appendChild(divTr);
 
       for (const { p, inActive, claimedOther, claimedTeamName } of claimedRows) {
@@ -1855,14 +1852,14 @@
     if (available.length > _virtualStart + VIRTUAL_PAGE) {
       const tr = document.createElement('tr');
       tr.className = 'load-more-sentinel';
-      tr.innerHTML = `<td colspan="10" style="padding:4px 0;text-align:center;color:rgba(255,184,28,0.4);font-family:'Bebas Neue',cursive;font-size:0.78rem;letter-spacing:2px;">↓ ${available.length - _virtualStart - VIRTUAL_PAGE} more</td>`;
+      tr.innerHTML = `<td colspan="9" style="padding:4px 0;text-align:center;color:rgba(255,184,28,0.4);font-family:'Bebas Neue',cursive;font-size:0.78rem;letter-spacing:2px;">↓ ${available.length - _virtualStart - VIRTUAL_PAGE} more</td>`;
       fragment.appendChild(tr);
     }
 
     if (claimedRows.length > 0) {
       const divTr = document.createElement('tr');
       divTr.className = 'claimed-divider';
-      divTr.innerHTML = `<td colspan="10">── Claimed / On Your Team (${claimedRows.length})</td>`;
+      divTr.innerHTML = `<td colspan="9">── Claimed / On Your Team (${claimedRows.length})</td>`;
       fragment.appendChild(divTr);
       for (const { p, inActive, claimedOther, claimedTeamName } of claimedRows) {
         fragment.appendChild(makeTableRow(p, claimedOther, claimedTeamName, inActive, isViewOnly, currentCap));
@@ -1931,11 +1928,7 @@
     }
 
     // Action buttons
-    let addBtn = '', pinBtn = '';
-    const isPinned = isPinnedA || isPinnedB;
-    const pinClass = isPinned ? 'pinned' : '';
-    const pinIcon = isPinned ? '📌' : '⚖';
-    const pinTitle = isPinned ? 'Unpin' : 'Pin to compare';
+    let addBtn = '';
     if (canAct) {
       if (swapMode) {
         addBtn = `<button class="tbl-swap-btn" title="Swap in">⇄</button>`;
@@ -1943,10 +1936,6 @@
         addBtn = `<button class="tbl-add-btn" title="Add to team">+</button>`;
       }
     }
-    if (!swapMode) {
-      pinBtn = `<button class="tbl-pin-btn ${pinClass}" title="${pinTitle}" data-slug="${slug}">${pinIcon}</button>`;
-    }
-    const actBtns = addBtn + pinBtn; // keep for any legacy references
 
     const isGoalieRow = pos === 'G';
     const goalieLabelG = isGoalieRow && activeFilter !== 'G' ? `<span style="font-size:0.7rem;color:rgba(255,184,28,0.55);margin-right:2px;">W</span>` : '';
@@ -1962,7 +1951,6 @@
       <td class="td-cap">${p.cap_hit ? `$${capM}M` : '—'}</td>
       <td class="td-eff">${eff}</td>
       <td class="td-act">${addBtn}</td>
-      <td class="td-pin">${pinBtn}</td>
     `;
 
     if (canAct && p.cap_hit) {
@@ -1971,17 +1959,17 @@
       tr.addEventListener('mouseleave', hideCapTooltip);
     }
 
-    // Add button
+    // Add button — stop propagation so row click doesn't fire
     if (canAct) {
       const addEl = tr.querySelector('.tbl-add-btn, .tbl-swap-btn');
       if (addEl) addEl.addEventListener('click', (e) => { e.stopPropagation(); tapAddPlayer(p, pos); });
       if (swapMode) tr.addEventListener('click', () => tapAddPlayer(p, pos));
     }
 
-    // Pin button
-    const pinEl = tr.querySelector('.tbl-pin-btn');
-    if (pinEl) {
-      pinEl.addEventListener('click', (e) => { e.stopPropagation(); toggleComparePin(slug); });
+    // Row click = pin/unpin for compare (skip in swap mode)
+    if (!swapMode) {
+      tr.style.cursor = 'pointer';
+      tr.addEventListener('click', () => toggleComparePin(slug));
     }
 
     return tr;
