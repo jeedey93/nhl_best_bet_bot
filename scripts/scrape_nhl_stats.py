@@ -34,14 +34,7 @@ supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 SEASON   = "20252026"
 GAMETYPE = 3          # playoffs
 
-# Teams still active in the 2026 playoffs. Players on all other teams get zeroed out
-# so their regular-season stats don't pollute pool standings.
-PLAYOFF_TEAMS = {
-    "ANA", "BOS", "BUF", "CAR", "COL", "DAL", "EDM", "LAK",
-    "MIN", "MTL", "OTT", "PHI", "PIT", "TBL", "UTA", "VGK",
-}
-
-NHL_TEAM_ABBR = {
+def fetch_team_stats = {
     "anaheim-ducks":        "ANA",
     "boston-bruins":        "BOS",
     "buffalo-sabres":       "BUF",
@@ -202,24 +195,6 @@ def main():
     print(f"📊  NHL Stats Scraper — {SEASON} playoffs → Supabase")
     print("─" * 50)
 
-    # Zero out all players on non-playoff teams so regular-season stats
-    # don't appear in pool standings.
-    non_playoff_slugs = [slug for slug, abbr in NHL_TEAM_ABBR.items() if abbr not in PLAYOFF_TEAMS]
-    if non_playoff_slugs:
-        print(f"  🧹  Zeroing stats for {len(non_playoff_slugs)} non-playoff teams…")
-        zero = {
-            "goals": 0, "assists": 0, "points": 0,
-            "wins": 0, "shutouts": 0, "games_played": 0,
-            "ot_losses": 0, "save_pct": None, "gaa": None,
-            "last5_game_pts": None,
-        }
-        for slug in non_playoff_slugs:
-            rows = supabase.table("nhl_players").select("puckpedia_slug").eq("team", slug).execute().data
-            if rows:
-                supabase.table("nhl_players").update(zero).eq("team", slug).execute()
-                print(f"      ✅  Zeroed {len(rows)} players for {slug}")
-        print()
-
     total_matched = 0
     total_missed  = 0
 
@@ -230,8 +205,6 @@ def main():
             continue
 
         print(f"  🏒  {slug} ({abbr})")
-        if abbr not in PLAYOFF_TEAMS:
-            continue  # already zeroed above
         skaters, goalies = fetch_team_stats(abbr)
         stats_map = build_stats_map(skaters, goalies)
 
