@@ -203,6 +203,38 @@
     .chip-picks { font-size: 0.72rem; font-weight: 600; color: var(--silver); letter-spacing: 1px; margin-top: 1px; }
     .chip-clock { font-size: 0.6rem; font-weight: 700; color: var(--red); letter-spacing: 1px; text-transform: uppercase; margin-top: 1px; }
 
+    /* ── Draft view tabs ── */
+    .draft-view-tabs {
+      display: flex; gap: 0; flex-shrink: 0;
+      border-bottom: 1px solid var(--line);
+      background: rgba(0,0,0,0.2);
+    }
+    .draft-view-tab {
+      font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 2px;
+      padding: 0.45rem 1.25rem; background: none; border: none;
+      color: var(--silver); cursor: pointer;
+      border-bottom: 2px solid transparent; margin-bottom: -1px;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .draft-view-tab:hover { color: white; }
+    .draft-view-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+    /* ── Live rosters view ── */
+    .draft-rosters-view {
+      flex: 1; display: flex; flex-direction: column; min-height: 0; overflow: hidden;
+    }
+    .draft-rosters-view .done-team-switcher {
+      flex-shrink: 0; padding: 0.6rem 1rem;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255,255,255,0.02);
+    }
+    .live-roster-panel {
+      flex: 1; overflow-y: auto; padding: 0.5rem 1rem 2rem;
+      display: flex; flex-direction: column; gap: 3px;
+    }
+    .live-roster-panel::-webkit-scrollbar { width: 3px; }
+    .live-roster-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
+
     /* Main content area */
     .draft-main {
       flex: 1; display: flex; flex-direction: row;
@@ -344,18 +376,24 @@
     .stat-box-assists { background: rgba(100,140,255,0.08); border: 1px solid rgba(100,140,255,0.2); }
     .stat-box-eff { background: rgba(34,197,94,0.07); border: 1px solid rgba(34,197,94,0.2); }
     .stat-box-gp { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); }
+    .stat-box-fpts { background: rgba(255,184,28,0.1); border: 1px solid rgba(255,184,28,0.3); }
+    .stat-box-otl { background: rgba(139,92,246,0.1); border: 1px solid rgba(139,92,246,0.25); }
     .stat-box-main { font-family: 'Bebas Neue', cursive; font-size: 1.2rem; line-height: 1; letter-spacing: 1px; }
     .stat-box-pts .stat-box-main { color: var(--gold); }
     .stat-box-goals .stat-box-main { color: #ff7a8a; }
     .stat-box-assists .stat-box-main { color: #7db4ff; }
     .stat-box-eff .stat-box-main { color: #22c55e; }
     .stat-box-gp .stat-box-main { color: rgba(255,255,255,0.55); }
+    .stat-box-fpts .stat-box-main { color: var(--gold); }
+    .stat-box-otl .stat-box-main { color: #a78bfa; }
     .stat-box-label { font-family: 'Bebas Neue', cursive; font-size: 0.65rem; letter-spacing: 2px; margin-top: 1px; }
     .stat-box-pts .stat-box-label { color: rgba(255,184,28,0.5); }
     .stat-box-goals .stat-box-label { color: rgba(255,122,138,0.5); }
     .stat-box-assists .stat-box-label { color: rgba(125,180,255,0.5); }
     .stat-box-eff .stat-box-label { color: rgba(34,197,94,0.5); }
     .stat-box-gp .stat-box-label { color: rgba(255,255,255,0.25); }
+    .stat-box-fpts .stat-box-label { color: rgba(255,184,28,0.5); }
+    .stat-box-otl .stat-box-label { color: rgba(167,139,250,0.5); }
     .btn-draft-player {
       font-family: 'Bebas Neue', cursive; font-size: 0.8rem; letter-spacing: 1.5px;
       background: rgba(200,16,46,0.1); border: 1px solid rgba(200,16,46,0.3); color: var(--red);
@@ -669,6 +707,12 @@
   <!-- Position slots tracker -->
   <div class="pos-slots-bar" id="pos-slots-bar"></div>
 
+  <!-- View tabs -->
+  <div class="draft-view-tabs">
+    <button class="draft-view-tab active" id="tab-board" onclick="setDraftTab('board')">📋 Board</button>
+    <button class="draft-view-tab" id="tab-rosters" onclick="setDraftTab('rosters')">👥 Rosters</button>
+  </div>
+
   <!-- Main draft area -->
   <div class="draft-main" id="draft-main">
     <div class="draft-board-wrap" id="draft-board"></div>
@@ -701,6 +745,12 @@
       </div>
       <div class="pool-list" id="pool-list"><div class="loading-msg">Loading players…</div></div>
     </div>
+  </div>
+
+  <!-- Rosters view -->
+  <div class="draft-rosters-view hidden" id="draft-rosters-view">
+    <div class="done-team-switcher" id="live-team-switcher"></div>
+    <div class="live-roster-panel" id="live-roster-panel"></div>
   </div>
 
   <!-- Pick history drawer (mobile collapsible, always visible on desktop) -->
@@ -1161,6 +1211,7 @@ function renderManagerStrip() {
 
   renderPosSlotsBar();
   renderPickHistory();
+  if (_activeDraftTab === 'rosters') renderLiveRosterPanel(_liveRosterManager);
 }
 
 function updateClock() {
@@ -1183,24 +1234,25 @@ function updateClock() {
 async function loadPlayers() {
   try {
     sessionStorage.removeItem('hp_players');
-    const cached = sessionStorage.getItem('hp_players_v2');
+    sessionStorage.removeItem('hp_players_v2');
+    const cached = sessionStorage.getItem('hp_players_v3');
     if (cached) {
       try {
         allPlayers = JSON.parse(cached);
         if (!Array.isArray(allPlayers) || !allPlayers.length) throw new Error('empty');
       } catch(_) {
-        sessionStorage.removeItem('hp_players_v2');
+        sessionStorage.removeItem('hp_players_v3');
         allPlayers = [];
       }
     }
     if (!allPlayers.length) {
       const res = await fetch(
-        `${SUPABASE_URL}/rest/v1/nhl_players?select=puckpedia_slug,player_name,position,cap_hit,team,goals,assists,points,wins,shutouts,games_played,save_pct&order=cap_hit.desc&limit=1000`,
+        `${SUPABASE_URL}/rest/v1/nhl_players?select=puckpedia_slug,player_name,position,cap_hit,team,goals,assists,points,wins,shutouts,ot_losses,games_played,save_pct&order=cap_hit.desc&limit=1000`,
         { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
       );
       if (!res.ok) throw new Error(res.status);
       allPlayers = await res.json();
-      sessionStorage.setItem('hp_players_v2', JSON.stringify(allPlayers));
+      sessionStorage.setItem('hp_players_v3', JSON.stringify(allPlayers));
     }
     buildNHLTeamStrip();
     renderPlayerPool();
@@ -1267,7 +1319,7 @@ function formatName(name) {
 
 function poolScore(p) {
   const pos = normalizePos(p.position);
-  if (pos === 'G') return (p.wins ?? 0) * 2 + (p.shutouts ?? 0) * 3;
+  if (pos === 'G') return (p.wins ?? 0) * 2 + (p.shutouts ?? 0) * 3 + (p.ot_losses ?? 0) * 1;
   if (pos === 'D') return (p.goals ?? 0) + (p.assists ?? 0);
   return (p.points ?? 0);
 }
@@ -1329,11 +1381,18 @@ function makePoolCard(player, pos, isDrafted, isMyTurn) {
   const eff = player.cap_hit ? effScore(player).toFixed(1) : null;
   const effBox = eff ? `<div class="stat-box stat-box-eff"><div class="stat-box-main">${eff}</div><div class="stat-box-label">EFF</div></div>` : '';
   const gpBox = player.games_played != null ? `<div class="stat-box stat-box-gp"><div class="stat-box-main">${player.games_played}</div><div class="stat-box-label">GP</div></div>` : '';
+  const fpts = poolScore(player);
+  const fptsBox = `<div class="stat-box stat-box-fpts"><div class="stat-box-main">${fpts}</div><div class="stat-box-label">FPTS</div></div>`;
   let statBoxHtml;
   if (pos === 'G') {
-    statBoxHtml = player.wins != null ? `<div class="stat-boxes">${gpBox}<div class="stat-box stat-box-pts"><div class="stat-box-main">${player.wins}</div><div class="stat-box-label">WINS</div></div>${player.shutouts ? `<div class="stat-box stat-box-pts"><div class="stat-box-main">${player.shutouts}</div><div class="stat-box-label">SO</div></div>` : ''}${effBox}</div>` : '';
+    const otlBox = player.ot_losses != null ? `<div class="stat-box stat-box-otl"><div class="stat-box-main">${player.ot_losses}</div><div class="stat-box-label">OTL</div></div>` : '';
+    statBoxHtml = player.wins != null
+      ? `<div class="stat-boxes">${gpBox}<div class="stat-box stat-box-pts"><div class="stat-box-main">${player.wins}</div><div class="stat-box-label">W</div></div>${otlBox}${player.shutouts ? `<div class="stat-box stat-box-pts"><div class="stat-box-main">${player.shutouts}</div><div class="stat-box-label">SO</div></div>` : ''}${fptsBox}${effBox}</div>`
+      : '';
   } else {
-    statBoxHtml = player.points != null ? `<div class="stat-boxes">${gpBox}<div class="stat-box stat-box-goals"><div class="stat-box-main">${player.goals}</div><div class="stat-box-label">G</div></div><div class="stat-box stat-box-assists"><div class="stat-box-main">${player.assists}</div><div class="stat-box-label">A</div></div><div class="stat-box stat-box-pts"><div class="stat-box-main">${player.points}</div><div class="stat-box-label">PTS</div></div>${effBox}</div>` : '';
+    statBoxHtml = player.points != null
+      ? `<div class="stat-boxes">${gpBox}<div class="stat-box stat-box-goals"><div class="stat-box-main">${player.goals}</div><div class="stat-box-label">G</div></div><div class="stat-box stat-box-assists"><div class="stat-box-main">${player.assists}</div><div class="stat-box-label">A</div></div><div class="stat-box stat-box-pts"><div class="stat-box-main">${player.points}</div><div class="stat-box-label">PTS</div></div>${fptsBox}${effBox}</div>`
+      : '';
   }
   const abbr = TEAM_ABBR[player.team];
   const logoHtml = abbr ? `<img class="card-team-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}">` : '';
@@ -1739,6 +1798,108 @@ function viewRosters() { window.location.href = `/pool/join?league=${LEAGUE_CODE
   document.addEventListener('touchend', stopDrag);
 })();
 
+
+// ══════════════════════════════════════════════════════════════════
+//  DRAFT VIEW TABS (Board / Rosters)
+// ══════════════════════════════════════════════════════════════════
+let _activeDraftTab = 'board';
+let _liveRosterManager = null;
+
+function setDraftTab(tab) {
+  _activeDraftTab = tab;
+  document.getElementById('tab-board').classList.toggle('active', tab === 'board');
+  document.getElementById('tab-rosters').classList.toggle('active', tab === 'rosters');
+  document.getElementById('draft-main').classList.toggle('hidden', tab !== 'board');
+  document.getElementById('draft-rosters-view').classList.toggle('hidden', tab !== 'rosters');
+  if (tab === 'rosters') renderLiveRosters();
+}
+
+function renderLiveRosters() {
+  const switcher = document.getElementById('live-team-switcher');
+  if (!switcher) return;
+
+  switcher.innerHTML = draftState.managers.map(m =>
+    `<div class="done-team-pill" data-manager="${escHtml(m.name)}" onclick="selectLiveRosterTab('${escHtml(m.name)}')">${escHtml(m.name)}</div>`
+  ).join('');
+
+  if (!_liveRosterManager || !draftState.managers.find(m => m.name === _liveRosterManager)) {
+    _liveRosterManager = myName || draftState.managers[0]?.name || null;
+  }
+  if (_liveRosterManager) selectLiveRosterTab(_liveRosterManager);
+}
+
+function selectLiveRosterTab(managerName) {
+  _liveRosterManager = managerName;
+  document.querySelectorAll('#live-team-switcher .done-team-pill').forEach(t =>
+    t.classList.toggle('active', t.dataset.manager === managerName)
+  );
+  renderLiveRosterPanel(managerName);
+}
+
+function renderLiveRosterPanel(managerName) {
+  const SECTIONS = [
+    { label: 'FORWARDS', pos: 'F', slots: 12 },
+    { label: 'DEFENCE',  pos: 'D', slots: 6 },
+    { label: 'GOALIES',  pos: 'G', slots: 2 },
+  ];
+
+  const grouped = { F: [], D: [], G: [] };
+  for (const pick of draftState.picks) {
+    if (pick.managerName !== managerName) continue;
+    const grp = pick.playerPos === 'D' ? 'D' : pick.playerPos === 'G' ? 'G' : 'F';
+    grouped[grp].push(pick.playerName);
+  }
+
+  const playerByName = {};
+  for (const p of allPlayers) { if (p.player_name) playerByName[p.player_name] = p; }
+
+  const panel = document.getElementById('live-roster-panel');
+  panel.innerHTML = '';
+
+  for (const s of SECTIONS) {
+    const filled = grouped[s.pos].length;
+
+    const labelEl = document.createElement('div');
+    labelEl.className = 'done-section-label';
+    labelEl.innerHTML = `<span>${s.label}</span><span class="count ${filled >= s.slots ? 'full' : ''}">${filled} / ${s.slots}</span>`;
+    panel.appendChild(labelEl);
+
+    for (let i = 0; i < s.slots; i++) {
+      const name = grouped[s.pos][i];
+      const player = name ? playerByName[name] : null;
+      const slot = document.createElement('div');
+
+      if (player) {
+        slot.className = 'done-slot';
+        const abbr = TEAM_ABBR[player.team];
+        const logoHtml = abbr ? `<img class="card-team-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}">` : '';
+        const salary = player.cap_hit ? '$' + player.cap_hit.toLocaleString() : '';
+        let statHtml = '';
+        if (s.pos === 'G') {
+          if (player.wins != null) statHtml = `<div class="stat-boxes"><div class="stat-box stat-box-pts"><div class="stat-box-main">${player.wins}</div><div class="stat-box-label">W</div></div>${player.shutouts ? `<div class="stat-box stat-box-pts"><div class="stat-box-main">${player.shutouts}</div><div class="stat-box-label">SO</div></div>` : ''}</div>`;
+        } else {
+          if (player.points != null) statHtml = `<div class="stat-boxes"><div class="stat-box stat-box-pts"><div class="stat-box-main">${player.points}</div><div class="stat-box-label">PTS</div></div></div>`;
+        }
+        slot.innerHTML = `<div class="done-player-card">
+          <span class="pos-badge ${s.pos}">${s.pos}</span>
+          ${logoHtml}
+          <div class="done-player-info">
+            <div class="done-player-name">${formatName(name)}</div>
+            <div class="done-player-salary">${salary}</div>
+          </div>
+          ${statHtml}
+        </div>`;
+      } else if (name) {
+        slot.className = 'done-slot';
+        slot.innerHTML = `<div class="done-player-card"><span class="pos-badge ${s.pos}">${s.pos}</span><div class="done-player-info"><div class="done-player-name">${formatName(name)}</div></div></div>`;
+      } else {
+        slot.className = 'done-slot empty';
+        slot.innerHTML = `<span class="done-slot-num">${i + 1}</span>`;
+      }
+      panel.appendChild(slot);
+    }
+  }
+}
 
 // ══════════════════════════════════════════════════════════════════
 //  POSITION SLOTS TRACKER
