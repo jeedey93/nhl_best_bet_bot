@@ -344,12 +344,31 @@
     @media (max-width: 768px) {
       .player-pool { border-left: none; border-top: 1px solid var(--line); max-height: 340px; }
     }
-    .pool-controls { display: flex; gap: 0.5rem; margin-bottom: 0.6rem; flex-shrink: 0; flex-wrap: wrap; }
+    .pool-controls { display: flex; gap: 0.5rem; margin-bottom: 0.4rem; flex-shrink: 0; flex-wrap: wrap; align-items: center; }
     .pool-controls-filters { display: flex; gap: 0.5rem; flex-wrap: wrap; }
     .pos-filter { display: flex; gap: 0; background: rgba(255,255,255,0.04); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
     .pos-filter button { font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 2px; padding: 0.35rem 0.9rem; background: none; border: none; color: var(--silver); cursor: pointer; transition: background 0.15s, color 0.15s; }
     .pos-filter button.active { background: rgba(255,255,255,0.09); color: white; }
     .pos-filter button:hover:not(.active) { color: rgba(255,255,255,0.7); }
+    .sort-bar {
+      display: flex; align-items: center; gap: 4px; flex-wrap: wrap;
+      margin-bottom: 0.4rem; flex-shrink: 0;
+    }
+    .sort-bar-label {
+      font-family: 'Bebas Neue', cursive; font-size: 0.7rem; letter-spacing: 2px;
+      color: rgba(255,255,255,0.3); margin-right: 2px;
+    }
+    .sort-btn {
+      font-family: 'Bebas Neue', cursive; font-size: 0.8rem; letter-spacing: 1.5px;
+      padding: 2px 8px; background: rgba(255,255,255,0.04);
+      border: 1px solid var(--line); border-radius: 4px;
+      color: var(--silver); cursor: pointer;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+      white-space: nowrap;
+    }
+    .sort-btn:hover { background: rgba(255,255,255,0.09); color: white; }
+    .sort-btn.active { background: rgba(255,184,28,0.12); border-color: rgba(255,184,28,0.35); color: var(--gold); }
+    .sort-btn.active::after { content: ' ' attr(data-dir); font-size: 0.65rem; opacity: 0.7; }
     .search-input { flex: 1; min-width: 140px; background: rgba(255,255,255,0.05); border: 1px solid var(--line); border-radius: 6px; padding: 0.35rem 0.8rem; color: white; font-family: 'Barlow Condensed', sans-serif; font-size: 0.95rem; outline: none; transition: border-color 0.15s; }
     .search-input::placeholder { color: rgba(168,178,190,0.35); }
     .search-input:focus { border-color: rgba(255,255,255,0.22); }
@@ -713,18 +732,25 @@
       <div class="pool-controls">
         <div class="pool-controls-filters">
           <div class="pos-filter">
-            <button class="active" data-pos="ALL" onclick="setFilter('ALL',this)">All</button>
-            <button data-pos="F" onclick="setFilter('F',this)">Forwards</button>
-            <button data-pos="D" onclick="setFilter('D',this)">Defence</button>
-            <button data-pos="G" onclick="setFilter('G',this)">Goalies</button>
-          </div>
-          <div class="pos-filter">
-            <button class="active" data-sort="salary" onclick="setSort('salary',this)">Salary</button>
-            <button data-sort="points" onclick="setSort('points',this)">Points</button>
-            <button data-sort="value" onclick="setSort('value',this)">EFF</button>
+            <button class="active" data-pos="F" onclick="setFilter('F',this)">F</button>
+            <button data-pos="D" onclick="setFilter('D',this)">D</button>
+            <button data-pos="G" onclick="setFilter('G',this)">G</button>
           </div>
         </div>
-        <input class="search-input" id="pool-search" type="text" placeholder="🔍 Search player…" oninput="debouncedRenderPool()" autocomplete="off">
+        <input class="search-input" id="pool-search" type="text" placeholder="🔍 Search…" oninput="debouncedRenderPool()" autocomplete="off">
+      </div>
+      <div class="sort-bar" id="sort-bar">
+        <span class="sort-bar-label">Sort:</span>
+        <button class="sort-btn active" data-sort="salary"  onclick="setSort('salary',this)">Salary</button>
+        <button class="sort-btn" data-sort="fpts"    onclick="setSort('fpts',this)">FPTS</button>
+        <button class="sort-btn" data-sort="value"   onclick="setSort('value',this)">EFF</button>
+        <button class="sort-btn" data-sort="gp"      onclick="setSort('gp',this)">GP</button>
+        <button class="sort-btn" data-sort="points"  onclick="setSort('points',this)">PTS</button>
+        <button class="sort-btn" data-sort="goals"   onclick="setSort('goals',this)">G</button>
+        <button class="sort-btn" data-sort="assists" onclick="setSort('assists',this)">A</button>
+        <button class="sort-btn" data-sort="wins"    onclick="setSort('wins',this)">W</button>
+        <button class="sort-btn" data-sort="otl"     onclick="setSort('otl',this)">OTL</button>
+        <button class="sort-btn" data-sort="shutouts" onclick="setSort('shutouts',this)">SO</button>
       </div>
       <div class="eff-legend">
         <span class="eff-legend-badge">EFF</span>
@@ -795,8 +821,9 @@ const TEAM_ABBR = {
 let LEAGUE_CODE = '';
 let allPlayers = [];
 let rosterDraftedNames = new Set(); // names picked via join.html draft page
-let activeFilter = 'ALL';
+let activeFilter = 'F';
 let activeSort   = 'salary';
+let activeSortDir = 'desc'; // 'asc' | 'desc'
 let activeNHLTeam = 'ALL';
 let _poolPage = 0;
 const PAGE_SIZE = 50;
@@ -1296,9 +1323,18 @@ function setFilter(pos, btn) {
 }
 
 function setSort(sort, btn) {
-  activeSort = sort;
-  document.querySelectorAll('[data-sort]').forEach(b => b.classList.remove('active'));
+  if (activeSort === sort) {
+    activeSortDir = activeSortDir === 'desc' ? 'asc' : 'desc';
+  } else {
+    activeSort = sort;
+    activeSortDir = 'desc';
+  }
+  document.querySelectorAll('.sort-btn').forEach(b => {
+    b.classList.remove('active');
+    b.removeAttribute('data-dir');
+  });
   btn.classList.add('active');
+  btn.setAttribute('data-dir', activeSortDir === 'desc' ? '\u25bc' : '\u25b2');
   renderPlayerPool();
 }
 
@@ -1331,9 +1367,18 @@ function effScore(p) {
 }
 
 function playerSortKey(p) {
-  if (activeSort === 'points') return poolScore(p);
-  if (activeSort === 'value')  return effScore(p);
-  return p.cap_hit || 0;
+  switch (activeSort) {
+    case 'fpts':     return poolScore(p);
+    case 'value':    return effScore(p);
+    case 'gp':       return p.games_played ?? 0;
+    case 'points':   return p.points ?? 0;
+    case 'goals':    return p.goals ?? 0;
+    case 'assists':  return p.assists ?? 0;
+    case 'wins':     return p.wins ?? 0;
+    case 'otl':      return p.ot_losses ?? 0;
+    case 'shutouts': return p.shutouts ?? 0;
+    default:         return p.cap_hit ?? 0;
+  }
 }
 
 function renderPlayerPool() { _poolPage = 0; _renderPoolPage(); }
@@ -1350,7 +1395,11 @@ function _renderPoolPage() {
     if (activeNHLTeam !== 'ALL' && p.team !== activeNHLTeam) return false;
     if (query && !p.player_name.toLowerCase().includes(query)) return false;
     return true;
-  }).slice().sort((a, b) => playerSortKey(b) - playerSortKey(a));
+  }).slice().sort((a, b) =>
+    activeSortDir === 'desc'
+      ? playerSortKey(b) - playerSortKey(a)
+      : playerSortKey(a) - playerSortKey(b)
+  );
 
   const list = document.getElementById('pool-list');
   if (!filtered.length) { list.innerHTML = '<div class="empty-msg">No players found.</div>'; return; }
