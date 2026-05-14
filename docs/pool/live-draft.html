@@ -520,39 +520,59 @@
     .pick-history-pos.D { background: rgba(139,92,246,0.2); color: #a78bfa; }
     .pick-history-pos.G { background: rgba(34,197,94,0.2); color: #4ade80; }
 
-    /* ── Done screen roster grid ── */
+    /* ── Done screen roster tabs ── */
     .done-roster-wrap {
-      width: 100%; max-width: 1100px; margin: 1.5rem auto 0;
-      overflow-x: auto; padding: 0 1rem;
+      width: 100%; max-width: 480px; margin: 1rem auto 2rem;
+      padding: 0 1rem;
     }
-    .done-roster-grid {
-      display: flex; gap: 1rem; min-width: max-content;
+    .done-team-switcher {
+      display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 0.75rem;
     }
-    .done-team-col {
-      flex: 0 0 180px; background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.1); border-radius: 8px;
-      overflow: hidden;
+    .done-team-pill {
+      font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 2px;
+      padding: 4px 14px; border-radius: 7px; cursor: pointer;
+      background: rgba(255,255,255,0.05); color: var(--silver);
+      border: 1px solid rgba(255,255,255,0.1);
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+      white-space: nowrap;
     }
-    .done-team-name {
-      padding: 0.5rem 0.75rem; background: rgba(255,255,255,0.07);
-      font-family: 'Bebas Neue', cursive; font-size: 0.95rem; letter-spacing: 2px;
-      color: var(--gold); border-bottom: 1px solid rgba(255,255,255,0.1);
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    .done-team-pill:hover { background: rgba(255,255,255,0.1); color: white; }
+    .done-team-pill.active { background: rgba(255,184,28,0.1); color: var(--gold); border-color: rgba(255,184,28,0.4); }
+    .done-roster-panel { display: flex; flex-direction: column; gap: 3px; }
+    .done-section-label {
+      font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 3px;
+      color: var(--silver); margin: 0.5rem 0 3px;
+      display: flex; align-items: center; justify-content: space-between;
     }
-    .done-pos-section { padding: 0.25rem 0; }
-    .done-pos-header {
-      padding: 0.15rem 0.75rem;
-      font-family: 'Bebas Neue', cursive; font-size: 0.7rem; letter-spacing: 2px;
-      color: rgba(255,255,255,0.35); background: rgba(0,0,0,0.15);
+    .done-section-label .count {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem; font-weight: 700;
+      background: rgba(255,255,255,0.07); border-radius: 20px; padding: 1px 8px;
+      color: var(--silver); letter-spacing: 1px;
     }
-    .done-roster-player {
-      padding: 0.25rem 0.75rem;
-      font-family: 'Barlow Condensed', sans-serif; font-size: 0.78rem;
-      color: rgba(255,255,255,0.85); border-bottom: 1px solid rgba(255,255,255,0.04);
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    .done-section-label .count.full { background: rgba(34,197,94,0.2); color: var(--green); }
+    .done-slot {
+      border-radius: 5px; min-height: 44px;
+      display: flex; align-items: center;
     }
-    .done-roster-player.empty { color: rgba(255,255,255,0.2); font-style: italic; }
-    .done-roster-player:last-child { border-bottom: none; }
+    .done-slot.empty {
+      gap: 8px; border: 1px dashed rgba(255,255,255,0.1);
+      padding: 7px 10px;
+    }
+    .done-slot-num {
+      font-family: 'Bebas Neue', cursive; font-size: 1rem;
+      color: rgba(255,255,255,0.15); width: 20px; text-align: center; flex-shrink: 0;
+    }
+    .done-player-card {
+      display: flex; align-items: center; gap: 8px;
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 5px; padding: 5px 8px 5px 10px; width: 100%;
+    }
+    .done-player-info { flex: 1; min-width: 0; }
+    .done-player-name {
+      font-weight: 700; font-size: 0.95rem;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: white;
+    }
+    .done-player-salary { font-size: 0.75rem; color: var(--silver); font-weight: 600; margin-top: 1px; }
   </style>
 </head>
 <body>
@@ -691,7 +711,8 @@
     <button class="btn-done-action" style="background:rgba(200,16,46,0.15);color:rgba(200,16,46,0.9);border:1px solid rgba(200,16,46,0.3);margin-top:-0.5rem;" onclick="promptResetDraft()">⟳ Reset Draft</button>
   </div>
   <div class="done-roster-wrap">
-    <div class="done-roster-grid" id="done-roster-grid"></div>
+    <div class="done-roster-tabs" id="done-roster-tabs"></div>
+    <div class="done-roster-panel" id="done-roster-panel"></div>
   </div>
 </div>
 
@@ -1803,11 +1824,13 @@ function togglePickHistory() {
 }
 
 // ══════════════════════════════════════════════════════════════════
-//  DONE SCREEN ROSTER GRID
+//  DONE SCREEN ROSTER TABS
 // ══════════════════════════════════════════════════════════════════
+let _doneActiveManager = null;
+
 function renderDoneRosterGrid() {
-  const grid = document.getElementById('done-roster-grid');
-  if (!grid) return;
+  const tabsEl = document.getElementById('done-roster-tabs');
+  if (!tabsEl) return;
 
   const SECTIONS = [
     { label: 'FORWARDS', pos: 'F', slots: 12 },
@@ -1815,7 +1838,6 @@ function renderDoneRosterGrid() {
     { label: 'GOALIES',  pos: 'G', slots: 2 },
   ];
 
-  // Group picks by manager + pos
   const byManager = {};
   for (const m of draftState.managers) byManager[m.name] = { F: [], D: [], G: [] };
   for (const pick of draftState.picks) {
@@ -1823,23 +1845,46 @@ function renderDoneRosterGrid() {
     byManager[pick.managerName]?.[grp].push(pick.playerName);
   }
 
-  grid.innerHTML = draftState.managers.map(m => {
-    const picked = byManager[m.name] || { F: [], D: [], G: [] };
-    const sections = SECTIONS.map(s => {
-      const players = picked[s.pos] || [];
-      const rows = Array.from({ length: s.slots }, (_, i) => {
-        const name = players[i];
-        return `<div class="done-roster-player ${name ? '' : 'empty'}">${name ? escHtml(name) : '—'}</div>`;
-      }).join('');
-      return `<div class="done-pos-section">
-        <div class="done-pos-header">${s.label}</div>
-        ${rows}
-      </div>`;
+  // Build tabs
+  tabsEl.innerHTML = draftState.managers.map(m =>
+    `<div class="done-roster-tab" data-manager="${escHtml(m.name)}" onclick="selectDoneTab('${escHtml(m.name)}')">${escHtml(m.name)}</div>`
+  ).join('');
+
+  // Default to first manager or previously selected
+  if (!_doneActiveManager || !draftState.managers.find(m => m.name === _doneActiveManager)) {
+    _doneActiveManager = draftState.managers[0]?.name || null;
+  }
+  if (_doneActiveManager) selectDoneTab(_doneActiveManager);
+}
+
+function selectDoneTab(managerName) {
+  _doneActiveManager = managerName;
+
+  document.querySelectorAll('.done-roster-tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.manager === managerName);
+  });
+
+  const SECTIONS = [
+    { label: 'FORWARDS', pos: 'F', slots: 12 },
+    { label: 'DEFENCE',  pos: 'D', slots: 6 },
+    { label: 'GOALIES',  pos: 'G', slots: 2 },
+  ];
+
+  const byManager = {};
+  for (const m of draftState.managers) byManager[m.name] = { F: [], D: [], G: [] };
+  for (const pick of draftState.picks) {
+    const grp = pick.playerPos === 'D' ? 'D' : pick.playerPos === 'G' ? 'G' : 'F';
+    byManager[pick.managerName]?.[grp].push(pick.playerName);
+  }
+
+  const picked = byManager[managerName] || { F: [], D: [], G: [] };
+  const panel = document.getElementById('done-roster-panel');
+  panel.innerHTML = SECTIONS.map(s => {
+    const rows = Array.from({ length: s.slots }, (_, i) => {
+      const name = picked[s.pos][i];
+      return `<div class="done-roster-player ${name ? '' : 'empty'}">${name ? escHtml(name) : '—'}</div>`;
     }).join('');
-    return `<div class="done-team-col">
-      <div class="done-team-name">${escHtml(m.name)}</div>
-      ${sections}
-    </div>`;
+    return `<div class="done-pos-section"><div class="done-pos-header">${s.label}</div>${rows}</div>`;
   }).join('');
 }
 
