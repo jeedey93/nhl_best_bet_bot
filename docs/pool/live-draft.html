@@ -583,14 +583,6 @@
           <option value="snake">🐍 Snake</option>
           <option value="linear">➡️ Linear</option>
         </select>
-        <select class="setup-select" id="setup-rounds">
-          <option value="20">20 rounds</option>
-          <option value="22">22 rounds</option>
-          <option value="24">24 rounds</option>
-          <option value="26" selected>26 rounds (12F+6D+2G+6B)</option>
-          <option value="28">28 rounds</option>
-          <option value="30">30 rounds</option>
-        </select>
         <select class="setup-select" id="setup-timer">
           <option value="0">No timer</option>
           <option value="60">60s</option>
@@ -644,7 +636,7 @@
   <!-- Manager strip -->
   <div class="manager-strip" id="manager-strip"></div>
 
-  <!-- Position slots tracker (shows filled/remaining per pos for current manager) -->
+  <!-- Position slots tracker -->
   <div class="pos-slots-bar" id="pos-slots-bar"></div>
 
   <!-- Main draft area -->
@@ -935,11 +927,8 @@ async function startDraft() {
   const errEl = document.getElementById('setup-error');
   errEl.textContent = '';
 
-  const commishName = managers[0]?.name || 'Commissioner';
-  if (!commishName) { errEl.textContent = 'Add at least one manager.'; return; }
-
   const mode = document.getElementById('setup-mode').value;
-  const rounds = parseInt(document.getElementById('setup-rounds').value);
+  const rounds = 26;
   const timerSecs = parseInt(document.getElementById('setup-timer').value);
 
   const rows = [...document.querySelectorAll('#setup-manager-list .manager-row')];
@@ -949,6 +938,8 @@ async function startDraft() {
   }));
 
   if (managers.length < 2) { errEl.textContent = 'Add at least 2 managers.'; return; }
+
+  const commishName = managers[0]?.name || 'Commissioner';
 
   const btn = document.getElementById('btn-start');
   btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Starting…';
@@ -1721,10 +1712,10 @@ function viewRosters() { window.location.href = `/pool/join?league=${LEAGUE_CODE
 // ══════════════════════════════════════════════════════════════════
 //  POSITION SLOTS TRACKER
 // ══════════════════════════════════════════════════════════════════
-const POS_LIMITS = { F: 12, D: 6, G: 2, B: 6 };
+const POS_LIMITS = { F: 12, D: 6, G: 2 };
 
 function getPosCountsForManager(managerName) {
-  const counts = { F: 0, D: 0, G: 0, B: 0 };
+  const counts = { F: 0, D: 0, G: 0 };
   for (const pick of draftState.picks) {
     if (pick.managerName !== managerName) continue;
     const pos = pick.playerPos === 'D' ? 'D' : pick.playerPos === 'G' ? 'G' : 'F';
@@ -1755,7 +1746,6 @@ function renderPosSlotsBar() {
   bar.innerHTML = label + chips;
 }
 
-// Block drafting a player when the current manager's position slot is full
 function isPosSlotFull(managerName, playerPos) {
   const pos = playerPos === 'D' ? 'D' : playerPos === 'G' ? 'G' : 'F';
   const counts = getPosCountsForManager(managerName);
