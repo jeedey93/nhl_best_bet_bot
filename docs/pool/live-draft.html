@@ -528,44 +528,6 @@
       animation: roundFlash 1.6s ease forwards;
     }
 
-    /* ── Pick history drawer ── */
-    .pick-history-toggle {
-      display: none;
-      width: 100%; padding: 0.5rem 1rem;
-      background: rgba(255,255,255,0.04); border: none; border-top: 1px solid rgba(255,255,255,0.08);
-      color: var(--silver); font-family: 'Barlow Condensed', sans-serif;
-      font-size: 0.85rem; letter-spacing: 1px; cursor: pointer;
-      text-align: left; transition: background 0.15s;
-    }
-    @media (max-width: 768px) { .pick-history-toggle { display: block; } }
-    .pick-history-toggle:hover { background: rgba(255,255,255,0.07); }
-    .pick-history-toggle .toggle-chevron { float: right; transition: transform 0.2s; }
-    .pick-history-toggle.open .toggle-chevron { transform: rotate(180deg); }
-    .pick-history-drawer {
-      display: none; flex-direction: column; gap: 0;
-      max-height: 220px; overflow-y: auto;
-      background: rgba(0,0,0,0.2);
-      border-top: 1px solid rgba(255,255,255,0.06);
-    }
-    .pick-history-drawer.open { display: flex; }
-    @media (min-width: 769px) {
-      .pick-history-drawer { display: flex; max-height: none; }
-      .pick-history-toggle { display: none; }
-    }
-    .pick-history-row {
-      display: flex; align-items: center; gap: 0.5rem;
-      padding: 0.3rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.04);
-      font-family: 'Barlow Condensed', sans-serif; font-size: 0.8rem;
-    }
-    .pick-history-row:last-child { border-bottom: none; }
-    .pick-history-num { color: rgba(255,255,255,0.3); min-width: 2rem; font-size: 0.72rem; }
-    .pick-history-manager { color: var(--gold); font-weight: 600; min-width: 5rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .pick-history-player { color: white; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .pick-history-pos { font-size: 0.65rem; font-weight: 700; padding: 1px 5px; border-radius: 3px; }
-    .pick-history-pos.F { background: rgba(59,130,246,0.2); color: #60a5fa; }
-    .pick-history-pos.D { background: rgba(139,92,246,0.2); color: #a78bfa; }
-    .pick-history-pos.G { background: rgba(34,197,94,0.2); color: #4ade80; }
-
     /* ── Done screen roster panel ── */
     .done-roster-wrap {
       flex: 1; min-width: 0; overflow-y: auto;
@@ -752,12 +714,6 @@
     <div class="done-team-switcher" id="live-team-switcher"></div>
     <div class="live-roster-panel" id="live-roster-panel"></div>
   </div>
-
-  <!-- Pick history drawer (mobile collapsible, always visible on desktop) -->
-  <button class="pick-history-toggle" id="pick-history-toggle" onclick="togglePickHistory()">
-    📋 Pick History <span class="toggle-chevron">▼</span>
-  </button>
-  <div class="pick-history-drawer" id="pick-history-drawer"></div>
 </div>
 
 <!-- ── Done Screen ── -->
@@ -1210,7 +1166,6 @@ function renderManagerStrip() {
   }).join('');
 
   renderPosSlotsBar();
-  renderPickHistory();
   if (_activeDraftTab === 'rosters') renderLiveRosterPanel(_liveRosterManager);
 }
 
@@ -1965,33 +1920,6 @@ function maybeShowRoundFlash(prevPickCount, newPickCount) {
       setTimeout(() => el.remove(), 1700);
     }
   }
-}
-
-// ══════════════════════════════════════════════════════════════════
-//  PICK HISTORY DRAWER
-// ══════════════════════════════════════════════════════════════════
-function renderPickHistory() {
-  const drawer = document.getElementById('pick-history-drawer');
-  if (!drawer) return;
-  if (!draftState.picks.length) { drawer.innerHTML = '<div class="pick-history-row" style="color:rgba(255,255,255,0.3);">No picks yet.</div>'; return; }
-  // Most recent first
-  const rows = [...draftState.picks].reverse().map(p =>
-    `<div class="pick-history-row">
-      <span class="pick-history-num">#${p.overallPick}</span>
-      <span class="pick-history-manager">${escHtml(p.managerName)}</span>
-      <span class="pick-history-player">${escHtml(p.playerName)}</span>
-      <span class="pick-history-pos ${p.playerPos}">${p.playerPos}</span>
-    </div>`
-  ).join('');
-  drawer.innerHTML = rows;
-}
-
-function togglePickHistory() {
-  const toggle = document.getElementById('pick-history-toggle');
-  const drawer = document.getElementById('pick-history-drawer');
-  if (!toggle || !drawer) return;
-  const isOpen = toggle.classList.toggle('open');
-  drawer.classList.toggle('open', isOpen);
 }
 
 // ══════════════════════════════════════════════════════════════════
