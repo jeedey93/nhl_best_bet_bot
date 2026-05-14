@@ -459,11 +459,6 @@
     <div class="setup-title">🏒 Draft Setup</div>
 
     <div>
-      <div class="setup-section-label">Commissioner Name</div>
-      <input class="setup-input" id="commish-name" type="text" placeholder="Your name" maxlength="24" autocomplete="off">
-    </div>
-
-    <div>
       <div class="setup-section-label">Draft Settings</div>
       <div class="setup-row">
         <select class="setup-select" id="setup-mode">
@@ -471,11 +466,12 @@
           <option value="linear">➡️ Linear</option>
         </select>
         <select class="setup-select" id="setup-rounds">
-          <option value="10">10 rounds</option>
-          <option value="12">12 rounds</option>
-          <option value="15" selected>15 rounds</option>
-          <option value="18">18 rounds</option>
           <option value="20">20 rounds</option>
+          <option value="22">22 rounds</option>
+          <option value="24">24 rounds</option>
+          <option value="26" selected>26 rounds (12F+6D+2G+6B)</option>
+          <option value="28">28 rounds</option>
+          <option value="30">30 rounds</option>
         </select>
         <select class="setup-select" id="setup-timer">
           <option value="0">No timer</option>
@@ -646,10 +642,6 @@ let lastPickCount = 0;
   document.getElementById('nav-standings').href = `/pool/standings?league=${LEAGUE_CODE}`;
   document.getElementById('nav-settings').href = `/pool/settings?league=${LEAGUE_CODE}`;
 
-  // Prefill commish name from localStorage
-  const saved = localStorage.getItem(`hp_commish_${LEAGUE_CODE}`);
-  if (saved) document.getElementById('commish-name').value = saved;
-
   // Check if draft already exists in Supabase
   await loadDraftFromDB();
 
@@ -813,8 +805,8 @@ async function startDraft() {
   const errEl = document.getElementById('setup-error');
   errEl.textContent = '';
 
-  const commishName = document.getElementById('commish-name').value.trim();
-  if (!commishName) { errEl.textContent = 'Enter your commissioner name.'; return; }
+  const commishName = managers[0]?.name || 'Commissioner';
+  if (!commishName) { errEl.textContent = 'Add at least one manager.'; return; }
 
   const mode = document.getElementById('setup-mode').value;
   const rounds = parseInt(document.getElementById('setup-rounds').value);
@@ -1430,8 +1422,6 @@ async function doResetDraft() {
 
   document.getElementById('setup-manager-list').innerHTML = '';
   await prefillManagersFromRoster();
-  const commishName = localStorage.getItem(`hp_commish_${LEAGUE_CODE}`) || '';
-  document.getElementById('commish-name').value = commishName;
   document.getElementById('setup-error').textContent = '';
   const btn = document.getElementById('btn-start');
   btn.disabled = false; btn.textContent = '🚨 Start Draft';
