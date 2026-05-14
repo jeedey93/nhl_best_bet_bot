@@ -1074,7 +1074,6 @@ function checkPoolPw(){
         fetch(`${SUPABASE_URL}/rest/v1/pool_leagues?code=eq.${_leagueCode}`, { method: 'DELETE', headers: deleteHeaders }),
         fetch(`${SUPABASE_URL}/rest/v1/pool_rosters?league_code=eq.${_leagueCode}`, { method: 'DELETE', headers: deleteHeaders }),
         fetch(`${SUPABASE_URL}/rest/v1/pool_settings?league_code=eq.${_leagueCode}`, { method: 'DELETE', headers: deleteHeaders }),
-        fetch(`${SUPABASE_URL}/rest/v1/pool_locks?league_code=eq.${_leagueCode}`, { method: 'DELETE', headers: deleteHeaders }),
       ]);
       const failed = results.find(r => !r.ok);
       if (failed) {
