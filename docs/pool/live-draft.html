@@ -1829,28 +1829,13 @@ function togglePickHistory() {
 let _doneActiveManager = null;
 
 function renderDoneRosterGrid() {
-  const tabsEl = document.getElementById('done-roster-tabs');
-  if (!tabsEl) return;
+  const switcher = document.getElementById('done-team-switcher');
+  if (!switcher) return;
 
-  const SECTIONS = [
-    { label: 'FORWARDS', pos: 'F', slots: 12 },
-    { label: 'DEFENCE',  pos: 'D', slots: 6 },
-    { label: 'GOALIES',  pos: 'G', slots: 2 },
-  ];
-
-  const byManager = {};
-  for (const m of draftState.managers) byManager[m.name] = { F: [], D: [], G: [] };
-  for (const pick of draftState.picks) {
-    const grp = pick.playerPos === 'D' ? 'D' : pick.playerPos === 'G' ? 'G' : 'F';
-    byManager[pick.managerName]?.[grp].push(pick.playerName);
-  }
-
-  // Build tabs
-  tabsEl.innerHTML = draftState.managers.map(m =>
-    `<div class="done-roster-tab" data-manager="${escHtml(m.name)}" onclick="selectDoneTab('${escHtml(m.name)}')">${escHtml(m.name)}</div>`
+  switcher.innerHTML = draftState.managers.map(m =>
+    `<div class="done-team-pill" data-manager="${escHtml(m.name)}" onclick="selectDoneTab('${escHtml(m.name)}')">${escHtml(m.name)}</div>`
   ).join('');
 
-  // Default to first manager or previously selected
   if (!_doneActiveManager || !draftState.managers.find(m => m.name === _doneActiveManager)) {
     _doneActiveManager = draftState.managers[0]?.name || null;
   }
@@ -1860,9 +1845,9 @@ function renderDoneRosterGrid() {
 function selectDoneTab(managerName) {
   _doneActiveManager = managerName;
 
-  document.querySelectorAll('.done-roster-tab').forEach(t => {
-    t.classList.toggle('active', t.dataset.manager === managerName);
-  });
+  document.querySelectorAll('.done-team-pill').forEach(t =>
+    t.classList.toggle('active', t.dataset.manager === managerName)
+  );
 
   const SECTIONS = [
     { label: 'FORWARDS', pos: 'F', slots: 12 },
@@ -1870,22 +1855,71 @@ function selectDoneTab(managerName) {
     { label: 'GOALIES',  pos: 'G', slots: 2 },
   ];
 
-  const byManager = {};
-  for (const m of draftState.managers) byManager[m.name] = { F: [], D: [], G: [] };
+  // Group picks by pos for this manager
+  const grouped = { F: [], D: [], G: [] };
   for (const pick of draftState.picks) {
+    if (pick.managerName !== managerName) continue;
     const grp = pick.playerPos === 'D' ? 'D' : pick.playerPos === 'G' ? 'G' : 'F';
-    byManager[pick.managerName]?.[grp].push(pick.playerName);
+    grouped[grp].push(pick.playerName);
   }
 
-  const picked = byManager[managerName] || { F: [], D: [], G: [] };
+  // Build a name→player lookup from allPlayers
+  const playerByName = {};
+  for (const p of allPlayers) {
+    if (p.player_name) playerByName[p.player_name] = p;
+  }
+
   const panel = document.getElementById('done-roster-panel');
-  panel.innerHTML = SECTIONS.map(s => {
-    const rows = Array.from({ length: s.slots }, (_, i) => {
-      const name = picked[s.pos][i];
-      return `<div class="done-roster-player ${name ? '' : 'empty'}">${name ? escHtml(name) : '—'}</div>`;
-    }).join('');
-    return `<div class="done-pos-section"><div class="done-pos-header">${s.label}</div>${rows}</div>`;
-  }).join('');
+  panel.innerHTML = '';
+
+  for (const s of SECTIONS) {
+    const filled = grouped[s.pos].length;
+
+    const labelEl = document.createElement('div');
+    labelEl.className = 'done-section-label';
+    labelEl.innerHTML = `<span>${s.label}</span><span class="count ${filled >= s.slots ? 'full' : ''}">${filled} / ${s.slots}</span>`;
+    panel.appendChild(labelEl);
+
+    for (let i = 0; i < s.slots; i++) {
+      const name = grouped[s.pos][i];
+      const player = name ? playerByName[name] : null;
+      const slot = document.createElement('div');
+
+      if (player) {
+        slot.className = 'done-slot';
+        const abbr = TEAM_ABBR[player.team];
+        const logoHtml = abbr ? `<img class="card-team-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}">` : '';
+        const salary = player.cap_hit ? '$' + player.cap_hit.toLocaleString() : '';
+        const pos = s.pos;
+        let statHtml = '';
+        if (pos === 'G') {
+          if (player.wins != null) statHtml = `<div class="stat-boxes"><div class="stat-box stat-box-pts"><div class="stat-box-main">${player.wins}</div><div class="stat-box-label">W</div></div>${player.shutouts ? `<div class="stat-box stat-box-pts"><div class="stat-box-main">${player.shutouts}</div><div class="stat-box-label">SO</div></div>` : ''}</div>`;
+        } else {
+          if (player.points != null) statHtml = `<div class="stat-boxes"><div class="stat-box stat-box-pts"><div class="stat-box-main">${player.points}</div><div class="stat-box-label">PTS</div></div></div>`;
+        }
+        slot.innerHTML = `<div class="done-player-card">
+          <span class="pos-badge ${pos}">${pos}</span>
+          ${logoHtml}
+          <div class="done-player-info">
+            <div class="done-player-name">${formatName(name)}</div>
+            <div class="done-player-salary">${salary}</div>
+          </div>
+          ${statHtml}
+        </div>`;
+      } else if (name) {
+        // name known but not in allPlayers
+        slot.className = 'done-slot';
+        slot.innerHTML = `<div class="done-player-card">
+          <span class="pos-badge ${s.pos}">${s.pos}</span>
+          <div class="done-player-info"><div class="done-player-name">${formatName(name)}</div></div>
+        </div>`;
+      } else {
+        slot.className = 'done-slot empty';
+        slot.innerHTML = `<span class="done-slot-num">${i + 1}</span>`;
+      }
+      panel.appendChild(slot);
+    }
+  }
 }
 
 // ══════════════════════════════════════════════════════════════════
