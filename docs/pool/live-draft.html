@@ -76,6 +76,21 @@
       background: rgba(255,184,28,0.1); border: 1px solid rgba(255,184,28,0.25);
       border-radius: 4px; padding: 2px 8px; color: var(--gold);
     }
+    .pick-counter {
+      font-family: 'Bebas Neue', cursive; font-size: 0.75rem; letter-spacing: 2px;
+      background: rgba(255,255,255,0.05); border: 1px solid var(--line);
+      border-radius: 4px; padding: 2px 8px; color: rgba(255,255,255,0.4);
+    }
+    /* Undo pick button (commish only) */
+    .btn-undo-pick {
+      font-family: 'Bebas Neue', cursive; font-size: 0.82rem; letter-spacing: 2px;
+      background: none; color: rgba(255,184,28,0.65);
+      border: 1px solid rgba(255,184,28,0.25); border-radius: 6px;
+      padding: 0.25rem 0.75rem; cursor: pointer;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+    }
+    .btn-undo-pick:hover { background: rgba(255,184,28,0.1); border-color: rgba(255,184,28,0.5); color: var(--gold); }
+    .btn-undo-pick:disabled { opacity: 0.25; cursor: default; pointer-events: none; }
     /* Timer */
     .timer-wrap { display: flex; align-items: center; gap: 0.5rem; }
     .timer-icon { font-size: 0.9rem; }
@@ -180,6 +195,15 @@
     }
 
     /* Manager strip */
+    .manager-strip-wrap {
+      position: relative; flex-shrink: 0;
+    }
+    .manager-strip-wrap::after {
+      content: '';
+      position: absolute; top: 0; right: 0; bottom: 0; width: 48px;
+      background: linear-gradient(to right, transparent, var(--rink));
+      pointer-events: none;
+    }
     .manager-strip {
       background: rgba(255,255,255,0.02); border-bottom: 1px solid var(--line);
       padding: 0.5rem 1rem; display: flex; gap: 0.5rem; overflow-x: auto; flex-shrink: 0;
@@ -648,6 +672,7 @@
       </div>
       <span class="round-badge" id="round-badge">Round 1 / 15</span>
       <span class="mode-badge" id="mode-badge">SNAKE</span>
+      <span class="pick-counter" id="pick-counter"></span>
     </div>
     <div class="timer-wrap">
       <span class="timer-icon">⏱</span>
@@ -660,11 +685,14 @@
     <span class="my-name-label">You are:</span>
     <select class="my-name-select" id="my-name-select" onchange="saveMyName()"></select>
     <span class="commish-badge" id="commish-badge-strip">COMMISH</span>
+    <button class="btn-undo-pick hidden" id="btn-undo-pick" onclick="undoLastPick()">↩ Undo Pick</button>
     <button id="btn-reset-draft" onclick="promptResetDraft()" style="margin-left:auto;font-family:'Bebas Neue',cursive;font-size:0.85rem;letter-spacing:2px;background:none;color:rgba(200,16,46,0.7);border:1px solid rgba(200,16,46,0.3);border-radius:6px;padding:0.3rem 0.8rem;cursor:pointer;transition:background 0.15s,border-color 0.15s;" onmouseover="this.style.background='rgba(200,16,46,0.1)';this.style.borderColor='rgba(200,16,46,0.7)'" onmouseout="this.style.background='none';this.style.borderColor='rgba(200,16,46,0.3)'">⟳ Reset Draft</button>
   </div>
 
   <!-- Manager strip -->
-  <div class="manager-strip" id="manager-strip"></div>
+  <div class="manager-strip-wrap">
+    <div class="manager-strip" id="manager-strip"></div>
+  </div>
 
   <!-- Position slots tracker -->
   <div class="pos-slots-bar" id="pos-slots-bar"></div>
@@ -1075,8 +1103,9 @@ function saveMyName() {
 }
 
 function updateCommishBadge() {
-  const badge = document.getElementById('commish-badge-strip');
-  badge.style.display = isCommish ? 'inline' : 'none';
+  document.getElementById('commish-badge-strip').style.display = isCommish ? 'inline' : 'none';
+  const undoBtn = document.getElementById('btn-undo-pick');
+  if (undoBtn) undoBtn.classList.toggle('hidden', !isCommish || !draftState.picks.length);
 }
 
 // ── Pick order logic ──────────────────────────────────────────────
@@ -1173,16 +1202,27 @@ function updateClock() {
   const current = getCurrentPick();
   const el = document.getElementById('on-clock-name');
   const badge = document.getElementById('round-badge');
+  const counter = document.getElementById('pick-counter');
+  const totalPicks = draftState.managers.length * draftState.rounds;
+  const madepicks = draftState.picks.length;
 
   if (!current || draftState.status === 'done') {
     el.textContent = 'Draft Complete!';
     el.className = 'on-clock-name';
+    if (counter) counter.textContent = `${madepicks} / ${totalPicks} picks`;
     return;
   }
 
   el.textContent = current.managerName;
   el.className = 'on-clock-name' + (current.managerName === myName ? ' you' : '');
   badge.textContent = `Round ${current.round} / ${draftState.rounds}`;
+  if (counter) counter.textContent = `Pick ${madepicks + 1} / ${totalPicks}`;
+
+  // Undo button: commish only, only when picks exist
+  const undoBtn = document.getElementById('btn-undo-pick');
+  if (undoBtn) {
+    undoBtn.classList.toggle('hidden', !isCommish || madepicks === 0);
+  }
 }
 
 // ── Player pool ───────────────────────────────────────────────────
@@ -1193,11 +1233,15 @@ async function loadPlayers() {
     const cached = sessionStorage.getItem('hp_players_v3');
     if (cached) {
       try {
-        allPlayers = JSON.parse(cached);
-        if (!Array.isArray(allPlayers) || !allPlayers.length) throw new Error('empty');
+        const { players, ts } = JSON.parse(cached);
+        const fourHours = 4 * 60 * 60 * 1000;
+        if (Array.isArray(players) && players.length && Date.now() - ts < fourHours) {
+          allPlayers = players;
+        } else {
+          sessionStorage.removeItem('hp_players_v3');
+        }
       } catch(_) {
         sessionStorage.removeItem('hp_players_v3');
-        allPlayers = [];
       }
     }
     if (!allPlayers.length) {
@@ -1207,7 +1251,7 @@ async function loadPlayers() {
       );
       if (!res.ok) throw new Error(res.status);
       allPlayers = await res.json();
-      sessionStorage.setItem('hp_players_v3', JSON.stringify(allPlayers));
+      sessionStorage.setItem('hp_players_v3', JSON.stringify({ players: allPlayers, ts: Date.now() }));
     }
     buildNHLTeamStrip();
     renderPlayerPool();
@@ -1449,6 +1493,34 @@ async function draftPlayer(playerName, rawPos, normalizedPos) {
     lastPickCount = draftState.picks.length;
     syncRosterToJoinFormat().catch(() => {});
   } catch(e) { console.error('draftPlayer DB error:', e); alert('Pick failed: ' + e.message); }
+}
+
+async function undoLastPick() {
+  if (!isCommish || !draftState.picks.length) return;
+  if (!confirm('Undo the last pick? This cannot be undone.')) return;
+
+  const last = draftState.picks[draftState.picks.length - 1];
+  stopTimer();
+
+  // Remove from DB
+  try {
+    await fetch(
+      `${SUPABASE_URL}/rest/v1/pool_draft_picks?league_code=eq.${LEAGUE_CODE}&overall_pick=eq.${last.overallPick}`,
+      { method: 'DELETE', headers: sbH() }
+    );
+  } catch(e) { console.warn('undoLastPick DB error:', e); }
+
+  // Remove from local state
+  draftState.picks.pop();
+  lastPickCount = draftState.picks.length;
+  if (draftState.status === 'done') draftState.status = 'active';
+
+  renderBoard();
+  renderManagerStrip();
+  updateClock();
+  renderPlayerPool();
+  if (_activeDraftTab === 'rosters') renderLiveRosterPanel(_liveRosterManager);
+  startTimer();
 }
 
 function showPickToast(manager, player, pos, overall) {
