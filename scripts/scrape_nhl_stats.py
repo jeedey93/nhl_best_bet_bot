@@ -34,7 +34,7 @@ supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 SEASON   = "20252026"
 GAMETYPE = 3          # playoffs
 
-def fetch_team_stats = {
+NHL_TEAM_ABBR = {
     "anaheim-ducks":        "ANA",
     "boston-bruins":        "BOS",
     "buffalo-sabres":       "BUF",
