@@ -2,8 +2,9 @@ name: Update Pool Player Stats
 
 on:
   schedule:
-    # Once daily at 9:00 AM Montreal time (13:00 UTC during daylight saving, 14:00 standard)
-    - cron: '0 13 * * *'
+    # Once daily at 4:00 AM Montreal time during daylight saving (08:00 UTC)
+    # Note: GitHub Actions cron uses UTC and does not auto-adjust for DST.
+    - cron: '0 8 * * *'
   workflow_dispatch:  # Allow manual trigger
 
 jobs:
