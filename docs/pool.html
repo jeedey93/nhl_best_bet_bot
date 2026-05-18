@@ -640,7 +640,6 @@
         fetch(`${SUPABASE_URL}/rest/v1/pool_leagues?code=eq.${code}`,        { method: 'DELETE', headers }),
         fetch(`${SUPABASE_URL}/rest/v1/pool_rosters?league_code=eq.${code}`, { method: 'DELETE', headers }),
         fetch(`${SUPABASE_URL}/rest/v1/pool_settings?league_code=eq.${code}`,{ method: 'DELETE', headers }),
-        fetch(`${SUPABASE_URL}/rest/v1/pool_locks?league_code=eq.${code}`,   { method: 'DELETE', headers }),
       ]);
       const failed = results.find(r => !r.ok);
       if (failed) { const body = await failed.text(); throw new Error(`HTTP ${failed.status}: ${body}`); }
