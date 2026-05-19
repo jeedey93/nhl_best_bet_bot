@@ -1508,18 +1508,26 @@ async function fetchLogoDataUrl(url){
     if(!res.ok) return '';
     const mime = res.headers.get('content-type') || '';
     if(mime.includes('svg') || url.endsWith('.svg')){
-      // Inject explicit width/height on the root <svg> so html2canvas never
-      // encounters a 0×0 intrinsic size when rasterising the image as a pattern.
-      let svg = await res.text();
-      svg = svg.replace(/<svg([^>]*)>/i, (m, attrs) => {
-        if(!/\bwidth\s*=/.test(attrs)) attrs += ' width="64"';
-        if(!/\bheight\s*=/.test(attrs)) attrs += ' height="64"';
-        return `<svg${attrs}>`;
+      const svg = await res.text();
+      // Rasterize SVG → PNG via blob URL so mobile browsers render it in html2canvas
+      const pngUrl = await new Promise(resolve => {
+        const blob = new Blob([svg], {type:'image/svg+xml'});
+        const blobUrl = URL.createObjectURL(blob);
+        const img = new Image();
+        img.onload = () => {
+          try {
+            const c = document.createElement('canvas');
+            c.width = 64; c.height = 64;
+            c.getContext('2d').drawImage(img, 0, 0, 64, 64);
+            URL.revokeObjectURL(blobUrl);
+            resolve(c.toDataURL('image/png'));
+          } catch(_) { URL.revokeObjectURL(blobUrl); resolve(''); }
+        };
+        img.onerror = () => { URL.revokeObjectURL(blobUrl); resolve(''); };
+        img.src = blobUrl;
       });
-      const b64 = btoa(unescape(encodeURIComponent(svg)));
-      const dataUrl = `data:image/svg+xml;base64,${b64}`;
-      _logoDataCache[url] = dataUrl;
-      return dataUrl;
+      _logoDataCache[url] = pngUrl;
+      return pngUrl;
     } else {
       // PNG/JPEG — read as data URL via FileReader
       const blob = await res.blob();
@@ -1675,11 +1683,14 @@ async function sharePersonalCard(row, rank, leaderScore, totalCount, btn){
   await resolveLogos(TEAMS.filter(t=>row.picks[t]>0));
   card.innerHTML = buildPersonalCardHTML(row, rank, leaderScore, totalCount);
 
-  // Force full layout before capture
+  // Force full layout + wait for fonts before capture
   card.style.left = '-9999px';
   card.style.visibility = 'hidden';
   void card.offsetHeight;
-  await new Promise(r=>setTimeout(r,200));
+  await Promise.all([
+    document.fonts.ready,
+    new Promise(r=>setTimeout(r,400)),
+  ]);
 
   try{
     const canvas = await html2canvas(card,{
@@ -1758,7 +1769,10 @@ async function shareLeaderboard(){
   card.style.visibility = 'hidden';
   card.style.top = '0';
   void card.offsetHeight; // force reflow
-  await new Promise(r=>setTimeout(r,200));
+  await Promise.all([
+    document.fonts.ready,
+    new Promise(r=>setTimeout(r,400)),
+  ]);
 
   try{
     const canvas = await html2canvas(card,{

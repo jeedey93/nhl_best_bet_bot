@@ -1474,7 +1474,7 @@ async function sharePersonalCard(row, rank, leaderScore, totalCount, btn){
   if(!card){ card=document.createElement('div'); card.id='share-card'; document.body.appendChild(card); }
   await resolveLogos(TEAMS.filter(t=>row.picks[t]>0));
   card.innerHTML = buildPersonalCardHTML(row, rank, leaderScore, totalCount);
-  await new Promise(r=>setTimeout(r,150));
+  await Promise.all([document.fonts.ready, new Promise(r=>setTimeout(r,400))]);
   try{
     const canvas = await html2canvas(card,{scale:2,useCORS:true,backgroundColor:'#07111f',logging:false});
     if(navigator.share && navigator.canShare){
@@ -1514,7 +1514,7 @@ async function shareLeaderboard(){
   await resolveLogos(TEAMS);
   card.innerHTML = buildShareCardHTML(rows, title, totalCount, pot, date);
 
-  await new Promise(r=>setTimeout(r,150));
+  await Promise.all([document.fonts.ready, new Promise(r=>setTimeout(r,400))]);
 
   try{
     const canvas = await html2canvas(card,{scale:2,useCORS:true,backgroundColor:'#07111f',logging:false});
