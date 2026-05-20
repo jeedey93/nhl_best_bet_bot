@@ -1498,26 +1498,38 @@
   function renderCommissionerDots() {
     const row = document.getElementById('commissioner-round-row');
     row.innerHTML = '';
-    // Show dots for first 3 rounds only to keep it compact
-    const maxRound = Math.min(3, Math.ceil(_draftQueue.length / teams.length));
-    const label = document.createElement('span');
-    label.className = 'commissioner-round-label';
-    label.textContent = 'Progress:';
-    row.appendChild(label);
-    for (let i = 0; i < Math.min(_draftQueue.length, teams.length * maxRound); i++) {
-      const { teamId, round } = _draftQueue[i];
-      const dot = document.createElement('div');
-      dot.className = 'commissioner-dot';
-      const picksDone = commissionerPickCount(teamId);
-      if (picksDone >= round) dot.classList.add('done');
-      else if (i === _draftCursor) dot.classList.add('current');
-      row.appendChild(dot);
-      // Small gap between rounds
-      if ((i + 1) % teams.length === 0 && i < teams.length * maxRound - 1) {
-        const gap = document.createElement('div');
-        gap.style.cssText = 'width:6px;height:1px;background:rgba(255,255,255,0.1);flex-shrink:0;';
-        row.appendChild(gap);
+    if (!teams.length) return;
+
+    // Show current round + next round only (one dot per team per round)
+    const currentEntry = _draftQueue[_draftCursor];
+    const currentRound = currentEntry ? currentEntry.round : 1;
+    const roundsToShow = [currentRound, currentRound + 1];
+
+    for (const round of roundsToShow) {
+      const label = document.createElement('span');
+      label.className = 'commissioner-round-label';
+      label.textContent = `R${round}:`;
+      row.appendChild(label);
+
+      // Find queue entries for this round in snake order
+      const roundEntries = _draftQueue.filter(e => e.round === round);
+      for (let i = 0; i < roundEntries.length; i++) {
+        const { teamId } = roundEntries[i];
+        const qIdx = _draftQueue.indexOf(roundEntries[i]);
+        const dot = document.createElement('div');
+        dot.className = 'commissioner-dot';
+        const picksDone = commissionerPickCount(teamId);
+        if (picksDone >= round) dot.classList.add('done');
+        else if (qIdx === _draftCursor) dot.classList.add('current');
+        const t = teams.find(x => x.id === teamId);
+        dot.title = t ? t.name : '';
+        row.appendChild(dot);
       }
+
+      // Gap between rounds
+      const gap = document.createElement('div');
+      gap.style.cssText = 'width:10px;height:1px;flex-shrink:0;';
+      row.appendChild(gap);
     }
   }
 
