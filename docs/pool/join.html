@@ -1400,6 +1400,10 @@
     }
     _isEditing=false; clearInterval(_heartbeatTimer);
     await releaseLock();
+    if (_commissionerMode) {
+      _commissionerMode = false;
+      document.getElementById('commissioner-bar').classList.remove('active');
+    }
     document.body.classList.add('view-only');
     setEditBarStatus('','View only — click Edit to make changes');
     renderAll();
