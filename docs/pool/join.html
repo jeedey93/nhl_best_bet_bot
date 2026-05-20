@@ -667,6 +667,68 @@
       .ultimate-breakdown { grid-template-columns: 1fr; }
     }
 
+    /* ── Commissioner mode ── */
+    .commissioner-bar {
+      max-width: 1100px; width: 100%; margin: 0 auto;
+      padding: 0 1.25rem 0.5rem; flex-shrink: 0;
+      display: none;
+    }
+    .commissioner-bar.active { display: block; }
+    .commissioner-banner {
+      display: flex; align-items: center; gap: 10px;
+      background: rgba(200,16,46,0.1); border: 1px solid rgba(200,16,46,0.35);
+      border-radius: 8px; padding: 8px 14px;
+    }
+    .commissioner-badge {
+      font-family: 'Bebas Neue', cursive; font-size: 0.72rem; letter-spacing: 2px;
+      background: rgba(200,16,46,0.25); border: 1px solid rgba(200,16,46,0.5);
+      color: #ff7a8a; border-radius: 4px; padding: 2px 8px; flex-shrink: 0;
+    }
+    .commissioner-now-picking {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.9rem;
+      font-weight: 600; color: rgba(255,255,255,0.5); letter-spacing: 1px;
+      flex-shrink: 0;
+    }
+    .commissioner-team-name {
+      font-family: 'Bebas Neue', cursive; font-size: 1.1rem; letter-spacing: 3px;
+      color: white; flex: 1;
+    }
+    .commissioner-pick-num {
+      font-family: 'Bebas Neue', cursive; font-size: 0.78rem; letter-spacing: 1px;
+      color: rgba(255,255,255,0.3); flex-shrink: 0;
+    }
+    .commissioner-stop-btn {
+      font-family: 'Bebas Neue', cursive; font-size: 0.78rem; letter-spacing: 1px;
+      background: none; border: 1px solid rgba(200,16,46,0.3); color: rgba(200,16,46,0.6);
+      border-radius: 4px; padding: 2px 10px; cursor: pointer; flex-shrink: 0;
+      transition: background 0.15s, color 0.15s;
+    }
+    .commissioner-stop-btn:hover { background: rgba(200,16,46,0.12); color: var(--red); }
+
+    .btn-commissioner-mode {
+      font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 2px;
+      background: rgba(200,16,46,0.1); border: 1px solid rgba(200,16,46,0.3);
+      color: rgba(200,16,46,0.7); border-radius: 6px; padding: 4px 14px;
+      cursor: pointer; transition: background 0.15s, color 0.15s, border-color 0.15s;
+    }
+    .btn-commissioner-mode:hover { background: rgba(200,16,46,0.18); color: var(--red); border-color: rgba(200,16,46,0.55); }
+
+    /* snake-style round indicator dots */
+    .commissioner-round-row {
+      display: flex; align-items: center; gap: 6px; margin-top: 6px;
+      flex-wrap: wrap;
+    }
+    .commissioner-round-label {
+      font-family: 'Bebas Neue', cursive; font-size: 0.68rem; letter-spacing: 1.5px;
+      color: rgba(255,255,255,0.25); flex-shrink: 0;
+    }
+    .commissioner-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: rgba(255,255,255,0.1); flex-shrink: 0; transition: background 0.2s;
+    }
+    .commissioner-dot.done { background: rgba(34,197,94,0.5); }
+    .commissioner-dot.current { background: var(--gold); box-shadow: 0 0 6px rgba(255,184,28,0.6); }
+
     /* ── Password gate ── */
     #pw-gate { position:fixed;inset:0;z-index:9999;background:var(--rink);display:flex;align-items:center;justify-content:center;background-image:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(26,58,110,0.6) 0%,transparent 70%); }
     .pw-box { background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:2.5rem 2rem;width:320px;max-width:90vw;text-align:center; }
@@ -814,6 +876,18 @@
   <div class="edit-bar-btns" id="edit-bar-btns">
     <button class="btn-edit-mode" id="btn-edit" onclick="startEdit()">✏ Edit</button>
   </div>
+</div>
+
+<!-- Commissioner mode banner -->
+<div class="commissioner-bar" id="commissioner-bar">
+  <div class="commissioner-banner">
+    <span class="commissioner-badge">COMMISSIONER</span>
+    <span class="commissioner-now-picking">Now picking:</span>
+    <span class="commissioner-team-name" id="commissioner-team-name">—</span>
+    <span class="commissioner-pick-num" id="commissioner-pick-num"></span>
+    <button class="commissioner-stop-btn" onclick="stopCommissionerMode()">✕ Stop</button>
+  </div>
+  <div class="commissioner-round-row" id="commissioner-round-row"></div>
 </div>
 
 <div id="pool-share-card"></div>
@@ -1287,7 +1361,7 @@
     status.className='edit-bar-status '+mode;
     msgEl.textContent=msg;
     if (mode==='editing') {
-      btns.innerHTML=`<button class="btn-save-pool" id="btn-save" onclick="commitSave()">💾 Save</button><button class="btn-cancel-edit" onclick="cancelEdit()">Cancel</button>`;
+      btns.innerHTML=`<button class="btn-commissioner-mode" id="btn-commissioner" onclick="startCommissionerMode()">🏒 Commissioner Mode</button><button class="btn-save-pool" id="btn-save" onclick="commitSave()">💾 Save</button><button class="btn-cancel-edit" onclick="cancelEdit()">Cancel</button>`;
     } else {
       btns.innerHTML=`<button class="btn-edit-mode" id="btn-edit" onclick="startEdit()" ${mode==='locked'?'disabled':''}>✏ Edit</button>`;
     }
@@ -1343,6 +1417,158 @@
   }
 
   window.addEventListener('beforeunload',()=>{ if(_isEditing&&_leagueCode) releaseLock(); });
+
+  // ── Commissioner Draft Mode ───────────────────────────────────────────────
+  let _commissionerMode = false;
+  let _draftQueue = [];   // flat ordered list of { teamId, round } for the full snake draft
+  let _draftCursor = 0;  // index into _draftQueue
+
+  function buildSnakeDraftQueue() {
+    // Build a snake draft queue: rounds × teams, reversing direction each round
+    const TOTAL_SLOTS = 20; // enough rounds to cover any reasonable draft
+    const queue = [];
+    for (let round = 0; round < TOTAL_SLOTS; round++) {
+      const order = round % 2 === 0 ? [...teams] : [...teams].reverse();
+      for (const t of order) {
+        queue.push({ teamId: t.id, round: round + 1 });
+      }
+    }
+    return queue;
+  }
+
+  function commissionerPickCount(teamId) {
+    const t = teams.find(x => x.id === teamId); if (!t) return 0;
+    return [...t.roster.F, ...t.roster.D, ...t.roster.G, ...(t.roster.B || [])].filter(Boolean).length;
+  }
+
+  function advanceDraftCursor() {
+    // Skip past picks already made for teams that are ahead in the queue
+    while (_draftCursor < _draftQueue.length) {
+      const { teamId, round } = _draftQueue[_draftCursor];
+      const picksDone = commissionerPickCount(teamId);
+      const expectedByRound = round - 1;
+      if (picksDone >= round) { _draftCursor++; continue; } // already has this pick
+      break;
+    }
+  }
+
+  function startCommissionerMode() {
+    if (teams.length < 1) { toast('Add teams first'); return; }
+    _commissionerMode = true;
+    _draftQueue = buildSnakeDraftQueue();
+    _draftCursor = 0;
+    advanceDraftCursor();
+    // Set active team to whoever picks first
+    if (_draftQueue[_draftCursor]) {
+      activeTeamId = _draftQueue[_draftCursor].teamId;
+    }
+    document.getElementById('commissioner-bar').classList.add('active');
+    updateCommissionerBanner();
+    renderAll();
+    toast('🏒 Commissioner Mode — click any player to draft them');
+  }
+
+  function stopCommissionerMode() {
+    _commissionerMode = false;
+    document.getElementById('commissioner-bar').classList.remove('active');
+    renderAll();
+    toast('Commissioner Mode off');
+  }
+
+  function updateCommissionerBanner() {
+    if (!_commissionerMode) return;
+    advanceDraftCursor();
+    const entry = _draftQueue[_draftCursor];
+    const nameEl = document.getElementById('commissioner-team-name');
+    const numEl  = document.getElementById('commissioner-pick-num');
+    if (!entry) {
+      nameEl.textContent = 'Draft Complete!';
+      numEl.textContent = '';
+      renderCommissionerDots();
+      return;
+    }
+    const t = teams.find(x => x.id === entry.teamId);
+    nameEl.textContent = t ? t.name : '—';
+    // Overall pick number
+    const overallPick = _draftCursor + 1;
+    numEl.textContent = `Pick #${overallPick} · Round ${entry.round}`;
+    renderCommissionerDots();
+  }
+
+  function renderCommissionerDots() {
+    const row = document.getElementById('commissioner-round-row');
+    row.innerHTML = '';
+    // Show dots for first 3 rounds only to keep it compact
+    const maxRound = Math.min(3, Math.ceil(_draftQueue.length / teams.length));
+    const label = document.createElement('span');
+    label.className = 'commissioner-round-label';
+    label.textContent = 'Progress:';
+    row.appendChild(label);
+    for (let i = 0; i < Math.min(_draftQueue.length, teams.length * maxRound); i++) {
+      const { teamId, round } = _draftQueue[i];
+      const dot = document.createElement('div');
+      dot.className = 'commissioner-dot';
+      const picksDone = commissionerPickCount(teamId);
+      if (picksDone >= round) dot.classList.add('done');
+      else if (i === _draftCursor) dot.classList.add('current');
+      row.appendChild(dot);
+      // Small gap between rounds
+      if ((i + 1) % teams.length === 0 && i < teams.length * maxRound - 1) {
+        const gap = document.createElement('div');
+        gap.style.cssText = 'width:6px;height:1px;background:rgba(255,255,255,0.1);flex-shrink:0;';
+        row.appendChild(gap);
+      }
+    }
+  }
+
+  function commissionerAssignPlayer(player) {
+    if (!_commissionerMode) return false;
+    advanceDraftCursor();
+    const entry = _draftQueue[_draftCursor];
+    if (!entry) { toast('Draft complete!'); return true; }
+
+    // Switch to that team
+    activeTeamId = entry.teamId;
+    const t = activeTeam();
+    const slug = player.puckpedia_slug;
+    const pos = normalizePos(player.position);
+
+    // Check not already claimed
+    if (allClaimedSlugs().has(slug)) { toast('Player already drafted'); return true; }
+
+    // Find empty slot
+    const emptyIdx = t.roster[pos].findIndex(s => s === null);
+    if (emptyIdx === -1) {
+      const benchIdx = (t.roster.B || []).findIndex(s => s === null);
+      if (benchIdx === -1) { toast(`${t.name} roster is full`); return true; }
+      t.roster.B[benchIdx] = slug;
+    } else {
+      const cap = [...activeRoster().F, ...activeRoster().D, ...activeRoster().G].filter(Boolean).reduce((s, p) => s + (p.cap_hit || 0), 0);
+      if (pos !== 'B' && cap + (player.cap_hit || 0) > CAP_MAX) {
+        toast(`Over cap for ${t.name} — skipping cap check, added to bench`);
+        const benchIdx = (t.roster.B || []).findIndex(s => s === null);
+        if (benchIdx !== -1) t.roster.B[benchIdx] = slug;
+        else { toast(`${t.name} bench is also full`); return true; }
+      } else {
+        t.roster[pos][emptyIdx] = slug;
+      }
+    }
+
+    _draftCursor++;
+    advanceDraftCursor();
+
+    // Auto-switch active team to next picker
+    const next = _draftQueue[_draftCursor];
+    if (next) activeTeamId = next.teamId;
+
+    savePool();
+    refreshRoster(); renderPool(); renderTeamSwitcher(); renderOverview();
+    updateCommissionerBanner();
+
+    const nextTeam = next ? teams.find(x => x.id === next.teamId) : null;
+    toast(`✓ ${formatName(player.player_name)} → ${t.name}${nextTeam ? ` · Now: ${nextTeam.name}` : ''}`);
+    return true;
+  }
 
   // ── Helpers ──────────────────────────────────────────────────────────────
   function normalizePos(pos) {
@@ -1551,7 +1777,14 @@
   }
   function switchTeam(id) {
     if (swapMode) cancelSwap();
-    activeTeamId=id; savePool(); renderAll();
+    activeTeamId = id;
+    // In commissioner mode, jump the draft cursor to the next pick for this team
+    if (_commissionerMode) {
+      const nextPickIdx = _draftQueue.findIndex((e, i) => i >= _draftCursor && e.teamId === id);
+      if (nextPickIdx !== -1) _draftCursor = nextPickIdx;
+      updateCommissionerBanner();
+    }
+    savePool(); renderAll();
   }
   function moveTeam(teamId, delta) {
     const from = teams.findIndex(t => t.id === teamId);
@@ -2213,6 +2446,9 @@
 
   // ── Tap-to-add ────────────────────────────────────────────────────────────
   function tapAddPlayer(player, pos) {
+    // In commissioner mode, delegate entirely to commissioner logic
+    if (_commissionerMode) { commissionerAssignPlayer(player); return; }
+
     const t = activeTeam(); if (!t) return;
     const group = pos, slug = player.puckpedia_slug;
     const claimed = allClaimedSlugs();
