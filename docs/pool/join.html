@@ -328,6 +328,19 @@
     .eff-info-tooltip strong { color: #22c55e; }
     .eff-info-btn:hover .eff-info-tooltip { display: block; }
 
+    /* ── Playoffs filter ── */
+    .playoffs-filter-row { display: flex; align-items: center; gap: 8px; margin-bottom: 0.35rem; flex-shrink: 0; }
+    .playoffs-filter-btn {
+      font-family: 'Bebas Neue', cursive; font-size: 0.75rem; letter-spacing: 2px;
+      background: rgba(255,184,28,0.06); border: 1px solid rgba(255,184,28,0.25);
+      color: rgba(255,184,28,0.7); border-radius: 5px; padding: 3px 10px;
+      cursor: pointer; transition: background 0.15s, color 0.15s, border-color 0.15s;
+      white-space: nowrap;
+    }
+    .playoffs-filter-btn:hover { background: rgba(255,184,28,0.14); color: var(--gold); border-color: rgba(255,184,28,0.5); }
+    .playoffs-filter-btn.active { background: rgba(255,184,28,0.18); color: var(--gold); border-color: rgba(255,184,28,0.6); }
+    .playoffs-filter-label { font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem; font-weight: 700; color: rgba(255,255,255,0.3); letter-spacing: 1px; }
+
     /* ── NHL team strip ── */
     .nhl-team-strip-wrap { margin-bottom: 0.45rem; flex-shrink: 0; }
     .nhl-team-strip { display: flex; gap: 3px; flex-wrap: wrap; padding-bottom: 2px; }
@@ -960,6 +973,12 @@
       </span>
     </div>
 
+    <!-- Playoffs filter -->
+    <div class="playoffs-filter-row">
+      <button class="playoffs-filter-btn" id="playoffs-filter-btn" onclick="togglePlayoffsFilter()" title="CAR · MTL · VGK · COL">🏒 Playoffs Only</button>
+      <span class="playoffs-filter-label" id="playoffs-filter-teams" style="display:none;">CAR · MTL · VGK · COL</span>
+    </div>
+
     <!-- NHL team strip -->
     <div class="nhl-team-strip-wrap">
       <div class="nhl-team-strip" id="nhl-team-strip"></div>
@@ -1051,6 +1070,8 @@
   let _heartbeatTimer = null;
   let _snapshotBeforeEdit = null;
   let activeFilter = 'F', activeNHLTeam = 'ALL', activeSort = 'points', activeSortDir = 'desc';
+  let _playoffsOnly = false;
+  const PLAYOFFS_TEAMS = new Set(['carolina-hurricanes','montreal-canadiens','vegas-golden-knights','colorado-avalanche']);
   let swapMode = null;
   let _virtualStart = 0;
   const VIRTUAL_PAGE = 60;
@@ -1691,9 +1712,23 @@
     }
   }
 
+  // ── Playoffs filter ──────────────────────────────────────────────────────
+  function togglePlayoffsFilter() {
+    _playoffsOnly = !_playoffsOnly;
+    const btn = document.getElementById('playoffs-filter-btn');
+    const label = document.getElementById('playoffs-filter-teams');
+    btn.classList.toggle('active', _playoffsOnly);
+    label.style.display = _playoffsOnly ? '' : 'none';
+    // Reset team strip selection to ALL when toggling
+    activeNHLTeam = 'ALL';
+    buildNHLTeamStrip();
+    renderPool();
+  }
+
   // ── NHL team strip ────────────────────────────────────────────────────────
   function buildNHLTeamStrip() {
-    const nhlTeams=[...new Set(allPlayers.map(p=>p.team).filter(Boolean))].sort();
+    let nhlTeams=[...new Set(allPlayers.map(p=>p.team).filter(Boolean))].sort();
+    if (_playoffsOnly) nhlTeams = nhlTeams.filter(t => PLAYOFFS_TEAMS.has(t));
     const strip=document.getElementById('nhl-team-strip'); strip.innerHTML='';
     const all=document.createElement('div');
     all.className='nhl-team-pill nhl-team-pill-all active';
@@ -1751,6 +1786,7 @@
       if (!p.player_name) continue;
       if (activeFilter !== 'ALL' && normalizePos(p.position) !== activeFilter) continue;
       if (activeNHLTeam !== 'ALL' && p.team !== activeNHLTeam) continue;
+      if (_playoffsOnly && !PLAYOFFS_TEAMS.has(p.team)) continue;
       if (query && !p.player_name.toLowerCase().includes(query) &&
           !(formatName(p.player_name).toLowerCase().includes(query))) continue;
       // salary filter (only on available players)
