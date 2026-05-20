@@ -511,9 +511,9 @@
         }
 
         .top-players-list { background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; margin-bottom: 1.75rem; }
-        .top-player-row { display: grid; grid-template-columns: 30px 1fr 80px 80px 60px; align-items: center; padding: 0.55rem 1rem; gap: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .top-player-row { display: grid; grid-template-columns: 30px 1fr 70px 36px 36px 36px 52px; align-items: center; padding: 0.55rem 1rem; gap: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
         @media (max-width: 560px) {
-          .top-player-row { grid-template-columns: 30px 1fr 60px 60px; }
+          .top-player-row { grid-template-columns: 30px 1fr 56px 32px 32px 44px; }
           .top-col-hide { display: none; }
         }
         .top-player-row:last-child { border-bottom: none; }
@@ -1408,14 +1408,18 @@
             <div></div>
             <div class="lb-col-label left">Player</div>
             <div class="lb-col-label">Owner</div>
-            <div class="lb-col-label top-col-hide">Owned Stats</div>
+            <div class="lb-col-label">GP</div>
+            <div class="lb-col-label top-col-hide">G</div>
+            <div class="lb-col-label top-col-hide">A</div>
             <div class="lb-col-label">Pts</div>
           </div>
           ${allS.map((item, i) => {
             const p = item.player;
             const abbr = TEAM_ABBR[p.team];
             const logo = abbr ? `<img class="top-player-logo" src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}">` : '';
-            const stat = ownedStatsLabel(p, item.team, p._slug).replace(/ · /g, ' ');
+            const d = ownedStatsDelta(p, item.team, p._slug);
+            const s1 = d.pos === 'G' ? d.wins   : d.goals;
+            const s2 = d.pos === 'G' ? d.shutouts : d.assists;
             return `<div class="top-player-row">
               <div class="top-player-rank">${i+1}</div>
               <div class="top-player-info">${logo}
@@ -1425,7 +1429,9 @@
                 <span class="pos-pill ${item.pos}">${item.pos}</span>
               </div>
               <div class="top-player-owner">${item.owner}</div>
-              <div class="top-player-stat top-col-hide">${stat || '—'}</div>
+              <div class="top-player-stat">${d.gamesPlayed}</div>
+              <div class="top-player-stat top-col-hide">${s1}</div>
+              <div class="top-player-stat top-col-hide">${s2}</div>
               <div class="top-player-pts">${item.pts}</div>
             </div>`;
           }).join('')}
