@@ -729,6 +729,64 @@
     .commissioner-dot.done { background: rgba(34,197,94,0.5); }
     .commissioner-dot.current { background: var(--gold); box-shadow: 0 0 6px rgba(255,184,28,0.6); }
 
+    /* ── Draft log ── */
+    .draft-log-wrap {
+      max-width: 1100px; width: 100%; margin: 0 auto;
+      padding: 0 1.25rem 0.5rem; flex-shrink: 0;
+      display: none;
+    }
+    .draft-log-wrap.active { display: block; }
+    .draft-log-toggle {
+      width: 100%; display: flex; align-items: center; gap: 8px;
+      background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 6px; padding: 5px 12px; cursor: pointer;
+      font-family: 'Bebas Neue', cursive; font-size: 0.78rem; letter-spacing: 2px;
+      color: rgba(255,255,255,0.4); transition: background 0.15s;
+    }
+    .draft-log-toggle:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.7); }
+    .draft-log-toggle-label { flex: 1; text-align: left; }
+    .draft-log-badge {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem; font-weight: 700;
+      background: rgba(255,184,28,0.12); border: 1px solid rgba(255,184,28,0.25);
+      color: rgba(255,184,28,0.7); border-radius: 10px; padding: 1px 7px;
+    }
+    .draft-log-list {
+      margin-top: 4px; max-height: 180px; overflow-y: auto;
+      border: 1px solid rgba(255,255,255,0.07); border-radius: 6px;
+      background: rgba(0,0,0,0.2);
+    }
+    .draft-log-list::-webkit-scrollbar { width: 3px; }
+    .draft-log-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+    .draft-log-list.collapsed { display: none; }
+    .draft-log-entry {
+      display: flex; align-items: center; gap: 8px;
+      padding: 5px 10px; border-bottom: 1px solid rgba(255,255,255,0.04);
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.85rem;
+    }
+    .draft-log-entry:last-child { border-bottom: none; }
+    .draft-log-pick-num {
+      font-family: 'Bebas Neue', cursive; font-size: 0.72rem; letter-spacing: 1px;
+      color: rgba(255,255,255,0.2); min-width: 52px; flex-shrink: 0;
+    }
+    .draft-log-team {
+      font-family: 'Bebas Neue', cursive; font-size: 0.78rem; letter-spacing: 1.5px;
+      color: var(--gold); min-width: 80px; flex-shrink: 0;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .draft-log-arrow { color: rgba(255,255,255,0.2); flex-shrink: 0; font-size: 0.75rem; }
+    .draft-log-player { color: white; font-weight: 700; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .draft-log-pos {
+      font-family: 'Bebas Neue', cursive; font-size: 0.65rem; letter-spacing: 1px;
+      padding: 1px 4px; border-radius: 3px; flex-shrink: 0;
+    }
+    .draft-log-pos.F { background: rgba(200,16,46,0.18); color: #ff7a8a; }
+    .draft-log-pos.D { background: rgba(26,58,110,0.45); color: #7db4ff; }
+    .draft-log-pos.G { background: rgba(255,184,28,0.14); color: var(--gold); }
+    .draft-log-empty {
+      padding: 12px; text-align: center; font-family: 'Bebas Neue', cursive;
+      font-size: 0.78rem; letter-spacing: 2px; color: rgba(255,255,255,0.2);
+    }
+
     /* ── Password gate ── */
     #pw-gate { position:fixed;inset:0;z-index:9999;background:var(--rink);display:flex;align-items:center;justify-content:center;background-image:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(26,58,110,0.6) 0%,transparent 70%); }
     .pw-box { background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:2.5rem 2rem;width:320px;max-width:90vw;text-align:center; }
@@ -888,6 +946,17 @@
     <button class="commissioner-stop-btn" onclick="stopCommissionerMode()">✕ Stop</button>
   </div>
   <div class="commissioner-round-row" id="commissioner-round-row"></div>
+</div>
+
+<!-- Draft log -->
+<div class="draft-log-wrap" id="draft-log-wrap">
+  <button class="draft-log-toggle" onclick="toggleDraftLog()">
+    <span class="draft-log-toggle-label" id="draft-log-toggle-label">▾ Draft Log</span>
+    <span class="draft-log-badge" id="draft-log-badge">0 picks</span>
+  </button>
+  <div class="draft-log-list" id="draft-log-list">
+    <div class="draft-log-empty">No picks yet</div>
+  </div>
 </div>
 
 <div id="pool-share-card"></div>
@@ -1403,6 +1472,7 @@
     if (_commissionerMode) {
       _commissionerMode = false;
       document.getElementById('commissioner-bar').classList.remove('active');
+      document.getElementById('draft-log-wrap').classList.remove('active');
     }
     document.body.classList.add('view-only');
     setEditBarStatus('','View only — click Edit to make changes');
@@ -1426,6 +1496,33 @@
   let _commissionerMode = false;
   let _draftQueue = [];   // flat ordered list of { teamId, round } for the full snake draft
   let _draftCursor = 0;  // index into _draftQueue
+  let _draftLog = [];    // { pickNum, round, teamName, playerName, pos }
+  let _draftLogOpen = true;
+
+  function toggleDraftLog() {
+    _draftLogOpen = !_draftLogOpen;
+    document.getElementById('draft-log-list').classList.toggle('collapsed', !_draftLogOpen);
+    document.getElementById('draft-log-toggle-label').textContent = (_draftLogOpen ? '▾' : '▸') + ' Draft Log';
+  }
+
+  function renderDraftLog() {
+    const list = document.getElementById('draft-log-list');
+    const badge = document.getElementById('draft-log-badge');
+    badge.textContent = `${_draftLog.length} pick${_draftLog.length !== 1 ? 's' : ''}`;
+    if (!_draftLog.length) {
+      list.innerHTML = '<div class="draft-log-empty">No picks yet</div>';
+      return;
+    }
+    // Render newest pick first
+    list.innerHTML = [..._draftLog].reverse().map(entry => `
+      <div class="draft-log-entry">
+        <span class="draft-log-pick-num">R${entry.round} P${entry.pickNum}</span>
+        <span class="draft-log-team">${entry.teamName}</span>
+        <span class="draft-log-arrow">›</span>
+        <span class="draft-log-player">${entry.playerName}</span>
+        <span class="draft-log-pos ${entry.pos}">${entry.pos}</span>
+      </div>`).join('');
+  }
 
   function buildSnakeDraftQueue() {
     // Build a snake draft queue: rounds × teams, reversing direction each round
@@ -1461,12 +1558,16 @@
     _commissionerMode = true;
     _draftQueue = buildSnakeDraftQueue();
     _draftCursor = 0;
+    _draftLog = [];
     advanceDraftCursor();
     // Set active team to whoever picks first
     if (_draftQueue[_draftCursor]) {
       activeTeamId = _draftQueue[_draftCursor].teamId;
     }
     document.getElementById('commissioner-bar').classList.add('active');
+    document.getElementById('draft-log-wrap').classList.add('active');
+    _draftLogOpen = true;
+    renderDraftLog();
     updateCommissionerBanner();
     renderAll();
     toast('🏒 Commissioner Mode — click any player to draft them');
@@ -1475,6 +1576,7 @@
   function stopCommissionerMode() {
     _commissionerMode = false;
     document.getElementById('commissioner-bar').classList.remove('active');
+    document.getElementById('draft-log-wrap').classList.remove('active');
     renderAll();
     toast('Commissioner Mode off');
   }
@@ -1572,6 +1674,16 @@
 
     _draftCursor++;
     advanceDraftCursor();
+
+    // Log the pick
+    _draftLog.push({
+      pickNum: _draftLog.length + 1,
+      round: entry.round,
+      teamName: t.name,
+      playerName: formatName(player.player_name),
+      pos: normalizePos(player.position),
+    });
+    renderDraftLog();
 
     // Auto-switch active team to next picker
     const next = _draftQueue[_draftCursor];
