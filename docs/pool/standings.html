@@ -457,7 +457,7 @@
         .pos-leader-row:last-child { border-bottom: none; }
         .pos-leader-rank { font-family: 'Bebas Neue', cursive; font-size: 0.9rem; color: var(--silver); min-width: 16px; text-align: center; }
         .pos-leader-name { font-size: 0.85rem; font-weight: 700; color: white; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .pos-leader-owner { font-size: 0.68rem; font-weight: 700; color: var(--gold); background: rgba(255,184,28,0.08); border-radius: 3px; padding: 1px 5px; flex-shrink: 0; white-space: nowrap; max-width: 70px; overflow: hidden; text-overflow: ellipsis; }
+        .pos-leader-owner { font-size: 0.68rem; font-weight: 700; border-radius: 3px; padding: 1px 5px; flex-shrink: 0; white-space: nowrap; max-width: 70px; overflow: hidden; text-overflow: ellipsis; }
         .pos-leader-team { font-family: 'Bebas Neue', cursive; font-size: 0.75rem; letter-spacing: 1px; color: var(--silver); flex-shrink: 0; }
         .pos-leader-pts { font-family: 'Bebas Neue', cursive; font-size: 0.95rem; letter-spacing: 1px; color: white; min-width: 28px; text-align: right; flex-shrink: 0; }
 
@@ -522,7 +522,7 @@
         .top-player-info { display: flex; align-items: center; gap: 0.5rem; min-width: 0; }
         .top-player-logo { width: 20px; height: 20px; object-fit: contain; flex-shrink: 0; }
         .top-player-name { font-size: 0.9rem; font-weight: 700; color: white; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .top-player-owner { font-size: 0.75rem; font-weight: 600; color: var(--gold); background: rgba(255,184,28,0.08); border-radius: 3px; padding: 1px 6px; white-space: nowrap; }
+        .top-player-owner { font-size: 0.75rem; font-weight: 600; border-radius: 3px; padding: 1px 6px; white-space: nowrap; }
         .top-player-stat { font-size: 0.8rem; font-weight: 700; color: var(--silver); text-align: right; }
         .top-player-pts { font-family: 'Bebas Neue', cursive; font-size: 1rem; color: var(--gold); text-align: right; }
 
@@ -948,7 +948,35 @@
       const acqDate = (typeof acqRaw === 'object' && acqRaw?.date) ? new Date(acqRaw.date) : null;
       return (acqDate && !Number.isNaN(acqDate.getTime())) ? acqDate : ACTIVE_ACQUIRED_FALLBACK_DATE;
     }
-    function teamSubScores(team) {
+    function teamColor(name) {
+      if (!teamColor._cache) teamColor._cache = {};
+      if (teamColor._cache[name]) return teamColor._cache[name];
+      const PALETTE = [
+        { fg: '#60a5fa', bg: 'rgba(96,165,250,0.12)' },   // blue
+        { fg: '#34d399', bg: 'rgba(52,211,153,0.12)' },   // green
+        { fg: '#f472b6', bg: 'rgba(244,114,182,0.12)' },  // pink
+        { fg: '#fb923c', bg: 'rgba(251,146,60,0.12)' },   // orange
+        { fg: '#a78bfa', bg: 'rgba(167,139,250,0.12)' },  // purple
+        { fg: '#2dd4bf', bg: 'rgba(45,212,191,0.12)' },   // teal
+        { fg: '#facc15', bg: 'rgba(250,204,21,0.12)' },   // yellow
+        { fg: '#f87171', bg: 'rgba(248,113,113,0.12)' },  // red
+        { fg: '#4ade80', bg: 'rgba(74,222,128,0.12)' },   // lime
+        { fg: '#38bdf8', bg: 'rgba(56,189,248,0.12)' },   // sky
+      ];
+      // Assign colors in order of first appearance across all teams
+      const allNames = [...new Set(teams.map(t => t.name))];
+      allNames.forEach((n, i) => {
+        teamColor._cache[n] = PALETTE[i % PALETTE.length];
+      });
+      return teamColor._cache[name] || PALETTE[0];
+    }
+
+    function ownerBadge(ownerName) {
+      const { fg, bg } = teamColor(ownerName);
+      return `style="color:${fg};background:${bg}"`;
+    }
+
+
       if (!_cache.subScores) _cache.subScores = {};
       if (_cache.subScores[team.id]) return _cache.subScores[team.id];
       const r = rosterPlayers(team.roster);
@@ -1384,7 +1412,7 @@
                   <div class="pos-leader-rank">${i+1}</div>
                   <div class="pos-leader-name">${formatName(item.player.player_name)}</div>
                   <div class="pos-leader-team">${abbr||'—'}</div>
-                  <div class="pos-leader-owner">${item.owner}</div>
+                  <div class="pos-leader-owner" ${ownerBadge(item.owner)}>${item.owner}</div>
                   <div class="pos-leader-pts">${item.pts}</div>
                 </div>`;
               }).join('')}
@@ -1428,7 +1456,7 @@
                 </div>
                 <span class="pos-pill ${item.pos}">${item.pos}</span>
               </div>
-              <div class="top-player-owner">${item.owner}</div>
+              <div class="top-player-owner" ${ownerBadge(item.owner)}>${item.owner}</div>
               <div class="top-player-stat">${d.gamesPlayed}</div>
               <div class="top-player-stat top-col-hide">${s1}</div>
               <div class="top-player-stat top-col-hide">${s2}</div>
