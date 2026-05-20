@@ -1401,7 +1401,7 @@
         <div class="pool-section-title">Position <span>Leaders</span></div>
         <div class="pos-leaders-grid">
           ${['F','D','G'].map(pos => {
-            const slice = byPos[pos].slice(0, 8);
+            const slice = byPos[pos].slice(0, 10);
             const colTotal = slice.reduce((s, item) => s + item.pts, 0);
             grandTotal += colTotal;
             return `<div class="pos-leader-col">
@@ -1417,14 +1417,14 @@
                 </div>`;
               }).join('')}
               <div class="pos-leader-total">
-                <span class="pos-leader-total-label">Top 8 total</span>
+                <span class="pos-leader-total-label">Top 10 total</span>
                 <span class="pos-leader-total-pts">${colTotal} pts</span>
               </div>
             </div>`;
           }).join('')}
         </div>
         <div class="pos-leaders-grand-total">
-          Combined top-8 pool pts across all positions <strong>${grandTotal}</strong>
+          Combined top-10 pool pts across all positions <strong>${grandTotal}</strong>
         </div>`;
 
       const allS = drafted.map(({ player, owner, pos, team }) => ({ player, owner, pos, team, pts: poolScoreOwned(player, team, player._slug) })).sort((a, b) => b.pts - a.pts).slice(0, 10);
