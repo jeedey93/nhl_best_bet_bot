@@ -211,7 +211,7 @@
 
         .lb-row {
           display: grid;
-          grid-template-columns: 36px 1fr 44px 44px 44px 44px 44px 44px 60px 56px 60px;
+          grid-template-columns: 36px 1fr 60px 56px 60px;
           align-items: center; padding: 0.65rem 1rem; gap: 0.5rem;
           border-bottom: 1px solid rgba(255,255,255,0.05);
           cursor: pointer; transition: background 0.15s, box-shadow 0.15s;
@@ -1192,14 +1192,8 @@
         const row = `<div class="lb-row${tierCls}${isActive ? ' active' : ''}" onclick="selectTeam('${t.id}')">
           <div class="lb-rank ${rankCls}">${rankInner}</div>
           <div class="lb-name">${t.name}</div>
-          <div class="lb-stat lb-col-hide">${ownedGP}</div>
-          <div class="lb-stat lb-col-hide">${ownedG}</div>
-          <div class="lb-stat lb-col-hide">${ownedA}</div>
-          <div class="lb-stat lb-col-hide">${ownedW}</div>
-          <div class="lb-stat lb-col-hide">${ownedSO}</div>
-          <div class="lb-stat lb-col-hide">${ownedOTL}</div>
           <div class="lb-stat pts">${pts}</div>
-          <div class="lb-stat lb-col-hide"><span class="col-tooltip-wrap">${ppg}</span></div>
+          <div class="lb-stat lb-col-hide"><span class="col-tooltip-wrap">${ppg}<span class="col-tip">Pool pts per game played since acquisition</span></span></div>
           <div class="lb-stat ${i===0?'gap leader':'gap'}">${gap}</div>
         </div>`;
 
@@ -1210,12 +1204,6 @@
         <div class="lb-row header">
           <div></div>
           <div class="lb-col-label left">Team</div>
-          <div class="lb-col-label lb-col-hide">GP</div>
-          <div class="lb-col-label lb-col-hide">G</div>
-          <div class="lb-col-label lb-col-hide">A</div>
-          <div class="lb-col-label lb-col-hide">W</div>
-          <div class="lb-col-label lb-col-hide">SO</div>
-          <div class="lb-col-label lb-col-hide">OTL</div>
           <div class="lb-col-label">Pts</div>
           <div class="lb-col-label lb-col-hide"><span class="col-tooltip-wrap">Pt/GP<span class="col-tip">Pool pts per game played since acquisition</span></span></div>
           <div class="lb-col-label">Gap</div>
