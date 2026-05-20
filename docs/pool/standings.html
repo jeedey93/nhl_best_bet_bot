@@ -922,8 +922,8 @@
 
     function ownedStatsLabel(p, team, slug) {
       const d = ownedStatsDelta(p, team, slug);
-      if (d.pos === 'G') return `${d.wins}W · ${d.shutouts}SO · ${d.gamesPlayed}GP`;
-      return `${d.goals}G · ${d.assists}A · ${d.points}PTS · ${d.gamesPlayed}GP`;
+      if (d.pos === 'G') return `${d.gamesPlayed}GP · ${d.wins}W · ${d.shutouts}SO`;
+      return `${d.gamesPlayed}GP · ${d.goals}G · ${d.assists}A · ${d.points}PTS`;
     }
 
     // ── ROSTER HELPERS ───────────────────────────────────────────────────────────
@@ -1275,7 +1275,7 @@
           <div class="lb-col-label left">Player</div>
           <div class="lb-col-label">Tenure</div>
           ${pos==='G'
-            ? `${sortHdr('w','W')}${sortHdr('so','SO')}${sortHdr('gp','GP')}`
+            ? `${sortHdr('gp','GP')}${sortHdr('w','W')}${sortHdr('so','SO')}`
             : `${sortHdr('gp','GP')}${sortHdr('g','G')}<div class="lb-col-label hist-col-hide">${sortHdr('a','A')}</div>`}
           ${sortHdr('pts','Pts')}
         </div>`;
@@ -1297,7 +1297,7 @@
         if (isCurrent && p) {
           const d = ownedStatsDelta(p, team, p._slug);
           gp=d.gamesPlayed; g=d.goals; a=d.assists; w=d.wins; so=d.shutouts;
-          if (pos === 'G') { col1 = w; col2 = so; col3 = gp; }
+          if (pos === 'G') { col1 = gp; col2 = w; col3 = so; }
           else             { col1 = gp; col2 = g; col3 = a; }
           pts = poolScoreOwned(p, team, p._slug);
         } else {
@@ -1312,7 +1312,7 @@
         const d = ownedStatsDelta(p, team, p._slug);
         const gp=d.gamesPlayed, g=d.goals, a=d.assists, w=d.wins, so=d.shutouts;
         let col1='—', col2='—', col3='—';
-        if (pos === 'G') { col1 = w; col2 = so; col3 = gp; }
+        if (pos === 'G') { col1 = gp; col2 = w; col3 = so; }
         else             { col1 = gp; col2 = g; col3 = a; }
         const pts = poolScoreOwned(p, team, p._slug);
         const acqDate = resolveActiveAcquiredDate(team, p._slug);
@@ -1335,7 +1335,7 @@
           <span class="hist-tenure">${r.tenure}</span>
           <span class="hist-stat">${r.col1}</span>
           <span class="hist-stat">${r.col2}</span>
-          <span class="hist-stat hist-col-hide">${r.col3}</span>
+          <span class="hist-stat${pos==='G'?'':' hist-col-hide'}">${r.col3}</span>
           <span class="hist-pts">${r.pts}</span>
         </div>`);
 
@@ -1350,7 +1350,7 @@
           <div></div>
           <div class="lb-col-label left" style="font-size:0.75rem">TOTAL</div>
           <div></div><div></div><div></div>
-          <div class="hist-col-hide"></div>
+          <div class="${pos==='G'?'':'hist-col-hide'}"></div>
           <div class="hist-pts total">${total}</div>
         </div>
       </div>`;
