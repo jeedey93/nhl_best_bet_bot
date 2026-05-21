@@ -211,7 +211,7 @@
 
         .lb-row {
           display: grid;
-          grid-template-columns: 36px 1fr 60px 56px 60px;
+          grid-template-columns: 36px 1fr 44px 52px 52px 52px 60px 60px;
           align-items: center; padding: 0.65rem 1rem; gap: 0.5rem;
           border-bottom: 1px solid rgba(255,255,255,0.05);
           cursor: pointer; transition: background 0.15s, box-shadow 0.15s;
@@ -259,6 +259,9 @@
         .lb-row.active .lb-stat.pts { color: var(--gold); }
         .lb-stat.gap { color: rgba(255,80,80,0.7); font-size: 0.8rem; }
         .lb-stat.gap.leader { color: var(--green); }
+        .lb-stat.pos-f { color: var(--pink); }
+        .lb-stat.pos-d { color: var(--blue); }
+        .lb-stat.pos-g { color: var(--gold); }
         @media (min-width: 861px) { .lb-stat { font-size: 1rem; } .lb-stat.pts { font-size: 1.2rem; } }
         .lb-col-label { font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem; font-weight: 700; color: rgba(255,255,255,0.3); text-align: right; letter-spacing: 2px; text-transform: uppercase; }
         .lb-col-label.left { text-align: left; }
@@ -1245,25 +1248,16 @@
       return cards.length ? `<div class="insights">${cards.join('')}</div>` : '';
     }
 
-    // ── LEADERBOARD ───────────────────────────────────────────────────────────────
     function buildLeaderboard(sorted, leaderPts) {
       const n = sorted.length;
       const rowsHtml = sorted.map((t, i) => {
         const pts = teamTotalPts(t);
+        const sub = teamSubScores(t);
         const gap = i === 0 ? 'Leader' : `−${leaderPts - pts}`;
         const rp = rosterPlayers(t.roster);
-
-        let ownedGP = 0, ownedG = 0, ownedA = 0, ownedW = 0, ownedSO = 0, ownedOTL = 0;
-        [...rp.F, ...rp.D, ...rp.G].filter(Boolean).forEach(p => {
-          const d = ownedStatsDelta(p, t, p._slug);
-          ownedGP  += d?.gamesPlayed ?? 0;
-          ownedG   += d?.goals       ?? 0;
-          ownedA   += d?.assists     ?? 0;
-          ownedW   += d?.wins        ?? 0;
-          ownedSO  += d?.shutouts    ?? 0;
-          ownedOTL += d?.otLosses    ?? 0;
-        });
-        const ppg = ownedGP > 0 ? (pts / ownedGP).toFixed(2) : '—';
+        const ownedGP = [...rp.F, ...rp.D, ...rp.G].filter(Boolean).reduce((s, p) => {
+          return s + (ownedStatsDelta(p, t, p._slug)?.gamesPlayed ?? 0);
+        }, 0);
 
         const rankNum = i + 1;
         const rankCls = rankNum === 1 ? 'gold' : rankNum === 2 ? 'silver' : rankNum === 3 ? 'bronze' : '';
@@ -1276,8 +1270,11 @@
         const row = `<div class="lb-row${tierCls}${isActive ? ' active' : ''}" onclick="selectTeam('${t.id}')">
           <div class="lb-rank ${rankCls}">${rankInner}</div>
           <div class="lb-name">${t.name}</div>
+          <div class="lb-stat lb-col-hide">${ownedGP}</div>
+          <div class="lb-stat lb-col-hide pos-f">${sub.F}</div>
+          <div class="lb-stat lb-col-hide pos-d">${sub.D}</div>
+          <div class="lb-stat lb-col-hide pos-g">${sub.G}</div>
           <div class="lb-stat pts">${pts}</div>
-          <div class="lb-stat lb-col-hide"><span class="col-tooltip-wrap">${ppg}<span class="col-tip">Pool pts per game played since acquisition</span></span></div>
           <div class="lb-stat ${i===0?'gap leader':'gap'}">${gap}</div>
         </div>`;
 
@@ -1288,8 +1285,11 @@
         <div class="lb-row header">
           <div></div>
           <div class="lb-col-label left">Team</div>
-          <div class="lb-col-label">Pts</div>
-          <div class="lb-col-label lb-col-hide"><span class="col-tooltip-wrap">Pt/GP<span class="col-tip">Pool pts per game played since acquisition</span></span></div>
+          <div class="lb-col-label lb-col-hide">GP</div>
+          <div class="lb-col-label lb-col-hide" style="color:var(--pink)">F</div>
+          <div class="lb-col-label lb-col-hide" style="color:var(--blue)">D</div>
+          <div class="lb-col-label lb-col-hide" style="color:var(--gold)">G</div>
+          <div class="lb-col-label">Total</div>
           <div class="lb-col-label">Gap</div>
         </div>
         ${rowsHtml}
