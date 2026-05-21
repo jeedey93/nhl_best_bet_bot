@@ -1138,23 +1138,110 @@
     }
 
     // ── INSIGHTS ─────────────────────────────────────────────────────────────────
+    const SNAPSHOT_KEY = 'hp_pts_snapshot';
+
+    function savePtsSnapshot() {
+      const today = new Date().toISOString().slice(0, 10);
+      const snap = { date: today, pts: {} };
+      teams.forEach(t => { snap.pts[t.id] = teamTotalPts(t); });
+      try { localStorage.setItem(SNAPSHOT_KEY, JSON.stringify(snap)); } catch(_) {}
+    }
+
+    function loadPtsSnapshot() {
+      try {
+        const raw = localStorage.getItem(SNAPSHOT_KEY);
+        if (!raw) return null;
+        const snap = JSON.parse(raw);
+        const today = new Date().toISOString().slice(0, 10);
+        if (snap.date === today) return null; // same day — no delta yet
+        return snap;
+      } catch(_) { return null; }
+    }
+
     function buildInsights(sorted, leaderPts) {
       const card = (color, icon, label, main, sub) =>
         `<div class="insight-card ${color}"><div class="insight-icon">${icon}</div><div class="insight-label">${label}</div><div class="insight-main ${color}">${main}</div><div class="insight-sub">${sub}</div></div>`;
       const cards = [];
+
+      // 1. Leading / Closest Race
       if (sorted.length >= 2) {
         const gap = leaderPts - teamTotalPts(sorted[1]);
         if (gap <= 15) cards.push(card('gold','🏆','Closest Race',`${sorted[0].name} vs ${sorted[1].name}`,`Only ${gap} pts separate 1st and 2nd`));
         else cards.push(card('gold','👑','Leading', sorted[0].name, `${gap} pts ahead of ${sorted[1].name}`));
       }
+
+      // 2. Best Efficiency
       const effTeams = sorted.map(t => { const cap = teamCapUsed(t.roster), pts = teamTotalPts(t); return { t, eff: cap > 0 ? pts / (cap / 1e6) : 0 }; }).filter(x => x.eff > 0).sort((a, b) => b.eff - a.eff);
       if (effTeams.length) { const best = effTeams[0]; cards.push(card('green','⚡','Best Efficiency', best.t.name, `${best.eff.toFixed(2)} pts per $M — best in pool`)); }
+
+      // 3. Best Steal
       const allP = [];
       teams.forEach(t => { const rp = rosterPlayers(t.roster); [...rp.F, ...rp.D, ...rp.G].filter(Boolean).forEach(p => { const pts = poolScoreOwned(p, t, p._slug), capM = (p.cap_hit || 0) / 1e6; if (pts > 0 && capM > 0) allP.push({ p, t, pts, capM, ratio: pts / capM }); }); });
       allP.sort((a, b) => b.ratio - a.ratio);
       if (allP.length) { const steal = allP[0]; cards.push(card('blue','🚀','Best Steal', formatName(steal.p.player_name), `${steal.pts} pts · $${steal.capM.toFixed(1)}M · owned by ${steal.t.name}`)); }
+
+      // 4. Worst Contract
       const expensive = allP.filter(x => x.capM >= 2 && x.pts >= 1).sort((a, b) => a.ratio - b.ratio);
       if (expensive.length) { const bust = expensive[0]; cards.push(card('red','💸','Worst Contract', formatName(bust.p.player_name), `${bust.pts} pts · $${bust.capM.toFixed(1)}M · owned by ${bust.t.name}`)); }
+
+      // 5. Biggest Mover (yesterday → today delta via localStorage snapshot)
+      const snap = loadPtsSnapshot();
+      if (snap) {
+        const movers = sorted.map(t => {
+          const prev = snap.pts?.[t.id];
+          if (prev === undefined) return null;
+          return { t, delta: teamTotalPts(t) - prev };
+        }).filter(x => x && x.delta > 0).sort((a, b) => b.delta - a.delta);
+        if (movers.length) {
+          const top = movers[0];
+          cards.push(card('green','📈','Biggest Mover', top.t.name, `+${top.delta} pts since yesterday`));
+        }
+      }
+      savePtsSnapshot();
+
+      // 6. Biggest Carry
+      const carryData = [];
+      teams.forEach(t => {
+        const total = teamTotalPts(t);
+        if (total <= 0) return;
+        const rp = rosterPlayers(t.roster);
+        [...rp.F, ...rp.D, ...rp.G].filter(Boolean).forEach(p => {
+          const pts = poolScoreOwned(p, t, p._slug);
+          if (pts > 0) carryData.push({ p, t, pts, pct: pts / total });
+        });
+      });
+      carryData.sort((a, b) => b.pct - a.pct);
+      if (carryData.length) {
+        const top = carryData[0];
+        cards.push(card('blue','🏋️','Biggest Carry', formatName(top.p.player_name), `${top.pts} pts — ${Math.round(top.pct * 100)}% of ${top.t.name}'s total`));
+      }
+
+      // 7. Coldest Team — position group ranked last in the pool
+      const posGroups = [];
+      teams.forEach(t => {
+        ['F','D','G'].forEach(pos => {
+          posGroups.push({ t, pos, score: teamSubScores(t)[pos] });
+        });
+      });
+      // For each position, find the last-ranked team
+      const coldCandidates = [];
+      ['F','D','G'].forEach(pos => {
+        const ranked = [...teams].map(t => ({ t, score: teamSubScores(t)[pos] })).sort((a, b) => a.score - b.score);
+        const last = ranked[0];
+        // Only flag if at least one other team has meaningfully more pts in that pos
+        const second = ranked[1];
+        if (last && second && second.score - last.score >= 5) {
+          coldCandidates.push({ t: last.t, pos, score: last.score, gap: second.score - last.score });
+        }
+      });
+      // Pick the position group with the largest gap to second-last
+      coldCandidates.sort((a, b) => b.gap - a.gap);
+      if (coldCandidates.length) {
+        const cold = coldCandidates[0];
+        const posLabel = { F: 'Forwards', D: 'Defence', G: 'Goalies' }[cold.pos];
+        cards.push(card('red','🥶','Coldest Team', cold.t.name, `${posLabel} last in pool with ${cold.score} pts`));
+      }
+
       return cards.length ? `<div class="insights">${cards.join('')}</div>` : '';
     }
 
