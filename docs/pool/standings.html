@@ -402,35 +402,32 @@
         .hist-table { background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; margin-bottom: 1.25rem; }
 
         /*
-         * FIX 1: Tenure is now always visible; GP (games-played) is the hidden column on mobile.
-         * Grid cols: pos-badge | name | tenure | stat1 | stat2 | [GP — hidden] | pts
+         * Grid cols: pos-badge | name | stat1 | stat2 | [stat3 — hidden] | pts
          */
         .hist-header-row,
         .hist-row {
           display: grid;
-          grid-template-columns: 28px 1fr 80px 40px 40px 40px 60px;
+          grid-template-columns: 28px 1fr 40px 40px 40px 60px;
           gap: 0.4rem; padding: 0.45rem 0.75rem; align-items: center;
         }
-        /* On mobile: drop the 6th column (GP / assists) — Tenure stays visible */
         @media (max-width: 560px) {
           .hist-header-row,
-          .hist-row { grid-template-columns: 28px 1fr 70px 36px 36px 56px; }
+          .hist-row { grid-template-columns: 28px 1fr 36px 36px 56px; }
           .hist-col-hide { display: none; }
         }
         .hist-header-row { background: rgba(255,255,255,0.04); border-bottom: 1px solid rgba(255,255,255,0.1); padding: 0.35rem 0.75rem; }
         .hist-row { border-bottom: 1px solid rgba(255,255,255,0.04); }
         .hist-row:last-child { border-bottom: none; }
-        .hist-row.past    { background: rgba(255,80,80,0.04); }
+        .hist-row.past    { opacity: 0.45; }
         .hist-row.current { background: rgba(34,197,94,0.04); }
-        .hist-row.total   { background: rgba(255,255,255,0.04); border-top: 1px solid rgba(255,255,255,0.1); }
+        .hist-row.total   { background: rgba(255,255,255,0.04); border-top: 1px solid rgba(255,255,255,0.1); opacity: 1; }
         .hist-pos { font-family: 'Bebas Neue', cursive; font-size: 0.7rem; letter-spacing: 1px; border-radius: 3px; padding: 1px 5px; text-align: center; }
         .hist-pos.F { background: rgba(255,122,138,0.15); color: var(--pink); }
         .hist-pos.D { background: rgba(125,180,255,0.15); color: var(--blue); }
         .hist-pos.G { background: rgba(255,184,28,0.15);  color: var(--gold); }
-        .hist-name { font-size: 0.9rem; font-weight: 700; color: white; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: flex; align-items: center; gap: 0.4rem; }
-        .hist-name.past { color: var(--silver); }
+        .hist-name { font-size: 0.9rem; font-weight: 700; color: white; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: flex; align-items: center; gap: 0.4rem; cursor: default; }
+        .hist-name.past { color: var(--silver); text-decoration: line-through; text-decoration-color: rgba(255,255,255,0.2); }
         .hist-name img { width: 20px; height: 20px; object-fit: contain; flex-shrink: 0; }
-        .hist-tenure { font-size: 0.72rem; font-weight: 600; color: rgba(255,255,255,0.35); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .hist-stat { font-size: 0.85rem; font-weight: 700; color: var(--silver); text-align: right; }
         .hist-pts { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 1px; color: var(--gold); text-align: right; }
         .hist-pts.total { color: white; font-size: 1.1rem; }
@@ -1299,7 +1296,6 @@
         <div class="hist-header-row">
           <div></div>
           <div class="lb-col-label left">Player</div>
-          <div class="lb-col-label">Tenure</div>
           ${pos==='G'
             ? `${sortHdr('gp','GP')}${sortHdr('w','W')}${sortHdr('so','SO')}`
             : `${sortHdr('gp','GP')}${sortHdr('g','G')}<div class="lb-col-label hist-col-hide">${sortHdr('a','A')}</div>`}
@@ -1316,9 +1312,9 @@
         const abbr = p ? TEAM_ABBR[p.team] : null;
         const logo = abbr ? `<img src="https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg" alt="${abbr}">` : '';
         const acqDate = t.date_from_acquired ? new Date(t.date_from_acquired) : ACTIVE_ACQUIRED_FALLBACK_DATE;
-        const tenureEnd = isCurrent
-          ? `<span style="color:var(--green)">${fmt(acqDate)} → Now</span>`
-          : t.date_traded ? fmt(t.date_traded) : `<span style="color:var(--green)">${fmt(acqDate)} → Now</span>`;
+        const tenureTooltip = isCurrent
+          ? `${fmt(acqDate)} → Now`
+          : t.date_traded ? `${fmt(acqDate)} → ${fmt(t.date_traded)}` : `${fmt(acqDate)} → Now`;
         let col1='—', col2='—', col3='—', pts, gp=0, g=0, a=0, w=0, so=0;
         if (isCurrent && p) {
           const d = ownedStatsDelta(p, team, p._slug);
@@ -1329,7 +1325,7 @@
         } else {
           pts = _windowPtsByTradeKey[tradeKey] ?? t.points_accumulated_at_trade ?? '—';
         }
-        rowData.push({ isCurrent, cls: isCurrent?'current':'past', name: t.player_to_name||t.player_to_slug, logo, tenure: tenureEnd, col1, col2, col3, pts, gp, g, a, w, so });
+        rowData.push({ isCurrent, cls: isCurrent?'current':'past', name: t.player_to_name||t.player_to_slug, logo, tenure: tenureTooltip, col1, col2, col3, pts, gp, g, a, w, so });
       });
 
       currentNoDraft.forEach(p => {
@@ -1342,7 +1338,7 @@
         else             { col1 = gp; col2 = g; col3 = a; }
         const pts = poolScoreOwned(p, team, p._slug);
         const acqDate = resolveActiveAcquiredDate(team, p._slug);
-        const tenure = `<span style="color:var(--green)">${fmt(acqDate)} → Now</span>`;
+        const tenure = `${fmt(acqDate)} → Now`;
         rowData.push({ isCurrent: true, cls: 'current', name: formatName(p.player_name), logo, tenure, col1, col2, col3, pts, gp, g, a, w, so });
       });
 
@@ -1357,8 +1353,7 @@
 
       const renderedRows = rowData.map(r => `<div class="hist-row ${r.cls}">
           <span class="hist-pos ${pos}">${pos}</span>
-          <span class="hist-name${r.isCurrent?'':' past'}">${r.logo}${r.name}</span>
-          <span class="hist-tenure">${r.tenure}</span>
+          <span class="hist-name${r.isCurrent?'':' past'}" title="${r.tenure}">${r.logo}${r.name}</span>
           <span class="hist-stat">${r.col1}</span>
           <span class="hist-stat">${r.col2}</span>
           <span class="hist-stat${pos==='G'?'':' hist-col-hide'}">${r.col3}</span>
@@ -1375,7 +1370,7 @@
         <div class="hist-row total">
           <div></div>
           <div class="lb-col-label left" style="font-size:0.75rem">TOTAL</div>
-          <div></div><div></div><div></div>
+          <div></div><div></div>
           <div class="${pos==='G'?'':'hist-col-hide'}"></div>
           <div class="hist-pts total">${total}</div>
         </div>
