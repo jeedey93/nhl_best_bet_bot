@@ -430,7 +430,7 @@ function checkPoolPw(){
         <span class="score-label-sub">Each goal scored</span>
       </div>
       <div class="score-input-wrap">
-        <input class="score-input" id="d_goals" type="number" min="0" max="99" value="1">
+        <input class="score-input" id="d_goals" type="number" min="0" max="99" value="2">
         <span class="score-unit">pts</span>
       </div>
     </div>
@@ -648,7 +648,7 @@ function checkPoolPw(){
         if (rows.length) {
           const s = rows[0];
           document.getElementById('f_points').value = s.f_points ?? 1;
-          document.getElementById('d_goals').value = s.d_goals ?? 1;
+          document.getElementById('d_goals').value = s.d_goals ?? 2;
           document.getElementById('d_assists').value = s.d_assists ?? 1;
           document.getElementById('g_wins').value = s.g_wins ?? 2;
           document.getElementById('g_shutouts').value = s.g_shutouts ?? 3;
@@ -665,7 +665,7 @@ function checkPoolPw(){
     const maxTradesRaw = parseInt(document.getElementById('max_trades_per_team').value);
     return {
       f_points:   parseInt(document.getElementById('f_points').value) || 1,
-      d_goals:    parseInt(document.getElementById('d_goals').value) || 1,
+      d_goals:    parseInt(document.getElementById('d_goals').value) || 2,
       d_assists:  parseInt(document.getElementById('d_assists').value) || 1,
       g_wins:     parseInt(document.getElementById('g_wins').value) || 2,
       g_shutouts: parseInt(document.getElementById('g_shutouts').value) || 3,
@@ -1151,7 +1151,7 @@ function checkPoolPw(){
 
       const playerMap = Object.fromEntries(players.map(p => [p.puckpedia_slug, p]));
       const teams     = rosterRow[0]?.data?.teams || [];
-      const sc        = settRows[0] || { f_points:1, d_goals:1, d_assists:1, g_wins:2, g_shutouts:3 };
+      const sc        = settRows[0] || { f_points:1, d_goals:2, d_assists:1, g_wins:2, g_shutouts:3 };
 
       function poolPts(p, acq) {
         const s = acq?.stats_snapshot || {};
