@@ -267,6 +267,15 @@
         .lb-col-label.left { text-align: left; }
         .sort-hdr:hover { color: rgba(255,184,28,0.8); }
         .sort-hdr { transition: color 0.15s; }
+        .btn-lb-sort {
+          font-family: 'Bebas Neue', cursive; font-size: 0.7rem; letter-spacing: 1.5px;
+          background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+          color: rgba(255,255,255,0.3); border-radius: 4px; padding: 2px 8px;
+          cursor: pointer; transition: background 0.15s, color 0.15s, border-color 0.15s;
+          white-space: nowrap;
+        }
+        .btn-lb-sort:hover { color: rgba(255,184,28,0.8); border-color: rgba(255,184,28,0.3); background: rgba(255,184,28,0.06); }
+        .btn-lb-sort.active { color: var(--gold); border-color: rgba(255,184,28,0.5); background: rgba(255,184,28,0.1); }
 
         /* ── INSIGHTS ── */
         .insights {
@@ -676,8 +685,8 @@
     let _windowPtsByTradeKey = {};
     const _gameLogCache = new Map();
     let activeView = sessionStorage.getItem('pool_view') || 'standings';
-    // Sort state for roster tables: { pos: 'F'|'D'|'G', field: 'pts'|'gp'|'g'|'a'|'w'|'so' }
-    let _rosterSort = {}; // keyed by pos
+    let _rosterSort = {};
+    let _lbSort = 'pts'; // 'pts' | 'eff'
     if (activeView === 'allteams') activeView = 'standings';
 
     let _cache = {};
@@ -698,9 +707,20 @@
       return _cache.teamPts[team.id];
     }
     function sortedTeams() {
-      if (!_cache.sorted) _cache.sorted = [...teams].sort((a, b) => teamTotalPts(b) - teamTotalPts(a));
+      if (!_cache.sorted) {
+        _cache.sorted = [...teams].sort((a, b) => {
+          if (_lbSort === 'eff') {
+            const capA = teamCapUsed(a.roster), capB = teamCapUsed(b.roster);
+            const effA = capA > 0 ? teamTotalPts(a) / (capA / 1e6) : 0;
+            const effB = capB > 0 ? teamTotalPts(b) / (capB / 1e6) : 0;
+            return effB - effA;
+          }
+          return teamTotalPts(b) - teamTotalPts(a);
+        });
+      }
       return _cache.sorted;
     }
+    function setLbSort(s) { _lbSort = s; clearCache(); render(); }
     function setRosterSort(pos, field) {
       _rosterSort[pos] = field;
       render();
@@ -1259,12 +1279,14 @@
           return s + (ownedStatsDelta(p, t, p._slug)?.gamesPlayed ?? 0);
         }, 0);
 
-        const rankNum = i + 1;
-        const rankCls = rankNum === 1 ? 'gold' : rankNum === 2 ? 'silver' : rankNum === 3 ? 'bronze' : '';
-        const rankInner = rankNum === 1
-          ? `<div class="lb-rank-crown"><span class="lb-rank-crown-icon">👑</span><span class="lb-rank-num">${rankNum}</span></div>`
-          : `<span class="lb-rank-num">${rankNum}</span>`;
-        const tierCls = rankNum <= 3 ? ` rank-${rankNum}` : '';
+        const rankNum = _lbSort === 'pts' ? i + 1 : null;
+        const displayRank = _lbSort === 'pts' ? i + 1 : sorted.findIndex(x => x.id === t.id) + 1;
+        const ptRank = [...teams].sort((a,b) => teamTotalPts(b) - teamTotalPts(a)).findIndex(x => x.id === t.id) + 1;
+        const rankCls = ptRank === 1 ? 'gold' : ptRank === 2 ? 'silver' : ptRank === 3 ? 'bronze' : '';
+        const rankInner = ptRank === 1
+          ? `<div class="lb-rank-crown"><span class="lb-rank-crown-icon">👑</span><span class="lb-rank-num">${ptRank}</span></div>`
+          : `<span class="lb-rank-num">${ptRank}</span>`;
+        const tierCls = ptRank <= 3 ? ` rank-${ptRank}` : '';
         const isActive = t.id === activeTeamId;
 
         const row = `<div class="lb-row${tierCls}${isActive ? ' active' : ''}" onclick="selectTeam('${t.id}')">
@@ -1275,10 +1297,10 @@
           <div class="lb-stat lb-col-hide pos-d">${sub.D}</div>
           <div class="lb-stat lb-col-hide pos-g">${sub.G}</div>
           <div class="lb-stat pts">${pts}</div>
-          <div class="lb-stat ${i===0?'gap leader':'gap'}">${gap}</div>
+          <div class="lb-stat ${ptRank===1?'gap leader':'gap'}">${ptRank===1?'Leader':`−${leaderPts-pts}`}</div>
         </div>`;
 
-        return rankNum === 3 && n > 3 ? row + `<div class="lb-tier-divider"></div>` : row;
+        return ptRank === 3 && n > 3 ? row + `<div class="lb-tier-divider"></div>` : row;
       }).join('');
 
       return `<div class="leaderboard">
@@ -1289,7 +1311,10 @@
           <div class="lb-col-label lb-col-hide" style="color:var(--pink)">F</div>
           <div class="lb-col-label lb-col-hide" style="color:var(--blue)">D</div>
           <div class="lb-col-label lb-col-hide" style="color:var(--gold)">G</div>
-          <div class="lb-col-label">Total</div>
+          <div class="lb-col-label" style="display:flex;align-items:center;justify-content:flex-end;gap:6px">
+            <button class="btn-lb-sort ${_lbSort==='eff'?'active':''}" onclick="setLbSort(_lbSort==='eff'?'pts':'eff')" title="Sort by pts per \$M cap">⚡ Eff</button>
+            Total
+          </div>
           <div class="lb-col-label">Gap</div>
         </div>
         ${rowsHtml}
@@ -1386,7 +1411,7 @@
           ${pos==='G'
             ? `${sortHdr('gp','GP')}${sortHdr('w','W')}<div class="lb-col-label hist-col-hide-g">${sortHdr('so','SO')}</div>`
             : `${sortHdr('gp','GP')}${sortHdr('g','G')}<div class="lb-col-label hist-col-hide">${sortHdr('a','A')}</div>`}
-          ${sortHdr('pts','Pts')}
+          <div class="lb-col-label sort-hdr" style="cursor:pointer;user-select:none" onclick="setRosterSort('${pos}','pts')"><span class="col-tooltip-wrap">FPts<span class="col-tip">Fantasy points scored since acquisition</span></span>${arrow('pts')}</div>
         </div>`;
 
       // Build data objects for all rows so we can sort before rendering
