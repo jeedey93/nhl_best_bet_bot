@@ -413,7 +413,7 @@
         @media (max-width: 560px) {
           .hist-header-row,
           .hist-row { grid-template-columns: 28px 1fr 36px 36px 56px; }
-          .hist-col-hide { display: none; }
+          .hist-col-hide, .hist-col-hide-g { display: none; }
         }
         .hist-header-row { background: rgba(255,255,255,0.04); border-bottom: 1px solid rgba(255,255,255,0.1); padding: 0.35rem 0.75rem; }
         .hist-row { border-bottom: 1px solid rgba(255,255,255,0.04); }
@@ -1297,7 +1297,7 @@
           <div></div>
           <div class="lb-col-label left">Player</div>
           ${pos==='G'
-            ? `${sortHdr('gp','GP')}${sortHdr('w','W')}${sortHdr('so','SO')}`
+            ? `${sortHdr('gp','GP')}${sortHdr('w','W')}<div class="lb-col-label hist-col-hide-g">${sortHdr('so','SO')}</div>`
             : `${sortHdr('gp','GP')}${sortHdr('g','G')}<div class="lb-col-label hist-col-hide">${sortHdr('a','A')}</div>`}
           ${sortHdr('pts','Pts')}
         </div>`;
@@ -1356,7 +1356,7 @@
           <span class="hist-name${r.isCurrent?'':' past'}" title="${r.tenure}">${r.logo}${r.name}</span>
           <span class="hist-stat">${r.col1}</span>
           <span class="hist-stat">${r.col2}</span>
-          <span class="hist-stat${pos==='G'?'':' hist-col-hide'}">${r.col3}</span>
+          <span class="hist-stat${pos==='G'?' hist-col-hide-g':' hist-col-hide'}">${r.col3}</span>
           <span class="hist-pts">${r.pts}</span>
         </div>`);
 
@@ -1371,7 +1371,7 @@
           <div></div>
           <div class="lb-col-label left" style="font-size:0.75rem">TOTAL</div>
           <div></div><div></div>
-          <div class="${pos==='G'?'':'hist-col-hide'}"></div>
+          <div class="${pos==='G'?'hist-col-hide-g':'hist-col-hide'}"></div>
           <div class="hist-pts total">${total}</div>
         </div>
       </div>`;
