@@ -1655,7 +1655,8 @@
         const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
         const file = new File([blob], 'pool-standings.png', { type: 'image/png' });
 
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+        if (isMobile && navigator.canShare && navigator.canShare({ files: [file] })) {
           await navigator.share({ files: [file], title: 'Pool Standings', text: `Pool standings as of ${today} — parieurdiscipline.com` });
         } else {
           const url = URL.createObjectURL(blob);
