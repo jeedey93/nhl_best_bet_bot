@@ -177,6 +177,35 @@ CREATE POLICY "league token access" ON pool_locks
   );
 
 -- ============================================================
+-- pool_standings_snapshots  (daily rank history)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS pool_standings_snapshots (
+  id            bigserial PRIMARY KEY,
+  league_code   text NOT NULL,
+  snapshot_date date NOT NULL,
+  standings     jsonb NOT NULL,  -- [{team_id, name, pts, rank, f, d, g}]
+  created_at    timestamptz DEFAULT now(),
+  UNIQUE (league_code, snapshot_date)
+);
+
+ALTER TABLE pool_standings_snapshots ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "league token access" ON pool_standings_snapshots;
+CREATE POLICY "league token access" ON pool_standings_snapshots
+  USING (
+    league_code IN (
+      SELECT code FROM pool_leagues WHERE access_token = pool_request_token()
+    )
+  )
+  WITH CHECK (
+    league_code IN (
+      SELECT code FROM pool_leagues WHERE access_token = pool_request_token()
+    )
+  );
+
+-- Service role (used by scrape_nhl_stats.py via SUPABASE_SERVICE_KEY) bypasses RLS automatically.
+
+-- ============================================================
 -- Verify: show all leagues with their tokens (copy these for existing leagues)
 -- ============================================================
 SELECT code, name, access_token FROM pool_leagues ORDER BY created_at;

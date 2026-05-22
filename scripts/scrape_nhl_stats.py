@@ -273,6 +273,137 @@ def main():
     print("\n" + "─" * 50)
     print(f"🎉  Done! {total_matched} matched, {total_missed} unmatched.")
 
+    save_standings_snapshots()
+
+
+def save_standings_snapshots():
+    """Compute today's standings for every league and upsert a snapshot row."""
+    print("\n📸  Saving standings snapshots…")
+    today = datetime.now(timezone.utc).date().isoformat()
+
+    # 1. Load all player stats into a slug → player dict
+    players_rows = supabase.table("nhl_players").select(
+        "puckpedia_slug,position,points,goals,assists,wins,shutouts,games_played"
+    ).execute().data
+    player_map = {r["puckpedia_slug"]: r for r in players_rows if r.get("puckpedia_slug")}
+
+    # 2. Load all leagues
+    leagues = supabase.table("pool_leagues").select("code").execute().data
+
+    for league in leagues:
+        code = league["code"]
+        try:
+            # 3. Load roster data
+            roster_rows = supabase.table("pool_rosters").select("data").eq("league_code", code).execute().data
+            if not roster_rows or not roster_rows[0].get("data"):
+                continue
+            roster_data = roster_rows[0]["data"]
+            teams = roster_data.get("teams", [])
+            if not teams:
+                continue
+
+            # 4. Load scoring settings (defaults match the JS defaults)
+            settings_rows = supabase.table("pool_settings").select(
+                "f_points,d_goals,d_assists,g_wins,g_shutouts"
+            ).eq("league_code", code).execute().data
+            sc = settings_rows[0] if settings_rows else {}
+            scoring = {
+                "f_points": sc.get("f_points", 1),
+                "d_goals":  sc.get("d_goals",  2),
+                "d_assists": sc.get("d_assists", 1),
+                "g_wins":   sc.get("g_wins",   2),
+                "g_shutouts": sc.get("g_shutouts", 3),
+            }
+
+            # 5. Load trades for frozen_points
+            trades_rows = supabase.table("player_trades").select(
+                "team_id,player_to_slug,points_accumulated_at_trade,date_traded"
+            ).eq("league_code", code).execute().data
+            # Map: slug → frozen pts (only traded-away players)
+            frozen_by_slug_team = {}
+            for tr in trades_rows:
+                if tr.get("date_traded") and tr.get("player_to_slug"):
+                    key = (tr["team_id"], tr["player_to_slug"])
+                    frozen_by_slug_team[key] = tr.get("points_accumulated_at_trade") or 0
+
+            # 6. Score each team
+            def normalize_pos(pos):
+                if not pos:
+                    return "F"
+                p = pos.upper()
+                if p in ("C", "LW", "RW", "F", "W"):
+                    return "F"
+                if p in ("D", "LD", "RD"):
+                    return "D"
+                if p in ("G", "GK"):
+                    return "G"
+                return "F"
+
+            def score_player(slug, team_id, acquisitions):
+                p = player_map.get(slug)
+                if not p:
+                    return 0, "F"
+                pos = normalize_pos(p.get("position", "F"))
+                acq = acquisitions.get(slug)
+                snap = acq.get("stats_snapshot", {}) if acq else {}
+                frozen = frozen_by_slug_team.get((team_id, slug), 0)
+                if pos == "G":
+                    wins = max(0, (p.get("wins") or 0) - (snap.get("wins") or 0))
+                    so   = max(0, (p.get("shutouts") or 0) - (snap.get("shutouts") or 0))
+                    delta = wins * scoring["g_wins"] + so * scoring["g_shutouts"]
+                elif pos == "D":
+                    g = max(0, (p.get("goals") or 0) - (snap.get("goals") or 0))
+                    a = max(0, (p.get("assists") or 0) - (snap.get("assists") or 0))
+                    delta = g * scoring["d_goals"] + a * scoring["d_assists"]
+                else:
+                    delta = max(0, (p.get("points") or 0) - (snap.get("points") or 0)) * scoring["f_points"]
+                return frozen + delta, pos
+
+            team_scores = []
+            for team in teams:
+                team_id = team.get("id", "")
+                acq = team.get("acquisitions", {}) or {}
+                roster = team.get("roster", {})
+                f_pts = d_pts = g_pts = 0
+                for slug in (roster.get("F") or []):
+                    if slug:
+                        pts, _ = score_player(slug, team_id, acq)
+                        f_pts += pts
+                for slug in (roster.get("D") or []):
+                    if slug:
+                        pts, _ = score_player(slug, team_id, acq)
+                        d_pts += pts
+                for slug in (roster.get("G") or []):
+                    if slug:
+                        pts, _ = score_player(slug, team_id, acq)
+                        g_pts += pts
+                total = f_pts + d_pts + g_pts
+                team_scores.append({
+                    "team_id": team_id,
+                    "name": team.get("name", "?"),
+                    "pts": round(total),
+                    "f": round(f_pts),
+                    "d": round(d_pts),
+                    "g": round(g_pts),
+                })
+
+            # 7. Assign ranks (1 = most pts)
+            team_scores.sort(key=lambda x: x["pts"], reverse=True)
+            for i, t in enumerate(team_scores):
+                t["rank"] = i + 1
+
+            # 8. Upsert snapshot
+            supabase.table("pool_standings_snapshots").upsert({
+                "league_code": code,
+                "snapshot_date": today,
+                "standings": team_scores,
+            }, on_conflict="league_code,snapshot_date").execute()
+
+            print(f"  ✅  {code}: {len(team_scores)} teams snapshotted")
+
+        except Exception as e:
+            print(f"  ⚠️  {code}: snapshot failed — {e}")
+
 
 if __name__ == "__main__":
     try:

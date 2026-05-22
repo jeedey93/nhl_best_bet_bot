@@ -447,6 +447,14 @@
         .hist-section-label.D { color: var(--blue); background: rgba(125,180,255,0.04); }
         .hist-section-label.G { color: var(--gold); background: rgba(255,184,28,0.04); }
 
+        /* ── BUMP CHART ── */
+        .bump-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        .bump-svg { display: block; min-width: 300px; }
+        .bump-empty { text-align: center; color: rgba(255,255,255,0.25); font-size: 0.85rem; letter-spacing: 1px; padding: 3rem 0; }
+        .bump-legend { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-top: 1rem; }
+        .bump-legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.78rem; font-weight: 600; color: var(--silver); cursor: pointer; }
+        .bump-legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
         /* ── POOL LEADERS ── */
         .pool-section-title { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 3px; color: var(--silver); margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem; }
         .pool-section-title span { color: white; }
@@ -1092,6 +1100,7 @@
           <div class="view-tab ${activeView==='standings'?'active':''}" onclick="setView('standings')">Standings</div>
           <div class="view-tab ${activeView==='team'?'active':''}"      onclick="setView('team')">Team Detail</div>
           <div class="view-tab ${activeView==='pool'?'active':''}"      onclick="setView('pool')">Pool Leaders</div>
+          <div class="view-tab ${activeView==='history'?'active':''}"   onclick="setView('history')">History</div>
         </div>
         <div id="view-standings" style="display:${activeView==='standings'?'block':'none'}">
           ${buildInsights(sorted, leaderPts)}
@@ -1103,12 +1112,19 @@
           </div>
           <div class="team-detail visible">${activeTeam ? buildDetail(activeTeam, sorted, leaderPts) : ''}</div>
         </div>
-        <div id="view-pool" style="display:${activeView==='pool'?'block':'none'}">${buildPoolLeaders()}</div>
+        <div id="view-pool"    style="display:${activeView==='pool'?'block':'none'}">${buildPoolLeaders()}</div>
+        <div id="view-history" style="display:${activeView==='history'?'block':'none'}"><div class="bump-empty" id="bump-loading">Loading history…</div></div>
       `;
       window.scrollTo({ top: scrollY, behavior: 'instant' });
+      if (activeView === 'history') loadHistory();
     }
 
-    function setView(v) { activeView = v; sessionStorage.setItem('pool_view', v); render(); }
+    function setView(v) {
+      activeView = v;
+      sessionStorage.setItem('pool_view', v);
+      render();
+      if (v === 'history') loadHistory();
+    }
     function selectTeam(id) { activeTeamId = id; activeView = 'team'; sessionStorage.setItem('pool_view', 'team'); render(); }
 
     // ── SYNC ─────────────────────────────────────────────────────────────────────
@@ -1552,6 +1568,157 @@
         </div>`;
 
       return grid + top;
+    }
+
+    // ── HISTORY / BUMP CHART ─────────────────────────────────────────────────────
+    const TEAM_COLORS = [
+      '#ffb81c','#7db4ff','#ff7a8a','#22c55e','#c084fc','#fb923c','#38bdf8','#f472b6',
+      '#a3e635','#facc15','#f87171','#34d399',
+    ];
+
+    let _historyCache = null;
+
+    async function loadHistory() {
+      const el = document.getElementById('view-history');
+      if (!el) return;
+
+      if (_historyCache) { renderBumpChart(_historyCache, el); return; }
+
+      try {
+        const res = await fetch(
+          `${SUPABASE_URL}/rest/v1/pool_standings_snapshots?league_code=eq.${_leagueCode}&order=snapshot_date.asc&select=snapshot_date,standings`,
+          { headers: sbHeaders() }
+        );
+        const rows = await res.json();
+        if (!Array.isArray(rows) || rows.length === 0) {
+          el.innerHTML = '<div class="bump-empty">No history yet — check back tomorrow after the daily sync runs.</div>';
+          return;
+        }
+        _historyCache = rows;
+        renderBumpChart(rows, el);
+      } catch(e) {
+        el.innerHTML = '<div class="bump-empty">Could not load history.</div>';
+      }
+    }
+
+    function renderBumpChart(rows, container) {
+      // Collect all team IDs and assign stable colors
+      const teamMeta = {};  // id → { name, color }
+      rows.forEach(row => {
+        (row.standings || []).forEach(t => {
+          if (!teamMeta[t.team_id]) {
+            const idx = Object.keys(teamMeta).length % TEAM_COLORS.length;
+            teamMeta[t.team_id] = { name: t.name, color: TEAM_COLORS[idx] };
+          }
+        });
+      });
+
+      const teamIds = Object.keys(teamMeta);
+      const n = teamIds.length;
+      if (n === 0) { container.innerHTML = '<div class="bump-empty">No data.</div>'; return; }
+
+      const dates = rows.map(r => r.snapshot_date);
+      const cols = dates.length;
+
+      // SVG dimensions
+      const W = Math.max(320, cols * 80 + 120);
+      const H = Math.max(200, n * 54 + 60);
+      const PAD_LEFT = 20;
+      const PAD_RIGHT = 80;
+      const PAD_TOP = 28;
+      const PAD_BOT = 28;
+      const chartW = W - PAD_LEFT - PAD_RIGHT;
+      const chartH = H - PAD_TOP - PAD_BOT;
+
+      const xScale = i => PAD_LEFT + (cols <= 1 ? chartW / 2 : (i / (cols - 1)) * chartW);
+      const yScale = rank => PAD_TOP + ((rank - 1) / Math.max(n - 1, 1)) * chartH;
+
+      // Build paths per team
+      const paths = teamIds.map(id => {
+        const pts = rows.map(row => {
+          const entry = (row.standings || []).find(t => t.team_id === id);
+          return entry ? entry.rank : null;
+        });
+
+        let d = '';
+        let prev = null;
+        pts.forEach((rank, i) => {
+          if (rank === null) { prev = null; return; }
+          const x = xScale(i), y = yScale(rank);
+          if (prev === null) {
+            d += `M${x},${y}`;
+          } else {
+            // Smooth cubic bezier
+            const mx = (prev.x + x) / 2;
+            d += ` C${mx},${prev.y} ${mx},${y} ${x},${y}`;
+          }
+          prev = { x, y };
+        });
+
+        // Last known rank label (rightmost)
+        const lastEntry = [...rows].reverse().map(row => (row.standings || []).find(t => t.team_id === id)).find(Boolean);
+        const lastRank = lastEntry?.rank;
+        const lastPts  = lastEntry?.pts;
+
+        return { id, color: teamMeta[id].color, name: teamMeta[id].name, d, pts, lastRank, lastPts };
+      });
+
+      // Date labels
+      const dateLabels = dates.map((d, i) => {
+        const dt = new Date(d + 'T12:00:00');
+        const label = dt.toLocaleDateString('en-CA', { month: 'short', day: 'numeric' });
+        return `<text x="${xScale(i)}" y="${PAD_TOP - 10}" text-anchor="middle" font-size="10" fill="rgba(255,255,255,0.35)" font-family="Barlow Condensed,sans-serif">${label}</text>`;
+      }).join('');
+
+      // Horizontal rank guide lines
+      const guides = Array.from({ length: n }, (_, i) => {
+        const y = yScale(i + 1);
+        return `<line x1="${PAD_LEFT}" y1="${y}" x2="${PAD_LEFT + chartW}" y2="${y}" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>`;
+      }).join('');
+
+      // Rank labels on left
+      const rankLabels = Array.from({ length: n }, (_, i) => {
+        const y = yScale(i + 1);
+        return `<text x="${PAD_LEFT - 6}" y="${y + 4}" text-anchor="end" font-size="11" fill="rgba(255,255,255,0.2)" font-family="Barlow Condensed,sans-serif">${i + 1}</text>`;
+      }).join('');
+
+      // Lines + dots + end labels
+      const lines = paths.map(({ color, d, pts, name, lastRank, lastPts }) => {
+        const dots = pts.map((rank, i) => {
+          if (rank === null) return '';
+          return `<circle cx="${xScale(i)}" cy="${yScale(rank)}" r="5" fill="${color}" stroke="#07111f" stroke-width="2"/>`;
+        }).join('');
+
+        const endX = xScale(cols - 1) + 14;
+        const endY = lastRank ? yScale(lastRank) + 4 : 0;
+        const endLabel = lastRank
+          ? `<text x="${endX}" y="${endY}" font-size="11" font-weight="700" fill="${color}" font-family="Barlow Condensed,sans-serif">${name.split(' ')[0]} · ${lastPts}pts</text>`
+          : '';
+
+        return `<g>
+          <path d="${d}" fill="none" stroke="${color}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"/>
+          ${dots}
+          ${endLabel}
+        </g>`;
+      }).join('');
+
+      // Legend
+      const legend = paths.map(({ color, name }) =>
+        `<div class="bump-legend-item"><div class="bump-legend-dot" style="background:${color}"></div>${name}</div>`
+      ).join('');
+
+      container.innerHTML = `
+        <div class="pool-section-title" style="margin-bottom:1rem">📈 <span>RANK OVER TIME</span></div>
+        <div class="bump-wrap">
+          <svg class="bump-svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+            ${guides}
+            ${rankLabels}
+            ${dateLabels}
+            ${lines}
+          </svg>
+        </div>
+        <div class="bump-legend">${legend}</div>
+      `;
     }
 
     load();
