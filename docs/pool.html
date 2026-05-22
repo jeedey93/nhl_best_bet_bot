@@ -483,11 +483,11 @@
     } catch(e) { /* silent */ }
   }
 
-  function goToDraft(code, name)    { saveRecent(code, name); window.location.href = `/pool/join?league=${code}`; }
+  function goToDraft(code, name)    { saveRecent(code, name); window.location.href = withToken(code, `/pool/join?league=${code}`); }
   function goToLiveDraft(code)      { window.location.href = `/pool/live-draft?league=${code}`; }
-  function goToStandings(code)      { window.location.href = `/pool/standings?league=${code}`; }
-  function goToTrades(code)         { window.location.href = `/pool/roster?league=${code}`; }
-  function goToSettings(code)       { window.location.href = `/pool/settings?league=${code}`; }
+  function goToStandings(code)      { window.location.href = withToken(code, `/pool/standings?league=${code}`); }
+  function goToTrades(code)         { window.location.href = withToken(code, `/pool/roster?league=${code}`); }
+  function goToSettings(code)       { window.location.href = withToken(code, `/pool/settings?league=${code}`); }
 
   // ── Password modal ────────────────────────────────────────────────────────
   let _pwAction = null;
@@ -554,6 +554,22 @@
     openPwModal('create', '🏒 New League', 'CREATE');
   }
 
+  function genToken() {
+    const arr = new Uint8Array(18);
+    crypto.getRandomValues(arr);
+    return btoa(String.fromCharCode(...arr)).replace(/[+/=]/g, c => ({'+':`-`,'/':'_','=':''}[c]));
+  }
+  function saveToken(code, token) {
+    try { localStorage.setItem(`pool_token_${code}`, token); } catch(_) {}
+  }
+  function getStoredToken(code) {
+    try { return localStorage.getItem(`pool_token_${code}`) || null; } catch(_) { return null; }
+  }
+  function withToken(code, url) {
+    const t = getStoredToken(code);
+    return t ? `${url}&token=${t}` : url;
+  }
+
   async function doCreateLeague() {
     const btn       = document.getElementById('btn-create');
     const nameInput = document.getElementById('league-name-input');
@@ -563,29 +579,32 @@
     btn.innerHTML = '<span class="spinner"></span>Creating…';
 
     const code = genCode();
+    const token = genToken();
     try {
       const res = await fetch(`${SUPABASE_URL}/rest/v1/pool_leagues`, {
         method: 'POST', headers: sbHeaders(),
-        body: JSON.stringify({ code, name: leagueName }),
+        body: JSON.stringify({ code, name: leagueName, access_token: token }),
       });
       if (!res.ok && res.status !== 409) throw new Error(res.status);
     } catch(e) {}
 
+    saveToken(code, token);
     saveRecent(code, leagueName);
     loadAllLeagues();
-    showSuccess(code, leagueName);
+    showSuccess(code, leagueName, token);
   }
 
-  function showSuccess(code, leagueName) {
+  function showSuccess(code, leagueName, token) {
     document.getElementById('create-form').style.display = 'none';
     const successEl = document.getElementById('create-success');
-    const inviteUrl = `${window.location.origin}/pool?join=${code}`;
+    const inviteUrl = `${window.location.origin}/pool/standings?league=${code}&token=${token}`;
     successEl.style.display = 'block';
     successEl.innerHTML = `
       <div class="success-flash">
         <div class="success-icon">✅</div>
         <div class="success-msg">League created!</div>
         <div class="success-code">${code}</div>
+        <div style="font-size:0.75rem;color:rgba(255,255,255,0.4);letter-spacing:1px;margin-bottom:0.5rem">SHARE THIS INVITE LINK WITH YOUR LEAGUE</div>
         <div class="invite-row">
           <div class="invite-url" title="${inviteUrl}">${inviteUrl}</div>
           <button class="btn-copy" id="btn-copy" onclick="copyInvite('${inviteUrl}')">Copy</button>
