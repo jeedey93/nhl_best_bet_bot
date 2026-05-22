@@ -304,27 +304,11 @@
 
     /* ── EFF legend (compact) ── */
     .eff-legend { display: flex; align-items: center; gap: 8px; background: rgba(34,197,94,0.06); border: 1px solid rgba(34,197,94,0.15); border-radius: 6px; padding: 4px 10px; margin-bottom: 0.4rem; flex-shrink: 0; }
-    .eff-legend-badge { font-family: 'Bebas Neue', cursive; font-size: 0.72rem; letter-spacing: 1.5px; color: #22c55e; background: rgba(34,197,94,0.12); border-radius: 3px; padding: 1px 6px; flex-shrink: 0; }
+    .eff-legend-badge { font-family: 'Bebas Neue', cursive; font-size: 0.72rem; letter-spacing: 1.5px; color: #22c55e; background: rgba(34,197,94,0.12); border-radius: 3px; padding: 1px 6px; flex-shrink: 0; border: 1px solid rgba(34,197,94,0.25); cursor: pointer; transition: background 0.15s, border-color 0.15s; }
+    .eff-legend-badge:hover { background: rgba(34,197,94,0.22); border-color: rgba(34,197,94,0.5); }
+    .eff-legend-badge.active { background: rgba(34,197,94,0.28); border-color: #22c55e; box-shadow: 0 0 8px rgba(34,197,94,0.3); }
     .eff-legend-text { font-size: 0.72rem; color: rgba(255,255,255,0.4); letter-spacing: 0.2px; flex: 1; }
     .eff-legend-text strong { color: rgba(255,255,255,0.65); font-weight: 600; }
-    /* ── EFF tooltip trigger ── */
-    .eff-info-btn {
-      display: inline-flex; align-items: center; justify-content: center;
-      width: 16px; height: 16px; border-radius: 50%;
-      background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.3);
-      color: #22c55e; font-size: 0.65rem; font-weight: 700; cursor: help;
-      flex-shrink: 0; font-family: sans-serif; line-height: 1;
-      position: relative;
-    }
-    .eff-info-tooltip {
-      display: none; position: absolute; bottom: calc(100% + 6px); left: 50%;
-      transform: translateX(-50%); width: 220px;
-      background: #0d1b2e; border: 1px solid rgba(34,197,94,0.3);
-      border-radius: 7px; padding: 8px 10px; z-index: 200;
-      font-family: 'Barlow Condensed', sans-serif; font-size: 0.75rem;
-      color: rgba(255,255,255,0.65); line-height: 1.5; text-align: left;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-    }
     .eff-info-tooltip strong { color: #22c55e; }
     .eff-info-btn:hover .eff-info-tooltip { display: block; }
 
@@ -389,7 +373,9 @@
     .col-a   { width: 36px; }
     .col-pts { width: 42px; }
     .col-cap { width: 62px; }
-    .col-eff { width: 46px; }
+    .col-fpts { width: 48px; }
+    .col-eff { width: 0; padding: 0; overflow: hidden; }
+    .td-eff  { display: none; }
     .col-gaa { width: 50px; display: none; }
     .td-gaa  { display: none; }
     body.goalie-filter .col-gaa, body.goalie-filter .td-gaa { display: table-cell; }
@@ -451,6 +437,7 @@
     .td-a    { color: #7db4ff; }
     .td-pts  { color: var(--gold); font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 0.5px; }
     .td-cap  { color: rgba(255,255,255,0.6); font-size: 0.82rem; }
+    .td-fpts { color: #22c55e; font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 0.5px; text-align: right; }
     .td-eff  { color: #22c55e; font-family: 'Bebas Neue', cursive; font-size: 0.95rem; }
 
     .td-act { padding: 0 4px; text-align: center; }
@@ -1088,19 +1075,8 @@
     </div>
 
     <div class="eff-legend">
-      <span class="eff-legend-badge">EFF</span>
-      <span class="eff-legend-text"><strong>Pts ÷ √Cap($M)</strong> — rewards elite production</span>
-      <span class="eff-info-btn" tabindex="0" role="tooltip" aria-label="Efficiency explained">
-        ?
-        <div class="eff-info-tooltip">
-          <strong>Efficiency (EFF)</strong> = Pool Points ÷ √Cap(M)<br><br>
-          A player earning <strong>80 pts</strong> at <strong>$4M</strong> scores<br>
-          80 ÷ √4 = <strong>40 EFF</strong>.<br><br>
-          A player earning <strong>80 pts</strong> at <strong>$9M</strong> scores<br>
-          80 ÷ √9 = <strong>26.7 EFF</strong>.<br><br>
-          Higher EFF = better value for your cap dollar. The top 10 EFF players are <span style="color:#22c55e;">highlighted in green</span>.
-        </div>
-      </span>
+      <button class="eff-legend-badge" id="eff-sort-btn" onclick="toggleEffSort()" title="Sort by Efficiency: Pts ÷ √Cap(M)">⚡ EFF</button>
+      <span class="eff-legend-text"><strong>Pts ÷ √Cap($M)</strong> — top 10 highlighted in green</span>
     </div>
 
 
@@ -1141,8 +1117,8 @@
           <th class="col-cap" onclick="setSort('salary',this)" data-sort="salary" title="Cap Hit">
             CAP <span class="sort-arrow" id="sa-salary">↓</span>
           </th>
-          <th class="col-eff" id="th-eff" onclick="setSort('value',this)" data-sort="value" title="Efficiency: Pts ÷ √Cap(M)">
-            EFF <span class="sort-arrow" id="sa-value"></span>
+          <th class="col-fpts" id="th-fpts" onclick="setSort('fpts',this)" data-sort="fpts" title="Fantasy Points">
+            FPts <span class="sort-arrow" id="sa-fpts">↓</span>
           </th>
           <th class="col-add"></th>
         </tr>
@@ -1195,7 +1171,7 @@
   let _isEditing = false;
   let _heartbeatTimer = null;
   let _snapshotBeforeEdit = null;
-  let activeFilter = 'F', activeNHLTeam = 'ALL', activeSort = 'points', activeSortDir = 'desc';
+  let activeFilter = 'F', activeNHLTeam = 'ALL', activeSort = 'fpts', activeSortDir = 'desc';
   let swapMode = null;
   let _virtualStart = 0;
   const VIRTUAL_PAGE = 60;
@@ -1766,6 +1742,7 @@
   }
 
   function playerSortKey(p) {
+    if (activeSort==='fpts')   return poolScore(p);
     if (activeSort==='points') return poolScore(p);
     if (activeSort==='value')  return effScore(p);
     if (activeSort==='goals')  return p.goals??0;
@@ -2091,7 +2068,7 @@
 
   function updateSortArrows() {
     const colMap = {
-      salary:'sa-salary', points:'sa-points', value:'sa-value',
+      salary:'sa-salary', points:'sa-points', value:'sa-value', fpts:'sa-fpts',
       goals:'sa-goals', assists:'sa-assists', gp:'sa-gp',
       wins:'sa-wins', shutouts:'sa-shutouts', save_pct:'sa-save_pct', gaa:'sa-gaa'
     };
@@ -2318,6 +2295,7 @@
       <td class="td-pts">${ptsVal}</td>
       <td class="td-cap">${p.cap_hit ? `$${capM}M` : '—'}</td>
       <td class="td-eff">${eff}</td>
+      <td class="td-fpts">${pts > 0 ? pts : '—'}</td>
       <td class="td-act">${addBtn}</td>
     `;
 
@@ -2395,14 +2373,12 @@
         { lbl:'GAA', val: p.gaa!=null?parseFloat(p.gaa).toFixed(2):'—', key:'gaa', lowerBetter:true },
         { lbl:'SV%', val: p.save_pct!=null?p.save_pct.toFixed(3):'—', key:'save_pct' },
         { lbl:'PTS', val: pts, key:'pts' },
-        { lbl:'EFF', val: eff, key:'eff' },
         { lbl:'CAP', val: capStr, key:'cap', noCompare:true },
         { lbl:'GP', val: gp, key:'gp' },
       ] : [
         { lbl:'G', val: p.goals??0, key:'goals' },
         { lbl:'A', val: p.assists??0, key:'assists' },
         { lbl:'PTS', val: pts, key:'pts' },
-        { lbl:'EFF', val: eff, key:'eff' },
         { lbl:'CAP', val: capStr, key:'cap', noCompare:true },
         { lbl:'GP', val: gp, key:'gp' },
       ];
@@ -3165,11 +3141,11 @@
       thPts.childNodes[0].textContent = isGoalie ? 'SV% ' : 'PTS ';
     }
 
-    // Reset sort to sensible default when switching positions
-    if (isGoalie && ['goals','assists','points'].includes(activeSort)) {
-      activeSort = 'wins'; activeSortDir = 'desc';
-    } else if (!isGoalie && ['wins','shutouts','save_pct','gaa'].includes(activeSort)) {
-      activeSort = 'points'; activeSortDir = 'desc';
+    // Reset sort to fpts default when switching positions (unless user picked a stat sort)
+    if (isGoalie && ['goals','assists','points','fpts'].includes(activeSort)) {
+      activeSort = 'fpts'; activeSortDir = 'desc';
+    } else if (!isGoalie && ['wins','shutouts','save_pct','gaa','fpts'].includes(activeSort)) {
+      activeSort = 'fpts'; activeSortDir = 'desc';
     }
 
     document.querySelectorAll('.scoring-legend-pill').forEach(pill => {
@@ -3211,6 +3187,17 @@
       if (entry.isIntersecting) loadMoreRows();
     }
   }, { root: _scrollRoot, rootMargin: '0px', threshold: 0 });
+
+  function toggleEffSort() {
+    const btn = document.getElementById('eff-sort-btn');
+    const isActive = btn.classList.toggle('active');
+    const thFpts = document.getElementById('th-fpts');
+    if (isActive) {
+      setSort('value', document.createElement('th'));
+    } else {
+      setSort('fpts', thFpts);
+    }
+  }
 
   const _tbodyEl = document.getElementById('pool-tbody');
   new MutationObserver(() => {
