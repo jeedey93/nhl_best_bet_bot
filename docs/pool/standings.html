@@ -372,6 +372,14 @@
         .pos-score-block.D { border-color: rgba(125,180,255,0.2); }
         .pos-score-block.G { border-color: rgba(255,184,28,0.2); }
         .pos-score-block.B { border-color: rgba(255,255,255,0.12); }
+        .pos-score-block.T {
+          border-color: rgba(255,184,28,0.45);
+          background: rgba(255,184,28,0.06);
+          flex: 1.3;
+        }
+        .pos-score-block.T .pos-score-val { color: var(--gold); font-size: 2rem; }
+        @media (min-width: 861px) { .pos-score-block.T .pos-score-val { font-size: 2.6rem; } }
+        .pos-score-block.T .pos-rank-badge { font-size: 0.68rem; }
         .pos-score-block.rank-1st {
           box-shadow: inset 0 0 0 1px rgba(255,184,28,0.35), 0 0 12px rgba(255,184,28,0.08);
         }
@@ -1322,6 +1330,13 @@
         </div>`;
       }
 
+      const { text: totalRankText, cls: totalRankCls } = posRankLabel(rank, n);
+      const totalBlock = `<div class="pos-score-block T${rank === 1 ? ' rank-1st' : ''}">
+        <div class="pos-score-val">${totalPts}</div>
+        <div class="pos-score-label">Total</div>
+        <div class="pos-rank-badge ${totalRankCls}">${totalRankText}</div>
+      </div>`;
+
       /* FIX 4: View Roster link in detail header */
       const rosterUrl = `/pool/roster?league=${_leagueCode}`;
 
@@ -1329,12 +1344,10 @@
         <div class="detail-header">
           <div class="detail-header-left">
             <div class="detail-title">${team.name}</div>
-            <div class="detail-rank-label">Rank #${rank} · ${gap}</div>
           </div>
           <div class="detail-header-right">
             <a class="btn-view-roster" href="${rosterUrl}" title="Open roster page">📋 View Roster →</a>
             <div class="detail-summary">
-              <span class="detail-badge pts">${totalPts} PTS</span>
               <span class="detail-badge cap">$${(cap / 1e6).toFixed(1)}M</span>
               <span class="detail-badge filled">${filled}/26</span>
               <span class="detail-badge eff">${eff} pt/$M</span>
@@ -1342,6 +1355,7 @@
           </div>
         </div>
         <div class="pos-scores-bar">
+          ${totalBlock}
           ${posBlock('F', 'Forwards', sub.F)}
           ${posBlock('D', 'Defence',  sub.D)}
           ${posBlock('G', 'Goalies',  sub.G)}
