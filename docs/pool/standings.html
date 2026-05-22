@@ -1660,17 +1660,16 @@
         if (isMobile && navigator.canShare && navigator.canShare({ files: [file] })) {
           await navigator.share({ files: [file], title: 'Pool Standings', text: `Pool standings as of ${today} — parieurdiscipline.com` });
         } else {
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url; a.download = 'pool-standings.png'; a.click();
-          setTimeout(() => URL.revokeObjectURL(url), 5000);
+          await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+          btn.textContent = '✅ Copied!';
+          setTimeout(() => { btn.textContent = '📸 Share'; }, 2000);
         }
       } catch(e) {
         if (e.name !== 'AbortError') alert('Could not generate image. Try again.');
       } finally {
         document.body.removeChild(card);
         btn.disabled = false;
-        btn.textContent = '📸 Share';
+        if (btn.textContent !== '✅ Copied!') btn.textContent = '📸 Share';
       }
     }
 </script>
