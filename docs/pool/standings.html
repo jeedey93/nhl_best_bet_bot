@@ -602,6 +602,7 @@
             </div>
             <span class="last-synced-badge" id="last-synced-badge" style="display:none"><span class="dot"></span><span id="last-synced-text"></span></span>
             <button class="btn-sync" id="sync-btn" onclick="syncPlayerStats()" title="Manually refresh player stats from NHL API">🔄 Sync Stats</button>
+            <button class="btn-sync" id="share-btn" onclick="shareStandings()" title="Share standings as image">📸 Share</button>
             <span class="sync-status" id="sync-status"></span>
         </div>
     </header>
@@ -1563,6 +1564,101 @@
     }
 
     load();
+
+    // ── SHARE STANDINGS ───────────────────────────────────────────────────────────
+    async function shareStandings() {
+      const btn = document.getElementById('share-btn');
+      btn.disabled = true;
+      btn.textContent = '⏳ Generating…';
+
+      // Load html2canvas on demand
+      if (!window.html2canvas) {
+        await new Promise((res, rej) => {
+          const s = document.createElement('script');
+          s.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+          s.onload = res; s.onerror = rej;
+          document.head.appendChild(s);
+        });
+      }
+
+      const sorted = sortedTeams();
+
+      // Build an off-screen card to capture
+      const card = document.createElement('div');
+      card.style.cssText = `
+        position:fixed; left:-9999px; top:0;
+        width:480px; background:#07111f;
+        background-image:radial-gradient(ellipse 100% 60% at 50% -10%, rgba(26,58,110,0.7) 0%, transparent 70%);
+        font-family:'Barlow Condensed',sans-serif; color:white;
+        padding:28px 24px 20px; border-radius:16px;
+        box-shadow:0 0 0 1px rgba(255,255,255,0.1);
+      `;
+
+      const today = new Date().toLocaleDateString('en-CA', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'America/Toronto' });
+
+      const rows = sorted.map((t, i) => {
+        const pts = teamTotalPts(t);
+        const sub = teamSubScores(t);
+        const gap = i === 0 ? '—' : `−${teamTotalPts(sorted[0]) - pts}`;
+        const medals = ['🥇','🥈','🥉'];
+        const icon = medals[i] || `${i+1}`;
+        const rowBg = i === 0 ? 'rgba(255,184,28,0.08)' : i === 1 ? 'rgba(168,178,190,0.05)' : i === 2 ? 'rgba(205,127,50,0.05)' : 'transparent';
+        return `<div style="display:grid;grid-template-columns:32px 1fr 36px 36px 36px 52px 44px;gap:4px;align-items:center;padding:8px 10px;border-radius:7px;background:${rowBg};margin-bottom:3px;font-size:0.95rem;font-weight:600;letter-spacing:0.5px;">
+          <div style="font-size:1.1rem;text-align:center">${icon}</div>
+          <div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${t.name}</div>
+          <div style="text-align:center;color:#ff7a8a;font-size:0.8rem">${sub.F}</div>
+          <div style="text-align:center;color:#7db4ff;font-size:0.8rem">${sub.D}</div>
+          <div style="text-align:center;color:#ffb81c;font-size:0.8rem">${sub.G}</div>
+          <div style="text-align:center;color:#ffb81c;font-weight:800;font-size:1.05rem">${pts}</div>
+          <div style="text-align:center;color:rgba(255,255,255,0.4);font-size:0.8rem">${gap}</div>
+        </div>`;
+      }).join('');
+
+      card.innerHTML = `
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+          <div>
+            <div style="font-family:'Bebas Neue',cursive;font-size:1.6rem;letter-spacing:3px;color:#ffb81c;line-height:1">POOL STANDINGS</div>
+            <div style="font-size:0.75rem;color:rgba(255,255,255,0.4);letter-spacing:1px;text-transform:uppercase;margin-top:2px">${today}</div>
+          </div>
+          <div style="font-size:0.7rem;color:rgba(255,255,255,0.25);letter-spacing:1px">parieurdiscipline.com</div>
+        </div>
+        <div style="display:grid;grid-template-columns:32px 1fr 36px 36px 36px 52px 44px;gap:4px;align-items:center;padding:4px 10px 8px;font-size:0.68rem;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.3);">
+          <div></div><div>Team</div>
+          <div style="text-align:center;color:#ff7a8a">F</div>
+          <div style="text-align:center;color:#7db4ff">D</div>
+          <div style="text-align:center;color:#ffb81c">G</div>
+          <div style="text-align:center">PTS</div>
+          <div style="text-align:center">GAP</div>
+        </div>
+        <div style="border-top:1px solid rgba(255,255,255,0.07);padding-top:8px">${rows}</div>
+      `;
+
+      document.body.appendChild(card);
+
+      try {
+        const canvas = await html2canvas(card, {
+          backgroundColor: null, scale: 2, useCORS: true, logging: false
+        });
+
+        const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
+        const file = new File([blob], 'pool-standings.png', { type: 'image/png' });
+
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({ files: [file], title: 'Pool Standings', text: `Pool standings as of ${today} — parieurdiscipline.com` });
+        } else {
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url; a.download = 'pool-standings.png'; a.click();
+          setTimeout(() => URL.revokeObjectURL(url), 5000);
+        }
+      } catch(e) {
+        if (e.name !== 'AbortError') alert('Could not generate image. Try again.');
+      } finally {
+        document.body.removeChild(card);
+        btn.disabled = false;
+        btn.textContent = '📸 Share';
+      }
+    }
 </script>
 </body>
 </html>
