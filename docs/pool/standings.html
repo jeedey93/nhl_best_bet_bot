@@ -1173,28 +1173,33 @@
     function buildInsights(sorted, leaderPts) {
       const card = (color, icon, label, main, sub) =>
         `<div class="insight-card ${color}"><div class="insight-icon">${icon}</div><div class="insight-label">${label}</div><div class="insight-main ${color}">${main}</div><div class="insight-sub">${sub}</div></div>`;
-      const cards = [];
+      const cards = computeInsightData(sorted, leaderPts).map(d => card(d.color, d.icon, d.label, d.main, d.sub));
+      return cards.length ? `<div class="insights">${cards.join('')}</div>` : '';
+    }
+
+    function computeInsightData(sorted, leaderPts) {
+      const data = [];
 
       // 1. Leading / Closest Race
       if (sorted.length >= 2) {
         const gap = leaderPts - teamTotalPts(sorted[1]);
-        if (gap <= 15) cards.push(card('gold','🏆','Closest Race',`${sorted[0].name} vs ${sorted[1].name}`,`Only ${gap} pts separate 1st and 2nd`));
-        else cards.push(card('gold','👑','Leading', sorted[0].name, `${gap} pts ahead of ${sorted[1].name}`));
+        if (gap <= 15) data.push({ color:'gold', icon:'🏆', label:'Closest Race', main:`${sorted[0].name} vs ${sorted[1].name}`, sub:`Only ${gap} pts separate 1st and 2nd` });
+        else data.push({ color:'gold', icon:'👑', label:'Leading', main:sorted[0].name, sub:`${gap} pts ahead of ${sorted[1].name}` });
       }
 
       // 2. Best Efficiency
       const effTeams = sorted.map(t => { const cap = teamCapUsed(t.roster), pts = teamTotalPts(t); return { t, eff: cap > 0 ? pts / (cap / 1e6) : 0 }; }).filter(x => x.eff > 0).sort((a, b) => b.eff - a.eff);
-      if (effTeams.length) { const best = effTeams[0]; cards.push(card('green','⚡','Best Efficiency', best.t.name, `${best.eff.toFixed(2)} pts per $M — best in pool`)); }
+      if (effTeams.length) { const best = effTeams[0]; data.push({ color:'green', icon:'⚡', label:'Best Efficiency', main:best.t.name, sub:`${best.eff.toFixed(2)} pts per $M — best in pool` }); }
 
       // 3. Best Steal
       const allP = [];
       teams.forEach(t => { const rp = rosterPlayers(t.roster); [...rp.F, ...rp.D, ...rp.G].filter(Boolean).forEach(p => { const pts = poolScoreOwned(p, t, p._slug), capM = (p.cap_hit || 0) / 1e6; if (pts > 0 && capM > 0) allP.push({ p, t, pts, capM, ratio: pts / capM }); }); });
       allP.sort((a, b) => b.ratio - a.ratio);
-      if (allP.length) { const steal = allP[0]; cards.push(card('blue','🚀','Best Steal', formatName(steal.p.player_name), `${steal.pts} pts · $${steal.capM.toFixed(1)}M · owned by ${steal.t.name}`)); }
+      if (allP.length) { const steal = allP[0]; data.push({ color:'blue', icon:'🚀', label:'Best Steal', main:formatName(steal.p.player_name), sub:`${steal.pts} pts · $${steal.capM.toFixed(1)}M · owned by ${steal.t.name}` }); }
 
       // 4. Worst Contract
       const expensive = allP.filter(x => x.capM >= 2 && x.pts >= 1).sort((a, b) => a.ratio - b.ratio);
-      if (expensive.length) { const bust = expensive[0]; cards.push(card('red','💸','Worst Contract', formatName(bust.p.player_name), `${bust.pts} pts · $${bust.capM.toFixed(1)}M · owned by ${bust.t.name}`)); }
+      if (expensive.length) { const bust = expensive[0]; data.push({ color:'red', icon:'💸', label:'Worst Contract', main:formatName(bust.p.player_name), sub:`${bust.pts} pts · $${bust.capM.toFixed(1)}M · owned by ${bust.t.name}` }); }
 
       // 5. Biggest Mover (yesterday → today delta via localStorage snapshot)
       const snap = loadPtsSnapshot();
@@ -1206,7 +1211,7 @@
         }).filter(x => x && x.delta > 0).sort((a, b) => b.delta - a.delta);
         if (movers.length) {
           const top = movers[0];
-          cards.push(card('green','📈','Biggest Mover', top.t.name, `+${top.delta} pts since yesterday`));
+          data.push({ color:'green', icon:'📈', label:'Biggest Mover', main:top.t.name, sub:`+${top.delta} pts since yesterday` });
         }
       }
       savePtsSnapshot();
@@ -1225,36 +1230,27 @@
       carryData.sort((a, b) => b.pct - a.pct);
       if (carryData.length) {
         const top = carryData[0];
-        cards.push(card('blue','🏋️','Biggest Carry', formatName(top.p.player_name), `${top.pts} pts — ${Math.round(top.pct * 100)}% of ${top.t.name}'s total`));
+        data.push({ color:'blue', icon:'🏋️', label:'Biggest Carry', main:formatName(top.p.player_name), sub:`${top.pts} pts — ${Math.round(top.pct * 100)}% of ${top.t.name}'s total` });
       }
 
       // 7. Coldest Team — position group ranked last in the pool
-      const posGroups = [];
-      teams.forEach(t => {
-        ['F','D','G'].forEach(pos => {
-          posGroups.push({ t, pos, score: teamSubScores(t)[pos] });
-        });
-      });
-      // For each position, find the last-ranked team
       const coldCandidates = [];
       ['F','D','G'].forEach(pos => {
         const ranked = [...teams].map(t => ({ t, score: teamSubScores(t)[pos] })).sort((a, b) => a.score - b.score);
         const last = ranked[0];
-        // Only flag if at least one other team has meaningfully more pts in that pos
         const second = ranked[1];
         if (last && second && second.score - last.score >= 5) {
           coldCandidates.push({ t: last.t, pos, score: last.score, gap: second.score - last.score });
         }
       });
-      // Pick the position group with the largest gap to second-last
       coldCandidates.sort((a, b) => b.gap - a.gap);
       if (coldCandidates.length) {
         const cold = coldCandidates[0];
         const posLabel = { F: 'Forwards', D: 'Defence', G: 'Goalies' }[cold.pos];
-        cards.push(card('red','🥶','Coldest Team', cold.t.name, `${posLabel} last in pool with ${cold.score} pts`));
+        data.push({ color:'red', icon:'🥶', label:'Coldest Team', main:cold.t.name, sub:`${posLabel} last in pool with ${cold.score} pts` });
       }
 
-      return cards.length ? `<div class="insights">${cards.join('')}</div>` : '';
+      return data;
     }
 
     function buildLeaderboard(sorted, leaderPts) {
@@ -1582,6 +1578,21 @@
       }
 
       const sorted = sortedTeams();
+      const leaderPts = sorted.length ? teamTotalPts(sorted[0]) : 0;
+
+      // Top 3 insights
+      const insightColors = { gold: '#ffb81c', green: '#22c55e', blue: '#7db4ff', red: '#ff5050' };
+      const insightBgs    = { gold: 'rgba(255,184,28,0.08)', green: 'rgba(34,197,94,0.07)', blue: 'rgba(125,180,255,0.07)', red: 'rgba(255,80,80,0.07)' };
+      const insights = computeInsightData(sorted, leaderPts).slice(0, 3);
+      const insightHtml = insights.map(d => `
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;background:${insightBgs[d.color]};border:1px solid ${insightColors[d.color]}22;margin-bottom:6px">
+          <div style="font-size:1.3rem;line-height:1;flex-shrink:0">${d.icon}</div>
+          <div>
+            <div style="font-size:0.62rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:1px">${d.label}</div>
+            <div style="font-family:'Bebas Neue',cursive;font-size:1rem;letter-spacing:1.5px;color:${insightColors[d.color]};line-height:1.2">${d.main}</div>
+            <div style="font-size:0.75rem;font-weight:600;color:rgba(168,178,190,0.9);margin-top:1px">${d.sub}</div>
+          </div>
+        </div>`).join('');
 
       // Build an off-screen card to capture
       const card = document.createElement('div');
@@ -1622,6 +1633,7 @@
           </div>
           <div style="font-size:0.7rem;color:rgba(255,255,255,0.25);letter-spacing:1px">parieurdiscipline.com</div>
         </div>
+        ${insightHtml ? `<div style="margin-bottom:14px">${insightHtml}</div>` : ''}
         <div style="display:grid;grid-template-columns:32px 1fr 36px 36px 36px 52px 44px;gap:4px;align-items:center;padding:4px 10px 8px;font-size:0.68rem;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.3);">
           <div></div><div>Team</div>
           <div style="text-align:center;color:#ff7a8a">F</div>
