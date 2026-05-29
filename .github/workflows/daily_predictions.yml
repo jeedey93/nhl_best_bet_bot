@@ -2,10 +2,10 @@ name: Daily NHL/NBA Dual Predictions
 
 on:
   schedule:
-    # 7:00AM Montreal target — scheduled at 08:00 UTC (4am Montreal) to absorb GitHub Actions queue delays of up to 3h
-    - cron: '0 8 * * *'
-    # 3:00PM Montreal target — scheduled at 14:00 UTC (10am Montreal) to absorb GitHub Actions queue delays of up to 3h
-    - cron: '0 14 * * *'
+    # 7:00AM Montreal (EDT UTC-4) = 11:00 UTC
+    - cron: '0 11 * * *'
+    # 3:00PM Montreal (EDT UTC-4) = 19:00 UTC
+    - cron: '0 19 * * *'
   workflow_dispatch:
 
 jobs:
@@ -40,10 +40,10 @@ jobs:
       - name: Determine run time
         id: run_time
         run: |
-          # Crons: 08:00 UTC = 7am run, 14:00 UTC = 3pm run
-          # Window: anything before UTC 14 (even if delayed 3h) = 7am run
+          # Crons: 11:00 UTC = 7am Montreal run, 19:00 UTC = 3pm Montreal run
+          # Window: anything before UTC 17 = 7am run
           HOUR=$(date -u +%H)
-          if [ "$HOUR" -lt 14 ]; then
+          if [ "$HOUR" -lt 17 ]; then
             echo "time=7am" >> $GITHUB_OUTPUT
           else
             echo "time=3pm" >> $GITHUB_OUTPUT
