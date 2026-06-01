@@ -154,12 +154,15 @@
     .pt-cell.yours.pts4 .pt-prospect-name { color: #22c55e; }
     .pt-cell.yours.pts2 .pt-prospect-name { color: #60a5fa; }
     .pt-cell.yours.pts1 .pt-prospect-name { color: #fbbf24; }
-    .exact-badge { display: inline-block; font-family: 'Barlow Condensed', sans-serif; font-size: 0.6rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; background: rgba(34,197,94,0.2); color: #22c55e; border-radius: 3px; padding: 1px 5px; margin-top: 2px; }
+    .pt-cell.exact-merged { background: rgba(34,197,94,0.12); border: 1px solid rgba(34,197,94,0.35); }
+    .pt-cell.exact-merged .pt-prospect-name { color: #22c55e; }
+    .exact-tag { display: inline-flex; align-items: center; gap: 3px; font-family: 'Barlow Condensed', sans-serif; font-size: 0.6rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: rgba(34,197,94,0.7); margin-top: 2px; }
     .pt-prospect-meta { font-family: 'Barlow Condensed', sans-serif; font-size: 0.6rem; font-weight: 600; color: rgba(255,255,255,0.3); letter-spacing: 0.5px; }
-    .pt-pts-val { font-family: 'Bebas Neue', cursive; font-size: 1.1rem; text-align: center; color: rgba(255,255,255,0.15); }
-    .pt-pts-val.v4 { color: #22c55e; }
-    .pt-pts-val.v2 { color: #60a5fa; }
-    .pt-pts-val.v1 { color: #fbbf24; }
+    .pt-pts-badge { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 6px; font-family: 'Bebas Neue', cursive; font-size: 1.05rem; letter-spacing: 1px; }
+    .pt-pts-badge.v4 { background: rgba(34,197,94,0.18); color: #22c55e; }
+    .pt-pts-badge.v2 { background: rgba(96,165,250,0.18); color: #60a5fa; }
+    .pt-pts-badge.v1 { background: rgba(251,191,36,0.15); color: #fbbf24; }
+    .pt-pts-badge.v0 { background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.18); }
 
     .lb-row { cursor: pointer; transition: background 0.12s, border-color 0.12s, transform 0.1s; }
     .lb-row:hover { background: rgba(255,255,255,0.06) !important; border-color: rgba(255,255,255,0.15) !important; }
@@ -413,26 +416,33 @@
       const yourP = yourRank ? prospectByRank[parseInt(yourRank)] : null;
       const pts = (hasActual && actualRank && yourRank) ? pickPoints(yourRank, actualRank) : null;
       const ptsCls = pts === 4 ? 'pts4' : pts === 2 ? 'pts2' : pts === 1 ? 'pts1' : '';
-      const ptsValCls = pts === 4 ? 'v4' : pts === 2 ? 'v2' : pts === 1 ? 'v1' : '';
 
-      const actualCell = actualP
-        ? `<div class="pt-cell actual"><div class="pt-prospect-name">${escHtml(actualP.name)}</div></div>`
-        : `<div class="pt-cell actual-empty"></div>`;
+      let actualTd, yourTd;
+      if (pts === 4) {
+        actualTd = `<td colspan="2"><div class="pt-cell exact-merged"><div class="pt-prospect-name">${escHtml(actualP.name)}</div><span class="exact-tag">✓ exact match</span></div></td>`;
+        yourTd = '';
+      } else {
+        const actualCell = actualP
+          ? `<div class="pt-cell actual"><div class="pt-prospect-name">${escHtml(actualP.name)}</div></div>`
+          : `<div class="pt-cell actual-empty"></div>`;
+        const yourCell = yourP
+          ? `<div class="pt-cell yours ${ptsCls}"><div class="pt-prospect-name">${escHtml(yourP.name)}</div></div>`
+          : `<div class="pt-cell yours" style="opacity:0.3"><div class="pt-prospect-meta" style="font-style:italic">no pick</div></div>`;
+        actualTd = `<td>${actualCell}</td>`;
+        yourTd = `<td>${yourCell}</td>`;
+      }
 
-      const yourCell = yourP
-        ? `<div class="pt-cell yours ${ptsCls}"><div class="pt-prospect-name">${escHtml(yourP.name)}</div>${pts === 4 ? '<span class="exact-badge">✓ exact</span>' : ''}</div>`
-        : `<div class="pt-cell yours" style="opacity:0.3"><div class="pt-prospect-meta" style="font-style:italic">no pick</div></div>`;
-
+      const badgeCls = pts === 4 ? 'v4' : pts === 2 ? 'v2' : pts === 1 ? 'v1' : 'v0';
+      const badgeLabel = pts !== null && pts > 0 ? String(pts) : '—';
       const ptsCell = hasActual && pts !== null
-        ? `<div class="pt-pts-val ${ptsValCls}">${pts > 0 ? '+'+pts : '—'}</div>`
-        : `<div class="pt-pts-val">—</div>`;
+        ? `<div class="pt-pts-badge ${badgeCls}">${badgeLabel}</div>`
+        : `<div class="pt-pts-badge v0">—</div>`;
 
       rows += `<tr class="pt-row">
         <td class="pt-num">${d.pick}</td>
         <td class="pt-logo"><img src="https://assets.nhle.com/logos/nhl/svg/${d.abbr}_light.svg" alt="${d.abbr}" title="${escHtml(d.team)}" onerror="this.style.visibility='hidden'"></td>
-        <td>${actualCell}</td>
-        <td>${yourCell}</td>
-        <td>${ptsCell}</td>
+        ${actualTd}${yourTd}
+        <td style="text-align:center">${ptsCell}</td>
       </tr>`;
     }
 
