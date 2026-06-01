@@ -60,6 +60,7 @@
     .actual-select:focus { outline: none; border-color: rgba(255,184,28,0.5); }
     .actual-select.set { color: white; border-color: rgba(34,197,94,0.3); background-color: rgba(34,197,94,0.03); }
     .actual-select option { background: #0d1f35; }
+    .actual-select option:disabled { color: rgba(255,255,255,0.2); }
     .btn-save-actual { font-family: 'Bebas Neue', cursive; font-size: 0.95rem; letter-spacing: 2px; background: linear-gradient(135deg, #ffb81c, #e07b00); color: #07111f; border: none; border-radius: 7px; padding: 0.6rem 1.5rem; cursor: pointer; margin-top: 0.75rem; transition: opacity 0.15s; }
     .btn-save-actual:hover { opacity: 0.85; }
     .btn-save-actual:disabled { opacity: 0.35; cursor: default; }
@@ -255,13 +256,37 @@
     }
   }
 
+  function getUsedRanks(excludePick) {
+    const used = new Set();
+    for (const d of DRAFT_ORDER) {
+      if (d.pick === excludePick) continue;
+      const sel = document.getElementById(`act-${d.pick}`);
+      if (sel?.value) used.add(sel.value);
+    }
+    return used;
+  }
+
+  function syncDropdowns(changedPick) {
+    for (const d of DRAFT_ORDER) {
+      const sel = document.getElementById(`act-${d.pick}`);
+      if (!sel) continue;
+      const current = sel.value;
+      const used = getUsedRanks(d.pick);
+      for (const opt of sel.options) {
+        if (!opt.value) continue;
+        opt.disabled = used.has(opt.value);
+      }
+      sel.classList.toggle('set', !!current);
+    }
+  }
+
   function renderActualPicks() {
     const optionsHtml = PROSPECTS.map(p => `<option value="${p.rank}">#${p.rank} ${escHtml(p.name)}</option>`).join('');
     const rows = DRAFT_ORDER.map(d => `
       <div class="actual-row">
         <div class="actual-num">${d.pick}</div>
         <div class="actual-team">${escHtml(d.team)}</div>
-        <select class="actual-select${_actualPicks[d.pick] ? ' set' : ''}" id="act-${d.pick}" onchange="this.classList.toggle('set',!!this.value)">
+        <select class="actual-select${_actualPicks[d.pick] ? ' set' : ''}" id="act-${d.pick}" onchange="syncDropdowns(${d.pick})">
           <option value="">— Not set —</option>
           ${optionsHtml}
         </select>
@@ -275,6 +300,7 @@
       const sel = document.getElementById(`act-${pick}`);
       if (sel) { sel.value = String(rank); sel.classList.add('set'); }
     }
+    syncDropdowns(null);
   }
 
   async function saveActual() {
