@@ -235,7 +235,8 @@
     <button class="btn-autofill" id="btn-autofill" onclick="autoFill()">Auto-fill rest</button>
     <button class="btn-submit" id="btn-submit" onclick="submitPicks()" disabled>Submit</button>
   </div>
-  <input class="name-input" id="name-input" type="text" maxlength="24" placeholder="Your name" autocomplete="off" onkeydown="if(event.key==='Enter') submitPicks()">
+  <input class="name-input" id="name-input" type="text" maxlength="24" placeholder="Your name" autocomplete="off">
+  <input class="name-input" id="email-input" type="email" placeholder="Your email" autocomplete="email" onkeydown="if(event.key==='Enter') submitPicks()">
 </div>
 
 <script>
@@ -507,21 +508,36 @@
   // ── Submit
   async function submitPicks() {
     const nameEl = document.getElementById('name-input');
+    const emailEl = document.getElementById('email-input');
     const name = nameEl.value.trim();
+    const email = emailEl.value.trim().toLowerCase();
+
     if (!name) {
       nameEl.classList.add('shake'); nameEl.focus();
       setTimeout(() => nameEl.classList.remove('shake'), 400);
       showToast('Enter your name to submit.', true); return;
     }
+    if (!email || !email.includes('@')) {
+      emailEl.classList.add('shake'); emailEl.focus();
+      setTimeout(() => emailEl.classList.remove('shake'), 400);
+      showToast('Enter a valid email to submit.', true); return;
+    }
     const count = Object.keys(_picks).length;
     if (count === 0) { showToast('Assign at least one prospect first.', true); return; }
 
     // Check if name already exists
-    const checkRes = await fetch(`${SUPABASE_URL}/rest/v1/draft_pool_entries?pool_code=eq.${POOL_CODE}&participant_name=eq.${encodeURIComponent(name)}&select=id`, {
+    const checkRes = await fetch(`${SUPABASE_URL}/rest/v1/draft_pool_entries?pool_code=eq.${POOL_CODE}&participant_name=eq.${encodeURIComponent(name)}&select=id,email`, {
       headers: sbHeaders()
     });
     const existing = checkRes.ok ? await checkRes.json() : [];
     if (existing.length > 0) {
+      const existingEmail = existing[0].email?.toLowerCase();
+      if (existingEmail && existingEmail !== email) {
+        showToast('Wrong email for this name. Use the same email as your original submission.', true);
+        emailEl.classList.add('shake');
+        setTimeout(() => emailEl.classList.remove('shake'), 400);
+        return;
+      }
       const confirmed = await showModal(
         `Picks already submitted under <strong>${escHtml(name)}</strong>.<br><br>Re-submitting will overwrite your previous entry.`,
         '⚠️', 'Already Submitted', 'Update Picks'
@@ -536,7 +552,7 @@
       const res = await fetch(`${SUPABASE_URL}/rest/v1/draft_pool_entries`, {
         method: 'POST',
         headers: { ...sbHeaders(), 'Prefer': 'resolution=merge-duplicates,return=minimal' },
-        body: JSON.stringify({ pool_code: POOL_CODE, participant_name: name, picks: _picks, pick_count: count }),
+        body: JSON.stringify({ pool_code: POOL_CODE, participant_name: name, email, picks: _picks, pick_count: count }),
       });
       if (!res.ok) {
         const body = await res.text();

@@ -199,7 +199,7 @@
 
   async function loadParticipants() {
     try {
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/draft_pool_entries?pool_code=eq.${POOL_CODE}&order=submitted_at.asc&select=id,participant_name,pick_count,submitted_at,updated_at`, { headers: sbHeaders() });
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/draft_pool_entries?pool_code=eq.${POOL_CODE}&order=submitted_at.asc&select=id,participant_name,email,pick_count,submitted_at,updated_at`, { headers: sbHeaders() });
       if (!res.ok) throw new Error(res.status);
       renderParticipants(await res.json());
     } catch(e) {
@@ -218,7 +218,7 @@
       <div class="participant-row" id="row-${p.id}">
         <div>
           <div class="p-name">${escHtml(p.participant_name)}</div>
-          <div class="p-date">Submitted ${formatDate(p.submitted_at)}${p.updated_at !== p.submitted_at ? ' · Updated ' + formatDate(p.updated_at) : ''}</div>
+          <div class="p-date">${p.email ? escHtml(p.email) + ' · ' : ''}Submitted ${formatDate(p.submitted_at)}${p.updated_at !== p.submitted_at ? ' · Updated ' + formatDate(p.updated_at) : ''}</div>
         </div>
         <div class="p-picks ${p.pick_count >= 32 ? 'complete' : ''}">${p.pick_count}/32</div>
         <button class="btn-delete" onclick="deleteParticipant(${p.id}, '${escHtml(p.participant_name).replace(/'/g,"\\'")}')">Delete</button>
