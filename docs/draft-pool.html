@@ -203,7 +203,7 @@
 <div class="submit-bar">
   <div class="submit-bar-top">
     <div class="submit-count" id="submit-count"><strong>0</strong>/32</div>
-    <button class="btn-autofill" id="btn-autofill" onclick="autoFill()" style="display:none">Auto-fill rest</button>
+    <button class="btn-autofill" id="btn-autofill" onclick="autoFill()">Auto-fill rest</button>
     <button class="btn-submit" id="btn-submit" onclick="submitPicks()" disabled>Submit</button>
   </div>
   <input class="name-input" id="name-input" type="text" maxlength="24" placeholder="Your name" autocomplete="off" onkeydown="if(event.key==='Enter') submitPicks()">
@@ -423,7 +423,7 @@
     document.getElementById('progress-fill').style.width = `${(count / 32) * 100}%`;
     document.getElementById('submit-count').innerHTML = `<strong>${count}</strong>/32`;
     document.getElementById('btn-submit').disabled = count < 32;
-    document.getElementById('btn-autofill').style.display = (count > 0 && count < 32) ? 'inline-block' : 'none';
+    document.getElementById('btn-autofill').style.display = (count < 32) ? 'inline-block' : 'none';
   }
 
   function autoFill() {
