@@ -68,18 +68,20 @@
     .board-table th, .board-table td { padding: 0; }
 
     /* Sticky left columns */
-    .col-num  { width: 36px; min-width: 36px; position: sticky; left: 0; z-index: 2; background: #07111f; }
-    .col-team { width: 130px; min-width: 110px; position: sticky; left: 36px; z-index: 2; background: #07111f; padding-right: 0.5rem; }
+    .col-num  { width: 32px; min-width: 32px; position: sticky; left: 0; z-index: 2; background: #07111f; }
+    .col-team { width: 36px; min-width: 36px; position: sticky; left: 32px; z-index: 2; background: #07111f; padding-right: 0.4rem; }
 
     /* Header */
     .th-num  { font-family: 'Bebas Neue', cursive; font-size: 0.7rem; letter-spacing: 1px; color: rgba(255,255,255,0.25); text-align: center; padding-bottom: 0.4rem; position: sticky; left: 0; z-index: 3; background: #07111f; }
-    .th-team { font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem; font-weight: 700; color: rgba(255,255,255,0.3); letter-spacing: 1px; padding-bottom: 0.4rem; padding-right: 0.5rem; position: sticky; left: 36px; z-index: 3; background: #07111f; }
+    .th-team { width: 36px; padding-bottom: 0.4rem; padding-right: 0.4rem; position: sticky; left: 32px; z-index: 3; background: #07111f; }
     .th-name { font-family: 'Bebas Neue', cursive; font-size: 0.75rem; letter-spacing: 1.5px; color: var(--gold); text-align: center; writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; height: 90px; overflow: hidden; text-overflow: ellipsis; padding: 0 0.2rem 0.4rem; vertical-align: bottom; }
     .th-actual { font-family: 'Bebas Neue', cursive; font-size: 0.7rem; letter-spacing: 1px; color: #22c55e; text-align: center; padding-bottom: 0.4rem; opacity: 0.8; vertical-align: bottom; }
 
     /* Body cells */
     .td-num  { font-family: 'Bebas Neue', cursive; font-size: 1.1rem; color: rgba(255,255,255,0.2); text-align: center; vertical-align: middle; }
-    .td-team { font-family: 'Barlow Condensed', sans-serif; font-size: 0.78rem; font-weight: 700; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 130px; vertical-align: middle; }
+    .td-team { vertical-align: middle; text-align: center; }
+    .td-team img { width: 28px; height: 28px; object-fit: contain; display: block; margin: 0 auto; }
+    .td-via { font-family: 'Barlow Condensed', sans-serif; font-size: 0.52rem; font-weight: 700; color: rgba(255,255,255,0.2); letter-spacing: 0.5px; text-align: center; margin-top: 1px; }
     .td-cell { padding: 0 0.2rem; vertical-align: middle; min-width: 58px; }
 
     .comp-cell { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 6px; padding: 0.3rem 0.2rem; text-align: center; min-height: 36px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: default; transition: background 0.1s; }
@@ -160,38 +162,38 @@
   function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 
   const DRAFT_ORDER = [
-    { pick: 1,  team: 'Toronto Maple Leafs',    via: '' },
-    { pick: 2,  team: 'San Jose Sharks',         via: '' },
-    { pick: 3,  team: 'Vancouver Canucks',       via: '' },
-    { pick: 4,  team: 'Chicago Blackhawks',      via: '' },
-    { pick: 5,  team: 'New York Rangers',        via: '' },
-    { pick: 6,  team: 'Calgary Flames',          via: '' },
-    { pick: 7,  team: 'Seattle Kraken',          via: '' },
-    { pick: 8,  team: 'Winnipeg Jets',           via: '' },
-    { pick: 9,  team: 'Florida Panthers',        via: '' },
-    { pick: 10, team: 'Nashville Predators',     via: '' },
-    { pick: 11, team: 'St. Louis Blues',         via: '' },
-    { pick: 12, team: 'New Jersey Devils',       via: '' },
-    { pick: 13, team: 'New York Islanders',      via: '' },
-    { pick: 14, team: 'Columbus Blue Jackets',   via: '' },
-    { pick: 15, team: 'St. Louis Blues',         via: 'DET' },
-    { pick: 16, team: 'Washington Capitals',     via: '' },
-    { pick: 17, team: 'Los Angeles Kings',       via: '' },
-    { pick: 18, team: 'Washington Capitals',     via: 'ANA' },
-    { pick: 19, team: 'Utah Hockey Club',        via: '' },
-    { pick: 20, team: 'San Jose Sharks',         via: 'EDM' },
-    { pick: 21, team: 'Philadelphia Flyers',     via: '' },
-    { pick: 22, team: 'Pittsburgh Penguins',     via: '' },
-    { pick: 23, team: 'Boston Bruins',           via: '' },
-    { pick: 24, team: 'Vancouver Canucks',       via: 'MIN' },
-    { pick: 25, team: 'Seattle Kraken',          via: 'TB' },
-    { pick: 26, team: 'New York Rangers',        via: 'DAL' },
-    { pick: 27, team: 'Buffalo Sabres',          via: '' },
-    { pick: 28, team: 'Montreal Canadiens',      via: '' },
-    { pick: 29, team: 'St. Louis Blues',         via: 'COL' },
-    { pick: 30, team: 'Calgary Flames',          via: 'VGK' },
-    { pick: 31, team: 'Carolina Hurricanes',     via: '' },
-    { pick: 32, team: 'Ottawa Senators',         via: '' },
+    { pick: 1,  team: 'Toronto Maple Leafs',    abbr: 'TOR', via: '' },
+    { pick: 2,  team: 'San Jose Sharks',         abbr: 'SJS', via: '' },
+    { pick: 3,  team: 'Vancouver Canucks',       abbr: 'VAN', via: '' },
+    { pick: 4,  team: 'Chicago Blackhawks',      abbr: 'CHI', via: '' },
+    { pick: 5,  team: 'New York Rangers',        abbr: 'NYR', via: '' },
+    { pick: 6,  team: 'Calgary Flames',          abbr: 'CGY', via: '' },
+    { pick: 7,  team: 'Seattle Kraken',          abbr: 'SEA', via: '' },
+    { pick: 8,  team: 'Winnipeg Jets',           abbr: 'WPG', via: '' },
+    { pick: 9,  team: 'Florida Panthers',        abbr: 'FLA', via: '' },
+    { pick: 10, team: 'Nashville Predators',     abbr: 'NSH', via: '' },
+    { pick: 11, team: 'St. Louis Blues',         abbr: 'STL', via: '' },
+    { pick: 12, team: 'New Jersey Devils',       abbr: 'NJD', via: '' },
+    { pick: 13, team: 'New York Islanders',      abbr: 'NYI', via: '' },
+    { pick: 14, team: 'Columbus Blue Jackets',   abbr: 'CBJ', via: '' },
+    { pick: 15, team: 'St. Louis Blues',         abbr: 'STL', via: 'DET' },
+    { pick: 16, team: 'Washington Capitals',     abbr: 'WSH', via: '' },
+    { pick: 17, team: 'Los Angeles Kings',       abbr: 'LAK', via: '' },
+    { pick: 18, team: 'Washington Capitals',     abbr: 'WSH', via: 'ANA' },
+    { pick: 19, team: 'Utah Hockey Club',        abbr: 'UTA', via: '' },
+    { pick: 20, team: 'San Jose Sharks',         abbr: 'SJS', via: 'EDM' },
+    { pick: 21, team: 'Philadelphia Flyers',     abbr: 'PHI', via: '' },
+    { pick: 22, team: 'Pittsburgh Penguins',     abbr: 'PIT', via: '' },
+    { pick: 23, team: 'Boston Bruins',           abbr: 'BOS', via: '' },
+    { pick: 24, team: 'Vancouver Canucks',       abbr: 'VAN', via: 'MIN' },
+    { pick: 25, team: 'Seattle Kraken',          abbr: 'SEA', via: 'TB' },
+    { pick: 26, team: 'New York Rangers',        abbr: 'NYR', via: 'DAL' },
+    { pick: 27, team: 'Buffalo Sabres',          abbr: 'BUF', via: '' },
+    { pick: 28, team: 'Montreal Canadiens',      abbr: 'MTL', via: '' },
+    { pick: 29, team: 'St. Louis Blues',         abbr: 'STL', via: 'COL' },
+    { pick: 30, team: 'Calgary Flames',          abbr: 'CGY', via: 'VGK' },
+    { pick: 31, team: 'Carolina Hurricanes',     abbr: 'CAR', via: '' },
+    { pick: 32, team: 'Ottawa Senators',         abbr: 'OTT', via: '' },
   ];
 
   const PROSPECTS = [
@@ -348,7 +350,10 @@
       const actualProspect = actualRank ? prospectByRank[actualRank] : null;
       html += `<tr>
         <td class="col-num td-num">${d.pick}</td>
-        <td class="col-team td-team">${escHtml(d.team)}</td>
+        <td class="col-team td-team">
+          <img src="https://assets.nhle.com/logos/nhl/svg/${d.abbr}_light.svg" alt="${d.abbr}" title="${escHtml(d.team)}" onerror="this.style.visibility='hidden'">
+          ${d.via ? `<div class="td-via">${d.via}</div>` : ''}
+        </td>
         ${hasActual ? `<td class="td-cell">${actualProspect
           ? `<div class="actual-pick-cell"><div class="actual-pick-rank">#${actualRank}</div><div class="actual-pick-name">${escHtml(actualProspect.name.split(' ').pop())}</div></div>`
           : `<div class="actual-pick-empty"></div>`
