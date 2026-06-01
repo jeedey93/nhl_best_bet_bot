@@ -100,7 +100,7 @@
 <nav class="site-nav">
   <div class="site-nav-inner">
     <a class="site-nav-brand" href="../index.html">Parieur Discipliné</a>
-    <a class="site-nav-back" href="../draft-pool.html">← All Pools</a>
+    <a class="site-nav-back" href="../draft-pool.html">← Make Picks</a>
   </div>
 </nav>
 
@@ -125,8 +125,7 @@
 <script>
   const SUPABASE_URL = 'https://fifurqlitkywtmhgtzeu.supabase.co';
   const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZpZnVycWxpdGt5d3RtaGd0emV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3MDIyMjQsImV4cCI6MjA5MjI3ODIyNH0.KPVPj1qwbSJJMyLR_-AhDcRs0vi2sUU6qbFQ-kH53C0';
-  const params = new URLSearchParams(window.location.search);
-  const POOL_CODE = (params.get('pool') || '').toUpperCase();
+  const POOL_CODE = 'DRAFT2026';
 
   function sbHeaders() { return { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' }; }
   function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
@@ -186,12 +185,11 @@
   let _adminOpen = false;
 
   async function init() {
-    if (!POOL_CODE) { document.getElementById('content-wrap').innerHTML = '<div class="no-data">No pool code provided.</div>'; return; }
     const res = await fetch(`${SUPABASE_URL}/rest/v1/draft_pools?code=eq.${POOL_CODE}&select=code,name,actual_picks`, { headers: sbHeaders() });
     const rows = res.ok ? await res.json() : [];
     if (!rows.length) { document.getElementById('content-wrap').innerHTML = '<div class="no-data">Pool not found.</div>'; return; }
     const pool = rows[0];
-    document.getElementById('pool-badge').innerHTML = `<span>Pool</span> <span class="pool-code-badge">${POOL_CODE}</span> <span>·</span> <span>${escHtml(pool.name || POOL_CODE)}</span>`;
+    document.getElementById('pool-badge').innerHTML = `<span>2026 NHL Draft Pool</span>`;
     _actualPicks = pool.actual_picks || {};
 
     const entRes = await fetch(

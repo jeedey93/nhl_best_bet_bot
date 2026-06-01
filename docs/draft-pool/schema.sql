@@ -3,12 +3,11 @@
 -- Run in Supabase SQL Editor
 -- ============================================================
 
--- 1. Draft pools (one per group of friends)
+-- 1. Draft pools table
 CREATE TABLE IF NOT EXISTS draft_pools (
   id           bigserial PRIMARY KEY,
   code         text NOT NULL UNIQUE,
   name         text,
-  access_token text,
   actual_picks jsonb,        -- {pick#: prospect_rank} — set after the real draft
   created_at   timestamptz DEFAULT now()
 );
@@ -27,6 +26,7 @@ CREATE TABLE IF NOT EXISTS draft_pool_entries (
 
 CREATE INDEX IF NOT EXISTS idx_draft_pool_entries_pool ON draft_pool_entries(pool_code);
 
--- 3. Open read/write for now (add RLS later if needed)
--- Anyone with the pool code can read/write entries.
--- The actual_picks field on draft_pools is only updated by the organizer.
+-- 3. Seed the single global pool
+INSERT INTO draft_pools (code, name)
+VALUES ('DRAFT2026', '2026 NHL Draft Pool')
+ON CONFLICT (code) DO NOTHING;
