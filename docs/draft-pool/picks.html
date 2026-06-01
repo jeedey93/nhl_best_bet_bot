@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Make Your Picks | 2026 NHL Draft Pool</title>
+  <link rel="icon" type="image/png" href="../parieur_discipline_icon_1024.png">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --rink: #07111f;
+      --red: #c8102e;
+      --gold: #ffb81c;
+      --silver: #a8b2be;
+      --green: #22c55e;
+      --blue: #7db4ff;
+      --line: rgba(255,255,255,0.08);
+      --nav-h: 44px;
+    }
+    body { background: var(--rink); background-image: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(26,58,110,0.6) 0%, transparent 70%); min-height: 100vh; font-family: 'Barlow Condensed', sans-serif; color: white; padding-top: var(--nav-h); display: flex; flex-direction: column; }
+
+    .site-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(7,17,31,0.92); border-bottom: 1px solid var(--line); backdrop-filter: blur(12px); }
+    .site-nav-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: var(--nav-h); padding: 0 1.5rem; }
+    .site-nav-brand { font-family: 'Bebas Neue', cursive; font-size: 1.5rem; color: var(--gold); letter-spacing: 4px; text-decoration: none; }
+    .site-nav-back { font-family: 'Barlow Condensed', sans-serif; font-size: 0.9rem; font-weight: 600; color: var(--silver); text-decoration: none; letter-spacing: 1px; padding: 0.3rem 0.7rem; border-radius: 5px; transition: color 0.15s, background 0.15s; }
+    .site-nav-back:hover { color: white; background: rgba(255,255,255,0.07); }
+
+    /* ── Header ── */
+    .page-header { text-align: center; padding: 1.25rem 1rem 0.5rem; }
+    .page-header h1 { font-family: 'Bebas Neue', cursive; font-size: clamp(1.8rem, 4vw, 2.8rem); letter-spacing: 5px; text-shadow: 0 0 30px rgba(200,16,46,0.35), 0 2px 8px rgba(0,0,0,0.8); }
+    .page-header h1 span { color: var(--gold); }
+    .pool-badge { display: inline-flex; align-items: center; gap: 6px; margin-top: 0.4rem; font-family: 'Barlow Condensed', sans-serif; font-size: 0.8rem; font-weight: 600; color: var(--silver); letter-spacing: 1.5px; }
+    .pool-code-badge { font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 3px; color: var(--gold); background: rgba(255,184,28,0.1); border: 1px solid rgba(255,184,28,0.3); border-radius: 4px; padding: 1px 10px; }
+
+    /* ── Name form ── */
+    .name-section { display: flex; flex-direction: column; align-items: center; gap: 0.6rem; padding: 1rem 1.25rem 0.5rem; }
+    .name-row { display: flex; gap: 0.5rem; width: 100%; max-width: 480px; align-items: center; }
+    .name-input { font-family: 'Barlow Condensed', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 1px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15); color: white; border-radius: 7px; padding: 0.5rem 0.9rem; flex: 1; transition: border-color 0.15s; }
+    .name-input::placeholder { color: rgba(255,255,255,0.3); }
+    .name-input:focus { outline: none; border-color: rgba(255,184,28,0.5); }
+    .name-hint { font-size: 0.78rem; color: rgba(255,255,255,0.3); letter-spacing: 0.5px; }
+    .name-tag { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 2px; color: var(--gold); background: rgba(255,184,28,0.1); border: 1px solid rgba(255,184,28,0.25); border-radius: 6px; padding: 0.45rem 1rem; white-space: nowrap; display: flex; align-items: center; gap: 6px; }
+    .name-tag-change { font-size: 0.65rem; color: rgba(255,184,28,0.5); cursor: pointer; letter-spacing: 1px; }
+    .name-tag-change:hover { color: var(--gold); }
+
+    /* ── Progress bar ── */
+    .progress-wrap { max-width: 900px; width: 100%; margin: 0 auto; padding: 0.5rem 1.25rem 0; }
+    .progress-label { font-family: 'Barlow Condensed', sans-serif; font-size: 0.75rem; font-weight: 700; color: var(--silver); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 0.3rem; display: flex; justify-content: space-between; }
+    .progress-bar { height: 4px; background: rgba(255,255,255,0.08); border-radius: 2px; overflow: hidden; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--gold), #ff8c00); border-radius: 2px; transition: width 0.3s ease; }
+
+    /* ── Draft board ── */
+    .board-wrap { max-width: 900px; width: 100%; margin: 0.75rem auto 0; padding: 0 1.25rem 1.5rem; }
+    .round-label { font-family: 'Bebas Neue', cursive; font-size: 0.8rem; letter-spacing: 3px; color: rgba(255,255,255,0.25); margin: 1rem 0 0.5rem; }
+
+    .pick-row {
+      display: grid;
+      grid-template-columns: 44px 1fr 1fr;
+      gap: 0.5rem;
+      align-items: center;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 10px;
+      padding: 0.55rem 0.75rem;
+      margin-bottom: 0.4rem;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .pick-row:hover { border-color: rgba(255,255,255,0.12); background: rgba(255,255,255,0.04); }
+    .pick-row.filled { border-color: rgba(255,184,28,0.2); background: rgba(255,184,28,0.03); }
+
+    .pick-num {
+      font-family: 'Bebas Neue', cursive; font-size: 1.4rem; letter-spacing: 1px;
+      color: rgba(255,255,255,0.18); text-align: center; line-height: 1;
+    }
+    .pick-row.filled .pick-num { color: var(--gold); }
+
+    .pick-team-col { display: flex; flex-direction: column; gap: 2px; }
+    .pick-team-name { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 2px; color: white; line-height: 1; }
+    .pick-team-sub { font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem; font-weight: 600; color: rgba(255,255,255,0.3); letter-spacing: 1px; }
+
+    .pick-prospect-col { position: relative; }
+    .prospect-select {
+      width: 100%;
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.9rem; font-weight: 600; letter-spacing: 0.5px;
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.55); border-radius: 7px; padding: 0.45rem 0.7rem;
+      cursor: pointer; appearance: none; -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='rgba(255,255,255,0.3)' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 0.6rem center;
+      padding-right: 2rem; transition: border-color 0.15s, color 0.15s;
+    }
+    .prospect-select:focus { outline: none; border-color: rgba(255,184,28,0.5); }
+    .prospect-select.picked { color: white; border-color: rgba(255,184,28,0.3); background-color: rgba(255,184,28,0.04); }
+    .prospect-select option { background: #0d1f35; color: white; }
+
+    @media (max-width: 600px) {
+      .pick-row { grid-template-columns: 36px 1fr; }
+      .pick-prospect-col { grid-column: 1 / -1; }
+    }
+
+    /* ── Submit bar ── */
+    .submit-bar {
+      position: sticky; bottom: 0; z-index: 50;
+      background: rgba(7,17,31,0.95); border-top: 1px solid rgba(255,255,255,0.08);
+      backdrop-filter: blur(12px); padding: 0.75rem 1.25rem;
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    }
+    .submit-info { font-family: 'Barlow Condensed', sans-serif; font-size: 0.85rem; font-weight: 600; color: var(--silver); letter-spacing: 1px; }
+    .submit-info strong { color: white; }
+    .btn-submit { font-family: 'Bebas Neue', cursive; font-size: 1.05rem; letter-spacing: 2px; background: var(--gold); color: var(--rink); border: none; border-radius: 8px; padding: 0.6rem 2rem; cursor: pointer; transition: opacity 0.15s, transform 0.1s; white-space: nowrap; }
+    .btn-submit:hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn-submit:disabled { opacity: 0.35; cursor: default; transform: none; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner { display: inline-block; width: 13px; height: 13px; border: 2px solid rgba(7,17,31,0.3); border-top-color: var(--rink); border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 5px; }
+
+    /* ── Invalid gate ── */
+    #invalid-gate { position: fixed; inset: 0; z-index: 9999; background: var(--rink); display: none; align-items: center; justify-content: center; flex-direction: column; gap: 1rem; text-align: center; padding: 2rem; }
+    #invalid-gate.show { display: flex; }
+    #invalid-gate h2 { font-family: 'Bebas Neue', cursive; font-size: 2rem; letter-spacing: 4px; color: var(--red); }
+    #invalid-gate p { color: var(--silver); font-size: 0.9rem; letter-spacing: 1px; }
+
+    /* ── Toast ── */
+    #toast { position: fixed; bottom: 5rem; left: 50%; transform: translateX(-50%); z-index: 9999; background: rgba(15,25,45,0.97); border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; padding: 0.75rem 1.5rem; font-size: 0.9rem; font-weight: 600; letter-spacing: 1px; color: white; box-shadow: 0 4px 24px rgba(0,0,0,0.5); display: none; white-space: nowrap; }
+  </style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="site-nav-inner">
+    <a class="site-nav-brand" href="../index.html">Parieur Discipliné</a>
+    <a class="site-nav-back" href="../draft-pool.html">← All Pools</a>
+  </div>
+</nav>
+
+<div id="invalid-gate">
+  <h2>🚫 Pool Not Found</h2>
+  <p>This pool link is invalid or expired.</p>
+  <a href="../draft-pool.html" style="color:var(--gold);font-weight:700;letter-spacing:1px;">← Back to Draft Pools</a>
+</div>
+
+<div id="toast"></div>
+
+<div class="page-header">
+  <h1>2026 NHL <span>Draft</span> Picks</h1>
+  <div class="pool-badge" id="pool-badge">Loading…</div>
+</div>
+
+<div class="name-section">
+  <div id="name-entry">
+    <div class="name-row">
+      <input class="name-input" id="name-input" type="text" maxlength="24" placeholder="Your name (e.g. Justin)" autocomplete="off" onkeydown="if(event.key==='Enter') setName()">
+      <button style="font-family:'Bebas Neue',cursive;font-size:0.95rem;letter-spacing:2px;background:rgba(255,184,28,0.12);border:1px solid rgba(255,184,28,0.3);color:var(--gold);border-radius:7px;padding:0.5rem 1.1rem;cursor:pointer;" onclick="setName()">Continue →</button>
+    </div>
+    <div class="name-hint">Enter your name to save your picks.</div>
+  </div>
+  <div id="name-display" style="display:none"></div>
+</div>
+
+<div class="progress-wrap" id="progress-wrap" style="display:none">
+  <div class="progress-label">
+    <span>Picks completed</span>
+    <span id="progress-text">0 / 32</span>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+</div>
+
+<div class="board-wrap" id="board-wrap"></div>
+
+<div class="submit-bar" id="submit-bar" style="display:none">
+  <div class="submit-info" id="submit-info"><strong>0</strong> of 32 picks made</div>
+  <button class="btn-submit" id="btn-submit" onclick="submitPicks()" disabled>Submit Picks</button>
+</div>
+
+<script>
+  const SUPABASE_URL = 'https://fifurqlitkywtmhgtzeu.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZpZnVycWxpdGt5d3RtaGd0emV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3MDIyMjQsImV4cCI6MjA5MjI3ODIyNH0.KPVPj1qwbSJJMyLR_-AhDcRs0vi2sUU6qbFQ-kH53C0';
+  const params = new URLSearchParams(window.location.search);
+  const POOL_CODE = (params.get('pool') || '').toUpperCase();
+  const TOKEN = params.get('token') || '';
+
+  if (TOKEN) { try { localStorage.setItem(`dp_token_${POOL_CODE}`, TOKEN); } catch(_) {} }
+
+  function sbHeaders() {
+    return { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' };
+  }
+
+  // ── Draft order: pick # → team name
+  const DRAFT_ORDER = [
+    { pick: 1,  team: 'San Jose Sharks',        conf: 'Pacific' },
+    { pick: 2,  team: 'Chicago Blackhawks',      conf: 'Central' },
+    { pick: 3,  team: 'Nashville Predators',     conf: 'Central' },
+    { pick: 4,  team: 'Utah Hockey Club',        conf: 'Central' },
+    { pick: 5,  team: 'Pittsburgh Penguins',     conf: 'Metro' },
+    { pick: 6,  team: 'New York Islanders',      conf: 'Metro' },
+    { pick: 7,  team: 'Philadelphia Flyers',     conf: 'Metro' },
+    { pick: 8,  team: 'Anaheim Ducks',           conf: 'Pacific' },
+    { pick: 9,  team: 'Buffalo Sabres',          conf: 'Atlantic' },
+    { pick: 10, team: 'Ottawa Senators',         conf: 'Atlantic' },
+    { pick: 11, team: 'Columbus Blue Jackets',   conf: 'Metro' },
+    { pick: 12, team: 'Seattle Kraken',          conf: 'Pacific' },
+    { pick: 13, team: 'Vancouver Canucks',       conf: 'Pacific' },
+    { pick: 14, team: 'Calgary Flames',          conf: 'Pacific' },
+    { pick: 15, team: 'Detroit Red Wings',       conf: 'Atlantic' },
+    { pick: 16, team: 'New York Rangers',        conf: 'Metro' },
+    { pick: 17, team: 'Montreal Canadiens',      conf: 'Atlantic' },
+    { pick: 18, team: 'St. Louis Blues',         conf: 'Central' },
+    { pick: 19, team: 'Los Angeles Kings',       conf: 'Pacific' },
+    { pick: 20, team: 'Minnesota Wild',          conf: 'Central' },
+    { pick: 21, team: 'Boston Bruins',           conf: 'Atlantic' },
+    { pick: 22, team: 'New Jersey Devils',       conf: 'Metro' },
+    { pick: 23, team: 'Winnipeg Jets',           conf: 'Central' },
+    { pick: 24, team: 'Toronto Maple Leafs',     conf: 'Atlantic' },
+    { pick: 25, team: 'Tampa Bay Lightning',     conf: 'Atlantic' },
+    { pick: 26, team: 'Carolina Hurricanes',     conf: 'Metro' },
+    { pick: 27, team: 'Colorado Avalanche',      conf: 'Central' },
+    { pick: 28, team: 'Dallas Stars',            conf: 'Central' },
+    { pick: 29, team: 'Washington Capitals',     conf: 'Metro' },
+    { pick: 30, team: 'Vegas Golden Knights',    conf: 'Pacific' },
+    { pick: 31, team: 'Edmonton Oilers',         conf: 'Pacific' },
+    { pick: 32, team: 'Florida Panthers',        conf: 'Atlantic' },
+  ];
+
+  // ── Top 50 prospects (Tankathon big board)
+  const PROSPECTS = [
+    { rank: 1,  name: 'Gavin McKenna',        pos: 'LW',    team: 'Penn State' },
+    { rank: 2,  name: 'Ivar Stenberg',        pos: 'LW/RW', team: 'Frölunda HC' },
+    { rank: 3,  name: 'Chase Reid',           pos: 'RD',    team: 'Soo' },
+    { rank: 4,  name: 'Caleb Malhotra',       pos: 'C',     team: 'Brantford' },
+    { rank: 5,  name: 'Keaton Verhoeff',      pos: 'RD',    team: 'North Dakota' },
+    { rank: 6,  name: 'Carson Carels',        pos: 'LD',    team: 'Prince George' },
+    { rank: 7,  name: 'Alberts Smits',        pos: 'LD',    team: 'Jukurit' },
+    { rank: 8,  name: 'Tynan Lawrence',       pos: 'C',     team: 'Boston University' },
+    { rank: 9,  name: 'Viggo Björck',         pos: 'C/RW',  team: 'Djurgårdens IF' },
+    { rank: 10, name: 'Daxon Rudolph',        pos: 'RD',    team: 'Prince Albert' },
+    { rank: 11, name: 'Ethan Belchetz',       pos: 'LW',    team: 'Windsor' },
+    { rank: 12, name: 'Malte Gustafsson',     pos: 'LD',    team: 'HV71' },
+    { rank: 13, name: 'Ryan Lin',             pos: 'RD',    team: 'Vancouver' },
+    { rank: 14, name: 'Oscar Hemming',        pos: 'F',     team: 'Boston College' },
+    { rank: 15, name: 'Wyatt Cullen',         pos: 'F',     team: 'USDP' },
+    { rank: 16, name: 'Adam Novotný',         pos: 'LW/RW', team: 'Peterborough' },
+    { rank: 17, name: 'Xavier Villeneuve',    pos: 'LD',    team: 'Blainville-Boisbriand' },
+    { rank: 18, name: 'Oliver Suvanto',       pos: 'C',     team: 'Tappara' },
+    { rank: 19, name: 'Elton Hermansson',     pos: 'RW/LW', team: 'MoDo Hockey' },
+    { rank: 20, name: 'Nikita Klepov',        pos: 'F',     team: 'Saginaw' },
+    { rank: 21, name: 'Alexander Command',    pos: 'C',     team: 'Örebro HK' },
+    { rank: 22, name: 'Ilya Morozov',         pos: 'F',     team: 'Miami (Ohio)' },
+    { rank: 23, name: 'JP Hurlbert',          pos: 'F',     team: 'Kamloops' },
+    { rank: 24, name: 'Maddox Dagenais',      pos: 'C',     team: 'Quebec' },
+    { rank: 25, name: 'Mathis Preston',       pos: 'F',     team: 'Vancouver' },
+    { rank: 26, name: 'Juho Piiparinen',      pos: 'RD',    team: 'Tappara' },
+    { rank: 27, name: 'William Hakansson',    pos: 'LD',    team: 'Luleå HF' },
+    { rank: 28, name: 'Marcus Nordmark',      pos: 'LW',    team: 'Djurgårdens IF' },
+    { rank: 29, name: 'Liam Ruck',            pos: 'F',     team: 'Medicine Hat' },
+    { rank: 30, name: 'Jack Hextall',         pos: 'C',     team: 'Youngstown' },
+    { rank: 31, name: 'Ryan Roobroeck',       pos: 'C',     team: 'Niagara' },
+    { rank: 32, name: 'Markus Ruck',          pos: 'F',     team: 'Medicine Hat' },
+    { rank: 33, name: 'Yegor Shilov',         pos: 'C',     team: 'Victoriaville' },
+    { rank: 34, name: 'Brooks Rogowski',      pos: 'C',     team: 'Oshawa' },
+    { rank: 35, name: 'Niklas Aaram-Olsen',   pos: 'RW/LW', team: 'Örebro HK' },
+    { rank: 36, name: 'Simas Ignatavicius',   pos: 'F',     team: 'Genève-Servette HC' },
+    { rank: 37, name: 'Adam Goljer',          pos: 'RD',    team: 'HK Dukla Trencin' },
+    { rank: 38, name: 'Tommy Bleyl',          pos: 'RD',    team: 'Moncton' },
+    { rank: 39, name: 'Nikita Shcherbakov',   pos: 'LD',    team: 'Tolpar Ufa' },
+    { rank: 40, name: 'Ryder Cali',           pos: 'C',     team: 'North Bay' },
+    { rank: 41, name: 'Casey Mutryn',         pos: 'F',     team: 'USDP' },
+    { rank: 42, name: 'Gleb Pugachyov',       pos: 'RW',    team: 'Chaika NN' },
+    { rank: 43, name: 'Jaxon Cover',          pos: 'LW',    team: 'London' },
+    { rank: 44, name: 'Tomas Chrenko',        pos: 'C',     team: 'HK Nitra' },
+    { rank: 45, name: 'Ben Macbeath',         pos: 'LD',    team: 'Calgary' },
+    { rank: 46, name: 'Tobias Trejbal',       pos: 'G',     team: 'Youngstown' },
+    { rank: 47, name: 'Alessandro Di Iorio',  pos: 'C',     team: 'Sarnia' },
+    { rank: 48, name: 'Samu Alalauri',        pos: 'RD',    team: 'Pelicans' },
+    { rank: 49, name: 'Adam Valentini',       pos: 'F',     team: 'Michigan' },
+    { rank: 50, name: 'Thomas Vandenberg',    pos: 'C',     team: 'Ottawa' },
+  ];
+
+  // ── State
+  let _name = '';
+  let _picks = {}; // pick# → prospect rank
+  let _existingEntryId = null;
+
+  // ── Init
+  async function init() {
+    if (!POOL_CODE) { showGate(); return; }
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/draft_pools?code=eq.${POOL_CODE}&select=code,name`, { headers: sbHeaders() });
+    const rows = res.ok ? await res.json() : [];
+    if (!rows.length) { showGate(); return; }
+    const pool = rows[0];
+    document.getElementById('pool-badge').innerHTML = `<span>Pool</span> <span class="pool-code-badge">${POOL_CODE}</span> <span>·</span> <span>${escHtml(pool.name || POOL_CODE)}</span>`;
+    buildBoard();
+
+    // Check for saved name
+    const savedName = localStorage.getItem(`dp_name_${POOL_CODE}`);
+    if (savedName) { _name = savedName; showNameTag(); loadExistingPicks(); }
+  }
+
+  function showGate() { document.getElementById('invalid-gate').classList.add('show'); }
+
+  function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+
+  // ── Name
+  function setName() {
+    const v = document.getElementById('name-input').value.trim();
+    if (!v) { document.getElementById('name-input').focus(); return; }
+    _name = v;
+    try { localStorage.setItem(`dp_name_${POOL_CODE}`, v); } catch(_) {}
+    showNameTag();
+    loadExistingPicks();
+  }
+
+  function showNameTag() {
+    document.getElementById('name-entry').style.display = 'none';
+    document.getElementById('name-display').style.display = 'flex';
+    document.getElementById('name-display').innerHTML = `<div class="name-tag">👤 ${escHtml(_name)} <span class="name-tag-change" onclick="changeName()">change</span></div>`;
+    document.getElementById('progress-wrap').style.display = 'block';
+    document.getElementById('submit-bar').style.display = 'flex';
+    enableSelects(true);
+  }
+
+  function changeName() {
+    document.getElementById('name-entry').style.display = 'flex';
+    document.getElementById('name-display').style.display = 'none';
+    document.getElementById('name-input').value = _name;
+    document.getElementById('progress-wrap').style.display = 'none';
+    document.getElementById('submit-bar').style.display = 'none';
+    enableSelects(false);
+  }
+
+  async function loadExistingPicks() {
+    if (!_name || !POOL_CODE) return;
+    try {
+      const res = await fetch(
+        `${SUPABASE_URL}/rest/v1/draft_pool_entries?pool_code=eq.${POOL_CODE}&participant_name=eq.${encodeURIComponent(_name)}&select=id,picks`,
+        { headers: sbHeaders() }
+      );
+      if (!res.ok) return;
+      const rows = await res.json();
+      if (!rows.length) return;
+      const entry = rows[0];
+      _existingEntryId = entry.id;
+      _picks = entry.picks || {};
+      // Restore selects
+      for (const [pick, rank] of Object.entries(_picks)) {
+        const sel = document.getElementById(`sel-${pick}`);
+        if (sel) { sel.value = String(rank); sel.classList.toggle('picked', !!rank); }
+        const row = document.getElementById(`row-${pick}`);
+        if (row) row.classList.toggle('filled', !!rank);
+      }
+      updateProgress();
+    } catch(e) {}
+  }
+
+  // ── Build board
+  function buildBoard() {
+    const wrap = document.getElementById('board-wrap');
+    let html = '';
+    for (const d of DRAFT_ORDER) {
+      const optionsHtml = PROSPECTS.map(p =>
+        `<option value="${p.rank}">#${p.rank} ${p.name} (${p.pos}) — ${p.team}</option>`
+      ).join('');
+      html += `
+      <div class="pick-row" id="row-${d.pick}">
+        <div class="pick-num">${d.pick}</div>
+        <div class="pick-team-col">
+          <div class="pick-team-name">${escHtml(d.team)}</div>
+          <div class="pick-team-sub">${d.conf} · Pick ${d.pick}</div>
+        </div>
+        <div class="pick-prospect-col">
+          <select class="prospect-select" id="sel-${d.pick}" disabled onchange="onPickChange(${d.pick}, this)">
+            <option value="">— Select prospect —</option>
+            ${optionsHtml}
+          </select>
+        </div>
+      </div>`;
+    }
+    wrap.innerHTML = html;
+  }
+
+  function enableSelects(on) {
+    for (const d of DRAFT_ORDER) {
+      const sel = document.getElementById(`sel-${d.pick}`);
+      if (sel) sel.disabled = !on;
+    }
+  }
+
+  function onPickChange(pick, sel) {
+    const rank = sel.value ? parseInt(sel.value) : null;
+    if (rank) _picks[pick] = rank; else delete _picks[pick];
+    sel.classList.toggle('picked', !!rank);
+    const row = document.getElementById(`row-${pick}`);
+    if (row) row.classList.toggle('filled', !!rank);
+    updateProgress();
+  }
+
+  function updateProgress() {
+    const count = Object.keys(_picks).length;
+    document.getElementById('progress-text').textContent = `${count} / 32`;
+    document.getElementById('progress-fill').style.width = `${(count / 32) * 100}%`;
+    document.getElementById('submit-info').innerHTML = `<strong>${count}</strong> of 32 picks made`;
+    document.getElementById('btn-submit').disabled = count === 0;
+  }
+
+  // ── Submit
+  async function submitPicks() {
+    if (!_name) { showToast('Enter your name first.', true); return; }
+    const btn = document.getElementById('btn-submit');
+    btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Saving…';
+
+    const count = Object.keys(_picks).length;
+    const payload = { pool_code: POOL_CODE, participant_name: _name, picks: _picks, pick_count: count };
+
+    try {
+      let res;
+      if (_existingEntryId) {
+        res = await fetch(
+          `${SUPABASE_URL}/rest/v1/draft_pool_entries?id=eq.${_existingEntryId}`,
+          { method: 'PATCH', headers: { ...sbHeaders(), 'Prefer': 'return=minimal' }, body: JSON.stringify({ picks: _picks, pick_count: count }) }
+        );
+      } else {
+        res = await fetch(
+          `${SUPABASE_URL}/rest/v1/draft_pool_entries`,
+          { method: 'POST', headers: { ...sbHeaders(), 'Prefer': 'return=representation' }, body: JSON.stringify(payload) }
+        );
+        if (res.ok) {
+          const rows = await res.json();
+          if (rows[0]?.id) _existingEntryId = rows[0].id;
+        }
+      }
+      if (!res.ok) throw new Error(res.status);
+      showToast(`✅ ${count} picks saved!`);
+    } catch(e) {
+      showToast('Failed to save picks. Try again.', true);
+    } finally {
+      btn.disabled = false; btn.textContent = 'Submit Picks';
+      updateProgress();
+    }
+  }
+
+  function showToast(msg, isError = false) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.style.display = 'block';
+    el.style.borderColor = isError ? 'rgba(200,16,46,0.4)' : 'rgba(255,255,255,0.12)';
+    setTimeout(() => el.style.display = 'none', 3000);
+  }
+
+  init();
+</script>
+</body>
+</html>

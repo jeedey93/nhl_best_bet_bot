@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Results | 2026 NHL Draft Pool</title>
+  <link rel="icon" type="image/png" href="../parieur_discipline_icon_1024.png">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --rink: #07111f; --red: #c8102e; --gold: #ffb81c; --silver: #a8b2be;
+      --green: #22c55e; --blue: #7db4ff; --line: rgba(255,255,255,0.08); --nav-h: 44px;
+    }
+    body { background: var(--rink); background-image: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(26,58,110,0.6) 0%, transparent 70%); min-height: 100vh; font-family: 'Barlow Condensed', sans-serif; color: white; padding-top: var(--nav-h); display: flex; flex-direction: column; }
+
+    .site-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(7,17,31,0.92); border-bottom: 1px solid var(--line); backdrop-filter: blur(12px); }
+    .site-nav-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: var(--nav-h); padding: 0 1.5rem; }
+    .site-nav-brand { font-family: 'Bebas Neue', cursive; font-size: 1.5rem; color: var(--gold); letter-spacing: 4px; text-decoration: none; }
+    .site-nav-back { font-family: 'Barlow Condensed', sans-serif; font-size: 0.9rem; font-weight: 600; color: var(--silver); text-decoration: none; letter-spacing: 1px; padding: 0.3rem 0.7rem; border-radius: 5px; transition: color 0.15s, background 0.15s; }
+    .site-nav-back:hover { color: white; background: rgba(255,255,255,0.07); }
+
+    .page-header { text-align: center; padding: 1.25rem 1rem 0.5rem; }
+    .page-header h1 { font-family: 'Bebas Neue', cursive; font-size: clamp(1.8rem, 4vw, 2.8rem); letter-spacing: 5px; text-shadow: 0 0 30px rgba(200,16,46,0.35), 0 2px 8px rgba(0,0,0,0.8); }
+    .page-header h1 span { color: var(--gold); }
+    .pool-badge { display: inline-flex; align-items: center; gap: 6px; margin-top: 0.4rem; font-family: 'Barlow Condensed', sans-serif; font-size: 0.8rem; font-weight: 600; color: var(--silver); letter-spacing: 1.5px; }
+    .pool-code-badge { font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 3px; color: var(--gold); background: rgba(255,184,28,0.1); border: 1px solid rgba(255,184,28,0.3); border-radius: 4px; padding: 1px 10px; }
+
+    /* ── Tabs ── */
+    .tabs-wrap { max-width: 900px; width: 100%; margin: 0.75rem auto 0; padding: 0 1.25rem; }
+    .tabs { display: flex; gap: 0.35rem; border-bottom: 1px solid var(--line); }
+    .tab-btn { font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 2px; color: var(--silver); background: none; border: none; border-bottom: 2px solid transparent; padding: 0.5rem 1rem 0.45rem; cursor: pointer; transition: color 0.15s, border-color 0.15s; margin-bottom: -1px; }
+    .tab-btn:hover { color: white; }
+    .tab-btn.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+    /* ── Content ── */
+    .content-wrap { max-width: 900px; width: 100%; margin: 0 auto; padding: 1rem 1.25rem 2rem; }
+
+    /* Leaderboard */
+    .leaderboard { display: flex; flex-direction: column; gap: 0.5rem; }
+    .lb-row { display: grid; grid-template-columns: 36px 1fr 80px 80px; gap: 0.5rem; align-items: center; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; padding: 0.65rem 0.9rem; }
+    .lb-row:first-child { border-color: rgba(255,184,28,0.3); background: rgba(255,184,28,0.04); }
+    .lb-rank { font-family: 'Bebas Neue', cursive; font-size: 1.3rem; color: rgba(255,255,255,0.25); text-align: center; }
+    .lb-row:first-child .lb-rank { color: var(--gold); }
+    .lb-name { font-family: 'Bebas Neue', cursive; font-size: 1.05rem; letter-spacing: 2px; }
+    .lb-picks { font-family: 'Barlow Condensed', sans-serif; font-size: 0.82rem; font-weight: 600; color: var(--silver); letter-spacing: 0.5px; text-align: center; }
+    .lb-score { font-family: 'Bebas Neue', cursive; font-size: 1.3rem; letter-spacing: 1px; color: var(--gold); text-align: center; }
+    .lb-score-label { font-family: 'Barlow Condensed', sans-serif; font-size: 0.65rem; font-weight: 600; color: rgba(255,255,255,0.25); letter-spacing: 1.5px; text-align: center; display: block; margin-top: -4px; }
+
+    /* Draft board comparison */
+    .comparison-header { display: grid; grid-template-columns: 44px 140px repeat(var(--cols), 1fr); gap: 0.4rem; margin-bottom: 0.4rem; align-items: end; overflow-x: auto; }
+    .ch-pick { font-family: 'Bebas Neue', cursive; font-size: 0.7rem; letter-spacing: 1px; color: rgba(255,255,255,0.25); text-align: center; }
+    .ch-team { font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem; font-weight: 700; color: rgba(255,255,255,0.3); letter-spacing: 1px; }
+    .ch-name { font-family: 'Bebas Neue', cursive; font-size: 0.75rem; letter-spacing: 1.5px; color: var(--gold); text-align: center; writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; max-height: 120px; overflow: hidden; text-overflow: ellipsis; }
+
+    .comp-row { display: grid; grid-template-columns: 44px 140px repeat(var(--cols), 1fr); gap: 0.4rem; margin-bottom: 0.3rem; align-items: center; overflow-x: auto; }
+    .comp-num { font-family: 'Bebas Neue', cursive; font-size: 1.2rem; color: rgba(255,255,255,0.2); text-align: center; }
+    .comp-team { font-family: 'Barlow Condensed', sans-serif; font-size: 0.78rem; font-weight: 700; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .comp-cell { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 6px; padding: 0.3rem 0.2rem; text-align: center; min-height: 36px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: default; transition: background 0.1s; }
+    .comp-cell:hover { background: rgba(255,255,255,0.08); }
+    .comp-cell.empty { background: rgba(255,255,255,0.01); border-color: rgba(255,255,255,0.03); }
+    .comp-prospect-rank { font-family: 'Bebas Neue', cursive; font-size: 0.8rem; letter-spacing: 1px; color: var(--gold); }
+    .comp-prospect-name { font-family: 'Barlow Condensed', sans-serif; font-size: 0.62rem; font-weight: 600; color: rgba(255,255,255,0.55); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90%; }
+    .comp-cell.pts4 { background: rgba(34,197,94,0.12); border-color: rgba(34,197,94,0.3); }
+    .comp-cell.pts4 .comp-prospect-rank { color: var(--green); }
+    .comp-cell.pts2 { background: rgba(255,184,28,0.1); border-color: rgba(255,184,28,0.25); }
+    .comp-cell.pts2 .comp-prospect-rank { color: var(--gold); }
+    .comp-cell.pts1 { background: rgba(255,140,0,0.08); border-color: rgba(255,140,0,0.2); }
+    .comp-cell.pts1 .comp-prospect-rank { color: #ff8c00; }
+
+    .no-data { font-family: 'Barlow Condensed', sans-serif; font-size: 0.9rem; font-weight: 600; color: rgba(255,255,255,0.25); letter-spacing: 1px; padding: 2rem 0; text-align: center; }
+
+    /* ── Admin: set actual picks ── */
+    .admin-section { margin-top: 1.5rem; }
+    .admin-toggle { font-family: 'Barlow Condensed', sans-serif; font-size: 0.8rem; font-weight: 700; color: rgba(255,255,255,0.25); letter-spacing: 1.5px; background: none; border: none; cursor: pointer; transition: color 0.15s; padding: 0; }
+    .admin-toggle:hover { color: var(--silver); }
+    .admin-box { display: none; margin-top: 0.75rem; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; padding: 1rem; }
+    .admin-box.open { display: block; }
+    .admin-title { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 3px; color: var(--silver); margin-bottom: 0.75rem; }
+
+    .actual-row { display: grid; grid-template-columns: 44px 130px 1fr; gap: 0.5rem; align-items: center; margin-bottom: 0.4rem; }
+    .actual-num { font-family: 'Bebas Neue', cursive; font-size: 1.1rem; color: rgba(255,255,255,0.3); text-align: center; }
+    .actual-team { font-family: 'Barlow Condensed', sans-serif; font-size: 0.78rem; font-weight: 700; color: var(--silver); }
+    .actual-select { font-family: 'Barlow Condensed', sans-serif; font-size: 0.85rem; font-weight: 600; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.55); border-radius: 6px; padding: 0.35rem 0.6rem; width: 100%; appearance: none; -webkit-appearance: none; transition: border-color 0.15s, color 0.15s; }
+    .actual-select:focus { outline: none; border-color: rgba(255,184,28,0.5); }
+    .actual-select.set { color: white; border-color: rgba(34,197,94,0.3); background-color: rgba(34,197,94,0.03); }
+    .actual-select option { background: #0d1f35; }
+    .btn-save-actual { font-family: 'Bebas Neue', cursive; font-size: 0.95rem; letter-spacing: 2px; background: var(--gold); color: var(--rink); border: none; border-radius: 7px; padding: 0.55rem 1.5rem; cursor: pointer; margin-top: 0.75rem; transition: opacity 0.15s; }
+    .btn-save-actual:hover { opacity: 0.85; }
+    .btn-save-actual:disabled { opacity: 0.35; cursor: default; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner { display: inline-block; width: 13px; height: 13px; border: 2px solid rgba(7,17,31,0.3); border-top-color: var(--rink); border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 5px; }
+
+    #toast { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%); z-index: 9999; background: rgba(15,25,45,0.97); border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; padding: 0.75rem 1.5rem; font-size: 0.9rem; font-weight: 600; letter-spacing: 1px; color: white; box-shadow: 0 4px 24px rgba(0,0,0,0.5); display: none; white-space: nowrap; }
+  </style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="site-nav-inner">
+    <a class="site-nav-brand" href="../index.html">Parieur Discipliné</a>
+    <a class="site-nav-back" href="../draft-pool.html">← All Pools</a>
+  </div>
+</nav>
+
+<div id="toast"></div>
+
+<div class="page-header">
+  <h1>Draft Pool <span>Results</span></h1>
+  <div class="pool-badge" id="pool-badge">Loading…</div>
+</div>
+
+<div class="tabs-wrap">
+  <div class="tabs">
+    <button class="tab-btn active" onclick="setTab('leaderboard', this)">🏆 Leaderboard</button>
+    <button class="tab-btn" onclick="setTab('board', this)">📋 Board View</button>
+  </div>
+</div>
+
+<div class="content-wrap" id="content-wrap">
+  <div class="no-data">Loading…</div>
+</div>
+
+<script>
+  const SUPABASE_URL = 'https://fifurqlitkywtmhgtzeu.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZpZnVycWxpdGt5d3RtaGd0emV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3MDIyMjQsImV4cCI6MjA5MjI3ODIyNH0.KPVPj1qwbSJJMyLR_-AhDcRs0vi2sUU6qbFQ-kH53C0';
+  const params = new URLSearchParams(window.location.search);
+  const POOL_CODE = (params.get('pool') || '').toUpperCase();
+
+  function sbHeaders() { return { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' }; }
+  function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+
+  const DRAFT_ORDER = [
+    { pick: 1,  team: 'San Jose Sharks' },     { pick: 2,  team: 'Chicago Blackhawks' },
+    { pick: 3,  team: 'Nashville Predators' },  { pick: 4,  team: 'Utah Hockey Club' },
+    { pick: 5,  team: 'Pittsburgh Penguins' },  { pick: 6,  team: 'New York Islanders' },
+    { pick: 7,  team: 'Philadelphia Flyers' },  { pick: 8,  team: 'Anaheim Ducks' },
+    { pick: 9,  team: 'Buffalo Sabres' },        { pick: 10, team: 'Ottawa Senators' },
+    { pick: 11, team: 'Columbus Blue Jackets' }, { pick: 12, team: 'Seattle Kraken' },
+    { pick: 13, team: 'Vancouver Canucks' },     { pick: 14, team: 'Calgary Flames' },
+    { pick: 15, team: 'Detroit Red Wings' },     { pick: 16, team: 'New York Rangers' },
+    { pick: 17, team: 'Montreal Canadiens' },    { pick: 18, team: 'St. Louis Blues' },
+    { pick: 19, team: 'Los Angeles Kings' },     { pick: 20, team: 'Minnesota Wild' },
+    { pick: 21, team: 'Boston Bruins' },          { pick: 22, team: 'New Jersey Devils' },
+    { pick: 23, team: 'Winnipeg Jets' },          { pick: 24, team: 'Toronto Maple Leafs' },
+    { pick: 25, team: 'Tampa Bay Lightning' },   { pick: 26, team: 'Carolina Hurricanes' },
+    { pick: 27, team: 'Colorado Avalanche' },    { pick: 28, team: 'Dallas Stars' },
+    { pick: 29, team: 'Washington Capitals' },   { pick: 30, team: 'Vegas Golden Knights' },
+    { pick: 31, team: 'Edmonton Oilers' },        { pick: 32, team: 'Florida Panthers' },
+  ];
+
+  const PROSPECTS = [
+    { rank: 1, name: 'Gavin McKenna' }, { rank: 2, name: 'Ivar Stenberg' },
+    { rank: 3, name: 'Chase Reid' }, { rank: 4, name: 'Caleb Malhotra' },
+    { rank: 5, name: 'Keaton Verhoeff' }, { rank: 6, name: 'Carson Carels' },
+    { rank: 7, name: 'Alberts Smits' }, { rank: 8, name: 'Tynan Lawrence' },
+    { rank: 9, name: 'Viggo Björck' }, { rank: 10, name: 'Daxon Rudolph' },
+    { rank: 11, name: 'Ethan Belchetz' }, { rank: 12, name: 'Malte Gustafsson' },
+    { rank: 13, name: 'Ryan Lin' }, { rank: 14, name: 'Oscar Hemming' },
+    { rank: 15, name: 'Wyatt Cullen' }, { rank: 16, name: 'Adam Novotný' },
+    { rank: 17, name: 'Xavier Villeneuve' }, { rank: 18, name: 'Oliver Suvanto' },
+    { rank: 19, name: 'Elton Hermansson' }, { rank: 20, name: 'Nikita Klepov' },
+    { rank: 21, name: 'Alexander Command' }, { rank: 22, name: 'Ilya Morozov' },
+    { rank: 23, name: 'JP Hurlbert' }, { rank: 24, name: 'Maddox Dagenais' },
+    { rank: 25, name: 'Mathis Preston' }, { rank: 26, name: 'Juho Piiparinen' },
+    { rank: 27, name: 'William Hakansson' }, { rank: 28, name: 'Marcus Nordmark' },
+    { rank: 29, name: 'Liam Ruck' }, { rank: 30, name: 'Jack Hextall' },
+    { rank: 31, name: 'Ryan Roobroeck' }, { rank: 32, name: 'Markus Ruck' },
+    { rank: 33, name: 'Yegor Shilov' }, { rank: 34, name: 'Brooks Rogowski' },
+    { rank: 35, name: 'Niklas Aaram-Olsen' }, { rank: 36, name: 'Simas Ignatavicius' },
+    { rank: 37, name: 'Adam Goljer' }, { rank: 38, name: 'Tommy Bleyl' },
+    { rank: 39, name: 'Nikita Shcherbakov' }, { rank: 40, name: 'Ryder Cali' },
+    { rank: 41, name: 'Casey Mutryn' }, { rank: 42, name: 'Gleb Pugachyov' },
+    { rank: 43, name: 'Jaxon Cover' }, { rank: 44, name: 'Tomas Chrenko' },
+    { rank: 45, name: 'Ben Macbeath' }, { rank: 46, name: 'Tobias Trejbal' },
+    { rank: 47, name: 'Alessandro Di Iorio' }, { rank: 48, name: 'Samu Alalauri' },
+    { rank: 49, name: 'Adam Valentini' }, { rank: 50, name: 'Thomas Vandenberg' },
+  ];
+
+  const prospectByRank = Object.fromEntries(PROSPECTS.map(p => [p.rank, p]));
+
+  let _entries = [];
+  let _actualPicks = {}; // pick# → prospect rank (ground truth after actual draft)
+  let _activeTab = 'leaderboard';
+  let _adminOpen = false;
+
+  async function init() {
+    if (!POOL_CODE) { document.getElementById('content-wrap').innerHTML = '<div class="no-data">No pool code provided.</div>'; return; }
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/draft_pools?code=eq.${POOL_CODE}&select=code,name,actual_picks`, { headers: sbHeaders() });
+    const rows = res.ok ? await res.json() : [];
+    if (!rows.length) { document.getElementById('content-wrap').innerHTML = '<div class="no-data">Pool not found.</div>'; return; }
+    const pool = rows[0];
+    document.getElementById('pool-badge').innerHTML = `<span>Pool</span> <span class="pool-code-badge">${POOL_CODE}</span> <span>·</span> <span>${escHtml(pool.name || POOL_CODE)}</span>`;
+    _actualPicks = pool.actual_picks || {};
+
+    const entRes = await fetch(
+      `${SUPABASE_URL}/rest/v1/draft_pool_entries?pool_code=eq.${POOL_CODE}&select=id,participant_name,picks,pick_count&order=pick_count.desc`,
+      { headers: sbHeaders() }
+    );
+    _entries = entRes.ok ? await entRes.json() : [];
+    renderTab();
+  }
+
+  function setTab(tab, btn) {
+    _activeTab = tab;
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderTab();
+  }
+
+  function renderTab() {
+    if (_activeTab === 'leaderboard') renderLeaderboard();
+    else renderBoard();
+  }
+
+  function pickPoints(predicted, actual) {
+    if (!predicted || !actual) return 0;
+    const diff = Math.abs(parseInt(predicted) - parseInt(actual));
+    if (diff === 0) return 4;
+    if (diff === 1) return 2;
+    if (diff === 2) return 1;
+    return 0;
+  }
+
+  function computeScore(picks) {
+    if (!Object.keys(_actualPicks).length) return null;
+    let score = 0;
+    for (const [pick, actualRank] of Object.entries(_actualPicks)) {
+      score += pickPoints(picks[pick], actualRank);
+    }
+    return score;
+  }
+
+  function renderLeaderboard() {
+    const wrap = document.getElementById('content-wrap');
+    if (!_entries.length) {
+      wrap.innerHTML = `<div class="no-data">No picks submitted yet.</div>${adminSection()}`;
+      return;
+    }
+    const hasScores = Object.keys(_actualPicks).length > 0;
+    const sorted = [..._entries].map(e => ({ ...e, score: computeScore(e.picks || {}) }));
+    if (hasScores) sorted.sort((a, b) => (b.score || 0) - (a.score || 0));
+
+    wrap.innerHTML = `
+      <div class="leaderboard">
+        ${sorted.map((e, i) => `
+          <div class="lb-row">
+            <div class="lb-rank">${i + 1}</div>
+            <div class="lb-name">${escHtml(e.participant_name)}</div>
+            <div class="lb-picks"><span style="color:white;font-weight:700">${e.pick_count || 0}</span><br><span style="font-size:0.65rem;color:rgba(255,255,255,0.3);letter-spacing:1px">PICKS</span></div>
+            <div class="lb-score">
+              ${hasScores && e.score !== null ? e.score : '—'}
+              <span class="lb-score-label">${hasScores ? 'PTS / 128' : 'PENDING'}</span>
+            </div>
+          </div>`).join('')}
+      </div>
+      ${adminSection()}`;
+    attachAdminEvents();
+  }
+
+  function renderBoard() {
+    const wrap = document.getElementById('content-wrap');
+    if (!_entries.length) { wrap.innerHTML = `<div class="no-data">No picks submitted yet.</div>${adminSection()}`; attachAdminEvents(); return; }
+
+    const cols = _entries.length;
+    let html = `<div style="--cols:${cols};overflow-x:auto">`;
+
+    // Header row
+    html += `<div class="comparison-header" style="--cols:${cols}">
+      <div class="ch-pick">PICK</div>
+      <div class="ch-team">TEAM</div>
+      ${_entries.map(e => `<div class="ch-name">${escHtml(e.participant_name)}</div>`).join('')}
+    </div>`;
+
+    // Pick rows
+    for (const d of DRAFT_ORDER) {
+      const actualRank = _actualPicks[d.pick];
+      html += `<div class="comp-row" style="--cols:${cols}">
+        <div class="comp-num">${d.pick}</div>
+        <div class="comp-team">${escHtml(d.team)}</div>
+        ${_entries.map(e => {
+          const rank = e.picks?.[d.pick];
+          if (!rank) return `<div class="comp-cell empty"></div>`;
+          const p = prospectByRank[rank];
+          const pts = _actualPicks[d.pick] ? pickPoints(rank, _actualPicks[d.pick]) : 0;
+          const cls = pts === 4 ? ' pts4' : pts === 2 ? ' pts2' : pts === 1 ? ' pts1' : '';
+          const ptsLabel = pts > 0 ? `+${pts}` : '';
+          return `<div class="comp-cell${cls}" title="${p ? escHtml(p.name) : ''}${ptsLabel ? ` · ${ptsLabel}pts` : ''}">
+            <div class="comp-prospect-rank">#${rank}</div>
+            <div class="comp-prospect-name">${p ? escHtml(p.name.split(' ').pop()) : '?'}</div>
+          </div>`;
+        }).join('')}
+      </div>`;
+    }
+
+    html += `</div>${adminSection()}`;
+    wrap.innerHTML = html;
+    attachAdminEvents();
+  }
+
+  // ── Admin section (enter actual draft results)
+  function adminSection() {
+    const optionsHtml = PROSPECTS.map(p => `<option value="${p.rank}">#${p.rank} ${p.name}</option>`).join('');
+    const rows = DRAFT_ORDER.map(d => {
+      const set = _actualPicks[d.pick];
+      return `<div class="actual-row">
+        <div class="actual-num">${d.pick}</div>
+        <div class="actual-team">${escHtml(d.team)}</div>
+        <select class="actual-select${set ? ' set' : ''}" id="act-${d.pick}" onchange="this.classList.toggle('set',!!this.value)">
+          <option value="">— Actual pick —</option>
+          ${optionsHtml}
+        </select>
+      </div>`;
+    }).join('');
+    return `<div class="admin-section">
+      <button class="admin-toggle" onclick="toggleAdmin()">⚙ Enter actual draft results</button>
+      <div class="admin-box${_adminOpen ? ' open' : ''}" id="admin-box">
+        <div class="admin-title">Actual 2026 Draft Results</div>
+        ${rows}
+        <button class="btn-save-actual" onclick="saveActual()">Save Results</button>
+      </div>
+    </div>`;
+  }
+
+  function attachAdminEvents() {
+    // Restore actual picks into selects
+    for (const [pick, rank] of Object.entries(_actualPicks)) {
+      const sel = document.getElementById(`act-${pick}`);
+      if (sel) { sel.value = String(rank); sel.classList.add('set'); }
+    }
+  }
+
+  function toggleAdmin() {
+    _adminOpen = !_adminOpen;
+    const box = document.getElementById('admin-box');
+    if (box) box.classList.toggle('open', _adminOpen);
+  }
+
+  async function saveActual() {
+    const newActual = {};
+    for (const d of DRAFT_ORDER) {
+      const sel = document.getElementById(`act-${d.pick}`);
+      if (sel?.value) newActual[d.pick] = parseInt(sel.value);
+    }
+    const btn = document.querySelector('.btn-save-actual');
+    btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Saving…';
+    try {
+      const res = await fetch(
+        `${SUPABASE_URL}/rest/v1/draft_pools?code=eq.${POOL_CODE}`,
+        { method: 'PATCH', headers: { ...sbHeaders(), 'Prefer': 'return=minimal' }, body: JSON.stringify({ actual_picks: newActual }) }
+      );
+      if (!res.ok) throw new Error(res.status);
+      _actualPicks = newActual;
+      showToast('✅ Results saved!');
+      renderTab();
+    } catch(e) {
+      showToast('Failed to save results.', true);
+      btn.disabled = false; btn.textContent = 'Save Results';
+    }
+  }
+
+  function showToast(msg, isError = false) {
+    const el = document.getElementById('toast');
+    el.textContent = msg; el.style.display = 'block';
+    el.style.borderColor = isError ? 'rgba(200,16,46,0.4)' : 'rgba(255,255,255,0.12)';
+    setTimeout(() => el.style.display = 'none', 3000);
+  }
+
+  init();
+</script>
+</body>
+</html>
