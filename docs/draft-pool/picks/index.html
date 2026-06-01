@@ -457,9 +457,12 @@
 
   let _modalResolve = null;
 
-  function showModal(bodyHtml) {
+  function showModal(bodyHtml, icon = '⚡', title = 'Auto-Fill Picks', confirmLabel = 'Auto-Fill') {
     return new Promise(resolve => {
       _modalResolve = resolve;
+      document.getElementById('modal-icon').textContent = icon;
+      document.getElementById('modal-title').textContent = title;
+      document.getElementById('modal-confirm').textContent = confirmLabel;
       document.getElementById('modal-body').innerHTML = bodyHtml;
       document.getElementById('modal-backdrop').classList.add('show');
       document.getElementById('modal').classList.add('show');
@@ -512,6 +515,19 @@
     }
     const count = Object.keys(_picks).length;
     if (count === 0) { showToast('Assign at least one prospect first.', true); return; }
+
+    // Check if name already exists
+    const checkRes = await fetch(`${SUPABASE_URL}/rest/v1/draft_pool_entries?pool_code=eq.${POOL_CODE}&participant_name=eq.${encodeURIComponent(name)}&select=id`, {
+      headers: sbHeaders()
+    });
+    const existing = checkRes.ok ? await checkRes.json() : [];
+    if (existing.length > 0) {
+      const confirmed = await showModal(
+        `Picks already submitted under <strong>${escHtml(name)}</strong>.<br><br>Re-submitting will overwrite your previous entry.`,
+        '⚠️', 'Already Submitted', 'Update Picks'
+      );
+      if (!confirmed) return;
+    }
 
     const btn = document.getElementById('btn-submit');
     btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
