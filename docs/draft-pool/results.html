@@ -154,6 +154,7 @@
     .pt-cell.yours.pts4 .pt-prospect-name { color: #22c55e; }
     .pt-cell.yours.pts2 .pt-prospect-name { color: #60a5fa; }
     .pt-cell.yours.pts1 .pt-prospect-name { color: #fbbf24; }
+    .exact-badge { display: inline-block; font-family: 'Barlow Condensed', sans-serif; font-size: 0.6rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; background: rgba(34,197,94,0.2); color: #22c55e; border-radius: 3px; padding: 1px 5px; margin-top: 2px; }
     .pt-prospect-meta { font-family: 'Barlow Condensed', sans-serif; font-size: 0.6rem; font-weight: 600; color: rgba(255,255,255,0.3); letter-spacing: 0.5px; }
     .pt-pts-val { font-family: 'Bebas Neue', cursive; font-size: 1.1rem; text-align: center; color: rgba(255,255,255,0.15); }
     .pt-pts-val.v4 { color: #22c55e; }
@@ -384,6 +385,7 @@
 
   function renderPersonal(entry) {
     const wrap = document.getElementById('content-wrap');
+    const scrollY = window.scrollY;
     const hasActual = Object.keys(_actualPicks).length > 0;
     const r = computeScore(entry.picks || {});
 
@@ -418,7 +420,7 @@
         : `<div class="pt-cell actual-empty"></div>`;
 
       const yourCell = yourP
-        ? `<div class="pt-cell yours ${ptsCls}"><div class="pt-prospect-name">${escHtml(yourP.name)}</div></div>`
+        ? `<div class="pt-cell yours ${ptsCls}"><div class="pt-prospect-name">${escHtml(yourP.name)}</div>${pts === 4 ? '<span class="exact-badge">✓ exact</span>' : ''}</div>`
         : `<div class="pt-cell yours" style="opacity:0.3"><div class="pt-prospect-meta" style="font-style:italic">no pick</div></div>`;
 
       const ptsCell = hasActual && pts !== null
@@ -449,6 +451,7 @@
         </tr></thead>
         <tbody>${rows}</tbody>
       </table>`;
+    window.scrollTo(0, scrollY);
   }
 
   function pickPoints(predicted, actual) {
