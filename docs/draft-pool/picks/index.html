@@ -123,12 +123,17 @@
     .submit-bar-top { display: flex; align-items: center; gap: 0.6rem; }
     .submit-count { font-family: 'Barlow Condensed', sans-serif; font-size: 0.82rem; font-weight: 600; color: var(--silver); letter-spacing: 1px; white-space: nowrap; }
     .submit-count strong { color: white; }
+    .submit-inputs { display: none; flex-direction: column; gap: 0.35rem; }
+    .submit-inputs.open { display: flex; }
     .input-row { display: flex; flex-direction: column; gap: 2px; }
     .input-label { font-family: 'Barlow Condensed', sans-serif; font-size: 0.65rem; font-weight: 700; letter-spacing: 1.5px; color: rgba(255,255,255,0.3); text-transform: uppercase; padding-left: 2px; }
     .name-input { font-family: 'Barlow Condensed', sans-serif; font-size: 1rem; font-weight: 600; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15); color: white; border-radius: 7px; padding: 0.45rem 0.75rem; width: 100%; transition: border-color 0.15s; }
     .name-input::placeholder { color: rgba(255,255,255,0.3); }
     .name-input:focus { outline: none; border-color: rgba(255,184,28,0.5); }
     .name-input.shake { animation: shake 0.35s; border-color: rgba(200,16,46,0.7); }
+    .btn-confirm-row { display: flex; gap: 0.5rem; }
+    .btn-cancel-submit { font-family: 'Bebas Neue', cursive; font-size: 0.95rem; letter-spacing: 1.5px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: var(--silver); border-radius: 8px; padding: 0.6rem 1rem; cursor: pointer; flex-shrink: 0; transition: background 0.15s; }
+    .btn-cancel-submit:hover { background: rgba(255,255,255,0.1); color: white; }
     @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
     .btn-autofill { font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 1.5px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: var(--silver); border-radius: 7px; padding: 0.5rem 0.85rem; cursor: pointer; white-space: nowrap; transition: background 0.15s, color 0.15s; flex-shrink: 0; }
     .btn-autofill:hover { background: rgba(255,255,255,0.12); color: white; }
@@ -239,15 +244,21 @@
   <div class="submit-bar-top">
     <div class="submit-count" id="submit-count"><strong>0</strong>/32</div>
     <button class="btn-autofill" id="btn-autofill" onclick="autoFill()">Auto-fill rest</button>
-    <button class="btn-submit" id="btn-submit" onclick="submitPicks()" disabled>Submit</button>
+    <button class="btn-submit" id="btn-submit" onclick="openSubmitInputs()" disabled>Submit</button>
   </div>
-  <div class="input-row">
-    <div class="input-label">Name</div>
-    <input class="name-input" id="name-input" type="text" maxlength="24" placeholder="Your name" autocomplete="off">
-  </div>
-  <div class="input-row">
-    <div class="input-label">Email</div>
-    <input class="name-input" id="email-input" type="email" placeholder="your@email.com" autocomplete="email" onkeydown="if(event.key==='Enter') submitPicks()">
+  <div class="submit-inputs" id="submit-inputs">
+    <div class="input-row">
+      <div class="input-label">Name</div>
+      <input class="name-input" id="name-input" type="text" maxlength="24" placeholder="Your name" autocomplete="off">
+    </div>
+    <div class="input-row">
+      <div class="input-label">Email</div>
+      <input class="name-input" id="email-input" type="email" placeholder="your@email.com" autocomplete="email" onkeydown="if(event.key==='Enter') submitPicks()">
+    </div>
+    <div class="btn-confirm-row">
+      <button class="btn-cancel-submit" onclick="closeSubmitInputs()">Cancel</button>
+      <button class="btn-submit" id="btn-confirm" onclick="submitPicks()">Confirm Picks</button>
+    </div>
   </div>
 </div>
 
@@ -517,6 +528,19 @@
     if (e.touches[0].clientY - _touchY > 60) closeSheet();
   }, { passive: true });
 
+  // ── Submit bar expand/collapse
+  function openSubmitInputs() {
+    document.getElementById('submit-inputs').classList.add('open');
+    document.getElementById('btn-autofill').style.display = 'none';
+    setTimeout(() => document.getElementById('name-input').focus(), 50);
+  }
+
+  function closeSubmitInputs() {
+    document.getElementById('submit-inputs').classList.remove('open');
+    const count = Object.keys(_picks).length;
+    document.getElementById('btn-autofill').style.display = (count < 32) ? 'inline-block' : 'none';
+  }
+
   // ── Submit
   async function submitPicks() {
     const nameEl = document.getElementById('name-input');
@@ -557,7 +581,7 @@
       if (!confirmed) return;
     }
 
-    const btn = document.getElementById('btn-submit');
+    const btn = document.getElementById('btn-confirm');
     btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
 
     try {
@@ -572,10 +596,11 @@
         throw new Error(res.status);
       }
       document.getElementById('success-count').textContent = `${count} of 32 picks submitted`;
+      closeSubmitInputs();
       document.getElementById('success-overlay').classList.add('show');
     } catch(e) {
       showToast(`Failed to save (${e.message}). Try again.`, true);
-      btn.disabled = false; btn.textContent = 'Submit';
+      btn.disabled = false; btn.textContent = 'Confirm Picks';
     }
   }
 
