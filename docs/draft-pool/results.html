@@ -26,6 +26,10 @@
     .page-header h1 span { color: var(--gold); }
     .pool-badge { display: inline-flex; align-items: center; gap: 6px; margin-top: 0.4rem; font-family: 'Barlow Condensed', sans-serif; font-size: 0.8rem; font-weight: 600; color: var(--silver); letter-spacing: 1.5px; }
     .pool-code-badge { font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 3px; color: var(--gold); background: rgba(255,184,28,0.1); border: 1px solid rgba(255,184,28,0.3); border-radius: 4px; padding: 1px 10px; }
+    .last-updated { font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem; font-weight: 600; color: rgba(255,255,255,0.2); letter-spacing: 1px; margin-top: 0.2rem; display: flex; align-items: center; justify-content: center; gap: 5px; }
+    .refresh-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.2); flex-shrink: 0; }
+    .refresh-dot.live { background: #22c55e; box-shadow: 0 0 6px rgba(34,197,94,0.6); animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
 
     /* ── Tabs ── */
     .tabs-wrap { max-width: 900px; width: 100%; margin: 0.75rem auto 0; padding: 0 1.25rem; }
@@ -140,6 +144,10 @@
 <div class="page-header">
   <h1>Draft Pool <span>Results</span></h1>
   <div class="pool-badge" id="pool-badge">Loading…</div>
+  <div class="last-updated" id="last-updated" style="display:none">
+    <div class="refresh-dot" id="refresh-dot"></div>
+    <span id="last-updated-text"></span>
+  </div>
 </div>
 
 <div class="tabs-wrap">
@@ -229,6 +237,41 @@
   let _entries = [];
   let _actualPicks = {};
   let _activeTab = 'leaderboard';
+  let _lastUpdated = null;
+  let _refreshTimer = null;
+
+  function updateTimestamp() {
+    if (!_lastUpdated) return;
+    const el = document.getElementById('last-updated');
+    const txt = document.getElementById('last-updated-text');
+    const dot = document.getElementById('refresh-dot');
+    el.style.display = 'flex';
+    const secs = Math.round((Date.now() - _lastUpdated) / 1000);
+    const label = secs < 10 ? 'just now'
+      : secs < 60 ? `${secs}s ago`
+      : secs < 3600 ? `${Math.floor(secs / 60)}m ago`
+      : `${Math.floor(secs / 3600)}h ago`;
+    const hasScores = Object.keys(_actualPicks).length > 0;
+    txt.textContent = `Updated ${label}`;
+    dot.className = 'refresh-dot' + (hasScores ? ' live' : '');
+  }
+
+  async function refresh() {
+    try {
+      const [poolRes, entRes] = await Promise.all([
+        fetch(`${SUPABASE_URL}/rest/v1/draft_pools?code=eq.${POOL_CODE}&select=code,name,actual_picks`, { headers: sbHeaders() }),
+        fetch(`${SUPABASE_URL}/rest/v1/draft_pool_entries?pool_code=eq.${POOL_CODE}&select=id,participant_name,picks,pick_count&order=pick_count.desc`, { headers: sbHeaders() })
+      ]);
+      if (!poolRes.ok || !entRes.ok) return;
+      const rows = await poolRes.json();
+      if (!rows.length) return;
+      _actualPicks = rows[0].actual_picks || {};
+      _entries = await entRes.json();
+      _lastUpdated = Date.now();
+      updateTimestamp();
+      renderTab();
+    } catch(e) {}
+  }
 
   async function init() {
     try {
@@ -246,7 +289,13 @@
       );
       if (!entRes.ok) throw new Error(entRes.status);
       _entries = await entRes.json();
+      _lastUpdated = Date.now();
+      updateTimestamp();
       renderTab();
+
+      // Auto-refresh every 30s, update timestamp display every 10s
+      _refreshTimer = setInterval(refresh, 30000);
+      setInterval(updateTimestamp, 10000);
     } catch(e) {
       document.getElementById('content-wrap').innerHTML = `<div class="no-data">Unable to load results. Check your connection and <a href="" onclick="location.reload();return false;" style="color:var(--gold)">try again</a>.</div>`;
     }
