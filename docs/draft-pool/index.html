@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2026 NHL Draft Pool | Parieur Discipliné</title>
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://parieurdiscipline.com/draft-pool/">
+  <meta property="og:title" content="2026 NHL Draft Pool — Parieur Discipliné">
+  <meta property="og:description" content="Predict which NHL team drafts each top 50 prospect. Compete in the 2026 NHL Draft Pool and see how you stack up.">
+  <meta property="og:image" content="https://parieurdiscipline.com/parieur_discipline_icon_1024.png">
+  <link rel="icon" type="image/png" href="../parieur_discipline_icon_1024.png">
+  <link rel="apple-touch-icon" href="../parieur_discipline_icon_1024.png">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --rink: #07111f; --red: #c8102e; --gold: #ffb81c; --silver: #a8b2be;
+      --green: #22c55e; --blue: #7db4ff; --line: rgba(255,255,255,0.08); --nav-h: 44px;
+    }
+    body { background: var(--rink); background-image: radial-gradient(ellipse 90% 60% at 50% -5%, rgba(26,58,110,0.7) 0%, transparent 65%); min-height: 100vh; font-family: 'Barlow Condensed', sans-serif; color: white; padding-top: var(--nav-h); }
+
+    /* ── Nav ── */
+    .site-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(7,17,31,0.92); border-bottom: 1px solid var(--line); backdrop-filter: blur(12px); }
+    .site-nav-inner { max-width: 860px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: var(--nav-h); padding: 0 1.25rem; }
+    .site-nav-brand { font-family: 'Bebas Neue', cursive; font-size: 1.5rem; color: var(--gold); letter-spacing: 4px; text-decoration: none; }
+    .site-nav-links { display: flex; gap: 0.4rem; }
+    .site-nav-links a { font-family: 'Barlow Condensed', sans-serif; font-size: 0.9rem; font-weight: 600; color: var(--silver); text-decoration: none; padding: 0.25rem 0.7rem; border-radius: 5px; letter-spacing: 1px; transition: color 0.15s, background 0.15s; }
+    .site-nav-links a:hover { color: white; background: rgba(255,255,255,0.07); }
+    .site-nav-links a.active { color: var(--gold); background: rgba(255,184,28,0.1); }
+
+    /* ── Page ── */
+    .page-wrap { max-width: 860px; margin: 0 auto; padding: 3.5rem 1.25rem 4rem; }
+
+    /* ── Hero ── */
+    .hero { text-align: center; margin-bottom: 3rem; }
+    .hero-logo { width: 88px; height: 88px; object-fit: contain; border-radius: 18px; margin-bottom: 1rem; filter: drop-shadow(0 4px 24px rgba(200,16,46,0.35)); }
+    .hero-eyebrow { font-size: 0.78rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--silver); opacity: 0.65; margin-bottom: 0.6rem; }
+    .hero h1 { font-family: 'Bebas Neue', cursive; font-size: clamp(2.6rem, 8vw, 5rem); letter-spacing: 6px; line-height: 0.95; text-shadow: 0 0 60px rgba(200,16,46,0.35), 0 4px 16px rgba(0,0,0,0.8); margin-bottom: 0.6rem; }
+    .hero h1 span { color: var(--gold); }
+    .hero-sub { font-size: clamp(1rem, 2.5vw, 1.25rem); font-weight: 600; color: var(--silver); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 2rem; }
+    .hero-cta { display: inline-flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; justify-content: center; }
+    .btn-primary { font-family: 'Bebas Neue', cursive; font-size: 1.2rem; letter-spacing: 3px; background: var(--red); color: white; border: none; border-radius: 8px; padding: 0.65rem 2.2rem; cursor: pointer; text-decoration: none; transition: background 0.15s, transform 0.1s, box-shadow 0.15s; box-shadow: 0 4px 20px rgba(200,16,46,0.4); display: inline-block; }
+    .btn-primary:hover { background: #e01232; transform: translateY(-1px); box-shadow: 0 6px 28px rgba(200,16,46,0.5); }
+    .btn-secondary { font-family: 'Bebas Neue', cursive; font-size: 1.2rem; letter-spacing: 3px; background: rgba(255,255,255,0.06); color: var(--silver); border: 1px solid var(--line); border-radius: 8px; padding: 0.65rem 2.2rem; cursor: pointer; text-decoration: none; transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.1s; display: inline-block; }
+    .btn-secondary:hover { background: rgba(255,255,255,0.1); color: white; border-color: rgba(255,255,255,0.18); transform: translateY(-1px); }
+
+    /* ── Stat strip ── */
+    .stat-strip { display: flex; gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; margin-bottom: 3rem; }
+    .stat-cell { flex: 1; background: rgba(255,255,255,0.025); padding: 1rem 0.5rem; text-align: center; }
+    .stat-num { font-family: 'Bebas Neue', cursive; font-size: clamp(1.6rem, 4vw, 2.4rem); letter-spacing: 2px; color: var(--gold); line-height: 1; }
+    .stat-label { font-size: 0.7rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--silver); opacity: 0.6; margin-top: 2px; }
+
+    /* ── Countdown ── */
+    .countdown-digits { display: flex; align-items: baseline; justify-content: center; gap: 2px; }
+    .cd-unit { display: flex; flex-direction: column; align-items: center; min-width: 28px; }
+    .cd-num { font-family: 'Bebas Neue', cursive; font-size: clamp(1.2rem, 3vw, 1.9rem); letter-spacing: 1px; color: var(--gold); line-height: 1; }
+    .cd-sep { font-family: 'Bebas Neue', cursive; font-size: clamp(1.2rem, 3vw, 1.9rem); color: rgba(255,184,28,0.35); line-height: 1; padding: 0 1px; align-self: flex-start; }
+    .cd-label { font-size: 0.52rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--silver); opacity: 0.5; margin-top: 1px; }
+    .cd-expired { font-family: 'Bebas Neue', cursive; font-size: 1.1rem; color: var(--red); letter-spacing: 2px; }
+
+    /* ── Section ── */
+    .section { margin-bottom: 2.5rem; }
+    .section-title { font-family: 'Bebas Neue', cursive; font-size: 1.3rem; letter-spacing: 4px; color: white; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.6rem; }
+    .section-title::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+
+    /* ── Steps ── */
+    .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+    @media (max-width: 620px) { .steps { grid-template-columns: 1fr; } }
+    .step-card { background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 10px; padding: 1.25rem; }
+    .step-num { font-family: 'Bebas Neue', cursive; font-size: 2.2rem; letter-spacing: 2px; color: var(--red); line-height: 1; margin-bottom: 0.4rem; opacity: 0.7; }
+    .step-title { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 2.5px; color: white; margin-bottom: 0.35rem; }
+    .step-body { font-size: 0.88rem; font-weight: 400; color: var(--silver); line-height: 1.5; }
+    .step-body strong { color: white; font-weight: 700; }
+
+    /* ── Scoring ── */
+    .scoring-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+    @media (max-width: 620px) { .scoring-grid { grid-template-columns: repeat(2, 1fr); } }
+    .scoring-card { background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 10px; padding: 1.25rem; text-align: center; }
+    .scoring-pts { font-family: 'Bebas Neue', cursive; font-size: 2.2rem; letter-spacing: 2px; color: var(--gold); line-height: 1; }
+    .scoring-card.pts-4 .scoring-pts { color: var(--green); }
+    .scoring-card.pts-2 .scoring-pts { color: var(--gold); }
+    .scoring-card.pts-1 .scoring-pts { color: #ff8c00; }
+    .scoring-card.pts-0 .scoring-pts { color: rgba(255,255,255,0.2); }
+    .scoring-label { font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 2px; color: var(--silver); margin-top: 0.3rem; }
+    .scoring-sub { font-size: 0.72rem; font-weight: 600; color: rgba(255,255,255,0.25); letter-spacing: 0.5px; margin-top: 0.2rem; }
+
+    /* ── Rules ── */
+    .rules-card { background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 10px; padding: 1.25rem 1.5rem; }
+    .rule-item { display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.55rem 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.92rem; color: var(--silver); line-height: 1.4; }
+    .rule-item:last-child { border-bottom: none; }
+    .rule-item strong { color: white; }
+    .rule-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--red); flex-shrink: 0; margin-top: 5px; }
+
+    /* ── Bottom CTA ── */
+    .bottom-cta { text-align: center; margin-top: 3rem; padding: 2.5rem 1.5rem; background: rgba(200,16,46,0.06); border: 1px solid rgba(200,16,46,0.15); border-radius: 14px; }
+    .bottom-cta p { font-size: 0.9rem; font-weight: 600; color: var(--silver); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 1.25rem; }
+
+    @media (max-width: 500px) { .stat-cell { padding: 0.75rem 0.25rem; } .stat-label { font-size: 0.6rem; letter-spacing: 1px; } }
+  </style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="site-nav-inner">
+    <a class="site-nav-brand" href="../index.html">Parieur Discipliné</a>
+    <div class="site-nav-links">
+      <a href="index.html" class="active">Draft Pool</a>
+      <a href="../draft-pool.html">Make Picks</a>
+      <a href="results.html">Results</a>
+    </div>
+  </div>
+</nav>
+
+<div class="page-wrap">
+
+  <!-- Hero -->
+  <div class="hero">
+    <img src="../parieur_discipline_icon_1024.png" alt="Parieur Discipliné" class="hero-logo">
+    <div class="hero-eyebrow">Parieur Discipliné · June 27, 2026</div>
+    <h1>2026 NHL<br><span>Draft Pool</span></h1>
+    <div class="hero-sub">Predict the picks · Score the results · Win bragging rights</div>
+    <div class="hero-cta">
+      <a href="../draft-pool.html" class="btn-primary">Make My Picks</a>
+      <a href="results.html" class="btn-secondary">View Results</a>
+    </div>
+  </div>
+
+  <!-- Stat strip -->
+  <div class="stat-strip">
+    <div class="stat-cell">
+      <div class="stat-num" id="live-count">—</div>
+      <div class="stat-label">Entries</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-num">32</div>
+      <div class="stat-label">Picks to Make</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-num">128</div>
+      <div class="stat-label">Max Points</div>
+    </div>
+    <div class="stat-cell">
+      <div class="countdown-digits" id="countdown-digits">
+        <div class="cd-unit"><span class="cd-num" id="cd-d">—</span><span class="cd-label">Days</span></div>
+        <span class="cd-sep">:</span>
+        <div class="cd-unit"><span class="cd-num" id="cd-h">—</span><span class="cd-label">Hrs</span></div>
+        <span class="cd-sep">:</span>
+        <div class="cd-unit"><span class="cd-num" id="cd-m">—</span><span class="cd-label">Min</span></div>
+        <span class="cd-sep">:</span>
+        <div class="cd-unit"><span class="cd-num" id="cd-s">—</span><span class="cd-label">Sec</span></div>
+      </div>
+      <div class="stat-label">Until Draft Day</div>
+    </div>
+  </div>
+
+  <!-- How it works -->
+  <div class="section">
+    <div class="section-title">How It Works</div>
+    <div class="steps">
+      <div class="step-card">
+        <div class="step-num">01</div>
+        <div class="step-title">Assign the Prospects</div>
+        <div class="step-body">For each of the <strong>32 first-round picks</strong>, predict which prospect that team will select from the top 50 big board.</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">02</div>
+        <div class="step-title">Submit Your Entry</div>
+        <div class="step-body">Enter your name and submit. All <strong>32 picks must be assigned</strong> before you can submit. Use auto-fill to complete any remaining slots.</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">03</div>
+        <div class="step-title">Score on Draft Night</div>
+        <div class="step-body">On <strong>June 27</strong>, actual picks are entered and scores are calculated. Check the leaderboard to see how your predictions stack up.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scoring -->
+  <div class="section">
+    <div class="section-title">Scoring</div>
+    <div class="scoring-grid">
+      <div class="scoring-card pts-4">
+        <div class="scoring-pts">4</div>
+        <div class="scoring-label">Points</div>
+        <div class="scoring-sub">Exact pick</div>
+      </div>
+      <div class="scoring-card pts-2">
+        <div class="scoring-pts">2</div>
+        <div class="scoring-label">Points</div>
+        <div class="scoring-sub">Off by 1 spot</div>
+      </div>
+      <div class="scoring-card pts-1">
+        <div class="scoring-pts">1</div>
+        <div class="scoring-label">Point</div>
+        <div class="scoring-sub">Off by 2 spots</div>
+      </div>
+      <div class="scoring-card pts-0">
+        <div class="scoring-pts">0</div>
+        <div class="scoring-label">Points</div>
+        <div class="scoring-sub">Off by 3+</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rules -->
+  <div class="section">
+    <div class="section-title">Rules</div>
+    <div class="rules-card">
+      <div class="rule-item">
+        <div class="rule-dot"></div>
+        <div><strong>32 picks required</strong> — you must assign a prospect to every first-round slot before submitting. Use auto-fill to complete any gaps.</div>
+      </div>
+      <div class="rule-item">
+        <div class="rule-dot"></div>
+        <div><strong>One entry per name</strong> — re-submitting with the same name overwrites your previous picks. Update freely before draft night.</div>
+      </div>
+      <div class="rule-item">
+        <div class="rule-dot"></div>
+        <div><strong>Top 50 prospects only</strong> — all picks must come from the official pool big board. Each prospect can only be assigned to one slot.</div>
+      </div>
+      <div class="rule-item">
+        <div class="rule-dot"></div>
+        <div><strong>Max score is 128 pts</strong> — 32 picks × 4 points for a perfect board. Scores are calculated after draft results are entered on June 27.</div>
+      </div>
+      <div class="rule-item">
+        <div class="rule-dot"></div>
+        <div><strong>Scoring is prospect-based</strong> — points are awarded based on where you predicted a prospect would be picked, not which team you assigned them to.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom CTA -->
+  <div class="bottom-cta">
+    <p>Draft starts June 27 — submit your picks before then</p>
+    <a href="../draft-pool.html" class="btn-primary">Make My Picks Now</a>
+  </div>
+
+</div>
+
+<script>
+  const SUPABASE_URL = 'https://fifurqlitkywtmhgtzeu.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZpZnVycWxpdGt5d3RtaGd0emV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3MDIyMjQsImV4cCI6MjA5MjI3ODIyNH0.KPVPj1qwbSJJMyLR_-AhDcRs0vi2sUU6qbFQ-kH53C0';
+
+  // Countdown to June 27 draft
+  const DRAFT_DATE = new Date('2026-06-27T18:00:00-04:00');
+  function pad(n) { return String(n).padStart(2, '0'); }
+  function tick() {
+    const diff = DRAFT_DATE - new Date();
+    if (diff <= 0) {
+      document.getElementById('countdown-digits').innerHTML = '<span class="cd-expired">DRAFT DAY</span>';
+      return;
+    }
+    const d = Math.floor(diff / 86400000);
+    const h = Math.floor((diff % 86400000) / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    document.getElementById('cd-d').textContent = d;
+    document.getElementById('cd-h').textContent = pad(h);
+    document.getElementById('cd-m').textContent = pad(m);
+    document.getElementById('cd-s').textContent = pad(s);
+  }
+  tick();
+  setInterval(tick, 1000);
+
+  // Live entry count
+  async function loadCount() {
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/draft_pool_entries?pool_code=eq.DRAFT2026&select=id`, {
+        headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, Prefer: 'count=exact', Range: '0-0' }
+      });
+      const range = res.headers.get('Content-Range');
+      const count = range ? parseInt(range.split('/')[1], 10) : 0;
+      document.getElementById('live-count').textContent = isNaN(count) ? '—' : count;
+    } catch {
+      document.getElementById('live-count').textContent = '—';
+    }
+  }
+  loadCount();
+</script>
+</body>
+</html>
