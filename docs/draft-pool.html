@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content">
   <title>2026 NHL Draft Pool | Parieur Discipliné</title>
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://parieurdiscipline.com/draft-pool.html">
@@ -30,7 +30,7 @@
     .site-nav-links a.active { color: var(--gold); background: rgba(255,184,28,0.1); }
 
     /* ── Page ── */
-    .page { max-width: 700px; margin: 0 auto; padding: 1rem 1rem 6rem; }
+    .page { max-width: 700px; margin: 0 auto; padding: 1rem 1rem 8rem; }
 
     .page-header { text-align: center; margin-bottom: 0.75rem; }
     .page-header h1 { font-family: 'Bebas Neue', cursive; font-size: clamp(1.8rem, 5vw, 2.8rem); letter-spacing: 6px; text-shadow: 0 0 40px rgba(200,16,46,0.35), 0 2px 8px rgba(0,0,0,0.8); line-height: 1; }
@@ -117,7 +117,7 @@
     .clear-pick:hover { color: var(--red); }
 
     /* ── Submit bar ── */
-    .submit-bar { position: fixed; bottom: 0; left: 0; right: 0; z-index: 100; background: rgba(7,17,31,0.96); border-top: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(12px); padding: 0.5rem 1rem 0.65rem; display: flex; flex-direction: column; gap: 0.45rem; }
+    .submit-bar { position: fixed; bottom: 0; left: 0; right: 0; z-index: 100; background: rgba(7,17,31,0.96); border-top: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(12px); padding: 0.5rem 1rem 0.65rem; display: flex; flex-direction: column; gap: 0.45rem; padding-bottom: calc(0.65rem + env(safe-area-inset-bottom)); }
     .submit-bar-top { display: flex; align-items: center; gap: 0.6rem; }
     .submit-count { font-family: 'Barlow Condensed', sans-serif; font-size: 0.82rem; font-weight: 600; color: var(--silver); letter-spacing: 1px; white-space: nowrap; }
     .submit-count strong { color: white; }
@@ -134,6 +134,21 @@
 
     @keyframes spin { to { transform: rotate(360deg); } }
     .spinner { display: inline-block; width: 13px; height: 13px; border: 2px solid rgba(7,17,31,0.3); border-top-color: var(--rink); border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 4px; }
+
+    /* ── Confirm modal ── */
+    .modal-backdrop { position: fixed; inset: 0; z-index: 600; background: rgba(0,0,0,0.65); backdrop-filter: blur(4px); opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+    .modal-backdrop.show { opacity: 1; pointer-events: all; }
+    .modal { position: fixed; left: 50%; top: 50%; z-index: 700; transform: translate(-50%, -52%) scale(0.95); opacity: 0; pointer-events: none; transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1), opacity 0.2s; background: #0e1e35; border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 1.75rem 1.5rem 1.25rem; width: calc(100% - 2.5rem); max-width: 340px; text-align: center; box-shadow: 0 24px 60px rgba(0,0,0,0.6); }
+    .modal.show { transform: translate(-50%, -50%) scale(1); opacity: 1; pointer-events: all; }
+    .modal-icon { font-size: 2.2rem; margin-bottom: 0.5rem; }
+    .modal-title { font-family: 'Bebas Neue', cursive; font-size: 1.4rem; letter-spacing: 3px; color: white; margin-bottom: 0.5rem; }
+    .modal-body { font-family: 'Barlow Condensed', sans-serif; font-size: 0.9rem; font-weight: 600; color: var(--silver); letter-spacing: 0.5px; line-height: 1.5; margin-bottom: 1.25rem; }
+    .modal-body strong { color: white; }
+    .modal-actions { display: flex; gap: 0.6rem; }
+    .modal-cancel { flex: 1; font-family: 'Bebas Neue', cursive; font-size: 0.95rem; letter-spacing: 2px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: var(--silver); border-radius: 8px; padding: 0.6rem; cursor: pointer; transition: background 0.15s, color 0.15s; }
+    .modal-cancel:hover { background: rgba(255,255,255,0.1); color: white; }
+    .modal-confirm { flex: 2; font-family: 'Bebas Neue', cursive; font-size: 0.95rem; letter-spacing: 2px; background: linear-gradient(135deg, #ffb81c, #e07b00); color: #07111f; border: none; border-radius: 8px; padding: 0.6rem; cursor: pointer; transition: opacity 0.15s; }
+    .modal-confirm:hover { opacity: 0.9; }
 
     /* ── Success overlay ── */
     #success-overlay { position: fixed; inset: 0; z-index: 999; background: rgba(7,17,31,0.97); display: none; align-items: center; justify-content: center; flex-direction: column; gap: 1rem; text-align: center; padding: 2rem; }
@@ -167,6 +182,18 @@
 </div>
 
 <div id="toast"></div>
+
+<!-- Confirm modal -->
+<div class="modal-backdrop" id="modal-backdrop" onclick="modalCancel()"></div>
+<div class="modal" id="modal">
+  <div class="modal-icon">⚡</div>
+  <div class="modal-title">Auto-Fill Picks</div>
+  <div class="modal-body" id="modal-body"></div>
+  <div class="modal-actions">
+    <button class="modal-cancel" onclick="modalCancel()">Cancel</button>
+    <button class="modal-confirm" onclick="modalConfirm()">Auto-Fill</button>
+  </div>
+</div>
 
 <!-- Bottom sheet backdrop -->
 <div class="sheet-backdrop" id="backdrop" onclick="closeSheet()"></div>
@@ -426,9 +453,35 @@
     document.getElementById('btn-autofill').style.display = (count < 32) ? 'inline-block' : 'none';
   }
 
-  function autoFill() {
+  let _modalResolve = null;
+
+  function showModal(bodyHtml) {
+    return new Promise(resolve => {
+      _modalResolve = resolve;
+      document.getElementById('modal-body').innerHTML = bodyHtml;
+      document.getElementById('modal-backdrop').classList.add('show');
+      document.getElementById('modal').classList.add('show');
+    });
+  }
+
+  function modalConfirm() {
+    document.getElementById('modal-backdrop').classList.remove('show');
+    document.getElementById('modal').classList.remove('show');
+    if (_modalResolve) { _modalResolve(true); _modalResolve = null; }
+  }
+
+  function modalCancel() {
+    document.getElementById('modal-backdrop').classList.remove('show');
+    document.getElementById('modal').classList.remove('show');
+    if (_modalResolve) { _modalResolve(false); _modalResolve = null; }
+  }
+
+  async function autoFill() {
     const emptySlots = DRAFT_ORDER.filter(d => !_picks[d.pick]);
-    if (!confirm(`Auto-fill the remaining ${emptySlots.length} empty slots with the best available prospects?`)) return;
+    const confirmed = await showModal(
+      `Fill the remaining <strong>${emptySlots.length} empty slot${emptySlots.length !== 1 ? 's' : ''}</strong> with the best available prospects by rank?`
+    );
+    if (!confirmed) return;
     const usedRanks = new Set(Object.values(_picks));
     const available = PROSPECTS.filter(p => !usedRanks.has(p.rank));
     for (let i = 0; i < emptySlots.length && i < available.length; i++) {
