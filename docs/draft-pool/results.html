@@ -39,7 +39,7 @@
 
     /* Leaderboard */
     .leaderboard { display: flex; flex-direction: column; gap: 0.5rem; }
-    .lb-row { display: grid; grid-template-columns: 36px 1fr 80px 80px; gap: 0.5rem; align-items: center; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; padding: 0.65rem 0.9rem; }
+    .lb-row { display: grid; grid-template-columns: 36px 1fr 100px; gap: 0.5rem; align-items: center; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; padding: 0.65rem 0.9rem; }
     .lb-row.rank-1 { border-color: rgba(255,184,28,0.4); background: rgba(255,184,28,0.06); box-shadow: 0 0 0 1px rgba(255,184,28,0.1), 0 4px 20px rgba(255,184,28,0.08); }
     .lb-row.rank-2 { border-color: rgba(168,178,190,0.3); background: rgba(168,178,190,0.03); }
     .lb-row.rank-3 { border-color: rgba(180,120,60,0.3); background: rgba(180,120,60,0.03); }
@@ -52,6 +52,13 @@
     .lb-picks { font-family: 'Barlow Condensed', sans-serif; font-size: 0.82rem; font-weight: 600; color: var(--silver); letter-spacing: 0.5px; text-align: center; }
     .lb-score { font-family: 'Bebas Neue', cursive; font-size: 1.3rem; letter-spacing: 1px; color: var(--gold); text-align: center; }
     .lb-score-label { font-family: 'Barlow Condensed', sans-serif; font-size: 0.65rem; font-weight: 600; color: rgba(255,255,255,0.25); letter-spacing: 1.5px; text-align: center; display: block; margin-top: -4px; }
+    .lb-breakdown { display: flex; flex-direction: column; align-items: center; gap: 2px; margin-top: 3px; }
+    .lb-breakdown-row { display: flex; align-items: center; gap: 3px; }
+    .lb-bd-dot { width: 7px; height: 7px; border-radius: 2px; flex-shrink: 0; }
+    .lb-bd-dot.d4 { background: #22c55e; }
+    .lb-bd-dot.d2 { background: #60a5fa; }
+    .lb-bd-dot.d1 { background: #fbbf24; }
+    .lb-bd-val { font-family: 'Barlow Condensed', sans-serif; font-size: 0.68rem; font-weight: 700; color: rgba(255,255,255,0.45); letter-spacing: 0.5px; }
 
     /* Draft board comparison */
     .comparison-header { display: grid; grid-template-columns: 44px 140px repeat(var(--cols), 1fr); gap: 0.4rem; margin-bottom: 0.4rem; align-items: end; overflow-x: auto; }
@@ -253,11 +260,15 @@
 
   function computeScore(picks) {
     if (!Object.keys(_actualPicks).length) return null;
-    let score = 0;
+    let score = 0, exact = 0, close1 = 0, close2 = 0;
     for (const [pick, actualRank] of Object.entries(_actualPicks)) {
-      score += pickPoints(picks[pick], actualRank);
+      const pts = pickPoints(picks[pick], actualRank);
+      score += pts;
+      if (pts === 4) exact++;
+      else if (pts === 2) close1++;
+      else if (pts === 1) close2++;
     }
-    return score;
+    return { score, exact, close1, close2 };
   }
 
   function renderLeaderboard() {
@@ -267,8 +278,8 @@
       return;
     }
     const hasScores = Object.keys(_actualPicks).length > 0;
-    const sorted = [..._entries].map(e => ({ ...e, score: computeScore(e.picks || {}) }));
-    if (hasScores) sorted.sort((a, b) => (b.score || 0) - (a.score || 0));
+    const sorted = [..._entries].map(e => ({ ...e, result: computeScore(e.picks || {}) }));
+    if (hasScores) sorted.sort((a, b) => ((b.result?.score) || 0) - ((a.result?.score) || 0));
 
     const MEDALS = ['🥇', '🥈', '🥉'];
     wrap.innerHTML = `
@@ -276,15 +287,20 @@
         ${sorted.map((e, i) => {
           const rankClass = i < 3 ? ` rank-${i+1}` : '';
           const medal = hasScores && i < 3 ? `${MEDALS[i]} ` : '';
+          const r = e.result;
+          const scoreHtml = hasScores && r !== null
+            ? `${r.score}<span class="lb-score-label">PTS / 128</span>
+               <div class="lb-breakdown">
+                 ${r.exact  > 0 ? `<div class="lb-breakdown-row"><div class="lb-bd-dot d4"></div><span class="lb-bd-val">${r.exact}×</span></div>` : ''}
+                 ${r.close1 > 0 ? `<div class="lb-breakdown-row"><div class="lb-bd-dot d2"></div><span class="lb-bd-val">${r.close1}×</span></div>` : ''}
+                 ${r.close2 > 0 ? `<div class="lb-breakdown-row"><div class="lb-bd-dot d1"></div><span class="lb-bd-val">${r.close2}×</span></div>` : ''}
+               </div>`
+            : `June 27<span class="lb-score-label">DRAFT DAY</span>`;
           return `
           <div class="lb-row${rankClass}">
             <div class="lb-rank">${i + 1}</div>
             <div class="lb-name">${medal}${escHtml(e.participant_name)}</div>
-            <div class="lb-picks"><span style="color:white;font-weight:700">${e.pick_count || 0}</span><br><span style="font-size:0.65rem;color:rgba(255,255,255,0.3);letter-spacing:1px">PICKS</span></div>
-            <div class="lb-score">
-              ${hasScores && e.score !== null ? e.score : 'June 27'}
-              <span class="lb-score-label">${hasScores ? 'PTS / 128' : 'DRAFT DAY'}</span>
-            </div>
+            <div class="lb-score">${scoreHtml}</div>
           </div>`;
         }).join('')}
       </div>`;
