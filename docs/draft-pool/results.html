@@ -44,27 +44,34 @@
     .content-wrap { max-width: 900px; width: 100%; margin: 0 auto; padding: 1rem 1.25rem 2rem; }
 
     /* Leaderboard */
-    .leaderboard { display: flex; flex-direction: column; gap: 0.5rem; background: rgba(255,255,255,0.015); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 0.75rem; }
-    .lb-row { display: grid; grid-template-columns: 40px 1fr 100px; gap: 0.6rem; align-items: center; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; padding: 0.85rem 1rem; }
-    .lb-row.rank-1 { border-color: rgba(255,184,28,0.4); background: rgba(255,184,28,0.06); box-shadow: 0 0 0 1px rgba(255,184,28,0.1), 0 4px 20px rgba(255,184,28,0.08); }
-    .lb-row.rank-2 { border-color: rgba(168,178,190,0.3); background: rgba(168,178,190,0.03); }
-    .lb-row.rank-3 { border-color: rgba(180,120,60,0.3); background: rgba(180,120,60,0.03); }
-    .lb-rank { font-family: 'Bebas Neue', cursive; font-size: 1.4rem; color: rgba(255,255,255,0.25); text-align: center; }
-    .lb-row.rank-1 .lb-rank { color: var(--gold); font-size: 1.6rem; }
-    .lb-row.rank-2 .lb-rank { color: var(--silver); }
-    .lb-row.rank-3 .lb-rank { color: #b4783c; }
-    .lb-name { font-family: 'Bebas Neue', cursive; font-size: 1.1rem; letter-spacing: 2px; }
-    .lb-row.rank-1 .lb-name { font-size: 1.25rem; color: var(--gold); }
-    .lb-picks { font-family: 'Barlow Condensed', sans-serif; font-size: 0.82rem; font-weight: 600; color: var(--silver); letter-spacing: 0.5px; text-align: center; }
-    .lb-score { font-family: 'Bebas Neue', cursive; font-size: 1.3rem; letter-spacing: 1px; color: var(--gold); text-align: center; }
-    .lb-score-label { font-family: 'Barlow Condensed', sans-serif; font-size: 0.65rem; font-weight: 600; color: rgba(255,255,255,0.25); letter-spacing: 1.5px; text-align: center; display: block; margin-top: -4px; }
-    .lb-breakdown { display: flex; flex-direction: column; align-items: center; gap: 2px; margin-top: 3px; }
-    .lb-breakdown-row { display: flex; align-items: center; gap: 3px; }
-    .lb-bd-dot { width: 7px; height: 7px; border-radius: 2px; flex-shrink: 0; }
-    .lb-bd-dot.d4 { background: #22c55e; }
-    .lb-bd-dot.d2 { background: #60a5fa; }
-    .lb-bd-dot.d1 { background: #fbbf24; }
-    .lb-bd-val { font-family: 'Barlow Condensed', sans-serif; font-size: 0.68rem; font-weight: 700; color: rgba(255,255,255,0.45); letter-spacing: 0.5px; }
+    .leaderboard { background: rgba(255,255,255,0.015); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; overflow: hidden; }
+    .lb-table { width: 100%; border-collapse: collapse; }
+    .lb-thead th { font-family: 'Barlow Condensed', sans-serif; font-size: 0.68rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.25); padding: 0.6rem 0.75rem; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.07); }
+    .lb-thead th.th-lb-name { text-align: left; padding-left: 1rem; }
+    .lb-thead th.th-lb-exact { color: #22c55e; opacity: 0.7; }
+    .lb-thead th.th-lb-close { color: #60a5fa; opacity: 0.7; }
+    .lb-thead th.th-lb-almost { color: #fbbf24; opacity: 0.7; }
+    .lb-tbody tr { border-bottom: 1px solid rgba(255,255,255,0.04); transition: background 0.12s; cursor: pointer; }
+    .lb-tbody tr:last-child { border-bottom: none; }
+    .lb-tbody tr:hover { background: rgba(255,255,255,0.05); }
+    .lb-tbody tr:active { background: rgba(255,255,255,0.08); }
+    .lb-tbody tr.rank-1 { background: rgba(255,184,28,0.06); border-bottom-color: rgba(255,184,28,0.1); }
+    .lb-tbody tr.rank-2 { background: rgba(168,178,190,0.03); }
+    .lb-tbody tr.rank-3 { background: rgba(180,120,60,0.03); }
+    .lb-tbody tr.rank-1:hover { background: rgba(255,184,28,0.1); }
+    .lb-tbody td { padding: 0.75rem 0.75rem; text-align: center; vertical-align: middle; }
+    .lb-tbody td.td-lb-rank { width: 36px; font-family: 'Bebas Neue', cursive; font-size: 1.3rem; color: rgba(255,255,255,0.25); padding-left: 1rem; }
+    .lb-tbody tr.rank-1 td.td-lb-rank { color: var(--gold); font-size: 1.5rem; }
+    .lb-tbody tr.rank-2 td.td-lb-rank { color: var(--silver); }
+    .lb-tbody tr.rank-3 td.td-lb-rank { color: #b4783c; }
+    .lb-tbody td.td-lb-name { text-align: left; font-family: 'Bebas Neue', cursive; font-size: 1.05rem; letter-spacing: 2px; color: white; }
+    .lb-tbody tr.rank-1 td.td-lb-name { color: var(--gold); font-size: 1.15rem; }
+    .lb-tbody td.td-lb-stat { font-family: 'Bebas Neue', cursive; font-size: 1.1rem; color: rgba(255,255,255,0.2); min-width: 44px; }
+    .lb-tbody td.td-lb-stat.has-val.s4 { color: #22c55e; }
+    .lb-tbody td.td-lb-stat.has-val.s2 { color: #60a5fa; }
+    .lb-tbody td.td-lb-stat.has-val.s1 { color: #fbbf24; }
+    .lb-tbody td.td-lb-pts { font-family: 'Bebas Neue', cursive; font-size: 1.2rem; letter-spacing: 1px; color: white; min-width: 52px; padding-right: 1rem; }
+    .lb-tbody tr.rank-1 td.td-lb-pts { color: var(--gold); font-size: 1.35rem; }
 
     /* Draft board comparison */
     .board-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; position: relative; }
@@ -81,8 +88,8 @@
     .th-num  { font-family: 'Bebas Neue', cursive; font-size: 0.7rem; letter-spacing: 1px; color: rgba(255,255,255,0.25); text-align: center; padding-bottom: 0.4rem; position: sticky; left: 0; z-index: 3; background: #07111f; }
     .th-team { width: 36px; padding-bottom: 0.4rem; padding-right: 0.4rem; position: sticky; left: 32px; z-index: 3; background: #07111f; }
     .th-name { font-family: 'Bebas Neue', cursive; font-size: 0.75rem; letter-spacing: 1.5px; color: var(--gold); text-align: center; writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; height: 90px; overflow: hidden; text-overflow: ellipsis; padding: 0 0.2rem 0.4rem; vertical-align: bottom; }
-    .th-actual { font-family: 'Bebas Neue', cursive; font-size: 0.7rem; letter-spacing: 1px; color: rgba(255,184,28,0.6); text-align: center; padding-bottom: 0.4rem; vertical-align: bottom; }
-    .ch-actual { font-family: 'Bebas Neue', cursive; font-size: 0.7rem; letter-spacing: 1px; color: rgba(255,184,28,0.6); text-align: center; }
+    .th-actual { font-family: 'Bebas Neue', cursive; font-size: 0.7rem; letter-spacing: 1px; color: var(--silver); text-align: center; padding-bottom: 0.4rem; vertical-align: bottom; opacity: 0.6; }
+    .ch-actual { font-family: 'Bebas Neue', cursive; font-size: 0.7rem; letter-spacing: 1px; color: var(--silver); text-align: center; opacity: 0.6; }
     /* Body cells */
     .td-num  { font-family: 'Bebas Neue', cursive; font-size: 1.1rem; color: rgba(255,255,255,0.2); text-align: center; vertical-align: middle; }
     .td-team { vertical-align: middle; text-align: center; }
@@ -143,14 +150,14 @@
     .pt-logo { text-align: center; }
     .pt-logo img { width: 26px; height: 26px; object-fit: contain; }
     .pt-cell { border-radius: 7px; padding: 0.35rem 0.6rem; min-height: 36px; display: flex; flex-direction: column; justify-content: center; }
-    .pt-cell.actual { background: rgba(255,184,28,0.05); border: 1px solid rgba(255,184,28,0.25); }
+    .pt-cell.actual { background: rgba(168,178,190,0.06); border: 1px solid rgba(168,178,190,0.2); }
     .pt-cell.actual-empty { background: rgba(255,255,255,0.01); border: 1px dashed rgba(255,255,255,0.07); min-height: 36px; border-radius: 7px; }
     .pt-cell.yours { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); }
     .pt-cell.yours.pts4 { background: rgba(34,197,94,0.12); border-color: rgba(34,197,94,0.35); }
     .pt-cell.yours.pts2 { background: rgba(96,165,250,0.1); border-color: rgba(96,165,250,0.28); }
     .pt-cell.yours.pts1 { background: rgba(251,191,36,0.08); border-color: rgba(251,191,36,0.22); }
     .pt-prospect-name { font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 1px; color: white; line-height: 1.1; }
-    .pt-cell.actual .pt-prospect-name { color: rgba(255,184,28,0.85); font-weight: 700; }
+    .pt-cell.actual .pt-prospect-name { color: var(--silver); font-weight: 700; }
     .pt-cell.yours.pts4 .pt-prospect-name { color: #22c55e; }
     .pt-cell.yours.pts2 .pt-prospect-name { color: #60a5fa; }
     .pt-cell.yours.pts1 .pt-prospect-name { color: #fbbf24; }
@@ -167,9 +174,9 @@
     .lb-row { cursor: pointer; transition: background 0.12s, border-color 0.12s, transform 0.1s; }
     .lb-row:hover { background: rgba(255,255,255,0.06) !important; border-color: rgba(255,255,255,0.15) !important; }
     .lb-row:active { transform: scale(0.99); }
-    .actual-pick-cell { background: rgba(255,184,28,0.05); border: 1px solid rgba(255,184,28,0.25); border-radius: 6px; padding: 0.3rem 0.2rem; text-align: center; min-height: 36px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-    .actual-pick-rank { font-family: 'Bebas Neue', cursive; font-size: 0.8rem; letter-spacing: 1px; color: rgba(255,184,28,0.6); }
-    .actual-pick-name { font-family: 'Barlow Condensed', sans-serif; font-size: 0.62rem; font-weight: 700; color: rgba(255,184,28,0.75); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90%; }
+    .actual-pick-cell { background: rgba(168,178,190,0.06); border: 1px solid rgba(168,178,190,0.2); border-radius: 6px; padding: 0.3rem 0.2rem; text-align: center; min-height: 36px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .actual-pick-rank { font-family: 'Bebas Neue', cursive; font-size: 0.8rem; letter-spacing: 1px; color: rgba(168,178,190,0.6); }
+    .actual-pick-name { font-family: 'Barlow Condensed', sans-serif; font-size: 0.62rem; font-weight: 700; color: var(--silver); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90%; }
     .actual-pick-empty { background: rgba(255,255,255,0.01); border: 1px dashed rgba(255,255,255,0.08); border-radius: 6px; min-height: 36px; }
     .ch-actual { font-family: 'Bebas Neue', cursive; font-size: 0.7rem; letter-spacing: 1px; color: #22c55e; text-align: center; opacity: 0.8; }
 
@@ -497,27 +504,41 @@
     if (hasScores) sorted.sort((a, b) => ((b.result?.score) || 0) - ((a.result?.score) || 0));
 
     const MEDALS = ['🥇', '🥈', '🥉'];
+    const headerStats = hasScores
+      ? `<th class="th-lb-exact">Exact</th><th class="th-lb-close">±1</th><th class="th-lb-almost">±2</th><th>PTS</th>`
+      : `<th>PTS</th>`;
+
+    const rows = sorted.map((e, i) => {
+      const rankClass = i < 3 ? ` rank-${i+1}` : '';
+      const medal = hasScores && i < 3 ? `${MEDALS[i]} ` : '';
+      const r = e.result;
+      let statCells;
+      if (hasScores && r !== null) {
+        statCells = `
+          <td class="td-lb-stat s4${r.exact  > 0 ? ' has-val' : ''}">${r.exact  > 0 ? r.exact  : '—'}</td>
+          <td class="td-lb-stat s2${r.close1 > 0 ? ' has-val' : ''}">${r.close1 > 0 ? r.close1 : '—'}</td>
+          <td class="td-lb-stat s1${r.close2 > 0 ? ' has-val' : ''}">${r.close2 > 0 ? r.close2 : '—'}</td>
+          <td class="td-lb-pts">${r.score}</td>`;
+      } else {
+        statCells = `<td class="td-lb-pts">0</td>`;
+      }
+      return `<tr class="${rankClass.trim()}" onclick="openPersonal(${e.id})" title="View ${escHtml(e.participant_name)}'s picks">
+        <td class="td-lb-rank">${i + 1}</td>
+        <td class="td-lb-name">${medal}${escHtml(e.participant_name)}</td>
+        ${statCells}
+      </tr>`;
+    }).join('');
+
     wrap.innerHTML = `
       <div class="leaderboard">
-        ${sorted.map((e, i) => {
-          const rankClass = i < 3 ? ` rank-${i+1}` : '';
-          const medal = hasScores && i < 3 ? `${MEDALS[i]} ` : '';
-          const r = e.result;
-          const scoreHtml = hasScores && r !== null
-            ? `${r.score}<span class="lb-score-label">PTS</span>
-               <div class="lb-breakdown">
-                 ${r.exact  > 0 ? `<div class="lb-breakdown-row"><div class="lb-bd-dot d4"></div><span class="lb-bd-val">${r.exact}×</span></div>` : ''}
-                 ${r.close1 > 0 ? `<div class="lb-breakdown-row"><div class="lb-bd-dot d2"></div><span class="lb-bd-val">${r.close1}×</span></div>` : ''}
-                 ${r.close2 > 0 ? `<div class="lb-breakdown-row"><div class="lb-bd-dot d1"></div><span class="lb-bd-val">${r.close2}×</span></div>` : ''}
-               </div>`
-            : `0<span class="lb-score-label">PTS</span>`;
-          return `
-          <div class="lb-row${rankClass}" onclick="openPersonal(${e.id})" title="View ${escHtml(e.participant_name)}'s picks">
-            <div class="lb-rank">${i + 1}</div>
-            <div class="lb-name">${medal}${escHtml(e.participant_name)}</div>
-            <div class="lb-score">${scoreHtml}</div>
-          </div>`;
-        }).join('')}
+        <table class="lb-table">
+          <thead class="lb-thead"><tr>
+            <th></th>
+            <th class="th-lb-name">Name</th>
+            ${headerStats}
+          </tr></thead>
+          <tbody class="lb-tbody">${rows}</tbody>
+        </table>
       </div>`;
   }
 
