@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin | 2026 NHL Draft Pool</title>
+  <link rel="icon" type="image/png" href="../parieur_discipline_icon_1024.png">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --rink: #07111f; --red: #c8102e; --gold: #ffb81c; --silver: #a8b2be;
+      --green: #22c55e; --line: rgba(255,255,255,0.08); --nav-h: 44px;
+    }
+    body { background: var(--rink); background-image: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(26,58,110,0.6) 0%, transparent 70%); min-height: 100vh; font-family: 'Barlow Condensed', sans-serif; color: white; padding-top: var(--nav-h); }
+
+    .site-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(7,17,31,0.92); border-bottom: 1px solid var(--line); backdrop-filter: blur(12px); }
+    .site-nav-inner { max-width: 800px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: var(--nav-h); padding: 0 1rem; }
+    .site-nav-brand { font-family: 'Bebas Neue', cursive; font-size: 1.5rem; color: var(--gold); letter-spacing: 4px; text-decoration: none; }
+    .site-nav-back { font-family: 'Barlow Condensed', sans-serif; font-size: 0.9rem; font-weight: 600; color: var(--silver); text-decoration: none; letter-spacing: 1px; padding: 0.3rem 0.7rem; border-radius: 5px; transition: color 0.15s, background 0.15s; }
+    .site-nav-back:hover { color: white; background: rgba(255,255,255,0.07); }
+
+    /* ── Lock screen ── */
+    #lock-screen { position: fixed; inset: 0; z-index: 500; background: rgba(7,17,31,0.98); display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 1rem; padding: 2rem; }
+    #lock-screen h2 { font-family: 'Bebas Neue', cursive; font-size: 2rem; letter-spacing: 5px; color: var(--gold); }
+    #lock-screen p { color: var(--silver); font-size: 0.85rem; letter-spacing: 1px; }
+    .lock-input { font-family: 'Barlow Condensed', sans-serif; font-size: 1.1rem; font-weight: 600; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15); color: white; border-radius: 8px; padding: 0.65rem 1rem; width: 100%; max-width: 300px; text-align: center; letter-spacing: 3px; transition: border-color 0.15s; }
+    .lock-input:focus { outline: none; border-color: rgba(255,184,28,0.5); }
+    .lock-input.shake { animation: shake 0.35s; border-color: rgba(200,16,46,0.7); }
+    .lock-btn { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 2px; background: linear-gradient(135deg, #ffb81c, #e07b00); color: #07111f; border: none; border-radius: 8px; padding: 0.65rem 2rem; cursor: pointer; width: 100%; max-width: 300px; }
+    @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+
+    /* ── Page ── */
+    .page { max-width: 800px; margin: 0 auto; padding: 1.25rem 1rem 3rem; }
+    .page-header { margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; }
+    .page-header h1 { font-family: 'Bebas Neue', cursive; font-size: 2rem; letter-spacing: 5px; }
+    .page-header h1 span { color: var(--gold); }
+    .participant-count { font-family: 'Barlow Condensed', sans-serif; font-size: 0.85rem; font-weight: 600; color: var(--silver); letter-spacing: 1px; }
+
+    /* ── Participants table ── */
+    .participants { display: flex; flex-direction: column; gap: 0.4rem; }
+
+    .participant-row {
+      display: grid; grid-template-columns: 1fr auto auto auto;
+      gap: 0.75rem; align-items: center;
+      background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 10px; padding: 0.75rem 1rem;
+    }
+    .p-name { font-family: 'Bebas Neue', cursive; font-size: 1.1rem; letter-spacing: 2px; color: white; }
+    .p-picks { font-size: 0.8rem; font-weight: 600; color: var(--silver); letter-spacing: 1px; }
+    .p-picks.complete { color: var(--green); }
+    .p-date { font-size: 0.75rem; font-weight: 600; color: rgba(255,255,255,0.25); letter-spacing: 0.5px; white-space: nowrap; }
+    .btn-delete { font-family: 'Bebas Neue', cursive; font-size: 0.8rem; letter-spacing: 1.5px; background: rgba(200,16,46,0.1); border: 1px solid rgba(200,16,46,0.25); color: rgba(200,16,46,0.7); border-radius: 6px; padding: 0.35rem 0.75rem; cursor: pointer; white-space: nowrap; transition: background 0.15s, color 0.15s; }
+    .btn-delete:hover { background: rgba(200,16,46,0.2); color: var(--red); }
+    .btn-delete:disabled { opacity: 0.4; cursor: default; }
+
+    .empty-state { text-align: center; color: var(--silver); font-size: 0.9rem; letter-spacing: 1px; padding: 3rem 0; }
+
+    .loading { text-align: center; color: var(--silver); font-size: 0.85rem; letter-spacing: 2px; padding: 3rem 0; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.15); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
+
+    #toast { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%); z-index: 9999; background: rgba(15,25,45,0.97); border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; padding: 0.7rem 1.4rem; font-size: 0.9rem; font-weight: 600; letter-spacing: 1px; color: white; box-shadow: 0 4px 24px rgba(0,0,0,0.5); display: none; white-space: nowrap; }
+  </style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="site-nav-inner">
+    <a class="site-nav-brand" href="../index.html">Parieur Discipliné</a>
+    <a class="site-nav-back" href="results.html">← Results</a>
+  </div>
+</nav>
+
+<!-- Lock screen -->
+<div id="lock-screen">
+  <div style="font-size:2.5rem">🔒</div>
+  <h2>Admin Access</h2>
+  <p>Enter the admin password to continue.</p>
+  <input class="lock-input" id="lock-input" type="password" placeholder="••••••••" autocomplete="off" onkeydown="if(event.key==='Enter') unlock()">
+  <button class="lock-btn" onclick="unlock()">Unlock</button>
+</div>
+
+<div id="toast"></div>
+
+<div class="page">
+  <div class="page-header">
+    <h1>Draft Pool <span>Admin</span></h1>
+    <div class="participant-count" id="participant-count"></div>
+  </div>
+  <div id="participants-list" class="participants">
+    <div class="loading"><span class="spinner"></span>Loading…</div>
+  </div>
+</div>
+
+<script>
+  const SUPABASE_URL = 'https://fifurqlitkywtmhgtzeu.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZpZnVycWxpdGt5d3RtaGd0emV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3MDIyMjQsImV4cCI6MjA5MjI3ODIyNH0.KPVPj1qwbSJJMyLR_-AhDcRs0vi2sUU6qbFQ-kH53C0';
+  const POOL_CODE = 'DRAFT2026';
+  const ADMIN_PASSWORD = 'parieur2026';
+
+  function sbHeaders() {
+    return { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' };
+  }
+
+  function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+
+  function unlock() {
+    const val = document.getElementById('lock-input').value;
+    if (val === ADMIN_PASSWORD) {
+      document.getElementById('lock-screen').style.display = 'none';
+      loadParticipants();
+    } else {
+      const el = document.getElementById('lock-input');
+      el.classList.add('shake');
+      el.value = '';
+      setTimeout(() => el.classList.remove('shake'), 400);
+    }
+  }
+
+  function formatDate(iso) {
+    const d = new Date(iso);
+    return d.toLocaleDateString('en-CA', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'America/Toronto' });
+  }
+
+  async function loadParticipants() {
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/draft_pool_entries?pool_code=eq.${POOL_CODE}&order=submitted_at.asc&select=id,participant_name,pick_count,submitted_at,updated_at`, {
+        headers: sbHeaders()
+      });
+      if (!res.ok) throw new Error(res.status);
+      const data = await res.json();
+      renderParticipants(data);
+    } catch(e) {
+      document.getElementById('participants-list').innerHTML = `<div class="empty-state">Failed to load (${e.message})</div>`;
+    }
+  }
+
+  function renderParticipants(data) {
+    const count = data.length;
+    document.getElementById('participant-count').textContent = `${count} participant${count !== 1 ? 's' : ''}`;
+
+    if (count === 0) {
+      document.getElementById('participants-list').innerHTML = `<div class="empty-state">No participants yet.</div>`;
+      return;
+    }
+
+    document.getElementById('participants-list').innerHTML = data.map(p => `
+      <div class="participant-row" id="row-${p.id}">
+        <div>
+          <div class="p-name">${escHtml(p.participant_name)}</div>
+          <div class="p-date">Submitted ${formatDate(p.submitted_at)}${p.updated_at !== p.submitted_at ? ' · Updated ' + formatDate(p.updated_at) : ''}</div>
+        </div>
+        <div class="p-picks ${p.pick_count >= 32 ? 'complete' : ''}">${p.pick_count}/32 picks</div>
+        <button class="btn-delete" onclick="deleteParticipant(${p.id}, '${escHtml(p.participant_name).replace(/'/g,"\\'")}')">Delete</button>
+      </div>
+    `).join('');
+  }
+
+  async function deleteParticipant(id, name) {
+    if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
+
+    const btn = document.querySelector(`#row-${id} .btn-delete`);
+    btn.disabled = true;
+    btn.textContent = '…';
+
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/draft_pool_entries?id=eq.${id}&pool_code=eq.${POOL_CODE}`, {
+        method: 'DELETE',
+        headers: sbHeaders()
+      });
+      if (!res.ok) throw new Error(res.status);
+      document.getElementById(`row-${id}`).remove();
+      const remaining = document.querySelectorAll('.participant-row').length;
+      document.getElementById('participant-count').textContent = `${remaining} participant${remaining !== 1 ? 's' : ''}`;
+      if (remaining === 0) {
+        document.getElementById('participants-list').innerHTML = `<div class="empty-state">No participants yet.</div>`;
+      }
+      showToast(`${name} deleted.`);
+    } catch(e) {
+      showToast(`Failed to delete (${e.message})`, true);
+      btn.disabled = false;
+      btn.textContent = 'Delete';
+    }
+  }
+
+  function showToast(msg, isError = false) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.style.display = 'block';
+    el.style.borderColor = isError ? 'rgba(200,16,46,0.4)' : 'rgba(255,255,255,0.12)';
+    setTimeout(() => el.style.display = 'none', 3000);
+  }
+</script>
+</body>
+</html>
