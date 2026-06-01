@@ -37,6 +37,8 @@
     .tab-btn { font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 2px; color: var(--silver); background: none; border: none; border-bottom: 2px solid transparent; padding: 0.5rem 1rem 0.45rem; cursor: pointer; transition: color 0.15s, border-color 0.15s; margin-bottom: -1px; }
     .tab-btn:hover { color: white; }
     .tab-btn.active { color: var(--gold); border-bottom-color: var(--gold); }
+    .tab-btn-back { font-family: 'Barlow Condensed', sans-serif; font-size: 0.82rem; font-weight: 700; color: var(--silver); background: none; border: none; cursor: pointer; letter-spacing: 1px; padding: 0.5rem 0.5rem 0.45rem 0; display: none; transition: color 0.15s; }
+    .tab-btn-back:hover { color: white; }
 
     /* ── Content ── */
     .content-wrap { max-width: 900px; width: 100%; margin: 0 auto; padding: 1rem 1.25rem 2rem; }
@@ -115,7 +117,52 @@
     .legend-dot.l1 { background: rgba(251,191,36,0.35); border: 1px solid rgba(251,191,36,0.45); }
     .legend-dot.l0 { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); }
 
-    /* Actual pick reference row */
+    /* Personal view */
+    .personal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem; }
+    .personal-name { font-family: 'Bebas Neue', cursive; font-size: 1.4rem; letter-spacing: 3px; color: var(--gold); }
+    .personal-score-strip { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+    .personal-score-big { font-family: 'Bebas Neue', cursive; font-size: 1.6rem; letter-spacing: 2px; color: white; }
+    .personal-score-sub { font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem; font-weight: 700; color: rgba(255,255,255,0.3); letter-spacing: 1.5px; }
+    .personal-bd { display: flex; gap: 0.4rem; }
+    .personal-bd-chip { font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.5px; padding: 2px 7px; border-radius: 4px; }
+    .personal-bd-chip.c4 { background: rgba(34,197,94,0.15); color: #22c55e; }
+    .personal-bd-chip.c2 { background: rgba(96,165,250,0.15); color: #60a5fa; }
+    .personal-bd-chip.c1 { background: rgba(251,191,36,0.15); color: #fbbf24; }
+
+    .personal-table { width: 100%; border-collapse: separate; border-spacing: 0 0.3rem; }
+    .personal-table th { font-family: 'Barlow Condensed', sans-serif; font-size: 0.68rem; font-weight: 700; letter-spacing: 1.5px; color: rgba(255,255,255,0.25); text-transform: uppercase; padding: 0 0.5rem 0.4rem; text-align: left; }
+    .personal-table th.center { text-align: center; }
+    .pt-pick { width: 36px; }
+    .pt-team { width: 36px; }
+    .pt-actual { width: 45%; }
+    .pt-yours { width: 45%; }
+    .pt-pts { width: 40px; text-align: center; }
+
+    .pt-row td { padding: 0.3rem 0.3rem; vertical-align: middle; }
+    .pt-num { font-family: 'Bebas Neue', cursive; font-size: 1rem; color: rgba(255,255,255,0.2); text-align: center; }
+    .pt-logo { text-align: center; }
+    .pt-logo img { width: 26px; height: 26px; object-fit: contain; }
+    .pt-cell { border-radius: 7px; padding: 0.35rem 0.6rem; min-height: 36px; display: flex; flex-direction: column; justify-content: center; }
+    .pt-cell.actual { background: rgba(34,197,94,0.07); border: 1px solid rgba(34,197,94,0.2); }
+    .pt-cell.actual-empty { background: rgba(255,255,255,0.01); border: 1px dashed rgba(255,255,255,0.07); min-height: 36px; border-radius: 7px; }
+    .pt-cell.yours { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); }
+    .pt-cell.yours.pts4 { background: rgba(34,197,94,0.12); border-color: rgba(34,197,94,0.35); }
+    .pt-cell.yours.pts2 { background: rgba(96,165,250,0.1); border-color: rgba(96,165,250,0.28); }
+    .pt-cell.yours.pts1 { background: rgba(251,191,36,0.08); border-color: rgba(251,191,36,0.22); }
+    .pt-prospect-name { font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 1px; color: white; line-height: 1.1; }
+    .pt-cell.actual .pt-prospect-name { color: #22c55e; }
+    .pt-cell.yours.pts4 .pt-prospect-name { color: #22c55e; }
+    .pt-cell.yours.pts2 .pt-prospect-name { color: #60a5fa; }
+    .pt-cell.yours.pts1 .pt-prospect-name { color: #fbbf24; }
+    .pt-prospect-meta { font-family: 'Barlow Condensed', sans-serif; font-size: 0.6rem; font-weight: 600; color: rgba(255,255,255,0.3); letter-spacing: 0.5px; }
+    .pt-pts-val { font-family: 'Bebas Neue', cursive; font-size: 1.1rem; text-align: center; color: rgba(255,255,255,0.15); }
+    .pt-pts-val.v4 { color: #22c55e; }
+    .pt-pts-val.v2 { color: #60a5fa; }
+    .pt-pts-val.v1 { color: #fbbf24; }
+
+    .lb-row { cursor: pointer; transition: background 0.12s, border-color 0.12s, transform 0.1s; }
+    .lb-row:hover { background: rgba(255,255,255,0.06) !important; border-color: rgba(255,255,255,0.15) !important; }
+    .lb-row:active { transform: scale(0.99); }
     .actual-pick-cell { background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.25); border-radius: 6px; padding: 0.3rem 0.2rem; text-align: center; min-height: 36px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
     .actual-pick-rank { font-family: 'Bebas Neue', cursive; font-size: 0.8rem; letter-spacing: 1px; color: #22c55e; }
     .actual-pick-name { font-family: 'Barlow Condensed', sans-serif; font-size: 0.62rem; font-weight: 600; color: rgba(34,197,94,0.6); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90%; }
@@ -152,8 +199,9 @@
 
 <div class="tabs-wrap">
   <div class="tabs">
-    <button class="tab-btn active" onclick="setTab('leaderboard', this)">🏆 Leaderboard</button>
-    <button class="tab-btn" onclick="setTab('board', this)">📋 Board View</button>
+    <button class="tab-btn-back" id="tab-btn-back" onclick="backToLeaderboard()">← Back</button>
+    <button class="tab-btn active" id="tab-leaderboard" onclick="setTab('leaderboard', this)">🏆 Leaderboard</button>
+    <button class="tab-btn" id="tab-board" onclick="setTab('board', this)">📋 Board View</button>
   </div>
 </div>
 
@@ -237,6 +285,7 @@
   let _entries = [];
   let _actualPicks = {};
   let _activeTab = 'leaderboard';
+  let _personalEntry = null;
   let _lastUpdated = null;
   let _refreshTimer = null;
 
@@ -303,14 +352,103 @@
 
   function setTab(tab, btn) {
     _activeTab = tab;
+    _personalEntry = null;
+    document.getElementById('tab-btn-back').style.display = 'none';
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     renderTab();
   }
 
   function renderTab() {
-    if (_activeTab === 'leaderboard') renderLeaderboard();
+    if (_personalEntry) renderPersonal(_personalEntry);
+    else if (_activeTab === 'leaderboard') renderLeaderboard();
     else renderBoard();
+  }
+
+  function openPersonal(id) {
+    const entry = _entries.find(e => e.id === id);
+    if (!entry) return;
+    _personalEntry = entry;
+    document.getElementById('tab-btn-back').style.display = 'inline-block';
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    renderPersonal(entry);
+  }
+
+  function backToLeaderboard() {
+    _personalEntry = null;
+    document.getElementById('tab-btn-back').style.display = 'none';
+    document.getElementById('tab-leaderboard').classList.add('active');
+    _activeTab = 'leaderboard';
+    renderLeaderboard();
+  }
+
+  function renderPersonal(entry) {
+    const wrap = document.getElementById('content-wrap');
+    const hasActual = Object.keys(_actualPicks).length > 0;
+    const r = computeScore(entry.picks || {});
+
+    let scoreStrip = '';
+    if (hasActual && r) {
+      const chips = [
+        r.exact  > 0 ? `<span class="personal-bd-chip c4">${r.exact}× exact</span>` : '',
+        r.close1 > 0 ? `<span class="personal-bd-chip c2">${r.close1}× close</span>` : '',
+        r.close2 > 0 ? `<span class="personal-bd-chip c1">${r.close2}× near</span>` : '',
+      ].filter(Boolean).join('');
+      scoreStrip = `
+        <div class="personal-score-strip">
+          <div>
+            <div class="personal-score-big">${r.score} <span class="personal-score-sub">PTS</span></div>
+          </div>
+          <div class="personal-bd">${chips}</div>
+        </div>`;
+    }
+
+    let rows = '';
+    for (const d of DRAFT_ORDER) {
+      const actualRank = _actualPicks[d.pick];
+      const yourRank = entry.picks?.[d.pick];
+      const actualP = actualRank ? prospectByRank[actualRank] : null;
+      const yourP = yourRank ? prospectByRank[yourRank] : null;
+      const pts = (hasActual && actualRank && yourRank) ? pickPoints(yourRank, actualRank) : null;
+      const ptsCls = pts === 4 ? 'pts4' : pts === 2 ? 'pts2' : pts === 1 ? 'pts1' : '';
+      const ptsValCls = pts === 4 ? 'v4' : pts === 2 ? 'v2' : pts === 1 ? 'v1' : '';
+
+      const actualCell = actualP
+        ? `<div class="pt-cell actual"><div class="pt-prospect-name">${escHtml(actualP.name)}</div><div class="pt-prospect-meta">#${actualRank} · ${actualP.pos}</div></div>`
+        : `<div class="pt-cell actual-empty"></div>`;
+
+      const yourCell = yourP
+        ? `<div class="pt-cell yours ${ptsCls}"><div class="pt-prospect-name">${escHtml(yourP.name)}</div><div class="pt-prospect-meta">#${yourRank} · ${yourP.pos}</div></div>`
+        : `<div class="pt-cell yours" style="opacity:0.3"><div class="pt-prospect-meta" style="font-style:italic">no pick</div></div>`;
+
+      const ptsCell = hasActual && pts !== null
+        ? `<div class="pt-pts-val ${ptsValCls}">${pts > 0 ? '+'+pts : '—'}</div>`
+        : `<div class="pt-pts-val">—</div>`;
+
+      rows += `<tr class="pt-row">
+        <td class="pt-num">${d.pick}</td>
+        <td class="pt-logo"><img src="https://assets.nhle.com/logos/nhl/svg/${d.abbr}_light.svg" alt="${d.abbr}" title="${escHtml(d.team)}" onerror="this.style.visibility='hidden'"></td>
+        <td>${actualCell}</td>
+        <td>${yourCell}</td>
+        <td>${ptsCell}</td>
+      </tr>`;
+    }
+
+    wrap.innerHTML = `
+      <div class="personal-header">
+        <div class="personal-name">${escHtml(entry.participant_name)}</div>
+        ${scoreStrip}
+      </div>
+      <table class="personal-table">
+        <thead><tr>
+          <th class="pt-pick">#</th>
+          <th class="pt-team"></th>
+          <th class="pt-actual">${hasActual ? 'ACTUAL' : 'ACTUAL (TBD)'}</th>
+          <th class="pt-yours">YOUR PICK</th>
+          <th class="pt-pts center">PTS</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
   }
 
   function pickPoints(predicted, actual) {
@@ -361,7 +499,7 @@
                </div>`
             : `0<span class="lb-score-label">PTS</span>`;
           return `
-          <div class="lb-row${rankClass}">
+          <div class="lb-row${rankClass}" onclick="openPersonal(${e.id})" title="View ${escHtml(e.participant_name)}'s picks">
             <div class="lb-rank">${i + 1}</div>
             <div class="lb-name">${medal}${escHtml(e.participant_name)}</div>
             <div class="lb-score">${scoreHtml}</div>
