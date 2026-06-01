@@ -17,102 +17,121 @@
       --rink: #07111f; --red: #c8102e; --gold: #ffb81c; --silver: #a8b2be;
       --green: #22c55e; --blue: #7db4ff; --line: rgba(255,255,255,0.08); --nav-h: 44px;
     }
-    body { background: var(--rink); background-image: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(26,58,110,0.6) 0%, transparent 70%); min-height: 100vh; font-family: 'Barlow Condensed', sans-serif; color: white; padding-top: var(--nav-h); display: flex; flex-direction: column; }
+    body { background: var(--rink); background-image: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(26,58,110,0.6) 0%, transparent 70%); min-height: 100vh; font-family: 'Barlow Condensed', sans-serif; color: white; padding-top: var(--nav-h); }
 
     .site-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(7,17,31,0.92); border-bottom: 1px solid var(--line); backdrop-filter: blur(12px); }
-    .site-nav-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: var(--nav-h); padding: 0 1.5rem; }
+    .site-nav-inner { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: var(--nav-h); padding: 0 1.5rem; }
     .site-nav-brand { font-family: 'Bebas Neue', cursive; font-size: 1.5rem; color: var(--gold); letter-spacing: 4px; text-decoration: none; }
     .site-nav-links { display: flex; gap: 0.5rem; }
     .site-nav-links a { font-family: 'Barlow Condensed', sans-serif; font-size: 0.9rem; font-weight: 600; color: var(--silver); text-decoration: none; padding: 0.3rem 0.7rem; border-radius: 5px; letter-spacing: 1px; transition: color 0.15s, background 0.15s; }
     .site-nav-links a:hover { color: white; background: rgba(255,255,255,0.07); }
     .site-nav-links a.active { color: var(--gold); background: rgba(255,184,28,0.1); }
 
-    .page-header { text-align: center; padding: 1.5rem 1rem 0.5rem; }
-    .page-header h1 { font-family: 'Bebas Neue', cursive; font-size: clamp(2rem, 5vw, 3.2rem); letter-spacing: 6px; text-shadow: 0 0 40px rgba(200,16,46,0.35), 0 2px 12px rgba(0,0,0,0.8); line-height: 1; }
+    /* ── Page header ── */
+    .page-header { text-align: center; padding: 1.25rem 1rem 0.75rem; }
+    .page-header h1 { font-family: 'Bebas Neue', cursive; font-size: clamp(1.8rem, 4vw, 2.8rem); letter-spacing: 6px; text-shadow: 0 0 40px rgba(200,16,46,0.35), 0 2px 8px rgba(0,0,0,0.8); line-height: 1; }
     .page-header h1 span { color: var(--gold); }
-    .page-header p { color: var(--silver); font-size: 0.82rem; letter-spacing: 2.5px; text-transform: uppercase; margin-top: 0.3rem; }
+    .page-header p { color: var(--silver); font-size: 0.78rem; letter-spacing: 2px; text-transform: uppercase; margin-top: 0.25rem; }
 
-    /* ── Progress ── */
-    .progress-wrap { max-width: 900px; width: 100%; margin: 0.75rem auto 0; padding: 0 1.25rem; }
-    .progress-label { font-family: 'Barlow Condensed', sans-serif; font-size: 0.75rem; font-weight: 700; color: var(--silver); letter-spacing: 2px; margin-bottom: 0.3rem; display: flex; justify-content: space-between; }
-    .progress-bar { height: 4px; background: rgba(255,255,255,0.08); border-radius: 2px; overflow: hidden; }
-    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--gold), #ff8c00); border-radius: 2px; transition: width 0.3s ease; }
+    /* ── Progress bar ── */
+    .progress-wrap { max-width: 1400px; margin: 0 auto; padding: 0 1.25rem 0.5rem; }
+    .progress-label { font-size: 0.72rem; font-weight: 700; color: var(--silver); letter-spacing: 2px; margin-bottom: 0.25rem; display: flex; justify-content: space-between; }
+    .progress-bar { height: 3px; background: rgba(255,255,255,0.08); border-radius: 2px; overflow: hidden; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--gold), #ff8c00); border-radius: 2px; transition: width 0.25s ease; }
 
-    /* ── Board ── */
-    .board-wrap { max-width: 900px; width: 100%; margin: 0.75rem auto 0; padding: 0 1.25rem 0; }
+    /* ── Two-panel layout ── */
+    .panels { display: grid; grid-template-columns: 1fr 320px; gap: 1rem; max-width: 1400px; margin: 0 auto; padding: 0 1.25rem; height: calc(100vh - var(--nav-h) - 120px); min-height: 500px; }
+    @media (max-width: 860px) { .panels { grid-template-columns: 1fr; height: auto; } }
 
-    .pick-row {
-      display: grid; grid-template-columns: 44px 1fr 1fr;
+    /* ── Pick slots (left) ── */
+    .picks-panel { display: flex; flex-direction: column; gap: 0; overflow-y: auto; border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; background: rgba(255,255,255,0.01); }
+    .picks-panel-header { font-family: 'Bebas Neue', cursive; font-size: 0.8rem; letter-spacing: 3px; color: var(--silver); padding: 0.6rem 0.9rem 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.06); flex-shrink: 0; }
+
+    .pick-slot {
+      display: grid; grid-template-columns: 40px 1fr auto;
       gap: 0.5rem; align-items: center;
-      background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 10px; padding: 0.55rem 0.75rem; margin-bottom: 0.4rem;
-      transition: border-color 0.15s, background 0.15s;
+      padding: 0.5rem 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.04);
+      cursor: pointer; transition: background 0.12s;
+      min-height: 48px;
     }
-    .pick-row:hover { border-color: rgba(255,255,255,0.12); background: rgba(255,255,255,0.04); }
-    .pick-row.filled { border-color: rgba(255,184,28,0.2); background: rgba(255,184,28,0.03); }
-    .pick-num { font-family: 'Bebas Neue', cursive; font-size: 1.4rem; color: rgba(255,255,255,0.18); text-align: center; line-height: 1; }
-    .pick-row.filled .pick-num { color: var(--gold); }
-    .pick-team-col { display: flex; flex-direction: column; gap: 2px; }
-    .pick-team-name { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 2px; color: white; line-height: 1; }
-    .pick-team-sub { font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem; font-weight: 600; color: rgba(255,255,255,0.3); letter-spacing: 1px; }
+    .pick-slot:last-child { border-bottom: none; }
+    .pick-slot:hover { background: rgba(255,255,255,0.04); }
+    .pick-slot.active { background: rgba(255,184,28,0.08); }
+    .pick-slot.assigned { background: rgba(255,184,28,0.03); }
+    .pick-slot.active.assigned { background: rgba(255,184,28,0.12); }
 
-    .prospect-select {
-      width: 100%; font-family: 'Barlow Condensed', sans-serif; font-size: 0.9rem; font-weight: 600;
-      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12);
-      color: rgba(255,255,255,0.55); border-radius: 7px; padding: 0.45rem 2rem 0.45rem 0.7rem;
-      cursor: pointer; appearance: none; -webkit-appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='rgba(255,255,255,0.3)' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
-      background-repeat: no-repeat; background-position: right 0.6rem center;
-      transition: border-color 0.15s, color 0.15s;
-    }
-    .prospect-select:focus { outline: none; border-color: rgba(255,184,28,0.5); }
-    .prospect-select.picked { color: white; border-color: rgba(255,184,28,0.3); background-color: rgba(255,184,28,0.04); }
-    .prospect-select option { background: #0d1f35; color: white; }
+    .slot-num { font-family: 'Bebas Neue', cursive; font-size: 1.3rem; color: rgba(255,255,255,0.2); text-align: center; line-height: 1; }
+    .pick-slot.active .slot-num,
+    .pick-slot.assigned .slot-num { color: var(--gold); }
 
-    @media (max-width: 600px) {
-      .pick-row { grid-template-columns: 36px 1fr; }
-      .pick-row > div:last-child { grid-column: 1 / -1; }
+    .slot-logo { width: 28px; height: 28px; object-fit: contain; flex-shrink: 0; }
+    .slot-team { display: flex; align-items: center; gap: 0.5rem; min-width: 0; }
+    .slot-team-name { font-family: 'Bebas Neue', cursive; font-size: 0.95rem; letter-spacing: 1.5px; color: white; line-height: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .slot-team-conf { font-family: 'Barlow Condensed', sans-serif; font-size: 0.65rem; font-weight: 600; color: rgba(255,255,255,0.28); letter-spacing: 1px; }
+
+    .slot-prospect { text-align: right; min-width: 0; }
+    .slot-prospect-name { font-family: 'Barlow Condensed', sans-serif; font-size: 0.8rem; font-weight: 700; color: var(--gold); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 130px; display: block; }
+    .slot-prospect-pos { font-family: 'Barlow Condensed', sans-serif; font-size: 0.65rem; font-weight: 600; color: rgba(255,184,28,0.5); letter-spacing: 1px; }
+    .slot-empty { font-family: 'Barlow Condensed', sans-serif; font-size: 0.78rem; font-weight: 600; color: rgba(255,255,255,0.18); letter-spacing: 0.5px; font-style: italic; }
+    .pick-slot.active .slot-empty { color: rgba(255,184,28,0.45); }
+    .slot-clear { font-size: 0.7rem; color: rgba(255,255,255,0.2); cursor: pointer; padding: 2px 4px; border-radius: 3px; transition: color 0.12s; flex-shrink: 0; }
+    .slot-clear:hover { color: var(--red); }
+
+    /* ── Prospects panel (right) ── */
+    .prospects-panel { display: flex; flex-direction: column; overflow: hidden; border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; background: rgba(255,255,255,0.01); }
+    .prospects-panel-header { padding: 0.6rem 0.9rem 0.4rem; border-bottom: 1px solid rgba(255,255,255,0.06); flex-shrink: 0; }
+    .prospects-panel-title { font-family: 'Bebas Neue', cursive; font-size: 0.8rem; letter-spacing: 3px; color: var(--silver); margin-bottom: 0.35rem; }
+    .prospects-search { width: 100%; font-family: 'Barlow Condensed', sans-serif; font-size: 0.88rem; font-weight: 600; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: white; border-radius: 6px; padding: 0.35rem 0.7rem; transition: border-color 0.15s; }
+    .prospects-search::placeholder { color: rgba(255,255,255,0.25); }
+    .prospects-search:focus { outline: none; border-color: rgba(255,184,28,0.4); }
+
+    .prospects-list { overflow-y: auto; flex: 1; }
+    .prospect-item {
+      display: flex; align-items: center; gap: 0.5rem;
+      padding: 0.45rem 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.03);
+      cursor: pointer; transition: background 0.1s;
     }
+    .prospect-item:last-child { border-bottom: none; }
+    .prospect-item:hover:not(.used) { background: rgba(255,255,255,0.05); }
+    .prospect-item.used { opacity: 0.3; cursor: default; }
+    .prospect-item.selected { background: rgba(255,184,28,0.1); }
+
+    .prospect-rank { font-family: 'Bebas Neue', cursive; font-size: 1rem; color: rgba(255,255,255,0.3); width: 24px; text-align: center; flex-shrink: 0; }
+    .prospect-item.selected .prospect-rank { color: var(--gold); }
+    .prospect-info { flex: 1; min-width: 0; }
+    .prospect-name { font-family: 'Barlow Condensed', sans-serif; font-size: 0.88rem; font-weight: 700; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .prospect-meta { font-family: 'Barlow Condensed', sans-serif; font-size: 0.65rem; font-weight: 600; color: rgba(255,255,255,0.3); letter-spacing: 0.5px; }
+    .prospect-pos-badge { font-family: 'Bebas Neue', cursive; font-size: 0.7rem; letter-spacing: 1px; color: var(--silver); background: rgba(255,255,255,0.07); border-radius: 3px; padding: 1px 5px; flex-shrink: 0; }
+
+    /* ── Hint bar ── */
+    .hint-bar { max-width: 1400px; margin: 0.5rem auto 0; padding: 0 1.25rem; }
+    .hint { font-family: 'Barlow Condensed', sans-serif; font-size: 0.75rem; font-weight: 600; color: rgba(255,184,28,0.6); letter-spacing: 1px; text-align: center; min-height: 1.2em; transition: opacity 0.2s; }
 
     /* ── Submit bar ── */
-    .submit-bar {
-      position: sticky; bottom: 0; z-index: 50;
-      background: rgba(7,17,31,0.95); border-top: 1px solid rgba(255,255,255,0.08);
-      backdrop-filter: blur(12px); padding: 0.75rem 1.25rem;
-      display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;
-    }
+    .submit-bar { position: sticky; bottom: 0; z-index: 50; background: rgba(7,17,31,0.96); border-top: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(12px); padding: 0.65rem 1.25rem; display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; max-width: 100%; }
     .submit-count { font-family: 'Barlow Condensed', sans-serif; font-size: 0.85rem; font-weight: 600; color: var(--silver); letter-spacing: 1px; white-space: nowrap; }
     .submit-count strong { color: white; }
-    .name-input {
-      font-family: 'Barlow Condensed', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 1px;
-      background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15);
-      color: white; border-radius: 7px; padding: 0.5rem 0.9rem; flex: 1; min-width: 140px;
-      transition: border-color 0.15s;
-    }
+    .name-input { font-family: 'Barlow Condensed', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 1px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15); color: white; border-radius: 7px; padding: 0.5rem 0.9rem; flex: 1; min-width: 130px; transition: border-color 0.15s; }
     .name-input::placeholder { color: rgba(255,255,255,0.3); }
     .name-input:focus { outline: none; border-color: rgba(255,184,28,0.5); }
-    .name-input.error { border-color: rgba(200,16,46,0.7); }
-    .btn-submit {
-      font-family: 'Bebas Neue', cursive; font-size: 1.05rem; letter-spacing: 2px;
-      background: var(--gold); color: var(--rink); border: none; border-radius: 8px;
-      padding: 0.6rem 1.8rem; cursor: pointer; transition: opacity 0.15s, transform 0.1s; white-space: nowrap;
-    }
+    .name-input.shake { animation: shake 0.35s; border-color: rgba(200,16,46,0.7); }
+    @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+    .btn-submit { font-family: 'Bebas Neue', cursive; font-size: 1.05rem; letter-spacing: 2px; background: var(--gold); color: var(--rink); border: none; border-radius: 8px; padding: 0.6rem 1.8rem; cursor: pointer; transition: opacity 0.15s, transform 0.1s; white-space: nowrap; }
     .btn-submit:hover { opacity: 0.9; transform: translateY(-1px); }
     .btn-submit:disabled { opacity: 0.35; cursor: default; transform: none; }
 
     @keyframes spin { to { transform: rotate(360deg); } }
     .spinner { display: inline-block; width: 13px; height: 13px; border: 2px solid rgba(7,17,31,0.3); border-top-color: var(--rink); border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 5px; }
 
-    #toast { position: fixed; bottom: 5rem; left: 50%; transform: translateX(-50%); z-index: 9999; background: rgba(15,25,45,0.97); border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; padding: 0.75rem 1.5rem; font-size: 0.9rem; font-weight: 600; letter-spacing: 1px; color: white; box-shadow: 0 4px 24px rgba(0,0,0,0.5); display: none; white-space: nowrap; }
-
     /* ── Success overlay ── */
     #success-overlay { position: fixed; inset: 0; z-index: 9999; background: rgba(7,17,31,0.97); display: none; align-items: center; justify-content: center; flex-direction: column; gap: 1rem; text-align: center; padding: 2rem; }
     #success-overlay.show { display: flex; }
     #success-overlay h2 { font-family: 'Bebas Neue', cursive; font-size: 2.5rem; letter-spacing: 5px; color: var(--gold); }
-    #success-overlay p { color: var(--silver); font-size: 0.9rem; letter-spacing: 1px; line-height: 1.6; }
-    .success-count { font-family: 'Bebas Neue', cursive; font-size: 1.4rem; letter-spacing: 3px; color: white; }
+    #success-overlay p { color: var(--silver); font-size: 0.9rem; letter-spacing: 1px; line-height: 1.8; }
     .btn-results { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 2px; background: rgba(125,180,255,0.12); border: 1px solid rgba(125,180,255,0.3); color: var(--blue); border-radius: 8px; padding: 0.6rem 1.5rem; cursor: pointer; text-decoration: none; display: inline-block; transition: background 0.15s; }
     .btn-results:hover { background: rgba(125,180,255,0.22); }
+
+    #toast { position: fixed; bottom: 5rem; left: 50%; transform: translateX(-50%); z-index: 9999; background: rgba(15,25,45,0.97); border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; padding: 0.75rem 1.5rem; font-size: 0.9rem; font-weight: 600; letter-spacing: 1px; color: white; box-shadow: 0 4px 24px rgba(0,0,0,0.5); display: none; white-space: nowrap; }
   </style>
 </head>
 <body>
@@ -127,33 +146,50 @@
   </div>
 </nav>
 
-<div id="toast"></div>
-
 <div id="success-overlay">
   <div style="font-size:3rem">🎯</div>
   <h2>Picks Saved!</h2>
-  <div class="success-count" id="success-count"></div>
+  <div id="success-count" style="font-family:'Bebas Neue',cursive;font-size:1.3rem;letter-spacing:3px;color:white;"></div>
   <p>Good luck on June 27.<br>Check back after the draft to see how you did.</p>
   <a href="draft-pool/results.html" class="btn-results">📊 View Leaderboard →</a>
 </div>
 
+<div id="toast"></div>
+
 <div class="page-header">
   <h1>2026 NHL <span>Draft Pool</span></h1>
-  <p>For each pick, choose which prospect gets selected · June 27, 2026</p>
+  <p>Select a pick slot, then assign a prospect · June 27, 2026</p>
 </div>
 
 <div class="progress-wrap">
   <div class="progress-label">
-    <span>Picks made</span>
+    <span>Picks assigned</span>
     <span id="progress-text">0 / 32</span>
   </div>
   <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
 </div>
 
-<div class="board-wrap" id="board-wrap"></div>
+<div class="hint-bar"><div class="hint" id="hint">← Select a pick slot to get started</div></div>
+
+<div class="panels">
+  <!-- Left: pick slots -->
+  <div class="picks-panel">
+    <div class="picks-panel-header">32 PICKS</div>
+    <div id="picks-list"></div>
+  </div>
+
+  <!-- Right: prospect pool -->
+  <div class="prospects-panel">
+    <div class="prospects-panel-header">
+      <div class="prospects-panel-title">TOP 50 PROSPECTS</div>
+      <input class="prospects-search" id="prospects-search" type="text" placeholder="Search by name…" oninput="filterProspects(this.value)">
+    </div>
+    <div class="prospects-list" id="prospects-list"></div>
+  </div>
+</div>
 
 <div class="submit-bar">
-  <div class="submit-count" id="submit-count"><strong>0</strong> / 32 picks</div>
+  <div class="submit-count" id="submit-count"><strong>0</strong> / 32 assigned</div>
   <input class="name-input" id="name-input" type="text" maxlength="24" placeholder="Your name" autocomplete="off" onkeydown="if(event.key==='Enter') submitPicks()">
   <button class="btn-submit" id="btn-submit" onclick="submitPicks()">Submit Picks</button>
 </div>
@@ -167,140 +203,229 @@
   function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 
   const DRAFT_ORDER = [
-    { pick: 1,  team: 'San Jose Sharks',        conf: 'Pacific' },
-    { pick: 2,  team: 'Chicago Blackhawks',      conf: 'Central' },
-    { pick: 3,  team: 'Nashville Predators',     conf: 'Central' },
-    { pick: 4,  team: 'Utah Hockey Club',        conf: 'Central' },
-    { pick: 5,  team: 'Pittsburgh Penguins',     conf: 'Metro' },
-    { pick: 6,  team: 'New York Islanders',      conf: 'Metro' },
-    { pick: 7,  team: 'Philadelphia Flyers',     conf: 'Metro' },
-    { pick: 8,  team: 'Anaheim Ducks',           conf: 'Pacific' },
-    { pick: 9,  team: 'Buffalo Sabres',          conf: 'Atlantic' },
-    { pick: 10, team: 'Ottawa Senators',         conf: 'Atlantic' },
-    { pick: 11, team: 'Columbus Blue Jackets',   conf: 'Metro' },
-    { pick: 12, team: 'Seattle Kraken',          conf: 'Pacific' },
-    { pick: 13, team: 'Vancouver Canucks',       conf: 'Pacific' },
-    { pick: 14, team: 'Calgary Flames',          conf: 'Pacific' },
-    { pick: 15, team: 'Detroit Red Wings',       conf: 'Atlantic' },
-    { pick: 16, team: 'New York Rangers',        conf: 'Metro' },
-    { pick: 17, team: 'Montreal Canadiens',      conf: 'Atlantic' },
-    { pick: 18, team: 'St. Louis Blues',         conf: 'Central' },
-    { pick: 19, team: 'Los Angeles Kings',       conf: 'Pacific' },
-    { pick: 20, team: 'Minnesota Wild',          conf: 'Central' },
-    { pick: 21, team: 'Boston Bruins',           conf: 'Atlantic' },
-    { pick: 22, team: 'New Jersey Devils',       conf: 'Metro' },
-    { pick: 23, team: 'Winnipeg Jets',           conf: 'Central' },
-    { pick: 24, team: 'Toronto Maple Leafs',     conf: 'Atlantic' },
-    { pick: 25, team: 'Tampa Bay Lightning',     conf: 'Atlantic' },
-    { pick: 26, team: 'Carolina Hurricanes',     conf: 'Metro' },
-    { pick: 27, team: 'Colorado Avalanche',      conf: 'Central' },
-    { pick: 28, team: 'Dallas Stars',            conf: 'Central' },
-    { pick: 29, team: 'Washington Capitals',     conf: 'Metro' },
-    { pick: 30, team: 'Vegas Golden Knights',    conf: 'Pacific' },
-    { pick: 31, team: 'Edmonton Oilers',         conf: 'Pacific' },
-    { pick: 32, team: 'Florida Panthers',        conf: 'Atlantic' },
+    { pick: 1,  team: 'Toronto Maple Leafs',    abbr: 'TOR', conf: 'Atlantic' },
+    { pick: 2,  team: 'San Jose Sharks',         abbr: 'SJS', conf: 'Pacific' },
+    { pick: 3,  team: 'Vancouver Canucks',       abbr: 'VAN', conf: 'Pacific' },
+    { pick: 4,  team: 'Chicago Blackhawks',      abbr: 'CHI', conf: 'Central' },
+    { pick: 5,  team: 'New York Rangers',        abbr: 'NYR', conf: 'Metro' },
+    { pick: 6,  team: 'Calgary Flames',          abbr: 'CGY', conf: 'Pacific' },
+    { pick: 7,  team: 'Seattle Kraken',          abbr: 'SEA', conf: 'Pacific' },
+    { pick: 8,  team: 'Winnipeg Jets',           abbr: 'WPG', conf: 'Central' },
+    { pick: 9,  team: 'Florida Panthers',        abbr: 'FLA', conf: 'Atlantic' },
+    { pick: 10, team: 'Nashville Predators',     abbr: 'NSH', conf: 'Central' },
+    { pick: 11, team: 'St. Louis Blues',         abbr: 'STL', conf: 'Central' },
+    { pick: 12, team: 'New Jersey Devils',       abbr: 'NJD', conf: 'Metro' },
+    { pick: 13, team: 'New York Islanders',      abbr: 'NYI', conf: 'Metro' },
+    { pick: 14, team: 'Columbus Blue Jackets',   abbr: 'CBJ', conf: 'Metro' },
+    { pick: 15, team: 'St. Louis Blues',         abbr: 'STL', conf: 'Central', via: 'DET' },
+    { pick: 16, team: 'Washington Capitals',     abbr: 'WSH', conf: 'Metro' },
+    { pick: 17, team: 'Los Angeles Kings',       abbr: 'LAK', conf: 'Pacific' },
+    { pick: 18, team: 'Washington Capitals',     abbr: 'WSH', conf: 'Metro',   via: 'ANA' },
+    { pick: 19, team: 'Utah Hockey Club',        abbr: 'UTA', conf: 'Central' },
+    { pick: 20, team: 'San Jose Sharks',         abbr: 'SJS', conf: 'Pacific',  via: 'EDM' },
+    { pick: 21, team: 'Philadelphia Flyers',     abbr: 'PHI', conf: 'Metro' },
+    { pick: 22, team: 'Pittsburgh Penguins',     abbr: 'PIT', conf: 'Metro' },
+    { pick: 23, team: 'Boston Bruins',           abbr: 'BOS', conf: 'Atlantic' },
+    { pick: 24, team: 'Vancouver Canucks',       abbr: 'VAN', conf: 'Pacific',  via: 'MIN' },
+    { pick: 25, team: 'Seattle Kraken',          abbr: 'SEA', conf: 'Pacific',  via: 'TB' },
+    { pick: 26, team: 'New York Rangers',        abbr: 'NYR', conf: 'Metro',    via: 'DAL' },
+    { pick: 27, team: 'Buffalo Sabres',          abbr: 'BUF', conf: 'Atlantic' },
+    { pick: 28, team: 'Montreal Canadiens',      abbr: 'MTL', conf: 'Atlantic' },
+    { pick: 29, team: 'St. Louis Blues',         abbr: 'STL', conf: 'Central',  via: 'COL' },
+    { pick: 30, team: 'Calgary Flames',          abbr: 'CGY', conf: 'Pacific',  via: 'VGK' },
+    { pick: 31, team: 'Carolina Hurricanes',     abbr: 'CAR', conf: 'Metro' },
+    { pick: 32, team: 'Ottawa Senators',         abbr: 'OTT', conf: 'Atlantic' },
   ];
 
   const PROSPECTS = [
-    { rank: 1,  name: 'Gavin McKenna',        pos: 'LW',    team: 'Penn State' },
-    { rank: 2,  name: 'Ivar Stenberg',        pos: 'LW/RW', team: 'Frölunda HC' },
-    { rank: 3,  name: 'Chase Reid',           pos: 'RD',    team: 'Soo' },
-    { rank: 4,  name: 'Caleb Malhotra',       pos: 'C',     team: 'Brantford' },
-    { rank: 5,  name: 'Keaton Verhoeff',      pos: 'RD',    team: 'North Dakota' },
-    { rank: 6,  name: 'Carson Carels',        pos: 'LD',    team: 'Prince George' },
-    { rank: 7,  name: 'Alberts Smits',        pos: 'LD',    team: 'Jukurit' },
-    { rank: 8,  name: 'Tynan Lawrence',       pos: 'C',     team: 'Boston University' },
-    { rank: 9,  name: 'Viggo Björck',         pos: 'C/RW',  team: 'Djurgårdens IF' },
-    { rank: 10, name: 'Daxon Rudolph',        pos: 'RD',    team: 'Prince Albert' },
-    { rank: 11, name: 'Ethan Belchetz',       pos: 'LW',    team: 'Windsor' },
-    { rank: 12, name: 'Malte Gustafsson',     pos: 'LD',    team: 'HV71' },
-    { rank: 13, name: 'Ryan Lin',             pos: 'RD',    team: 'Vancouver' },
-    { rank: 14, name: 'Oscar Hemming',        pos: 'F',     team: 'Boston College' },
-    { rank: 15, name: 'Wyatt Cullen',         pos: 'F',     team: 'USDP' },
-    { rank: 16, name: 'Adam Novotný',         pos: 'LW/RW', team: 'Peterborough' },
-    { rank: 17, name: 'Xavier Villeneuve',    pos: 'LD',    team: 'Blainville-Boisbriand' },
-    { rank: 18, name: 'Oliver Suvanto',       pos: 'C',     team: 'Tappara' },
-    { rank: 19, name: 'Elton Hermansson',     pos: 'RW/LW', team: 'MoDo Hockey' },
-    { rank: 20, name: 'Nikita Klepov',        pos: 'F',     team: 'Saginaw' },
-    { rank: 21, name: 'Alexander Command',    pos: 'C',     team: 'Örebro HK' },
-    { rank: 22, name: 'Ilya Morozov',         pos: 'F',     team: 'Miami (Ohio)' },
-    { rank: 23, name: 'JP Hurlbert',          pos: 'F',     team: 'Kamloops' },
-    { rank: 24, name: 'Maddox Dagenais',      pos: 'C',     team: 'Quebec' },
-    { rank: 25, name: 'Mathis Preston',       pos: 'F',     team: 'Vancouver' },
-    { rank: 26, name: 'Juho Piiparinen',      pos: 'RD',    team: 'Tappara' },
-    { rank: 27, name: 'William Hakansson',    pos: 'LD',    team: 'Luleå HF' },
-    { rank: 28, name: 'Marcus Nordmark',      pos: 'LW',    team: 'Djurgårdens IF' },
-    { rank: 29, name: 'Liam Ruck',            pos: 'F',     team: 'Medicine Hat' },
-    { rank: 30, name: 'Jack Hextall',         pos: 'C',     team: 'Youngstown' },
-    { rank: 31, name: 'Ryan Roobroeck',       pos: 'C',     team: 'Niagara' },
-    { rank: 32, name: 'Markus Ruck',          pos: 'F',     team: 'Medicine Hat' },
-    { rank: 33, name: 'Yegor Shilov',         pos: 'C',     team: 'Victoriaville' },
-    { rank: 34, name: 'Brooks Rogowski',      pos: 'C',     team: 'Oshawa' },
-    { rank: 35, name: 'Niklas Aaram-Olsen',   pos: 'RW/LW', team: 'Örebro HK' },
-    { rank: 36, name: 'Simas Ignatavicius',   pos: 'F',     team: 'Genève-Servette HC' },
-    { rank: 37, name: 'Adam Goljer',          pos: 'RD',    team: 'HK Dukla Trencin' },
-    { rank: 38, name: 'Tommy Bleyl',          pos: 'RD',    team: 'Moncton' },
-    { rank: 39, name: 'Nikita Shcherbakov',   pos: 'LD',    team: 'Tolpar Ufa' },
-    { rank: 40, name: 'Ryder Cali',           pos: 'C',     team: 'North Bay' },
-    { rank: 41, name: 'Casey Mutryn',         pos: 'F',     team: 'USDP' },
-    { rank: 42, name: 'Gleb Pugachyov',       pos: 'RW',    team: 'Chaika NN' },
-    { rank: 43, name: 'Jaxon Cover',          pos: 'LW',    team: 'London' },
-    { rank: 44, name: 'Tomas Chrenko',        pos: 'C',     team: 'HK Nitra' },
-    { rank: 45, name: 'Ben Macbeath',         pos: 'LD',    team: 'Calgary' },
-    { rank: 46, name: 'Tobias Trejbal',       pos: 'G',     team: 'Youngstown' },
-    { rank: 47, name: 'Alessandro Di Iorio',  pos: 'C',     team: 'Sarnia' },
-    { rank: 48, name: 'Samu Alalauri',        pos: 'RD',    team: 'Pelicans' },
-    { rank: 49, name: 'Adam Valentini',       pos: 'F',     team: 'Michigan' },
-    { rank: 50, name: 'Thomas Vandenberg',    pos: 'C',     team: 'Ottawa' },
+    { rank: 1,  name: 'Gavin McKenna',        pos: 'LW',    club: 'Penn State' },
+    { rank: 2,  name: 'Ivar Stenberg',        pos: 'LW/RW', club: 'Frölunda HC' },
+    { rank: 3,  name: 'Chase Reid',           pos: 'RD',    club: 'Soo' },
+    { rank: 4,  name: 'Caleb Malhotra',       pos: 'C',     club: 'Brantford' },
+    { rank: 5,  name: 'Keaton Verhoeff',      pos: 'RD',    club: 'North Dakota' },
+    { rank: 6,  name: 'Carson Carels',        pos: 'LD',    club: 'Prince George' },
+    { rank: 7,  name: 'Alberts Smits',        pos: 'LD',    club: 'Jukurit' },
+    { rank: 8,  name: 'Tynan Lawrence',       pos: 'C',     club: 'Boston University' },
+    { rank: 9,  name: 'Viggo Björck',         pos: 'C/RW',  club: 'Djurgårdens IF' },
+    { rank: 10, name: 'Daxon Rudolph',        pos: 'RD',    club: 'Prince Albert' },
+    { rank: 11, name: 'Ethan Belchetz',       pos: 'LW',    club: 'Windsor' },
+    { rank: 12, name: 'Malte Gustafsson',     pos: 'LD',    club: 'HV71' },
+    { rank: 13, name: 'Ryan Lin',             pos: 'RD',    club: 'Vancouver' },
+    { rank: 14, name: 'Oscar Hemming',        pos: 'F',     club: 'Boston College' },
+    { rank: 15, name: 'Wyatt Cullen',         pos: 'F',     club: 'USDP' },
+    { rank: 16, name: 'Adam Novotný',         pos: 'LW/RW', club: 'Peterborough' },
+    { rank: 17, name: 'Xavier Villeneuve',    pos: 'LD',    club: 'Blainville-Boisbriand' },
+    { rank: 18, name: 'Oliver Suvanto',       pos: 'C',     club: 'Tappara' },
+    { rank: 19, name: 'Elton Hermansson',     pos: 'RW/LW', club: 'MoDo Hockey' },
+    { rank: 20, name: 'Nikita Klepov',        pos: 'F',     club: 'Saginaw' },
+    { rank: 21, name: 'Alexander Command',    pos: 'C',     club: 'Örebro HK' },
+    { rank: 22, name: 'Ilya Morozov',         pos: 'F',     club: 'Miami (Ohio)' },
+    { rank: 23, name: 'JP Hurlbert',          pos: 'F',     club: 'Kamloops' },
+    { rank: 24, name: 'Maddox Dagenais',      pos: 'C',     club: 'Quebec' },
+    { rank: 25, name: 'Mathis Preston',       pos: 'F',     club: 'Vancouver' },
+    { rank: 26, name: 'Juho Piiparinen',      pos: 'RD',    club: 'Tappara' },
+    { rank: 27, name: 'William Hakansson',    pos: 'LD',    club: 'Luleå HF' },
+    { rank: 28, name: 'Marcus Nordmark',      pos: 'LW',    club: 'Djurgårdens IF' },
+    { rank: 29, name: 'Liam Ruck',            pos: 'F',     club: 'Medicine Hat' },
+    { rank: 30, name: 'Jack Hextall',         pos: 'C',     club: 'Youngstown' },
+    { rank: 31, name: 'Ryan Roobroeck',       pos: 'C',     club: 'Niagara' },
+    { rank: 32, name: 'Markus Ruck',          pos: 'F',     club: 'Medicine Hat' },
+    { rank: 33, name: 'Yegor Shilov',         pos: 'C',     club: 'Victoriaville' },
+    { rank: 34, name: 'Brooks Rogowski',      pos: 'C',     club: 'Oshawa' },
+    { rank: 35, name: 'Niklas Aaram-Olsen',   pos: 'RW/LW', club: 'Örebro HK' },
+    { rank: 36, name: 'Simas Ignatavicius',   pos: 'F',     club: 'Genève-Servette HC' },
+    { rank: 37, name: 'Adam Goljer',          pos: 'RD',    club: 'HK Dukla Trencin' },
+    { rank: 38, name: 'Tommy Bleyl',          pos: 'RD',    club: 'Moncton' },
+    { rank: 39, name: 'Nikita Shcherbakov',   pos: 'LD',    club: 'Tolpar Ufa' },
+    { rank: 40, name: 'Ryder Cali',           pos: 'C',     club: 'North Bay' },
+    { rank: 41, name: 'Casey Mutryn',         pos: 'F',     club: 'USDP' },
+    { rank: 42, name: 'Gleb Pugachyov',       pos: 'RW',    club: 'Chaika NN' },
+    { rank: 43, name: 'Jaxon Cover',          pos: 'LW',    club: 'London' },
+    { rank: 44, name: 'Tomas Chrenko',        pos: 'C',     club: 'HK Nitra' },
+    { rank: 45, name: 'Ben Macbeath',         pos: 'LD',    club: 'Calgary' },
+    { rank: 46, name: 'Tobias Trejbal',       pos: 'G',     club: 'Youngstown' },
+    { rank: 47, name: 'Alessandro Di Iorio',  pos: 'C',     club: 'Sarnia' },
+    { rank: 48, name: 'Samu Alalauri',        pos: 'RD',    club: 'Pelicans' },
+    { rank: 49, name: 'Adam Valentini',       pos: 'F',     club: 'Michigan' },
+    { rank: 50, name: 'Thomas Vandenberg',    pos: 'C',     club: 'Ottawa' },
   ];
 
-  let _picks = {};
+  // rank → prospect
+  const prospectMap = Object.fromEntries(PROSPECTS.map(p => [p.rank, p]));
 
-  function buildBoard() {
-    const optionsHtml = PROSPECTS.map(p =>
-      `<option value="${p.rank}">#${p.rank} ${p.name} (${p.pos}) — ${p.team}</option>`
-    ).join('');
-    document.getElementById('board-wrap').innerHTML = DRAFT_ORDER.map(d => `
-      <div class="pick-row" id="row-${d.pick}">
-        <div class="pick-num">${d.pick}</div>
-        <div class="pick-team-col">
-          <div class="pick-team-name">${escHtml(d.team)}</div>
-          <div class="pick-team-sub">${d.conf} · Pick ${d.pick}</div>
+  // State
+  let _picks = {};        // pick# → prospect rank
+  let _activePick = null; // currently selected pick slot
+
+  // ── Build pick slots
+  function buildPicks() {
+    document.getElementById('picks-list').innerHTML = DRAFT_ORDER.map(d => `
+      <div class="pick-slot" id="slot-${d.pick}" onclick="selectSlot(${d.pick})">
+        <div class="slot-num">${d.pick}</div>
+        <div class="slot-team">
+          <img class="slot-logo" src="https://assets.nhle.com/logos/nhl/svg/${d.abbr}_light.svg" alt="${d.abbr}" onerror="this.style.display='none'">
+          <div>
+            <div class="slot-team-name">${escHtml(d.team)}</div>
+            <div class="slot-team-conf">${d.via ? `via ${d.via} · ` : ''}${d.conf}</div>
+          </div>
         </div>
-        <div>
-          <select class="prospect-select" id="sel-${d.pick}" onchange="onPickChange(${d.pick}, this)">
-            <option value="">— Select prospect —</option>
-            ${optionsHtml}
-          </select>
+        <div class="slot-prospect" id="slot-prospect-${d.pick}">
+          <span class="slot-empty">tap to pick</span>
         </div>
       </div>`).join('');
   }
 
-  function onPickChange(pick, sel) {
-    const rank = sel.value ? parseInt(sel.value) : null;
-    if (rank) _picks[pick] = rank; else delete _picks[pick];
-    sel.classList.toggle('picked', !!rank);
-    document.getElementById(`row-${pick}`).classList.toggle('filled', !!rank);
+  // ── Build prospect list
+  function buildProspects(filter = '') {
+    const q = filter.toLowerCase();
+    const filtered = q ? PROSPECTS.filter(p => p.name.toLowerCase().includes(q)) : PROSPECTS;
+    document.getElementById('prospects-list').innerHTML = filtered.map(p => {
+      const used = Object.values(_picks).includes(p.rank);
+      const selected = _activePick && _picks[_activePick] === p.rank;
+      return `<div class="prospect-item${used ? ' used' : ''}${selected ? ' selected' : ''}" id="pros-${p.rank}" onclick="assignProspect(${p.rank})">
+        <div class="prospect-rank">${p.rank}</div>
+        <div class="prospect-info">
+          <div class="prospect-name">${escHtml(p.name)}</div>
+          <div class="prospect-meta">${escHtml(p.club)}</div>
+        </div>
+        <div class="prospect-pos-badge">${p.pos}</div>
+      </div>`;
+    }).join('');
+  }
+
+  function filterProspects(val) { buildProspects(val); }
+
+  // ── Select a pick slot
+  function selectSlot(pick) {
+    if (_activePick) document.getElementById(`slot-${_activePick}`)?.classList.remove('active');
+    _activePick = pick;
+    document.getElementById(`slot-${pick}`).classList.add('active');
+    const assigned = _picks[pick];
+    document.getElementById('hint').textContent = assigned
+      ? `Pick ${pick} → ${prospectMap[assigned].name} · Click another prospect to reassign, or ✕ to clear`
+      : `Pick ${pick} selected → now click a prospect on the right`;
+    buildProspects(document.getElementById('prospects-search').value);
+    // Scroll assigned prospect into view
+    if (assigned) {
+      const el = document.getElementById(`pros-${assigned}`);
+      el?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    }
+  }
+
+  // ── Assign prospect to active slot
+  function assignProspect(rank) {
+    if (!_activePick) {
+      document.getElementById('hint').textContent = '← First select a pick slot on the left';
+      return;
+    }
+    const p = prospectMap[rank];
+    if (!p) return;
+
+    // If this prospect is already used elsewhere, unassign it from that slot first
+    for (const [pick, r] of Object.entries(_picks)) {
+      if (r === rank && parseInt(pick) !== _activePick) {
+        delete _picks[pick];
+        updateSlotDisplay(parseInt(pick));
+      }
+    }
+
+    _picks[_activePick] = rank;
+    updateSlotDisplay(_activePick);
     updateProgress();
+    buildProspects(document.getElementById('prospects-search').value);
+
+    // Auto-advance to next empty slot
+    const next = DRAFT_ORDER.find(d => d.pick > _activePick && !_picks[d.pick]);
+    if (next) {
+      selectSlot(next.pick);
+      document.getElementById(`slot-${next.pick}`).scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    } else {
+      document.getElementById('hint').textContent = `✅ ${p.name} assigned to pick ${_activePick}`;
+    }
+  }
+
+  function clearSlot(pick, e) {
+    e.stopPropagation();
+    delete _picks[pick];
+    updateSlotDisplay(pick);
+    updateProgress();
+    buildProspects(document.getElementById('prospects-search').value);
+    if (_activePick === pick) document.getElementById('hint').textContent = `Pick ${pick} cleared — select a prospect`;
+  }
+
+  function updateSlotDisplay(pick) {
+    const el = document.getElementById(`slot-prospect-${pick}`);
+    const row = document.getElementById(`slot-${pick}`);
+    const rank = _picks[pick];
+    if (rank) {
+      const p = prospectMap[rank];
+      el.innerHTML = `<span class="slot-prospect-name">${escHtml(p.name)}</span><span class="slot-prospect-pos">#${p.rank} · ${p.pos}</span>`;
+      row.classList.add('assigned');
+    } else {
+      el.innerHTML = `<span class="slot-empty">tap to pick</span>`;
+      row.classList.remove('assigned');
+    }
   }
 
   function updateProgress() {
     const count = Object.keys(_picks).length;
     document.getElementById('progress-text').textContent = `${count} / 32`;
     document.getElementById('progress-fill').style.width = `${(count / 32) * 100}%`;
-    document.getElementById('submit-count').innerHTML = `<strong>${count}</strong> / 32 picks`;
+    document.getElementById('submit-count').innerHTML = `<strong>${count}</strong> / 32 assigned`;
   }
 
+  // ── Submit
   async function submitPicks() {
     const nameEl = document.getElementById('name-input');
     const name = nameEl.value.trim();
     if (!name) {
-      nameEl.classList.add('error'); nameEl.focus();
-      setTimeout(() => nameEl.classList.remove('error'), 600);
-      showToast('Enter your name first.', true); return;
+      nameEl.classList.add('shake');
+      nameEl.focus();
+      setTimeout(() => nameEl.classList.remove('shake'), 400);
+      showToast('Enter your name to submit.', true); return;
     }
     const count = Object.keys(_picks).length;
-    if (count === 0) { showToast('Make at least one pick first.', true); return; }
+    if (count === 0) { showToast('Assign at least one prospect first.', true); return; }
 
     const btn = document.getElementById('btn-submit');
     btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Saving…';
@@ -327,7 +452,9 @@
     setTimeout(() => el.style.display = 'none', 3000);
   }
 
-  buildBoard();
+  // ── Init
+  buildPicks();
+  buildProspects();
 </script>
 </body>
 </html>
