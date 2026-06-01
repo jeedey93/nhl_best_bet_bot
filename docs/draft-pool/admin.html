@@ -32,31 +32,39 @@
 
     /* ── Page ── */
     .page { max-width: 800px; margin: 0 auto; padding: 1.25rem 1rem 3rem; }
-    .page-header { margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; }
+    .page-header { margin-bottom: 1.5rem; }
     .page-header h1 { font-family: 'Bebas Neue', cursive; font-size: 2rem; letter-spacing: 5px; }
     .page-header h1 span { color: var(--gold); }
-    .participant-count { font-family: 'Barlow Condensed', sans-serif; font-size: 0.85rem; font-weight: 600; color: var(--silver); letter-spacing: 1px; }
 
-    /* ── Participants table ── */
+    /* ── Sections ── */
+    .section { margin-bottom: 2rem; }
+    .section-title { font-family: 'Bebas Neue', cursive; font-size: 1.1rem; letter-spacing: 3px; color: var(--silver); margin-bottom: 0.75rem; padding-bottom: 0.4rem; border-bottom: 1px solid rgba(255,255,255,0.07); display: flex; align-items: center; justify-content: space-between; }
+
+    /* ── Participants ── */
     .participants { display: flex; flex-direction: column; gap: 0.4rem; }
-
-    .participant-row {
-      display: grid; grid-template-columns: 1fr auto auto auto;
-      gap: 0.75rem; align-items: center;
-      background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07);
-      border-radius: 10px; padding: 0.75rem 1rem;
-    }
+    .participant-row { display: grid; grid-template-columns: 1fr auto auto; gap: 0.75rem; align-items: center; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; padding: 0.75rem 1rem; }
     .p-name { font-family: 'Bebas Neue', cursive; font-size: 1.1rem; letter-spacing: 2px; color: white; }
-    .p-picks { font-size: 0.8rem; font-weight: 600; color: var(--silver); letter-spacing: 1px; }
+    .p-date { font-size: 0.72rem; font-weight: 600; color: rgba(255,255,255,0.25); letter-spacing: 0.5px; margin-top: 1px; }
+    .p-picks { font-size: 0.8rem; font-weight: 600; color: var(--silver); letter-spacing: 1px; white-space: nowrap; }
     .p-picks.complete { color: var(--green); }
-    .p-date { font-size: 0.75rem; font-weight: 600; color: rgba(255,255,255,0.25); letter-spacing: 0.5px; white-space: nowrap; }
     .btn-delete { font-family: 'Bebas Neue', cursive; font-size: 0.8rem; letter-spacing: 1.5px; background: rgba(200,16,46,0.1); border: 1px solid rgba(200,16,46,0.25); color: rgba(200,16,46,0.7); border-radius: 6px; padding: 0.35rem 0.75rem; cursor: pointer; white-space: nowrap; transition: background 0.15s, color 0.15s; }
     .btn-delete:hover { background: rgba(200,16,46,0.2); color: var(--red); }
     .btn-delete:disabled { opacity: 0.4; cursor: default; }
 
-    .empty-state { text-align: center; color: var(--silver); font-size: 0.9rem; letter-spacing: 1px; padding: 3rem 0; }
+    /* ── Actual results ── */
+    .actual-row { display: grid; grid-template-columns: 40px 130px 1fr; gap: 0.5rem; align-items: center; margin-bottom: 0.4rem; }
+    .actual-num { font-family: 'Bebas Neue', cursive; font-size: 1.1rem; color: rgba(255,255,255,0.3); text-align: center; }
+    .actual-team { font-family: 'Barlow Condensed', sans-serif; font-size: 0.78rem; font-weight: 700; color: var(--silver); }
+    .actual-select { font-family: 'Barlow Condensed', sans-serif; font-size: 0.85rem; font-weight: 600; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.55); border-radius: 6px; padding: 0.35rem 0.6rem; width: 100%; appearance: none; -webkit-appearance: none; transition: border-color 0.15s, color 0.15s; }
+    .actual-select:focus { outline: none; border-color: rgba(255,184,28,0.5); }
+    .actual-select.set { color: white; border-color: rgba(34,197,94,0.3); background-color: rgba(34,197,94,0.03); }
+    .actual-select option { background: #0d1f35; }
+    .btn-save-actual { font-family: 'Bebas Neue', cursive; font-size: 0.95rem; letter-spacing: 2px; background: linear-gradient(135deg, #ffb81c, #e07b00); color: #07111f; border: none; border-radius: 7px; padding: 0.6rem 1.5rem; cursor: pointer; margin-top: 0.75rem; transition: opacity 0.15s; }
+    .btn-save-actual:hover { opacity: 0.85; }
+    .btn-save-actual:disabled { opacity: 0.35; cursor: default; }
 
-    .loading { text-align: center; color: var(--silver); font-size: 0.85rem; letter-spacing: 2px; padding: 3rem 0; }
+    .empty-state { color: var(--silver); font-size: 0.9rem; letter-spacing: 1px; padding: 1.5rem 0; text-align: center; }
+    .loading { color: var(--silver); font-size: 0.85rem; letter-spacing: 2px; padding: 2rem 0; text-align: center; }
     @keyframes spin { to { transform: rotate(360deg); } }
     .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.15); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
 
@@ -86,10 +94,25 @@
 <div class="page">
   <div class="page-header">
     <h1>Draft Pool <span>Admin</span></h1>
-    <div class="participant-count" id="participant-count"></div>
   </div>
-  <div id="participants-list" class="participants">
-    <div class="loading"><span class="spinner"></span>Loading…</div>
+
+  <!-- Participants -->
+  <div class="section">
+    <div class="section-title">
+      <span>Participants</span>
+      <span id="participant-count" style="font-family:'Barlow Condensed',sans-serif;font-size:0.85rem;font-weight:600;color:var(--silver);letter-spacing:1px;"></span>
+    </div>
+    <div id="participants-list" class="participants">
+      <div class="loading"><span class="spinner"></span>Loading…</div>
+    </div>
+  </div>
+
+  <!-- Actual draft results -->
+  <div class="section">
+    <div class="section-title">Actual Draft Results</div>
+    <div id="actual-results-list">
+      <div class="loading"><span class="spinner"></span>Loading…</div>
+    </div>
   </div>
 </div>
 
@@ -102,35 +125,82 @@
   function sbHeaders() {
     return { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' };
   }
-
   function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+
+  const DRAFT_ORDER = [
+    { pick: 1,  team: 'Toronto Maple Leafs' },    { pick: 2,  team: 'San Jose Sharks' },
+    { pick: 3,  team: 'Vancouver Canucks' },       { pick: 4,  team: 'Chicago Blackhawks' },
+    { pick: 5,  team: 'New York Rangers' },        { pick: 6,  team: 'Calgary Flames' },
+    { pick: 7,  team: 'Seattle Kraken' },          { pick: 8,  team: 'Winnipeg Jets' },
+    { pick: 9,  team: 'Florida Panthers' },        { pick: 10, team: 'Nashville Predators' },
+    { pick: 11, team: 'St. Louis Blues' },         { pick: 12, team: 'New Jersey Devils' },
+    { pick: 13, team: 'New York Islanders' },      { pick: 14, team: 'Columbus Blue Jackets' },
+    { pick: 15, team: 'St. Louis Blues (via DET)'},{ pick: 16, team: 'Washington Capitals' },
+    { pick: 17, team: 'Los Angeles Kings' },       { pick: 18, team: 'Washington Capitals (via ANA)' },
+    { pick: 19, team: 'Utah Hockey Club' },        { pick: 20, team: 'San Jose Sharks (via EDM)' },
+    { pick: 21, team: 'Philadelphia Flyers' },     { pick: 22, team: 'Pittsburgh Penguins' },
+    { pick: 23, team: 'Boston Bruins' },           { pick: 24, team: 'Vancouver Canucks (via MIN)' },
+    { pick: 25, team: 'Seattle Kraken (via TB)' }, { pick: 26, team: 'New York Rangers (via DAL)' },
+    { pick: 27, team: 'Buffalo Sabres' },          { pick: 28, team: 'Montreal Canadiens' },
+    { pick: 29, team: 'St. Louis Blues (via COL)'},{ pick: 30, team: 'Calgary Flames (via VGK)' },
+    { pick: 31, team: 'Carolina Hurricanes' },     { pick: 32, team: 'Ottawa Senators' },
+  ];
+
+  const PROSPECTS = [
+    { rank: 1, name: 'Gavin McKenna' }, { rank: 2, name: 'Ivar Stenberg' },
+    { rank: 3, name: 'Chase Reid' }, { rank: 4, name: 'Caleb Malhotra' },
+    { rank: 5, name: 'Keaton Verhoeff' }, { rank: 6, name: 'Carson Carels' },
+    { rank: 7, name: 'Alberts Smits' }, { rank: 8, name: 'Tynan Lawrence' },
+    { rank: 9, name: 'Viggo Björck' }, { rank: 10, name: 'Daxon Rudolph' },
+    { rank: 11, name: 'Ethan Belchetz' }, { rank: 12, name: 'Malte Gustafsson' },
+    { rank: 13, name: 'Ryan Lin' }, { rank: 14, name: 'Oscar Hemming' },
+    { rank: 15, name: 'Wyatt Cullen' }, { rank: 16, name: 'Adam Novotný' },
+    { rank: 17, name: 'Xavier Villeneuve' }, { rank: 18, name: 'Oliver Suvanto' },
+    { rank: 19, name: 'Elton Hermansson' }, { rank: 20, name: 'Nikita Klepov' },
+    { rank: 21, name: 'Alexander Command' }, { rank: 22, name: 'Ilya Morozov' },
+    { rank: 23, name: 'JP Hurlbert' }, { rank: 24, name: 'Maddox Dagenais' },
+    { rank: 25, name: 'Mathis Preston' }, { rank: 26, name: 'Juho Piiparinen' },
+    { rank: 27, name: 'William Hakansson' }, { rank: 28, name: 'Marcus Nordmark' },
+    { rank: 29, name: 'Liam Ruck' }, { rank: 30, name: 'Jack Hextall' },
+    { rank: 31, name: 'Ryan Roobroeck' }, { rank: 32, name: 'Markus Ruck' },
+    { rank: 33, name: 'Yegor Shilov' }, { rank: 34, name: 'Brooks Rogowski' },
+    { rank: 35, name: 'Niklas Aaram-Olsen' }, { rank: 36, name: 'Simas Ignatavicius' },
+    { rank: 37, name: 'Adam Goljer' }, { rank: 38, name: 'Tommy Bleyl' },
+    { rank: 39, name: 'Nikita Shcherbakov' }, { rank: 40, name: 'Ryder Cali' },
+    { rank: 41, name: 'Casey Mutryn' }, { rank: 42, name: 'Gleb Pugachyov' },
+    { rank: 43, name: 'Jaxon Cover' }, { rank: 44, name: 'Tomas Chrenko' },
+    { rank: 45, name: 'Ben Macbeath' }, { rank: 46, name: 'Tobias Trejbal' },
+    { rank: 47, name: 'Alessandro Di Iorio' }, { rank: 48, name: 'Samu Alalauri' },
+    { rank: 49, name: 'Adam Valentini' }, { rank: 50, name: 'Thomas Vandenberg' },
+  ];
+
+  let _actualPicks = {};
 
   function unlock() {
     const val = document.getElementById('lock-input').value;
     if (val === ADMIN_PASSWORD) {
       document.getElementById('lock-screen').style.display = 'none';
-      loadParticipants();
+      loadAll();
     } else {
       const el = document.getElementById('lock-input');
-      el.classList.add('shake');
-      el.value = '';
+      el.classList.add('shake'); el.value = '';
       setTimeout(() => el.classList.remove('shake'), 400);
     }
   }
 
+  async function loadAll() {
+    await Promise.all([loadParticipants(), loadActualPicks()]);
+  }
+
   function formatDate(iso) {
-    const d = new Date(iso);
-    return d.toLocaleDateString('en-CA', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'America/Toronto' });
+    return new Date(iso).toLocaleDateString('en-CA', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'America/Toronto' });
   }
 
   async function loadParticipants() {
     try {
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/draft_pool_entries?pool_code=eq.${POOL_CODE}&order=submitted_at.asc&select=id,participant_name,pick_count,submitted_at,updated_at`, {
-        headers: sbHeaders()
-      });
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/draft_pool_entries?pool_code=eq.${POOL_CODE}&order=submitted_at.asc&select=id,participant_name,pick_count,submitted_at,updated_at`, { headers: sbHeaders() });
       if (!res.ok) throw new Error(res.status);
-      const data = await res.json();
-      renderParticipants(data);
+      renderParticipants(await res.json());
     } catch(e) {
       document.getElementById('participants-list').innerHTML = `<div class="empty-state">Failed to load (${e.message})</div>`;
     }
@@ -139,55 +209,100 @@
   function renderParticipants(data) {
     const count = data.length;
     document.getElementById('participant-count').textContent = `${count} participant${count !== 1 ? 's' : ''}`;
-
     if (count === 0) {
       document.getElementById('participants-list').innerHTML = `<div class="empty-state">No participants yet.</div>`;
       return;
     }
-
     document.getElementById('participants-list').innerHTML = data.map(p => `
       <div class="participant-row" id="row-${p.id}">
         <div>
           <div class="p-name">${escHtml(p.participant_name)}</div>
           <div class="p-date">Submitted ${formatDate(p.submitted_at)}${p.updated_at !== p.submitted_at ? ' · Updated ' + formatDate(p.updated_at) : ''}</div>
         </div>
-        <div class="p-picks ${p.pick_count >= 32 ? 'complete' : ''}">${p.pick_count}/32 picks</div>
+        <div class="p-picks ${p.pick_count >= 32 ? 'complete' : ''}">${p.pick_count}/32</div>
         <button class="btn-delete" onclick="deleteParticipant(${p.id}, '${escHtml(p.participant_name).replace(/'/g,"\\'")}')">Delete</button>
-      </div>
-    `).join('');
+      </div>`).join('');
   }
 
   async function deleteParticipant(id, name) {
     if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
-
     const btn = document.querySelector(`#row-${id} .btn-delete`);
-    btn.disabled = true;
-    btn.textContent = '…';
-
+    btn.disabled = true; btn.textContent = '…';
     try {
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/draft_pool_entries?id=eq.${id}&pool_code=eq.${POOL_CODE}`, {
-        method: 'DELETE',
-        headers: sbHeaders()
-      });
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/draft_pool_entries?id=eq.${id}&pool_code=eq.${POOL_CODE}`, { method: 'DELETE', headers: sbHeaders() });
       if (!res.ok) throw new Error(res.status);
       document.getElementById(`row-${id}`).remove();
       const remaining = document.querySelectorAll('.participant-row').length;
       document.getElementById('participant-count').textContent = `${remaining} participant${remaining !== 1 ? 's' : ''}`;
-      if (remaining === 0) {
-        document.getElementById('participants-list').innerHTML = `<div class="empty-state">No participants yet.</div>`;
-      }
+      if (remaining === 0) document.getElementById('participants-list').innerHTML = `<div class="empty-state">No participants yet.</div>`;
       showToast(`${name} deleted.`);
     } catch(e) {
       showToast(`Failed to delete (${e.message})`, true);
-      btn.disabled = false;
-      btn.textContent = 'Delete';
+      btn.disabled = false; btn.textContent = 'Delete';
+    }
+  }
+
+  async function loadActualPicks() {
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/draft_pools?code=eq.${POOL_CODE}&select=actual_picks`, { headers: sbHeaders() });
+      if (!res.ok) throw new Error(res.status);
+      const rows = await res.json();
+      _actualPicks = rows[0]?.actual_picks || {};
+      renderActualPicks();
+    } catch(e) {
+      document.getElementById('actual-results-list').innerHTML = `<div class="empty-state">Failed to load (${e.message})</div>`;
+    }
+  }
+
+  function renderActualPicks() {
+    const optionsHtml = PROSPECTS.map(p => `<option value="${p.rank}">#${p.rank} ${escHtml(p.name)}</option>`).join('');
+    const rows = DRAFT_ORDER.map(d => `
+      <div class="actual-row">
+        <div class="actual-num">${d.pick}</div>
+        <div class="actual-team">${escHtml(d.team)}</div>
+        <select class="actual-select${_actualPicks[d.pick] ? ' set' : ''}" id="act-${d.pick}" onchange="this.classList.toggle('set',!!this.value)">
+          <option value="">— Not set —</option>
+          ${optionsHtml}
+        </select>
+      </div>`).join('');
+
+    document.getElementById('actual-results-list').innerHTML = `
+      ${rows}
+      <button class="btn-save-actual" onclick="saveActual()">Save Results</button>`;
+
+    for (const [pick, rank] of Object.entries(_actualPicks)) {
+      const sel = document.getElementById(`act-${pick}`);
+      if (sel) { sel.value = String(rank); sel.classList.add('set'); }
+    }
+  }
+
+  async function saveActual() {
+    const newActual = {};
+    for (const d of DRAFT_ORDER) {
+      const sel = document.getElementById(`act-${d.pick}`);
+      if (sel?.value) newActual[d.pick] = parseInt(sel.value);
+    }
+    const btn = document.querySelector('.btn-save-actual');
+    btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Saving…';
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/draft_pools?code=eq.${POOL_CODE}`, {
+        method: 'PATCH',
+        headers: { ...sbHeaders(), 'Prefer': 'return=minimal' },
+        body: JSON.stringify({ actual_picks: newActual })
+      });
+      if (!res.ok) throw new Error(res.status);
+      _actualPicks = newActual;
+      showToast('✅ Results saved!');
+      btn.disabled = false; btn.textContent = 'Save Results';
+    } catch(e) {
+      showToast('Failed to save results.', true);
+      btn.disabled = false; btn.textContent = 'Save Results';
     }
   }
 
   function showToast(msg, isError = false) {
     const el = document.getElementById('toast');
-    el.textContent = msg;
-    el.style.display = 'block';
+    el.textContent = msg; el.style.display = 'block';
     el.style.borderColor = isError ? 'rgba(200,16,46,0.4)' : 'rgba(255,255,255,0.12)';
     setTimeout(() => el.style.display = 'none', 3000);
   }

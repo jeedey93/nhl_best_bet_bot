@@ -70,25 +70,6 @@
 
     .no-data { font-family: 'Barlow Condensed', sans-serif; font-size: 0.9rem; font-weight: 600; color: rgba(255,255,255,0.25); letter-spacing: 1px; padding: 2rem 0; text-align: center; }
 
-    /* ── Admin: set actual picks ── */
-    .admin-section { margin-top: 1.5rem; }
-    .admin-toggle { font-family: 'Barlow Condensed', sans-serif; font-size: 0.8rem; font-weight: 700; color: rgba(255,255,255,0.25); letter-spacing: 1.5px; background: none; border: none; cursor: pointer; transition: color 0.15s; padding: 0; }
-    .admin-toggle:hover { color: var(--silver); }
-    .admin-box { display: none; margin-top: 0.75rem; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; padding: 1rem; }
-    .admin-box.open { display: block; }
-    .admin-title { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 3px; color: var(--silver); margin-bottom: 0.75rem; }
-
-    .actual-row { display: grid; grid-template-columns: 44px 130px 1fr; gap: 0.5rem; align-items: center; margin-bottom: 0.4rem; }
-    .actual-num { font-family: 'Bebas Neue', cursive; font-size: 1.1rem; color: rgba(255,255,255,0.3); text-align: center; }
-    .actual-team { font-family: 'Barlow Condensed', sans-serif; font-size: 0.78rem; font-weight: 700; color: var(--silver); }
-    .actual-select { font-family: 'Barlow Condensed', sans-serif; font-size: 0.85rem; font-weight: 600; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.55); border-radius: 6px; padding: 0.35rem 0.6rem; width: 100%; appearance: none; -webkit-appearance: none; transition: border-color 0.15s, color 0.15s; }
-    .actual-select:focus { outline: none; border-color: rgba(255,184,28,0.5); }
-    .actual-select.set { color: white; border-color: rgba(34,197,94,0.3); background-color: rgba(34,197,94,0.03); }
-    .actual-select option { background: #0d1f35; }
-    .btn-save-actual { font-family: 'Bebas Neue', cursive; font-size: 0.95rem; letter-spacing: 2px; background: var(--gold); color: var(--rink); border: none; border-radius: 7px; padding: 0.55rem 1.5rem; cursor: pointer; margin-top: 0.75rem; transition: opacity 0.15s; }
-    .btn-save-actual:hover { opacity: 0.85; }
-    .btn-save-actual:disabled { opacity: 0.35; cursor: default; }
-
     @keyframes spin { to { transform: rotate(360deg); } }
     .spinner { display: inline-block; width: 13px; height: 13px; border: 2px solid rgba(7,17,31,0.3); border-top-color: var(--rink); border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 5px; }
 
@@ -196,9 +177,8 @@
   const prospectByRank = Object.fromEntries(PROSPECTS.map(p => [p.rank, p]));
 
   let _entries = [];
-  let _actualPicks = {}; // pick# → prospect rank (ground truth after actual draft)
+  let _actualPicks = {};
   let _activeTab = 'leaderboard';
-  let _adminOpen = false;
 
   async function init() {
     const res = await fetch(`${SUPABASE_URL}/rest/v1/draft_pools?code=eq.${POOL_CODE}&select=code,name,actual_picks`, { headers: sbHeaders() });
@@ -249,7 +229,7 @@
   function renderLeaderboard() {
     const wrap = document.getElementById('content-wrap');
     if (!_entries.length) {
-      wrap.innerHTML = `<div class="no-data">No picks submitted yet.</div>${adminSection()}`;
+      wrap.innerHTML = `<div class="no-data">No picks submitted yet.</div>`;
       return;
     }
     const hasScores = Object.keys(_actualPicks).length > 0;
@@ -268,14 +248,12 @@
               <span class="lb-score-label">${hasScores ? 'PTS / 128' : 'PENDING'}</span>
             </div>
           </div>`).join('')}
-      </div>
-      ${adminSection()}`;
-    attachAdminEvents();
+      </div>`;
   }
 
   function renderBoard() {
     const wrap = document.getElementById('content-wrap');
-    if (!_entries.length) { wrap.innerHTML = `<div class="no-data">No picks submitted yet.</div>${adminSection()}`; attachAdminEvents(); return; }
+    if (!_entries.length) { wrap.innerHTML = `<div class="no-data">No picks submitted yet.</div>`; return; }
 
     const cols = _entries.length;
     let html = `<div style="--cols:${cols};overflow-x:auto">`;
@@ -308,70 +286,8 @@
       </div>`;
     }
 
-    html += `</div>${adminSection()}`;
+    html += `</div>`;
     wrap.innerHTML = html;
-    attachAdminEvents();
-  }
-
-  // ── Admin section (enter actual draft results)
-  function adminSection() {
-    const optionsHtml = PROSPECTS.map(p => `<option value="${p.rank}">#${p.rank} ${p.name}</option>`).join('');
-    const rows = DRAFT_ORDER.map(d => {
-      const set = _actualPicks[d.pick];
-      return `<div class="actual-row">
-        <div class="actual-num">${d.pick}</div>
-        <div class="actual-team">${escHtml(d.team)}</div>
-        <select class="actual-select${set ? ' set' : ''}" id="act-${d.pick}" onchange="this.classList.toggle('set',!!this.value)">
-          <option value="">— Actual pick —</option>
-          ${optionsHtml}
-        </select>
-      </div>`;
-    }).join('');
-    return `<div class="admin-section">
-      <button class="admin-toggle" onclick="toggleAdmin()">⚙ Enter actual draft results</button>
-      <div class="admin-box${_adminOpen ? ' open' : ''}" id="admin-box">
-        <div class="admin-title">Actual 2026 Draft Results</div>
-        ${rows}
-        <button class="btn-save-actual" onclick="saveActual()">Save Results</button>
-      </div>
-    </div>`;
-  }
-
-  function attachAdminEvents() {
-    // Restore actual picks into selects
-    for (const [pick, rank] of Object.entries(_actualPicks)) {
-      const sel = document.getElementById(`act-${pick}`);
-      if (sel) { sel.value = String(rank); sel.classList.add('set'); }
-    }
-  }
-
-  function toggleAdmin() {
-    _adminOpen = !_adminOpen;
-    const box = document.getElementById('admin-box');
-    if (box) box.classList.toggle('open', _adminOpen);
-  }
-
-  async function saveActual() {
-    const newActual = {};
-    for (const d of DRAFT_ORDER) {
-      const sel = document.getElementById(`act-${d.pick}`);
-      if (sel?.value) newActual[d.pick] = parseInt(sel.value);
-    }
-    const btn = document.querySelector('.btn-save-actual');
-    btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Saving…';
-    try {
-      const res = await fetch(
-        `${SUPABASE_URL}/rest/v1/draft_pools?code=eq.${POOL_CODE}`,
-        { method: 'PATCH', headers: { ...sbHeaders(), 'Prefer': 'return=minimal' }, body: JSON.stringify({ actual_picks: newActual }) }
-      );
-      if (!res.ok) throw new Error(res.status);
-      _actualPicks = newActual;
-      showToast('✅ Results saved!');
-      renderTab();
-    } catch(e) {
-      showToast('Failed to save results.', true);
-      btn.disabled = false; btn.textContent = 'Save Results';
-    }
   }
 
   function showToast(msg, isError = false) {
