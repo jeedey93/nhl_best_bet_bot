@@ -389,15 +389,6 @@
     updateSlotDisplay(_activePick);
     updateProgress();
     closeSheet();
-
-    // Auto-open next empty slot after brief delay
-    const next = DRAFT_ORDER.find(d => d.pick > _activePick && !_picks[d.pick]);
-    if (next) {
-      setTimeout(() => {
-        document.getElementById(`slot-${next.pick}`).scrollIntoView({ behavior: 'smooth', block: 'center' });
-        setTimeout(() => openSheet(next.pick), 300);
-      }, 150);
-    }
   }
 
   function clearPick() {
