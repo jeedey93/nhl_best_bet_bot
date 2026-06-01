@@ -432,9 +432,10 @@
   }
 
   function autoFill() {
+    const emptySlots = DRAFT_ORDER.filter(d => !_picks[d.pick]);
+    if (!confirm(`Auto-fill the remaining ${emptySlots.length} empty slots with the best available prospects?`)) return;
     const usedRanks = new Set(Object.values(_picks));
     const available = PROSPECTS.filter(p => !usedRanks.has(p.rank));
-    const emptySlots = DRAFT_ORDER.filter(d => !_picks[d.pick]);
     for (let i = 0; i < emptySlots.length && i < available.length; i++) {
       _picks[emptySlots[i].pick] = available[i].rank;
       updateSlotDisplay(emptySlots[i].pick);
