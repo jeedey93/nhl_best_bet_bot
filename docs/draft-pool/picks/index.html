@@ -532,11 +532,13 @@
   function openSubmitInputs() {
     document.getElementById('submit-inputs').classList.add('open');
     document.getElementById('btn-autofill').style.display = 'none';
+    document.getElementById('btn-submit').style.display = 'none';
     setTimeout(() => document.getElementById('name-input').focus(), 50);
   }
 
   function closeSubmitInputs() {
     document.getElementById('submit-inputs').classList.remove('open');
+    document.getElementById('btn-submit').style.display = '';
     const count = Object.keys(_picks).length;
     document.getElementById('btn-autofill').style.display = (count < 32) ? 'inline-block' : 'none';
   }
