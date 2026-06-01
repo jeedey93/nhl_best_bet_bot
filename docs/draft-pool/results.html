@@ -61,14 +61,27 @@
     .lb-bd-val { font-family: 'Barlow Condensed', sans-serif; font-size: 0.68rem; font-weight: 700; color: rgba(255,255,255,0.45); letter-spacing: 0.5px; }
 
     /* Draft board comparison */
-    .comparison-header { display: grid; grid-template-columns: 44px 140px repeat(var(--cols), 1fr); gap: 0.4rem; margin-bottom: 0.4rem; align-items: end; overflow-x: auto; }
-    .ch-pick { font-family: 'Bebas Neue', cursive; font-size: 0.7rem; letter-spacing: 1px; color: rgba(255,255,255,0.25); text-align: center; }
-    .ch-team { font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem; font-weight: 700; color: rgba(255,255,255,0.3); letter-spacing: 1px; }
-    .ch-name { font-family: 'Bebas Neue', cursive; font-size: 0.75rem; letter-spacing: 1.5px; color: var(--gold); text-align: center; writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; max-height: 120px; overflow: hidden; text-overflow: ellipsis; }
+    .board-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; position: relative; }
+    .board-scroll::after { content: ''; position: absolute; top: 0; right: 0; bottom: 0; width: 32px; background: linear-gradient(to right, transparent, rgba(7,17,31,0.9)); pointer-events: none; border-radius: 0 8px 8px 0; }
+    .board-table { border-collapse: separate; border-spacing: 0 0.3rem; min-width: 100%; }
 
-    .comp-row { display: grid; grid-template-columns: 44px 140px repeat(var(--cols), 1fr); gap: 0.4rem; margin-bottom: 0.3rem; align-items: center; overflow-x: auto; }
-    .comp-num { font-family: 'Bebas Neue', cursive; font-size: 1.2rem; color: rgba(255,255,255,0.2); text-align: center; }
-    .comp-team { font-family: 'Barlow Condensed', sans-serif; font-size: 0.78rem; font-weight: 700; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .board-table th, .board-table td { padding: 0; }
+
+    /* Sticky left columns */
+    .col-num  { width: 36px; min-width: 36px; position: sticky; left: 0; z-index: 2; background: #07111f; }
+    .col-team { width: 130px; min-width: 110px; position: sticky; left: 36px; z-index: 2; background: #07111f; padding-right: 0.5rem; }
+
+    /* Header */
+    .th-num  { font-family: 'Bebas Neue', cursive; font-size: 0.7rem; letter-spacing: 1px; color: rgba(255,255,255,0.25); text-align: center; padding-bottom: 0.4rem; position: sticky; left: 0; z-index: 3; background: #07111f; }
+    .th-team { font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem; font-weight: 700; color: rgba(255,255,255,0.3); letter-spacing: 1px; padding-bottom: 0.4rem; padding-right: 0.5rem; position: sticky; left: 36px; z-index: 3; background: #07111f; }
+    .th-name { font-family: 'Bebas Neue', cursive; font-size: 0.75rem; letter-spacing: 1.5px; color: var(--gold); text-align: center; writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; height: 90px; overflow: hidden; text-overflow: ellipsis; padding: 0 0.2rem 0.4rem; vertical-align: bottom; }
+    .th-actual { font-family: 'Bebas Neue', cursive; font-size: 0.7rem; letter-spacing: 1px; color: #22c55e; text-align: center; padding-bottom: 0.4rem; opacity: 0.8; vertical-align: bottom; }
+
+    /* Body cells */
+    .td-num  { font-family: 'Bebas Neue', cursive; font-size: 1.1rem; color: rgba(255,255,255,0.2); text-align: center; vertical-align: middle; }
+    .td-team { font-family: 'Barlow Condensed', sans-serif; font-size: 0.78rem; font-weight: 700; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 130px; vertical-align: middle; }
+    .td-cell { padding: 0 0.2rem; vertical-align: middle; min-width: 58px; }
+
     .comp-cell { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 6px; padding: 0.3rem 0.2rem; text-align: center; min-height: 36px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: default; transition: background 0.1s; }
     .comp-cell:hover { background: rgba(255,255,255,0.08); }
     .comp-cell.empty { background: rgba(255,255,255,0.01); border-color: rgba(255,255,255,0.03); }
@@ -311,10 +324,9 @@
     if (!_entries.length) { wrap.innerHTML = `<div class="no-data">No picks submitted yet.</div>`; return; }
 
     const hasActual = Object.keys(_actualPicks).length > 0;
-    const cols = _entries.length + (hasActual ? 1 : 0);
-    let html = `<div style="--cols:${cols};overflow-x:auto">`;
+    let html = '';
 
-    // Legend (only when actual picks are entered)
+    // Legend
     if (hasActual) {
       html += `<div class="board-legend">
         <div class="legend-item"><div class="legend-dot l4"></div>4 pts — exact</div>
@@ -324,41 +336,39 @@
       </div>`;
     }
 
-    // Header row
-    html += `<div class="comparison-header" style="--cols:${cols}">
-      <div class="ch-pick">PICK</div>
-      <div class="ch-team">TEAM</div>
-      ${hasActual ? `<div class="ch-actual">ACTUAL</div>` : ''}
-      ${_entries.map(e => `<div class="ch-name">${escHtml(e.participant_name)}</div>`).join('')}
-    </div>`;
+    html += `<div class="board-scroll"><table class="board-table"><thead><tr>
+      <th class="th-num">PICK</th>
+      <th class="th-team">TEAM</th>
+      ${hasActual ? `<th class="th-actual">ACTUAL</th>` : ''}
+      ${_entries.map(e => `<th class="th-name">${escHtml(e.participant_name)}</th>`).join('')}
+    </tr></thead><tbody>`;
 
-    // Pick rows
     for (const d of DRAFT_ORDER) {
       const actualRank = _actualPicks[d.pick];
       const actualProspect = actualRank ? prospectByRank[actualRank] : null;
-      html += `<div class="comp-row" style="--cols:${cols}">
-        <div class="comp-num">${d.pick}</div>
-        <div class="comp-team">${escHtml(d.team)}</div>
-        ${hasActual ? (actualProspect
+      html += `<tr>
+        <td class="col-num td-num">${d.pick}</td>
+        <td class="col-team td-team">${escHtml(d.team)}</td>
+        ${hasActual ? `<td class="td-cell">${actualProspect
           ? `<div class="actual-pick-cell"><div class="actual-pick-rank">#${actualRank}</div><div class="actual-pick-name">${escHtml(actualProspect.name.split(' ').pop())}</div></div>`
-          : `<div class="actual-pick-empty"></div>`)
-          : ''}
+          : `<div class="actual-pick-empty"></div>`
+        }</td>` : ''}
         ${_entries.map(e => {
           const rank = e.picks?.[d.pick];
-          if (!rank) return `<div class="comp-cell empty"></div>`;
+          if (!rank) return `<td class="td-cell"><div class="comp-cell empty"></div></td>`;
           const p = prospectByRank[rank];
           const pts = _actualPicks[d.pick] ? pickPoints(rank, _actualPicks[d.pick]) : 0;
           const cls = pts === 4 ? ' pts4' : pts === 2 ? ' pts2' : pts === 1 ? ' pts1' : '';
           const ptsLabel = pts > 0 ? `+${pts}` : '';
-          return `<div class="comp-cell${cls}" title="${p ? escHtml(p.name) : ''}${ptsLabel ? ` · ${ptsLabel}pts` : ''}">
+          return `<td class="td-cell"><div class="comp-cell${cls}" title="${p ? escHtml(p.name) : ''}${ptsLabel ? ` · ${ptsLabel}pts` : ''}">
             <div class="comp-prospect-rank">#${rank}</div>
             <div class="comp-prospect-name">${p ? escHtml(p.name.split(' ').pop()) : '?'}</div>
-          </div>`;
+          </div></td>`;
         }).join('')}
-      </div>`;
+      </tr>`;
     }
 
-    html += `</div>`;
+    html += `</tbody></table></div>`;
     wrap.innerHTML = html;
   }
 
