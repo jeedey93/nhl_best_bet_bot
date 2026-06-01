@@ -125,7 +125,8 @@
     .name-input:focus { outline: none; border-color: rgba(255,184,28,0.5); }
     .name-input.shake { animation: shake 0.35s; border-color: rgba(200,16,46,0.7); }
     @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
-    .btn-submit { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 2px; background: var(--gold); color: var(--rink); border: none; border-radius: 8px; padding: 0.6rem 1.2rem; cursor: pointer; white-space: nowrap; transition: opacity 0.15s; }
+    .btn-autofill { font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 1.5px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: var(--silver); border-radius: 7px; padding: 0.5rem 0.85rem; cursor: pointer; white-space: nowrap; transition: background 0.15s, color 0.15s; flex-shrink: 0; }
+    .btn-autofill:hover { background: rgba(255,255,255,0.12); color: white; }
     .btn-submit:active { opacity: 0.8; }
     .btn-submit:disabled { opacity: 0.35; cursor: default; }
 
@@ -199,8 +200,9 @@
 <!-- Submit bar -->
 <div class="submit-bar">
   <div class="submit-count" id="submit-count"><strong>0</strong>/32</div>
+  <button class="btn-autofill" id="btn-autofill" onclick="autoFill()" style="display:none">Auto-fill rest</button>
   <input class="name-input" id="name-input" type="text" maxlength="24" placeholder="Your name" autocomplete="off" onkeydown="if(event.key==='Enter') submitPicks()">
-  <button class="btn-submit" id="btn-submit" onclick="submitPicks()">Submit</button>
+  <button class="btn-submit" id="btn-submit" onclick="submitPicks()" disabled>Submit</button>
 </div>
 
 <script>
@@ -425,6 +427,19 @@
     document.getElementById('progress-text').textContent = `${count} / 32`;
     document.getElementById('progress-fill').style.width = `${(count / 32) * 100}%`;
     document.getElementById('submit-count').innerHTML = `<strong>${count}</strong>/32`;
+    document.getElementById('btn-submit').disabled = count < 32;
+    document.getElementById('btn-autofill').style.display = (count > 0 && count < 32) ? 'inline-block' : 'none';
+  }
+
+  function autoFill() {
+    const usedRanks = new Set(Object.values(_picks));
+    const available = PROSPECTS.filter(p => !usedRanks.has(p.rank));
+    const emptySlots = DRAFT_ORDER.filter(d => !_picks[d.pick]);
+    for (let i = 0; i < emptySlots.length && i < available.length; i++) {
+      _picks[emptySlots[i].pick] = available[i].rank;
+      updateSlotDisplay(emptySlots[i].pick);
+    }
+    updateProgress();
   }
 
   // close sheet on swipe down
@@ -456,11 +471,15 @@
         headers: { ...sbHeaders(), 'Prefer': 'resolution=merge-duplicates,return=minimal' },
         body: JSON.stringify({ pool_code: POOL_CODE, participant_name: name, picks: _picks, pick_count: count }),
       });
-      if (!res.ok) throw new Error(res.status);
+      if (!res.ok) {
+        const body = await res.text();
+        console.error('Submit failed:', res.status, body);
+        throw new Error(res.status);
+      }
       document.getElementById('success-count').textContent = `${count} of 32 picks submitted`;
       document.getElementById('success-overlay').classList.add('show');
     } catch(e) {
-      showToast('Failed to save. Try again.', true);
+      showToast(`Failed to save (${e.message}). Try again.`, true);
       btn.disabled = false; btn.textContent = 'Submit';
     }
   }
