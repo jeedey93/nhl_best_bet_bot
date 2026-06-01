@@ -117,10 +117,11 @@
     .clear-pick:hover { color: var(--red); }
 
     /* ── Submit bar ── */
-    .submit-bar { position: fixed; bottom: 0; left: 0; right: 0; z-index: 100; background: rgba(7,17,31,0.96); border-top: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(12px); padding: 0.65rem 1rem; display: flex; align-items: center; gap: 0.6rem; }
+    .submit-bar { position: fixed; bottom: 0; left: 0; right: 0; z-index: 100; background: rgba(7,17,31,0.96); border-top: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(12px); padding: 0.5rem 1rem 0.65rem; display: flex; flex-direction: column; gap: 0.45rem; }
+    .submit-bar-top { display: flex; align-items: center; gap: 0.6rem; }
     .submit-count { font-family: 'Barlow Condensed', sans-serif; font-size: 0.82rem; font-weight: 600; color: var(--silver); letter-spacing: 1px; white-space: nowrap; }
     .submit-count strong { color: white; }
-    .name-input { font-family: 'Barlow Condensed', sans-serif; font-size: 1rem; font-weight: 600; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15); color: white; border-radius: 7px; padding: 0.5rem 0.75rem; flex: 1; min-width: 0; transition: border-color 0.15s; }
+    .name-input { font-family: 'Barlow Condensed', sans-serif; font-size: 1rem; font-weight: 600; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15); color: white; border-radius: 7px; padding: 0.5rem 0.75rem; width: 100%; transition: border-color 0.15s; }
     .name-input::placeholder { color: rgba(255,255,255,0.3); }
     .name-input:focus { outline: none; border-color: rgba(255,184,28,0.5); }
     .name-input.shake { animation: shake 0.35s; border-color: rgba(200,16,46,0.7); }
@@ -199,10 +200,12 @@
 
 <!-- Submit bar -->
 <div class="submit-bar">
-  <div class="submit-count" id="submit-count"><strong>0</strong>/32</div>
-  <button class="btn-autofill" id="btn-autofill" onclick="autoFill()" style="display:none">Auto-fill rest</button>
+  <div class="submit-bar-top">
+    <div class="submit-count" id="submit-count"><strong>0</strong>/32</div>
+    <button class="btn-autofill" id="btn-autofill" onclick="autoFill()" style="display:none">Auto-fill rest</button>
+    <button class="btn-submit" id="btn-submit" onclick="submitPicks()" disabled>Submit</button>
+  </div>
   <input class="name-input" id="name-input" type="text" maxlength="24" placeholder="Your name" autocomplete="off" onkeydown="if(event.key==='Enter') submitPicks()">
-  <button class="btn-submit" id="btn-submit" onclick="submitPicks()" disabled>Submit</button>
 </div>
 
 <script>
