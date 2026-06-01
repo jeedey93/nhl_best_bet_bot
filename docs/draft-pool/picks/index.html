@@ -119,11 +119,13 @@
     .clear-pick:hover { color: var(--red); }
 
     /* ── Submit bar ── */
-    .submit-bar { position: fixed; bottom: 0; left: 0; right: 0; z-index: 100; background: rgba(7,17,31,0.96); border-top: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(12px); padding: 0.5rem 1rem 0.65rem; display: flex; flex-direction: column; gap: 0.45rem; padding-bottom: calc(0.65rem + env(safe-area-inset-bottom)); }
+    .submit-bar { position: fixed; bottom: 0; left: 0; right: 0; z-index: 100; background: rgba(7,17,31,0.96); border-top: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(12px); padding: 0.5rem 1rem 0.65rem; display: flex; flex-direction: column; gap: 0.35rem; padding-bottom: calc(0.65rem + env(safe-area-inset-bottom)); }
     .submit-bar-top { display: flex; align-items: center; gap: 0.6rem; }
     .submit-count { font-family: 'Barlow Condensed', sans-serif; font-size: 0.82rem; font-weight: 600; color: var(--silver); letter-spacing: 1px; white-space: nowrap; }
     .submit-count strong { color: white; }
-    .name-input { font-family: 'Barlow Condensed', sans-serif; font-size: 1rem; font-weight: 600; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15); color: white; border-radius: 7px; padding: 0.5rem 0.75rem; width: 100%; transition: border-color 0.15s; }
+    .input-row { display: flex; flex-direction: column; gap: 2px; }
+    .input-label { font-family: 'Barlow Condensed', sans-serif; font-size: 0.65rem; font-weight: 700; letter-spacing: 1.5px; color: rgba(255,255,255,0.3); text-transform: uppercase; padding-left: 2px; }
+    .name-input { font-family: 'Barlow Condensed', sans-serif; font-size: 1rem; font-weight: 600; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15); color: white; border-radius: 7px; padding: 0.45rem 0.75rem; width: 100%; transition: border-color 0.15s; }
     .name-input::placeholder { color: rgba(255,255,255,0.3); }
     .name-input:focus { outline: none; border-color: rgba(255,184,28,0.5); }
     .name-input.shake { animation: shake 0.35s; border-color: rgba(200,16,46,0.7); }
@@ -181,7 +183,10 @@
   <h2>Picks Saved!</h2>
   <div id="success-count" style="font-family:'Bebas Neue',cursive;font-size:1.3rem;letter-spacing:3px;color:white;"></div>
   <p>Good luck on June 27.<br>Check back after the draft to see how you did.</p>
-  <a href="/draft-pool/results.html" class="btn-results">📊 View Leaderboard →</a>
+  <div style="display:flex;gap:0.75rem;flex-wrap:wrap;justify-content:center;">
+    <a href="/draft-pool/results.html" class="btn-results">📊 View Leaderboard →</a>
+    <button class="btn-results" style="background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.15);color:var(--silver);" onclick="document.getElementById('success-overlay').classList.remove('show')">✏️ Edit Picks</button>
+  </div>
 </div>
 
 <div id="toast"></div>
@@ -236,8 +241,14 @@
     <button class="btn-autofill" id="btn-autofill" onclick="autoFill()">Auto-fill rest</button>
     <button class="btn-submit" id="btn-submit" onclick="submitPicks()" disabled>Submit</button>
   </div>
-  <input class="name-input" id="name-input" type="text" maxlength="24" placeholder="Your name" autocomplete="off">
-  <input class="name-input" id="email-input" type="email" placeholder="Your email" autocomplete="email" onkeydown="if(event.key==='Enter') submitPicks()">
+  <div class="input-row">
+    <div class="input-label">Name</div>
+    <input class="name-input" id="name-input" type="text" maxlength="24" placeholder="Your name" autocomplete="off">
+  </div>
+  <div class="input-row">
+    <div class="input-label">Email</div>
+    <input class="name-input" id="email-input" type="email" placeholder="your@email.com" autocomplete="email" onkeydown="if(event.key==='Enter') submitPicks()">
+  </div>
 </div>
 
 <script>

@@ -182,19 +182,25 @@
   let _activeTab = 'leaderboard';
 
   async function init() {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/draft_pools?code=eq.${POOL_CODE}&select=code,name,actual_picks`, { headers: sbHeaders() });
-    const rows = res.ok ? await res.json() : [];
-    if (!rows.length) { document.getElementById('content-wrap').innerHTML = '<div class="no-data">Pool not found.</div>'; return; }
-    const pool = rows[0];
-    document.getElementById('pool-badge').innerHTML = `<span>2026 NHL Draft Pool</span>`;
-    _actualPicks = pool.actual_picks || {};
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/draft_pools?code=eq.${POOL_CODE}&select=code,name,actual_picks`, { headers: sbHeaders() });
+      if (!res.ok) throw new Error(res.status);
+      const rows = await res.json();
+      if (!rows.length) { document.getElementById('content-wrap').innerHTML = '<div class="no-data">Pool not found.</div>'; return; }
+      const pool = rows[0];
+      document.getElementById('pool-badge').innerHTML = `<span>2026 NHL Draft Pool</span>`;
+      _actualPicks = pool.actual_picks || {};
 
-    const entRes = await fetch(
-      `${SUPABASE_URL}/rest/v1/draft_pool_entries?pool_code=eq.${POOL_CODE}&select=id,participant_name,picks,pick_count&order=pick_count.desc`,
-      { headers: sbHeaders() }
-    );
-    _entries = entRes.ok ? await entRes.json() : [];
-    renderTab();
+      const entRes = await fetch(
+        `${SUPABASE_URL}/rest/v1/draft_pool_entries?pool_code=eq.${POOL_CODE}&select=id,participant_name,picks,pick_count&order=pick_count.desc`,
+        { headers: sbHeaders() }
+      );
+      if (!entRes.ok) throw new Error(entRes.status);
+      _entries = await entRes.json();
+      renderTab();
+    } catch(e) {
+      document.getElementById('content-wrap').innerHTML = `<div class="no-data">Unable to load results. Check your connection and <a href="" onclick="location.reload();return false;" style="color:var(--gold)">try again</a>.</div>`;
+    }
   }
 
   function setTab(tab, btn) {
@@ -245,8 +251,8 @@
             <div class="lb-name">${escHtml(e.participant_name)}</div>
             <div class="lb-picks"><span style="color:white;font-weight:700">${e.pick_count || 0}</span><br><span style="font-size:0.65rem;color:rgba(255,255,255,0.3);letter-spacing:1px">PICKS</span></div>
             <div class="lb-score">
-              ${hasScores && e.score !== null ? e.score : '—'}
-              <span class="lb-score-label">${hasScores ? 'PTS / 128' : 'PENDING'}</span>
+              ${hasScores && e.score !== null ? e.score : 'June 27'}
+              <span class="lb-score-label">${hasScores ? 'PTS / 128' : 'DRAFT DAY'}</span>
             </div>
           </div>`).join('')}
       </div>`;
