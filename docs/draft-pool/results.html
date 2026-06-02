@@ -46,11 +46,9 @@
     .content-wrap { max-width: 1200px; width: 100%; margin: 0 auto; padding: 1rem 1.25rem 2rem; }
 
     /* Desktop two-column layout */
-    .desktop-layout { display: flex; gap: 1.5rem; align-items: flex-start; }
-    .desktop-layout .col-left { flex: 0 0 340px; min-width: 0; }
-    .desktop-layout .col-right { flex: 1; min-width: 0; }
+    .desktop-layout { display: flex; flex-direction: column; gap: 2rem; }
     .desktop-col-title { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 3px; color: var(--silver); opacity: 0.5; margin-bottom: 0.6rem; }
-    @media (max-width: 899px) { .desktop-layout { display: block; } .desktop-layout .col-right { margin-top: 1.5rem; } }
+    @media (min-width: 900px) { #tab-board { display: none; } }
 
     /* Leaderboard */
     .leaderboard { background: rgba(255,255,255,0.015); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; overflow: hidden; }
@@ -96,7 +94,7 @@
     /* Header */
     .th-num  { font-family: 'Bebas Neue', cursive; font-size: 0.7rem; letter-spacing: 1px; color: rgba(255,255,255,0.25); text-align: center; padding-bottom: 0.4rem; position: sticky; left: 0; z-index: 3; background: #07111f; }
     .th-team { width: 36px; padding-bottom: 0.4rem; padding-right: 0.4rem; position: sticky; left: 32px; z-index: 3; background: #07111f; }
-    .th-name { font-family: 'Bebas Neue', cursive; font-size: 0.75rem; letter-spacing: 1.5px; color: var(--gold); text-align: center; writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; height: 90px; overflow: hidden; text-overflow: ellipsis; padding: 0 0.2rem 0.4rem; vertical-align: bottom; }
+    .th-name { font-family: 'Bebas Neue', cursive; font-size: 0.75rem; letter-spacing: 1.5px; color: var(--gold); text-align: center; writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; height: 90px; overflow: hidden; text-overflow: ellipsis; padding: 0 0.2rem; vertical-align: middle; }
     .th-actual { font-family: 'Bebas Neue', cursive; font-size: 0.7rem; letter-spacing: 1px; color: var(--silver); text-align: center; padding-bottom: 0.4rem; vertical-align: bottom; opacity: 0.6; }
     .ch-actual { font-family: 'Bebas Neue', cursive; font-size: 0.7rem; letter-spacing: 1px; color: var(--silver); text-align: center; opacity: 0.6; }
     /* Body cells */
@@ -514,11 +512,11 @@
     const boardHtml = buildBoard();
     wrap.innerHTML = `
       <div class="desktop-layout">
-        <div class="col-left">
+        <div>
           <div class="desktop-col-title">Leaderboard</div>
           ${lbHtml}
         </div>
-        <div class="col-right">
+        <div>
           <div class="desktop-col-title">Board View</div>
           ${boardHtml}
         </div>
