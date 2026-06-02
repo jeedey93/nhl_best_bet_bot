@@ -2068,11 +2068,14 @@ def update_latest_predictions(preliminary=False):
                 featured_content += pick
             featured_content += "</div>\n"
     else:
-        # Show 3pm final featured picks from dual bet file
+        # Show 3pm final featured picks from dual bet file (only if written today)
         if os.path.exists(dual_bet_path):
-            dual_content = read_file(dual_bet_path).strip()
-            if dual_content:
-                featured_content = format_dual_bet(dual_content)
+            file_date = datetime.fromtimestamp(os.path.getmtime(dual_bet_path)).date()
+            today = datetime.now(tz=ZoneInfo('America/Toronto')).date()
+            if file_date == today:
+                dual_content = read_file(dual_bet_path).strip()
+                if dual_content:
+                    featured_content = format_dual_bet(dual_content)
 
     if featured_content:
         content += "<div id='featured-picks' style='position: relative; margin: 0 -15px;'>\n"

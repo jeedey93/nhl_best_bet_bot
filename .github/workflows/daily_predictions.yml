@@ -114,163 +114,163 @@ jobs:
           else
             echo "No changes to commit"
           fi
-      - name: Generate email body with picks and reasoning (3pm)
-        if: steps.run_time.outputs.time == '3pm'
-        run: python3 scripts/generate_complete_email.py
-      - name: Add yesterday's results banner and finalize email (3pm)
-        if: steps.run_time.outputs.time == '3pm'
-        id: prepare_email
-        run: |
-          # Extract yesterday's results for the banner
-          # Note: Results for yesterday's games are in today's result files
-          TODAY=$(TZ='America/Toronto' date +"%Y-%m-%d")
-          YESTERDAY=$(TZ='America/Toronto' date -d 'yesterday' +"%Y-%m-%d" 2>/dev/null || TZ='America/Toronto' date -v-1d +"%Y-%m-%d")
-          RESULTS_FILE="data/bot_results/total_results_summary.txt"
-          NHL_RESULTS_FILE="data/bot_results/nhl/nhl_daily_results_${TODAY}.txt"
-          NBA_RESULTS_FILE="data/bot_results/nba/nba_daily_results_${TODAY}.txt"
-          YESTERDAY_BANNER="NEW PREDICTIONS AVAILABLE - DAILY UPDATE"
-
-          if [ -f "$RESULTS_FILE" ]; then
-            # Extract NBA yesterday's record
-            NBA_YESTERDAY=$(grep "^$YESTERDAY:" "$RESULTS_FILE" | head -1 || echo "")
-            # Extract NHL yesterday's record (second occurrence of the date)
-            NHL_YESTERDAY=$(grep "^$YESTERDAY:" "$RESULTS_FILE" | tail -1 || echo "")
-
-            if [ -n "$NBA_YESTERDAY" ] || [ -n "$NHL_YESTERDAY" ]; then
-              TOTAL_WINS=0
-              TOTAL_LOSSES=0
-              TOTAL_UNITS=0
-
-              # Calculate NHL units
-              if [ -f "$NHL_RESULTS_FILE" ]; then
-                CURRENT_UNITS=""
-                CURRENT_ODDS=""
-                while IFS= read -r line; do
-                  # Extract units and odds from bet line
-                  if echo "$line" | grep -q "@ [0-9.]* - .*Units: [0-9.]*u"; then
-                    CURRENT_ODDS=$(echo "$line" | sed 's/.*@ \([0-9.]*\) -.*/\1/')
-                    CURRENT_UNITS=$(echo "$line" | sed 's/.*Units: \([0-9.]*\)u.*/\1/')
-                  fi
-                  # Check outcome and calculate
-                  if echo "$line" | grep -q "Outcome: \*\*WIN\*\*" && [ -n "$CURRENT_UNITS" ] && [ -n "$CURRENT_ODDS" ]; then
-                    PROFIT=$(echo "scale=2; $CURRENT_UNITS * ($CURRENT_ODDS - 1)" | bc)
-                    TOTAL_UNITS=$(echo "scale=2; $TOTAL_UNITS + $PROFIT" | bc)
-                    CURRENT_UNITS=""
-                    CURRENT_ODDS=""
-                  elif echo "$line" | grep -q "Outcome: \*\*LOSS\*\*" && [ -n "$CURRENT_UNITS" ]; then
-                    TOTAL_UNITS=$(echo "scale=2; $TOTAL_UNITS - $CURRENT_UNITS" | bc)
-                    CURRENT_UNITS=""
-                    CURRENT_ODDS=""
-                  elif echo "$line" | grep -q "Outcome: \*\*PUSH\*\*"; then
-                    CURRENT_UNITS=""
-                    CURRENT_ODDS=""
-                  fi
-                done < "$NHL_RESULTS_FILE"
-              fi
-
-              # Calculate NBA units
-              if [ -f "$NBA_RESULTS_FILE" ]; then
-                CURRENT_UNITS=""
-                CURRENT_ODDS=""
-                while IFS= read -r line; do
-                  # Extract units and odds from bet line
-                  if echo "$line" | grep -q "@ [0-9.]* - .*Units: [0-9.]*u"; then
-                    CURRENT_ODDS=$(echo "$line" | sed 's/.*@ \([0-9.]*\) -.*/\1/')
-                    CURRENT_UNITS=$(echo "$line" | sed 's/.*Units: \([0-9.]*\)u.*/\1/')
-                  fi
-                  # Check outcome and calculate
-                  if echo "$line" | grep -q "Outcome: \*\*WIN\*\*" && [ -n "$CURRENT_UNITS" ] && [ -n "$CURRENT_ODDS" ]; then
-                    PROFIT=$(echo "scale=2; $CURRENT_UNITS * ($CURRENT_ODDS - 1)" | bc)
-                    TOTAL_UNITS=$(echo "scale=2; $TOTAL_UNITS + $PROFIT" | bc)
-                    CURRENT_UNITS=""
-                    CURRENT_ODDS=""
-                  elif echo "$line" | grep -q "Outcome: \*\*LOSS\*\*" && [ -n "$CURRENT_UNITS" ]; then
-                    TOTAL_UNITS=$(echo "scale=2; $TOTAL_UNITS - $CURRENT_UNITS" | bc)
-                    CURRENT_UNITS=""
-                    CURRENT_ODDS=""
-                  elif echo "$line" | grep -q "Outcome: \*\*PUSH\*\*"; then
-                    CURRENT_UNITS=""
-                    CURRENT_ODDS=""
-                  fi
-                done < "$NBA_RESULTS_FILE"
-              fi
-
-              if [ -n "$NBA_YESTERDAY" ]; then
-                NBA_WINS=$(echo "$NBA_YESTERDAY" | sed 's/.*: \([0-9]*\) win.*/\1/')
-                NBA_LOSSES=$(echo "$NBA_YESTERDAY" | sed 's/.* \([0-9]*\) loss.*/\1/')
-                TOTAL_WINS=$((TOTAL_WINS + NBA_WINS))
-                TOTAL_LOSSES=$((TOTAL_LOSSES + NBA_LOSSES))
-              fi
-
-              if [ -n "$NHL_YESTERDAY" ]; then
-                NHL_WINS=$(echo "$NHL_YESTERDAY" | sed 's/.*: \([0-9]*\) win.*/\1/')
-                NHL_LOSSES=$(echo "$NHL_YESTERDAY" | sed 's/.* \([0-9]*\) loss.*/\1/')
-                TOTAL_WINS=$((TOTAL_WINS + NHL_WINS))
-                TOTAL_LOSSES=$((TOTAL_LOSSES + NHL_LOSSES))
-              fi
-
-              # Format units with + or - sign and 2 decimals
-              TOTAL_UNITS=$(printf "%.2f" $TOTAL_UNITS)
-              if [ $(echo "$TOTAL_UNITS > 0" | bc) -eq 1 ]; then
-                UNITS_TEXT="<span style='color: #10b981;'>+${TOTAL_UNITS}u</span>"
-              elif [ $(echo "$TOTAL_UNITS < 0" | bc) -eq 1 ]; then
-                UNITS_TEXT="<span style='color: #ef4444;'>${TOTAL_UNITS}u</span>"
-              else
-                UNITS_TEXT="+${TOTAL_UNITS}u"
-              fi
-
-              YESTERDAY_BANNER="YESTERDAY: ${TOTAL_WINS}W - ${TOTAL_LOSSES}L (${UNITS_TEXT})"
-            fi
-          fi
-
-          # Replace the yesterday banner placeholder
-          sed "s|NEW PREDICTIONS AVAILABLE - DAILY UPDATE|$YESTERDAY_BANNER|g" /tmp/email_body.html > /tmp/email_body_final.html
-
-          echo "body<<EOF" >> $GITHUB_OUTPUT
-          cat /tmp/email_body_final.html >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-
-          # Generate email subject
-          EMAIL_DATE=$(TZ='America/Toronto' date +"%A, %B %d, %Y")
-          echo "subject=$EMAIL_DATE - NHL/NBA Daily Picks" >> $GITHUB_OUTPUT
-      - name: Create email sender script
-        if: steps.run_time.outputs.time == '3pm'
-        run: |
-          cat > /tmp/send_email.py << 'SENDSCRIPT'
-          import smtplib, os, sys
-          from email.mime.multipart import MIMEMultipart
-          from email.mime.text import MIMEText
-
-          recipient, subject = sys.argv[1], sys.argv[2]
-          with open('/tmp/email_personal.html', 'r') as f:
-              body = f.read()
-
-          msg = MIMEMultipart('alternative')
-          msg['Subject'] = subject
-          msg['From'] = 'Parieur Discipliné <' + os.environ['EMAIL_USERNAME'] + '>'
-          msg['To'] = recipient
-          msg.attach(MIMEText(body, 'html', 'utf-8'))
-
-          with smtplib.SMTP('smtp.gmail.com', 587) as s:
-              s.starttls()
-              s.login(os.environ['EMAIL_USERNAME'], os.environ['EMAIL_PASSWORD'])
-              s.sendmail(os.environ['EMAIL_USERNAME'], [recipient], msg.as_string())
-          print(f"Sent to {recipient}")
-          SENDSCRIPT
-      - name: Send personalized emails to subscribers
-        if: steps.run_time.outputs.time == '3pm'
-        run: |
-          SUBJECT="${{ steps.prepare_email.outputs.subject }}"
-          IFS=',' read -ra EMAILS <<< "$SUBSCRIBER_LIST"
-          for EMAIL_ADDR in "${EMAILS[@]}"; do
-            EMAIL_ADDR=$(echo "$EMAIL_ADDR" | tr -d ' ')
-            [ -z "$EMAIL_ADDR" ] && continue
-
-            TOKEN=$(python3 scripts/generate_complete_email.py --generate-token --email "$EMAIL_ADDR")
-            ENCODED=$(python3 -c "import urllib.parse,sys; print(urllib.parse.quote(sys.argv[1]))" "$EMAIL_ADDR")
-            UNSUB_URL="https://parieurdiscipline.com/api/unsubscribe?email=${ENCODED}&token=${TOKEN}"
-
-            python3 scripts/replace_unsub.py "$UNSUB_URL"
-
-            python3 /tmp/send_email.py "$EMAIL_ADDR" "$SUBJECT"
-          done
+      # - name: Generate email body with picks and reasoning (3pm)
+      #   if: steps.run_time.outputs.time == '3pm'
+      #   run: python3 scripts/generate_complete_email.py
+      # - name: Add yesterday's results banner and finalize email (3pm)
+      #   if: steps.run_time.outputs.time == '3pm'
+      #   id: prepare_email
+      #   run: |
+      #     # Extract yesterday's results for the banner
+      #     # Note: Results for yesterday's games are in today's result files
+      #     TODAY=$(TZ='America/Toronto' date +"%Y-%m-%d")
+      #     YESTERDAY=$(TZ='America/Toronto' date -d 'yesterday' +"%Y-%m-%d" 2>/dev/null || TZ='America/Toronto' date -v-1d +"%Y-%m-%d")
+      #     RESULTS_FILE="data/bot_results/total_results_summary.txt"
+      #     NHL_RESULTS_FILE="data/bot_results/nhl/nhl_daily_results_${TODAY}.txt"
+      #     NBA_RESULTS_FILE="data/bot_results/nba/nba_daily_results_${TODAY}.txt"
+      #     YESTERDAY_BANNER="NEW PREDICTIONS AVAILABLE - DAILY UPDATE"
+      #
+      #     if [ -f "$RESULTS_FILE" ]; then
+      #       # Extract NBA yesterday's record
+      #       NBA_YESTERDAY=$(grep "^$YESTERDAY:" "$RESULTS_FILE" | head -1 || echo "")
+      #       # Extract NHL yesterday's record (second occurrence of the date)
+      #       NHL_YESTERDAY=$(grep "^$YESTERDAY:" "$RESULTS_FILE" | tail -1 || echo "")
+      #
+      #       if [ -n "$NBA_YESTERDAY" ] || [ -n "$NHL_YESTERDAY" ]; then
+      #         TOTAL_WINS=0
+      #         TOTAL_LOSSES=0
+      #         TOTAL_UNITS=0
+      #
+      #         # Calculate NHL units
+      #         if [ -f "$NHL_RESULTS_FILE" ]; then
+      #           CURRENT_UNITS=""
+      #           CURRENT_ODDS=""
+      #           while IFS= read -r line; do
+      #             # Extract units and odds from bet line
+      #             if echo "$line" | grep -q "@ [0-9.]* - .*Units: [0-9.]*u"; then
+      #               CURRENT_ODDS=$(echo "$line" | sed 's/.*@ \([0-9.]*\) -.*/\1/')
+      #               CURRENT_UNITS=$(echo "$line" | sed 's/.*Units: \([0-9.]*\)u.*/\1/')
+      #             fi
+      #             # Check outcome and calculate
+      #             if echo "$line" | grep -q "Outcome: \*\*WIN\*\*" && [ -n "$CURRENT_UNITS" ] && [ -n "$CURRENT_ODDS" ]; then
+      #               PROFIT=$(echo "scale=2; $CURRENT_UNITS * ($CURRENT_ODDS - 1)" | bc)
+      #               TOTAL_UNITS=$(echo "scale=2; $TOTAL_UNITS + $PROFIT" | bc)
+      #               CURRENT_UNITS=""
+      #               CURRENT_ODDS=""
+      #             elif echo "$line" | grep -q "Outcome: \*\*LOSS\*\*" && [ -n "$CURRENT_UNITS" ]; then
+      #               TOTAL_UNITS=$(echo "scale=2; $TOTAL_UNITS - $CURRENT_UNITS" | bc)
+      #               CURRENT_UNITS=""
+      #               CURRENT_ODDS=""
+      #             elif echo "$line" | grep -q "Outcome: \*\*PUSH\*\*"; then
+      #               CURRENT_UNITS=""
+      #               CURRENT_ODDS=""
+      #             fi
+      #           done < "$NHL_RESULTS_FILE"
+      #         fi
+      #
+      #         # Calculate NBA units
+      #         if [ -f "$NBA_RESULTS_FILE" ]; then
+      #           CURRENT_UNITS=""
+      #           CURRENT_ODDS=""
+      #           while IFS= read -r line; do
+      #             # Extract units and odds from bet line
+      #             if echo "$line" | grep -q "@ [0-9.]* - .*Units: [0-9.]*u"; then
+      #               CURRENT_ODDS=$(echo "$line" | sed 's/.*@ \([0-9.]*\) -.*/\1/')
+      #               CURRENT_UNITS=$(echo "$line" | sed 's/.*Units: \([0-9.]*\)u.*/\1/')
+      #             fi
+      #             # Check outcome and calculate
+      #             if echo "$line" | grep -q "Outcome: \*\*WIN\*\*" && [ -n "$CURRENT_UNITS" ] && [ -n "$CURRENT_ODDS" ]; then
+      #               PROFIT=$(echo "scale=2; $CURRENT_UNITS * ($CURRENT_ODDS - 1)" | bc)
+      #               TOTAL_UNITS=$(echo "scale=2; $TOTAL_UNITS + $PROFIT" | bc)
+      #               CURRENT_UNITS=""
+      #               CURRENT_ODDS=""
+      #             elif echo "$line" | grep -q "Outcome: \*\*LOSS\*\*" && [ -n "$CURRENT_UNITS" ]; then
+      #               TOTAL_UNITS=$(echo "scale=2; $TOTAL_UNITS - $CURRENT_UNITS" | bc)
+      #               CURRENT_UNITS=""
+      #               CURRENT_ODDS=""
+      #             elif echo "$line" | grep -q "Outcome: \*\*PUSH\*\*"; then
+      #               CURRENT_UNITS=""
+      #               CURRENT_ODDS=""
+      #             fi
+      #           done < "$NBA_RESULTS_FILE"
+      #         fi
+      #
+      #         if [ -n "$NBA_YESTERDAY" ]; then
+      #           NBA_WINS=$(echo "$NBA_YESTERDAY" | sed 's/.*: \([0-9]*\) win.*/\1/')
+      #           NBA_LOSSES=$(echo "$NBA_YESTERDAY" | sed 's/.* \([0-9]*\) loss.*/\1/')
+      #           TOTAL_WINS=$((TOTAL_WINS + NBA_WINS))
+      #           TOTAL_LOSSES=$((TOTAL_LOSSES + NBA_LOSSES))
+      #         fi
+      #
+      #         if [ -n "$NHL_YESTERDAY" ]; then
+      #           NHL_WINS=$(echo "$NHL_YESTERDAY" | sed 's/.*: \([0-9]*\) win.*/\1/')
+      #           NHL_LOSSES=$(echo "$NHL_YESTERDAY" | sed 's/.* \([0-9]*\) loss.*/\1/')
+      #           TOTAL_WINS=$((TOTAL_WINS + NHL_WINS))
+      #           TOTAL_LOSSES=$((TOTAL_LOSSES + NHL_LOSSES))
+      #         fi
+      #
+      #         # Format units with + or - sign and 2 decimals
+      #         TOTAL_UNITS=$(printf "%.2f" $TOTAL_UNITS)
+      #         if [ $(echo "$TOTAL_UNITS > 0" | bc) -eq 1 ]; then
+      #           UNITS_TEXT="<span style='color: #10b981;'>+${TOTAL_UNITS}u</span>"
+      #         elif [ $(echo "$TOTAL_UNITS < 0" | bc) -eq 1 ]; then
+      #           UNITS_TEXT="<span style='color: #ef4444;'>${TOTAL_UNITS}u</span>"
+      #         else
+      #           UNITS_TEXT="+${TOTAL_UNITS}u"
+      #         fi
+      #
+      #         YESTERDAY_BANNER="YESTERDAY: ${TOTAL_WINS}W - ${TOTAL_LOSSES}L (${UNITS_TEXT})"
+      #       fi
+      #     fi
+      #
+      #     # Replace the yesterday banner placeholder
+      #     sed "s|NEW PREDICTIONS AVAILABLE - DAILY UPDATE|$YESTERDAY_BANNER|g" /tmp/email_body.html > /tmp/email_body_final.html
+      #
+      #     echo "body<<EOF" >> $GITHUB_OUTPUT
+      #     cat /tmp/email_body_final.html >> $GITHUB_OUTPUT
+      #     echo "EOF" >> $GITHUB_OUTPUT
+      #
+      #     # Generate email subject
+      #     EMAIL_DATE=$(TZ='America/Toronto' date +"%A, %B %d, %Y")
+      #     echo "subject=$EMAIL_DATE - NHL/NBA Daily Picks" >> $GITHUB_OUTPUT
+      # - name: Create email sender script
+      #   if: steps.run_time.outputs.time == '3pm'
+      #   run: |
+      #     cat > /tmp/send_email.py << 'SENDSCRIPT'
+      #     import smtplib, os, sys
+      #     from email.mime.multipart import MIMEMultipart
+      #     from email.mime.text import MIMEText
+      #
+      #     recipient, subject = sys.argv[1], sys.argv[2]
+      #     with open('/tmp/email_personal.html', 'r') as f:
+      #         body = f.read()
+      #
+      #     msg = MIMEMultipart('alternative')
+      #     msg['Subject'] = subject
+      #     msg['From'] = 'Parieur Discipliné <' + os.environ['EMAIL_USERNAME'] + '>'
+      #     msg['To'] = recipient
+      #     msg.attach(MIMEText(body, 'html', 'utf-8'))
+      #
+      #     with smtplib.SMTP('smtp.gmail.com', 587) as s:
+      #         s.starttls()
+      #         s.login(os.environ['EMAIL_USERNAME'], os.environ['EMAIL_PASSWORD'])
+      #         s.sendmail(os.environ['EMAIL_USERNAME'], [recipient], msg.as_string())
+      #     print(f"Sent to {recipient}")
+      #     SENDSCRIPT
+      # - name: Send personalized emails to subscribers
+      #   if: steps.run_time.outputs.time == '3pm'
+      #   run: |
+      #     SUBJECT="${{ steps.prepare_email.outputs.subject }}"
+      #     IFS=',' read -ra EMAILS <<< "$SUBSCRIBER_LIST"
+      #     for EMAIL_ADDR in "${EMAILS[@]}"; do
+      #       EMAIL_ADDR=$(echo "$EMAIL_ADDR" | tr -d ' ')
+      #       [ -z "$EMAIL_ADDR" ] && continue
+      #
+      #       TOKEN=$(python3 scripts/generate_complete_email.py --generate-token --email "$EMAIL_ADDR")
+      #       ENCODED=$(python3 -c "import urllib.parse,sys; print(urllib.parse.quote(sys.argv[1]))" "$EMAIL_ADDR")
+      #       UNSUB_URL="https://parieurdiscipline.com/api/unsubscribe?email=${ENCODED}&token=${TOKEN}"
+      #
+      #       python3 scripts/replace_unsub.py "$UNSUB_URL"
+      #
+      #       python3 /tmp/send_email.py "$EMAIL_ADDR" "$SUBJECT"
+      #     done
