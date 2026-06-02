@@ -33,6 +33,41 @@
     /* ── Page ── */
     .page { max-width: 700px; margin: 0 auto; padding: 1rem 1rem 8rem; }
 
+    /* ── Desktop layout ── */
+    @media (min-width: 900px) {
+      .page { max-width: 1200px; display: grid; grid-template-columns: 1fr 320px; grid-template-rows: auto auto 1fr; column-gap: 1.5rem; padding-bottom: 7rem; }
+      .page-header { grid-column: 1; grid-row: 1; }
+      .progress-wrap { grid-column: 1; grid-row: 2; }
+      .picks-list { grid-column: 1; grid-row: 3; }
+      .desktop-panel { display: flex; }
+      .submit-bar { max-width: calc((1200px - 320px - 1.5rem) / 1 + 2rem); }
+    }
+    @media (max-width: 899px) {
+      .desktop-panel { display: none; }
+    }
+
+    /* ── Desktop prospect panel ── */
+    .desktop-panel {
+      grid-column: 2; grid-row: 1 / 4;
+      flex-direction: column;
+      position: sticky; top: calc(var(--nav-h) + 0.75rem);
+      max-height: calc(100vh - var(--nav-h) - 1.5rem);
+      background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 12px; overflow: hidden;
+    }
+    .dp-header { padding: 0.75rem 1rem 0.6rem; flex-shrink: 0; border-bottom: 1px solid rgba(255,255,255,0.07); }
+    .dp-title { font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 3px; color: var(--silver); opacity: 0.5; margin-bottom: 0.5rem; }
+    .dp-picking { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 2px; color: var(--gold); min-height: 1.2em; }
+    .dp-search { width: 100%; font-family: 'Barlow Condensed', sans-serif; font-size: 0.9rem; font-weight: 600; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: white; border-radius: 7px; padding: 0.4rem 0.75rem; transition: border-color 0.15s; }
+    .dp-search::placeholder { color: rgba(255,255,255,0.2); }
+    .dp-search:focus { outline: none; border-color: rgba(255,184,28,0.4); }
+    .dp-list { overflow-y: auto; flex: 1; }
+    .dp-list .prospect-item { padding: 0.45rem 0.85rem; }
+    .dp-list .prospect-item:hover { background: rgba(255,255,255,0.05); }
+    .dp-list .prospect-name { font-size: 0.9rem; }
+    .dp-list .prospect-meta { font-size: 0.65rem; }
+    .dp-no-pick { font-family: 'Barlow Condensed', sans-serif; font-size: 0.8rem; font-weight: 600; color: rgba(255,255,255,0.2); letter-spacing: 1px; text-align: center; padding: 1.5rem 1rem; }
+
     .page-header { text-align: center; margin-bottom: 0.75rem; }
     .page-header h1 { font-family: 'Bebas Neue', cursive; font-size: clamp(1.8rem, 5vw, 2.8rem); letter-spacing: 6px; text-shadow: 0 0 40px rgba(200,16,46,0.35), 0 2px 8px rgba(0,0,0,0.8); line-height: 1; }
     .page-header h1 span { color: var(--gold); }
@@ -79,6 +114,7 @@
     /* ── Bottom sheet ── */
     .sheet-backdrop { position: fixed; inset: 0; z-index: 300; background: rgba(0,0,0,0.6); backdrop-filter: blur(3px); opacity: 0; pointer-events: none; transition: opacity 0.25s; }
     .sheet-backdrop.show { opacity: 1; pointer-events: all; }
+    @media (min-width: 900px) { .sheet-backdrop { display: none !important; } }
 
     .sheet {
       position: fixed; bottom: 0; left: 0; right: 0; z-index: 400;
@@ -89,6 +125,7 @@
       transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.32,0.72,0,1);
     }
     .sheet.show { transform: translateY(0); }
+    @media (min-width: 900px) { .sheet { display: none !important; } }
 
     .sheet-handle { width: 36px; height: 4px; background: rgba(255,255,255,0.2); border-radius: 2px; margin: 10px auto 0; flex-shrink: 0; }
 
@@ -241,6 +278,16 @@
   </div>
 
   <div class="picks-list" id="picks-list"></div>
+
+  <!-- Desktop right panel -->
+  <div class="desktop-panel" id="desktop-panel">
+    <div class="dp-header">
+      <div class="dp-title">Prospects</div>
+      <div class="dp-picking" id="dp-picking">Select a pick slot →</div>
+      <input class="dp-search" id="dp-search" type="text" placeholder="Search…" autocomplete="off" oninput="filterDesktopPanel(this.value)">
+    </div>
+    <div class="dp-list" id="dp-list"></div>
+  </div>
 </div>
 
 <!-- Submit bar -->
@@ -384,20 +431,65 @@
   }
 
   // ── Sheet
+  function isDesktop() { return window.innerWidth >= 900; }
+
   function openSheet(pick) {
     _activePick = pick;
     const d = DRAFT_ORDER.find(x => x.pick === pick);
-    document.getElementById('sheet-title').textContent = `PICK ${pick} — ${d.team.toUpperCase()}`;
-    document.getElementById('sheet-search').value = '';
-    renderSheetList('');
-    document.getElementById('sheet').classList.add('show');
-    document.getElementById('backdrop').classList.add('show');
-    document.body.style.overflow = 'hidden';
-    setTimeout(() => document.getElementById('sheet-search').focus(), 350);
     // highlight active slot
     document.querySelectorAll('.pick-slot').forEach(el => el.classList.remove('active'));
     document.getElementById(`slot-${pick}`).classList.add('active');
+
+    if (isDesktop()) {
+      // Update desktop panel
+      document.getElementById('dp-picking').textContent = `PICK ${pick} — ${d.team.toUpperCase()}`;
+      document.getElementById('dp-search').value = '';
+      renderDesktopList('');
+      document.getElementById('dp-search').focus();
+    } else {
+      document.getElementById('sheet-title').textContent = `PICK ${pick} — ${d.team.toUpperCase()}`;
+      document.getElementById('sheet-search').value = '';
+      renderSheetList('');
+      document.getElementById('sheet').classList.add('show');
+      document.getElementById('backdrop').classList.add('show');
+      document.body.style.overflow = 'hidden';
+      setTimeout(() => document.getElementById('sheet-search').focus(), 350);
+    }
   }
+
+  function renderDesktopList(filter) {
+    const q = filter.toLowerCase();
+    const list = q ? PROSPECTS.filter(p => p.name.toLowerCase().includes(q)) : PROSPECTS;
+    const currentRank = _activePick ? _picks[_activePick] : null;
+
+    let clearHtml = '';
+    if (currentRank) {
+      clearHtml = `<div class="prospect-item" style="border-bottom:1px solid rgba(255,255,255,0.06)" onclick="clearPick()">
+        <div class="prospect-rank" style="color:var(--red);font-size:1rem;">✕</div>
+        <div class="prospect-info"><div class="prospect-name" style="color:rgba(255,255,255,0.5)">Clear this pick</div></div>
+      </div>`;
+    }
+
+    if (!_activePick) {
+      document.getElementById('dp-list').innerHTML = `<div class="dp-no-pick">Click a pick slot to assign a prospect</div>`;
+      return;
+    }
+
+    document.getElementById('dp-list').innerHTML = clearHtml + list.map(p => {
+      const used = Object.values(_picks).includes(p.rank) && _picks[_activePick] !== p.rank;
+      const selected = currentRank === p.rank;
+      return `<div class="prospect-item${used ? ' used' : ''}${selected ? ' selected' : ''}" onclick="assignProspect(${p.rank})">
+        <div class="prospect-rank">${p.rank}</div>
+        <div class="prospect-info">
+          <div class="prospect-name">${escHtml(p.name)}</div>
+          <div class="prospect-meta">${escHtml(p.club)}</div>
+        </div>
+        <div class="prospect-pos">${p.pos}</div>
+      </div>`;
+    }).join('');
+  }
+
+  function filterDesktopPanel(val) { renderDesktopList(val); }
 
   function closeSheet() {
     document.getElementById('sheet').classList.remove('show');
@@ -405,6 +497,9 @@
     document.body.style.overflow = '';
     document.querySelectorAll('.pick-slot').forEach(el => el.classList.remove('active'));
     _activePick = null;
+    // Reset desktop panel
+    document.getElementById('dp-picking').textContent = 'Select a pick slot →';
+    document.getElementById('dp-list').innerHTML = `<div class="dp-no-pick">Click a pick slot to assign a prospect</div>`;
   }
 
   function filterProspects(val) { renderSheetList(val); }
@@ -449,7 +544,19 @@
     _picks[_activePick] = rank;
     updateSlotDisplay(_activePick);
     updateProgress();
-    closeSheet();
+
+    if (isDesktop()) {
+      // Auto-advance to next empty slot
+      const nextEmpty = DRAFT_ORDER.find(d => d.pick > _activePick && !_picks[d.pick]);
+      if (nextEmpty) {
+        openSheet(nextEmpty.pick);
+      } else {
+        // All slots filled or no more empty — stay but refresh
+        renderDesktopList(document.getElementById('dp-search').value);
+      }
+    } else {
+      closeSheet();
+    }
   }
 
   function clearPick() {
@@ -457,7 +564,11 @@
     delete _picks[_activePick];
     updateSlotDisplay(_activePick);
     updateProgress();
-    closeSheet();
+    if (isDesktop()) {
+      renderDesktopList(document.getElementById('dp-search').value);
+    } else {
+      closeSheet();
+    }
   }
 
   function updateSlotDisplay(pick) {
@@ -618,6 +729,10 @@
   }
 
   buildPicks();
+  // Init desktop panel placeholder
+  if (document.getElementById('dp-list')) {
+    document.getElementById('dp-list').innerHTML = `<div class="dp-no-pick">Click a pick slot to assign a prospect</div>`;
+  }
 </script>
 </body>
 </html>

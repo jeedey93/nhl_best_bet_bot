@@ -32,16 +32,25 @@
     @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
 
     /* ── Tabs ── */
-    .tabs-wrap { max-width: 900px; width: 100%; margin: 0.75rem auto 0; padding: 0 1.25rem; }
+    .tabs-wrap { max-width: 1200px; width: 100%; margin: 0.75rem auto 0; padding: 0 1.25rem; }
     .tabs { display: flex; gap: 0.35rem; border-bottom: 1px solid var(--line); }
     .tab-btn { font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 2px; color: var(--silver); background: none; border: none; border-bottom: 2px solid transparent; padding: 0.5rem 1rem 0.45rem; cursor: pointer; transition: color 0.15s, border-color 0.15s; margin-bottom: -1px; }
     .tab-btn:hover { color: white; }
     .tab-btn.active { color: var(--gold); border-bottom-color: var(--gold); }
     .tab-btn-back { font-family: 'Barlow Condensed', sans-serif; font-size: 0.82rem; font-weight: 700; color: var(--silver); background: none; border: none; cursor: pointer; letter-spacing: 1px; padding: 0.5rem 0.5rem 0.45rem 0; display: none; transition: color 0.15s; }
     .tab-btn-back:hover { color: white; }
+    /* On desktop hide the Board View tab — it's shown inline next to leaderboard */
+    @media (min-width: 900px) { #tab-board { display: none; } }
 
     /* ── Content ── */
-    .content-wrap { max-width: 900px; width: 100%; margin: 0 auto; padding: 1rem 1.25rem 2rem; }
+    .content-wrap { max-width: 1200px; width: 100%; margin: 0 auto; padding: 1rem 1.25rem 2rem; }
+
+    /* Desktop two-column layout */
+    .desktop-layout { display: flex; gap: 1.5rem; align-items: flex-start; }
+    .desktop-layout .col-left { flex: 0 0 340px; min-width: 0; }
+    .desktop-layout .col-right { flex: 1; min-width: 0; }
+    .desktop-col-title { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 3px; color: var(--silver); opacity: 0.5; margin-bottom: 0.6rem; }
+    @media (max-width: 899px) { .desktop-layout { display: block; } .desktop-layout .col-right { margin-top: 1.5rem; } }
 
     /* Leaderboard */
     .leaderboard { background: rgba(255,255,255,0.015); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; overflow: hidden; }
@@ -98,10 +107,12 @@
     .td-cell { padding: 0 0.2rem; vertical-align: middle; min-width: 58px; }
 
     .comp-cell { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 6px; padding: 0.3rem 0.2rem; text-align: center; min-height: 36px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: default; transition: background 0.1s; }
+    @media (min-width: 900px) { .comp-cell { min-height: 48px; padding: 0.4rem 0.3rem; } }
     .comp-cell:hover { background: rgba(255,255,255,0.08); }
     .comp-cell.empty { background: rgba(255,255,255,0.01); border-color: rgba(255,255,255,0.03); }
     .comp-prospect-rank { font-family: 'Bebas Neue', cursive; font-size: 0.8rem; letter-spacing: 1px; color: var(--gold); }
     .comp-prospect-name { font-family: 'Barlow Condensed', sans-serif; font-size: 0.62rem; font-weight: 600; color: rgba(255,255,255,0.55); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90%; }
+    @media (min-width: 900px) { .comp-prospect-name { font-size: 0.7rem; max-width: none; white-space: normal; line-height: 1.2; } }
     /* pts4 = exact → green */
     .comp-cell.pts4 { background: rgba(34,197,94,0.14); border-color: rgba(34,197,94,0.4); }
     .comp-cell.pts4 .comp-prospect-rank { color: #22c55e; }
@@ -137,7 +148,8 @@
     .personal-bd-chip.c1 { background: rgba(251,191,36,0.15); color: #fbbf24; }
 
     .personal-table { width: 100%; border-collapse: separate; border-spacing: 0 0.3rem; }
-    .personal-table th { font-family: 'Barlow Condensed', sans-serif; font-size: 0.68rem; font-weight: 700; letter-spacing: 1.5px; color: rgba(255,255,255,0.25); text-transform: uppercase; padding: 0 0.5rem 0.4rem; text-align: left; }
+    .personal-table thead { position: sticky; top: var(--nav-h); z-index: 10; background: var(--rink); }
+    .personal-table th { font-family: 'Barlow Condensed', sans-serif; font-size: 0.68rem; font-weight: 700; letter-spacing: 1.5px; color: rgba(255,255,255,0.25); text-transform: uppercase; padding: 0.5rem 0.5rem 0.5rem; text-align: left; }
     .personal-table th.center { text-align: center; }
     .pt-pick { width: 36px; }
     .pt-team { width: 36px; }
@@ -361,6 +373,8 @@
     }
   }
 
+  function isDesktop() { return window.innerWidth >= 900; }
+
   function setTab(tab, btn) {
     _activeTab = tab;
     _personalEntry = null;
@@ -372,6 +386,7 @@
 
   function renderTab() {
     if (_personalEntry) renderPersonal(_personalEntry);
+    else if (isDesktop()) renderDesktop();
     else if (_activeTab === 'leaderboard') renderLeaderboard();
     else renderBoard();
   }
@@ -493,12 +508,33 @@
     return { score, exact, close1, close2 };
   }
 
-  function renderLeaderboard() {
+  function renderDesktop() {
     const wrap = document.getElementById('content-wrap');
-    if (!_entries.length) {
-      wrap.innerHTML = `<div class="no-data">No picks submitted yet.</div>`;
-      return;
-    }
+    const lbHtml = buildLeaderboard();
+    const boardHtml = buildBoard();
+    wrap.innerHTML = `
+      <div class="desktop-layout">
+        <div class="col-left">
+          <div class="desktop-col-title">Leaderboard</div>
+          ${lbHtml}
+        </div>
+        <div class="col-right">
+          <div class="desktop-col-title">Board View</div>
+          ${boardHtml}
+        </div>
+      </div>`;
+  }
+
+  function renderLeaderboard() {
+    document.getElementById('content-wrap').innerHTML = buildLeaderboard();
+  }
+
+  function renderBoard() {
+    document.getElementById('content-wrap').innerHTML = buildBoard();
+  }
+
+  function buildLeaderboard() {
+    if (!_entries.length) return `<div class="no-data">No picks submitted yet.</div>`;
     const hasScores = Object.keys(_actualPicks).length > 0;
     const sorted = [..._entries].map(e => ({ ...e, result: computeScore(e.picks || {}) }));
     if (hasScores) sorted.sort((a, b) => ((b.result?.score) || 0) - ((a.result?.score) || 0));
@@ -529,7 +565,7 @@
       </tr>`;
     }).join('');
 
-    wrap.innerHTML = `
+    return `
       <div class="leaderboard">
         <table class="lb-table">
           <thead class="lb-thead"><tr>
@@ -542,14 +578,12 @@
       </div>`;
   }
 
-  function renderBoard() {
-    const wrap = document.getElementById('content-wrap');
-    if (!_entries.length) { wrap.innerHTML = `<div class="no-data">No picks submitted yet.</div>`; return; }
+  function buildBoard() {
+    if (!_entries.length) return `<div class="no-data">No picks submitted yet.</div>`;
 
     const hasActual = Object.keys(_actualPicks).length > 0;
     let html = '';
 
-    // Legend
     if (hasActual) {
       html += `<div class="board-legend">
         <div class="legend-item"><div class="legend-dot l4"></div>4 pts — exact</div>
@@ -595,7 +629,7 @@
     }
 
     html += `</tbody></table></div>`;
-    wrap.innerHTML = html;
+    return html;
   }
 
   function showToast(msg, isError = false) {
@@ -606,6 +640,13 @@
   }
 
   init();
+
+  // Re-render on resize crossing the desktop breakpoint
+  let _wasDesktop = isDesktop();
+  window.addEventListener('resize', () => {
+    const now = isDesktop();
+    if (now !== _wasDesktop) { _wasDesktop = now; renderTab(); }
+  });
 </script>
 </body>
 </html>
