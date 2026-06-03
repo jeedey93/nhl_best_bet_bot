@@ -108,6 +108,7 @@
     .source-pill:hover { background: rgba(255,255,255,0.09); color: white; }
     .source-pill.active { background: rgba(255,184,28,0.12); border-color: rgba(255,184,28,0.4); color: var(--gold); }
 
+    /* Desktop: scrollable table */
     .expert-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 10px; border: 1px solid var(--line); position: relative; }
     .expert-scroll::after { content: ''; position: absolute; top: 0; right: 0; bottom: 0; width: 28px; background: linear-gradient(to right, transparent, rgba(7,17,31,0.85)); pointer-events: none; border-radius: 0 10px 10px 0; }
     .expert-table { width: 100%; border-collapse: collapse; min-width: 480px; }
@@ -123,9 +124,28 @@
     .td-team-logo img { width: 26px; height: 26px; object-fit: contain; display: block; margin: 0 auto; }
     .td-expert-cell { text-align: center; padding: 0.4rem 0.5rem; min-width: 110px; }
     .expert-name-chip { display: inline-block; font-family: 'Barlow Condensed', sans-serif; font-size: 0.78rem; font-weight: 700; color: white; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09); border-radius: 5px; padding: 0.2rem 0.5rem; white-space: nowrap; max-width: 130px; overflow: hidden; text-overflow: ellipsis; transition: background 0.1s; }
-    .expert-name-chip.agree  { background: rgba(34,197,94,0.1);  border-color: rgba(34,197,94,0.25);  color: #86efac; }
+    .expert-name-chip.agree    { background: rgba(34,197,94,0.1);  border-color: rgba(34,197,94,0.25);  color: #86efac; }
     .expert-name-chip.disagree { background: rgba(251,191,36,0.09); border-color: rgba(251,191,36,0.22); color: #fde68a; }
-    .expert-name-chip.empty  { background: transparent; border-color: rgba(255,255,255,0.05); color: rgba(255,255,255,0.15); font-style: italic; }
+    .expert-name-chip.empty    { background: transparent; border-color: rgba(255,255,255,0.05); color: rgba(255,255,255,0.15); font-style: italic; }
+
+    /* Mobile: card list */
+    .expert-cards { display: none; flex-direction: column; gap: 0.3rem; }
+    .expert-card { display: flex; align-items: center; gap: 0.75rem; background: rgba(255,255,255,0.025); border: 1px solid var(--line); border-radius: 9px; padding: 0.6rem 0.85rem; }
+    .ec-pick { font-family: 'Bebas Neue', cursive; font-size: 1.15rem; color: rgba(255,255,255,0.22); width: 24px; text-align: center; flex-shrink: 0; }
+    .ec-logo { width: 28px; height: 28px; object-fit: contain; flex-shrink: 0; }
+    .ec-picks { display: flex; flex-direction: column; gap: 0.2rem; flex: 1; min-width: 0; }
+    .ec-source-row { display: flex; align-items: center; gap: 0.4rem; }
+    .ec-source-label { font-family: 'Barlow Condensed', sans-serif; font-size: 0.62rem; font-weight: 700; letter-spacing: 1px; color: rgba(255,255,255,0.25); text-transform: uppercase; width: 60px; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ec-name { font-family: 'Bebas Neue', cursive; font-size: 0.92rem; letter-spacing: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ec-name.agree    { color: #86efac; }
+    .ec-name.disagree { color: #fde68a; }
+    .ec-name.solo     { color: white; }
+    .ec-name.empty    { color: rgba(255,255,255,0.2); font-style: italic; font-family: 'Barlow Condensed', sans-serif; font-size: 0.75rem; }
+
+    @media (max-width: 640px) {
+      .expert-scroll { display: none; }
+      .expert-cards  { display: flex; }
+    }
 
     /* Skeleton loader */
     .skeleton-row td { padding: 0.45rem 0.5rem; }
@@ -237,16 +257,19 @@
   <!-- Expert mock drafts -->
   <div class="section" id="expert-section">
     <div class="expert-header">
-      <div class="section-title" style="margin-bottom:0">Prédictions des experts</div>
+      <div class="section-title" style="margin-bottom:0">Expert Mock Drafts</div>
       <div class="expert-updated" id="expert-updated"></div>
     </div>
     <div class="source-pills" id="source-pills"></div>
+    <!-- Desktop table -->
     <div class="expert-scroll">
       <table class="expert-table" id="expert-table">
         <thead id="expert-thead"></thead>
         <tbody id="expert-tbody"><tr class="skeleton-row"><td colspan="10"><div style="padding:2rem;text-align:center;font-size:0.85rem;color:rgba(255,255,255,0.2);letter-spacing:1px">Loading…</div></td></tr></tbody>
       </table>
     </div>
+    <!-- Mobile cards -->
+    <div class="expert-cards" id="expert-cards"></div>
   </div>
 
   <!-- Rules -->
@@ -406,6 +429,31 @@
     }).join('');
 
     document.getElementById('expert-tbody').innerHTML = rows;
+
+    // Mobile cards
+    const cards = DRAFT_ORDER_EX.map(d => {
+      const names = activeSources.map(s => bySource[s]?.[String(d.pick)] || null);
+      const filled = names.filter(Boolean);
+      const allAgree = filled.length > 1 && new Set(filled).size === 1;
+
+      const sourceRows = activeSources.map((s, i) => {
+        const name = names[i];
+        const cls = !name ? 'empty' : allAgree ? 'agree' : filled.length > 1 ? 'disagree' : 'solo';
+        const display = name || '—';
+        return `<div class="ec-source-row">
+          <div class="ec-source-label">${s}</div>
+          <div class="ec-name ${cls}">${display}</div>
+        </div>`;
+      }).join('');
+
+      return `<div class="expert-card">
+        <div class="ec-pick">${d.pick}</div>
+        <img class="ec-logo" src="https://assets.nhle.com/logos/nhl/svg/${d.abbr}_light.svg" alt="${d.abbr}" onerror="this.style.visibility='hidden'">
+        <div class="ec-picks">${sourceRows}</div>
+      </div>`;
+    }).join('');
+
+    document.getElementById('expert-cards').innerHTML = cards;
   }
 
   function setExpertFilter(source) {
