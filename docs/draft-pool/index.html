@@ -417,7 +417,7 @@
         const name = names[i];
         if (!name) return `<td class="td-expert-cell"><span class="expert-name-chip empty">—</span></td>`;
         const cls = allAgree ? 'agree' : filled.length > 1 ? 'disagree' : '';
-        const lastName = name.split(' ').pop();
+        const lastName = name.split(' ').slice(-2).join(' ');
         return `<td class="td-expert-cell"><span class="expert-name-chip ${cls}" title="${name}">${lastName}</span></td>`;
       }).join('');
 
