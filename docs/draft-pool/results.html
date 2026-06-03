@@ -199,6 +199,63 @@
     .spinner { display: inline-block; width: 13px; height: 13px; border: 2px solid rgba(7,17,31,0.3); border-top-color: var(--rink); border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 5px; }
 
     #toast { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%); z-index: 9999; background: rgba(15,25,45,0.97); border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; padding: 0.75rem 1.5rem; font-size: 0.9rem; font-weight: 600; letter-spacing: 1px; color: white; box-shadow: 0 4px 24px rgba(0,0,0,0.5); display: none; white-space: nowrap; }
+
+    /* ── Consensus Heatmap ── */
+    .heatmap-intro { font-family: 'Barlow Condensed', sans-serif; font-size: 0.8rem; font-weight: 600; color: rgba(255,255,255,0.3); letter-spacing: 1px; margin-bottom: 1rem; }
+    .heatmap-table { width: 100%; border-collapse: separate; border-spacing: 0 0.28rem; }
+    .heatmap-table thead th { font-family: 'Barlow Condensed', sans-serif; font-size: 0.65rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.22); padding: 0 0.5rem 0.5rem; }
+    .hm-th-rank  { width: 36px; text-align: center; }
+    .hm-th-name  { text-align: left; }
+    .hm-th-avg   { width: 64px; text-align: center; }
+    .hm-th-bar   { width: 45%; }
+    .hm-th-spread { width: 60px; text-align: center; }
+
+    .hm-row td { padding: 0.22rem 0.4rem; vertical-align: middle; }
+    .hm-row { transition: background 0.1s; border-radius: 8px; }
+    .hm-row:hover .hm-cell { filter: brightness(1.15); }
+
+    .hm-cell { border-radius: 7px; padding: 0.45rem 0.6rem; display: flex; align-items: center; gap: 0.5rem; }
+    .hm-cell.tier-1 { background: rgba(255,184,28,0.1);  border: 1px solid rgba(255,184,28,0.25); }
+    .hm-cell.tier-2 { background: rgba(168,178,190,0.07); border: 1px solid rgba(168,178,190,0.18); }
+    .hm-cell.tier-3 { background: rgba(125,180,255,0.07); border: 1px solid rgba(125,180,255,0.15); }
+    .hm-cell.tier-4 { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); }
+
+    .hm-cons-rank { font-family: 'Bebas Neue', cursive; font-size: 1.1rem; letter-spacing: 1px; width: 28px; text-align: center; flex-shrink: 0; }
+    .tier-1 .hm-cons-rank { color: var(--gold); }
+    .tier-2 .hm-cons-rank { color: var(--silver); }
+    .tier-3 .hm-cons-rank { color: var(--blue); }
+    .tier-4 .hm-cons-rank { color: rgba(255,255,255,0.3); }
+
+    .hm-name { font-family: 'Bebas Neue', cursive; font-size: 0.95rem; letter-spacing: 1.5px; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .tier-1 .hm-name { color: var(--gold); }
+    .tier-2 .hm-name { color: var(--silver); }
+    .tier-3 .hm-name { color: #a8c8ff; }
+
+    .hm-avg-badge { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 1px; text-align: center; padding: 0.3rem 0.4rem; border-radius: 6px; min-width: 48px; }
+    .tier-1 .hm-avg-badge { color: var(--gold); background: rgba(255,184,28,0.1); }
+    .tier-2 .hm-avg-badge { color: var(--silver); background: rgba(168,178,190,0.08); }
+    .tier-3 .hm-avg-badge { color: #7db4ff; background: rgba(125,180,255,0.08); }
+    .tier-4 .hm-avg-badge { color: rgba(255,255,255,0.35); background: rgba(255,255,255,0.04); }
+
+    .hm-bar-wrap { position: relative; height: 8px; border-radius: 4px; background: rgba(255,255,255,0.06); overflow: visible; }
+    .hm-bar-range { position: absolute; top: 0; bottom: 0; border-radius: 4px; }
+    .tier-1 .hm-bar-range { background: rgba(255,184,28,0.35); }
+    .tier-2 .hm-bar-range { background: rgba(168,178,190,0.3); }
+    .tier-3 .hm-bar-range { background: rgba(125,180,255,0.25); }
+    .tier-4 .hm-bar-range { background: rgba(255,255,255,0.12); }
+    .hm-bar-dot { position: absolute; top: 50%; transform: translate(-50%, -50%); width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--rink); }
+    .tier-1 .hm-bar-dot { background: var(--gold); }
+    .tier-2 .hm-bar-dot { background: var(--silver); }
+    .tier-3 .hm-bar-dot { background: #7db4ff; }
+    .tier-4 .hm-bar-dot { background: rgba(255,255,255,0.4); }
+
+    .hm-spread-badge { font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.5px; padding: 2px 7px; border-radius: 4px; text-align: center; }
+    .hm-spread-tight  { background: rgba(34,197,94,0.12);  color: #22c55e; }
+    .hm-spread-medium { background: rgba(251,191,36,0.12); color: #fbbf24; }
+    .hm-spread-wide   { background: rgba(200,16,46,0.12);  color: #f87171; }
+
+    .hm-only-one { font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem; font-weight: 600; color: rgba(255,255,255,0.2); letter-spacing: 0.5px; font-style: italic; }
+    .hm-not-picked { opacity: 0.35; }
   </style>
 </head>
 <body>
@@ -226,6 +283,7 @@
     <button class="tab-btn-back" id="tab-btn-back" onclick="backToLeaderboard()">← Back</button>
     <button class="tab-btn active" id="tab-leaderboard" onclick="setTab('leaderboard', this)">🏆 Leaderboard</button>
     <button class="tab-btn" id="tab-board" onclick="setTab('board', this)">📋 Board View</button>
+    <button class="tab-btn" id="tab-heatmap" onclick="setTab('heatmap', this)">🔥 Consensus</button>
   </div>
 </div>
 
@@ -389,6 +447,7 @@
     if (_personalEntry) renderPersonal(_personalEntry);
     else if (isDesktop()) renderDesktop();
     else if (_activeTab === 'leaderboard') renderLeaderboard();
+    else if (_activeTab === 'heatmap') renderHeatmap();
     else renderBoard();
   }
 
@@ -510,6 +569,10 @@
   }
 
   function renderDesktop() {
+    if (_activeTab === 'heatmap') {
+      document.getElementById('content-wrap').innerHTML = buildHeatmap();
+      return;
+    }
     const wrap = document.getElementById('content-wrap');
     const lbHtml = buildLeaderboard();
     const boardHtml = buildBoard();
@@ -631,6 +694,111 @@
 
     html += `</tbody></table></div>`;
     return html;
+  }
+
+  function renderHeatmap() {
+    document.getElementById('content-wrap').innerHTML = buildHeatmap();
+  }
+
+  function buildHeatmap() {
+    if (!_entries.length) return `<div class="no-data">No picks submitted yet.</div>`;
+    const n = _entries.length;
+
+    // Collect all pick positions for each prospect rank
+    // picks[slot] = prospect rank (string) → we want: for each prospect, list of slots they were placed in
+    const prospectSlots = {}; // prospectRank → [slot, slot, ...]
+    for (const e of _entries) {
+      for (const [slot, rank] of Object.entries(e.picks || {})) {
+        const r = parseInt(rank);
+        if (!prospectSlots[r]) prospectSlots[r] = [];
+        prospectSlots[r].push(parseInt(slot));
+      }
+    }
+
+    // Build stats for each prospect
+    const stats = PROSPECTS.map(p => {
+      const slots = prospectSlots[p.rank] || [];
+      if (!slots.length) return { ...p, avg: null, min: null, max: null, stddev: null, count: 0 };
+      const avg = slots.reduce((a, b) => a + b, 0) / slots.length;
+      const min = Math.min(...slots);
+      const max = Math.max(...slots);
+      const variance = slots.reduce((a, b) => a + (b - avg) ** 2, 0) / slots.length;
+      const stddev = Math.sqrt(variance);
+      return { ...p, avg, min, max, stddev, count: slots.length };
+    });
+
+    // Sort by avg position (unpicked go last)
+    stats.sort((a, b) => {
+      if (a.avg === null && b.avg === null) return a.rank - b.rank;
+      if (a.avg === null) return 1;
+      if (b.avg === null) return -1;
+      return a.avg - b.avg;
+    });
+
+    const BAR_SLOTS = 32;
+
+    let rows = '';
+    stats.forEach((p, i) => {
+      const consRank = i + 1;
+      const tier = consRank <= 5 ? 'tier-1' : consRank <= 12 ? 'tier-2' : consRank <= 20 ? 'tier-3' : 'tier-4';
+      const notPicked = p.avg === null;
+      const rowCls = notPicked ? ' hm-not-picked' : '';
+
+      if (notPicked) {
+        rows += `<tr class="hm-row${rowCls}">
+          <td><div class="hm-cell ${tier}">
+            <span class="hm-cons-rank">${consRank}</span>
+            <span class="hm-name">${escHtml(p.name)}</span>
+          </div></td>
+          <td><div class="hm-avg-badge ${tier}">—</div></td>
+          <td></td>
+          <td><span class="hm-only-one">not picked</span></td>
+        </tr>`;
+        return;
+      }
+
+      const avgDisplay = p.avg.toFixed(1);
+
+      // Bar: range from min to max, dot at avg, all scaled over 32 slots
+      const leftPct  = ((p.min - 1) / (BAR_SLOTS - 1)) * 100;
+      const widthPct = ((p.max - p.min) / (BAR_SLOTS - 1)) * 100;
+      const dotPct   = ((p.avg - 1) / (BAR_SLOTS - 1)) * 100;
+
+      const spreadLabel = p.count <= 1
+        ? `<span class="hm-only-one">1 pick</span>`
+        : p.stddev < 2
+          ? `<span class="hm-spread-badge hm-spread-tight">±${p.stddev.toFixed(1)}</span>`
+          : p.stddev < 4
+            ? `<span class="hm-spread-badge hm-spread-medium">±${p.stddev.toFixed(1)}</span>`
+            : `<span class="hm-spread-badge hm-spread-wide">±${p.stddev.toFixed(1)}</span>`;
+
+      rows += `<tr class="hm-row">
+        <td><div class="hm-cell ${tier}">
+          <span class="hm-cons-rank">${consRank}</span>
+          <span class="hm-name">${escHtml(p.name)}</span>
+        </div></td>
+        <td><div class="hm-avg-badge ${tier}">${avgDisplay}</div></td>
+        <td style="padding: 0.22rem 0.6rem;">
+          <div class="hm-bar-wrap ${tier}">
+            <div class="hm-bar-range ${tier}" style="left:${leftPct.toFixed(1)}%;width:${Math.max(widthPct, 1).toFixed(1)}%"></div>
+            <div class="hm-bar-dot ${tier}" style="left:${dotPct.toFixed(1)}%"></div>
+          </div>
+        </td>
+        <td style="text-align:center">${spreadLabel}</td>
+      </tr>`;
+    });
+
+    return `
+      <p class="heatmap-intro">Consensus ranking based on ${n} entr${n === 1 ? 'y' : 'ies'} · Average pick slot per prospect · Bar shows min–max range · ± is standard deviation</p>
+      <table class="heatmap-table">
+        <thead><tr>
+          <th class="hm-th-name">PROSPECT</th>
+          <th class="hm-th-avg">AVG SLOT</th>
+          <th class="hm-th-bar">RANGE (picks 1–32)</th>
+          <th class="hm-th-spread">SPREAD</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
   }
 
   function showToast(msg, isError = false) {
