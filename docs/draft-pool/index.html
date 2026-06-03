@@ -99,6 +99,39 @@
     .bottom-cta p { font-size: 0.9rem; font-weight: 600; color: var(--silver); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 1.25rem; }
 
     @media (max-width: 500px) { .stat-cell { padding: 0.75rem 0.25rem; } .stat-label { font-size: 0.6rem; letter-spacing: 1px; } }
+
+    /* ── Expert mock drafts ── */
+    .expert-header { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.85rem; }
+    .expert-updated { font-size: 0.72rem; font-weight: 600; color: rgba(255,255,255,0.2); letter-spacing: 1px; }
+    .source-pills { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.85rem; }
+    .source-pill { font-family: 'Barlow Condensed', sans-serif; font-size: 0.78rem; font-weight: 700; letter-spacing: 1px; padding: 0.25rem 0.75rem; border-radius: 20px; border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.04); color: var(--silver); cursor: pointer; transition: background 0.15s, color 0.15s, border-color 0.15s; white-space: nowrap; }
+    .source-pill:hover { background: rgba(255,255,255,0.09); color: white; }
+    .source-pill.active { background: rgba(255,184,28,0.12); border-color: rgba(255,184,28,0.4); color: var(--gold); }
+
+    .expert-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 10px; border: 1px solid var(--line); position: relative; }
+    .expert-scroll::after { content: ''; position: absolute; top: 0; right: 0; bottom: 0; width: 28px; background: linear-gradient(to right, transparent, rgba(7,17,31,0.85)); pointer-events: none; border-radius: 0 10px 10px 0; }
+    .expert-table { width: 100%; border-collapse: collapse; min-width: 480px; }
+    .expert-table th { font-family: 'Barlow Condensed', sans-serif; font-size: 0.68rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.22); padding: 0.55rem 0.6rem; border-bottom: 1px solid rgba(255,255,255,0.07); white-space: nowrap; }
+    .expert-table th.th-pick { width: 36px; text-align: center; position: sticky; left: 0; background: #0b1828; z-index: 2; }
+    .expert-table th.th-team { width: 34px; text-align: center; position: sticky; left: 36px; background: #0b1828; z-index: 2; padding-right: 0.3rem; }
+    .expert-table th.th-source { text-align: center; min-width: 110px; }
+    .expert-table tbody tr { border-bottom: 1px solid rgba(255,255,255,0.04); transition: background 0.1s; }
+    .expert-table tbody tr:last-child { border-bottom: none; }
+    .expert-table tbody tr:hover { background: rgba(255,255,255,0.04); }
+    .td-pick { font-family: 'Bebas Neue', cursive; font-size: 1.05rem; color: rgba(255,255,255,0.2); text-align: center; padding: 0.4rem 0; position: sticky; left: 0; background: #0b1828; z-index: 1; }
+    .td-team-logo { position: sticky; left: 36px; background: #0b1828; z-index: 1; text-align: center; padding: 0.2rem 0.3rem 0.2rem 0; }
+    .td-team-logo img { width: 26px; height: 26px; object-fit: contain; display: block; margin: 0 auto; }
+    .td-expert-cell { text-align: center; padding: 0.4rem 0.5rem; min-width: 110px; }
+    .expert-name-chip { display: inline-block; font-family: 'Barlow Condensed', sans-serif; font-size: 0.78rem; font-weight: 700; color: white; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09); border-radius: 5px; padding: 0.2rem 0.5rem; white-space: nowrap; max-width: 130px; overflow: hidden; text-overflow: ellipsis; transition: background 0.1s; }
+    .expert-name-chip.agree  { background: rgba(34,197,94,0.1);  border-color: rgba(34,197,94,0.25);  color: #86efac; }
+    .expert-name-chip.disagree { background: rgba(251,191,36,0.09); border-color: rgba(251,191,36,0.22); color: #fde68a; }
+    .expert-name-chip.empty  { background: transparent; border-color: rgba(255,255,255,0.05); color: rgba(255,255,255,0.15); font-style: italic; }
+
+    /* Skeleton loader */
+    .skeleton-row td { padding: 0.45rem 0.5rem; }
+    .skeleton-bar { height: 18px; border-radius: 4px; background: rgba(255,255,255,0.06); animation: skel-pulse 1.4s ease-in-out infinite; }
+    @keyframes skel-pulse { 0%,100%{opacity:0.5} 50%{opacity:1} }
+    .expert-empty { padding: 2rem; text-align: center; font-size: 0.85rem; font-weight: 600; color: rgba(255,255,255,0.2); letter-spacing: 1px; }
   </style>
 </head>
 <body>
@@ -201,6 +234,21 @@
     </div>
   </div>
 
+  <!-- Expert mock drafts -->
+  <div class="section" id="expert-section">
+    <div class="expert-header">
+      <div class="section-title" style="margin-bottom:0">Prédictions des experts</div>
+      <div class="expert-updated" id="expert-updated"></div>
+    </div>
+    <div class="source-pills" id="source-pills"></div>
+    <div class="expert-scroll">
+      <table class="expert-table" id="expert-table">
+        <thead id="expert-thead"></thead>
+        <tbody id="expert-tbody"><tr class="skeleton-row"><td colspan="10"><div style="padding:2rem;text-align:center;font-size:0.85rem;color:rgba(255,255,255,0.2);letter-spacing:1px">Loading…</div></td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
   <!-- Rules -->
   <div class="section">
     <div class="section-title">Rules</div>
@@ -275,6 +323,97 @@
     }
   }
   loadCount();
+
+  // ── Expert mock draft board ──
+  const DRAFT_ORDER_EX = [
+    { pick: 1,  abbr: 'TOR' }, { pick: 2,  abbr: 'SJS' }, { pick: 3,  abbr: 'VAN' },
+    { pick: 4,  abbr: 'CHI' }, { pick: 5,  abbr: 'NYR' }, { pick: 6,  abbr: 'CGY' },
+    { pick: 7,  abbr: 'SEA' }, { pick: 8,  abbr: 'WPG' }, { pick: 9,  abbr: 'FLA' },
+    { pick: 10, abbr: 'NSH' }, { pick: 11, abbr: 'STL' }, { pick: 12, abbr: 'NJD' },
+    { pick: 13, abbr: 'NYI' }, { pick: 14, abbr: 'CBJ' }, { pick: 15, abbr: 'STL' },
+    { pick: 16, abbr: 'WSH' }, { pick: 17, abbr: 'LAK' }, { pick: 18, abbr: 'WSH' },
+    { pick: 19, abbr: 'UTA' }, { pick: 20, abbr: 'SJS' }, { pick: 21, abbr: 'PHI' },
+    { pick: 22, abbr: 'PIT' }, { pick: 23, abbr: 'BOS' }, { pick: 24, abbr: 'VAN' },
+    { pick: 25, abbr: 'SEA' }, { pick: 26, abbr: 'NYR' }, { pick: 27, abbr: 'BUF' },
+    { pick: 28, abbr: 'MTL' }, { pick: 29, abbr: 'STL' }, { pick: 30, abbr: 'CGY' },
+    { pick: 31, abbr: 'CAR' }, { pick: 32, abbr: 'OTT' },
+  ];
+
+  let _expertFilter = 'All';
+
+  async function loadExpertPredictions() {
+    try {
+      const res = await fetch('/draft-pool/expert_picks.json');
+      if (!res.ok) throw new Error(res.status);
+      const data = await res.json();
+      renderExpertBoard(data);
+    } catch {
+      document.getElementById('expert-section').style.display = 'none';
+    }
+  }
+
+  function renderExpertBoard(data) {
+    if (!data.sources || !data.sources.length) {
+      document.getElementById('expert-section').style.display = 'none';
+      return;
+    }
+
+    if (data.updated) {
+      const d = new Date(data.updated + 'T12:00:00');
+      document.getElementById('expert-updated').textContent =
+        'Updated ' + d.toLocaleDateString('en-CA', { month: 'short', day: 'numeric' });
+    }
+
+    const allSources = data.sources.map(s => s.name);
+    const activeSources = _expertFilter === 'All' ? allSources : [_expertFilter];
+
+    // Source pills — store serialised data on window to avoid re-fetch
+    window._expertData = data;
+    document.getElementById('source-pills').innerHTML = ['All', ...allSources].map(s =>
+      `<button class="source-pill${s === _expertFilter ? ' active' : ''}" onclick="setExpertFilter('${s.replace(/'/g, "\\'")}')">${s}</button>`
+    ).join('');
+
+    // Build lookup: sourceName → pickNum(string) → prospectName
+    const bySource = {};
+    for (const s of data.sources) bySource[s.name] = s.picks || {};
+
+    // Header
+    document.getElementById('expert-thead').innerHTML = `<tr>
+      <th class="th-pick">#</th>
+      <th class="th-team"></th>
+      ${activeSources.map(s => `<th class="th-source">${s}</th>`).join('')}
+    </tr>`;
+
+    // Rows
+    const rows = DRAFT_ORDER_EX.map(d => {
+      const names = activeSources.map(s => bySource[s]?.[String(d.pick)] || null);
+      const filled = names.filter(Boolean);
+      const allAgree = filled.length > 1 && new Set(filled).size === 1;
+
+      const cells = activeSources.map((s, i) => {
+        const name = names[i];
+        if (!name) return `<td class="td-expert-cell"><span class="expert-name-chip empty">—</span></td>`;
+        const cls = allAgree ? 'agree' : filled.length > 1 ? 'disagree' : '';
+        const lastName = name.split(' ').pop();
+        return `<td class="td-expert-cell"><span class="expert-name-chip ${cls}" title="${name}">${lastName}</span></td>`;
+      }).join('');
+
+      return `<tr>
+        <td class="td-pick">${d.pick}</td>
+        <td class="td-team-logo"><img src="https://assets.nhle.com/logos/nhl/svg/${d.abbr}_light.svg" alt="${d.abbr}" onerror="this.style.visibility='hidden'"></td>
+        ${cells}
+      </tr>`;
+    }).join('');
+
+    document.getElementById('expert-tbody').innerHTML = rows;
+  }
+
+  function setExpertFilter(source) {
+    _expertFilter = source;
+    renderExpertBoard(window._expertData);
+  }
+
+  loadExpertPredictions();
 </script>
 </body>
 </html>
