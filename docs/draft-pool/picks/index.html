@@ -177,6 +177,8 @@
     @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
     .btn-autofill { font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 1.5px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: var(--silver); border-radius: 7px; padding: 0.5rem 0.85rem; cursor: pointer; white-space: nowrap; transition: background 0.15s, color 0.15s; flex-shrink: 0; }
     .btn-autofill:hover { background: rgba(255,255,255,0.12); color: white; }
+    .btn-clearall { font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 1.5px; background: rgba(200,16,46,0.08); border: 1px solid rgba(200,16,46,0.25); color: rgba(200,16,46,0.7); border-radius: 7px; padding: 0.5rem 0.85rem; cursor: pointer; white-space: nowrap; transition: background 0.15s, color 0.15s; flex-shrink: 0; }
+    .btn-clearall:hover { background: rgba(200,16,46,0.18); color: var(--red); }
     .btn-submit { flex: 1; font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 2.5px; background: linear-gradient(135deg, #ffb81c, #e07b00); color: #07111f; border: none; border-radius: 8px; padding: 0.6rem 1rem; cursor: pointer; font-weight: 700; transition: opacity 0.15s, transform 0.1s; }
     .btn-submit:active { opacity: 0.8; transform: scale(0.97); }
     .btn-submit:disabled { opacity: 0.3; cursor: default; transform: none; background: rgba(255,255,255,0.1); color: var(--silver); }
@@ -297,6 +299,7 @@
   <div class="submit-bar-top">
     <div class="submit-count" id="submit-count"><strong>0</strong>/32</div>
     <button class="btn-autofill" id="btn-autofill" onclick="autoFill()">Auto-fill rest</button>
+    <button class="btn-clearall" id="btn-clearall" onclick="clearAll()" style="display:none">Clear all</button>
     <button class="btn-submit" id="btn-submit" onclick="openSubmitInputs()" disabled>Submit</button>
   </div>
   <div class="submit-inputs" id="submit-inputs">
@@ -595,6 +598,20 @@
     }
   }
 
+  async function clearAll() {
+    const count = Object.keys(_picks).length;
+    if (!count) return;
+    const confirmed = await showModal(
+      `Clear all <strong>${count} assigned pick${count !== 1 ? 's' : ''}</strong>? This cannot be undone.`,
+      '🗑️', 'Clear All Picks', 'Clear All'
+    );
+    if (!confirmed) return;
+    _picks = {};
+    DRAFT_ORDER.forEach(d => updateSlotDisplay(d.pick));
+    updateProgress();
+    if (isDesktop()) renderDesktopList(document.getElementById('dp-search').value);
+  }
+
   function clearPick() {
     if (!_activePick) return;
     delete _picks[_activePick];
@@ -639,6 +656,7 @@
     document.getElementById('submit-count').innerHTML = `<strong>${count}</strong>/32`;
     document.getElementById('btn-submit').disabled = count < 32;
     document.getElementById('btn-autofill').style.display = (count < 32) ? 'inline-block' : 'none';
+    document.getElementById('btn-clearall').style.display = (count > 0) ? 'inline-block' : 'none';
   }
 
   let _modalResolve = null;
