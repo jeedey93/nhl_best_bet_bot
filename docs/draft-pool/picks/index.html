@@ -357,12 +357,11 @@
     { pick: 32, team: 'Ottawa Senators',       abbr: 'OTT', conf: 'Atlantic' },
   ];
 
-  const EXPERT_PICKS_URL = '../expert_picks.json';
-  let _expertAvgMap = {}; // prospectName (normalized) -> avg rank
+  let _expertAvgMap = {};
 
   async function loadExpertAverages() {
     try {
-      const res = await fetch(EXPERT_PICKS_URL);
+      const res = await fetch('/draft-pool/expert_picks.json');
       if (!res.ok) return;
       const data = await res.json();
       const nameRanks = {};
@@ -373,9 +372,8 @@
           nameRanks[key].push(parseInt(rankStr));
         }
       }
-      const totalSources = data.sources.length;
       for (const [key, ranks] of Object.entries(nameRanks)) {
-        const avg = ranks.reduce((a, b) => a + b, 0) / totalSources;
+        const avg = ranks.reduce((a, b) => a + b, 0) / ranks.length;
         _expertAvgMap[key] = Math.round(avg * 10) / 10;
       }
     } catch(e) { /* silent fail */ }
@@ -764,7 +762,6 @@
   }
 
   buildPicks();
-  // Init desktop panel placeholder
   if (document.getElementById('dp-list')) {
     document.getElementById('dp-list').innerHTML = `<div class="dp-no-pick">Click a pick slot to assign a prospect</div>`;
   }
