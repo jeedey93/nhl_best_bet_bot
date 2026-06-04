@@ -15,11 +15,13 @@
     body { background: var(--rink); background-image: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(26,58,110,0.6) 0%, transparent 70%); min-height: 100vh; font-family: 'Barlow Condensed', sans-serif; color: white; padding-top: var(--nav-h); display: flex; flex-direction: column; }
 
     .site-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(7,17,31,0.92); border-bottom: 1px solid var(--line); backdrop-filter: blur(12px); }
-    .site-nav-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: var(--nav-h); padding: 0 1.5rem; }
+    .site-nav-inner { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: var(--nav-h); padding: 0 1.5rem; }
     .site-nav-brand { font-family: 'Bebas Neue', cursive; font-size: 1.5rem; color: var(--gold); letter-spacing: 4px; text-decoration: none; }
     @media (max-width: 480px) { .site-nav-brand { font-size: 1.1rem; letter-spacing: 2px; } }
-    .site-nav-back { font-family: 'Barlow Condensed', sans-serif; font-size: 0.9rem; font-weight: 600; color: var(--silver); text-decoration: none; letter-spacing: 1px; padding: 0.3rem 0.7rem; border-radius: 5px; transition: color 0.15s, background 0.15s; }
-    .site-nav-back:hover { color: white; background: rgba(255,255,255,0.07); }
+    .site-nav-links { display: flex; gap: 0.4rem; }
+    .site-nav-links a { font-family: 'Barlow Condensed', sans-serif; font-size: 0.88rem; font-weight: 600; color: var(--silver); text-decoration: none; padding: 0.25rem 0.6rem; border-radius: 5px; letter-spacing: 1px; transition: color 0.15s, background 0.15s; }
+    .site-nav-links a:hover { color: white; background: rgba(255,255,255,0.07); }
+    .site-nav-links a.active { color: var(--gold); background: rgba(255,184,28,0.1); }
 
     .page-header { text-align: center; padding: 1.25rem 1rem 0.5rem; }
     .page-header h1 { font-family: 'Bebas Neue', cursive; font-size: clamp(1.8rem, 4vw, 2.8rem); letter-spacing: 5px; text-shadow: 0 0 30px rgba(200,16,46,0.35), 0 2px 8px rgba(0,0,0,0.8); }
@@ -37,18 +39,9 @@
     .tab-btn { font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 2px; color: var(--silver); background: none; border: none; border-bottom: 2px solid transparent; padding: 0.5rem 1rem 0.45rem; cursor: pointer; transition: color 0.15s, border-color 0.15s; margin-bottom: -1px; }
     .tab-btn:hover { color: white; }
     .tab-btn.active { color: var(--gold); border-bottom-color: var(--gold); }
-    .tab-btn-back { font-family: 'Barlow Condensed', sans-serif; font-size: 0.82rem; font-weight: 700; color: var(--silver); background: none; border: none; cursor: pointer; letter-spacing: 1px; padding: 0.5rem 0.5rem 0.45rem 0; display: none; transition: color 0.15s; }
-    .tab-btn-back:hover { color: white; }
-    /* On desktop hide the Board View tab — it's shown inline next to leaderboard */
-    @media (min-width: 900px) { #tab-board { display: none; } }
 
     /* ── Content ── */
     .content-wrap { max-width: 1200px; width: 100%; margin: 0 auto; padding: 1rem 1.25rem 2rem; }
-
-    /* Desktop two-column layout */
-    .desktop-layout { display: flex; flex-direction: column; gap: 2rem; }
-    .desktop-col-title { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 3px; color: var(--silver); opacity: 0.5; margin-bottom: 0.6rem; }
-    @media (min-width: 900px) { #tab-board { display: none; } }
 
     /* Leaderboard */
     .leaderboard { background: rgba(255,255,255,0.015); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; overflow: hidden; }
@@ -263,7 +256,11 @@
 <nav class="site-nav">
   <div class="site-nav-inner">
     <a class="site-nav-brand" href="/">Parieur Discipliné</a>
-    <a class="site-nav-back" href="/draft-pool/picks/">← Make Picks</a>
+    <div class="site-nav-links">
+      <a href="/draft-pool/">Draft Pool</a>
+      <a href="/draft-pool/picks/">Make Picks</a>
+      <a href="/draft-pool/results.html" class="active">Results</a>
+    </div>
   </div>
 </nav>
 
@@ -280,10 +277,9 @@
 
 <div class="tabs-wrap">
   <div class="tabs">
-    <button class="tab-btn-back" id="tab-btn-back" onclick="backToLeaderboard()">← Back</button>
     <button class="tab-btn active" id="tab-leaderboard" onclick="setTab('leaderboard', this)">🏆 Leaderboard</button>
-    <button class="tab-btn" id="tab-board" onclick="setTab('board', this)">📋 Board View</button>
     <button class="tab-btn" id="tab-heatmap" onclick="setTab('heatmap', this)">🔥 Consensus</button>
+    <button class="tab-btn" id="tab-personal" onclick="setTab('personal', this)" style="display:none">👤 <span id="tab-personal-name"></span></button>
   </div>
 </div>
 
@@ -432,39 +428,41 @@
     }
   }
 
-  function isDesktop() { return window.innerWidth >= 900; }
-
   function setTab(tab, btn) {
     _activeTab = tab;
-    _personalEntry = null;
-    document.getElementById('tab-btn-back').style.display = 'none';
+    if (tab !== 'personal') _personalEntry = null;
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     renderTab();
   }
 
   function renderTab() {
-    if (_personalEntry) renderPersonal(_personalEntry);
-    else if (isDesktop()) renderDesktop();
-    else if (_activeTab === 'leaderboard') renderLeaderboard();
+    if (_activeTab === 'leaderboard') renderLeaderboard();
     else if (_activeTab === 'heatmap') renderHeatmap();
-    else renderBoard();
+    else if (_activeTab === 'personal' && _personalEntry) renderPersonal(_personalEntry);
+    else renderLeaderboard();
   }
 
   function openPersonal(id) {
     const entry = _entries.find(e => e.id === id);
     if (!entry) return;
     _personalEntry = entry;
-    document.getElementById('tab-btn-back').style.display = 'inline-block';
+    _activeTab = 'personal';
+    // Show and activate the personal tab
+    const tabEl = document.getElementById('tab-personal');
+    document.getElementById('tab-personal-name').textContent = entry.participant_name.split(' ')[0];
+    tabEl.style.display = 'inline-block';
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    tabEl.classList.add('active');
     renderPersonal(entry);
   }
 
   function backToLeaderboard() {
     _personalEntry = null;
-    document.getElementById('tab-btn-back').style.display = 'none';
-    document.getElementById('tab-leaderboard').classList.add('active');
     _activeTab = 'leaderboard';
+    document.getElementById('tab-personal').style.display = 'none';
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-leaderboard').classList.add('active');
     renderLeaderboard();
   }
 
@@ -568,33 +566,8 @@
     return { score, exact, close1, close2 };
   }
 
-  function renderDesktop() {
-    if (_activeTab === 'heatmap') {
-      document.getElementById('content-wrap').innerHTML = buildHeatmap();
-      return;
-    }
-    const wrap = document.getElementById('content-wrap');
-    const lbHtml = buildLeaderboard();
-    const boardHtml = buildBoard();
-    wrap.innerHTML = `
-      <div class="desktop-layout">
-        <div>
-          <div class="desktop-col-title">Leaderboard</div>
-          ${lbHtml}
-        </div>
-        <div>
-          <div class="desktop-col-title">Board View</div>
-          ${boardHtml}
-        </div>
-      </div>`;
-  }
-
   function renderLeaderboard() {
     document.getElementById('content-wrap').innerHTML = buildLeaderboard();
-  }
-
-  function renderBoard() {
-    document.getElementById('content-wrap').innerHTML = buildBoard();
   }
 
   function buildLeaderboard() {
@@ -809,13 +782,6 @@
   }
 
   init();
-
-  // Re-render on resize crossing the desktop breakpoint
-  let _wasDesktop = isDesktop();
-  window.addEventListener('resize', () => {
-    const now = isDesktop();
-    if (now !== _wasDesktop) { _wasDesktop = now; renderTab(); }
-  });
 </script>
 </body>
 </html>
