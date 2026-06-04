@@ -486,7 +486,8 @@
 
   function renderDesktopList(filter) {
     const q = filter.toLowerCase();
-    const list = q ? PROSPECTS.filter(p => p.name.toLowerCase().includes(q)) : PROSPECTS;
+    const list = (q ? PROSPECTS.filter(p => p.name.toLowerCase().includes(q)) : PROSPECTS)
+      .slice().sort((a, b) => (getExpertAvg(a.name) ?? a.rank) - (getExpertAvg(b.name) ?? b.rank));
     const currentRank = _activePick ? _picks[_activePick] : null;
 
     let clearHtml = '';
@@ -536,7 +537,8 @@
 
   function renderSheetList(filter) {
     const q = filter.toLowerCase();
-    const list = q ? PROSPECTS.filter(p => p.name.toLowerCase().includes(q)) : PROSPECTS;
+    const list = (q ? PROSPECTS.filter(p => p.name.toLowerCase().includes(q)) : PROSPECTS)
+      .slice().sort((a, b) => (getExpertAvg(a.name) ?? a.rank) - (getExpertAvg(b.name) ?? b.rank));
     const currentRank = _activePick ? _picks[_activePick] : null;
 
     // Clear pick option at top if slot is assigned
