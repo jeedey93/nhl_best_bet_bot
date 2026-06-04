@@ -71,6 +71,21 @@
     .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.15); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
 
     #toast { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%); z-index: 9999; background: rgba(15,25,45,0.97); border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; padding: 0.7rem 1.4rem; font-size: 0.9rem; font-weight: 600; letter-spacing: 1px; color: white; box-shadow: 0 4px 24px rgba(0,0,0,0.5); display: none; white-space: nowrap; }
+
+    /* ── Confirm modal ── */
+    .modal-backdrop { position: fixed; inset: 0; z-index: 600; background: rgba(0,0,0,0.65); backdrop-filter: blur(4px); opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+    .modal-backdrop.show { opacity: 1; pointer-events: all; }
+    .modal { position: fixed; left: 50%; top: 50%; z-index: 700; transform: translate(-50%, -52%) scale(0.95); opacity: 0; pointer-events: none; transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1), opacity 0.2s; background: #0e1e35; border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 1.75rem 1.5rem 1.25rem; width: calc(100% - 2.5rem); max-width: 360px; text-align: center; box-shadow: 0 24px 60px rgba(0,0,0,0.6); }
+    .modal.show { transform: translate(-50%, -50%) scale(1); opacity: 1; pointer-events: all; }
+    .modal-icon { font-size: 2.2rem; margin-bottom: 0.5rem; }
+    .modal-title { font-family: 'Bebas Neue', cursive; font-size: 1.4rem; letter-spacing: 3px; color: white; margin-bottom: 0.5rem; }
+    .modal-body { font-family: 'Barlow Condensed', sans-serif; font-size: 0.9rem; font-weight: 600; color: var(--silver); letter-spacing: 0.5px; line-height: 1.5; margin-bottom: 1.25rem; }
+    .modal-body strong { color: white; }
+    .modal-actions { display: flex; gap: 0.6rem; }
+    .modal-cancel { flex: 1; font-family: 'Bebas Neue', cursive; font-size: 0.95rem; letter-spacing: 2px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: var(--silver); border-radius: 8px; padding: 0.6rem; cursor: pointer; transition: background 0.15s, color 0.15s; }
+    .modal-cancel:hover { background: rgba(255,255,255,0.1); color: white; }
+    .modal-confirm { flex: 2; font-family: 'Bebas Neue', cursive; font-size: 0.95rem; letter-spacing: 2px; background: linear-gradient(135deg, #c8102e, #8b0000); color: white; border: none; border-radius: 8px; padding: 0.6rem; cursor: pointer; transition: opacity 0.15s; }
+    .modal-confirm:hover { opacity: 0.85; }
   </style>
 </head>
 <body>
@@ -92,6 +107,17 @@
 </div>
 
 <div id="toast"></div>
+
+<div class="modal-backdrop" id="modal-backdrop"></div>
+<div class="modal" id="modal">
+  <div class="modal-icon">🗑️</div>
+  <div class="modal-title" id="modal-title">Delete Entry</div>
+  <div class="modal-body" id="modal-body"></div>
+  <div class="modal-actions">
+    <button class="modal-cancel" id="modal-cancel">Cancel</button>
+    <button class="modal-confirm" id="modal-confirm">Delete</button>
+  </div>
+</div>
 
 <div class="page">
   <div class="page-header">
@@ -226,8 +252,27 @@
       </div>`).join('');
   }
 
+  let _modalResolve = null;
+  function showConfirmModal(body) {
+    return new Promise(resolve => {
+      _modalResolve = resolve;
+      document.getElementById('modal-body').innerHTML = body;
+      document.getElementById('modal-backdrop').classList.add('show');
+      document.getElementById('modal').classList.add('show');
+    });
+  }
+  function closeModal(result) {
+    document.getElementById('modal-backdrop').classList.remove('show');
+    document.getElementById('modal').classList.remove('show');
+    if (_modalResolve) { _modalResolve(result); _modalResolve = null; }
+  }
+  document.getElementById('modal-cancel').onclick = () => closeModal(false);
+  document.getElementById('modal-confirm').onclick = () => closeModal(true);
+  document.getElementById('modal-backdrop').onclick = () => closeModal(false);
+
   async function deleteParticipant(id, name) {
-    if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
+    const confirmed = await showConfirmModal(`Delete <strong>${escHtml(name)}</strong>?<br>This cannot be undone.`);
+    if (!confirmed) return;
     const btn = document.querySelector(`#row-${id} .btn-delete`);
     btn.disabled = true; btn.textContent = '…';
     try {
