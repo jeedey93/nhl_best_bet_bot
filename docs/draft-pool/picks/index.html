@@ -151,6 +151,7 @@
     .prospect-info { flex: 1; min-width: 0; }
     .prospect-name { font-family: 'Barlow Condensed', sans-serif; font-size: 1rem; font-weight: 700; color: white; }
     .prospect-meta { font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem; font-weight: 600; color: rgba(255,255,255,0.3); letter-spacing: 0.5px; }
+    .expert-avg { margin-left: 0.4em; color: rgba(125,180,255,0.55); }
     .prospect-pos { font-family: 'Bebas Neue', cursive; font-size: 0.75rem; letter-spacing: 1px; color: var(--silver); background: rgba(255,255,255,0.07); border-radius: 4px; padding: 2px 7px; flex-shrink: 0; }
     .clear-pick { font-size: 0.75rem; color: rgba(200,16,46,0.6); padding: 4px 8px; cursor: pointer; }
     .clear-pick:hover { color: var(--red); }
@@ -356,6 +357,34 @@
     { pick: 32, team: 'Ottawa Senators',       abbr: 'OTT', conf: 'Atlantic' },
   ];
 
+  const EXPERT_PICKS_URL = '../expert_picks.json';
+  let _expertAvgMap = {}; // prospectName (normalized) -> avg rank
+
+  async function loadExpertAverages() {
+    try {
+      const res = await fetch(EXPERT_PICKS_URL);
+      if (!res.ok) return;
+      const data = await res.json();
+      const nameRanks = {};
+      for (const source of data.sources) {
+        for (const [rankStr, name] of Object.entries(source.picks)) {
+          const key = name.toLowerCase().trim();
+          if (!nameRanks[key]) nameRanks[key] = [];
+          nameRanks[key].push(parseInt(rankStr));
+        }
+      }
+      const totalSources = data.sources.length;
+      for (const [key, ranks] of Object.entries(nameRanks)) {
+        const avg = ranks.reduce((a, b) => a + b, 0) / totalSources;
+        _expertAvgMap[key] = Math.round(avg * 10) / 10;
+      }
+    } catch(e) { /* silent fail */ }
+  }
+
+  function getExpertAvg(prospectName) {
+    return _expertAvgMap[prospectName.toLowerCase().trim()];
+  }
+
   const PROSPECTS = [
     { rank: 1,  name: 'Gavin McKenna',       pos: 'LW',    club: 'Penn State' },
     { rank: 2,  name: 'Ivar Stenberg',       pos: 'LW/RW', club: 'Frölunda HC' },
@@ -478,11 +507,13 @@
     document.getElementById('dp-list').innerHTML = clearHtml + list.map(p => {
       const used = Object.values(_picks).includes(p.rank) && _picks[_activePick] !== p.rank;
       const selected = currentRank === p.rank;
+      const avg = getExpertAvg(p.name);
+      const avgHtml = avg != null ? `<span class="expert-avg">avg #${avg % 1 === 0 ? avg : avg.toFixed(1)}</span>` : '';
       return `<div class="prospect-item${used ? ' used' : ''}${selected ? ' selected' : ''}" onclick="assignProspect(${p.rank})">
         <div class="prospect-rank">${p.rank}</div>
         <div class="prospect-info">
           <div class="prospect-name">${escHtml(p.name)}</div>
-          <div class="prospect-meta">${escHtml(p.club)}</div>
+          <div class="prospect-meta">${escHtml(p.club)}${avgHtml}</div>
         </div>
         <div class="prospect-pos">${p.pos}</div>
       </div>`;
@@ -521,11 +552,13 @@
     document.getElementById('sheet-list').innerHTML = clearHtml + list.map(p => {
       const used = Object.values(_picks).includes(p.rank) && _picks[_activePick] !== p.rank;
       const selected = currentRank === p.rank;
+      const avg = getExpertAvg(p.name);
+      const avgHtml = avg != null ? `<span class="expert-avg">avg #${avg % 1 === 0 ? avg : avg.toFixed(1)}</span>` : '';
       return `<div class="prospect-item${used ? ' used' : ''}${selected ? ' selected' : ''}" onclick="assignProspect(${p.rank})">
         <div class="prospect-rank">${p.rank}</div>
         <div class="prospect-info">
           <div class="prospect-name">${escHtml(p.name)}</div>
-          <div class="prospect-meta">${escHtml(p.club)}</div>
+          <div class="prospect-meta">${escHtml(p.club)}${avgHtml}</div>
         </div>
         <div class="prospect-pos">${p.pos}</div>
       </div>`;
@@ -577,7 +610,9 @@
     const rank = _picks[pick];
     if (rank) {
       const p = prospectMap[rank];
-      el.innerHTML = `<span class="slot-prospect-name">${escHtml(p.name)}</span><span class="slot-prospect-meta">#${p.rank} · ${p.pos}</span>`;
+      const avg = getExpertAvg(p.name);
+      const avgStr = avg != null ? ` · avg #${avg % 1 === 0 ? avg : avg.toFixed(1)}` : '';
+      el.innerHTML = `<span class="slot-prospect-name">${escHtml(p.name)}</span><span class="slot-prospect-meta">#${p.rank} · ${p.pos}${avgStr}</span>`;
       row.classList.add('assigned');
     } else {
       el.innerHTML = `<span class="slot-empty-label">+</span>`;
@@ -733,7 +768,9 @@
   if (document.getElementById('dp-list')) {
     document.getElementById('dp-list').innerHTML = `<div class="dp-no-pick">Click a pick slot to assign a prospect</div>`;
   }
-  if (isDesktop()) openSheet(1);
+  loadExpertAverages().then(() => {
+    if (isDesktop()) openSheet(1);
+  });
 </script>
 </body>
 </html>
