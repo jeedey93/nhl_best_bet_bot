@@ -151,7 +151,7 @@
     .prospect-info { flex: 1; min-width: 0; }
     .prospect-name { font-family: 'Barlow Condensed', sans-serif; font-size: 1rem; font-weight: 700; color: white; }
     .prospect-meta { font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem; font-weight: 600; color: rgba(255,255,255,0.3); letter-spacing: 0.5px; }
-    .expert-avg { margin-left: 0.4em; color: rgba(125,180,255,0.55); }
+    .expert-avg-badge { font-family: 'Bebas Neue', cursive; font-size: 0.75rem; letter-spacing: 1px; color: var(--blue); background: rgba(125,180,255,0.12); border: 1px solid rgba(125,180,255,0.25); border-radius: 4px; padding: 2px 7px; flex-shrink: 0; }
     .prospect-pos { font-family: 'Bebas Neue', cursive; font-size: 0.75rem; letter-spacing: 1px; color: var(--silver); background: rgba(255,255,255,0.07); border-radius: 4px; padding: 2px 7px; flex-shrink: 0; }
     .clear-pick { font-size: 0.75rem; color: rgba(200,16,46,0.6); padding: 4px 8px; cursor: pointer; }
     .clear-pick:hover { color: var(--red); }
@@ -506,13 +506,14 @@
       const used = Object.values(_picks).includes(p.rank) && _picks[_activePick] !== p.rank;
       const selected = currentRank === p.rank;
       const avg = getExpertAvg(p.name);
-      const avgHtml = avg != null ? `<span class="expert-avg">avg #${avg % 1 === 0 ? avg : avg.toFixed(1)}</span>` : '';
+      const avgBadge = avg != null ? `<span class="expert-avg-badge">avg #${avg % 1 === 0 ? avg : avg.toFixed(1)}</span>` : '';
       return `<div class="prospect-item${used ? ' used' : ''}${selected ? ' selected' : ''}" onclick="assignProspect(${p.rank})">
         <div class="prospect-rank">${p.rank}</div>
         <div class="prospect-info">
           <div class="prospect-name">${escHtml(p.name)}</div>
-          <div class="prospect-meta">${escHtml(p.club)}${avgHtml}</div>
+          <div class="prospect-meta">${escHtml(p.club)}</div>
         </div>
+        ${avgBadge}
         <div class="prospect-pos">${p.pos}</div>
       </div>`;
     }).join('');
@@ -551,13 +552,14 @@
       const used = Object.values(_picks).includes(p.rank) && _picks[_activePick] !== p.rank;
       const selected = currentRank === p.rank;
       const avg = getExpertAvg(p.name);
-      const avgHtml = avg != null ? `<span class="expert-avg">avg #${avg % 1 === 0 ? avg : avg.toFixed(1)}</span>` : '';
+      const avgBadge = avg != null ? `<span class="expert-avg-badge">avg #${avg % 1 === 0 ? avg : avg.toFixed(1)}</span>` : '';
       return `<div class="prospect-item${used ? ' used' : ''}${selected ? ' selected' : ''}" onclick="assignProspect(${p.rank})">
         <div class="prospect-rank">${p.rank}</div>
         <div class="prospect-info">
           <div class="prospect-name">${escHtml(p.name)}</div>
-          <div class="prospect-meta">${escHtml(p.club)}${avgHtml}</div>
+          <div class="prospect-meta">${escHtml(p.club)}</div>
         </div>
+        ${avgBadge}
         <div class="prospect-pos">${p.pos}</div>
       </div>`;
     }).join('');
