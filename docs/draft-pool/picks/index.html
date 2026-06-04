@@ -105,7 +105,9 @@
     .pick-slot.assigned .slot-team-name { color: rgba(255,255,255,0.35); }
     .slot-team-sub { font-family: 'Barlow Condensed', sans-serif; font-size: 0.62rem; font-weight: 600; color: rgba(255,255,255,0.2); letter-spacing: 0.8px; }
 
-    .slot-right { text-align: right; min-width: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 1px; }
+    .slot-right { text-align: right; min-width: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 1px; position: relative; }
+    .slot-clear { position: absolute; top: -6px; right: -6px; font-size: 0.6rem; color: rgba(200,16,46,0.5); background: rgba(200,16,46,0.12); border: 1px solid rgba(200,16,46,0.25); border-radius: 50%; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.15s, color 0.15s; line-height: 1; }
+    .slot-clear:hover { background: rgba(200,16,46,0.3); color: white; }
     .slot-prospect-name { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 1px; color: var(--gold); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
     .slot-prospect-meta { font-family: 'Barlow Condensed', sans-serif; font-size: 0.65rem; font-weight: 600; color: rgba(255,184,28,0.5); letter-spacing: 0.5px; }
     .slot-empty-label { font-family: 'Bebas Neue', cursive; font-size: 1.3rem; color: rgba(255,255,255,0.12); line-height: 1; }
@@ -490,20 +492,12 @@
       .slice().sort((a, b) => (getExpertAvg(a.name) ?? a.rank) - (getExpertAvg(b.name) ?? b.rank));
     const currentRank = _activePick ? _picks[_activePick] : null;
 
-    let clearHtml = '';
-    if (currentRank) {
-      clearHtml = `<div class="prospect-item" style="border-bottom:1px solid rgba(255,255,255,0.06)" onclick="clearPick()">
-        <div class="prospect-rank" style="color:var(--red);font-size:1rem;">✕</div>
-        <div class="prospect-info"><div class="prospect-name" style="color:rgba(255,255,255,0.5)">Clear this pick</div></div>
-      </div>`;
-    }
-
     if (!_activePick) {
       document.getElementById('dp-list').innerHTML = `<div class="dp-no-pick">Click a pick slot to assign a prospect</div>`;
       return;
     }
 
-    document.getElementById('dp-list').innerHTML = clearHtml + list.map(p => {
+    document.getElementById('dp-list').innerHTML = list.map(p => {
       const used = Object.values(_picks).includes(p.rank) && _picks[_activePick] !== p.rank;
       const selected = currentRank === p.rank;
       const avg = getExpertAvg(p.name);
@@ -541,16 +535,7 @@
       .slice().sort((a, b) => (getExpertAvg(a.name) ?? a.rank) - (getExpertAvg(b.name) ?? b.rank));
     const currentRank = _activePick ? _picks[_activePick] : null;
 
-    // Clear pick option at top if slot is assigned
-    let clearHtml = '';
-    if (currentRank) {
-      clearHtml = `<div class="prospect-item" style="border-bottom:1px solid rgba(255,255,255,0.06)" onclick="clearPick()">
-        <div class="prospect-rank" style="color:var(--red);font-size:1rem;">✕</div>
-        <div class="prospect-info"><div class="prospect-name" style="color:rgba(255,255,255,0.5)">Clear this pick</div></div>
-      </div>`;
-    }
-
-    document.getElementById('sheet-list').innerHTML = clearHtml + list.map(p => {
+    document.getElementById('sheet-list').innerHTML = list.map(p => {
       const used = Object.values(_picks).includes(p.rank) && _picks[_activePick] !== p.rank;
       const selected = currentRank === p.rank;
       const avg = getExpertAvg(p.name);
@@ -606,6 +591,15 @@
     }
   }
 
+  function clearSlot(pick) {
+    delete _picks[pick];
+    updateSlotDisplay(pick);
+    updateProgress();
+    if (isDesktop() && _activePick === pick) {
+      renderDesktopList(document.getElementById('dp-search').value);
+    }
+  }
+
   function updateSlotDisplay(pick) {
     const el = document.getElementById(`slot-right-${pick}`);
     const row = document.getElementById(`slot-${pick}`);
@@ -614,7 +608,7 @@
       const p = prospectMap[rank];
       const avg = getExpertAvg(p.name);
       const avgStr = avg != null ? ` · avg #${avg % 1 === 0 ? avg : avg.toFixed(1)}` : '';
-      el.innerHTML = `<span class="slot-prospect-name">${escHtml(p.name)}</span><span class="slot-prospect-meta">#${p.rank} · ${p.pos}${avgStr}</span>`;
+      el.innerHTML = `<span class="slot-prospect-name">${escHtml(p.name)}</span><span class="slot-prospect-meta">#${p.rank} · ${p.pos}${avgStr}</span><span class="slot-clear" onclick="event.stopPropagation();clearSlot(${pick})">✕</span>`;
       row.classList.add('assigned');
     } else {
       el.innerHTML = `<span class="slot-empty-label">+</span>`;
