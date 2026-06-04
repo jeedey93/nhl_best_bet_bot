@@ -340,17 +340,20 @@
   }
 
   function editActualPick(pick) {
-    delete _actualPicks[pick];
-    renderActualRow(DRAFT_ORDER.find(d => d.pick === pick), true);
-    setTimeout(() => document.getElementById(`act-${pick}`)?.focus(), 0);
+    const currentRank = _actualPicks[pick];
+    renderActualRow(DRAFT_ORDER.find(d => d.pick === pick), true, currentRank);
+    setTimeout(() => {
+      const sel = document.getElementById(`act-${pick}`);
+      if (sel) { if (currentRank) sel.value = String(currentRank); sel.focus(); }
+    }, 0);
   }
 
-  function renderActualRow(d, forceEdit = false) {
+  function renderActualRow(d, forceEdit = false, editingRank = null) {
     const rank = _actualPicks[d.pick];
     const prospect = rank ? prospectByRank[rank] : null;
     const used = getAssignedRanks(d.pick);
     const optionsHtml = PROSPECTS.map(p =>
-      `<option value="${p.rank}"${used.has(String(p.rank)) ? ' disabled' : ''}>#${p.rank} ${escHtml(p.name)}</option>`
+      `<option value="${p.rank}"${used.has(String(p.rank)) && String(p.rank) !== String(editingRank ?? rank) ? ' disabled' : ''}>#${p.rank} ${escHtml(p.name)}</option>`
     ).join('');
 
     const rightHtml = prospect && !forceEdit
