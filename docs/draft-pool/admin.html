@@ -53,14 +53,19 @@
     .btn-delete:disabled { opacity: 0.4; cursor: default; }
 
     /* ── Actual results ── */
-    .actual-row { display: grid; grid-template-columns: 40px 130px 1fr; gap: 0.5rem; align-items: center; margin-bottom: 0.4rem; }
+    .actual-row { display: grid; grid-template-columns: 32px 36px 1fr; gap: 0.6rem; align-items: center; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 0.4rem 0.75rem; margin-bottom: 0.3rem; }
     .actual-num { font-family: 'Bebas Neue', cursive; font-size: 1.1rem; color: rgba(255,255,255,0.3); text-align: center; }
-    .actual-team { font-family: 'Barlow Condensed', sans-serif; font-size: 0.78rem; font-weight: 700; color: var(--silver); }
-    .actual-select { font-family: 'Barlow Condensed', sans-serif; font-size: 0.85rem; font-weight: 600; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.55); border-radius: 6px; padding: 0.35rem 0.6rem; width: 100%; appearance: none; -webkit-appearance: none; transition: border-color 0.15s, color 0.15s; }
+    .actual-logo { width: 28px; height: 28px; object-fit: contain; display: block; }
+    .actual-right { display: flex; align-items: center; gap: 0.5rem; min-width: 0; }
+    .actual-select { font-family: 'Barlow Condensed', sans-serif; font-size: 0.85rem; font-weight: 600; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.55); border-radius: 6px; padding: 0.35rem 0.6rem; flex: 1; min-width: 0; appearance: none; -webkit-appearance: none; transition: border-color 0.15s, color 0.15s; }
     .actual-select:focus { outline: none; border-color: rgba(255,184,28,0.5); }
-    .actual-select.set { color: white; border-color: rgba(34,197,94,0.3); background-color: rgba(34,197,94,0.03); }
     .actual-select option { background: #0d1f35; }
     .actual-select option:disabled { color: rgba(255,255,255,0.2); }
+    .actual-pill { display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(34,197,94,0.12); border: 1px solid rgba(34,197,94,0.3); border-radius: 6px; padding: 0.35rem 0.75rem; cursor: pointer; transition: background 0.15s; flex: 1; min-width: 0; }
+    .actual-pill:hover { background: rgba(34,197,94,0.2); }
+    .actual-pill-name { font-family: 'Bebas Neue', cursive; font-size: 0.95rem; letter-spacing: 1px; color: #22c55e; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .actual-pill-edit { font-size: 0.65rem; color: rgba(34,197,94,0.5); flex-shrink: 0; }
+    .actual-unset { font-family: 'Barlow Condensed', sans-serif; font-size: 0.8rem; font-weight: 600; color: rgba(255,255,255,0.2); letter-spacing: 0.5px; font-style: italic; }
     .btn-save-actual { font-family: 'Bebas Neue', cursive; font-size: 0.95rem; letter-spacing: 2px; background: linear-gradient(135deg, #ffb81c, #e07b00); color: #07111f; border: none; border-radius: 7px; padding: 0.6rem 1.5rem; cursor: pointer; margin-top: 0.75rem; transition: opacity 0.15s; }
     .btn-save-actual:hover { opacity: 0.85; }
     .btn-save-actual:disabled { opacity: 0.35; cursor: default; }
@@ -156,22 +161,38 @@
   function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 
   const DRAFT_ORDER = [
-    { pick: 1,  team: 'Toronto Maple Leafs' },    { pick: 2,  team: 'San Jose Sharks' },
-    { pick: 3,  team: 'Vancouver Canucks' },       { pick: 4,  team: 'Chicago Blackhawks' },
-    { pick: 5,  team: 'New York Rangers' },        { pick: 6,  team: 'Calgary Flames' },
-    { pick: 7,  team: 'Seattle Kraken' },          { pick: 8,  team: 'Winnipeg Jets' },
-    { pick: 9,  team: 'Florida Panthers' },        { pick: 10, team: 'Nashville Predators' },
-    { pick: 11, team: 'St. Louis Blues' },         { pick: 12, team: 'New Jersey Devils' },
-    { pick: 13, team: 'New York Islanders' },      { pick: 14, team: 'Columbus Blue Jackets' },
-    { pick: 15, team: 'St. Louis Blues (via DET)'},{ pick: 16, team: 'Washington Capitals' },
-    { pick: 17, team: 'Los Angeles Kings' },       { pick: 18, team: 'Washington Capitals (via ANA)' },
-    { pick: 19, team: 'Utah Hockey Club' },        { pick: 20, team: 'San Jose Sharks (via EDM)' },
-    { pick: 21, team: 'Philadelphia Flyers' },     { pick: 22, team: 'Pittsburgh Penguins' },
-    { pick: 23, team: 'Boston Bruins' },           { pick: 24, team: 'Vancouver Canucks (via MIN)' },
-    { pick: 25, team: 'Seattle Kraken (via TB)' }, { pick: 26, team: 'New York Rangers (via DAL)' },
-    { pick: 27, team: 'Buffalo Sabres' },          { pick: 28, team: 'Montreal Canadiens' },
-    { pick: 29, team: 'St. Louis Blues (via COL)'},{ pick: 30, team: 'Calgary Flames (via VGK)' },
-    { pick: 31, team: 'Carolina Hurricanes' },     { pick: 32, team: 'Ottawa Senators' },
+    { pick: 1,  abbr: 'TOR', team: 'Toronto Maple Leafs' },
+    { pick: 2,  abbr: 'SJS', team: 'San Jose Sharks' },
+    { pick: 3,  abbr: 'VAN', team: 'Vancouver Canucks' },
+    { pick: 4,  abbr: 'CHI', team: 'Chicago Blackhawks' },
+    { pick: 5,  abbr: 'NYR', team: 'New York Rangers' },
+    { pick: 6,  abbr: 'CGY', team: 'Calgary Flames' },
+    { pick: 7,  abbr: 'SEA', team: 'Seattle Kraken' },
+    { pick: 8,  abbr: 'WPG', team: 'Winnipeg Jets' },
+    { pick: 9,  abbr: 'FLA', team: 'Florida Panthers' },
+    { pick: 10, abbr: 'NSH', team: 'Nashville Predators' },
+    { pick: 11, abbr: 'STL', team: 'St. Louis Blues' },
+    { pick: 12, abbr: 'NJD', team: 'New Jersey Devils' },
+    { pick: 13, abbr: 'NYI', team: 'New York Islanders' },
+    { pick: 14, abbr: 'CBJ', team: 'Columbus Blue Jackets' },
+    { pick: 15, abbr: 'STL', team: 'St. Louis Blues', via: 'DET' },
+    { pick: 16, abbr: 'WSH', team: 'Washington Capitals' },
+    { pick: 17, abbr: 'LAK', team: 'Los Angeles Kings' },
+    { pick: 18, abbr: 'WSH', team: 'Washington Capitals', via: 'ANA' },
+    { pick: 19, abbr: 'UTA', team: 'Utah Hockey Club' },
+    { pick: 20, abbr: 'SJS', team: 'San Jose Sharks', via: 'EDM' },
+    { pick: 21, abbr: 'PHI', team: 'Philadelphia Flyers' },
+    { pick: 22, abbr: 'PIT', team: 'Pittsburgh Penguins' },
+    { pick: 23, abbr: 'BOS', team: 'Boston Bruins' },
+    { pick: 24, abbr: 'VAN', team: 'Vancouver Canucks', via: 'MIN' },
+    { pick: 25, abbr: 'SEA', team: 'Seattle Kraken', via: 'TB' },
+    { pick: 26, abbr: 'NYR', team: 'New York Rangers', via: 'DAL' },
+    { pick: 27, abbr: 'BUF', team: 'Buffalo Sabres' },
+    { pick: 28, abbr: 'MTL', team: 'Montreal Canadiens' },
+    { pick: 29, abbr: 'STL', team: 'St. Louis Blues', via: 'COL' },
+    { pick: 30, abbr: 'CGY', team: 'Calgary Flames', via: 'VGK' },
+    { pick: 31, abbr: 'CAR', team: 'Carolina Hurricanes' },
+    { pick: 32, abbr: 'OTT', team: 'Ottawa Senators' },
   ];
 
   const PROSPECTS = [
@@ -301,69 +322,75 @@
     }
   }
 
-  function getUsedRanks(excludePick) {
+  const prospectByRank = Object.fromEntries(PROSPECTS.map(p => [p.rank, p]));
+
+  function getAssignedRanks(excludePick) {
     const used = new Set();
     for (const d of DRAFT_ORDER) {
       if (d.pick === excludePick) continue;
-      const sel = document.getElementById(`act-${d.pick}`);
-      if (sel?.value) used.add(sel.value);
+      if (_actualPicks[d.pick]) used.add(String(_actualPicks[d.pick]));
     }
     return used;
   }
 
-  function syncDropdowns(changedPick) {
-    for (const d of DRAFT_ORDER) {
-      const sel = document.getElementById(`act-${d.pick}`);
-      if (!sel) continue;
-      const current = sel.value;
-      const used = getUsedRanks(d.pick);
-      for (const opt of sel.options) {
-        if (!opt.value) continue;
-        opt.disabled = used.has(opt.value);
-      }
-      sel.classList.toggle('set', !!current);
-    }
+  function setActualPick(pick, rank) {
+    if (rank) _actualPicks[pick] = parseInt(rank);
+    else delete _actualPicks[pick];
+    renderActualRow(DRAFT_ORDER.find(d => d.pick === pick));
+  }
+
+  function editActualPick(pick) {
+    delete _actualPicks[pick];
+    renderActualRow(DRAFT_ORDER.find(d => d.pick === pick), true);
+    setTimeout(() => document.getElementById(`act-${pick}`)?.focus(), 0);
+  }
+
+  function renderActualRow(d, forceEdit = false) {
+    const rank = _actualPicks[d.pick];
+    const prospect = rank ? prospectByRank[rank] : null;
+    const used = getAssignedRanks(d.pick);
+    const optionsHtml = PROSPECTS.map(p =>
+      `<option value="${p.rank}"${used.has(String(p.rank)) ? ' disabled' : ''}>#${p.rank} ${escHtml(p.name)}</option>`
+    ).join('');
+
+    const rightHtml = prospect && !forceEdit
+      ? `<div class="actual-pill" onclick="editActualPick(${d.pick})">
+           <span class="actual-pill-name">${escHtml(prospect.name)}</span>
+           <span class="actual-pill-edit">✎</span>
+         </div>`
+      : `<select class="actual-select" id="act-${d.pick}" onchange="setActualPick(${d.pick}, this.value)">
+           <option value="">— Not set —</option>
+           ${optionsHtml}
+         </select>`;
+
+    document.getElementById(`actual-row-${d.pick}`).querySelector('.actual-right').innerHTML = rightHtml;
   }
 
   function renderActualPicks() {
-    const optionsHtml = PROSPECTS.map(p => `<option value="${p.rank}">#${p.rank} ${escHtml(p.name)}</option>`).join('');
     const rows = DRAFT_ORDER.map(d => `
-      <div class="actual-row">
+      <div class="actual-row" id="actual-row-${d.pick}">
         <div class="actual-num">${d.pick}</div>
-        <div class="actual-team">${escHtml(d.team)}</div>
-        <select class="actual-select${_actualPicks[d.pick] ? ' set' : ''}" id="act-${d.pick}" onchange="syncDropdowns(${d.pick})">
-          <option value="">— Not set —</option>
-          ${optionsHtml}
-        </select>
+        <img class="actual-logo" src="https://assets.nhle.com/logos/nhl/svg/${d.abbr}_light.svg" alt="${d.abbr}" title="${escHtml(d.team)}${d.via ? ' via ' + d.via : ''}" onerror="this.style.visibility='hidden'">
+        <div class="actual-right"></div>
       </div>`).join('');
 
     document.getElementById('actual-results-list').innerHTML = `
       ${rows}
       <button class="btn-save-actual" onclick="saveActual()">Save Results</button>`;
 
-    for (const [pick, rank] of Object.entries(_actualPicks)) {
-      const sel = document.getElementById(`act-${pick}`);
-      if (sel) { sel.value = String(rank); sel.classList.add('set'); }
-    }
-    syncDropdowns(null);
+    for (const d of DRAFT_ORDER) renderActualRow(d);
   }
 
   async function saveActual() {
-    const newActual = {};
-    for (const d of DRAFT_ORDER) {
-      const sel = document.getElementById(`act-${d.pick}`);
-      if (sel?.value) newActual[d.pick] = parseInt(sel.value);
-    }
     const btn = document.querySelector('.btn-save-actual');
     btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Saving…';
     try {
       const res = await fetch(`${SUPABASE_URL}/rest/v1/draft_pools?code=eq.${POOL_CODE}`, {
         method: 'PATCH',
         headers: { ...sbHeaders(), 'Prefer': 'return=minimal' },
-        body: JSON.stringify({ actual_picks: newActual })
+        body: JSON.stringify({ actual_picks: _actualPicks })
       });
       if (!res.ok) throw new Error(res.status);
-      _actualPicks = newActual;
       showToast('✅ Results saved!');
       btn.disabled = false; btn.textContent = 'Save Results';
     } catch(e) {
