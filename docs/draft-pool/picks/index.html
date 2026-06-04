@@ -22,7 +22,7 @@
 
     /* ── Nav ── */
     .site-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 200; background: rgba(7,17,31,0.92); border-bottom: 1px solid var(--line); backdrop-filter: blur(12px); }
-    .site-nav-inner { max-width: 700px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: var(--nav-h); padding: 0 1rem; }
+    .site-nav-inner { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: var(--nav-h); padding: 0 1rem; }
     .site-nav-brand { font-family: 'Bebas Neue', cursive; font-size: 1.5rem; color: var(--gold); letter-spacing: 4px; text-decoration: none; }
     @media (max-width: 480px) { .site-nav-brand { font-size: 1.1rem; letter-spacing: 2px; } }
     .site-nav-links { display: flex; gap: 0.4rem; }
@@ -40,7 +40,7 @@
       .progress-wrap { grid-column: 1 / 3; grid-row: 2; }
       .picks-list { grid-column: 1; grid-row: 3; }
       .desktop-panel { display: flex; }
-      .submit-bar { max-width: calc(50% + 0.75rem); }
+      .submit-bar { max-width: calc(50% - 0.75rem); left: max(1rem, calc((100vw - 1200px) / 2 + 1rem)); right: auto; }
     }
     @media (max-width: 899px) {
       .desktop-panel { display: none; }
@@ -56,8 +56,7 @@
       border-radius: 12px; overflow: hidden;
     }
     .dp-header { padding: 0.75rem 1rem 0.6rem; flex-shrink: 0; border-bottom: 1px solid rgba(255,255,255,0.07); }
-    .dp-title { font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 3px; color: var(--silver); opacity: 0.5; margin-bottom: 0.5rem; }
-    .dp-picking { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 2px; color: var(--gold); min-height: 1.2em; }
+    .dp-picking { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 2px; color: var(--gold); min-height: 1.2em; margin-bottom: 0.5rem; }
     .dp-search { width: 100%; font-family: 'Barlow Condensed', sans-serif; font-size: 0.9rem; font-weight: 600; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: white; border-radius: 7px; padding: 0.4rem 0.75rem; transition: border-color 0.15s; }
     .dp-search::placeholder { color: rgba(255,255,255,0.2); }
     .dp-search:focus { outline: none; border-color: rgba(255,184,28,0.4); }
@@ -83,7 +82,7 @@
     .picks-list { display: flex; flex-direction: column; gap: 0.35rem; }
 
     .pick-slot {
-      display: grid; grid-template-columns: 28px 36px 1fr 1.4fr;
+      display: grid; grid-template-columns: 28px 36px 1.2fr 1fr;
       gap: 0.5rem; align-items: center;
       background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07);
       border-radius: 10px; padding: 0.55rem 0.75rem;
@@ -101,7 +100,7 @@
     .slot-logo { width: 32px; height: 32px; object-fit: contain; }
 
     .slot-body { min-width: 0; }
-    .slot-team-name { font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 1px; color: rgba(255,255,255,0.5); line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .slot-team-name { font-family: 'Bebas Neue', cursive; font-size: 0.78rem; letter-spacing: 1px; color: rgba(255,255,255,0.5); line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .pick-slot.assigned .slot-team-name { color: rgba(255,255,255,0.35); }
     .slot-team-sub { font-family: 'Barlow Condensed', sans-serif; font-size: 0.62rem; font-weight: 600; color: rgba(255,255,255,0.2); letter-spacing: 0.8px; }
 
@@ -285,7 +284,6 @@
   <!-- Desktop right panel -->
   <div class="desktop-panel" id="desktop-panel">
     <div class="dp-header">
-      <div class="dp-title">Prospects</div>
       <div class="dp-picking" id="dp-picking">Select a pick slot →</div>
       <input class="dp-search" id="dp-search" type="text" placeholder="Search…" autocomplete="off" oninput="filterDesktopPanel(this.value)">
     </div>
@@ -488,9 +486,15 @@
 
   function renderDesktopList(filter) {
     const q = filter.toLowerCase();
-    const list = (q ? PROSPECTS.filter(p => p.name.toLowerCase().includes(q)) : PROSPECTS)
+    const all = (q ? PROSPECTS.filter(p => p.name.toLowerCase().includes(q)) : PROSPECTS)
       .slice().sort((a, b) => (getExpertAvg(a.name) ?? a.rank) - (getExpertAvg(b.name) ?? b.rank));
     const currentRank = _activePick ? _picks[_activePick] : null;
+    const usedSet = new Set(Object.values(_picks));
+    // available first, used at bottom
+    const list = [
+      ...all.filter(p => !usedSet.has(p.rank) || p.rank === currentRank),
+      ...all.filter(p => usedSet.has(p.rank) && p.rank !== currentRank),
+    ];
 
     if (!_activePick) {
       document.getElementById('dp-list').innerHTML = `<div class="dp-no-pick">Click a pick slot to assign a prospect</div>`;
@@ -498,11 +502,11 @@
     }
 
     document.getElementById('dp-list').innerHTML = list.map(p => {
-      const used = Object.values(_picks).includes(p.rank) && _picks[_activePick] !== p.rank;
+      const used = usedSet.has(p.rank) && p.rank !== currentRank;
       const selected = currentRank === p.rank;
       const avg = getExpertAvg(p.name);
       const avgBadge = avg != null ? `<span class="expert-avg-badge">avg #${avg % 1 === 0 ? avg : avg.toFixed(1)}</span>` : '';
-      return `<div class="prospect-item${used ? ' used' : ''}${selected ? ' selected' : ''}" onclick="assignProspect(${p.rank})">
+      return `<div class="prospect-item${used ? ' used' : ''}${selected ? ' selected' : ''}" id="dp-prospect-${p.rank}" onclick="assignProspect(${p.rank})">
         <div class="prospect-rank">${p.rank}</div>
         <div class="prospect-info">
           <div class="prospect-name">${escHtml(p.name)}</div>
@@ -512,6 +516,12 @@
         <div class="prospect-pos">${p.pos}</div>
       </div>`;
     }).join('');
+
+    // scroll selected into view
+    if (currentRank) {
+      const el = document.getElementById(`dp-prospect-${currentRank}`);
+      if (el) el.scrollIntoView({ block: 'nearest' });
+    }
   }
 
   function filterDesktopPanel(val) { renderDesktopList(val); }
@@ -531,12 +541,17 @@
 
   function renderSheetList(filter) {
     const q = filter.toLowerCase();
-    const list = (q ? PROSPECTS.filter(p => p.name.toLowerCase().includes(q)) : PROSPECTS)
+    const all = (q ? PROSPECTS.filter(p => p.name.toLowerCase().includes(q)) : PROSPECTS)
       .slice().sort((a, b) => (getExpertAvg(a.name) ?? a.rank) - (getExpertAvg(b.name) ?? b.rank));
     const currentRank = _activePick ? _picks[_activePick] : null;
+    const usedSet = new Set(Object.values(_picks));
+    const list = [
+      ...all.filter(p => !usedSet.has(p.rank) || p.rank === currentRank),
+      ...all.filter(p => usedSet.has(p.rank) && p.rank !== currentRank),
+    ];
 
     document.getElementById('sheet-list').innerHTML = list.map(p => {
-      const used = Object.values(_picks).includes(p.rank) && _picks[_activePick] !== p.rank;
+      const used = usedSet.has(p.rank) && p.rank !== currentRank;
       const selected = currentRank === p.rank;
       const avg = getExpertAvg(p.name);
       const avgBadge = avg != null ? `<span class="expert-avg-badge">avg #${avg % 1 === 0 ? avg : avg.toFixed(1)}</span>` : '';
