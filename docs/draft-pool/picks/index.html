@@ -190,12 +190,18 @@
     /* ── Confirm modal ── */
     .modal-backdrop { position: fixed; inset: 0; z-index: 600; background: rgba(0,0,0,0.65); backdrop-filter: blur(4px); opacity: 0; pointer-events: none; transition: opacity 0.2s; }
     .modal-backdrop.show { opacity: 1; pointer-events: all; }
-    .modal { position: fixed; left: 50%; top: 50%; z-index: 700; transform: translate(-50%, -52%) scale(0.95); opacity: 0; pointer-events: none; transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1), opacity 0.2s; background: #0e1e35; border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 1.75rem 1.5rem 1.25rem; width: calc(100% - 2.5rem); max-width: 340px; text-align: center; box-shadow: 0 24px 60px rgba(0,0,0,0.6); }
+    .modal { position: fixed; left: 50%; top: 50%; z-index: 700; transform: translate(-50%, -52%) scale(0.95); opacity: 0; pointer-events: none; transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1), opacity 0.2s; background: #0e1e35; border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 1.75rem 1.5rem 1.25rem; width: calc(100% - 2.5rem); max-width: 420px; text-align: center; box-shadow: 0 24px 60px rgba(0,0,0,0.6); }
     .modal.show { transform: translate(-50%, -50%) scale(1); opacity: 1; pointer-events: all; }
     .modal-icon { font-size: 2.2rem; margin-bottom: 0.5rem; }
     .modal-title { font-family: 'Bebas Neue', cursive; font-size: 1.4rem; letter-spacing: 3px; color: white; margin-bottom: 0.5rem; }
     .modal-body { font-family: 'Barlow Condensed', sans-serif; font-size: 0.9rem; font-weight: 600; color: var(--silver); letter-spacing: 0.5px; line-height: 1.5; margin-bottom: 1.25rem; }
     .modal-body strong { color: white; }
+    .diff-list { margin-top: 0.6rem; display: flex; flex-direction: column; gap: 0.25rem; max-height: 220px; overflow-y: auto; text-align: left; }
+    .diff-row { display: flex; align-items: center; gap: 0.4rem; font-family: 'Barlow Condensed', sans-serif; font-size: 0.82rem; font-weight: 600; }
+    .diff-pick { color: rgba(255,255,255,0.3); width: 28px; flex-shrink: 0; font-family: 'Bebas Neue', cursive; }
+    .diff-old { color: rgba(200,16,46,0.8); text-decoration: line-through; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .diff-arrow { color: rgba(255,255,255,0.2); flex-shrink: 0; }
+    .diff-new { color: #22c55e; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .modal-actions { display: flex; gap: 0.6rem; }
     .modal-cancel { flex: 1; font-family: 'Bebas Neue', cursive; font-size: 0.95rem; letter-spacing: 2px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: var(--silver); border-radius: 8px; padding: 0.6rem; cursor: pointer; transition: background 0.15s, color 0.15s; }
     .modal-cancel:hover { background: rgba(255,255,255,0.1); color: white; }
@@ -747,7 +753,7 @@
     if (count === 0) { showToast('Assign at least one prospect first.', true); return; }
 
     // Check if name already exists
-    const checkRes = await fetch(`${SUPABASE_URL}/rest/v1/draft_pool_entries?pool_code=eq.${POOL_CODE}&participant_name=eq.${encodeURIComponent(name)}&select=id,email`, {
+    const checkRes = await fetch(`${SUPABASE_URL}/rest/v1/draft_pool_entries?pool_code=eq.${POOL_CODE}&participant_name=eq.${encodeURIComponent(name)}&select=id,email,picks`, {
       headers: sbHeaders()
     });
     const existing = checkRes.ok ? await checkRes.json() : [];
@@ -759,8 +765,28 @@
         setTimeout(() => emailEl.classList.remove('shake'), 400);
         return;
       }
+
+      // Build diff between saved picks and current picks
+      const savedPicks = existing[0].picks || {};
+      const changed = [], added = [], removed = [];
+      for (const d of DRAFT_ORDER) {
+        const k = String(d.pick);
+        const oldRank = savedPicks[k] ? parseInt(savedPicks[k]) : null;
+        const newRank = _picks[d.pick] ? parseInt(_picks[d.pick]) : null;
+        if (oldRank === newRank) continue;
+        const oldName = oldRank ? prospectMap[oldRank]?.name : null;
+        const newName = newRank ? prospectMap[newRank]?.name : null;
+        if (oldName && newName) changed.push(`<div class="diff-row"><span class="diff-pick">#${d.pick}</span><span class="diff-old">${escHtml(oldName)}</span><span class="diff-arrow">→</span><span class="diff-new">${escHtml(newName)}</span></div>`);
+        else if (!oldName && newName) added.push(`<div class="diff-row"><span class="diff-pick">#${d.pick}</span><span class="diff-new">+ ${escHtml(newName)}</span></div>`);
+        else if (oldName && !newName) removed.push(`<div class="diff-row"><span class="diff-pick">#${d.pick}</span><span class="diff-old">− ${escHtml(oldName)}</span></div>`);
+      }
+      const diffRows = [...changed, ...added, ...removed];
+      const diffHtml = diffRows.length
+        ? `<div class="diff-list">${diffRows.join('')}</div>`
+        : `<div style="color:rgba(255,255,255,0.3);font-size:0.8rem;margin-top:0.5rem">No changes from your previous submission.</div>`;
+
       const confirmed = await showModal(
-        `Picks already submitted under <strong>${escHtml(name)}</strong>.<br><br>Re-submitting will overwrite your previous entry.`,
+        `Updates to <strong>${escHtml(name)}</strong>'s picks:<br>${diffHtml}`,
         '⚠️', 'Already Submitted', 'Update Picks'
       );
       if (!confirmed) return;
