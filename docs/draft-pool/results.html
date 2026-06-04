@@ -42,6 +42,7 @@
 
     /* ── Content ── */
     .content-wrap { max-width: 1200px; width: 100%; margin: 0 auto; padding: 1rem 1.25rem 2rem; }
+    .leaderboard-wrap { max-width: 600px; margin: 0 auto; }
 
     /* Leaderboard */
     .leaderboard { background: rgba(255,255,255,0.015); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; overflow: hidden; }
@@ -70,8 +71,12 @@
     .lb-tbody td.td-lb-stat.has-val.s4 { color: #22c55e; }
     .lb-tbody td.td-lb-stat.has-val.s2 { color: #60a5fa; }
     .lb-tbody td.td-lb-stat.has-val.s1 { color: #fbbf24; }
-    .lb-tbody td.td-lb-pts { font-family: 'Bebas Neue', cursive; font-size: 1.2rem; letter-spacing: 1px; color: white; min-width: 52px; padding-right: 1rem; }
+    .lb-tbody td.td-lb-pts { font-family: 'Bebas Neue', cursive; font-size: 1.2rem; letter-spacing: 1px; color: white; min-width: 52px; padding-right: 0.5rem; }
     .lb-tbody tr.rank-1 td.td-lb-pts { color: var(--gold); font-size: 1.35rem; }
+    .lb-tbody td.td-lb-chevron { width: 24px; padding-right: 1rem; text-align: right; font-size: 0.75rem; color: rgba(255,255,255,0.2); transition: color 0.12s; }
+    .lb-tbody tr:hover td.td-lb-chevron { color: rgba(255,255,255,0.5); }
+    .personal-back { display: inline-flex; align-items: center; gap: 0.4rem; font-family: 'Barlow Condensed', sans-serif; font-size: 0.82rem; font-weight: 700; color: var(--silver); letter-spacing: 1px; cursor: pointer; margin-bottom: 1rem; padding: 0.3rem 0; background: none; border: none; transition: color 0.15s; }
+    .personal-back:hover { color: white; }
 
     /* Draft board comparison */
     .board-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; position: relative; }
@@ -278,8 +283,8 @@
 <div class="tabs-wrap">
   <div class="tabs">
     <button class="tab-btn active" id="tab-leaderboard" onclick="setTab('leaderboard', this)">🏆 Leaderboard</button>
+    <button class="tab-btn" id="tab-board" onclick="setTab('board', this)">📋 Board</button>
     <button class="tab-btn" id="tab-heatmap" onclick="setTab('heatmap', this)">🔥 Consensus</button>
-    <button class="tab-btn" id="tab-personal" onclick="setTab('personal', this)" style="display:none">👤 <span id="tab-personal-name"></span></button>
   </div>
 </div>
 
@@ -430,7 +435,7 @@
 
   function setTab(tab, btn) {
     _activeTab = tab;
-    if (tab !== 'personal') _personalEntry = null;
+    _personalEntry = null;
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     renderTab();
@@ -438,8 +443,8 @@
 
   function renderTab() {
     if (_activeTab === 'leaderboard') renderLeaderboard();
+    else if (_activeTab === 'board') document.getElementById('content-wrap').innerHTML = buildBoard();
     else if (_activeTab === 'heatmap') renderHeatmap();
-    else if (_activeTab === 'personal' && _personalEntry) renderPersonal(_personalEntry);
     else renderLeaderboard();
   }
 
@@ -447,20 +452,13 @@
     const entry = _entries.find(e => e.id === id);
     if (!entry) return;
     _personalEntry = entry;
-    _activeTab = 'personal';
-    // Show and activate the personal tab
-    const tabEl = document.getElementById('tab-personal');
-    document.getElementById('tab-personal-name').textContent = entry.participant_name.split(' ')[0];
-    tabEl.style.display = 'inline-block';
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    tabEl.classList.add('active');
+    document.getElementById('tab-leaderboard').classList.add('active');
     renderPersonal(entry);
   }
 
   function backToLeaderboard() {
     _personalEntry = null;
     _activeTab = 'leaderboard';
-    document.getElementById('tab-personal').style.display = 'none';
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     document.getElementById('tab-leaderboard').classList.add('active');
     renderLeaderboard();
@@ -527,6 +525,7 @@
     }
 
     wrap.innerHTML = `
+      <button class="personal-back" onclick="backToLeaderboard()">← Back to leaderboard</button>
       <div class="personal-header">
         <div class="personal-name">${escHtml(entry.participant_name)}</div>
         ${scoreStrip}
@@ -599,19 +598,23 @@
         <td class="td-lb-rank">${i + 1}</td>
         <td class="td-lb-name">${medal}${escHtml(e.participant_name)}</td>
         ${statCells}
+        <td class="td-lb-chevron">›</td>
       </tr>`;
     }).join('');
 
     return `
-      <div class="leaderboard">
-        <table class="lb-table">
-          <thead class="lb-thead"><tr>
-            <th></th>
-            <th class="th-lb-name">Name</th>
-            ${headerStats}
-          </tr></thead>
-          <tbody class="lb-tbody">${rows}</tbody>
-        </table>
+      <div class="leaderboard-wrap">
+        <div class="leaderboard">
+          <table class="lb-table">
+            <thead class="lb-thead"><tr>
+              <th></th>
+              <th class="th-lb-name">Name</th>
+              ${headerStats}
+              <th></th>
+            </tr></thead>
+            <tbody class="lb-tbody">${rows}</tbody>
+          </table>
+        </div>
       </div>`;
   }
 
