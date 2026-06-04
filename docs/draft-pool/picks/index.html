@@ -770,11 +770,21 @@
     btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
 
     try {
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/draft_pool_entries`, {
-        method: 'POST',
-        headers: { ...sbHeaders(), 'Prefer': 'resolution=merge-duplicates,return=minimal' },
-        body: JSON.stringify({ pool_code: POOL_CODE, participant_name: name, email, picks: _picks, pick_count: count }),
-      });
+      let res;
+      if (existing.length > 0) {
+        // Update existing entry by id
+        res = await fetch(`${SUPABASE_URL}/rest/v1/draft_pool_entries?id=eq.${existing[0].id}`, {
+          method: 'PATCH',
+          headers: { ...sbHeaders(), 'Prefer': 'return=minimal' },
+          body: JSON.stringify({ picks: _picks, pick_count: count }),
+        });
+      } else {
+        res = await fetch(`${SUPABASE_URL}/rest/v1/draft_pool_entries`, {
+          method: 'POST',
+          headers: { ...sbHeaders(), 'Prefer': 'return=minimal' },
+          body: JSON.stringify({ pool_code: POOL_CODE, participant_name: name, email, picks: _picks, pick_count: count }),
+        });
+      }
       if (!res.ok) {
         const body = await res.text();
         console.error('Submit failed:', res.status, body);
