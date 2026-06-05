@@ -211,7 +211,7 @@
 
         .lb-row {
           display: grid;
-          grid-template-columns: 36px 1fr 44px 52px 52px 52px 60px 60px;
+          grid-template-columns: 36px 1fr 44px 52px 52px 52px 60px 52px 60px;
           align-items: center; padding: 0.65rem 1rem; gap: 0.5rem;
           border-bottom: 1px solid rgba(255,255,255,0.05);
           cursor: pointer; transition: background 0.15s, box-shadow 0.15s;
@@ -228,7 +228,7 @@
         .lb-row.header:hover { background: rgba(255,255,255,0.03); }
         @media (min-width: 861px) { .lb-row { padding: 0.85rem 1.25rem; } }
         @media (max-width: 480px) {
-          .lb-row { grid-template-columns: 30px 1fr 56px 56px; }
+          .lb-row { grid-template-columns: 30px 1fr 56px 44px 56px; }
           .lb-col-hide { display: none; }
         }
 
@@ -259,6 +259,10 @@
         .lb-row.active .lb-stat.pts { color: var(--gold); }
         .lb-stat.gap { color: rgba(255,80,80,0.7); font-size: 0.8rem; }
         .lb-stat.gap.leader { color: var(--green); }
+        .lb-stat.delta { font-size: 0.78rem; font-weight: 700; min-width: 40px; text-align: right; }
+        .lb-stat.delta.pos { color: var(--green); }
+        .lb-stat.delta.neg { color: rgba(255,80,80,0.7); }
+        .lb-stat.delta.zero { color: rgba(255,255,255,0.2); }
         .lb-stat.pos-f { color: var(--pink); }
         .lb-stat.pos-d { color: var(--blue); }
         .lb-stat.pos-g { color: var(--gold); }
@@ -687,6 +691,7 @@
     let _leagueName = null;
 
     let allPlayers = [], teams = [], currentTrades = [], activeTeamId = null;
+    let _lastSnapshot = {}; // team_id -> pts from most recent daily snapshot
     let _windowPtsByTradeKey = {};
     const _gameLogCache = new Map();
     let activeView = sessionStorage.getItem('pool_view') || 'standings';
@@ -1085,6 +1090,19 @@
         const tRes = await fetch(`${SUPABASE_URL}/rest/v1/player_trades?league_code=eq.${_leagueCode}&select=team_id,player_to_slug,player_to_name,player_to_position,date_from_acquired,date_traded,points_accumulated_at_trade&order=date_from_acquired.asc`,
           { headers: sbHeaders() });
         if (tRes.ok) currentTrades = await tRes.json();
+        // Fetch latest snapshot for "since last update" delta
+        try {
+          const snapRes = await fetch(
+            `${SUPABASE_URL}/rest/v1/pool_standings_snapshots?league_code=eq.${_leagueCode}&order=snapshot_date.desc&limit=1&select=standings`,
+            { headers: sbHeaders() }
+          );
+          if (snapRes.ok) {
+            const snapRows = await snapRes.json();
+            if (snapRows.length && Array.isArray(snapRows[0].standings)) {
+              _lastSnapshot = Object.fromEntries(snapRows[0].standings.map(s => [s.team_id, s.pts ?? 0]));
+            }
+          }
+        } catch(_) {}
         activeTeamId = sortedTeams()[0]?.id || teams[0]?.id;
         render();
         // precomputeTradeWindowPoints disabled — NHL API blocks CORS from production; snapshot system handles all point calculations.
@@ -1295,6 +1313,7 @@
           <div class="lb-stat lb-col-hide pos-d">${sub.D}</div>
           <div class="lb-stat lb-col-hide pos-g">${sub.G}</div>
           <div class="lb-stat pts">${pts}</div>
+          ${(() => { const snap = _lastSnapshot[t.id]; if (snap === undefined) return '<div class="lb-stat delta zero">—</div>'; const d = pts - snap; const cls = d > 0 ? 'pos' : d < 0 ? 'neg' : 'zero'; const label = d > 0 ? `+${d}` : d < 0 ? String(d) : '—'; return `<div class="lb-stat delta ${cls}">${label}</div>`; })()}
           <div class="lb-stat ${i===0?'gap leader':'gap'}">${gap}</div>
         </div>`;
 
@@ -1310,6 +1329,7 @@
           <div class="lb-col-label lb-col-hide" style="color:var(--blue)">D</div>
           <div class="lb-col-label lb-col-hide" style="color:var(--gold)">G</div>
           <div class="lb-col-label">Total</div>
+          <div class="lb-col-label" style="color:var(--green);opacity:0.7" title="Points since last daily update">+/-</div>
           <div class="lb-col-label">Gap</div>
         </div>
         ${rowsHtml}
