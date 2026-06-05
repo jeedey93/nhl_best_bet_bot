@@ -422,14 +422,17 @@
         .hist-header-row,
         .hist-row {
           display: grid;
-          grid-template-columns: 28px 1fr 40px 40px 40px 60px;
+          grid-template-columns: 28px 1fr 40px 40px 40px 48px 60px;
           gap: 0.4rem; padding: 0.45rem 0.75rem; align-items: center;
         }
         @media (max-width: 560px) {
           .hist-header-row,
-          .hist-row { grid-template-columns: 28px 1fr 36px 36px 56px; }
+          .hist-row { grid-template-columns: 28px 1fr 36px 36px 48px 56px; }
           .hist-col-hide, .hist-col-hide-g { display: none; }
         }
+        .hist-ytd { font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 1px; text-align: right; }
+        .hist-ytd.pos { color: var(--green); }
+        .hist-ytd.zero { color: rgba(255,255,255,0.15); }
         .hist-header-row { background: rgba(255,255,255,0.04); border-bottom: 1px solid rgba(255,255,255,0.1); padding: 0.35rem 0.75rem; }
         .hist-row { border-bottom: 1px solid rgba(255,255,255,0.04); }
         .hist-row:last-child { border-bottom: none; }
@@ -692,6 +695,37 @@
 
     let allPlayers = [], teams = [], currentTrades = [], activeTeamId = null;
     let _lastSnapshot = {}; // team_id -> pts from most recent daily snapshot
+    let _playerYesterdayPts = {}; // nhl_player_id -> pool pts scored yesterday
+
+    function yesterdayIsoDay() {
+      const d = new Date();
+      d.setDate(d.getDate() - 1);
+      return d.toISOString().slice(0, 10);
+    }
+
+    async function loadYesterdayPts() {
+      const yesterday = yesterdayIsoDay();
+      const season = seasonFromDate(yesterday);
+      if (!season) return;
+      const allPlrs = teams.flatMap(t => {
+        const r = rosterPlayers(t.roster);
+        return [...r.F, ...r.D, ...r.G].filter(Boolean);
+      });
+      const seen = new Set();
+      const unique = allPlrs.filter(p => {
+        if (!p.nhl_player_id || seen.has(p.nhl_player_id)) return false;
+        seen.add(p.nhl_player_id); return true;
+      });
+      await Promise.all(unique.map(async p => {
+        const pos = normalizePos(p.position);
+        const games = await fetchPlayerGameLog(p.nhl_player_id, season);
+        const ytdPts = games
+          .filter(g => toIsoDay(gameDateStr(g)) === yesterday)
+          .reduce((s, g) => s + scoreGameForPool(g, pos), 0);
+        if (ytdPts > 0) _playerYesterdayPts[p.nhl_player_id] = ytdPts;
+      }));
+      render();
+    }
     let _windowPtsByTradeKey = {};
     const _gameLogCache = new Map();
     let activeView = sessionStorage.getItem('pool_view') || 'standings';
@@ -1105,7 +1139,7 @@
         } catch(_) {}
         activeTeamId = sortedTeams()[0]?.id || teams[0]?.id;
         render();
-        // precomputeTradeWindowPoints disabled — NHL API blocks CORS from production; snapshot system handles all point calculations.
+        loadYesterdayPts(); // async — re-renders when done
       } catch(e) {
         document.getElementById('content').innerHTML = `<div class="msg">Failed to load data. <button class="btn-refresh" onclick="load()">Retry</button></div>`;
       }
@@ -1329,7 +1363,7 @@
           <div class="lb-col-label lb-col-hide" style="color:var(--blue)">D</div>
           <div class="lb-col-label lb-col-hide" style="color:var(--gold)">G</div>
           <div class="lb-col-label">Total</div>
-          <div class="lb-col-label" style="color:var(--green);opacity:0.7" title="Points since last daily update">+/-</div>
+          <div class="lb-col-label" style="color:var(--green);opacity:0.7" title="Points since last daily update">Ytd</div>
           <div class="lb-col-label">Gap</div>
         </div>
         ${rowsHtml}
@@ -1432,6 +1466,7 @@
           ${pos==='G'
             ? `${sortHdr('gp','GP')}${sortHdr('w','W')}<div class="lb-col-label hist-col-hide-g">${sortHdr('so','SO')}</div>`
             : `${sortHdr('gp','GP')}${sortHdr('g','G')}<div class="lb-col-label hist-col-hide">${sortHdr('a','A')}</div>`}
+          <div class="lb-col-label" style="color:var(--green);opacity:0.7" title="Points scored yesterday">Ytd</div>
           ${sortHdr('pts','Pts')}
         </div>`;
 
@@ -1458,7 +1493,8 @@
         } else {
           pts = _windowPtsByTradeKey[tradeKey] ?? t.points_accumulated_at_trade ?? '—';
         }
-        rowData.push({ isCurrent, cls: isCurrent?'current':'past', name: t.player_to_name||t.player_to_slug, logo, tenure: tenureTooltip, col1, col2, col3, pts, gp, g, a, w, so });
+        rowData.push({ isCurrent, cls: isCurrent?'current':'past', name: t.player_to_name||t.player_to_slug, logo, tenure: tenureTooltip, col1, col2, col3, pts, gp, g, a, w, so,
+          ytd: (isCurrent && p?.nhl_player_id) ? (_playerYesterdayPts[p.nhl_player_id] ?? 0) : null });
       });
 
       currentNoDraft.forEach(p => {
@@ -1472,7 +1508,8 @@
         const pts = poolScoreOwned(p, team, p._slug);
         const acqDate = resolveActiveAcquiredDate(team, p._slug);
         const tenure = `${fmt(acqDate)} → Now`;
-        rowData.push({ isCurrent: true, cls: 'current', name: formatName(p.player_name), logo, tenure, col1, col2, col3, pts, gp, g, a, w, so });
+        rowData.push({ isCurrent: true, cls: 'current', name: formatName(p.player_name), logo, tenure, col1, col2, col3, pts, gp, g, a, w, so,
+          ytd: p.nhl_player_id ? (_playerYesterdayPts[p.nhl_player_id] ?? 0) : 0 });
       });
 
       // Sort: current players first, then by selected field desc, past players always last
@@ -1484,14 +1521,23 @@
         return bv - av;
       });
 
-      const renderedRows = rowData.map(r => `<div class="hist-row ${r.cls}">
+      const renderedRows = rowData.map(r => {
+        const ytdVal = r.ytd != null ? r.ytd : null;
+        const ytdHtml = ytdVal == null
+          ? `<span class="hist-ytd zero">—</span>`
+          : ytdVal > 0
+            ? `<span class="hist-ytd pos">+${ytdVal}</span>`
+            : `<span class="hist-ytd zero">—</span>`;
+        return `<div class="hist-row ${r.cls}">
           <span class="hist-pos ${pos}">${pos}</span>
           <span class="hist-name${r.isCurrent?'':' past'}" title="${r.tenure}">${r.logo}${r.name}</span>
           <span class="hist-stat">${r.col1}</span>
           <span class="hist-stat">${r.col2}</span>
           <span class="hist-stat${pos==='G'?' hist-col-hide-g':' hist-col-hide'}">${r.col3}</span>
+          ${ytdHtml}
           <span class="hist-pts">${r.pts}</span>
-        </div>`);
+        </div>`;
+      });
 
       const allPts = rowData.map(r => typeof r.pts === 'number' ? r.pts : 0);
       const total = allPts.reduce((s, v) => s + v, 0);
@@ -1505,6 +1551,7 @@
           <div class="lb-col-label left" style="font-size:0.75rem">TOTAL</div>
           <div></div><div></div>
           <div class="${pos==='G'?'hist-col-hide-g':'hist-col-hide'}"></div>
+          <div></div>
           <div class="hist-pts total">${total}</div>
         </div>
       </div>`;
