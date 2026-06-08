@@ -165,27 +165,41 @@
 
     /* ── Last updated indicator ── */
     .price-refresh { display: flex; align-items: center; gap: 0.4rem; font-size: 0.68rem; font-weight: 600; color: rgba(255,255,255,0.2); letter-spacing: 0.5px; }
-    /* ── Snapshot history ── */
-    .snapshot-list { display: flex; flex-direction: column; gap: 0.5rem; }
-    .snapshot-card { background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; overflow: hidden; }
-    .snapshot-header { display: flex; align-items: center; gap: 1rem; padding: 0.75rem 1rem; cursor: pointer; transition: background 0.12s; flex-wrap: wrap; }
-    .snapshot-header:hover { background: rgba(255,255,255,0.04); }
-    .snapshot-date { font-family: 'Bebas Neue', cursive; font-size: 0.95rem; letter-spacing: 2px; color: var(--silver); min-width: 90px; }
-    .snapshot-val { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 1px; color: white; }
-    .snapshot-pill { font-family: 'Bebas Neue', cursive; font-size: 0.78rem; letter-spacing: 1px; border-radius: 4px; padding: 2px 8px; }
-    .snapshot-pill.pos { background: rgba(74,222,128,0.15); color: #4ade80; }
-    .snapshot-pill.neg { background: rgba(248,113,113,0.12); color: #f87171; }
-    .snapshot-pill.neu { background: rgba(255,255,255,0.06); color: var(--silver); }
-    .snapshot-body { border-top: 1px solid rgba(255,255,255,0.06); padding: 0.75rem 1rem; }
-    .snapshot-holdings { display: flex; flex-direction: column; gap: 0.3rem; }
-    .sh-row { display: grid; grid-template-columns: 1fr 80px 80px 70px; gap: 0.5rem; align-items: center; font-size: 0.8rem; font-weight: 600; padding: 0.25rem 0; border-bottom: 1px solid rgba(255,255,255,0.03); }
-    .sh-row:last-child { border-bottom: none; }
-    .sh-name { color: rgba(255,255,255,0.7); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .sh-val { text-align: right; color: white; }
-    .sh-day { text-align: right; }
-    .sh-gain { text-align: right; font-size: 0.75rem; color: rgba(255,255,255,0.35); }
-    .snapshot-chevron { margin-left: auto; color: rgba(255,255,255,0.2); font-size: 0.8rem; transition: transform 0.2s; }
-    .snapshot-card.open .snapshot-chevron { transform: rotate(90deg); }
+    /* ── Daily history ── */
+    .history-cal { margin-bottom: 1rem; }
+    .history-cal-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.6rem; }
+    .history-cal-title { font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 3px; color: var(--silver); }
+    .history-cal-btn { background: none; border: none; color: rgba(255,255,255,0.3); font-size: 1rem; cursor: pointer; padding: 0 0.5rem; transition: color 0.15s; }
+    .history-cal-btn:hover { color: white; }
+    .history-cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+    .cal-dow { font-size: 0.6rem; font-weight: 700; letter-spacing: 1px; color: rgba(255,255,255,0.2); text-align: center; padding: 2px 0; text-transform: uppercase; }
+    .cal-day { border-radius: 6px; padding: 4px 2px; text-align: center; cursor: default; min-height: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; }
+    .cal-day.has-data { cursor: pointer; transition: filter 0.12s; }
+    .cal-day.has-data:hover { filter: brightness(1.25); }
+    .cal-day.selected { outline: 2px solid var(--gold); outline-offset: 1px; }
+    .cal-day.pos { background: rgba(74,222,128,0.15); }
+    .cal-day.neg { background: rgba(248,113,113,0.1); }
+    .cal-day.empty { background: transparent; }
+    .cal-day.other-month { opacity: 0.2; cursor: default; }
+    .cal-day-num { font-size: 0.65rem; font-weight: 700; color: rgba(255,255,255,0.4); }
+    .cal-day.has-data .cal-day-num { color: rgba(255,255,255,0.7); }
+    .cal-day-change { font-family: 'Bebas Neue', cursive; font-size: 0.7rem; letter-spacing: 0.5px; }
+    .cal-day.pos .cal-day-change { color: #4ade80; }
+    .cal-day.neg .cal-day-change { color: #f87171; }
+    /* Detail table */
+    .history-detail { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; overflow: hidden; }
+    .history-detail-header { padding: 0.6rem 1rem; background: rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; }
+    .history-detail-date { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 2px; color: white; }
+    .history-detail-summary { display: flex; gap: 0.6rem; }
+    .history-detail-pill { font-family: 'Bebas Neue', cursive; font-size: 0.78rem; letter-spacing: 1px; border-radius: 4px; padding: 2px 8px; }
+    .history-detail-pill.pos { background: rgba(74,222,128,0.15); color: #4ade80; }
+    .history-detail-pill.neg { background: rgba(248,113,113,0.12); color: #f87171; }
+    .history-detail table { width: 100%; border-collapse: collapse; }
+    .history-detail th { font-size: 0.62rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.2); padding: 0.45rem 0.75rem; text-align: right; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .history-detail th.left { text-align: left; }
+    .history-detail td { padding: 0.5rem 0.75rem; text-align: right; font-size: 0.85rem; font-weight: 600; border-bottom: 1px solid rgba(255,255,255,0.03); white-space: nowrap; }
+    .history-detail td.left { text-align: left; color: rgba(255,255,255,0.7); }
+    .history-detail tr:last-child td { border-bottom: none; }
     .refresh-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); box-shadow: 0 0 6px rgba(34,197,94,0.5); animation: pulse 2s infinite; flex-shrink: 0; }
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
@@ -489,11 +503,9 @@
     </div>
     <div id="price-refresh-bar" style="display:none;padding:0.25rem 0 0.5rem">
       <div class="price-refresh"><div class="refresh-dot"></div><span id="price-refresh-text">Prices live</span>
-      <button class="btn-sm" id="btn-history" onclick="toggleSnapshotHistory()" style="margin-left:0.75rem;font-size:0.72rem;padding:0.2rem 0.6rem">📅 History</button>
-      <button class="btn-sm" id="btn-share" onclick="generateShareImage()" style="margin-left:0.4rem;font-size:0.72rem;padding:0.2rem 0.6rem">📤 Share</button>
+      <button class="btn-sm" id="btn-share" onclick="generateShareImage()" style="margin-left:0.75rem;font-size:0.72rem;padding:0.2rem 0.6rem">📤 Share</button>
       </div>
     </div>
-    <div id="snapshot-history" style="display:none;margin-bottom:1.25rem"></div>
     <div id="portfolio-content"></div>
   </div>
 </div>
@@ -727,7 +739,7 @@
   async function loadPortfolio(p, accountSlug, silent = false) {
     _activePortfolio = p;
     _snapshotsLoaded = false;
-    if (!silent) { document.getElementById('snapshot-history').style.display = 'none'; document.getElementById('portfolio-content').innerHTML = `<div class="empty-state"><span class="spinner"></span>Loading…</div>`; }
+    if (!silent) { document.getElementById('portfolio-content').innerHTML = `<div class="empty-state"><span class="spinner"></span>Loading…</div>`; }
     try {
       [_accounts, _holdings] = await Promise.all([
         sbGet(`finance_accounts?portfolio_id=eq.${p.id}&order=created_at.asc&select=*`),
@@ -884,12 +896,17 @@
       <div class="dividend-section">
         <div class="holdings-header"><div class="section-title">Dividend Calendar</div></div>
         <div class="div-calendar">${buildDividendCalendar(enriched)}</div>
+      </div>
+      <div class="dividend-section" id="history-section">
+        <div class="holdings-header"><div class="section-title">Daily History</div></div>
+        <div id="history-content"><div class="empty-state" style="padding:1rem"><span class="spinner"></span></div></div>
       </div>`;
 
     // Show by-account donut when viewing All with multiple accounts
     const showByAccount = !_activeAccount && _accounts.length > 1;
     renderAllocationChart(enriched, showByAccount);
     if (pricesLoaded) animateStatCards(totalValue, totalDayChange, totalGain);
+    loadHistorySection();
   }
 
   function buildAccountBar() {
@@ -1695,73 +1712,133 @@
 
   // ── Snapshot history ──────────────────────────────────────────────────────
   let _snapshotsLoaded = false;
+  let _snapshotData = [];
+  let _historyCalMonth = null; // { year, month } currently displayed
+  let _historySelectedDate = null;
 
-  async function toggleSnapshotHistory() {
-    const panel = document.getElementById('snapshot-history');
-    const btn = document.getElementById('btn-history');
-    if (panel.style.display !== 'none') {
-      panel.style.display = 'none';
-      btn.textContent = '📅 History';
-      return;
-    }
-    panel.style.display = 'block';
-    btn.textContent = '📅 Hide';
-    if (!_snapshotsLoaded) await loadSnapshotHistory();
-  }
-
-  async function loadSnapshotHistory() {
-    const panel = document.getElementById('snapshot-history');
-    panel.innerHTML = `<div class="empty-state"><span class="spinner"></span>Loading history…</div>`;
+  async function loadHistorySection() {
+    const el = document.getElementById('history-content');
+    if (!el) return;
+    if (_snapshotsLoaded && _snapshotData !== null) { renderHistorySection(); return; }
+    el.innerHTML = `<div class="empty-state" style="padding:1rem"><span class="spinner"></span></div>`;
     try {
-      const rows = await sbGet(`finance_snapshots?portfolio_id=eq.${_activePortfolio.id}&order=snapshot_date.desc&limit=30&select=snapshot_date,total_value,total_cost,day_change,day_change_pct,gain,gain_pct,holdings_json`);
+      _snapshotData = await sbGet(`finance_snapshots?portfolio_id=eq.${_activePortfolio.id}&order=snapshot_date.desc&limit=90&select=snapshot_date,total_value,day_change,day_change_pct,holdings_json`);
       _snapshotsLoaded = true;
-      if (!rows.length) { panel.innerHTML = `<div class="empty-state" style="padding:1.5rem">No snapshots yet. The first one will be taken at market close today.</div>`; return; }
-      panel.innerHTML = `<div class="snapshot-list">${rows.map((r, i) => buildSnapshotCard(r, i)).join('')}</div>`;
-    } catch(e) { panel.innerHTML = `<div class="empty-state">Failed to load history.</div>`; }
+      if (!_historyCalMonth && _snapshotData.length) {
+        const d = new Date(_snapshotData[0].snapshot_date);
+        _historyCalMonth = { year: d.getFullYear(), month: d.getMonth() };
+      } else if (!_historyCalMonth) {
+        const now = new Date();
+        _historyCalMonth = { year: now.getFullYear(), month: now.getMonth() };
+      }
+      _historySelectedDate = _snapshotData[0]?.snapshot_date || null;
+      renderHistorySection();
+    } catch(e) { el.innerHTML = `<div class="empty-state">Failed to load history.</div>`; }
   }
 
-  function buildSnapshotCard(r, i) {
-    const dayClr = r.day_change >= 0 ? 'pos' : 'neg';
-    const gainClr = r.gain >= 0 ? 'pos' : 'neg';
-    const daySgn = r.day_change >= 0 ? '+' : '';
-    const gainSgn = r.gain >= 0 ? '+' : '';
-    const holdings = r.holdings_json || [];
-    const holdingRows = holdings.map(h => {
-      const dc = (h.day_change || 0) >= 0 ? 'pos' : 'neg';
-      return `<div class="sh-row">
-        <div class="sh-name">${escHtml(h.ticker || '')} <span style="color:rgba(255,255,255,0.3);font-size:0.72rem">${escHtml((h.company_name || '').split(' ').slice(0,2).join(' '))}</span></div>
-        <div class="sh-val">${fmtC(h.market_value)}</div>
-        <div class="sh-day ${dc}">${(h.day_change||0) >= 0 ? '+' : ''}${fmtC(h.day_change)}</div>
-        <div class="sh-gain ${(h.overall_gain_pct||0) >= 0 ? 'pos' : 'neg'}">${(h.overall_gain_pct||0) >= 0 ? '+' : ''}${fmt(h.overall_gain_pct)}%</div>
-      </div>`;
-    }).join('');
-    return `<div class="snapshot-card" id="sc-${i}">
-      <div class="snapshot-header" onclick="toggleSnapshotCard(${i})">
-        <div class="snapshot-date">${r.snapshot_date}</div>
-        <div class="snapshot-val">${fmtC(r.total_value)}</div>
-        <span class="snapshot-pill ${dayClr}">${daySgn}${fmtC(r.day_change)} (${daySgn}${fmt(r.day_change_pct)}%)</span>
-        <span class="snapshot-pill ${gainClr}">${gainSgn}${fmt(r.gain_pct)}% overall</span>
-        <span class="snapshot-chevron">›</span>
+  function renderHistorySection() {
+    const el = document.getElementById('history-content');
+    if (!el) return;
+    const dataMap = Object.fromEntries(_snapshotData.map(r => [r.snapshot_date, r]));
+    el.innerHTML = buildHistoryCalendar(dataMap) + buildHistoryDetail(dataMap);
+  }
+
+  function buildHistoryCalendar(dataMap) {
+    const { year, month } = _historyCalMonth;
+    const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const today = new Date().toISOString().slice(0, 10);
+
+    let cells = '';
+    // Empty cells before first day
+    for (let i = 0; i < firstDay; i++) cells += `<div class="cal-day empty"></div>`;
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const snap = dataMap[dateStr];
+      const isSelected = dateStr === _historySelectedDate;
+      if (snap) {
+        const pos = snap.day_change >= 0;
+        const dc = snap.day_change;
+        const abs = Math.abs(dc);
+        const sign = pos ? '+' : '−';
+        const absFmt = abs >= 1000 ? `${sign}$${(abs/1000).toFixed(1)}k` : `${sign}$${abs.toFixed(0)}`;
+        cells += `<div class="cal-day has-data ${pos?'pos':'neg'}${isSelected?' selected':''}" onclick="selectHistoryDate('${dateStr}')">
+          <div class="cal-day-num">${d}</div>
+          <div class="cal-day-change">${absFmt}</div>
+        </div>`;
+      } else {
+        cells += `<div class="cal-day empty"><div class="cal-day-num" style="color:rgba(255,255,255,0.15)">${d}</div></div>`;
+      }
+    }
+
+    return `<div class="history-cal">
+      <div class="history-cal-nav">
+        <button class="history-cal-btn" onclick="historyCalNav(-1)">‹</button>
+        <div class="history-cal-title">${MONTHS[month]} ${year}</div>
+        <button class="history-cal-btn" onclick="historyCalNav(1)">›</button>
       </div>
-      <div class="snapshot-body" style="display:none">
-        <div style="display:grid;grid-template-columns:1fr 80px 80px 70px;gap:0.5rem;padding:0 0 0.5rem;border-bottom:1px solid rgba(255,255,255,0.06);margin-bottom:0.3rem">
-          <div style="font-size:0.65rem;font-weight:700;letter-spacing:1.5px;color:rgba(255,255,255,0.25);text-transform:uppercase">Stock</div>
-          <div style="font-size:0.65rem;font-weight:700;letter-spacing:1.5px;color:rgba(255,255,255,0.25);text-transform:uppercase;text-align:right">Value</div>
-          <div style="font-size:0.65rem;font-weight:700;letter-spacing:1.5px;color:rgba(255,255,255,0.25);text-transform:uppercase;text-align:right">Day</div>
-          <div style="font-size:0.65rem;font-weight:700;letter-spacing:1.5px;color:rgba(255,255,255,0.25);text-transform:uppercase;text-align:right">Gain%</div>
-        </div>
-        <div class="snapshot-holdings">${holdingRows}</div>
+      <div class="history-cal-grid">
+        ${DAYS.map(d => `<div class="cal-dow">${d}</div>`).join('')}
+        ${cells}
       </div>
     </div>`;
   }
 
-  function toggleSnapshotCard(i) {
-    const card = document.getElementById(`sc-${i}`);
-    const body = card.querySelector('.snapshot-body');
-    const open = body.style.display === 'none';
-    body.style.display = open ? 'block' : 'none';
-    card.classList.toggle('open', open);
+  function buildHistoryDetail(dataMap) {
+    if (!_historySelectedDate || !dataMap[_historySelectedDate]) {
+      return `<div class="empty-state" style="padding:1.25rem">Click a day to see the breakdown.</div>`;
+    }
+    const r = dataMap[_historySelectedDate];
+    const pos = r.day_change >= 0;
+    const sgn = pos ? '+' : '';
+    const holdings = (r.holdings_json || []).sort((a,b) => b.day_change - a.day_change);
+    const rows = holdings.map(h => {
+      const dc = h.day_change || 0;
+      const dcPos = dc >= 0;
+      return `<tr>
+        <td class="left">${escHtml(h.ticker||'')} <span style="color:rgba(255,255,255,0.3);font-size:0.75rem">${escHtml((h.company_name||'').split(' ').slice(0,2).join(' '))}</span></td>
+        <td>${fmtC(h.market_value)}</td>
+        <td class="${dcPos?'pos':'neg'}">${dcPos?'+':''}${fmtC(dc)}</td>
+        <td class="${dcPos?'pos':'neg'}">${(h.day_change_pct||0)>=0?'+':''}${fmt(h.day_change_pct||0)}%</td>
+      </tr>`;
+    }).join('');
+
+    return `<div class="history-detail">
+      <div class="history-detail-header">
+        <div class="history-detail-date">${_historySelectedDate}</div>
+        <div class="history-detail-summary">
+          <span class="history-detail-pill ${pos?'pos':'neg'}">${sgn}${fmtC(r.day_change)}</span>
+          <span class="history-detail-pill ${pos?'pos':'neg'}">${sgn}${fmt(r.day_change_pct)}%</span>
+          <span class="history-detail-pill neu" style="background:rgba(255,255,255,0.06);color:var(--silver)">${fmtC(r.total_value)}</span>
+        </div>
+      </div>
+      ${rows ? `<table>
+        <thead><tr>
+          <th class="left">Stock</th><th>Value</th><th>Day $</th><th>Day %</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>` : '<div class="empty-state" style="padding:0.75rem">No holdings breakdown available.</div>'}
+    </div>`;
   }
+
+  function selectHistoryDate(dateStr) {
+    _historySelectedDate = dateStr;
+    const dataMap = Object.fromEntries(_snapshotData.map(r => [r.snapshot_date, r]));
+    document.getElementById('history-content').innerHTML = buildHistoryCalendar(dataMap) + buildHistoryDetail(dataMap);
+  }
+
+  function historyCalNav(dir) {
+    let { year, month } = _historyCalMonth;
+    month += dir;
+    if (month < 0) { month = 11; year--; }
+    if (month > 11) { month = 0; year++; }
+    _historyCalMonth = { year, month };
+    const dataMap = Object.fromEntries(_snapshotData.map(r => [r.snapshot_date, r]));
+    document.getElementById('history-content').innerHTML = buildHistoryCalendar(dataMap) + buildHistoryDetail(dataMap);
+  }
+
 
   // ── Share image generator ─────────────────────────────────────────────────
   async function generateShareImage() {
