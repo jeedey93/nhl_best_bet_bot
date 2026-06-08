@@ -456,6 +456,7 @@
     <div id="price-refresh-bar" style="display:none;padding:0.25rem 0 0.5rem">
       <div class="price-refresh"><div class="refresh-dot"></div><span id="price-refresh-text">Prices live</span>
       <button class="btn-sm" id="btn-history" onclick="toggleSnapshotHistory()" style="margin-left:0.75rem;font-size:0.72rem;padding:0.2rem 0.6rem">📅 History</button>
+      <button class="btn-sm" id="btn-share" onclick="generateShareImage()" style="margin-left:0.4rem;font-size:0.72rem;padding:0.2rem 0.6rem">📤 Share</button>
       </div>
     </div>
     <div id="snapshot-history" style="display:none;margin-bottom:1.25rem"></div>
@@ -1651,6 +1652,219 @@
     const open = body.style.display === 'none';
     body.style.display = open ? 'block' : 'none';
     card.classList.toggle('open', open);
+  }
+
+  // ── Share image generator ─────────────────────────────────────────────────
+  async function generateShareImage() {
+    const btn = document.getElementById('btn-share');
+    btn.textContent = '⏳ Generating…';
+    btn.disabled = true;
+
+    // Collect visible enriched holdings (same as current view)
+    const visibleHoldings = _activeAccount
+      ? _holdings.filter(h => h.account_id === _activeAccount.id)
+      : _holdings;
+
+    const rows = visibleHoldings.map(h => {
+      const p = _prices[h.ticker];
+      const dc = p ? (h.shares || 0) * p.change : null;
+      const dcPct = p?.changePct ?? null;
+      return { ticker: (h.ticker || '').replace('TSX:', ''), name: (h.company_name || '').split(' ').slice(0, 3).join(' '), price: p?.price ?? null, dc, dcPct };
+    }).filter(r => r.price != null).sort((a, b) => (b.dc ?? 0) - (a.dc ?? 0));
+
+    // Portfolio totals
+    let totalValue = 0, totalDay = 0;
+    visibleHoldings.forEach(h => {
+      const p = _prices[h.ticker];
+      if (p) { totalValue += (h.shares || 0) * p.price; totalDay += (h.shares || 0) * p.change; }
+    });
+    const dayPct = (totalValue - totalDay) > 0 ? (totalDay / (totalValue - totalDay)) * 100 : 0;
+
+    // Canvas dimensions
+    const W = 640;
+    const HEADER_H = 110;
+    const SUMMARY_H = 80;
+    const ROW_H = 52;
+    const FOOTER_H = 44;
+    const H = HEADER_H + SUMMARY_H + rows.length * ROW_H + FOOTER_H + 16;
+
+    const canvas = document.createElement('canvas');
+    canvas.width = W * 2; canvas.height = H * 2; // @2x
+    const ctx = canvas.getContext('2d');
+    ctx.scale(2, 2);
+
+    const BG = '#07111f';
+    const CARD = '#0e1e35';
+    const BORDER = '#1e3a5f';
+    const GREEN = '#4ade80';
+    const RED = '#f87171';
+    const GOLD = '#ffb81c';
+    const SILVER = '#a8b2be';
+    const WHITE = '#ffffff';
+    const MUTED = '#4a5568';
+
+    const fmtMoney = (v) => v == null ? '—' : (v >= 0 ? '+' : '') + '$' + Math.abs(v).toLocaleString('en-CA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const fmtPct = (v) => v == null ? '—' : (v >= 0 ? '+' : '') + v.toFixed(2) + '%';
+
+    // Background
+    ctx.fillStyle = BG;
+    ctx.fillRect(0, 0, W, H);
+
+    // Gradient glow at top
+    const grad = ctx.createRadialGradient(W/2, 0, 0, W/2, 0, 280);
+    grad.addColorStop(0, 'rgba(26,58,110,0.5)');
+    grad.addColorStop(1, 'rgba(7,17,31,0)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+
+    // Header
+    ctx.font = '600 11px "Barlow Condensed", Arial';
+    ctx.letterSpacing = '4px';
+    ctx.fillStyle = GOLD;
+    ctx.textAlign = 'center';
+    ctx.fillText('PARIEUR DISCIPLINÉ', W/2, 36);
+
+    ctx.font = 'bold 22px Arial';
+    ctx.letterSpacing = '1px';
+    ctx.fillStyle = WHITE;
+    ctx.fillText('📊 Daily Snapshot', W/2, 65);
+
+    ctx.font = '13px Arial';
+    ctx.letterSpacing = '0px';
+    ctx.fillStyle = SILVER;
+    const today = new Date().toLocaleDateString('en-CA', { year: 'numeric', month: 'long', day: 'numeric' });
+    ctx.fillText(`${today} · Market Close`, W/2, 88);
+
+    // Summary card
+    const sy = HEADER_H + 4;
+    ctx.fillStyle = CARD;
+    roundRect(ctx, 16, sy, W - 32, SUMMARY_H - 8, 10);
+    ctx.fill();
+    ctx.strokeStyle = BORDER;
+    ctx.lineWidth = 1;
+    roundRect(ctx, 16, sy, W - 32, SUMMARY_H - 8, 10);
+    ctx.stroke();
+
+    // Summary labels
+    ctx.textAlign = 'left';
+    ctx.font = '600 10px Arial';
+    ctx.fillStyle = SILVER;
+    ctx.fillText('MARKET VALUE', 32, sy + 18);
+    ctx.textAlign = 'center';
+    ctx.fillText('DAY CHANGE', W/2, sy + 18);
+
+    // Summary values
+    ctx.font = 'bold 20px Arial';
+    ctx.textAlign = 'left';
+    ctx.fillStyle = WHITE;
+    ctx.fillText('$' + totalValue.toLocaleString('en-CA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }), 32, sy + 42);
+    ctx.textAlign = 'center';
+    ctx.fillStyle = totalDay >= 0 ? GREEN : RED;
+    ctx.fillText(fmtMoney(totalDay), W/2, sy + 42);
+
+    ctx.font = '11px Arial';
+    ctx.fillText(fmtPct(dayPct), W/2, sy + 60);
+
+    // Portfolio name (right)
+    ctx.textAlign = 'right';
+    ctx.font = 'bold 13px Arial';
+    ctx.fillStyle = WHITE;
+    ctx.fillText(_activePortfolio?.name || '', W - 32, sy + 30);
+    ctx.font = '11px Arial';
+    ctx.fillStyle = MUTED;
+    ctx.fillText(`${rows.length} stocks`, W - 32, sy + 48);
+
+    // Column headers
+    const tableY = HEADER_H + SUMMARY_H + 12;
+    ctx.textAlign = 'left';
+    ctx.font = '600 10px Arial';
+    ctx.fillStyle = MUTED;
+    ctx.fillText('STOCK', 24, tableY);
+    ctx.textAlign = 'right';
+    ctx.fillText('PRICE', 280, tableY);
+    ctx.fillText('DAY $', 420, tableY);
+    ctx.fillText('DAY %', W - 24, tableY);
+
+    // Separator
+    ctx.strokeStyle = BORDER;
+    ctx.lineWidth = 0.5;
+    ctx.beginPath(); ctx.moveTo(16, tableY + 6); ctx.lineTo(W - 16, tableY + 6); ctx.stroke();
+
+    // Rows
+    rows.forEach((r, i) => {
+      const ry = tableY + 14 + i * ROW_H;
+      const isPos = (r.dc ?? 0) >= 0;
+
+      // Row bg for non-zero changes
+      if (r.dc !== 0) {
+        ctx.fillStyle = isPos ? 'rgba(74,222,128,0.04)' : 'rgba(248,113,113,0.04)';
+        ctx.fillRect(16, ry - 4, W - 32, ROW_H - 4);
+      }
+
+      // Left border accent
+      ctx.fillStyle = isPos ? GREEN : RED;
+      ctx.fillRect(16, ry - 4, 3, ROW_H - 6);
+
+      // Ticker
+      ctx.textAlign = 'left';
+      ctx.font = 'bold 13px Arial';
+      ctx.fillStyle = WHITE;
+      ctx.fillText(r.ticker, 28, ry + 12);
+
+      // Company name
+      ctx.font = '11px Arial';
+      ctx.fillStyle = MUTED;
+      ctx.fillText(r.name, 28, ry + 30);
+
+      // Price
+      ctx.textAlign = 'right';
+      ctx.font = '12px Arial';
+      ctx.fillStyle = SILVER;
+      ctx.fillText(r.price != null ? '$' + r.price.toFixed(2) : '—', 280, ry + 18);
+
+      // Day $
+      ctx.font = 'bold 14px Arial';
+      ctx.fillStyle = isPos ? GREEN : RED;
+      ctx.fillText(fmtMoney(r.dc), 420, ry + 18);
+
+      // Day %
+      ctx.fillText(fmtPct(r.dcPct), W - 24, ry + 18);
+
+      // Divider
+      ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+      ctx.lineWidth = 0.5;
+      ctx.beginPath(); ctx.moveTo(16, ry + ROW_H - 6); ctx.lineTo(W - 16, ry + ROW_H - 6); ctx.stroke();
+    });
+
+    // Footer
+    const fy = H - FOOTER_H + 10;
+    ctx.textAlign = 'center';
+    ctx.font = '11px Arial';
+    ctx.fillStyle = MUTED;
+    ctx.fillText('parieurdiscipline.com/finance', W/2, fy + 8);
+
+    btn.textContent = '📤 Share';
+    btn.disabled = false;
+
+    // Download
+    const link = document.createElement('a');
+    link.download = `portfolio-snapshot-${new Date().toISOString().slice(0,10)}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  }
+
+  function roundRect(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    ctx.lineTo(x + r, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.closePath();
   }
 
   function showToast(msg, isError = false) {
