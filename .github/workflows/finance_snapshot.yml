@@ -60,55 +60,103 @@ jobs:
           date_str = data.get('date', 'Today')
           results = data.get('results', {})
 
-          # Build HTML email
-          rows = ''
+          def fmt_c(v):
+              if v is None: return '—'
+              sign = '+' if v >= 0 else '-'
+              return f'{sign}${abs(v):,.2f}'
+
+          def clr(v):
+              return '#4ade80' if v >= 0 else '#f87171'
+
+          portfolio_blocks = ''
           for portfolio_name, stats in results.items():
               day = stats.get('day_change', 0)
-              day_color = '#4ade80' if day >= 0 else '#f87171'
-              day_sign = '+' if day >= 0 else '-'
               gain_pct = stats.get('gain_pct', 0)
-              gain_color = '#4ade80' if gain_pct >= 0 else '#f87171'
-              gain_sign = '+' if gain_pct >= 0 else ''
-              rows += f'''
-              <tr>
-                <td style="padding:12px 16px;font-family:'Helvetica Neue',sans-serif;font-size:15px;font-weight:600;color:#ffffff;border-bottom:1px solid #1e3a5f">{portfolio_name}</td>
-                <td style="padding:12px 16px;font-family:'Helvetica Neue',sans-serif;font-size:15px;color:#ffffff;text-align:right;border-bottom:1px solid #1e3a5f">${stats.get("total_value", 0):,.2f}</td>
-                <td style="padding:12px 16px;font-family:'Courier New',monospace;font-size:14px;color:{day_color};text-align:right;border-bottom:1px solid #1e3a5f;font-weight:700">{day_sign}${abs(day):,.2f}</td>
-                <td style="padding:12px 16px;font-family:'Courier New',monospace;font-size:14px;color:{gain_color};text-align:right;border-bottom:1px solid #1e3a5f;font-weight:700">{gain_sign}{gain_pct:.2f}%</td>
-                <td style="padding:12px 16px;font-family:'Helvetica Neue',sans-serif;font-size:13px;color:#a8b2be;text-align:right;border-bottom:1px solid #1e3a5f">{stats.get("holdings", 0)} stocks</td>
-              </tr>'''
+              holdings = stats.get('holdings', [])
+
+              # Summary row
+              portfolio_blocks += f'''
+              <div style="background:#0e1e35;border-radius:12px;overflow:hidden;border:1px solid #1e3a5f;margin-bottom:24px">
+                <!-- Portfolio header -->
+                <div style="background:#07111f;padding:12px 16px;display:flex;align-items:center;justify-content:space-between">
+                  <div style="font-size:13px;font-weight:700;color:#ffffff;letter-spacing:1px">{portfolio_name}</div>
+                  <div style="font-size:11px;color:#a8b2be">{len(holdings)} stocks</div>
+                </div>
+                <!-- Summary stats -->
+                <div style="display:table;width:100%;border-collapse:collapse">
+                  <div style="display:table-row">
+                    <div style="display:table-cell;padding:14px 16px;border-bottom:1px solid #1e3a5f">
+                      <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#a8b2be;margin-bottom:4px">Market Value</div>
+                      <div style="font-size:20px;font-weight:700;color:#ffffff">${stats.get("total_value", 0):,.2f}</div>
+                    </div>
+                    <div style="display:table-cell;padding:14px 16px;border-bottom:1px solid #1e3a5f;text-align:center">
+                      <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#a8b2be;margin-bottom:4px">Day Change</div>
+                      <div style="font-size:20px;font-weight:700;color:{clr(day)}">{fmt_c(day)}</div>
+                      <div style="font-size:11px;color:{clr(day)}">{'+' if day>=0 else ''}{stats.get('day_change_pct',0):.2f}%</div>
+                    </div>
+                    <div style="display:table-cell;padding:14px 16px;border-bottom:1px solid #1e3a5f;text-align:right">
+                      <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#a8b2be;margin-bottom:4px">Overall Gain</div>
+                      <div style="font-size:20px;font-weight:700;color:{clr(gain_pct)}">{'+' if gain_pct>=0 else ''}{gain_pct:.2f}%</div>
+                      <div style="font-size:11px;color:{clr(stats.get('gain',0))}">{fmt_c(stats.get('gain',0))}</div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Holdings breakdown -->
+                <table style="width:100%;border-collapse:collapse">
+                  <thead>
+                    <tr style="background:rgba(255,255,255,0.03)">
+                      <th style="padding:8px 16px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#4a5568;text-align:left;font-weight:600">Stock</th>
+                      <th style="padding:8px 16px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#4a5568;text-align:right;font-weight:600">Price</th>
+                      <th style="padding:8px 16px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#4a5568;text-align:right;font-weight:600">Value</th>
+                      <th style="padding:8px 16px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#4a5568;text-align:right;font-weight:600">Day</th>
+                      <th style="padding:8px 16px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#4a5568;text-align:right;font-weight:600">Gain</th>
+                    </tr>
+                  </thead>
+                  <tbody>'''
+
+              # Sort holdings: biggest day losers first, then gainers
+              sorted_holdings = sorted(holdings, key=lambda h: h.get('day_change', 0))
+              for h in sorted_holdings:
+                  dc = h.get('day_change', 0)
+                  og = h.get('overall_gain', 0)
+                  og_pct = h.get('overall_gain_pct', 0)
+                  ticker = h.get('ticker', '').replace('TSX:', '')
+                  name = h.get('company_name', ticker)
+                  # Shorten name
+                  name_short = ' '.join(name.split()[:3]) if name else ticker
+                  portfolio_blocks += f'''
+                    <tr style="border-bottom:1px solid #0d1927">
+                      <td style="padding:10px 16px">
+                        <div style="font-size:12px;font-weight:700;color:#ffffff">{ticker}</div>
+                        <div style="font-size:11px;color:#4a5568;margin-top:1px">{name_short}</div>
+                      </td>
+                      <td style="padding:10px 16px;font-size:12px;color:#a8b2be;text-align:right">${h.get("price") or 0:,.2f}</td>
+                      <td style="padding:10px 16px;font-size:12px;color:#ffffff;text-align:right;font-weight:600">${h.get("market_value", 0):,.2f}</td>
+                      <td style="padding:10px 16px;font-size:12px;font-weight:700;color:{clr(dc)};text-align:right">{fmt_c(dc)}</td>
+                      <td style="padding:10px 16px;text-align:right">
+                        <div style="font-size:12px;font-weight:700;color:{clr(og)}">{fmt_c(og)}</div>
+                        <div style="font-size:10px;color:{clr(og_pct)};margin-top:1px">{'+' if og_pct>=0 else ''}{og_pct:.1f}%</div>
+                      </td>
+                    </tr>'''
+
+              portfolio_blocks += '''
+                  </tbody>
+                </table>
+              </div>'''
 
           html = f'''<!DOCTYPE html>
           <html>
           <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
           <body style="margin:0;padding:0;background:#07111f;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif">
-            <div style="max-width:600px;margin:0 auto;padding:32px 16px">
-              <!-- Header -->
+            <div style="max-width:640px;margin:0 auto;padding:32px 16px">
               <div style="text-align:center;margin-bottom:32px">
                 <div style="font-size:11px;letter-spacing:4px;color:#ffb81c;text-transform:uppercase;margin-bottom:8px">Parieur Discipliné</div>
-                <h1 style="margin:0;font-size:28px;font-weight:700;color:#ffffff;letter-spacing:1px">📊 Portfolio Snapshot</h1>
-                <div style="margin-top:8px;font-size:14px;color:#a8b2be;letter-spacing:1px">{date_str}</div>
+                <h1 style="margin:0;font-size:26px;font-weight:700;color:#ffffff;letter-spacing:1px">📊 Daily Snapshot</h1>
+                <div style="margin-top:6px;font-size:13px;color:#a8b2be">{date_str} · Market Close</div>
               </div>
-
-              <!-- Table -->
-              <div style="background:#0e1e35;border-radius:12px;overflow:hidden;border:1px solid #1e3a5f">
-                <table style="width:100%;border-collapse:collapse">
-                  <thead>
-                    <tr style="background:#07111f">
-                      <th style="padding:10px 16px;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#a8b2be;text-align:left;font-weight:600">Portfolio</th>
-                      <th style="padding:10px 16px;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#a8b2be;text-align:right;font-weight:600">Value</th>
-                      <th style="padding:10px 16px;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#a8b2be;text-align:right;font-weight:600">Day</th>
-                      <th style="padding:10px 16px;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#a8b2be;text-align:right;font-weight:600">Gain</th>
-                      <th style="padding:10px 16px;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#a8b2be;text-align:right;font-weight:600">Holdings</th>
-                    </tr>
-                  </thead>
-                  <tbody>{rows}</tbody>
-                </table>
-              </div>
-
-              <!-- Footer -->
-              <div style="text-align:center;margin-top:24px;font-size:12px;color:#4a5568">
-                Snapshot taken at market close · <a href="https://parieurdiscipline.com/finance" style="color:#ffb81c;text-decoration:none">View Dashboard →</a>
+              {portfolio_blocks}
+              <div style="text-align:center;margin-top:8px;font-size:12px;color:#2d3748">
+                <a href="https://parieurdiscipline.com/finance" style="color:#ffb81c;text-decoration:none">View Full Dashboard →</a>
               </div>
             </div>
           </body>

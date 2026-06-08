@@ -140,8 +140,11 @@ module.exports = async (req, res) => {
       results[portfolio.name] = {
         value: snapshot.total_value,
         day_change: snapshot.day_change,
+        day_change_pct: snapshot.day_change_pct,
+        gain: snapshot.gain,
         gain_pct: snapshot.gain_pct,
-        holdings: holdingsSnapshot.length,
+        holdings_count: holdingsSnapshot.length,
+        holdings: holdingsSnapshot,
       };
     }
 
