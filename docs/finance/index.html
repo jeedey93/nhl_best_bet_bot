@@ -166,12 +166,16 @@
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
     /* ── Home card financials ── */
-    .pc-financials { display: flex; gap: 1rem; margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid rgba(255,255,255,0.06); }
+    .pc-financials { display: flex; gap: 1rem; margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid rgba(255,255,255,0.06); flex-wrap: wrap; }
     .pc-fin-block { display: flex; flex-direction: column; gap: 1px; }
     .pc-fin-label { font-size: 0.6rem; font-weight: 700; letter-spacing: 1.5px; color: rgba(255,255,255,0.25); text-transform: uppercase; }
     .pc-fin-value { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 1px; color: white; }
     .pc-fin-value.pos { color: #4ade80; }
     .pc-fin-value.neg { color: #f87171; }
+    .pc-card-bottom { display: flex; align-items: flex-end; justify-content: space-between; margin-top: 0.75rem; gap: 0.75rem; }
+    .pc-donut-wrap { flex-shrink: 0; }
+    .pc-donut-wrap canvas { display: block; }
+    .pc-updated { font-size: 0.6rem; font-weight: 700; color: rgba(255,255,255,0.18); letter-spacing: 0.5px; text-align: right; align-self: flex-end; }
 
     /* ── Allocation chart ── */
     .chart-panel { background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; padding: 1.25rem; display: flex; flex-direction: column; }
@@ -515,7 +519,7 @@
   // ── Init ─────────────────────────────────────────────────────────────────
   async function init() {
     try {
-      _portfolios = await sbGet('finance_portfolios?order=created_at.asc&select=*');
+      _portfolios = await sbGet('finance_portfolios?order=created_at.asc&select=id,name,owner_code,password_hash,updated_at');
       await route();
     } catch(e) {
       document.getElementById('home-view').style.display = 'block';
@@ -539,7 +543,7 @@
     try {
       const [accounts, holdings] = await Promise.all([
         sbGet(`finance_accounts?portfolio_id=in.(${_portfolios.map(p => p.id).join(',')})&select=id,name,portfolio_id`),
-        sbGet(`finance_holdings?portfolio_id=in.(${_portfolios.map(p => p.id).join(',')})&select=portfolio_id,ticker,shares,avg_price,annual_dividend`),
+        sbGet(`finance_holdings?portfolio_id=in.(${_portfolios.map(p => p.id).join(',')})&select=portfolio_id,ticker,shares,avg_price,annual_dividend,sector`),
       ]);
       accounts.forEach(a => { (accountsByPortfolio[a.portfolio_id] = accountsByPortfolio[a.portfolio_id] || []).push(a); });
       holdings.forEach(h => { (holdingsByPortfolio[h.portfolio_id] = holdingsByPortfolio[h.portfolio_id] || []).push(h); });
@@ -571,19 +575,55 @@
       });
       const gain = totalValue - totalCost;
       const gainPct = totalCost > 0 ? (gain / totalCost) * 100 : 0;
+      const annualIncome = holdings.reduce((s, h) => s + (h.shares || 0) * (h.annual_dividend || 0), 0);
+
+      // Sector breakdown for mini donut
+      const sectors = {};
+      holdings.forEach(h => {
+        const s = h.sector || 'Other';
+        const mv = homeprices[h.ticker]?.price ? (h.shares || 0) * homeprices[h.ticker].price : (h.shares || 0) * (h.avg_price || 0);
+        sectors[s] = (sectors[s] || 0) + mv;
+      });
+      const sectorEntries = Object.entries(sectors).filter(([, v]) => v > 0);
+
+      // Last updated
+      const updatedAt = p.updated_at ? new Date(p.updated_at) : null;
+      const updatedStr = updatedAt ? updatedAt.toLocaleDateString('en-CA', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
 
       const financials = holdings.length ? `<div class="pc-financials">
         <div class="pc-fin-block"><div class="pc-fin-label">Value</div><div class="pc-fin-value">${fmtC(totalValue)}</div></div>
         ${hasPrices ? `<div class="pc-fin-block"><div class="pc-fin-label">Day</div><div class="pc-fin-value ${totalDay >= 0 ? 'pos' : 'neg'}">${totalDay >= 0 ? '+' : ''}${fmtC(totalDay)}</div></div>` : ''}
         <div class="pc-fin-block"><div class="pc-fin-label">Gain</div><div class="pc-fin-value ${gain >= 0 ? 'pos' : 'neg'}">${gain >= 0 ? '+' : ''}${fmt(gainPct)}%</div></div>
+        ${annualIncome > 0 ? `<div class="pc-fin-block"><div class="pc-fin-label">Income/yr</div><div class="pc-fin-value gold">${fmtC(annualIncome)}</div></div>` : ''}
+      </div>
+      <div class="pc-card-bottom">
+        ${updatedStr ? `<div class="pc-updated">Updated ${updatedStr}</div>` : '<div></div>'}
+        ${sectorEntries.length ? `<div class="pc-donut-wrap"><canvas id="pc-donut-${p.id}" width="56" height="56"></canvas></div>` : ''}
       </div>` : '';
 
-      return `<div class="portfolio-card" data-portfolio-code="${escHtml(p.owner_code)}">
+      return `<div class="portfolio-card" data-portfolio-code="${escHtml(p.owner_code)}" data-sectors='${JSON.stringify(sectorEntries)}' data-pid="${p.id}">
         <div class="pc-name">${escHtml(p.name)}${p.password_hash ? ' 🔒' : ''}</div>
         ${accs.length ? `<div class="pc-accounts">${chips}</div>` : `<div class="pc-lock" style="margin-top:0.35rem">No accounts yet</div>`}
         ${financials}
       </div>`;
     }).concat([`<div class="portfolio-card pc-new" onclick="openNewPortfolioModal()">+ New Portfolio</div>`]).join('');
+
+    // Draw mini sector donuts on each card
+    _portfolios.forEach(p => {
+      const canvas = document.getElementById(`pc-donut-${p.id}`);
+      if (!canvas) return;
+      const card = canvas.closest('[data-sectors]');
+      if (!card) return;
+      const sectors = JSON.parse(card.dataset.sectors || '[]');
+      if (!sectors.length) return;
+      const total = sectors.reduce((s, [, v]) => s + v, 0);
+      const colors = sectors.map(([k]) => getSectorColor(k));
+      new Chart(canvas.getContext('2d'), {
+        type: 'doughnut',
+        data: { datasets: [{ data: sectors.map(([, v]) => v), backgroundColor: colors, borderColor: '#07111f', borderWidth: 2 }] },
+        options: { responsive: false, cutout: '60%', plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${sectors[ctx.dataIndex][0]}: ${fmt(ctx.parsed / total * 100)}%` } } }, animation: { duration: 600 } }
+      });
+    });
   }
 
   // ── Portfolio tabs ────────────────────────────────────────────────────────
