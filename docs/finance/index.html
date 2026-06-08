@@ -570,7 +570,7 @@
   let _holdings = [];        // all holdings for active portfolio
   let _prices = {};
   let _holdingsSort = { col: null, dir: -1 }; // null=default, dir: 1=asc -1=desc
-  let _accountChart = null, _sectorChart = null, _gainLossChart = null, _incomeChart = null, _weightChart = null;
+  let _accountChart = null, _sectorChart = null, _gainLossChart = null, _incomeChart = null, _weightChart = null, _valueChart = null;
   let _unlockedIds = new Set(JSON.parse(sessionStorage.getItem('fin_unlocked') || '[]'));
 
   async function sha256(str) {
@@ -932,6 +932,7 @@
         </div>
       </div>
       <div class="charts-row" id="charts-row">
+        <div class="chart-panel" style="grid-column:1/-1"><div class="section-title" style="margin-bottom:0.75rem">Portfolio Value</div><canvas id="value-chart"></canvas></div>
         ${!_activeAccount && _accounts.length > 1 ? `<div class="chart-panel"><div class="section-title" style="margin-bottom:0.75rem">By Account</div><canvas id="account-chart"></canvas><div class="chart-legend" id="account-legend"></div></div>` : ''}
         <div class="chart-panel"><div class="section-title" style="margin-bottom:0.75rem">By Sector</div><canvas id="sector-chart"></canvas><div class="chart-legend" id="sector-legend"></div></div>
         <div class="chart-panel"><div class="section-title" style="margin-bottom:0.75rem">Gain / Loss</div><canvas id="gainloss-chart"></canvas></div>
@@ -1346,6 +1347,7 @@
     renderIncomeChart(enriched);
     renderWeightChart(enriched);
     renderWaterfallChart(enriched);
+    renderValueChart();
   }
 
   function renderGainLossChart(enriched) {
@@ -1452,6 +1454,111 @@
         scales: {
           x: { stacked: true, grid: { display: false }, ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 9, family: 'Bebas Neue' } }, border: { display: false } },
           y: { stacked: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 10 }, callback: v => '$' + v.toFixed(0) }, border: { display: false } }
+        }
+      }
+    });
+  }
+
+  async function renderValueChart() {
+    const canvas = document.getElementById('value-chart');
+    if (!canvas || !_activePortfolio) return;
+    if (_valueChart) { _valueChart.destroy(); _valueChart = null; }
+
+    // Load snapshots (reuse cached data if already loaded)
+    let snapshots = _snapshotData;
+    if (!_snapshotsLoaded || !snapshots.length) {
+      try {
+        snapshots = await sbGet(`finance_snapshots?portfolio_id=eq.${_activePortfolio.id}&order=snapshot_date.asc&limit=90&select=snapshot_date,total_value,total_cost`);
+      } catch(_) { snapshots = []; }
+    } else {
+      snapshots = [...snapshots].reverse(); // _snapshotData is desc, need asc
+    }
+
+    if (!snapshots.length) {
+      canvas.style.height = '60px';
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = 'rgba(255,255,255,0.15)';
+      ctx.font = '600 12px Barlow Condensed, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('No data yet — chart will populate after first market close snapshot', canvas.offsetWidth / 2, 36);
+      return;
+    }
+
+    canvas.style.height = '180px';
+    const labels = snapshots.map(r => r.snapshot_date);
+    const values = snapshots.map(r => r.total_value);
+    const costs  = snapshots.map(r => r.total_cost);
+    const isUp = values[values.length - 1] >= values[0];
+
+    const gradColor = isUp ? '74,222,128' : '248,113,113';
+    const lineColor = isUp ? '#4ade80' : '#f87171';
+
+    _valueChart = new Chart(canvas.getContext('2d'), {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'Market Value',
+            data: values,
+            borderColor: lineColor,
+            borderWidth: 2,
+            pointRadius: snapshots.length <= 30 ? 3 : 0,
+            pointHoverRadius: 5,
+            pointBackgroundColor: lineColor,
+            fill: true,
+            backgroundColor: ctx => {
+              const g = ctx.chart.ctx.createLinearGradient(0, 0, 0, ctx.chart.height);
+              g.addColorStop(0, `rgba(${gradColor},0.25)`);
+              g.addColorStop(1, `rgba(${gradColor},0.0)`);
+              return g;
+            },
+            tension: 0.3,
+          },
+          {
+            label: 'Cost Basis',
+            data: costs,
+            borderColor: 'rgba(255,255,255,0.15)',
+            borderWidth: 1.5,
+            borderDash: [4, 4],
+            pointRadius: 0,
+            fill: false,
+            tension: 0.3,
+          }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: ctx => ` ${ctx.dataset.label}: ${fmtC(ctx.parsed.y)}`,
+              afterBody: items => {
+                const v = items.find(i => i.dataset.label === 'Market Value');
+                const c = items.find(i => i.dataset.label === 'Cost Basis');
+                if (v && c) {
+                  const gain = v.parsed.y - c.parsed.y;
+                  const pct = c.parsed.y > 0 ? (gain / c.parsed.y) * 100 : 0;
+                  return [`  Gain: ${gain >= 0 ? '+' : ''}${fmtC(gain)} (${gain >= 0 ? '+' : ''}${fmt(pct)}%)`];
+                }
+                return [];
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: { color: 'rgba(255,255,255,0.25)', font: { size: 10 }, maxTicksLimit: 8, maxRotation: 0 },
+            border: { display: false }
+          },
+          y: {
+            grid: { color: 'rgba(255,255,255,0.04)' },
+            ticks: { color: 'rgba(255,255,255,0.25)', font: { size: 10 }, callback: v => '$' + (v >= 1000 ? (v/1000).toFixed(0)+'k' : v.toFixed(0)) },
+            border: { display: false }
+          }
         }
       }
     });
