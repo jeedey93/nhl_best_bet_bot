@@ -1,0 +1,131 @@
+name: Daily Finance Snapshot
+
+on:
+  schedule:
+    # 4:30 PM Montreal (EDT UTC-4) = 20:30 UTC  |  (EST UTC-5) = 21:30 UTC
+    - cron: '30 20 * * 1-5'
+    - cron: '30 21 * * 1-5'
+  workflow_dispatch:
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    env:
+      EMAIL_USERNAME: ${{ secrets.EMAIL_USERNAME }}
+      EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+      SNAPSHOT_SECRET: ${{ secrets.SNAPSHOT_SECRET }}
+
+    steps:
+      - name: Determine if this cron should run
+        id: check_hour
+        run: |
+          HOUR=$(date -u +%H)
+          if [ "$HOUR" -eq 20 ] || [ "$HOUR" -eq 21 ]; then
+            echo "run=true" >> $GITHUB_OUTPUT
+          else
+            echo "Unexpected hour $HOUR — skipping
+            echo "run=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Take portfolio snapshot
+        if: steps.check_hour.outputs.run == 'true' || github.event_name == 'workflow_dispatch'
+        id: snapshot
+        run: |
+          echo "Taking snapshot at $(date -u)..."
+          RESPONSE=$(curl -s -X POST \
+            "https://parieurdiscipline.com/api/finance-snapshot" \
+            -H "Content-Type: application/json" \
+            -d "{\"secret\": \"${SNAPSHOT_SECRET}\"}")
+          echo "Response: $RESPONSE"
+          if echo "$RESPONSE" | grep -q '"error"'; then
+            echo "❌ Snapshot failed"
+            exit 1
+          fi
+          echo "snapshot_json=$RESPONSE" >> $GITHUB_OUTPUT
+          echo "✅ Snapshot saved"
+
+      - name: Send summary email
+        if: (steps.check_hour.outputs.run == 'true' || github.event_name == 'workflow_dispatch') && steps.snapshot.outcome == 'success'
+        run: |
+          python3 - <<'PYEOF'
+          import smtplib, os, json
+          from email.mime.multipart import MIMEMultipart
+          from email.mime.text import MIMEText
+
+          snapshot_json = os.environ.get('SNAPSHOT_JSON', '{}')
+          try:
+              data = json.loads(snapshot_json)
+          except:
+              data = {}
+
+          date_str = data.get('date', 'Today')
+          results = data.get('results', {})
+
+          # Build HTML email
+          rows = ''
+          for portfolio_name, stats in results.items():
+              day = stats.get('day_change', 0)
+              day_color = '#4ade80' if day >= 0 else '#f87171'
+              day_sign = '+' if day >= 0 else ''
+              gain_pct = stats.get('gain_pct', 0)
+              gain_color = '#4ade80' if gain_pct >= 0 else '#f87171'
+              gain_sign = '+' if gain_pct >= 0 else ''
+              rows += f'''
+              <tr>
+                <td style="padding:12px 16px;font-family:'Helvetica Neue',sans-serif;font-size:15px;font-weight:600;color:#ffffff;border-bottom:1px solid #1e3a5f">{portfolio_name}</td>
+                <td style="padding:12px 16px;font-family:'Helvetica Neue',sans-serif;font-size:15px;color:#ffffff;text-align:right;border-bottom:1px solid #1e3a5f">${stats.get("total_value", 0):,.2f}</td>
+                <td style="padding:12px 16px;font-family:'Courier New',monospace;font-size:14px;color:{day_color};text-align:right;border-bottom:1px solid #1e3a5f;font-weight:700">{day_sign}${abs(day):,.2f}</td>
+                <td style="padding:12px 16px;font-family:'Courier New',monospace;font-size:14px;color:{gain_color};text-align:right;border-bottom:1px solid #1e3a5f;font-weight:700">{gain_sign}{gain_pct:.2f}%</td>
+                <td style="padding:12px 16px;font-family:'Helvetica Neue',sans-serif;font-size:13px;color:#a8b2be;text-align:right;border-bottom:1px solid #1e3a5f">{stats.get("holdings", 0)} stocks</td>
+              </tr>'''
+
+          html = f'''<!DOCTYPE html>
+          <html>
+          <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+          <body style="margin:0;padding:0;background:#07111f;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif">
+            <div style="max-width:600px;margin:0 auto;padding:32px 16px">
+              <!-- Header -->
+              <div style="text-align:center;margin-bottom:32px">
+                <div style="font-size:11px;letter-spacing:4px;color:#ffb81c;text-transform:uppercase;margin-bottom:8px">Parieur Discipliné</div>
+                <h1 style="margin:0;font-size:28px;font-weight:700;color:#ffffff;letter-spacing:1px">📊 Portfolio Snapshot</h1>
+                <div style="margin-top:8px;font-size:14px;color:#a8b2be;letter-spacing:1px">{date_str}</div>
+              </div>
+
+              <!-- Table -->
+              <div style="background:#0e1e35;border-radius:12px;overflow:hidden;border:1px solid #1e3a5f">
+                <table style="width:100%;border-collapse:collapse">
+                  <thead>
+                    <tr style="background:#07111f">
+                      <th style="padding:10px 16px;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#a8b2be;text-align:left;font-weight:600">Portfolio</th>
+                      <th style="padding:10px 16px;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#a8b2be;text-align:right;font-weight:600">Value</th>
+                      <th style="padding:10px 16px;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#a8b2be;text-align:right;font-weight:600">Day</th>
+                      <th style="padding:10px 16px;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#a8b2be;text-align:right;font-weight:600">Gain</th>
+                      <th style="padding:10px 16px;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#a8b2be;text-align:right;font-weight:600">Holdings</th>
+                    </tr>
+                  </thead>
+                  <tbody>{rows}</tbody>
+                </table>
+              </div>
+
+              <!-- Footer -->
+              <div style="text-align:center;margin-top:24px;font-size:12px;color:#4a5568">
+                Snapshot taken at market close · <a href="https://parieurdiscipline.com/finance" style="color:#ffb81c;text-decoration:none">View Dashboard →</a>
+              </div>
+            </div>
+          </body>
+          </html>'''
+
+          msg = MIMEMultipart('alternative')
+          msg['Subject'] = f'📊 Portfolio Snapshot — {date_str}'
+          msg['From'] = f'Parieur Discipliné <{os.environ["EMAIL_USERNAME"]}>'
+          msg['To'] = 'justin.do@hotmail.com'
+          msg.attach(MIMEText(html, 'html', 'utf-8'))
+
+          with smtplib.SMTP('smtp.gmail.com', 587) as s:
+              s.starttls()
+              s.login(os.environ['EMAIL_USERNAME'], os.environ['EMAIL_PASSWORD'])
+              s.sendmail(os.environ['EMAIL_USERNAME'], ['justin.do@hotmail.com'], msg.as_string())
+          print('✅ Email sent')
+          PYEOF
+        env:
+          SNAPSHOT_JSON: ${{ steps.snapshot.outputs.snapshot_json }}

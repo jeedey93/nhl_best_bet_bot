@@ -162,6 +162,27 @@
 
     /* ── Last updated indicator ── */
     .price-refresh { display: flex; align-items: center; gap: 0.4rem; font-size: 0.68rem; font-weight: 600; color: rgba(255,255,255,0.2); letter-spacing: 0.5px; }
+    /* ── Snapshot history ── */
+    .snapshot-list { display: flex; flex-direction: column; gap: 0.5rem; }
+    .snapshot-card { background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; overflow: hidden; }
+    .snapshot-header { display: flex; align-items: center; gap: 1rem; padding: 0.75rem 1rem; cursor: pointer; transition: background 0.12s; flex-wrap: wrap; }
+    .snapshot-header:hover { background: rgba(255,255,255,0.04); }
+    .snapshot-date { font-family: 'Bebas Neue', cursive; font-size: 0.95rem; letter-spacing: 2px; color: var(--silver); min-width: 90px; }
+    .snapshot-val { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 1px; color: white; }
+    .snapshot-pill { font-family: 'Bebas Neue', cursive; font-size: 0.78rem; letter-spacing: 1px; border-radius: 4px; padding: 2px 8px; }
+    .snapshot-pill.pos { background: rgba(74,222,128,0.15); color: #4ade80; }
+    .snapshot-pill.neg { background: rgba(248,113,113,0.12); color: #f87171; }
+    .snapshot-pill.neu { background: rgba(255,255,255,0.06); color: var(--silver); }
+    .snapshot-body { border-top: 1px solid rgba(255,255,255,0.06); padding: 0.75rem 1rem; }
+    .snapshot-holdings { display: flex; flex-direction: column; gap: 0.3rem; }
+    .sh-row { display: grid; grid-template-columns: 1fr 80px 80px 70px; gap: 0.5rem; align-items: center; font-size: 0.8rem; font-weight: 600; padding: 0.25rem 0; border-bottom: 1px solid rgba(255,255,255,0.03); }
+    .sh-row:last-child { border-bottom: none; }
+    .sh-name { color: rgba(255,255,255,0.7); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sh-val { text-align: right; color: white; }
+    .sh-day { text-align: right; }
+    .sh-gain { text-align: right; font-size: 0.75rem; color: rgba(255,255,255,0.35); }
+    .snapshot-chevron { margin-left: auto; color: rgba(255,255,255,0.2); font-size: 0.8rem; transition: transform 0.2s; }
+    .snapshot-card.open .snapshot-chevron { transform: rotate(90deg); }
     .refresh-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); box-shadow: 0 0 6px rgba(34,197,94,0.5); animation: pulse 2s infinite; flex-shrink: 0; }
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
@@ -433,8 +454,11 @@
       </div>
     </div>
     <div id="price-refresh-bar" style="display:none;padding:0.25rem 0 0.5rem">
-      <div class="price-refresh"><div class="refresh-dot"></div><span id="price-refresh-text">Prices live</span></div>
+      <div class="price-refresh"><div class="refresh-dot"></div><span id="price-refresh-text">Prices live</span>
+      <button class="btn-sm" id="btn-history" onclick="toggleSnapshotHistory()" style="margin-left:0.75rem;font-size:0.72rem;padding:0.2rem 0.6rem">📅 History</button>
+      </div>
     </div>
+    <div id="snapshot-history" style="display:none;margin-bottom:1.25rem"></div>
     <div id="portfolio-content"></div>
   </div>
 </div>
@@ -641,7 +665,8 @@
 
   async function loadPortfolio(p, accountSlug, silent = false) {
     _activePortfolio = p;
-    if (!silent) document.getElementById('portfolio-content').innerHTML = `<div class="empty-state"><span class="spinner"></span>Loading…</div>`;
+    _snapshotsLoaded = false;
+    if (!silent) { document.getElementById('snapshot-history').style.display = 'none'; document.getElementById('portfolio-content').innerHTML = `<div class="empty-state"><span class="spinner"></span>Loading…</div>`; }
     try {
       [_accounts, _holdings] = await Promise.all([
         sbGet(`finance_accounts?portfolio_id=eq.${p.id}&order=created_at.asc&select=*`),
@@ -1557,6 +1582,76 @@
   }
 
   document.addEventListener('mousedown', e => { if (!e.target.closest('.ticker-wrap')) closeAllDropdowns(); });
+
+  // ── Snapshot history ──────────────────────────────────────────────────────
+  let _snapshotsLoaded = false;
+
+  async function toggleSnapshotHistory() {
+    const panel = document.getElementById('snapshot-history');
+    const btn = document.getElementById('btn-history');
+    if (panel.style.display !== 'none') {
+      panel.style.display = 'none';
+      btn.textContent = '📅 History';
+      return;
+    }
+    panel.style.display = 'block';
+    btn.textContent = '📅 Hide';
+    if (!_snapshotsLoaded) await loadSnapshotHistory();
+  }
+
+  async function loadSnapshotHistory() {
+    const panel = document.getElementById('snapshot-history');
+    panel.innerHTML = `<div class="empty-state"><span class="spinner"></span>Loading history…</div>`;
+    try {
+      const rows = await sbGet(`finance_snapshots?portfolio_id=eq.${_activePortfolio.id}&order=snapshot_date.desc&limit=30&select=snapshot_date,total_value,total_cost,day_change,day_change_pct,gain,gain_pct,holdings_json`);
+      _snapshotsLoaded = true;
+      if (!rows.length) { panel.innerHTML = `<div class="empty-state" style="padding:1.5rem">No snapshots yet. The first one will be taken at market close today.</div>`; return; }
+      panel.innerHTML = `<div class="snapshot-list">${rows.map((r, i) => buildSnapshotCard(r, i)).join('')}</div>`;
+    } catch(e) { panel.innerHTML = `<div class="empty-state">Failed to load history.</div>`; }
+  }
+
+  function buildSnapshotCard(r, i) {
+    const dayClr = r.day_change >= 0 ? 'pos' : 'neg';
+    const gainClr = r.gain >= 0 ? 'pos' : 'neg';
+    const daySgn = r.day_change >= 0 ? '+' : '';
+    const gainSgn = r.gain >= 0 ? '+' : '';
+    const holdings = r.holdings_json || [];
+    const holdingRows = holdings.map(h => {
+      const dc = (h.day_change || 0) >= 0 ? 'pos' : 'neg';
+      return `<div class="sh-row">
+        <div class="sh-name">${escHtml(h.ticker || '')} <span style="color:rgba(255,255,255,0.3);font-size:0.72rem">${escHtml((h.company_name || '').split(' ').slice(0,2).join(' '))}</span></div>
+        <div class="sh-val">${fmtC(h.market_value)}</div>
+        <div class="sh-day ${dc}">${(h.day_change||0) >= 0 ? '+' : ''}${fmtC(h.day_change)}</div>
+        <div class="sh-gain ${(h.overall_gain_pct||0) >= 0 ? 'pos' : 'neg'}">${(h.overall_gain_pct||0) >= 0 ? '+' : ''}${fmt(h.overall_gain_pct)}%</div>
+      </div>`;
+    }).join('');
+    return `<div class="snapshot-card" id="sc-${i}">
+      <div class="snapshot-header" onclick="toggleSnapshotCard(${i})">
+        <div class="snapshot-date">${r.snapshot_date}</div>
+        <div class="snapshot-val">${fmtC(r.total_value)}</div>
+        <span class="snapshot-pill ${dayClr}">${daySgn}${fmtC(r.day_change)} (${daySgn}${fmt(r.day_change_pct)}%)</span>
+        <span class="snapshot-pill ${gainClr}">${gainSgn}${fmt(r.gain_pct)}% overall</span>
+        <span class="snapshot-chevron">›</span>
+      </div>
+      <div class="snapshot-body" style="display:none">
+        <div style="display:grid;grid-template-columns:1fr 80px 80px 70px;gap:0.5rem;padding:0 0 0.5rem;border-bottom:1px solid rgba(255,255,255,0.06);margin-bottom:0.3rem">
+          <div style="font-size:0.65rem;font-weight:700;letter-spacing:1.5px;color:rgba(255,255,255,0.25);text-transform:uppercase">Stock</div>
+          <div style="font-size:0.65rem;font-weight:700;letter-spacing:1.5px;color:rgba(255,255,255,0.25);text-transform:uppercase;text-align:right">Value</div>
+          <div style="font-size:0.65rem;font-weight:700;letter-spacing:1.5px;color:rgba(255,255,255,0.25);text-transform:uppercase;text-align:right">Day</div>
+          <div style="font-size:0.65rem;font-weight:700;letter-spacing:1.5px;color:rgba(255,255,255,0.25);text-transform:uppercase;text-align:right">Gain%</div>
+        </div>
+        <div class="snapshot-holdings">${holdingRows}</div>
+      </div>
+    </div>`;
+  }
+
+  function toggleSnapshotCard(i) {
+    const card = document.getElementById(`sc-${i}`);
+    const body = card.querySelector('.snapshot-body');
+    const open = body.style.display === 'none';
+    body.style.display = open ? 'block' : 'none';
+    card.classList.toggle('open', open);
+  }
 
   function showToast(msg, isError = false) {
     const el = document.getElementById('toast');
