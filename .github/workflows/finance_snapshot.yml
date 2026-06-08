@@ -107,9 +107,8 @@ jobs:
                     <tr style="background:rgba(255,255,255,0.03)">
                       <th style="padding:8px 16px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#4a5568;text-align:left;font-weight:600">Stock</th>
                       <th style="padding:8px 16px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#4a5568;text-align:right;font-weight:600">Price</th>
-                      <th style="padding:8px 16px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#4a5568;text-align:right;font-weight:600">Value</th>
-                      <th style="padding:8px 16px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#4a5568;text-align:right;font-weight:600">Day</th>
-                      <th style="padding:8px 16px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#4a5568;text-align:right;font-weight:600">Gain</th>
+                      <th style="padding:8px 16px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#4a5568;text-align:right;font-weight:600">Day $</th>
+                      <th style="padding:8px 16px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#4a5568;text-align:right;font-weight:600">Day %</th>
                     </tr>
                   </thead>
                   <tbody>'''
@@ -118,11 +117,11 @@ jobs:
               sorted_holdings = sorted(holdings, key=lambda h: h.get('day_change', 0))
               for h in sorted_holdings:
                   dc = h.get('day_change', 0)
-                  og = h.get('overall_gain', 0)
-                  og_pct = h.get('overall_gain_pct', 0)
+                  price = h.get('price') or 0
+                  prev_close = price - (dc / h.get('shares', 1)) if h.get('shares') else 0
+                  dc_pct = (dc / (h.get('market_value', 1) - dc)) * 100 if (h.get('market_value', 0) - dc) != 0 else 0
                   ticker = h.get('ticker', '').replace('TSX:', '')
                   name = h.get('company_name', ticker)
-                  # Shorten name
                   name_short = ' '.join(name.split()[:3]) if name else ticker
                   portfolio_blocks += f'''
                     <tr style="border-bottom:1px solid #0d1927">
@@ -130,13 +129,9 @@ jobs:
                         <div style="font-size:12px;font-weight:700;color:#ffffff">{ticker}</div>
                         <div style="font-size:11px;color:#4a5568;margin-top:1px">{name_short}</div>
                       </td>
-                      <td style="padding:10px 16px;font-size:12px;color:#a8b2be;text-align:right">${h.get("price") or 0:,.2f}</td>
-                      <td style="padding:10px 16px;font-size:12px;color:#ffffff;text-align:right;font-weight:600">${h.get("market_value", 0):,.2f}</td>
-                      <td style="padding:10px 16px;font-size:12px;font-weight:700;color:{clr(dc)};text-align:right">{fmt_c(dc)}</td>
-                      <td style="padding:10px 16px;text-align:right">
-                        <div style="font-size:12px;font-weight:700;color:{clr(og)}">{fmt_c(og)}</div>
-                        <div style="font-size:10px;color:{clr(og_pct)};margin-top:1px">{'+' if og_pct>=0 else ''}{og_pct:.1f}%</div>
-                      </td>
+                      <td style="padding:10px 16px;font-size:12px;color:#a8b2be;text-align:right">${price:,.2f}</td>
+                      <td style="padding:10px 16px;font-size:13px;font-weight:700;color:{clr(dc)};text-align:right">{fmt_c(dc)}</td>
+                      <td style="padding:10px 16px;font-size:13px;font-weight:700;color:{clr(dc_pct)};text-align:right">{'+' if dc_pct>=0 else ''}{dc_pct:.2f}%</td>
                     </tr>'''
 
               portfolio_blocks += '''
