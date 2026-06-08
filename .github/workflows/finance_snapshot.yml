@@ -71,8 +71,19 @@ jobs:
           portfolio_blocks = ''
           for portfolio_name, stats in results.items():
               day = stats.get('day_change', 0)
-              gain_pct = stats.get('gain_pct', 0)
               holdings = stats.get('holdings', [])
+              accounts = stats.get('accounts', {})
+
+              # Account pills
+              account_pills = ''
+              for acct_name, acct in accounts.items():
+                  ad = acct.get('day_change', 0)
+                  account_pills += f'''
+                    <div style="display:inline-block;margin:4px 6px 4px 0;padding:6px 12px;background:rgba(255,255,255,0.04);border-radius:8px;border:1px solid #1e3a5f">
+                      <div style="font-size:10px;letter-spacing:1px;color:#ffb81c;font-weight:700">{acct_name}</div>
+                      <div style="font-size:13px;font-weight:700;color:#ffffff;margin-top:2px">${acct.get("value",0):,.2f}</div>
+                      <div style="font-size:11px;color:{clr(ad)};margin-top:1px">{fmt_c(ad)}</div>
+                    </div>'''
 
               # Summary row
               portfolio_blocks += f'''
@@ -96,6 +107,8 @@ jobs:
                     </div>
                   </div>
                 </div>
+                <!-- Account breakdown -->
+                {f'<div style="padding:10px 16px 4px;border-bottom:1px solid #1e3a5f">{account_pills}</div>' if account_pills else ''}
                 <!-- Holdings breakdown -->
                 <table style="width:100%;border-collapse:collapse">
                   <thead>
