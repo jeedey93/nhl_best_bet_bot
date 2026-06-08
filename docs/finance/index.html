@@ -636,7 +636,7 @@
             <td class="${gc}">${h.overallGain != null && h.cost > 0 ? (h.overallGain >= 0 ? '+' : '') + fmt((h.overallGain / h.cost) * 100) + '%' : '—'}</td>
             <td class="muted">${h.weight != null ? fmt(h.weight) + '%' : '—'}</td>
             <td class="muted">${h.annual_dividend ? fmtC((h.shares || 0) * h.annual_dividend / 12) + '/mo' : '—'}</td>
-            <td style="white-space:nowrap"><button class="btn-edit-row" onclick="openEditHolding('${h.id}')">✎</button><button class="btn-delete-row" onclick="quickDeleteHolding('${h.id}', '${escHtml(h.company_name || h.ticker || '').replace(/'/g,'')}')">✕</button></td>
+            <td style="white-space:nowrap"><button class="btn-edit-row" data-edit-id="${h.id}">✎</button><button class="btn-delete-row" data-delete-id="${h.id}" data-delete-name="${escHtml(h.company_name || h.ticker || '')}">✕</button></td>
           </tr>`;
         });
       }
@@ -1010,6 +1010,13 @@
     el.style.borderColor = isError ? 'rgba(200,16,46,0.4)' : 'rgba(255,255,255,0.12)';
     setTimeout(() => el.style.display = 'none', 3000);
   }
+
+  document.getElementById('main-page').addEventListener('click', e => {
+    const editBtn = e.target.closest('[data-edit-id]');
+    if (editBtn) { openEditHolding(editBtn.dataset.editId); return; }
+    const deleteBtn = e.target.closest('[data-delete-id]');
+    if (deleteBtn) { quickDeleteHolding(deleteBtn.dataset.deleteId, deleteBtn.dataset.deleteName); }
+  });
 
   init();
 </script>
