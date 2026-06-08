@@ -107,6 +107,7 @@
     table.holdings tr:last-child td { border-bottom: none; }
     table.holdings tr:hover td { background: rgba(255,255,255,0.03); }
     table.holdings tr.account-row td { font-family: 'Bebas Neue', cursive; font-size: 0.8rem; letter-spacing: 2px; color: var(--silver); background: rgba(255,255,255,0.035); padding: 0.4rem 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.08); opacity: 0.7; }
+    table.holdings tr.subtotal-row td { background: rgba(255,184,28,0.04); border-top: 1px solid rgba(255,255,255,0.06); font-family: 'Bebas Neue', cursive; font-size: 0.82rem; color: rgba(255,255,255,0.4); }
     table.holdings tr.total-row td { background: rgba(255,255,255,0.04); font-family: 'Bebas Neue', cursive; font-size: 0.9rem; border-top: 1px solid rgba(255,255,255,0.1); border-bottom: none; }
     /* Mobile: hide less important columns, reduce min-width */
     @media (max-width: 700px) {
@@ -904,11 +905,13 @@
       if (accountName) rows += `<tr class="account-row"><td colspan="13">${escHtml(accountName)}</td></tr>`;
       // Flatten all holdings across sectors — no sector sub-headers
       const allHoldings = Object.values(bySector).flat();
+      let grpCost = 0, grpMv = 0, grpDay = 0, grpGain = 0;
       allHoldings.forEach(h => {
           const mv = h.marketValue ?? h.cost;
           totalCost += h.cost; totalMv += mv;
-          if (h.dayChange != null) totalDay += h.dayChange;
-          if (h.overallGain != null) totalGain += h.overallGain;
+          grpCost += h.cost; grpMv += mv;
+          if (h.dayChange != null) { totalDay += h.dayChange; grpDay += h.dayChange; }
+          if (h.overallGain != null) { totalGain += h.overallGain; grpGain += h.overallGain; }
           const dc = (h.dayChange ?? 0) >= 0 ? 'pos' : 'neg';
           const gc = (h.overallGain ?? 0) >= 0 ? 'pos' : 'neg';
           rows += `<tr>
@@ -933,6 +936,23 @@
             <td style="white-space:nowrap"><button class="btn-edit-row" data-edit-id="${h.id}">✎</button><button class="btn-delete-row" data-delete-id="${h.id}" data-delete-name="${escHtml(h.company_name || h.ticker || '')}">✕</button></td>
           </tr>`;
         });
+      // Subtotal row per account (only in All view with multiple accounts)
+      if (accountName) {
+        const grpGainPct = grpCost > 0 ? (grpGain / grpCost) * 100 : 0;
+        const grpDayPct = (grpMv - grpDay) > 0 ? (grpDay / (grpMv - grpDay)) * 100 : 0;
+        rows += `<tr class="subtotal-row">
+          <td class="left" style="padding-left:1.2rem;opacity:0.7">${escHtml(accountName)} subtotal</td>
+          <td class="col-hide-mobile"></td><td class="col-hide-mobile"></td>
+          <td class="col-hide-mobile">${fmtC(grpCost)}</td>
+          <td></td>
+          <td class="col-hide-mobile">${fmtC(grpMv)}</td>
+          <td class="col-hide-mobile ${grpDay >= 0 ? 'pos' : 'neg'}">${grpDay >= 0 ? '+' : ''}${fmtC(grpDay)}</td>
+          <td class="${grpDay >= 0 ? 'pos' : 'neg'}">${grpDay >= 0 ? '+' : ''}${fmt(grpDayPct)}%</td>
+          <td class="col-hide-mobile ${grpGain >= 0 ? 'pos' : 'neg'}">${grpGain >= 0 ? '+' : ''}${fmtC(grpGain)}</td>
+          <td class="${grpGain >= 0 ? 'pos' : 'neg'}">${grpGain >= 0 ? '+' : ''}${fmt(grpGainPct)}%</td>
+          <td class="col-hide-mobile"></td><td class="col-hide-mobile"></td><td></td>
+        </tr>`;
+      }
     }
     const tgPct = totalCost > 0 ? (totalGain / totalCost) * 100 : 0;
     const tdPct = (totalMv - totalDay) > 0 ? (totalDay / (totalMv - totalDay)) * 100 : 0;
