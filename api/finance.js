@@ -30,7 +30,7 @@ async function tmxQuote(symbol) {
   const body = JSON.stringify({
     query: `query { getQuoteBySymbol(symbol: "${tmxSym}", locale: "en") {
       symbol name price priceChange close
-      exDividendDate dividendFrequency dividendYield dividendAmount dividendCurrency
+      exDividendDate dividendPayDate dividendFrequency dividendYield dividendAmount dividendCurrency
     }}`,
   });
   const r = await fetch(TMX_URL, { method: 'POST', headers: TMX_HEADERS, body });
@@ -150,6 +150,8 @@ async function handleDetails(req, res) {
     const data = {
       annualDividend: q.dividendAmount ? +(q.dividendAmount * (freqMap[q.dividendFrequency] === 'monthly' ? 12 : freqMap[q.dividendFrequency] === 'quarterly' ? 4 : freqMap[q.dividendFrequency] === 'semi-annual' ? 2 : 1)).toFixed(4) : null,
       dividendFrequency: freqMap[q.dividendFrequency] || 'quarterly',
+      dividendPayDate: q.dividendPayDate || null,  // e.g. "2026-06-19"
+      exDividendDate: q.exDividendDate ? q.exDividendDate.slice(0, 10) : null,
       sector,
     };
     _detailsCache.set(symbol, { ts: Date.now(), data });

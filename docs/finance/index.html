@@ -284,6 +284,8 @@
   <input type="hidden" id="hm-dividend">
   <input type="hidden" id="hm-div-freq" value="quarterly">
   <input type="hidden" id="hm-div-month" value="all">
+  <input type="hidden" id="hm-div-pay-date">
+  <input type="hidden" id="hm-div-ex-date">
   <datalist id="sector-list"></datalist>
   <div class="modal-actions">
     <button class="btn-modal-delete" id="hm-delete-btn" onclick="deleteHolding()" style="display:none">Delete</button>
@@ -818,20 +820,35 @@
     const rows = withDiv.map(h => {
       const freq = h.div_freq || 'monthly';
       const annual = (h.shares || 0) * (h.annual_dividend || 0);
+      // Determine pay month from div_pay_date if available
+      const payMonth = h.div_pay_date ? new Date(h.div_pay_date).getMonth() : null; // 0-indexed
+      const payDay = h.div_pay_date ? new Date(h.div_pay_date).getDate() : null;
       const cells = Array.from({ length: 12 }, (_, i) => {
         let amt = 0;
         if (freq === 'monthly') { amt = annual / 12; }
-        else if (freq === 'quarterly') { amt = [2,5,8,11].includes(i) ? annual / 4 : 0; }
-        else if (freq === 'annual') { const m = parseInt(h.div_month) - 1; amt = !isNaN(m) && i === m ? annual : 0; }
+        else if (freq === 'quarterly') {
+          // Use actual pay month if known, otherwise default Mar/Jun/Sep/Dec
+          const qMonths = payMonth != null
+            ? [(payMonth) % 12, (payMonth + 3) % 12, (payMonth + 6) % 12, (payMonth + 9) % 12]
+            : [2, 5, 8, 11];
+          amt = qMonths.includes(i) ? annual / 4 : 0;
+        } else if (freq === 'annual') {
+          const m = payMonth != null ? payMonth : (parseInt(h.div_month) - 1);
+          amt = !isNaN(m) && i === m ? annual : 0;
+        }
         monthTotals[i] += amt;
-        return amt;
+        return { amt, isPayMonth: payMonth === i, payDay };
       });
       return { h, cells };
     });
     const hdr = `<div class="div-cell name-hdr">Stock</div>` + MONTHS.map(m => `<div class="div-cell month-hdr">${m}</div>`).join('');
     const data = rows.map(({ h, cells }) =>
       `<div class="div-cell name-cell">${escHtml(h.company_name || h.ticker || '')}</div>` +
-      cells.map(v => `<div class="div-cell ${v > 0 ? 'has-div' : 'zero'}">${v > 0 ? fmtC(v) : '—'}</div>`).join('')
+      cells.map(({ amt, isPayMonth, payDay }) => {
+        if (amt <= 0) return `<div class="div-cell zero">—</div>`;
+        const dateHint = isPayMonth && payDay ? `<div style="font-size:0.6em;opacity:0.6;margin-top:1px">▸${payDay}</div>` : '';
+        return `<div class="div-cell has-div">${fmtC(amt)}${dateHint}</div>`;
+      }).join('')
     ).join('');
     const totals = `<div class="div-cell total-label">Monthly Total</div>` +
       monthTotals.map(v => `<div class="div-cell total-cell">${v > 0 ? fmtC(v) : '—'}</div>`).join('');
@@ -876,7 +893,7 @@
   function openAddHolding() {
     document.getElementById('holding-modal-title').textContent = 'Add Holding';
     document.getElementById('hm-id').value = '';
-    ['hm-name','hm-ticker','hm-sector','hm-shares','hm-avg-price','hm-dividend'].forEach(id => document.getElementById(id).value = '');
+    ['hm-name','hm-ticker','hm-sector','hm-shares','hm-avg-price','hm-dividend','hm-div-pay-date','hm-div-ex-date'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('hm-div-month').value = 'all';
     document.getElementById('hm-div-freq').value = 'quarterly';
     document.getElementById('hm-delete-btn').style.display = 'none';
@@ -922,7 +939,9 @@
     document.getElementById('hm-avg-price').value = h.avg_price || '';
     document.getElementById('hm-dividend').value = h.annual_dividend || '';
     document.getElementById('hm-div-month').value = h.div_month || 'all';
-    document.getElementById('hm-div-freq').value = h.div_freq || 'monthly';
+    document.getElementById('hm-div-freq').value = h.div_freq || 'quarterly';
+    document.getElementById('hm-div-pay-date').value = h.div_pay_date || '';
+    document.getElementById('hm-div-ex-date').value = h.div_ex_date || '';
     document.getElementById('hm-delete-btn').style.display = 'inline-block';
     populateAccountSelect(h.account_id || null);
     document.getElementById('holding-backdrop').classList.add('show');
@@ -948,6 +967,8 @@
       annual_dividend: parseFloat(document.getElementById('hm-dividend').value) || 0,
       div_month: document.getElementById('hm-div-month').value,
       div_freq: document.getElementById('hm-div-freq').value,
+      div_pay_date: document.getElementById('hm-div-pay-date').value || null,
+      div_ex_date: document.getElementById('hm-div-ex-date').value || null,
     };
     if (!body.company_name && !body.ticker) { showToast('Enter a company name or ticker.', true); return; }
     try {
@@ -1161,17 +1182,17 @@
       const res = await fetch(`/api/finance?action=details&symbol=${encodeURIComponent(yahooSymbol)}`);
       if (!res.ok) return;
       const d = await res.json();
-      if (d.sector && !document.getElementById('hm-sector').value.trim()) {
+      if (d.sector && !document.getElementById('hm-sector').value.trim())
         document.getElementById('hm-sector').value = d.sector;
-      }
-      if (d.annualDividend != null && !document.getElementById('hm-dividend').value.trim()) {
+      if (d.annualDividend != null && !document.getElementById('hm-dividend').value.trim())
         document.getElementById('hm-dividend').value = d.annualDividend;
-      }
       if (d.dividendFrequency) {
-        // Map to our select values
         const freqMap = { 'monthly': 'monthly', 'quarterly': 'quarterly', 'semi-annual': 'quarterly', 'annual': 'annual' };
         document.getElementById('hm-div-freq').value = freqMap[d.dividendFrequency] || 'quarterly';
       }
+      // Store payment date for calendar display
+      if (d.dividendPayDate) document.getElementById('hm-div-pay-date').value = d.dividendPayDate;
+      if (d.exDividendDate) document.getElementById('hm-div-ex-date').value = d.exDividendDate;
     } catch(_) {}
   }
 
