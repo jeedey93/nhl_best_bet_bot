@@ -397,6 +397,21 @@
       <input class="form-input" id="hm-avg-price" type="number" step="0.01" placeholder="47.07">
     </div>
   </div>
+  <!-- Add shares section — only shown when editing an existing holding -->
+  <div id="hm-add-section" style="display:none;margin-top:0.25rem;padding:0.85rem;background:rgba(255,184,28,0.05);border:1px solid rgba(255,184,28,0.15);border-radius:8px">
+    <div style="font-size:0.65rem;font-weight:700;letter-spacing:1.5px;color:rgba(255,184,28,0.6);text-transform:uppercase;margin-bottom:0.6rem">Add Purchase / DRIP</div>
+    <div class="form-row" style="margin-bottom:0">
+      <div class="form-group">
+        <div class="form-label">+ Shares to add</div>
+        <input class="form-input" id="hm-add-shares" type="number" step="0.0001" placeholder="10.00" oninput="calcNewAvg()">
+      </div>
+      <div class="form-group">
+        <div class="form-label">At price (CAD)</div>
+        <input class="form-input" id="hm-add-price" type="number" step="0.01" placeholder="54.00" oninput="calcNewAvg()">
+      </div>
+    </div>
+    <div id="hm-add-preview" style="margin-top:0.5rem;font-size:0.75rem;font-weight:600;color:rgba(255,255,255,0.35);letter-spacing:0.5px"></div>
+  </div>
   <!-- Hidden auto-filled fields -->
   <input type="hidden" id="hm-sector">
   <input type="hidden" id="hm-dividend">
@@ -1023,7 +1038,7 @@
               ${h.weight != null ? `<div class="weight-bar-wrap"><div class="weight-bar"><div class="weight-bar-fill" style="width:${Math.min(h.weight,100)}%;background:${getSectorColor(h.sector)}"></div></div><span class="muted">${fmt(h.weight)}%</span></div>` : '—'}
             </td>
             <td class="col-hide-mobile muted">${h.annual_dividend ? fmtC((h.shares || 0) * h.annual_dividend / 12) + '/mo' : '—'}</td>
-            <td style="white-space:nowrap"><button class="btn-edit-row" data-edit-id="${h.id}" onclick="event.stopPropagation()">✎</button><button class="btn-delete-row" data-delete-id="${h.id}" data-delete-name="${escHtml(h.company_name || h.ticker || '')}" onclick="event.stopPropagation()">✕</button></td>
+            <td style="white-space:nowrap"><button class="btn-edit-row" onclick="event.stopPropagation();openEditHolding('${h.id}')">✎</button><button class="btn-delete-row" onclick="event.stopPropagation();quickDeleteHolding('${h.id}','${escHtml(h.company_name||h.ticker||'')}')">✕</button></td>
           </tr>`;
         });
       // Subtotal row per account (only in All view with multiple accounts)
@@ -1345,7 +1360,19 @@
   }
 
   // ── Holding modal ─────────────────────────────────────────────────────────
-  function populateAccountSelect(selectedId) {
+  function calcNewAvg() {
+    const curShares = parseFloat(document.getElementById('hm-shares').value) || 0;
+    const curAvg    = parseFloat(document.getElementById('hm-avg-price').value) || 0;
+    const addShares = parseFloat(document.getElementById('hm-add-shares').value) || 0;
+    const addPrice  = parseFloat(document.getElementById('hm-add-price').value) || 0;
+    const preview   = document.getElementById('hm-add-preview');
+    if (!addShares || !addPrice) { preview.textContent = ''; return; }
+    const newShares = curShares + addShares;
+    const newAvg    = (curShares * curAvg + addShares * addPrice) / newShares;
+    preview.innerHTML = `→ <strong style="color:white">${newShares.toFixed(4)} shares</strong> at avg <strong style="color:var(--gold)">$${newAvg.toFixed(2)}</strong>`;
+  }
+
+    function populateAccountSelect(selectedId) {
     const sel = document.getElementById('hm-account');
     sel.innerHTML = _accounts.map(a =>
       `<option value="${a.id}"${a.id === selectedId ? ' selected' : ''}>${escHtml(a.name)}</option>`
@@ -1360,6 +1387,10 @@
     document.getElementById('hm-div-month').value = 'all';
     document.getElementById('hm-div-freq').value = 'quarterly';
     document.getElementById('hm-delete-btn').style.display = 'none';
+    document.getElementById('hm-add-section').style.display = 'none';
+    document.getElementById('hm-add-shares').value = '';
+    document.getElementById('hm-add-price').value = '';
+    document.getElementById('hm-add-preview').textContent = '';
     populateAccountSelect(_activeAccount?.id || null);
     const sectors = [...new Set(_holdings.map(h => h.sector).filter(Boolean))];
     document.getElementById('sector-list').innerHTML = sectors.map(s => `<option value="${escHtml(s)}">`).join('');
@@ -1406,6 +1437,10 @@
     document.getElementById('hm-div-pay-date').value = h.div_pay_date || '';
     document.getElementById('hm-div-ex-date').value = h.div_ex_date || '';
     document.getElementById('hm-delete-btn').style.display = 'inline-block';
+    document.getElementById('hm-add-section').style.display = 'block';
+    document.getElementById('hm-add-shares').value = '';
+    document.getElementById('hm-add-price').value = '';
+    document.getElementById('hm-add-preview').textContent = '';
     populateAccountSelect(h.account_id || null);
     document.getElementById('holding-backdrop').classList.add('show');
     document.getElementById('holding-modal').classList.add('show');
@@ -1425,8 +1460,20 @@
       company_name: document.getElementById('hm-name').value.trim(),
       ticker: document.getElementById('hm-ticker').value.trim().toUpperCase(),
       sector: document.getElementById('hm-sector').value.trim() || 'Other',
-      shares: parseFloat(document.getElementById('hm-shares').value) || 0,
-      avg_price: parseFloat(document.getElementById('hm-avg-price').value) || 0,
+      shares: (() => {
+        const base = parseFloat(document.getElementById('hm-shares').value) || 0;
+        const add  = parseFloat(document.getElementById('hm-add-shares').value) || 0;
+        return base + add;
+      })(),
+      avg_price: (() => {
+        const baseShares = parseFloat(document.getElementById('hm-shares').value) || 0;
+        const baseAvg    = parseFloat(document.getElementById('hm-avg-price').value) || 0;
+        const addShares  = parseFloat(document.getElementById('hm-add-shares').value) || 0;
+        const addPrice   = parseFloat(document.getElementById('hm-add-price').value) || 0;
+        if (!addShares || !addPrice) return baseAvg;
+        const total = baseShares + addShares;
+        return total > 0 ? (baseShares * baseAvg + addShares * addPrice) / total : baseAvg;
+      })(),
       annual_dividend: parseFloat(document.getElementById('hm-dividend').value) || 0,
       div_month: document.getElementById('hm-div-month').value,
       div_freq: document.getElementById('hm-div-freq').value,
