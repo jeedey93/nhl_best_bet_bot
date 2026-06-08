@@ -88,8 +88,10 @@
     .stat-value.gold { color: var(--gold); }
 
     /* ── Main layout ── */
-    .main-layout { display: grid; grid-template-columns: 1fr 280px; gap: 1.25rem; margin-bottom: 1.5rem; }
-    @media (max-width: 1000px) { .main-layout { grid-template-columns: 1fr; } }
+    .main-layout { display: grid; grid-template-columns: 1fr; gap: 1.25rem; margin-bottom: 1.25rem; }
+
+    /* ── Charts row ── */
+    .charts-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem; }
 
     /* ── Holdings table ── */
     .holdings-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.6rem; }
@@ -408,7 +410,7 @@
   let _activeAccount = null; // null = "All accounts" view
   let _holdings = [];        // all holdings for active portfolio
   let _prices = {};
-  let _allocationChart = null;
+  let _accountChart = null, _sectorChart = null;
   let _unlockedIds = new Set(JSON.parse(sessionStorage.getItem('fin_unlocked') || '[]'));
 
   async function sha256(str) {
@@ -686,18 +688,17 @@
           </div>
           <div class="holdings-table-wrap">${buildHoldingsTable(enriched, pricesLoaded)}</div>
         </div>
-        <div class="chart-panel">
-          <div class="section-title" style="margin-bottom:0.75rem">${!_activeAccount && _accounts.length > 1 ? 'By Account' : 'By Sector'}</div>
-          <canvas id="allocation-chart"></canvas>
-          <div class="chart-legend" id="chart-legend"></div>
-        </div>
+      </div>
+      <div class="charts-row" id="charts-row">
+        ${!_activeAccount && _accounts.length > 1 ? `<div class="chart-panel"><div class="section-title" style="margin-bottom:0.75rem">By Account</div><canvas id="account-chart"></canvas><div class="chart-legend" id="account-legend"></div></div>` : ''}
+        <div class="chart-panel"><div class="section-title" style="margin-bottom:0.75rem">By Sector</div><canvas id="sector-chart"></canvas><div class="chart-legend" id="sector-legend"></div></div>
       </div>
       <div class="dividend-section">
         <div class="holdings-header"><div class="section-title">Dividend Calendar</div></div>
         <div class="div-calendar">${buildDividendCalendar(enriched)}</div>
       </div>`;
 
-    // Show by-account donut when viewing All with multiple accounts, else by sector
+    // Show by-account donut when viewing All with multiple accounts
     const showByAccount = !_activeAccount && _accounts.length > 1;
     renderAllocationChart(enriched, showByAccount);
   }
@@ -762,9 +763,9 @@
     let rows = '';
     for (const { accountName, bySector } of groups) {
       if (accountName) rows += `<tr class="account-row"><td colspan="13">${escHtml(accountName)}</td></tr>`;
-      for (const [sector, holdings] of Object.entries(bySector)) {
-        rows += `<tr class="sector-row"><td colspan="13">${accountName ? '  ' : ''}${escHtml(sector)}</td></tr>`;
-        holdings.forEach(h => {
+      // Flatten all holdings across sectors — no sector sub-headers
+      const allHoldings = Object.values(bySector).flat();
+      allHoldings.forEach(h => {
           const mv = h.marketValue ?? h.cost;
           totalCost += h.cost; totalMv += mv;
           if (h.dayChange != null) totalDay += h.dayChange;
@@ -787,7 +788,6 @@
             <td style="white-space:nowrap"><button class="btn-edit-row" data-edit-id="${h.id}">✎</button><button class="btn-delete-row" data-delete-id="${h.id}" data-delete-name="${escHtml(h.company_name || h.ticker || '')}">✕</button></td>
           </tr>`;
         });
-      }
     }
     const tgPct = totalCost > 0 ? (totalGain / totalCost) * 100 : 0;
     const tdPct = (totalMv - totalDay) > 0 ? (totalDay / (totalMv - totalDay)) * 100 : 0;
@@ -857,30 +857,44 @@
     return `<div class="div-grid">${hdr}${data}${totals}</div>`;
   }
 
-  function renderAllocationChart(enriched, byAccount = false) {
-    const groups = {};
-    const accountMap = Object.fromEntries(_accounts.map(a => [a.id, a.name]));
-    enriched.forEach(h => {
-      const key = byAccount
-        ? (accountMap[h.account_id] || 'Unassigned')
-        : (h.sector || 'Other');
-      groups[key] = (groups[key] || 0) + (h.marketValue ?? h.cost);
-    });
+  let _accountChart = null, _sectorChart = null;
+
+  function renderDonut(canvasId, legendId, groups, chartRef) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return null;
     const labels = Object.keys(groups), values = Object.values(groups);
     const total = values.reduce((a, b) => a + b, 0);
     const colors = labels.map((_, i) => SECTOR_COLORS[i % SECTOR_COLORS.length]);
-    const canvas = document.getElementById('allocation-chart');
-    if (!canvas) return;
-    if (_allocationChart) { _allocationChart.destroy(); _allocationChart = null; }
-    _allocationChart = new Chart(canvas.getContext('2d'), {
+    if (chartRef) chartRef.destroy();
+    const chart = new Chart(canvas.getContext('2d'), {
       type: 'doughnut',
       data: { labels, datasets: [{ data: values, backgroundColor: colors, borderColor: '#07111f', borderWidth: 3, hoverOffset: 6 }] },
       options: { responsive: true, maintainAspectRatio: true, cutout: '65%',
         plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${fmt(ctx.parsed / total * 100)}%  ${fmtC(ctx.parsed)}` } } } }
     });
-    document.getElementById('chart-legend').innerHTML = labels.map((l, i) =>
+    const legend = document.getElementById(legendId);
+    if (legend) legend.innerHTML = labels.map((l, i) =>
       `<div class="legend-row"><div style="display:flex;align-items:center;min-width:0"><div class="legend-dot" style="background:${colors[i]}"></div><span class="legend-name">${escHtml(l)}</span></div><span class="legend-pct">${fmt(values[i] / total * 100)}%</span></div>`
     ).join('');
+    return chart;
+  }
+
+  function renderAllocationChart(enriched, showByAccount) {
+    const accountMap = Object.fromEntries(_accounts.map(a => [a.id, a.name]));
+
+    // Always render sector chart
+    const sectorGroups = {};
+    enriched.forEach(h => { const k = h.sector || 'Other'; sectorGroups[k] = (sectorGroups[k] || 0) + (h.marketValue ?? h.cost); });
+    _sectorChart = renderDonut('sector-chart', 'sector-legend', sectorGroups, _sectorChart);
+
+    // Render account chart only when in All view with multiple accounts
+    if (showByAccount) {
+      const accountGroups = {};
+      enriched.forEach(h => { const k = accountMap[h.account_id] || 'Unassigned'; accountGroups[k] = (accountGroups[k] || 0) + (h.marketValue ?? h.cost); });
+      _accountChart = renderDonut('account-chart', 'account-legend', accountGroups, _accountChart);
+    } else {
+      if (_accountChart) { _accountChart.destroy(); _accountChart = null; }
+    }
   }
 
   // ── Holding modal ─────────────────────────────────────────────────────────
