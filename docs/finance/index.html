@@ -114,6 +114,27 @@
       table.holdings .col-hide-mobile { display: none; }
     }
     .ticker-badge { font-family: 'Bebas Neue', cursive; font-size: 0.78rem; letter-spacing: 1px; color: rgba(255,255,255,0.3); margin-left: 0.4rem; }
+    .sector-badge { display: inline-block; font-family: 'Barlow Condensed', sans-serif; font-size: 0.62rem; font-weight: 700; letter-spacing: 0.8px; border-radius: 4px; padding: 1px 6px; margin-left: 0.4rem; vertical-align: middle; }
+
+    /* ── Weight progress bar ── */
+    .weight-bar-wrap { display: flex; align-items: center; gap: 0.4rem; justify-content: flex-end; }
+    .weight-bar { height: 4px; border-radius: 2px; background: rgba(255,255,255,0.08); flex: 1; max-width: 60px; overflow: hidden; }
+    .weight-bar-fill { height: 100%; border-radius: 2px; transition: width 0.6s ease; }
+
+    /* ── Animated counter ── */
+    @keyframes countUp { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+    .stat-value.counting { animation: countUp 0.4s ease forwards; }
+
+    /* ── Positive day glow ── */
+    @keyframes glowPulse { 0%,100% { box-shadow: none; } 50% { box-shadow: 0 0 18px rgba(74,222,128,0.25); } }
+    .stat-card.day-positive { animation: glowPulse 2s ease 0.5s 2; }
+    .stat-card.day-negative { animation: glowPulse 2s ease 0.5s 2; }
+    @keyframes glowPulseRed { 0%,100% { box-shadow: none; } 50% { box-shadow: 0 0 18px rgba(248,113,113,0.2); } }
+    .stat-card.day-negative { animation: glowPulseRed 2s ease 0.5s 2; }
+
+    /* ── Row skeleton ── */
+    .skeleton-row td { padding: 0.6rem 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .skeleton-cell { height: 0.85em; border-radius: 4px; background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.09) 50%, rgba(255,255,255,0.04) 75%); background-size: 400px 100%; animation: shimmer 1.4s infinite; }
     .account-badge { font-size: 0.62rem; font-weight: 700; letter-spacing: 1px; color: rgba(255,255,255,0.25); background: rgba(255,255,255,0.06); border-radius: 3px; padding: 1px 5px; margin-left: 0.4rem; vertical-align: middle; }
     .pos { color: #4ade80; }
     .neg { color: #f87171; }
@@ -424,6 +445,15 @@
 
   const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   const SECTOR_COLORS = ['#ffb81c','#7db4ff','#22c55e','#ff7a8a','#a78bfa','#fb923c','#34d399','#60a5fa','#f472b6','#facc15'];
+  const _sectorColorMap = {}; // sector → color, stable across renders
+  function getSectorColor(sector) {
+    if (!sector) return 'rgba(255,255,255,0.15)';
+    if (!_sectorColorMap[sector]) {
+      const keys = Object.keys(_sectorColorMap);
+      _sectorColorMap[sector] = SECTOR_COLORS[keys.length % SECTOR_COLORS.length];
+    }
+    return _sectorColorMap[sector];
+  }
 
   let _portfolios = [];
   let _activePortfolio = null;
@@ -685,12 +715,12 @@
       <div class="summary-bar">
         <div class="stat-card">
           <div class="stat-label">Market Value</div>
-          <div class="stat-value">${pricesLoaded ? fmtC(totalValue) : skl('90px')}</div>
+          <div class="stat-value" id="sv-value">${pricesLoaded ? fmtC(totalValue) : skl('90px')}</div>
           <div class="stat-sub">Cost: ${fmtC(totalCost)}</div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card${pricesLoaded ? (totalDayChange >= 0 ? ' day-positive' : ' day-negative') : ''}">
           <div class="stat-label">Day Change</div>
-          <div class="stat-value ${pricesLoaded ? dayClr : ''}">${pricesLoaded ? (totalDayChange >= 0 ? '+' : '') + fmtC(totalDayChange) : skl('80px')}</div>
+          <div class="stat-value ${pricesLoaded ? dayClr : ''}" id="sv-day">${pricesLoaded ? (totalDayChange >= 0 ? '+' : '') + fmtC(totalDayChange) : skl('80px')}</div>
           <div class="stat-sub">${pricesLoaded ? (totalDayChange >= 0 ? '+' : '') + fmt(totalDayPct) + '%' : ''}</div>
         </div>
         <div class="stat-card">
@@ -719,6 +749,7 @@
         <div class="chart-panel"><div class="section-title" style="margin-bottom:0.75rem">Gain / Loss</div><canvas id="gainloss-chart"></canvas></div>
         <div class="chart-panel"><div class="section-title" style="margin-bottom:0.75rem">Monthly Income</div><canvas id="income-chart"></canvas></div>
         <div class="chart-panel"><div class="section-title" style="margin-bottom:0.75rem">Portfolio Weight</div><canvas id="weight-chart"></canvas></div>
+        <div class="chart-panel"><div class="section-title" style="margin-bottom:0.75rem">Performance Waterfall</div><canvas id="waterfall-chart"></canvas></div>
       </div>
       <div class="dividend-section">
         <div class="holdings-header"><div class="section-title">Upcoming Dividends</div></div>
@@ -730,6 +761,9 @@
       </div>`;
 
     // Show by-account donut when viewing All with multiple accounts
+    const showByAccount = !_activeAccount && _accounts.length > 1;
+    renderAllocationChart(enriched, showByAccount);
+    if (pricesLoaded) animateStatCards(totalValue, totalDayChange, totalGain);
     const showByAccount = !_activeAccount && _accounts.length > 1;
     renderAllocationChart(enriched, showByAccount);
   }
@@ -804,17 +838,24 @@
           const dc = (h.dayChange ?? 0) >= 0 ? 'pos' : 'neg';
           const gc = (h.overallGain ?? 0) >= 0 ? 'pos' : 'neg';
           rows += `<tr>
-            <td class="left">${escHtml(h.company_name || '')} <span class="ticker-badge">${escHtml(h.ticker || '')}</span></td>
+          rows += `<tr>
+            <td class="left">
+              ${escHtml(h.company_name || '')}
+              <span class="ticker-badge">${escHtml(h.ticker || '')}</span>
+              ${h.sector ? `<span class="sector-badge" style="background:${getSectorColor(h.sector)}22;color:${getSectorColor(h.sector)};border:1px solid ${getSectorColor(h.sector)}44">${escHtml(h.sector)}</span>` : ''}
+            </td>
             <td class="col-hide-mobile">${fmt(h.shares, 4)}</td>
             <td class="col-hide-mobile">${fmtC(h.avg_price)}</td>
             <td class="col-hide-mobile">${fmtC(h.cost)}</td>
-            <td>${h.price ? fmtC(h.price) : (pricesLoaded ? '—' : '<span class="skeleton" style="width:60px;height:0.9em;display:inline-block">&nbsp;</span>')}</td>
-            <td class="col-hide-mobile">${h.marketValue != null ? fmtC(h.marketValue) : (pricesLoaded ? '—' : '<span class="skeleton" style="width:70px;height:0.9em;display:inline-block">&nbsp;</span>')}</td>
-            <td class="col-hide-mobile ${dc}">${h.dayChange != null ? (h.dayChange >= 0 ? '+' : '') + fmtC(h.dayChange) : (pricesLoaded ? '—' : '<span class="skeleton" style="width:55px;height:0.9em;display:inline-block">&nbsp;</span>')}</td>
-            <td class="${dc}">${h.changePct != null ? (h.changePct >= 0 ? '+' : '') + fmt(h.changePct) + '%' : (pricesLoaded ? '—' : '<span class="skeleton" style="width:45px;height:0.9em;display:inline-block">&nbsp;</span>')}</td>
+            <td>${h.price ? fmtC(h.price) : (pricesLoaded ? '—' : '<span class="skeleton-cell" style="width:60px;display:inline-block">&nbsp;</span>')}</td>
+            <td class="col-hide-mobile">${h.marketValue != null ? fmtC(h.marketValue) : (pricesLoaded ? '—' : '<span class="skeleton-cell" style="width:70px;display:inline-block">&nbsp;</span>')}</td>
+            <td class="col-hide-mobile ${dc}">${h.dayChange != null ? (h.dayChange >= 0 ? '+' : '') + fmtC(h.dayChange) : (pricesLoaded ? '—' : '<span class="skeleton-cell" style="width:55px;display:inline-block">&nbsp;</span>')}</td>
+            <td class="${dc}">${h.changePct != null ? (h.changePct >= 0 ? '+' : '') + fmt(h.changePct) + '%' : (pricesLoaded ? '—' : '<span class="skeleton-cell" style="width:45px;display:inline-block">&nbsp;</span>')}</td>
             <td class="col-hide-mobile ${gc}">${h.overallGain != null ? (h.overallGain >= 0 ? '+' : '') + fmtC(h.overallGain) : '—'}</td>
             <td class="${gc}">${h.overallGain != null && h.cost > 0 ? (h.overallGain >= 0 ? '+' : '') + fmt((h.overallGain / h.cost) * 100) + '%' : '—'}</td>
-            <td class="col-hide-mobile muted">${h.weight != null ? fmt(h.weight) + '%' : '—'}</td>
+            <td class="col-hide-mobile">
+              ${h.weight != null ? `<div class="weight-bar-wrap"><div class="weight-bar"><div class="weight-bar-fill" style="width:${Math.min(h.weight,100)}%;background:${getSectorColor(h.sector)}"></div></div><span class="muted">${fmt(h.weight)}%</span></div>` : '—'}
+            </td>
             <td class="col-hide-mobile muted">${h.annual_dividend ? fmtC((h.shares || 0) * h.annual_dividend / 12) + '/mo' : '—'}</td>
             <td style="white-space:nowrap"><button class="btn-edit-row" data-edit-id="${h.id}">✎</button><button class="btn-delete-row" data-delete-id="${h.id}" data-delete-name="${escHtml(h.company_name || h.ticker || '')}">✕</button></td>
           </tr>`;
@@ -995,6 +1036,7 @@
     renderGainLossChart(enriched);
     renderIncomeChart(enriched);
     renderWeightChart(enriched);
+    renderWaterfallChart(enriched);
   }
 
   function renderGainLossChart(enriched) {
@@ -1059,7 +1101,7 @@
     if (!holdings.length) return;
     const labels = holdings.map(h => h.ticker || h.company_name);
     const values = holdings.map(h => +h.weight.toFixed(2));
-    const colors = SECTOR_COLORS.slice(0, holdings.length).concat(SECTOR_COLORS).slice(0, holdings.length);
+    const colors = holdings.map(h => getSectorColor(h.sector));
     _weightChart = new Chart(canvas.getContext('2d'), {
       type: 'bar',
       data: { labels, datasets: [{ data: values, backgroundColor: colors.map(c => c + 'aa'), borderColor: colors, borderWidth: 1, borderRadius: 4 }] },
@@ -1072,6 +1114,49 @@
         }
       }
     });
+  }
+
+      }
+    });
+  }
+
+  let _waterfallChart = null;
+  function renderWaterfallChart(enriched) {
+    const canvas = document.getElementById('waterfall-chart');
+    if (!canvas) return;
+    if (_waterfallChart) { _waterfallChart.destroy(); _waterfallChart = null; }
+    const holdings = enriched.filter(h => h.overallGain != null).sort((a, b) => b.overallGain - a.overallGain);
+    if (!holdings.length) return;
+    const labels = holdings.map(h => h.ticker || h.company_name);
+    const gains = holdings.map(h => h.overallGain > 0 ? +h.overallGain.toFixed(2) : 0);
+    const losses = holdings.map(h => h.overallGain < 0 ? +h.overallGain.toFixed(2) : 0);
+    _waterfallChart = new Chart(canvas.getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          { label: 'Gain', data: gains, backgroundColor: 'rgba(74,222,128,0.65)', borderColor: '#4ade80', borderWidth: 1, borderRadius: { topLeft: 4, topRight: 4 } },
+          { label: 'Loss', data: losses, backgroundColor: 'rgba(248,113,113,0.65)', borderColor: '#f87171', borderWidth: 1, borderRadius: { bottomLeft: 4, bottomRight: 4 } },
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: true,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${fmtC(ctx.parsed.y)}` } } },
+        scales: {
+          x: { stacked: true, grid: { display: false }, ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 9, family: 'Bebas Neue' } }, border: { display: false } },
+          y: { stacked: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 10 }, callback: v => '$' + v.toFixed(0) }, border: { display: false } }
+        }
+      }
+    });
+  }
+
+  function animateStatCards(totalValue, totalDayChange, totalGain) {
+    const el = document.getElementById('sv-value');
+    if (!el) return;
+    // Trigger re-animation by toggling class
+    el.classList.remove('counting');
+    void el.offsetWidth; // reflow
+    el.classList.add('counting');
   }
 
   // ── Holding modal ─────────────────────────────────────────────────────────
