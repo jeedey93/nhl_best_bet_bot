@@ -628,14 +628,16 @@
       _portfolios = await sbGet('finance_portfolios?order=created_at.asc&select=id,name,owner_code,password_hash,updated_at');
       await route();
     } catch(e) {
-      console.error('init error:', e);
-      // Don't show "Failed to load" for rendering errors — only for network errors
-      if (e.message && (e.message.includes('fetch') || e.message.includes('network') || e.message.includes('Failed') || !isNaN(e.message))) {
-        document.getElementById('home-view').style.display = 'block';
+      console.error('init failed:', e.message, e.stack);
+      document.getElementById('home-view').style.display = 'block';
+      if (e.message && (String(e.message).match(/^\d+$/) || e.message.includes('fetch') || e.message.includes('network'))) {
         document.getElementById('portfolio-cards').innerHTML = `<div class="empty-state">Failed to load. Check your connection.</div>`;
       } else {
-        // Rendering error — try to show cards anyway
-        try { await renderHome(); } catch(e2) { console.error('renderHome error:', e2); }
+        // Rendering error — still try to show cards
+        try { await renderHome(); } catch(e2) {
+          console.error('renderHome also failed:', e2.message);
+          document.getElementById('portfolio-cards').innerHTML = `<div class="empty-state">Failed to load. Check your connection.</div>`;
+        }
       }
     }
   }
@@ -1179,6 +1181,11 @@
         <span class="${grpDay >= 0 ? 'pos' : 'neg'}">${grpDay >= 0 ? '+' : ''}${fmtC(grpDay)} (${grpDay >= 0 ? '+' : ''}${fmt(sgPct)}%)</span>
       </div>`;
     }
+
+    const sc = _holdingsSort.col, sd = _holdingsSort.dir;
+    const arr = col => sc === col ? (sd === -1 ? ' ↓' : ' ↑') : '';
+    const sh = (col, label, cls='') =>
+      `<th class="sort-th${cls ? ' '+cls : ''}" onclick="setHoldingsSort('${col}')" style="cursor:pointer;user-select:none">${label}${arr(col)}</th>`;
 
     return `<table class="holdings">
       <thead><tr>
