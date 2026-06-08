@@ -161,6 +161,62 @@ async function handleDetails(req, res) {
   }
 }
 
+// ── Profile ───────────────────────────────────────────────────────────────
+const _profileCache = new Map();
+
+async function handleProfile(req, res) {
+  const symbol = (req.query.symbol || '').trim();
+  if (!symbol) return res.status(400).json({ error: 'symbol param required' });
+  const cached = _profileCache.get(symbol);
+  if (cached && Date.now() - cached.ts < 60 * 60 * 1000) return res.status(200).json(cached.data);
+
+  if (!FINNHUB_KEY) return res.status(200).json({ error: 'no api key' });
+
+  const tmxSym = toTmx(symbol);
+  try {
+    const [profileRes, metricsRes, quoteRes] = await Promise.allSettled([
+      fetch(`https://finnhub.io/api/v1/stock/profile2?symbol=${encodeURIComponent(tmxSym)}&token=${FINNHUB_KEY}`, { headers: { 'User-Agent': 'Mozilla/5.0' } }),
+      fetch(`https://finnhub.io/api/v1/stock/metric?symbol=${encodeURIComponent(tmxSym)}&metric=all&token=${FINNHUB_KEY}`, { headers: { 'User-Agent': 'Mozilla/5.0' } }),
+      fetch(`https://finnhub.io/api/v1/quote?symbol=${encodeURIComponent(tmxSym)}&token=${FINNHUB_KEY}`, { headers: { 'User-Agent': 'Mozilla/5.0' } }),
+    ]);
+
+    const profile = profileRes.status === 'fulfilled' && profileRes.value.ok ? await profileRes.value.json() : {};
+    const metricsData = metricsRes.status === 'fulfilled' && metricsRes.value.ok ? await metricsRes.value.json() : {};
+    const quote = quoteRes.status === 'fulfilled' && quoteRes.value.ok ? await quoteRes.value.json() : {};
+    const m = metricsData.metric || {};
+
+    const data = {
+      name: profile.name || tmxSym,
+      ticker: profile.ticker || tmxSym,
+      logo: profile.logo || null,
+      exchange: profile.exchange || '',
+      country: profile.country || '',
+      currency: profile.currency || 'CAD',
+      industry: profile.finnhubIndustry || '',
+      website: profile.weburl || null,
+      ipo: profile.ipo || null,
+      marketCap: profile.marketCapitalization ? +(profile.marketCapitalization).toFixed(2) : null,
+      sharesOutstanding: profile.shareOutstanding || null,
+      // Quote
+      price: quote.c || null,
+      high52: m['52WeekHigh'] || null,
+      low52: m['52WeekLow'] || null,
+      // Valuation
+      pe: m.peBasicExclExtraTTM ? +m.peBasicExclExtraTTM.toFixed(2) : null,
+      pb: m.pbAnnual ? +m.pbAnnual.toFixed(2) : null,
+      eps: m.epsBasicExclExtraItemsAnnual ? +m.epsBasicExclExtraItemsAnnual.toFixed(2) : null,
+      beta: m.beta ? +m.beta.toFixed(2) : null,
+      dividendYield: m.dividendYieldIndicatedAnnual ? +m.dividendYieldIndicatedAnnual.toFixed(2) : null,
+      dividendPerShare: m.dividendPerShareAnnual ? +m.dividendPerShareAnnual.toFixed(2) : null,
+    };
+
+    _profileCache.set(symbol, { ts: Date.now(), data });
+    return res.status(200).json(data);
+  } catch(e) {
+    return res.status(500).json({ error: e.message });
+  }
+}
+
 // ── Router ────────────────────────────────────────────────────────────────
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -173,6 +229,7 @@ module.exports = async (req, res) => {
     if (action === 'price')   return await handlePrice(req, res);
     if (action === 'search')  return await handleSearch(req, res);
     if (action === 'details') return await handleDetails(req, res);
+    if (action === 'profile') return await handleProfile(req, res);
     return res.status(400).json({ error: 'action required: price | search | details' });
   } catch(e) {
     return res.status(500).json({ error: e.message });

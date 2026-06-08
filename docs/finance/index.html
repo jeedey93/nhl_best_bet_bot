@@ -243,6 +243,26 @@
     .modal { position: fixed; left: 50%; top: 50%; z-index: 700; transform: translate(-50%, -52%) scale(0.95); opacity: 0; pointer-events: none; transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1), opacity 0.2s; background: #0e1e35; border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 1.75rem 1.25rem 1.25rem; width: calc(100% - 1.5rem); max-width: 480px; max-height: 90vh; overflow-y: auto; box-shadow: 0 24px 60px rgba(0,0,0,0.6); }
     .modal.show { transform: translate(-50%, -50%) scale(1); opacity: 1; pointer-events: all; }
     .modal-title { font-family: 'Bebas Neue', cursive; font-size: 1.4rem; letter-spacing: 3px; color: white; margin-bottom: 1.25rem; }
+    /* ── Company profile ── */
+    .profile-header { display: flex; align-items: center; gap: 0.85rem; margin-bottom: 1rem; }
+    .profile-logo { width: 44px; height: 44px; border-radius: 8px; object-fit: contain; background: rgba(255,255,255,0.06); padding: 4px; flex-shrink: 0; }
+    .profile-logo-placeholder { width: 44px; height: 44px; border-radius: 8px; background: rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: center; font-family: 'Bebas Neue', cursive; font-size: 1rem; color: var(--silver); flex-shrink: 0; }
+    .profile-name { font-family: 'Bebas Neue', cursive; font-size: 1.2rem; letter-spacing: 2px; color: white; line-height: 1.1; }
+    .profile-meta { font-size: 0.72rem; font-weight: 600; color: rgba(255,255,255,0.3); letter-spacing: 0.5px; margin-top: 2px; }
+    .profile-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+    .profile-stat { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 8px; padding: 0.55rem 0.75rem; }
+    .profile-stat-label { font-size: 0.62rem; font-weight: 700; letter-spacing: 1.5px; color: rgba(255,255,255,0.25); text-transform: uppercase; margin-bottom: 2px; }
+    .profile-stat-value { font-family: 'Bebas Neue', cursive; font-size: 1.05rem; letter-spacing: 1px; color: white; }
+    .profile-stat-value.green { color: var(--green); }
+    .profile-range { margin-top: 0.75rem; }
+    .profile-range-label { font-size: 0.62rem; font-weight: 700; letter-spacing: 1.5px; color: rgba(255,255,255,0.25); text-transform: uppercase; margin-bottom: 0.4rem; }
+    .range-bar { height: 4px; background: rgba(255,255,255,0.08); border-radius: 2px; position: relative; margin: 0.3rem 0; }
+    .range-fill { height: 100%; background: linear-gradient(90deg, var(--red), var(--green)); border-radius: 2px; }
+    .range-dot { position: absolute; top: 50%; transform: translate(-50%, -50%); width: 10px; height: 10px; border-radius: 50%; background: var(--gold); border: 2px solid #07111f; }
+    .range-labels { display: flex; justify-content: space-between; font-size: 0.7rem; font-weight: 600; color: rgba(255,255,255,0.3); }
+    .profile-website { margin-top: 0.75rem; font-size: 0.78rem; font-weight: 600; }
+    .profile-website a { color: var(--blue); text-decoration: none; }
+    .profile-website a:hover { text-decoration: underline; }
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem; }
     .form-row.full { grid-template-columns: 1fr; }
     .form-group { display: flex; flex-direction: column; gap: 3px; }
@@ -298,6 +318,15 @@
 </div>
 
 <div id="toast"></div>
+
+<!-- Company profile modal -->
+<div class="modal-backdrop" id="profile-backdrop" onclick="closeProfileModal()"></div>
+<div class="modal" id="profile-modal" style="max-width:480px">
+  <div id="profile-content"><div class="empty-state"><span class="spinner"></span></div></div>
+  <div class="modal-actions" style="margin-top:1rem">
+    <button class="btn-modal-cancel" onclick="closeProfileModal()">Close</button>
+  </div>
+</div>
 
 <!-- Confirm modal -->
 <div class="modal-backdrop" id="confirm-backdrop"></div>
@@ -955,7 +984,7 @@
           if (h.overallGain != null) { totalGain += h.overallGain; grpGain += h.overallGain; }
           const dc = (h.dayChange ?? 0) >= 0 ? 'pos' : 'neg';
           const gc = (h.overallGain ?? 0) >= 0 ? 'pos' : 'neg';
-          rows += `<tr>
+          rows += `<tr style="cursor:pointer" onclick="openCompanyProfile('${h.ticker}','${escHtml(h.company_name||h.ticker).replace(/'/g,'&#39;')}')">
             <td class="left">
               ${escHtml(h.company_name || '')}
               <span class="ticker-badge">${escHtml(h.ticker || '')}</span>
@@ -974,7 +1003,7 @@
               ${h.weight != null ? `<div class="weight-bar-wrap"><div class="weight-bar"><div class="weight-bar-fill" style="width:${Math.min(h.weight,100)}%;background:${getSectorColor(h.sector)}"></div></div><span class="muted">${fmt(h.weight)}%</span></div>` : '—'}
             </td>
             <td class="col-hide-mobile muted">${h.annual_dividend ? fmtC((h.shares || 0) * h.annual_dividend / 12) + '/mo' : '—'}</td>
-            <td style="white-space:nowrap"><button class="btn-edit-row" data-edit-id="${h.id}">✎</button><button class="btn-delete-row" data-delete-id="${h.id}" data-delete-name="${escHtml(h.company_name || h.ticker || '')}">✕</button></td>
+            <td style="white-space:nowrap" onclick="event.stopPropagation()"><button class="btn-edit-row" data-edit-id="${h.id}">✎</button><button class="btn-delete-row" data-delete-id="${h.id}" data-delete-name="${escHtml(h.company_name || h.ticker || '')}">✕</button></td>
           </tr>`;
         });
       // Subtotal row per account (only in All view with multiple accounts)
@@ -1888,6 +1917,81 @@
     ctx.lineTo(x, y + r);
     ctx.quadraticCurveTo(x, y, x + r, y);
     ctx.closePath();
+  }
+
+  // ── Company profile modal ─────────────────────────────────────────────────
+  function openCompanyProfile(ticker, name) {
+    document.getElementById('profile-content').innerHTML = `<div class="empty-state" style="padding:1.5rem"><span class="spinner"></span> Loading ${escHtml(name)}…</div>`;
+    document.getElementById('profile-backdrop').classList.add('show');
+    document.getElementById('profile-modal').classList.add('show');
+    fetchCompanyProfile(ticker, name);
+  }
+
+  function closeProfileModal() {
+    document.getElementById('profile-backdrop').classList.remove('show');
+    document.getElementById('profile-modal').classList.remove('show');
+  }
+
+  async function fetchCompanyProfile(ticker, name) {
+    try {
+      const res = await fetch(`/api/finance?action=profile&symbol=${encodeURIComponent(ticker)}`);
+      if (!res.ok) throw new Error(res.status);
+      const d = await res.json();
+      if (d.error) throw new Error(d.error);
+      renderCompanyProfile(d, ticker, name);
+    } catch(e) {
+      document.getElementById('profile-content').innerHTML = `<div class="empty-state">Could not load profile for ${escHtml(name)}.</div>`;
+    }
+  }
+
+  function renderCompanyProfile(d, ticker, name) {
+    const fmtB = (v) => v == null ? '—' : v >= 1000 ? `$${(v/1000).toFixed(1)}B` : `$${v.toFixed(0)}M`;
+    const fmtV = (v, suffix='') => v == null ? '—' : v + suffix;
+
+    const logoHtml = d.logo
+      ? `<img class="profile-logo" src="${escHtml(d.logo)}" alt="${escHtml(d.name)}" onerror="this.style.display='none'">`
+      : `<div class="profile-logo-placeholder">${escHtml((d.name||ticker).slice(0,3).toUpperCase())}</div>`;
+
+    // 52-week range bar
+    let rangeHtml = '';
+    if (d.high52 && d.low52 && d.price) {
+      const range = d.high52 - d.low52;
+      const pos = range > 0 ? Math.min(100, Math.max(0, ((d.price - d.low52) / range) * 100)) : 50;
+      rangeHtml = `<div class="profile-range">
+        <div class="profile-range-label">52-Week Range</div>
+        <div class="range-bar"><div class="range-fill" style="width:100%"></div><div class="range-dot" style="left:${pos.toFixed(1)}%"></div></div>
+        <div class="range-labels"><span>$${d.low52.toFixed(2)}</span><span style="color:var(--gold)">$${d.price?.toFixed(2)||'—'}</span><span>$${d.high52.toFixed(2)}</span></div>
+      </div>`;
+    }
+
+    const stats = [
+      { label: 'Market Cap',     value: fmtB(d.marketCap) },
+      { label: 'Industry',       value: d.industry || '—' },
+      { label: 'P/E Ratio',      value: fmtV(d.pe, 'x') },
+      { label: 'P/B Ratio',      value: fmtV(d.pb, 'x') },
+      { label: 'EPS',            value: d.eps != null ? `$${d.eps}` : '—' },
+      { label: 'Beta',           value: fmtV(d.beta) },
+      { label: 'Div Yield',      value: d.dividendYield != null ? `${d.dividendYield}%` : '—' },
+      { label: 'IPO Date',       value: d.ipo || '—' },
+    ];
+
+    document.getElementById('profile-content').innerHTML = `
+      <div class="profile-header">
+        ${logoHtml}
+        <div>
+          <div class="profile-name">${escHtml(d.name || name)}</div>
+          <div class="profile-meta">${escHtml(ticker)} · ${escHtml(d.exchange || '')} · ${escHtml(d.currency || 'CAD')}</div>
+        </div>
+      </div>
+      <div class="profile-stats">
+        ${stats.map(s => `<div class="profile-stat">
+          <div class="profile-stat-label">${s.label}</div>
+          <div class="profile-stat-value">${escHtml(String(s.value))}</div>
+        </div>`).join('')}
+      </div>
+      ${rangeHtml}
+      ${d.website ? `<div class="profile-website">🌐 <a href="${escHtml(d.website)}" target="_blank" rel="noopener">${escHtml(d.website.replace(/^https?:\/\//, ''))}</a></div>` : ''}
+    `;
   }
 
   function showToast(msg, isError = false) {
