@@ -37,12 +37,29 @@
     /* ── Page ── */
     .page { max-width: 1400px; margin: 0 auto; padding: 1.25rem 1.5rem 4rem; }
 
-    /* ── Portfolio row (top level) ── */
+    /* ── Home — portfolio cards ── */
+    .home-wrap { max-width: 900px; margin: 0 auto; }
+    .home-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+    .home-title { font-family: 'Bebas Neue', cursive; font-size: 2rem; letter-spacing: 5px; color: white; }
+    .home-title span { color: var(--gold); }
+    .portfolio-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1rem; }
+    .portfolio-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 1.25rem 1.5rem; cursor: pointer; transition: background 0.15s, border-color 0.15s, transform 0.1s; }
+    .portfolio-card:hover { background: rgba(255,255,255,0.06); border-color: rgba(255,184,28,0.3); transform: translateY(-2px); }
+    .portfolio-card:active { transform: translateY(0); }
+    .pc-name { font-family: 'Bebas Neue', cursive; font-size: 1.4rem; letter-spacing: 3px; color: white; margin-bottom: 0.35rem; }
+    .pc-lock { color: var(--silver); font-size: 0.8rem; letter-spacing: 1px; opacity: 0.5; }
+    .pc-accounts { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.6rem; }
+    .pc-account-chip { font-family: 'Bebas Neue', cursive; font-size: 0.72rem; letter-spacing: 1.5px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: var(--silver); border-radius: 5px; padding: 2px 8px; }
+    .pc-new { border-style: dashed; border-color: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; gap: 0.5rem; color: rgba(255,255,255,0.3); font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 2px; min-height: 90px; }
+    .pc-new:hover { border-color: rgba(255,184,28,0.3); color: var(--gold); transform: none; }
+
+    /* ── Portfolio nav (breadcrumb + account tabs) ── */
     .portfolio-bar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 0; }
-    .portfolio-tabs { display: flex; gap: 0.4rem; flex-wrap: wrap; }
-    .ptab { font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 2px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); color: var(--silver); border-radius: 8px; padding: 0.4rem 1rem; cursor: pointer; transition: background 0.15s, color 0.15s, border-color 0.15s; }
-    .ptab:hover { background: rgba(255,255,255,0.08); color: white; }
-    .ptab.active { background: rgba(255,184,28,0.12); border-color: rgba(255,184,28,0.4); color: var(--gold); }
+    .portfolio-breadcrumb { display: flex; align-items: center; gap: 0.5rem; font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 2px; }
+    .breadcrumb-home { color: var(--silver); cursor: pointer; transition: color 0.15s; }
+    .breadcrumb-home:hover { color: white; }
+    .breadcrumb-sep { color: rgba(255,255,255,0.2); }
+    .breadcrumb-name { color: var(--gold); }
     .btn-sm { font-family: 'Bebas Neue', cursive; font-size: 0.82rem; letter-spacing: 1.5px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); color: var(--silver); border-radius: 7px; padding: 0.35rem 0.85rem; cursor: pointer; transition: background 0.15s, color 0.15s; white-space: nowrap; }
     .btn-sm:hover { background: rgba(255,255,255,0.1); color: white; }
     .btn-sm.gold { background: rgba(255,184,28,0.08); border-color: rgba(255,184,28,0.25); color: var(--gold); }
@@ -323,14 +340,27 @@
 </div>
 
 <div class="page" id="main-page">
-  <div class="portfolio-bar">
-    <div class="portfolio-tabs" id="portfolio-tabs">
-      <div style="color:rgba(255,255,255,0.2);font-size:0.85rem;font-weight:600;letter-spacing:1px;padding:0.4rem 0.5rem;"><span class="spinner"></span>Loading…</div>
+  <!-- Home view -->
+  <div id="home-view" style="display:none">
+    <div class="home-wrap">
+      <div class="home-header">
+        <div class="home-title">My <span>Portfolios</span></div>
+        <button class="btn-sm" onclick="openNewPortfolioModal()">+ New Portfolio</button>
+      </div>
+      <div class="portfolio-cards" id="portfolio-cards"></div>
     </div>
-    <button class="btn-sm" onclick="openNewPortfolioModal()">+ Portfolio</button>
   </div>
-  <div id="portfolio-content">
-    <div class="empty-state">Select or create a portfolio above.</div>
+  <!-- Portfolio view -->
+  <div id="portfolio-view" style="display:none">
+    <div class="portfolio-bar">
+      <div class="portfolio-breadcrumb">
+        <span class="breadcrumb-home" onclick="navigate('/')">Finance</span>
+        <span class="breadcrumb-sep">›</span>
+        <span class="breadcrumb-name" id="breadcrumb-portfolio-name"></span>
+      </div>
+      <button class="btn-sm" onclick="openNewPortfolioModal()">+ Portfolio</button>
+    </div>
+    <div id="portfolio-content"></div>
   </div>
 </div>
 
@@ -388,46 +418,79 @@
     if (!r.ok) throw new Error(r.status);
   }
 
+  // ── Router ────────────────────────────────────────────────────────────────
+  function slugify(str) { return str.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); }
+  function navigate(path) { location.hash = path === '/' ? '' : path; }
+  function parseRoute() {
+    const hash = location.hash.replace(/^#/, '') || '/';
+    const parts = hash.split('/').filter(Boolean);
+    if (parts[0] === 'p' && parts[1]) return { view: 'portfolio', ownerCode: parts[1], accountSlug: parts[2] || null };
+    return { view: 'home' };
+  }
+  async function route() {
+    const r = parseRoute();
+    if (r.view === 'home') { await renderHome(); }
+    else { const p = _portfolios.find(p => p.owner_code === r.ownerCode); if (p) await showPortfolio(p, r.accountSlug); else await renderHome(); }
+  }
+  window.addEventListener('hashchange', route);
+
   // ── Init ─────────────────────────────────────────────────────────────────
   async function init() {
     try {
       _portfolios = await sbGet('finance_portfolios?order=created_at.asc&select=*');
-      renderPortfolioTabs();
-      const urlP = new URLSearchParams(location.search).get('p');
-      const target = urlP ? _portfolios.find(p => p.owner_code === urlP) : null;
-      const first = target || _portfolios[0];
-      if (first) selectPortfolio(first);
+      await route();
     } catch(e) {
-      document.getElementById('portfolio-content').innerHTML = `<div class="empty-state">Failed to load. Check your connection.</div>`;
+      document.getElementById('home-view').style.display = 'block';
+      document.getElementById('portfolio-cards').innerHTML = `<div class="empty-state">Failed to load. Check your connection.</div>`;
     }
   }
 
+  // ── Home view ─────────────────────────────────────────────────────────────
+  async function renderHome() {
+    document.getElementById('home-view').style.display = 'block';
+    document.getElementById('portfolio-view').style.display = 'none';
+    _activePortfolio = null; _activeAccount = null;
+    if (!_portfolios.length) {
+      document.getElementById('portfolio-cards').innerHTML = `<div class="portfolio-card pc-new" onclick="openNewPortfolioModal()">+ Create your first portfolio</div>`;
+      return;
+    }
+    let accountsByPortfolio = {};
+    try {
+      const accounts = await sbGet(`finance_accounts?portfolio_id=in.(${_portfolios.map(p => p.id).join(',')})&select=id,name,portfolio_id`);
+      accounts.forEach(a => { (accountsByPortfolio[a.portfolio_id] = accountsByPortfolio[a.portfolio_id] || []).push(a); });
+    } catch(_) {}
+    document.getElementById('portfolio-cards').innerHTML = _portfolios.map(p => {
+      const accs = accountsByPortfolio[p.id] || [];
+      const chips = accs.map(a => `<span class="pc-account-chip">${escHtml(a.name)}</span>`).join('');
+      return `<div class="portfolio-card" data-portfolio-code="${escHtml(p.owner_code)}">
+        <div class="pc-name">${escHtml(p.name)}${p.password_hash ? ' 🔒' : ''}</div>
+        ${accs.length ? `<div class="pc-accounts">${chips}</div>` : `<div class="pc-lock" style="margin-top:0.35rem">No accounts yet</div>`}
+      </div>`;
+    }).concat([`<div class="portfolio-card pc-new" onclick="openNewPortfolioModal()">+ New Portfolio</div>`]).join('');
+  }
+
   // ── Portfolio tabs ────────────────────────────────────────────────────────
-  function renderPortfolioTabs() {
-    const el = document.getElementById('portfolio-tabs');
-    if (!_portfolios.length) { el.innerHTML = `<div style="color:rgba(255,255,255,0.2);font-size:0.85rem;font-weight:600;letter-spacing:1px;padding:0.4rem 0.5rem;">No portfolios yet</div>`; return; }
-    el.innerHTML = _portfolios.map(p =>
-      `<button class="ptab${_activePortfolio?.id === p.id ? ' active' : ''}" data-portfolio-id="${p.id}">
-        ${escHtml(p.name)}${p.password_hash ? ' 🔒' : ''}
-      </button>`
-    ).join('');
+  function renderPortfolioTabs() {} // no-op — tabs replaced by home cards
+
+  async function selectPortfolio(p) { navigate(`/p/${p.owner_code}`); }
+
+  async function showPortfolio(p, accountSlug) {
+    document.getElementById('home-view').style.display = 'none';
+    document.getElementById('portfolio-view').style.display = 'block';
+    document.getElementById('breadcrumb-portfolio-name').textContent = p.name;
+    if (p.password_hash && !_unlockedIds.has(p.id)) { showLockScreen(p, accountSlug); return; }
+    await loadPortfolio(p, accountSlug);
   }
 
-  async function selectPortfolio(p) {
+  async function loadPortfolio(p, accountSlug) {
     _activePortfolio = p;
-    _activeAccount = null;
-    renderPortfolioTabs();
-    if (p.password_hash && !_unlockedIds.has(p.id)) { showLockScreen(p); return; }
-    await loadPortfolio(p);
-  }
-
-  async function loadPortfolio(p) {
     document.getElementById('portfolio-content').innerHTML = `<div class="empty-state"><span class="spinner"></span>Loading…</div>`;
     try {
       [_accounts, _holdings] = await Promise.all([
         sbGet(`finance_accounts?portfolio_id=eq.${p.id}&order=created_at.asc&select=*`),
         sbGet(`finance_holdings?portfolio_id=eq.${p.id}&order=account_id.asc,sector.asc,company_name.asc&select=*`),
       ]);
+      _activeAccount = accountSlug ? (_accounts.find(a => slugify(a.name) === accountSlug) || null) : null;
       renderContent();
       fetchPrices();
     } catch(e) {
@@ -436,9 +499,9 @@
   }
 
   // ── Lock screen ───────────────────────────────────────────────────────────
-  let _lockPortfolio = null;
-  function showLockScreen(p) {
-    _lockPortfolio = p;
+  let _lockPortfolio = null, _lockAccountSlug = null;
+  function showLockScreen(p, accountSlug) {
+    _lockPortfolio = p; _lockAccountSlug = accountSlug || null;
     document.getElementById('lock-portfolio-name').textContent = p.name;
     document.getElementById('lock-input').value = '';
     document.getElementById('lock-screen').style.display = 'flex';
@@ -452,7 +515,7 @@
       _unlockedIds.add(_lockPortfolio.id);
       sessionStorage.setItem('fin_unlocked', JSON.stringify([..._unlockedIds]));
       document.getElementById('lock-screen').style.display = 'none';
-      await loadPortfolio(_lockPortfolio);
+      await loadPortfolio(_lockPortfolio, _lockAccountSlug);
     } else {
       input.value = '';
       input.classList.add('shake');
@@ -580,7 +643,10 @@
   }
 
   function selectAccount(idOrNull) {
-    _activeAccount = idOrNull ? (_accounts.find(a => a.id === idOrNull) || null) : null;
+    const acc = idOrNull ? (_accounts.find(a => a.id === idOrNull) || null) : null;
+    _activeAccount = acc;
+    const slug = acc ? slugify(acc.name) : null;
+    navigate(slug ? `/p/${_activePortfolio.owner_code}/${slug}` : `/p/${_activePortfolio.owner_code}`);
     renderContent();
   }
 
@@ -835,7 +901,7 @@
       _portfolios.push(created);
       closePortfolioModal();
       renderPortfolioTabs();
-      selectPortfolio(created);
+      navigate(`/p/${created.owner_code}`);
     } catch(e) { showToast('Failed to create portfolio.', true); }
   }
 
@@ -1011,12 +1077,9 @@
     setTimeout(() => el.style.display = 'none', 3000);
   }
 
-  document.getElementById('portfolio-tabs').addEventListener('click', e => {
-    const btn = e.target.closest('[data-portfolio-id]');
-    if (btn) selectPortfolio(_portfolios.find(p => p.id === btn.dataset.portfolioId));
-  });
-
   document.getElementById('main-page').addEventListener('click', e => {
+    const card = e.target.closest('[data-portfolio-code]');
+    if (card) { const p = _portfolios.find(p => p.owner_code === card.dataset.portfolioCode); if (p) navigate(`/p/${p.owner_code}`); return; }
     const accountBtn = e.target.closest('[data-account-id]');
     if (accountBtn) { selectAccount(accountBtn.dataset.accountId); return; }
     const editBtn = e.target.closest('[data-edit-id]');
