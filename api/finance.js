@@ -136,10 +136,21 @@ async function handleDetails(req, res) {
   try {
     const q = await tmxQuote(symbol);
     const freqMap = { 'Monthly': 'monthly', 'Quarterly': 'quarterly', 'Semi-Annual': 'semi-annual', 'Annual': 'annual' };
+
+    // Fetch sector from Finnhub profile2 in parallel
+    let sector = '';
+    if (FINNHUB_KEY) {
+      try {
+        const finnhubSym = toTmx(symbol); // MFC, ENB — TMX symbol works for Finnhub profile
+        const fr = await fetch(`https://finnhub.io/api/v1/stock/profile2?symbol=${encodeURIComponent(finnhubSym)}&token=${FINNHUB_KEY}`, { headers: { 'User-Agent': 'Mozilla/5.0' } });
+        if (fr.ok) { const fj = await fr.json(); sector = fj.finnhubIndustry || ''; }
+      } catch(_) {}
+    }
+
     const data = {
       annualDividend: q.dividendAmount ? +(q.dividendAmount * (freqMap[q.dividendFrequency] === 'monthly' ? 12 : freqMap[q.dividendFrequency] === 'quarterly' ? 4 : freqMap[q.dividendFrequency] === 'semi-annual' ? 2 : 1)).toFixed(4) : null,
       dividendFrequency: freqMap[q.dividendFrequency] || 'quarterly',
-      sector: '',
+      sector,
     };
     _detailsCache.set(symbol, { ts: Date.now(), data });
     return res.status(200).json(data);
