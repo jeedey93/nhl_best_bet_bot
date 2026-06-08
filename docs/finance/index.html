@@ -539,15 +539,15 @@
     await loadPortfolio(p, accountSlug);
   }
 
-  async function loadPortfolio(p, accountSlug) {
+  async function loadPortfolio(p, accountSlug, silent = false) {
     _activePortfolio = p;
-    document.getElementById('portfolio-content').innerHTML = `<div class="empty-state"><span class="spinner"></span>Loading…</div>`;
+    if (!silent) document.getElementById('portfolio-content').innerHTML = `<div class="empty-state"><span class="spinner"></span>Loading…</div>`;
     try {
       [_accounts, _holdings] = await Promise.all([
         sbGet(`finance_accounts?portfolio_id=eq.${p.id}&order=created_at.asc&select=*`),
         sbGet(`finance_holdings?portfolio_id=eq.${p.id}&order=account_id.asc,sector.asc,company_name.asc&select=*`),
       ]);
-      _activeAccount = accountSlug ? (_accounts.find(a => slugify(a.name) === accountSlug) || null) : null;
+      _activeAccount = accountSlug ? (_accounts.find(a => slugify(a.name) === accountSlug) || null) : _activeAccount;
       renderContent();
       fetchPrices();
       startPriceRefresh();
@@ -906,7 +906,7 @@
     if (!confirmed) return;
     try {
       await sbDelete(`finance_holdings?id=eq.${id}`);
-      await loadPortfolio(_activePortfolio);
+      await loadPortfolio(_activePortfolio, null, true);
     } catch(e) { showToast('Failed to delete.', true); }
   }
 
@@ -954,7 +954,7 @@
       if (id) await sbPatch(`finance_holdings?id=eq.${id}`, body);
       else await sbPost('finance_holdings', body);
       closeHoldingModal();
-      await loadPortfolio(_activePortfolio);
+      await loadPortfolio(_activePortfolio, null, true);
     } catch(e) { showToast('Failed to save.', true); }
   }
 
@@ -964,7 +964,7 @@
     try {
       await sbDelete(`finance_holdings?id=eq.${id}`);
       closeHoldingModal();
-      await loadPortfolio(_activePortfolio);
+      await loadPortfolio(_activePortfolio, null, true);
     } catch(e) { showToast('Failed to delete.', true); }
   }
 
