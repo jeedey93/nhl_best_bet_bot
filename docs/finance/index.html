@@ -630,15 +630,7 @@
     } catch(e) {
       console.error('init failed:', e.message, e.stack);
       document.getElementById('home-view').style.display = 'block';
-      if (e.message && (String(e.message).match(/^\d+$/) || e.message.includes('fetch') || e.message.includes('network'))) {
-        document.getElementById('portfolio-cards').innerHTML = `<div class="empty-state">Failed to load. Check your connection.</div>`;
-      } else {
-        // Rendering error — still try to show cards
-        try { await renderHome(); } catch(e2) {
-          console.error('renderHome also failed:', e2.message);
-          document.getElementById('portfolio-cards').innerHTML = `<div class="empty-state">Failed to load. Check your connection.</div>`;
-        }
-      }
+      document.getElementById('portfolio-cards').innerHTML = `<div class="empty-state" style="color:rgba(255,100,100,0.8);font-size:0.75rem;text-align:left;padding:1rem;white-space:pre-wrap">${e.message}\n\n${(e.stack||'').slice(0,400)}</div>`;
     }
   }
 
