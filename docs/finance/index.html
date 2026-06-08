@@ -2133,7 +2133,7 @@
       if(!groups[key]) groups[key]={label:accountMap[h.account_id]||_activeAccount?.name||'Holdings',rows:[],dayTotal:0};
       const dc=(h.shares||0)*p.change;
       groups[key].dayTotal+=dc;
-      groups[key].rows.push({ticker:(h.ticker||'').replace(/^TSX:|^NYSE:|^NASDAQ:/i,''),dc,pct:p.changePct??0,price:p.price??0});
+      groups[key].rows.push({ticker:(h.ticker||'').replace(/^TSX:|^NYSE:|^NASDAQ:/i,''),dc,pct:p.changePct??0,price:p.price??0,sectorColor:getSectorColor(h.sector||'')});
     });
     const GL=Object.values(groups);
     GL.forEach(g=>g.rows.sort((a,b)=>b.dc-a.dc));
@@ -2173,9 +2173,16 @@
     // Date
     ctx.font='600 9px Arial'; ctx.fillStyle=DIM;
     ctx.fillText(dateStr, W/2, 32);
-    // Title: "DAILY CHANGES"
+    // Title — portfolio name
     ctx.font='bold 17px Arial'; ctx.fillStyle=WHITE;
-    ctx.fillText('Daily Changes', W/2, 56);
+    ctx.fillText(_activePortfolio?.name||'My Portfolio', W/2, 56);
+
+    // Gradient divider below header
+    const divY=HEADER_H+1;
+    const gDiv=ctx.createLinearGradient(PAD,0,W-PAD,0);
+    gDiv.addColorStop(0,'transparent'); gDiv.addColorStop(0.5,'rgba(168,178,190,0.25)'); gDiv.addColorStop(1,'transparent');
+    ctx.strokeStyle=gDiv; ctx.lineWidth=0.75;
+    ctx.beginPath(); ctx.moveTo(PAD,divY); ctx.lineTo(W-PAD,divY); ctx.stroke();
 
     // Day pill
     const totPos=totalDay>=0;
@@ -2187,7 +2194,14 @@
     ctx.font='bold 18px Arial'; ctx.fillStyle=totPos?GREEN:RED;
     ctx.fillText(fmt$(totalDay),W/2,PY+22);
     ctx.font='600 9px Arial'; ctx.fillStyle=totPos?'rgba(74,222,128,0.55)':'rgba(248,113,113,0.55)';
-    ctx.fillText(fmtP(dayPct)+' · Day Change',W/2,PY+36);
+    ctx.fillText(fmtP(dayPct),W/2,PY+36);
+
+    // Gradient divider below pill
+    const divY2=HEADER_H+PILL_H+10;
+    const gDiv2=ctx.createLinearGradient(PAD,0,W-PAD,0);
+    gDiv2.addColorStop(0,'transparent'); gDiv2.addColorStop(0.5,'rgba(168,178,190,0.2)'); gDiv2.addColorStop(1,'transparent');
+    ctx.strokeStyle=gDiv2; ctx.lineWidth=0.75;
+    ctx.beginPath(); ctx.moveTo(PAD,divY2); ctx.lineTo(W-PAD,divY2); ctx.stroke();
 
     // Rows
     let y=HEADER_H+PILL_H+12;
@@ -2209,8 +2223,12 @@
         const ry=y+i*RH;
         const cy=ry+RH/2+4; // text baseline
 
-        if(i%2===0){ctx.fillStyle='rgba(255,255,255,0.016)';ctx.fillRect(PAD,ry,W-PAD*2,RH);}
+        if(i%2===0){ctx.fillStyle='rgba(255,255,255,0.04)';ctx.fillRect(PAD,ry,W-PAD*2,RH);}
         ctx.fillStyle=rPos?GREEN:RED; ctx.fillRect(PAD,ry+6,2,RH-12);
+
+        // Sector dot
+        ctx.beginPath(); ctx.arc(TICKER_X-4, ry+RH/2, 3, 0, Math.PI*2);
+        ctx.fillStyle=r.sectorColor||SILVER; ctx.fill();
 
         // Ticker — left
         ctx.textAlign='left'; ctx.font='bold 12px Arial'; ctx.fillStyle=WHITE;
