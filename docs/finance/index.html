@@ -469,6 +469,9 @@
   function parseRoute() {
     const hash = location.hash.replace(/^#/, '') || '/';
     const parts = hash.split('/').filter(Boolean);
+    // #/jee-dey  or  #/jee-dey/tfsa
+    if (parts[0] && parts[0] !== 'p') return { view: 'portfolio', ownerCode: parts[0], accountSlug: parts[1] || null };
+    // Legacy #/p/jee-dey support
     if (parts[0] === 'p' && parts[1]) return { view: 'portfolio', ownerCode: parts[1], accountSlug: parts[2] || null };
     return { view: 'home' };
   }
@@ -556,7 +559,7 @@
   // ── Portfolio tabs ────────────────────────────────────────────────────────
   function renderPortfolioTabs() {} // no-op — tabs replaced by home cards
 
-  async function selectPortfolio(p) { navigate(`/p/${p.owner_code}`); }
+  async function selectPortfolio(p) { navigate(`/${p.owner_code}`); }
 
   async function showPortfolio(p, accountSlug) {
     document.getElementById('home-view').style.display = 'none';
@@ -753,7 +756,7 @@
     const acc = idOrNull ? (_accounts.find(a => a.id === idOrNull) || null) : null;
     _activeAccount = acc;
     const slug = acc ? slugify(acc.name) : null;
-    navigate(slug ? `/p/${_activePortfolio.owner_code}/${slug}` : `/p/${_activePortfolio.owner_code}`);
+    navigate(slug ? `/${_activePortfolio.owner_code}/${slug}` : `/${_activePortfolio.owner_code}`);
     renderContent();
   }
 
@@ -1212,14 +1215,16 @@
     const name = document.getElementById('pm-name').value.trim();
     if (!name) { showToast('Enter a portfolio name.', true); return; }
     const password = document.getElementById('pm-password').value;
-    const ownerCode = name.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Date.now().toString(36);
+    // Use clean slug from name; append short suffix only if slug already taken
+    let ownerCode = slugify(name);
+    if (_portfolios.some(p => p.owner_code === ownerCode)) ownerCode += '-' + Date.now().toString(36).slice(-4);
     const body = { name, owner_code: ownerCode, password_hash: password ? await sha256(password) : null };
     try {
       const [created] = await sbPost('finance_portfolios', body);
       _portfolios.push(created);
       closePortfolioModal();
       renderPortfolioTabs();
-      navigate(`/p/${created.owner_code}`);
+      navigate(`/${created.owner_code}`);
     } catch(e) { showToast('Failed to create portfolio.', true); }
   }
 
@@ -1444,7 +1449,7 @@
 
   document.getElementById('main-page').addEventListener('click', e => {
     const card = e.target.closest('[data-portfolio-code]');
-    if (card) { const p = _portfolios.find(p => p.owner_code === card.dataset.portfolioCode); if (p) navigate(`/p/${p.owner_code}`); return; }
+    if (card) { const p = _portfolios.find(p => p.owner_code === card.dataset.portfolioCode); if (p) navigate(`/${p.owner_code}`); return; }
     const accountBtn = e.target.closest('[data-account-id]');
     if (accountBtn) { selectAccount(accountBtn.dataset.accountId); return; }
     const editBtn = e.target.closest('[data-edit-id]');
