@@ -121,23 +121,18 @@
       .holdings-table-wrap { overflow-x: visible; background: none; border: none; border-radius: 0; }
       .holdings-table-wrap::after { display: none; }
       table.holdings { display: none; }
-      .holding-cards { display: flex; flex-direction: column; gap: 0.5rem; }
+      .holding-cards { display: flex; flex-direction: column; }
     }
     @media (min-width: 701px) { .holding-cards { display: none; } }
-    .holding-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; padding: 0.75rem 0.9rem; cursor: pointer; transition: background 0.12s; border-left: 3px solid rgba(255,255,255,0.08); }
-    .holding-card.assigned { border-left-color: var(--gold); }
-    .holding-card:active { background: rgba(255,255,255,0.06); }
-    .hc-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.4rem; }
-    .hc-name { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 1.5px; color: white; }
-    .hc-ticker { font-size: 0.7rem; font-weight: 700; color: rgba(255,255,255,0.3); margin-left: 0.35rem; }
-    .hc-price { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 1px; color: rgba(255,255,255,0.6); }
-    .hc-mid { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.35rem; }
-    .hc-sector { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.8px; border-radius: 4px; padding: 1px 6px; }
-    .hc-day { font-family: 'Bebas Neue', cursive; font-size: 1.1rem; letter-spacing: 1px; }
-    .hc-daypct { font-size: 0.78rem; font-weight: 700; margin-left: 0.3rem; }
-    .hc-bottom { display: flex; align-items: center; justify-content: space-between; }
-    .hc-gain { font-size: 0.8rem; font-weight: 700; }
-    .hc-meta { font-size: 0.72rem; font-weight: 600; color: rgba(255,255,255,0.3); }
+    .holding-card { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; padding: 0.8rem 0; border-bottom: 1px solid rgba(255,255,255,0.06); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+    .holding-card:active { opacity: 0.7; }
+    .hc-left { flex: 1; min-width: 0; }
+    .hc-name { font-size: 1rem; font-weight: 700; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; }
+    .hc-sub { font-size: 0.75rem; font-weight: 600; color: rgba(255,255,255,0.3); margin-top: 2px; }
+    .hc-ticker { color: rgba(255,255,255,0.4); }
+    .hc-right { text-align: right; flex-shrink: 0; }
+    .hc-price { font-size: 1rem; font-weight: 700; color: white; line-height: 1.2; }
+    .hc-day { font-size: 0.85rem; font-weight: 700; margin-top: 2px; }
     .hc-account-label { font-family: 'Bebas Neue', cursive; font-size: 0.72rem; letter-spacing: 2px; color: var(--gold); opacity: 0.7; padding: 0.3rem 0; margin-top: 0.25rem; }
     .hc-subtotal { background: rgba(255,184,28,0.04); border: 1px solid rgba(255,184,28,0.1); border-radius: 8px; padding: 0.4rem 0.9rem; display: flex; justify-content: space-between; font-family: 'Bebas Neue', cursive; font-size: 0.82rem; color: rgba(255,255,255,0.4); }
     .ticker-badge { font-family: 'Bebas Neue', cursive; font-size: 0.78rem; letter-spacing: 1px; color: rgba(255,255,255,0.3); margin-left: 0.4rem; }
@@ -1155,26 +1150,19 @@
       const dcPos = (h.dayChange ?? 0) >= 0;
       const gcPos = (h.overallGain ?? 0) >= 0;
       const sectorColor = getSectorColor(h.sector);
-      cards += `<div class="holding-card${h.dayChange != null ? ' assigned' : ''}" onclick="openCompanyProfile('${h.ticker}','${escHtml(h.company_name||h.ticker).replace(/'/g,"&#39;")}')">
-        <div class="hc-top">
-          <div><span class="hc-name">${escHtml(h.company_name?.split(' ').slice(0,3).join(' ') || '')}</span><span class="hc-ticker">${escHtml(h.ticker||'')}</span></div>
-          <div class="hc-price">${h.price ? fmtC(h.price) : (pricesLoaded ? '—' : '<span class="skeleton-cell" style="width:50px;display:inline-block">&nbsp;</span>')}</div>
-        </div>
-        <div class="hc-mid">
-          ${h.sector ? `<span class="hc-sector" style="background:${sectorColor}22;color:${sectorColor};border:1px solid ${sectorColor}44">${escHtml(h.sector)}</span>` : '<span></span>'}
-          <div>
-            <span class="hc-day ${dcPos ? 'pos' : 'neg'}">${h.dayChange != null ? (dcPos?'+':'') + fmtC(h.dayChange) : (pricesLoaded ? '—' : '<span class="skeleton-cell" style="width:55px;display:inline-block">&nbsp;</span>')}</span>
-            <span class="hc-daypct ${dcPos ? 'pos' : 'neg'}">${h.changePct != null ? (dcPos?'+':'') + fmt(h.changePct) + '%' : ''}</span>
+      cards += `<div class="holding-card" onclick="openCompanyProfile('${h.ticker}','${escHtml(h.company_name||h.ticker).replace(/'/g,"&#39;")}')">
+        <div class="hc-left">
+          <div class="hc-name">${escHtml(h.company_name?.split(' ').slice(0,3).join(' ') || h.ticker || '')}</div>
+          <div class="hc-sub">
+            <span class="hc-ticker">${escHtml((h.ticker||'').replace(/^TSX:|^NYSE:/i,''))}</span>
+            ${h.sector ? `<span style="margin-left:0.4rem;font-size:0.7rem;font-weight:700;color:${sectorColor};letter-spacing:0.5px">${escHtml(h.sector)}</span>` : ''}
           </div>
         </div>
-        <div class="hc-bottom">
-          <div>
-            <span class="hc-gain ${gcPos ? 'pos' : 'neg'}">${h.overallGain != null ? (gcPos?'+':'') + fmtC(h.overallGain) : '—'}</span>
-            ${h.overallGain != null && h.cost > 0 ? `<span class="hc-daypct ${gcPos?'pos':'neg'}"> (${gcPos?'+':''}${fmt((h.overallGain/h.cost)*100)}%)</span>` : ''}
-          </div>
-          <div class="hc-meta">${h.weight != null ? fmt(h.weight) + '%' : ''} · ${h.annual_dividend ? fmtC((h.shares||0)*h.annual_dividend/12)+'/mo' : '—'}</div>
+        <div class="hc-right">
+          <div class="hc-price">${h.price ? h.price.toFixed(2) : (pricesLoaded ? '—' : '<span class="skeleton-cell" style="width:45px;display:inline-block">&nbsp;</span>')}</div>
+          <div class="hc-day ${dcPos ? 'pos' : 'neg'}">${h.dayChange != null ? (dcPos?'+':'') + fmtC(h.dayChange) + ' (' + (dcPos?'+':'') + fmt(h.changePct||0) + '%)' : (pricesLoaded ? '—' : '<span class="skeleton-cell" style="width:60px;display:inline-block">&nbsp;</span>')}</div>
         </div>
-        <div style="display:flex;justify-content:flex-end;gap:0.4rem;margin-top:0.4rem" onclick="event.stopPropagation()">
+        <div style="display:flex;flex-direction:column;gap:2px;flex-shrink:0" onclick="event.stopPropagation()">
           <button class="btn-edit-row" onclick="openEditHolding('${h.id}')">✎</button>
           <button class="btn-delete-row" onclick="quickDeleteHolding('${h.id}','${escHtml(h.company_name||h.ticker||'')}')">✕</button>
         </div>
