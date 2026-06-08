@@ -823,24 +823,32 @@
     const rows = withDiv.map(h => {
       const freq = h.div_freq || 'monthly';
       const annual = (h.shares || 0) * (h.annual_dividend || 0);
-      // Determine pay month from div_pay_date if available
-      const payMonth = h.div_pay_date ? new Date(h.div_pay_date).getMonth() : null; // 0-indexed
+      const payMonth = h.div_pay_date ? new Date(h.div_pay_date).getMonth() : null;
       const payDay = h.div_pay_date ? new Date(h.div_pay_date).getDate() : null;
+
+      // Compute all months that receive a payment
+      let payMonths;
+      if (freq === 'monthly') {
+        payMonths = [0,1,2,3,4,5,6,7,8,9,10,11];
+      } else if (freq === 'quarterly') {
+        payMonths = payMonth != null
+          ? [payMonth % 12, (payMonth+3) % 12, (payMonth+6) % 12, (payMonth+9) % 12]
+          : [2, 5, 8, 11];
+      } else if (freq === 'annual') {
+        const m = payMonth != null ? payMonth : (parseInt(h.div_month) - 1);
+        payMonths = !isNaN(m) ? [m] : [];
+      } else {
+        payMonths = [];
+      }
+
       const cells = Array.from({ length: 12 }, (_, i) => {
+        const isPayMo = payMonths.includes(i);
         let amt = 0;
-        if (freq === 'monthly') { amt = annual / 12; }
-        else if (freq === 'quarterly') {
-          // Use actual pay month if known, otherwise default Mar/Jun/Sep/Dec
-          const qMonths = payMonth != null
-            ? [(payMonth) % 12, (payMonth + 3) % 12, (payMonth + 6) % 12, (payMonth + 9) % 12]
-            : [2, 5, 8, 11];
-          amt = qMonths.includes(i) ? annual / 4 : 0;
-        } else if (freq === 'annual') {
-          const m = payMonth != null ? payMonth : (parseInt(h.div_month) - 1);
-          amt = !isNaN(m) && i === m ? annual : 0;
-        }
+        if (freq === 'monthly') amt = annual / 12;
+        else if (freq === 'quarterly') amt = isPayMo ? annual / 4 : 0;
+        else if (freq === 'annual') amt = isPayMo ? annual : 0;
         monthTotals[i] += amt;
-        return { amt, isPayMonth: payMonth === i, payDay };
+        return { amt, isPayMonth: isPayMo, payDay: isPayMo && payMonth === i ? payDay : null };
       });
       return { h, cells };
     });
