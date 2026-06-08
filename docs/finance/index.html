@@ -1846,11 +1846,20 @@
     btn.textContent = '📤 Share';
     btn.disabled = false;
 
-    // Download
-    const link = document.createElement('a');
-    link.download = `portfolio-snapshot-${new Date().toISOString().slice(0,10)}.png`;
-    link.href = canvas.toDataURL('image/png');
-    link.click();
+    // Copy to clipboard as PNG blob
+    try {
+      canvas.toBlob(async (blob) => {
+        await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+        showToast('📋 Copied to clipboard — paste anywhere to share!');
+      }, 'image/png');
+    } catch(e) {
+      // Fallback: download if clipboard not supported
+      const link = document.createElement('a');
+      link.download = `portfolio-snapshot-${new Date().toISOString().slice(0,10)}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      showToast('Saved as image (clipboard not supported in this browser)');
+    }
   }
 
   function roundRect(ctx, x, y, w, h, r) {
