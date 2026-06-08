@@ -158,13 +158,14 @@
     .dividend-section { margin-bottom: 1.5rem; }
     .div-calendar { overflow-x: auto; }
     .div-grid { display: grid; grid-template-columns: 160px repeat(12, 1fr); min-width: 900px; }
-    .div-cell { padding: 0.3rem 0.4rem; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 0.78rem; font-weight: 600; text-align: right; }
+    .div-cell { padding: 0.35rem 0.4rem; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 0.78rem; font-weight: 600; text-align: right; }
     .div-cell.name-cell { text-align: left; color: rgba(255,255,255,0.7); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .div-cell.month-hdr { font-family: 'Bebas Neue', cursive; font-size: 0.72rem; letter-spacing: 1px; color: rgba(255,255,255,0.25); text-align: center; padding: 0.35rem 0.4rem; border-bottom: 1px solid rgba(255,255,255,0.1); }
     .div-cell.name-hdr { font-family: 'Bebas Neue', cursive; font-size: 0.72rem; letter-spacing: 2px; color: rgba(255,255,255,0.25); border-bottom: 1px solid rgba(255,255,255,0.1); }
     .div-cell.total-cell { font-family: 'Bebas Neue', cursive; font-size: 0.9rem; color: var(--gold); text-align: right; border-top: 1px solid rgba(255,255,255,0.1); border-bottom: none; }
     .div-cell.total-label { font-family: 'Bebas Neue', cursive; font-size: 0.72rem; letter-spacing: 2px; color: rgba(255,255,255,0.3); border-top: 1px solid rgba(255,255,255,0.1); border-bottom: none; }
-    .div-cell.has-div { color: var(--green); }
+    .div-cell.has-div { color: var(--green); display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+    .div-pay-date { font-family: 'Barlow Condensed', sans-serif; font-size: 0.65rem; font-weight: 700; color: rgba(34,197,94,0.5); letter-spacing: 0.3px; }
     .div-cell.zero { color: rgba(255,255,255,0.12); }
 
     /* ── Modals ── */
@@ -848,8 +849,8 @@
       `<div class="div-cell name-cell">${escHtml(h.company_name || h.ticker || '')}</div>` +
       cells.map(({ amt, isPayMonth, payDay }) => {
         if (amt <= 0) return `<div class="div-cell zero">—</div>`;
-        const dateHint = isPayMonth && payDay ? `<div style="font-size:0.6em;opacity:0.6;margin-top:1px">▸${payDay}</div>` : '';
-        return `<div class="div-cell has-div">${fmtC(amt)}${dateHint}</div>`;
+        const dateHint = isPayMonth && payDay ? `<span class="div-pay-date">▸ ${payDay}</span>` : '';
+        return `<div class="div-cell has-div"><span>${fmtC(amt)}</span>${dateHint}</div>`;
       }).join('')
     ).join('');
     const totals = `<div class="div-cell total-label">Monthly Total</div>` +
