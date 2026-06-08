@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Finance | Parieur Discipliné</title>
+  <link rel="icon" type="image/png" href="../parieur_discipline_icon_1024.png">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --rink: #07111f; --red: #c8102e; --gold: #ffb81c; --silver: #a8b2be;
+      --green: #22c55e; --blue: #7db4ff; --line: rgba(255,255,255,0.08); --nav-h: 44px;
+    }
+    html, body { height: 100%; }
+    body { background: var(--rink); background-image: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(26,58,110,0.5) 0%, transparent 70%); min-height: 100vh; font-family: 'Barlow Condensed', sans-serif; color: white; padding-top: var(--nav-h); }
+
+    /* ── Nav ── */
+    .site-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 200; background: rgba(7,17,31,0.92); border-bottom: 1px solid var(--line); backdrop-filter: blur(12px); }
+    .site-nav-inner { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: var(--nav-h); padding: 0 1.5rem; }
+    .site-nav-brand { font-family: 'Bebas Neue', cursive; font-size: 1.5rem; color: var(--gold); letter-spacing: 4px; text-decoration: none; }
+    .site-nav-back { font-family: 'Barlow Condensed', sans-serif; font-size: 0.9rem; font-weight: 600; color: var(--silver); text-decoration: none; letter-spacing: 1px; padding: 0.3rem 0.7rem; border-radius: 5px; transition: color 0.15s, background 0.15s; }
+    .site-nav-back:hover { color: white; background: rgba(255,255,255,0.07); }
+
+    /* ── Lock screen ── */
+    #lock-screen { position: fixed; inset: 0; z-index: 500; background: rgba(7,17,31,0.98); display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 1rem; padding: 2rem; }
+    #lock-screen h2 { font-family: 'Bebas Neue', cursive; font-size: 2rem; letter-spacing: 5px; color: var(--gold); }
+    #lock-screen p { color: var(--silver); font-size: 0.85rem; letter-spacing: 1px; text-align: center; }
+    .lock-input { font-family: 'Barlow Condensed', sans-serif; font-size: 1.1rem; font-weight: 600; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15); color: white; border-radius: 8px; padding: 0.65rem 1rem; width: 100%; max-width: 300px; text-align: center; letter-spacing: 3px; transition: border-color 0.15s; }
+    .lock-input:focus { outline: none; border-color: rgba(255,184,28,0.5); }
+    .lock-input.shake { animation: shake 0.35s; border-color: rgba(200,16,46,0.7); }
+    .lock-btn { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 2px; background: linear-gradient(135deg, #ffb81c, #e07b00); color: #07111f; border: none; border-radius: 8px; padding: 0.65rem 2rem; cursor: pointer; width: 100%; max-width: 300px; transition: opacity 0.15s; }
+    .lock-btn:hover { opacity: 0.85; }
+    @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+
+    /* ── Portfolio selector ── */
+    .page { max-width: 1400px; margin: 0 auto; padding: 1.25rem 1.5rem 4rem; }
+    .portfolio-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.25rem; }
+    .portfolio-tabs { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+    .ptab { font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 2px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); color: var(--silver); border-radius: 8px; padding: 0.4rem 1rem; cursor: pointer; transition: background 0.15s, color 0.15s, border-color 0.15s; }
+    .ptab:hover { background: rgba(255,255,255,0.08); color: white; }
+    .ptab.active { background: rgba(255,184,28,0.12); border-color: rgba(255,184,28,0.4); color: var(--gold); }
+    .btn-new-portfolio { font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 2px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); color: var(--silver); border-radius: 7px; padding: 0.4rem 0.9rem; cursor: pointer; transition: background 0.15s, color 0.15s; }
+    .btn-new-portfolio:hover { background: rgba(255,255,255,0.1); color: white; }
+
+    /* ── Summary bar ── */
+    .summary-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; margin-bottom: 1.25rem; }
+    @media (max-width: 700px) { .summary-bar { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 400px) { .summary-bar { grid-template-columns: 1fr; } }
+    .stat-card { background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; padding: 1rem 1.25rem; }
+    .stat-label { font-size: 0.68rem; font-weight: 700; letter-spacing: 2px; color: rgba(255,255,255,0.3); text-transform: uppercase; margin-bottom: 0.3rem; }
+    .stat-value { font-family: 'Bebas Neue', cursive; font-size: 1.8rem; letter-spacing: 1px; color: white; line-height: 1; }
+    .stat-sub { font-size: 0.75rem; font-weight: 600; color: rgba(255,255,255,0.3); letter-spacing: 0.5px; margin-top: 0.2rem; }
+    .stat-value.green { color: var(--green); }
+    .stat-value.red { color: var(--red); }
+    .stat-value.gold { color: var(--gold); }
+
+    /* ── Main layout ── */
+    .main-layout { display: grid; grid-template-columns: 1fr 280px; gap: 1.25rem; margin-bottom: 1.5rem; }
+    @media (max-width: 1000px) { .main-layout { grid-template-columns: 1fr; } }
+
+    /* ── Holdings table ── */
+    .holdings-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.6rem; }
+    .section-title { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 3px; color: var(--silver); opacity: 0.6; }
+    .btn-add-holding { font-family: 'Bebas Neue', cursive; font-size: 0.82rem; letter-spacing: 1.5px; background: rgba(255,184,28,0.1); border: 1px solid rgba(255,184,28,0.3); color: var(--gold); border-radius: 7px; padding: 0.35rem 0.85rem; cursor: pointer; transition: background 0.15s; }
+    .btn-add-holding:hover { background: rgba(255,184,28,0.18); }
+
+    .holdings-table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid rgba(255,255,255,0.06); background: rgba(255,255,255,0.015); }
+    table.holdings { width: 100%; border-collapse: collapse; min-width: 900px; }
+    table.holdings th { font-size: 0.65rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.25); padding: 0.55rem 0.75rem; text-align: right; border-bottom: 1px solid rgba(255,255,255,0.08); white-space: nowrap; }
+    table.holdings th.left { text-align: left; }
+    table.holdings td { padding: 0.6rem 0.75rem; text-align: right; font-size: 0.9rem; font-weight: 600; border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: middle; white-space: nowrap; }
+    table.holdings td.left { text-align: left; }
+    table.holdings tr:last-child td { border-bottom: none; }
+    table.holdings tr:hover td { background: rgba(255,255,255,0.03); }
+    table.holdings tr.sector-row td { font-family: 'Bebas Neue', cursive; font-size: 0.72rem; letter-spacing: 2px; color: rgba(255,255,255,0.25); background: rgba(255,255,255,0.02); padding: 0.3rem 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    table.holdings tr.total-row td { background: rgba(255,255,255,0.04); font-family: 'Bebas Neue', cursive; font-size: 0.9rem; border-top: 1px solid rgba(255,255,255,0.1); border-bottom: none; }
+    .ticker-badge { font-family: 'Bebas Neue', cursive; font-size: 0.78rem; letter-spacing: 1px; color: rgba(255,255,255,0.3); margin-left: 0.4rem; }
+    .pos { color: var(--green); }
+    .neg { color: var(--red); }
+    .muted { color: rgba(255,255,255,0.3); }
+    .btn-edit-row { background: none; border: none; color: rgba(255,255,255,0.2); cursor: pointer; font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; transition: color 0.15s, background 0.15s; }
+    .btn-edit-row:hover { color: white; background: rgba(255,255,255,0.08); }
+    .price-loading { color: rgba(255,255,255,0.2); font-style: italic; }
+
+    /* ── Allocation chart ── */
+    .chart-panel { background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; padding: 1.25rem; display: flex; flex-direction: column; }
+    .chart-panel canvas { max-height: 220px; }
+    .chart-legend { margin-top: 0.85rem; display: flex; flex-direction: column; gap: 0.35rem; }
+    .legend-row { display: flex; align-items: center; justify-content: space-between; font-size: 0.78rem; font-weight: 600; }
+    .legend-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; margin-right: 0.5rem; }
+    .legend-name { flex: 1; color: rgba(255,255,255,0.7); }
+    .legend-pct { color: rgba(255,255,255,0.4); font-family: 'Bebas Neue', cursive; letter-spacing: 1px; }
+
+    /* ── Dividend calendar ── */
+    .dividend-section { margin-bottom: 1.5rem; }
+    .div-calendar { overflow-x: auto; }
+    .div-grid { display: grid; grid-template-columns: 160px repeat(12, 1fr); min-width: 900px; }
+    .div-cell { padding: 0.3rem 0.4rem; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 0.78rem; font-weight: 600; text-align: right; }
+    .div-cell.name-cell { text-align: left; color: rgba(255,255,255,0.7); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .div-cell.month-hdr { font-family: 'Bebas Neue', cursive; font-size: 0.72rem; letter-spacing: 1px; color: rgba(255,255,255,0.25); text-align: center; padding: 0.35rem 0.4rem; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .div-cell.name-hdr { font-family: 'Bebas Neue', cursive; font-size: 0.72rem; letter-spacing: 2px; color: rgba(255,255,255,0.25); border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .div-cell.total-cell { font-family: 'Bebas Neue', cursive; font-size: 0.9rem; color: var(--gold); text-align: right; border-top: 1px solid rgba(255,255,255,0.1); border-bottom: none; }
+    .div-cell.total-label { font-family: 'Bebas Neue', cursive; font-size: 0.72rem; letter-spacing: 2px; color: rgba(255,255,255,0.3); border-top: 1px solid rgba(255,255,255,0.1); border-bottom: none; }
+    .div-cell.has-div { color: var(--green); }
+    .div-cell.zero { color: rgba(255,255,255,0.12); }
+
+    /* ── Modals ── */
+    .modal-backdrop { position: fixed; inset: 0; z-index: 600; background: rgba(0,0,0,0.65); backdrop-filter: blur(4px); opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+    .modal-backdrop.show { opacity: 1; pointer-events: all; }
+    .modal { position: fixed; left: 50%; top: 50%; z-index: 700; transform: translate(-50%, -52%) scale(0.95); opacity: 0; pointer-events: none; transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1), opacity 0.2s; background: #0e1e35; border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 1.75rem 1.5rem 1.25rem; width: calc(100% - 2rem); max-width: 480px; box-shadow: 0 24px 60px rgba(0,0,0,0.6); }
+    .modal.show { transform: translate(-50%, -50%) scale(1); opacity: 1; pointer-events: all; }
+    .modal-title { font-family: 'Bebas Neue', cursive; font-size: 1.4rem; letter-spacing: 3px; color: white; margin-bottom: 1.25rem; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem; }
+    .form-row.full { grid-template-columns: 1fr; }
+    .form-group { display: flex; flex-direction: column; gap: 3px; }
+    .form-label { font-size: 0.63rem; font-weight: 700; letter-spacing: 1.5px; color: rgba(255,255,255,0.3); text-transform: uppercase; }
+    .form-input { font-family: 'Barlow Condensed', sans-serif; font-size: 0.95rem; font-weight: 600; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); color: white; border-radius: 7px; padding: 0.45rem 0.7rem; transition: border-color 0.15s; }
+    .form-input:focus { outline: none; border-color: rgba(255,184,28,0.5); }
+    .form-input::placeholder { color: rgba(255,255,255,0.25); }
+    .form-hint { font-size: 0.62rem; color: rgba(255,255,255,0.2); letter-spacing: 0.5px; margin-top: 1px; }
+    .modal-actions { display: flex; gap: 0.6rem; margin-top: 1.25rem; }
+    .btn-modal-cancel { flex: 1; font-family: 'Bebas Neue', cursive; font-size: 0.95rem; letter-spacing: 2px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: var(--silver); border-radius: 8px; padding: 0.6rem; cursor: pointer; transition: background 0.15s; }
+    .btn-modal-cancel:hover { background: rgba(255,255,255,0.1); color: white; }
+    .btn-modal-save { flex: 2; font-family: 'Bebas Neue', cursive; font-size: 0.95rem; letter-spacing: 2px; background: linear-gradient(135deg, #ffb81c, #e07b00); color: #07111f; border: none; border-radius: 8px; padding: 0.6rem; cursor: pointer; transition: opacity 0.15s; }
+    .btn-modal-save:hover { opacity: 0.85; }
+    .btn-modal-delete { font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 1.5px; background: rgba(200,16,46,0.1); border: 1px solid rgba(200,16,46,0.25); color: rgba(200,16,46,0.7); border-radius: 8px; padding: 0.6rem 0.9rem; cursor: pointer; transition: background 0.15s; }
+    .btn-modal-delete:hover { background: rgba(200,16,46,0.2); color: var(--red); }
+
+    #toast { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%); z-index: 9999; background: rgba(15,25,45,0.97); border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; padding: 0.7rem 1.4rem; font-size: 0.9rem; font-weight: 600; letter-spacing: 1px; color: white; box-shadow: 0 4px 24px rgba(0,0,0,0.5); display: none; white-space: nowrap; }
+    .empty-state { text-align: center; padding: 3rem 1rem; color: rgba(255,255,255,0.2); font-size: 0.9rem; letter-spacing: 1px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.15); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
+  </style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="site-nav-inner">
+    <a class="site-nav-brand" href="/">Parieur Discipliné</a>
+    <a class="site-nav-back" href="/">← Home</a>
+  </div>
+</nav>
+
+<!-- Lock screen (shown when portfolio has a password) -->
+<div id="lock-screen" style="display:none">
+  <div style="font-size:2.5rem">🔒</div>
+  <h2>Portfolio Locked</h2>
+  <p id="lock-portfolio-name" style="color:var(--gold);font-family:'Bebas Neue',cursive;font-size:1.1rem;letter-spacing:3px;margin-top:-0.5rem;"></p>
+  <p>Enter the password to view this portfolio.</p>
+  <input class="lock-input" id="lock-input" type="password" placeholder="••••••••" autocomplete="off" oninput="this.classList.remove('shake')" onkeydown="if(event.key==='Enter') tryUnlock()">
+  <button class="lock-btn" onclick="tryUnlock()">Unlock</button>
+</div>
+
+<div id="toast"></div>
+
+<!-- Holding modal -->
+<div class="modal-backdrop" id="holding-backdrop" onclick="closeHoldingModal()"></div>
+<div class="modal" id="holding-modal">
+  <div class="modal-title" id="holding-modal-title">Add Holding</div>
+  <input type="hidden" id="hm-id">
+  <div class="form-row">
+    <div class="form-group">
+      <div class="form-label">Company Name</div>
+      <input class="form-input" id="hm-name" placeholder="Manulife Financial Corp">
+    </div>
+    <div class="form-group">
+      <div class="form-label">Ticker</div>
+      <input class="form-input" id="hm-ticker" placeholder="TSX:MFC">
+      <div class="form-hint">TSX:MFC → MFC.TO for prices</div>
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="form-group">
+      <div class="form-label">Sector</div>
+      <input class="form-input" id="hm-sector" placeholder="Financials" list="sector-list">
+      <datalist id="sector-list"></datalist>
+    </div>
+    <div class="form-group">
+      <div class="form-label">Shares</div>
+      <input class="form-input" id="hm-shares" type="number" step="0.0001" placeholder="190.40">
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="form-group">
+      <div class="form-label">Avg Price (CAD)</div>
+      <input class="form-input" id="hm-avg-price" type="number" step="0.01" placeholder="47.07">
+    </div>
+    <div class="form-group">
+      <div class="form-label">Annual Dividend / Share</div>
+      <input class="form-input" id="hm-dividend" type="number" step="0.01" placeholder="1.56">
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="form-group">
+      <div class="form-label">Dividend Month</div>
+      <select class="form-input" id="hm-div-month">
+        <option value="all">Every month (equal split)</option>
+        <option value="1">January</option><option value="2">February</option>
+        <option value="3">March</option><option value="4">April</option>
+        <option value="5">May</option><option value="6">June</option>
+        <option value="7">July</option><option value="8">August</option>
+        <option value="9">September</option><option value="10">October</option>
+        <option value="11">November</option><option value="12">December</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <div class="form-label">Dividend Frequency</div>
+      <select class="form-input" id="hm-div-freq">
+        <option value="monthly">Monthly</option>
+        <option value="quarterly">Quarterly</option>
+        <option value="annual">Annual</option>
+      </select>
+    </div>
+  </div>
+  <div class="modal-actions">
+    <button class="btn-modal-delete" id="hm-delete-btn" onclick="deleteHolding()" style="display:none">Delete</button>
+    <button class="btn-modal-cancel" onclick="closeHoldingModal()">Cancel</button>
+    <button class="btn-modal-save" onclick="saveHolding()">Save</button>
+  </div>
+</div>
+
+<!-- New portfolio modal -->
+<div class="modal-backdrop" id="portfolio-backdrop" onclick="closePortfolioModal()"></div>
+<div class="modal" id="portfolio-modal">
+  <div class="modal-title" id="portfolio-modal-title">New Portfolio</div>
+  <input type="hidden" id="pm-id">
+  <div class="form-row full">
+    <div class="form-group">
+      <div class="form-label">Portfolio Name</div>
+      <input class="form-input" id="pm-name" placeholder="TFSA 2026">
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="form-group">
+      <div class="form-label">Contribution Room ($)</div>
+      <input class="form-input" id="pm-room" type="number" step="1" placeholder="7000">
+      <div class="form-hint">TFSA/RRSP limit — optional</div>
+    </div>
+    <div class="form-group">
+      <div class="form-label">YTD Deposits ($)</div>
+      <input class="form-input" id="pm-deposits" type="number" step="0.01" placeholder="0">
+    </div>
+  </div>
+  <div class="form-row full">
+    <div class="form-group">
+      <div class="form-label">Password (optional)</div>
+      <input class="form-input" id="pm-password" type="password" placeholder="Leave blank for no lock">
+      <div class="form-hint">Portfolio will be visible only to those with the password</div>
+    </div>
+  </div>
+  <div class="modal-actions">
+    <button class="btn-modal-cancel" onclick="closePortfolioModal()">Cancel</button>
+    <button class="btn-modal-save" onclick="savePortfolio()">Save</button>
+  </div>
+</div>
+
+<div class="page" id="main-page">
+
+  <div class="portfolio-header">
+    <div class="portfolio-tabs" id="portfolio-tabs">
+      <div style="color:rgba(255,255,255,0.2);font-size:0.85rem;font-weight:600;letter-spacing:1px;padding:0.4rem 0.5rem;"><span class="spinner"></span>Loading…</div>
+    </div>
+    <button class="btn-new-portfolio" onclick="openNewPortfolioModal()">+ New Portfolio</button>
+  </div>
+
+  <div id="portfolio-content">
+    <div class="empty-state">Select or create a portfolio above.</div>
+  </div>
+
+</div>
+
+<script>
+  const SUPABASE_URL = 'https://fifurqlitkywtmhgtzeu.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZpZnVycWxpdGt5d3RtaGd0emV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3MDIyMjQsImV4cCI6MjA5MjI3ODIyNH0.KPVPj1qwbSJJMyLR_-AhDcRs0vi2sUU6qbFQ-kH53C0';
+  function sbH() { return { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' }; }
+  function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+  function fmt(n, dec=2) { return n == null ? '—' : Number(n).toLocaleString('en-CA', { minimumFractionDigits: dec, maximumFractionDigits: dec }); }
+  function fmtC(n) { if (n == null) return '—'; const abs = Math.abs(n); return (n < 0 ? '-' : '') + '$' + abs.toLocaleString('en-CA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+  function clr(n) { return n > 0 ? 'pos' : n < 0 ? 'neg' : 'muted'; }
+
+  const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const SECTOR_COLORS = ['#ffb81c','#7db4ff','#22c55e','#ff7a8a','#a78bfa','#fb923c','#34d399','#60a5fa','#f472b6','#facc15'];
+
+  let _portfolios = [];
+  let _activePortfolio = null;
+  let _holdings = [];
+  let _prices = {}; // ticker → { price, previousClose, change, changePct }
+  let _allocationChart = null;
+  let _unlockedIds = new Set(JSON.parse(sessionStorage.getItem('fin_unlocked') || '[]'));
+
+  // ── SHA-256 ──────────────────────────────────────────────────────────────
+  async function sha256(str) {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+
+  // ── Ticker → Yahoo symbol ─────────────────────────────────────────────────
+  function toYahoo(ticker) {
+    // "TSX:MFC" → "MFC.TO", "NYSE:T" → "T", already has suffix like "MFC.TO" → passthrough
+    if (!ticker) return ticker;
+    const upper = ticker.toUpperCase();
+    if (upper.startsWith('TSX:')) return upper.replace('TSX:', '') + '.TO';
+    if (upper.startsWith('TSX-V:')) return upper.replace('TSX-V:', '') + '.V';
+    if (upper.includes(':')) return upper.split(':')[1]; // generic: strip exchange prefix
+    return upper;
+  }
+
+  // ── Supabase helpers ──────────────────────────────────────────────────────
+  async function sbGet(path) {
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, { headers: sbH() });
+    if (!r.ok) throw new Error(r.status);
+    return r.json();
+  }
+  async function sbPost(path, body) {
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, { method: 'POST', headers: { ...sbH(), 'Prefer': 'return=representation' }, body: JSON.stringify(body) });
+    if (!r.ok) { const t = await r.text(); throw new Error(t); }
+    return r.json();
+  }
+  async function sbPatch(path, body) {
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, { method: 'PATCH', headers: { ...sbH(), 'Prefer': 'return=representation' }, body: JSON.stringify(body) });
+    if (!r.ok) { const t = await r.text(); throw new Error(t); }
+    return r.json();
+  }
+  async function sbDelete(path) {
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, { method: 'DELETE', headers: sbH() });
+    if (!r.ok) throw new Error(r.status);
+  }
+
+  // ── Init ──────────────────────────────────────────────────────────────────
+  async function init() {
+    try {
+      _portfolios = await sbGet('finance_portfolios?order=created_at.asc&select=*');
+      renderTabs();
+      const urlP = new URLSearchParams(location.search).get('p');
+      const target = urlP ? _portfolios.find(p => p.owner_code === urlP) : null;
+      const first = target || _portfolios[0];
+      if (first) selectPortfolio(first);
+    } catch(e) {
+      document.getElementById('portfolio-content').innerHTML = `<div class="empty-state">Failed to load. Check your connection.</div>`;
+    }
+  }
+
+  function renderTabs() {
+    const el = document.getElementById('portfolio-tabs');
+    if (!_portfolios.length) { el.innerHTML = `<div style="color:rgba(255,255,255,0.2);font-size:0.85rem;font-weight:600;letter-spacing:1px;padding:0.4rem 0.5rem;">No portfolios yet</div>`; return; }
+    el.innerHTML = _portfolios.map(p => `
+      <button class="ptab${_activePortfolio?.id === p.id ? ' active' : ''}" onclick="selectPortfolio(${JSON.stringify(p).replace(/"/g,'&quot;')})">
+        ${escHtml(p.name)}${p.password_hash ? ' 🔒' : ''}
+      </button>`).join('');
+  }
+
+  async function selectPortfolio(p) {
+    _activePortfolio = p;
+    renderTabs();
+
+    // Check if locked
+    if (p.password_hash && !_unlockedIds.has(p.id)) {
+      showLockScreen(p);
+      return;
+    }
+    await loadPortfolio(p);
+  }
+
+  async function loadPortfolio(p) {
+    document.getElementById('portfolio-content').innerHTML = `<div class="empty-state"><span class="spinner"></span>Loading holdings…</div>`;
+    try {
+      _holdings = await sbGet(`finance_holdings?portfolio_id=eq.${p.id}&order=sector.asc,company_name.asc&select=*`);
+      renderPortfolio();
+      fetchPrices();
+    } catch(e) {
+      document.getElementById('portfolio-content').innerHTML = `<div class="empty-state">Failed to load holdings.</div>`;
+    }
+  }
+
+  // ── Lock screen ───────────────────────────────────────────────────────────
+  let _lockPortfolio = null;
+  function showLockScreen(p) {
+    _lockPortfolio = p;
+    document.getElementById('lock-portfolio-name').textContent = p.name;
+    document.getElementById('lock-input').value = '';
+    document.getElementById('lock-screen').style.display = 'flex';
+  }
+
+  async function tryUnlock() {
+    const input = document.getElementById('lock-input');
+    const val = input.value;
+    if (!val) { input.classList.add('shake'); return; }
+    const hash = await sha256(val);
+    if (hash === _lockPortfolio.password_hash) {
+      _unlockedIds.add(_lockPortfolio.id);
+      sessionStorage.setItem('fin_unlocked', JSON.stringify([..._unlockedIds]));
+      document.getElementById('lock-screen').style.display = 'none';
+      await loadPortfolio(_lockPortfolio);
+    } else {
+      input.value = '';
+      input.classList.add('shake');
+      setTimeout(() => input.classList.remove('shake'), 400);
+    }
+  }
+
+  // ── Prices ────────────────────────────────────────────────────────────────
+  async function fetchPrices() {
+    const tickers = [...new Set(_holdings.map(h => h.ticker).filter(Boolean))];
+    if (!tickers.length) return;
+    const symbols = tickers.map(toYahoo).join(',');
+    try {
+      const res = await fetch(`/api/stock-price?symbols=${encodeURIComponent(symbols)}`);
+      if (!res.ok) return;
+      const data = await res.json();
+      // Map yahoo symbols back to our tickers
+      _prices = {};
+      tickers.forEach(t => { const y = toYahoo(t); if (data[y]) _prices[t] = data[y]; });
+      renderPortfolio();
+    } catch(_) {}
+  }
+
+  // ── Render ────────────────────────────────────────────────────────────────
+  function renderPortfolio() {
+    const p = _activePortfolio;
+    if (!p) return;
+
+    // Compute derived values
+    let totalCost = 0, totalValue = 0, totalDayChange = 0, totalAnnualDiv = 0;
+    const enriched = _holdings.map(h => {
+      const price = _prices[h.ticker];
+      const cost = (h.shares || 0) * (h.avg_price || 0);
+      const marketValue = price ? (h.shares || 0) * price.price : null;
+      const dayChange = price ? (h.shares || 0) * price.change : null;
+      const overallGain = marketValue != null ? marketValue - cost : null;
+      const annualDiv = (h.shares || 0) * (h.annual_dividend || 0);
+      totalCost += cost;
+      if (marketValue != null) totalValue += marketValue;
+      if (dayChange != null) totalDayChange += dayChange;
+      totalAnnualDiv += annualDiv;
+      return { ...h, cost, marketValue, dayChange, overallGain, annualDiv, price: price?.price, previousClose: price?.previousClose, changePct: price?.changePct };
+    });
+    if (totalValue === 0) totalValue = totalCost; // fallback before prices load
+    const totalGain = totalValue - totalCost;
+    const totalGainPct = totalCost > 0 ? (totalGain / totalCost) * 100 : 0;
+    const totalDayPct = (totalValue - totalDayChange) > 0 ? (totalDayChange / (totalValue - totalDayChange)) * 100 : 0;
+
+    // Add weight
+    enriched.forEach(h => { h.weight = totalValue > 0 && h.marketValue != null ? (h.marketValue / totalValue) * 100 : null; });
+
+    // Build HTML
+    document.getElementById('portfolio-content').innerHTML = `
+      ${buildSummaryBar(totalValue, totalCost, totalGain, totalGainPct, totalDayChange, totalDayPct, totalAnnualDiv, p)}
+      <div class="main-layout">
+        <div>
+          <div class="holdings-header">
+            <div class="section-title">Holdings</div>
+            <button class="btn-add-holding" onclick="openAddHolding()">+ Add Holding</button>
+          </div>
+          <div class="holdings-table-wrap">${buildHoldingsTable(enriched, totalValue)}</div>
+        </div>
+        <div class="chart-panel">
+          <div class="section-title" style="margin-bottom:0.75rem">Allocation</div>
+          <canvas id="allocation-chart"></canvas>
+          <div class="chart-legend" id="chart-legend"></div>
+        </div>
+      </div>
+      <div class="dividend-section">
+        <div class="holdings-header"><div class="section-title">Dividend Calendar</div></div>
+        <div class="div-calendar">${buildDividendCalendar(enriched)}</div>
+      </div>`;
+
+    renderAllocationChart(enriched);
+  }
+
+  function buildSummaryBar(totalValue, totalCost, totalGain, totalGainPct, dayChange, dayPct, annualDiv, p) {
+    const dayClr = dayChange >= 0 ? 'green' : 'red';
+    const gainClr = totalGain >= 0 ? 'green' : 'red';
+    const monthlyIncome = annualDiv / 12;
+
+    let roomHtml = '';
+    if (p.contribution_room) {
+      const remaining = p.contribution_room - (p.ytd_deposits || 0);
+      roomHtml = `<div class="stat-card">
+        <div class="stat-label">TFSA / RRSP Room</div>
+        <div class="stat-value gold">$${fmt(remaining, 0)}</div>
+        <div class="stat-sub">$${fmt(p.ytd_deposits || 0, 0)} deposited YTD · $${fmt(p.contribution_room, 0)} limit</div>
+      </div>`;
+    }
+
+    return `<div class="summary-bar" style="${p.contribution_room ? 'grid-template-columns:repeat(5,1fr)' : ''}">
+      <div class="stat-card">
+        <div class="stat-label">Market Value</div>
+        <div class="stat-value">${fmtC(totalValue)}</div>
+        <div class="stat-sub">Cost: ${fmtC(totalCost)}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Day Change</div>
+        <div class="stat-value ${dayClr}">${dayChange >= 0 ? '+' : ''}${fmtC(dayChange)}</div>
+        <div class="stat-sub">${dayChange >= 0 ? '+' : ''}${fmt(dayPct)}%</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Overall Gain</div>
+        <div class="stat-value ${gainClr}">${totalGain >= 0 ? '+' : ''}${fmtC(totalGain)}</div>
+        <div class="stat-sub">${totalGain >= 0 ? '+' : ''}${fmt(totalGainPct)}%</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Monthly Income</div>
+        <div class="stat-value gold">${fmtC(monthlyIncome)}</div>
+        <div class="stat-sub">${fmtC(annualDiv)} / year</div>
+      </div>
+      ${roomHtml}
+    </div>`;
+  }
+
+  function buildHoldingsTable(enriched, totalValue) {
+    if (!enriched.length) return `<div class="empty-state">No holdings yet. Add your first holding.</div>`;
+
+    const bySector = {};
+    enriched.forEach(h => { (bySector[h.sector || 'Other'] = bySector[h.sector || 'Other'] || []).push(h); });
+
+    let totalCost = 0, totalValue2 = 0, totalDay = 0, totalGain = 0;
+    let rows = '';
+    for (const [sector, holdings] of Object.entries(bySector)) {
+      rows += `<tr class="sector-row"><td colspan="14">${escHtml(sector)}</td></tr>`;
+      holdings.forEach(h => {
+        const cost = h.cost;
+        const mv = h.marketValue ?? h.cost;
+        const day = h.dayChange ?? 0;
+        const gain = h.overallGain ?? 0;
+        totalCost += cost; totalValue2 += mv; totalDay += day; totalGain += gain;
+        const dayClr = (h.dayChange ?? 0) >= 0 ? 'pos' : 'neg';
+        const gainClr = gain >= 0 ? 'pos' : 'neg';
+        rows += `<tr>
+          <td class="left">${escHtml(h.company_name || '')} <span class="ticker-badge">${escHtml(h.ticker || '')}</span></td>
+          <td>${fmt(h.shares, 4)}</td>
+          <td>${fmtC(h.avg_price)}</td>
+          <td>${fmtC(cost)}</td>
+          <td class="${h.price ? '' : 'price-loading'}">${h.price ? fmtC(h.price) : 'loading…'}</td>
+          <td>${h.marketValue != null ? fmtC(h.marketValue) : '—'}</td>
+          <td class="${dayClr}">${h.dayChange != null ? (h.dayChange >= 0 ? '+' : '') + fmtC(h.dayChange) : '—'}</td>
+          <td class="${dayClr}">${h.changePct != null ? (h.changePct >= 0 ? '+' : '') + fmt(h.changePct) + '%' : '—'}</td>
+          <td class="${gainClr}">${h.overallGain != null ? (h.overallGain >= 0 ? '+' : '') + fmtC(h.overallGain) : '—'}</td>
+          <td class="${gainClr}">${h.overallGain != null && cost > 0 ? (h.overallGain >= 0 ? '+' : '') + fmt((h.overallGain / cost) * 100) + '%' : '—'}</td>
+          <td class="muted">${h.weight != null ? fmt(h.weight) + '%' : '—'}</td>
+          <td class="muted">${h.annual_dividend ? fmtC((h.shares || 0) * h.annual_dividend / 12) + '/mo' : '—'}</td>
+          <td><button class="btn-edit-row" onclick="openEditHolding(${h.id})">✎</button></td>
+        </tr>`;
+      });
+    }
+    const totalGainPct = totalCost > 0 ? (totalGain / totalCost) * 100 : 0;
+    const totalDayPct = (totalValue2 - totalDay) > 0 ? (totalDay / (totalValue2 - totalDay)) * 100 : 0;
+    rows += `<tr class="total-row">
+      <td class="left">Total</td>
+      <td></td><td></td>
+      <td>${fmtC(totalCost)}</td>
+      <td></td>
+      <td>${fmtC(totalValue2)}</td>
+      <td class="${totalDay >= 0 ? 'pos' : 'neg'}">${totalDay >= 0 ? '+' : ''}${fmtC(totalDay)}</td>
+      <td class="${totalDay >= 0 ? 'pos' : 'neg'}">${totalDay >= 0 ? '+' : ''}${fmt(totalDayPct)}%</td>
+      <td class="${totalGain >= 0 ? 'pos' : 'neg'}">${totalGain >= 0 ? '+' : ''}${fmtC(totalGain)}</td>
+      <td class="${totalGain >= 0 ? 'pos' : 'neg'}">${totalGain >= 0 ? '+' : ''}${fmt(totalGainPct)}%</td>
+      <td class="muted">100%</td>
+      <td></td><td></td>
+    </tr>`;
+
+    return `<table class="holdings">
+      <thead><tr>
+        <th class="left">Company</th>
+        <th>Shares</th><th>Avg Price</th><th>Investment</th>
+        <th>Market Price</th><th>Market Value</th>
+        <th>Day $</th><th>Day %</th>
+        <th>Gain $</th><th>Gain %</th>
+        <th>Weight</th><th>Monthly Div</th><th></th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+  }
+
+  function buildDividendCalendar(enriched) {
+    const withDiv = enriched.filter(h => h.annual_dividend > 0 && h.shares > 0);
+    if (!withDiv.length) return `<div class="empty-state" style="padding:1.5rem">No dividend data. Add annual dividend per share when editing holdings.</div>`;
+
+    const monthTotals = Array(12).fill(0);
+    const rows = withDiv.map(h => {
+      const freq = h.div_freq || 'monthly';
+      const annual = (h.shares || 0) * (h.annual_dividend || 0);
+      const cells = Array.from({ length: 12 }, (_, i) => {
+        let amt = 0;
+        if (freq === 'monthly') {
+          amt = annual / 12;
+        } else if (freq === 'quarterly') {
+          const qMonths = [2, 5, 8, 11]; // Mar, Jun, Sep, Dec
+          amt = qMonths.includes(i) ? annual / 4 : 0;
+        } else if (freq === 'annual') {
+          const divMonth = parseInt(h.div_month) - 1;
+          amt = !isNaN(divMonth) && i === divMonth ? annual : 0;
+        }
+        monthTotals[i] += amt;
+        return amt;
+      });
+      return { h, cells };
+    });
+
+    const headerCells = ['<div class="div-cell name-hdr">Stock</div>', ...MONTHS.map(m => `<div class="div-cell month-hdr">${m}</div>`)].join('');
+    const dataRows = rows.map(({ h, cells }) =>
+      `<div class="div-cell name-cell">${escHtml(h.company_name || h.ticker || '')}</div>` +
+      cells.map(v => `<div class="div-cell ${v > 0 ? 'has-div' : 'zero'}">${v > 0 ? fmtC(v) : '—'}</div>`).join('')
+    ).join('');
+    const totalRow = `<div class="div-cell total-label">Monthly Total</div>` +
+      monthTotals.map(v => `<div class="div-cell total-cell">${v > 0 ? fmtC(v) : '—'}</div>`).join('');
+
+    return `<div class="div-grid">${headerCells}${dataRows}${totalRow}</div>`;
+  }
+
+  function renderAllocationChart(enriched) {
+    const sectors = {};
+    enriched.forEach(h => {
+      const s = h.sector || 'Other';
+      sectors[s] = (sectors[s] || 0) + (h.marketValue ?? h.cost);
+    });
+    const labels = Object.keys(sectors);
+    const values = Object.values(sectors);
+    const total = values.reduce((a, b) => a + b, 0);
+    const colors = labels.map((_, i) => SECTOR_COLORS[i % SECTOR_COLORS.length]);
+
+    const canvas = document.getElementById('allocation-chart');
+    if (!canvas) return;
+
+    if (_allocationChart) { _allocationChart.destroy(); _allocationChart = null; }
+
+    _allocationChart = new Chart(canvas.getContext('2d'), {
+      type: 'doughnut',
+      data: { labels, datasets: [{ data: values, backgroundColor: colors, borderColor: '#07111f', borderWidth: 3, hoverOffset: 6 }] },
+      options: {
+        responsive: true, maintainAspectRatio: true, cutout: '65%',
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${fmt(ctx.parsed / total * 100)}%  ${fmtC(ctx.parsed)}` } } }
+      }
+    });
+
+    document.getElementById('chart-legend').innerHTML = labels.map((l, i) =>
+      `<div class="legend-row"><div style="display:flex;align-items:center;min-width:0"><div class="legend-dot" style="background:${colors[i]}"></div><span class="legend-name">${escHtml(l)}</span></div><span class="legend-pct">${fmt(values[i] / total * 100)}%</span></div>`
+    ).join('');
+  }
+
+  // ── Holding modal ─────────────────────────────────────────────────────────
+  function openAddHolding() {
+    document.getElementById('holding-modal-title').textContent = 'Add Holding';
+    document.getElementById('hm-id').value = '';
+    document.getElementById('hm-name').value = '';
+    document.getElementById('hm-ticker').value = '';
+    document.getElementById('hm-sector').value = '';
+    document.getElementById('hm-shares').value = '';
+    document.getElementById('hm-avg-price').value = '';
+    document.getElementById('hm-dividend').value = '';
+    document.getElementById('hm-div-month').value = 'all';
+    document.getElementById('hm-div-freq').value = 'monthly';
+    document.getElementById('hm-delete-btn').style.display = 'none';
+    // Populate sector datalist
+    const sectors = [...new Set(_holdings.map(h => h.sector).filter(Boolean))];
+    document.getElementById('sector-list').innerHTML = sectors.map(s => `<option value="${escHtml(s)}">`).join('');
+    document.getElementById('holding-backdrop').classList.add('show');
+    document.getElementById('holding-modal').classList.add('show');
+    setTimeout(() => document.getElementById('hm-name').focus(), 100);
+  }
+
+  function openEditHolding(id) {
+    const h = _holdings.find(x => x.id === id);
+    if (!h) return;
+    document.getElementById('holding-modal-title').textContent = 'Edit Holding';
+    document.getElementById('hm-id').value = h.id;
+    document.getElementById('hm-name').value = h.company_name || '';
+    document.getElementById('hm-ticker').value = h.ticker || '';
+    document.getElementById('hm-sector').value = h.sector || '';
+    document.getElementById('hm-shares').value = h.shares || '';
+    document.getElementById('hm-avg-price').value = h.avg_price || '';
+    document.getElementById('hm-dividend').value = h.annual_dividend || '';
+    document.getElementById('hm-div-month').value = h.div_month || 'all';
+    document.getElementById('hm-div-freq').value = h.div_freq || 'monthly';
+    document.getElementById('hm-delete-btn').style.display = 'inline-block';
+    document.getElementById('holding-backdrop').classList.add('show');
+    document.getElementById('holding-modal').classList.add('show');
+  }
+
+  function closeHoldingModal() {
+    document.getElementById('holding-backdrop').classList.remove('show');
+    document.getElementById('holding-modal').classList.remove('show');
+  }
+
+  async function saveHolding() {
+    const id = document.getElementById('hm-id').value;
+    const body = {
+      portfolio_id: _activePortfolio.id,
+      company_name: document.getElementById('hm-name').value.trim(),
+      ticker: document.getElementById('hm-ticker').value.trim().toUpperCase(),
+      sector: document.getElementById('hm-sector').value.trim() || 'Other',
+      shares: parseFloat(document.getElementById('hm-shares').value) || 0,
+      avg_price: parseFloat(document.getElementById('hm-avg-price').value) || 0,
+      annual_dividend: parseFloat(document.getElementById('hm-dividend').value) || 0,
+      div_month: document.getElementById('hm-div-month').value,
+      div_freq: document.getElementById('hm-div-freq').value,
+    };
+    if (!body.company_name && !body.ticker) { showToast('Enter a company name or ticker.', true); return; }
+    try {
+      if (id) {
+        await sbPatch(`finance_holdings?id=eq.${id}`, body);
+      } else {
+        await sbPost('finance_holdings', body);
+      }
+      closeHoldingModal();
+      await loadPortfolio(_activePortfolio);
+    } catch(e) {
+      showToast('Failed to save holding.', true);
+    }
+  }
+
+  async function deleteHolding() {
+    const id = document.getElementById('hm-id').value;
+    if (!id) return;
+    try {
+      await sbDelete(`finance_holdings?id=eq.${id}`);
+      closeHoldingModal();
+      await loadPortfolio(_activePortfolio);
+    } catch(e) {
+      showToast('Failed to delete.', true);
+    }
+  }
+
+  // ── Portfolio modal ───────────────────────────────────────────────────────
+  function openNewPortfolioModal() {
+    document.getElementById('portfolio-modal-title').textContent = 'New Portfolio';
+    document.getElementById('pm-id').value = '';
+    document.getElementById('pm-name').value = '';
+    document.getElementById('pm-room').value = '';
+    document.getElementById('pm-deposits').value = '';
+    document.getElementById('pm-password').value = '';
+    document.getElementById('portfolio-backdrop').classList.add('show');
+    document.getElementById('portfolio-modal').classList.add('show');
+    setTimeout(() => document.getElementById('pm-name').focus(), 100);
+  }
+
+  function closePortfolioModal() {
+    document.getElementById('portfolio-backdrop').classList.remove('show');
+    document.getElementById('portfolio-modal').classList.remove('show');
+  }
+
+  async function savePortfolio() {
+    const name = document.getElementById('pm-name').value.trim();
+    if (!name) { showToast('Enter a portfolio name.', true); return; }
+    const password = document.getElementById('pm-password').value;
+    const ownerCode = name.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Date.now().toString(36);
+    const body = {
+      name,
+      owner_code: ownerCode,
+      password_hash: password ? await sha256(password) : null,
+      contribution_room: parseFloat(document.getElementById('pm-room').value) || null,
+      ytd_deposits: parseFloat(document.getElementById('pm-deposits').value) || 0,
+    };
+    try {
+      const [created] = await sbPost('finance_portfolios', body);
+      _portfolios.push(created);
+      closePortfolioModal();
+      renderTabs();
+      selectPortfolio(created);
+    } catch(e) {
+      showToast('Failed to create portfolio.', true);
+    }
+  }
+
+  // ── Toast ─────────────────────────────────────────────────────────────────
+  function showToast(msg, isError = false) {
+    const el = document.getElementById('toast');
+    el.textContent = msg; el.style.display = 'block';
+    el.style.borderColor = isError ? 'rgba(200,16,46,0.4)' : 'rgba(255,255,255,0.12)';
+    setTimeout(() => el.style.display = 'none', 3000);
+  }
+
+  init();
+</script>
+</body>
+</html>
