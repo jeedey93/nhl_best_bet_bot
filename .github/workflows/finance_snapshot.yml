@@ -89,15 +89,10 @@ jobs:
                       <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#a8b2be;margin-bottom:4px">Market Value</div>
                       <div style="font-size:20px;font-weight:700;color:#ffffff">${stats.get("total_value", 0):,.2f}</div>
                     </div>
-                    <div style="display:table-cell;padding:14px 16px;border-bottom:1px solid #1e3a5f;text-align:center">
+                    <div style="display:table-cell;padding:14px 16px;border-bottom:1px solid #1e3a5f;text-align:right">
                       <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#a8b2be;margin-bottom:4px">Day Change</div>
                       <div style="font-size:20px;font-weight:700;color:{clr(day)}">{fmt_c(day)}</div>
                       <div style="font-size:11px;color:{clr(day)}">{'+' if day>=0 else ''}{stats.get('day_change_pct',0):.2f}%</div>
-                    </div>
-                    <div style="display:table-cell;padding:14px 16px;border-bottom:1px solid #1e3a5f;text-align:right">
-                      <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#a8b2be;margin-bottom:4px">Overall Gain</div>
-                      <div style="font-size:20px;font-weight:700;color:{clr(gain_pct)}">{'+' if gain_pct>=0 else ''}{gain_pct:.2f}%</div>
-                      <div style="font-size:11px;color:{clr(stats.get('gain',0))}">{fmt_c(stats.get('gain',0))}</div>
                     </div>
                   </div>
                 </div>
@@ -114,7 +109,7 @@ jobs:
                   <tbody>'''
 
               # Sort holdings: biggest day losers first, then gainers
-              sorted_holdings = sorted(holdings, key=lambda h: h.get('day_change', 0))
+              sorted_holdings = sorted(holdings, key=lambda h: h.get('day_change', 0), reverse=True)
               for h in sorted_holdings:
                   dc = h.get('day_change', 0)
                   price = h.get('price') or 0
