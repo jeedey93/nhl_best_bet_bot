@@ -574,8 +574,11 @@
       holdings.forEach(h => { (holdingsByPortfolio[h.portfolio_id] = holdingsByPortfolio[h.portfolio_id] || []).push(h); });
     } catch(_) {}
 
-    // Fetch prices for all unique tickers across all portfolios
-    const allTickers = [...new Set(Object.values(holdingsByPortfolio).flat().map(h => h.ticker).filter(Boolean))];
+    // Fetch prices for all unique tickers — only for unlocked portfolios
+    const unlockedIds = new Set(_portfolios.filter(p => !p.password_hash || _unlockedIds.has(p.id)).map(p => p.id));
+    const allTickers = [...new Set(Object.entries(holdingsByPortfolio)
+      .filter(([pid]) => unlockedIds.has(pid))
+      .flatMap(([, hs]) => hs.map(h => h.ticker).filter(Boolean)))];
     let homeprices = {};
     if (allTickers.length) {
       try {
@@ -602,20 +605,27 @@
       const gainPct = totalCost > 0 ? (gain / totalCost) * 100 : 0;
       const annualIncome = holdings.reduce((s, h) => s + (h.shares || 0) * (h.annual_dividend || 0), 0);
 
-      // Sector breakdown for mini donut
-      const sectors = {};
-      holdings.forEach(h => {
-        const s = h.sector || 'Other';
-        const mv = homeprices[h.ticker]?.price ? (h.shares || 0) * homeprices[h.ticker].price : (h.shares || 0) * (h.avg_price || 0);
-        sectors[s] = (sectors[s] || 0) + mv;
-      });
-      const sectorEntries = Object.entries(sectors).filter(([, v]) => v > 0);
+      // Sector breakdown — only for unlocked portfolios
+      const sectorEntries = isLocked ? [] : (() => {
+        const sectors = {};
+        holdings.forEach(h => {
+          const s = h.sector || 'Other';
+          const mv = homeprices[h.ticker]?.price ? (h.shares || 0) * homeprices[h.ticker].price : (h.shares || 0) * (h.avg_price || 0);
+          sectors[s] = (sectors[s] || 0) + mv;
+        });
+        return Object.entries(sectors).filter(([, v]) => v > 0);
+      })();
 
       // Last updated
       const updatedAt = p.updated_at ? new Date(p.updated_at) : null;
       const updatedStr = updatedAt ? updatedAt.toLocaleDateString('en-CA', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
 
-      const financials = holdings.length ? `<div class="pc-financials">
+      const isLocked = p.password_hash && !_unlockedIds.has(p.id);
+
+      const financials = isLocked ? `
+        <div style="margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;gap:0.5rem;color:rgba(255,255,255,0.2);font-size:0.78rem;font-weight:600;letter-spacing:0.5px">
+          🔒 Unlock to view financials
+        </div>` : holdings.length ? `<div class="pc-financials">
         <div class="pc-fin-block"><div class="pc-fin-label">Value</div><div class="pc-fin-value">${fmtC(totalValue)}</div></div>
         ${hasPrices ? `<div class="pc-fin-block"><div class="pc-fin-label">Day</div><div class="pc-fin-value ${totalDay >= 0 ? 'pos' : 'neg'}">${totalDay >= 0 ? '+' : ''}${fmtC(totalDay)}</div></div>` : ''}
         <div class="pc-fin-block"><div class="pc-fin-label">Gain</div><div class="pc-fin-value ${gain >= 0 ? 'pos' : 'neg'}">${gain >= 0 ? '+' : ''}${fmt(gainPct)}%</div></div>
