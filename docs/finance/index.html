@@ -927,7 +927,7 @@
     return [...holdings].sort((a, b) => {
       let av, bv;
       switch(col) {
-        case 'day$':   av = a.dayChange ?? -Infinity;  bv = b.dayChange ?? -Infinity; break;
+        case 'mv':     av = a.marketValue ?? -Infinity; bv = b.marketValue ?? -Infinity; break;
         case 'day%':   av = a.changePct ?? -Infinity;  bv = b.changePct ?? -Infinity; break;
         case 'gain$':  av = a.overallGain ?? -Infinity; bv = b.overallGain ?? -Infinity; break;
         case 'gain%':  av = a.cost > 0 ? (a.overallGain??0)/a.cost : -Infinity; bv = b.cost > 0 ? (b.overallGain??0)/b.cost : -Infinity; break;
@@ -1049,7 +1049,7 @@
       <thead><tr>
         <th class="left">Company</th>
         <th class="col-hide-mobile">Shares</th><th class="col-hide-mobile">Avg Price</th><th class="col-hide-mobile">Investment</th>
-        <th>Market Price</th><th class="col-hide-mobile">Market Value</th>
+        <th>Market Price</th>${sh('mv','Market Value','col-hide-mobile')}
         ${sh('day$','Day $','col-hide-mobile')}${sh('day%','Day %')}
         ${sh('gain$','Gain $','col-hide-mobile')}${sh('gain%','Gain %')}
         ${sh('weight','Weight','col-hide-mobile')}${sh('divmo','Monthly Div','col-hide-mobile')}<th></th>
