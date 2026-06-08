@@ -120,6 +120,18 @@
     .form-input:focus { outline: none; border-color: rgba(255,184,28,0.5); }
     .form-input::placeholder { color: rgba(255,255,255,0.25); }
     .form-hint { font-size: 0.62rem; color: rgba(255,255,255,0.2); letter-spacing: 0.5px; margin-top: 1px; }
+
+    /* ── Ticker autocomplete ── */
+    .ticker-wrap { position: relative; }
+    .ticker-dropdown { position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 800; background: #0c1a2e; border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.5); display: none; }
+    .ticker-dropdown.show { display: block; }
+    .ticker-option { display: flex; align-items: center; gap: 0.6rem; padding: 0.5rem 0.75rem; cursor: pointer; transition: background 0.1s; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .ticker-option:last-child { border-bottom: none; }
+    .ticker-option:hover, .ticker-option.focused { background: rgba(255,255,255,0.07); }
+    .to-symbol { font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 1px; color: var(--gold); min-width: 70px; flex-shrink: 0; }
+    .to-name { font-size: 0.8rem; font-weight: 600; color: white; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .to-exchange { font-size: 0.68rem; font-weight: 600; color: rgba(255,255,255,0.3); flex-shrink: 0; }
+    .ticker-searching { padding: 0.5rem 0.75rem; font-size: 0.78rem; color: rgba(255,255,255,0.3); letter-spacing: 0.5px; }
     .modal-actions { display: flex; gap: 0.6rem; margin-top: 1.25rem; }
     .btn-modal-cancel { flex: 1; font-family: 'Bebas Neue', cursive; font-size: 0.95rem; letter-spacing: 2px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: var(--silver); border-radius: 8px; padding: 0.6rem; cursor: pointer; transition: background 0.15s; }
     .btn-modal-cancel:hover { background: rgba(255,255,255,0.1); color: white; }
@@ -167,7 +179,11 @@
     </div>
     <div class="form-group">
       <div class="form-label">Ticker</div>
-      <input class="form-input" id="hm-ticker" placeholder="TSX:MFC">
+      <div class="ticker-wrap">
+        <input class="form-input" id="hm-ticker" placeholder="TSX:MFC" autocomplete="off"
+          oninput="onTickerInput(this.value)" onkeydown="onTickerKeydown(event)">
+        <div class="ticker-dropdown" id="ticker-dropdown"></div>
+      </div>
       <div class="form-hint">TSX:MFC → MFC.TO for prices</div>
     </div>
   </div>
@@ -770,6 +786,102 @@
     el.style.borderColor = isError ? 'rgba(200,16,46,0.4)' : 'rgba(255,255,255,0.12)';
     setTimeout(() => el.style.display = 'none', 3000);
   }
+
+  // ── Ticker autocomplete ───────────────────────────────────────────────────
+  let _tickerDebounce = null;
+  let _tickerFocusIdx = -1;
+  let _tickerResults = [];
+
+  function onTickerInput(val) {
+    _tickerFocusIdx = -1;
+    clearTimeout(_tickerDebounce);
+    const dd = document.getElementById('ticker-dropdown');
+    if (!val || val.length < 1) { dd.classList.remove('show'); dd.innerHTML = ''; return; }
+    dd.innerHTML = `<div class="ticker-searching"><span class="spinner"></span>Searching…</div>`;
+    dd.classList.add('show');
+    _tickerDebounce = setTimeout(() => searchTicker(val), 300);
+  }
+
+  async function searchTicker(q) {
+    try {
+      const res = await fetch(`/api/stock-search?q=${encodeURIComponent(q)}`);
+      if (!res.ok) throw new Error();
+      _tickerResults = await res.json();
+      renderTickerDropdown();
+    } catch(_) {
+      const dd = document.getElementById('ticker-dropdown');
+      dd.innerHTML = `<div class="ticker-searching">No results found.</div>`;
+    }
+  }
+
+  function renderTickerDropdown() {
+    const dd = document.getElementById('ticker-dropdown');
+    if (!_tickerResults.length) {
+      dd.innerHTML = `<div class="ticker-searching">No results found.</div>`;
+      return;
+    }
+    dd.innerHTML = _tickerResults.map((r, i) => {
+      // Convert Yahoo symbol back to display format: MFC.TO → TSX:MFC
+      const display = yahooToDisplay(r.symbol);
+      return `<div class="ticker-option${i === _tickerFocusIdx ? ' focused' : ''}"
+        onmousedown="selectTicker(${i})" data-idx="${i}">
+        <span class="to-symbol">${escHtml(display)}</span>
+        <span class="to-name">${escHtml(r.name)}</span>
+        <span class="to-exchange">${escHtml(r.exchange)}</span>
+      </div>`;
+    }).join('');
+    dd.classList.add('show');
+  }
+
+  function yahooToDisplay(symbol) {
+    if (symbol.endsWith('.TO')) return 'TSX:' + symbol.replace('.TO', '');
+    if (symbol.endsWith('.V')) return 'TSX-V:' + symbol.replace('.V', '');
+    return symbol;
+  }
+
+  function selectTicker(idx) {
+    const r = _tickerResults[idx];
+    if (!r) return;
+    const display = yahooToDisplay(r.symbol);
+    document.getElementById('hm-ticker').value = display;
+    // Auto-fill company name if empty
+    if (!document.getElementById('hm-name').value.trim()) {
+      document.getElementById('hm-name').value = r.name;
+    }
+    closeTickerDropdown();
+  }
+
+  function closeTickerDropdown() {
+    const dd = document.getElementById('ticker-dropdown');
+    dd.classList.remove('show');
+    dd.innerHTML = '';
+    _tickerResults = [];
+    _tickerFocusIdx = -1;
+  }
+
+  function onTickerKeydown(e) {
+    const dd = document.getElementById('ticker-dropdown');
+    if (!dd.classList.contains('show')) return;
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      _tickerFocusIdx = Math.min(_tickerFocusIdx + 1, _tickerResults.length - 1);
+      renderTickerDropdown();
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      _tickerFocusIdx = Math.max(_tickerFocusIdx - 1, 0);
+      renderTickerDropdown();
+    } else if (e.key === 'Enter' && _tickerFocusIdx >= 0) {
+      e.preventDefault();
+      selectTicker(_tickerFocusIdx);
+    } else if (e.key === 'Escape') {
+      closeTickerDropdown();
+    }
+  }
+
+  // Close dropdown when clicking outside
+  document.addEventListener('mousedown', e => {
+    if (!e.target.closest('.ticker-wrap')) closeTickerDropdown();
+  });
 
   init();
 </script>
