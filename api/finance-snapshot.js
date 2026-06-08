@@ -211,7 +211,6 @@ module.exports = async (req, res) => {
         gain: +gain.toFixed(2),
         gain_pct: totalCost > 0 ? +((gain / totalCost) * 100).toFixed(4) : 0,
         holdings_json: holdingsSnapshot,
-        accounts_json: accountSummaries,
       };
       snapshots.push(snapshot);
       results[portfolio.name] = {
