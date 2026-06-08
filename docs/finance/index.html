@@ -1368,7 +1368,8 @@
     const values = holdings.map(h => +h.overallGain.toFixed(2));
     const colors = values.map(v => v >= 0 ? 'rgba(74,222,128,0.75)' : 'rgba(248,113,113,0.75)');
     const borderColors = values.map(v => v >= 0 ? '#4ade80' : '#f87171');
-    canvas.style.height = isMobile ? '180px' : Math.max(120, holdings.length * 32) + 'px';
+    const glH = isMobile ? 180 : Math.max(120, holdings.length * 32);
+    canvas.style.height = glH + 'px'; canvas.height = glH * 2;
     _gainLossChart = new Chart(canvas.getContext('2d'), {
       type: 'bar',
       data: { labels, datasets: [{ data: values, backgroundColor: colors, borderColor: borderColors, borderWidth: 1, borderRadius: 4 }] },
@@ -1431,7 +1432,8 @@
     const labels = holdings.map(h => (h.ticker || h.company_name || '').replace(/^TSX:|^NYSE:/i, ''));
     const values = holdings.map(h => +h.weight.toFixed(2));
     const colors = holdings.map(h => getSectorColor(h.sector));
-    canvas.style.height = isMobile ? '180px' : Math.max(120, holdings.length * 32) + 'px';
+    const wtH = isMobile ? 180 : Math.max(120, holdings.length * 32);
+    canvas.style.height = wtH + 'px'; canvas.height = wtH * 2;
     _weightChart = new Chart(canvas.getContext('2d'), {
       type: 'bar',
       data: { labels, datasets: [{ data: values, backgroundColor: colors.map(c => c + 'aa'), borderColor: colors, borderWidth: 1, borderRadius: 4 }] },
@@ -1505,7 +1507,8 @@
       return;
     }
 
-    canvas.style.height = (window.innerWidth <= 600 ? '140px' : '180px');
+    const vcH = window.innerWidth <= 600 ? 140 : 180;
+    canvas.style.height = vcH + 'px'; canvas.height = vcH * 2;
     const labels = snapshots.map(r => r.snapshot_date);
     const values = snapshots.map(r => r.total_value);
     const costs  = snapshots.map(r => r.total_cost);
