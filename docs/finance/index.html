@@ -650,7 +650,7 @@
     try {
       const [accounts, holdings] = await Promise.all([
         sbGet(`finance_accounts?portfolio_id=in.(${_portfolios.map(p => p.id).join(',')})&select=id,name,portfolio_id`),
-        sbGet(`finance_holdings?portfolio_id=in.(${_portfolios.map(p => p.id).join(',')})&select=portfolio_id,ticker,shares,avg_price,annual_dividend,sector`),
+        sbGet(`finance_holdings?portfolio_id=in.(${_portfolios.map(p => p.id).join(',')})&select=portfolio_id,ticker,shares,avg_price,sector`),
       ]);
       accounts.forEach(a => { (accountsByPortfolio[a.portfolio_id] = accountsByPortfolio[a.portfolio_id] || []).push(a); });
       holdings.forEach(h => { (holdingsByPortfolio[h.portfolio_id] = holdingsByPortfolio[h.portfolio_id] || []).push(h); });
@@ -710,8 +710,7 @@
         </div>` : holdings.length ? `<div class="pc-financials">
         <div class="pc-fin-block"><div class="pc-fin-label">Value</div><div class="pc-fin-value">${fmtC(totalValue)}</div></div>
         ${hasPrices ? `<div class="pc-fin-block"><div class="pc-fin-label">Day</div><div class="pc-fin-value ${totalDay >= 0 ? 'pos' : 'neg'}">${totalDay >= 0 ? '+' : ''}${fmtC(totalDay)}</div></div>` : ''}
-        <div class="pc-fin-block"><div class="pc-fin-label">Gain</div><div class="pc-fin-value ${gain >= 0 ? 'pos' : 'neg'}">${gain >= 0 ? '+' : ''}${fmt(gainPct)}%</div></div>
-        ${annualIncome > 0 ? `<div class="pc-fin-block"><div class="pc-fin-label">Income/yr</div><div class="pc-fin-value gold">${fmtC(annualIncome)}</div></div>` : ''}
+        ${hasPrices ? `<div class="pc-fin-block"><div class="pc-fin-label">Day %</div><div class="pc-fin-value ${totalDay >= 0 ? 'pos' : 'neg'}">${totalDay >= 0 ? '+' : ''}${fmt((totalValue - totalDay) > 0 ? (totalDay / (totalValue - totalDay)) * 100 : 0)}%</div></div>` : ''}
       </div>
       <div class="pc-card-bottom">
         ${updatedStr ? `<div class="pc-updated">Updated ${updatedStr}</div>` : '<div></div>'}
