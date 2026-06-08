@@ -2141,11 +2141,11 @@
     const dayPct=(totalVal-totalDay)>0?(totalDay/(totalVal-totalDay))*100:0;
 
     // Fixed layout
-    const W=300, PAD=16, RH=28;
+    const W=320, PAD=16, RH=28;
     const TICKER_X = PAD+10;        // left-aligned ticker
-    const PCT_W = 48, PCT_X = W-PAD-PCT_W; // % badge right-anchored
-    const DC_X = PCT_X - 8;         // day $ right-aligned just before badge
-    const PRICE_X = TICKER_X + 54;  // current price left-aligned after ticker
+    const PCT_W = 50, PCT_X = W-PAD-PCT_W; // % badge right-anchored
+    const DC_X = PCT_X - 10;        // day $ right-aligned just before badge
+    const PRICE_X = TICKER_X + 58;  // current price left-aligned after ticker
     const HEADER_H = 70, PILL_H=40, FOOTER_H=22;
     const SH=22; // section row height
     const bodyH = GL.reduce((s,g)=>s+(GL.length>1?SH:0)+g.rows.length*RH+4,0);
@@ -2244,7 +2244,7 @@
         ctx.textAlign='left'; ctx.font='700 9px Arial'; ctx.fillStyle=GOLD;
         ctx.fillText(g.label.toUpperCase(),PAD+6,y+SH/2+4);
         ctx.textAlign='right'; ctx.font='700 10px Arial'; ctx.fillStyle=gPos?GREEN:RED;
-        ctx.fillText(fmt$(g.dayTotal),W-PAD-2,y+SH/2+4);
+        ctx.fillText(fmt$(g.dayTotal),W-PAD,y+SH/2+4);
         y+=SH+2;
       }
 
