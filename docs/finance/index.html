@@ -1202,8 +1202,24 @@
       document.getElementById('hm-sector').value = r.sector;
     }
     closeAllDropdowns();
-    // Fetch dividend + sector details in background
+    // Fetch current price to pre-fill avg price, and dividend/sector details
     autofillStockDetails(r.symbol);
+    autofillCurrentPrice(display);
+  }
+
+  async function autofillCurrentPrice(ticker) {
+    // Only pre-fill if the field is empty (don't overwrite if user already typed something)
+    const field = document.getElementById('hm-avg-price');
+    if (field.value.trim()) return;
+    try {
+      const res = await fetch(`/api/finance?action=price&symbols=${encodeURIComponent(ticker)}`);
+      if (!res.ok) return;
+      const data = await res.json();
+      const p = data[ticker];
+      if (p?.price && !field.value.trim()) {
+        field.value = p.price.toFixed(2);
+      }
+    } catch(_) {}
   }
 
   async function autofillStockDetails(yahooSymbol) {
