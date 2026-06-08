@@ -517,7 +517,7 @@
     const tickers = [...new Set(_holdings.map(h => h.ticker).filter(Boolean))];
     if (!tickers.length) return;
     try {
-      const res = await fetch(`/api/stock-price?symbols=${encodeURIComponent(tickers.map(toYahoo).join(','))}`);
+      const res = await fetch(`/api/finance?action=price&symbols=${encodeURIComponent(tickers.map(toYahoo).join(','))}`);
       if (!res.ok) return;
       const data = await res.json();
       _prices = {};
@@ -968,7 +968,7 @@
 
   async function searchStock(q, field) {
     try {
-      const res = await fetch(`/api/stock-search?q=${encodeURIComponent(q)}`);
+      const res = await fetch(`/api/finance?action=search&q=${encodeURIComponent(q)}`);
       _stockResults = res.ok ? await res.json() : [];
     } catch(_) { _stockResults = []; }
     renderStockDropdown(field);
@@ -1004,7 +1004,7 @@
 
   async function autofillStockDetails(yahooSymbol) {
     try {
-      const res = await fetch(`/api/stock-details?symbol=${encodeURIComponent(yahooSymbol)}`);
+      const res = await fetch(`/api/finance?action=details&symbol=${encodeURIComponent(yahooSymbol)}`);
       if (!res.ok) return;
       const d = await res.json();
       if (d.sector && !document.getElementById('hm-sector').value.trim()) {
