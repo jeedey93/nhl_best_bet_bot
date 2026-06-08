@@ -1687,142 +1687,139 @@
   // ── Share image generator ─────────────────────────────────────────────────
   async function generateShareImage() {
     const btn = document.getElementById('btn-share');
-    btn.textContent = '⏳ Generating…';
-    btn.disabled = true;
+    btn.textContent = '⏳'; btn.disabled = true;
 
-    const W = 600;
-    const BG = '#07111f', CARD = '#0d1b2e', BORDER = '#162840';
     const GREEN = '#4ade80', RED = '#f87171', GOLD = '#ffb81c';
-    const SILVER = '#a8b2be', WHITE = '#ffffff', DIM = '#2d4a6a', MUTED = '#3d5a7a';
+    const SILVER = '#a8b2be', WHITE = '#ffffff', DIM = '#2a4060', MUTED = '#1e3555';
 
-    const fmtMoney = (v) => v == null ? '—' : (v >= 0 ? '+' : '−') + '$' + Math.abs(v).toLocaleString('en-CA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    const fmtPct   = (v) => v == null ? '—' : (v >= 0 ? '+' : '') + v.toFixed(2) + '%';
+    const fmt$ = (v) => (v >= 0 ? '+' : '−') + '$' + Math.abs(v).toLocaleString('en-CA', {minimumFractionDigits:2,maximumFractionDigits:2});
+    const fmtP = (v) => (v >= 0 ? '+' : '') + v.toFixed(2) + '%';
 
+    // Build groups
     const accountMap = Object.fromEntries(_accounts.map(a => [a.id, a.name]));
-    const visibleHoldings = _activeAccount
-      ? _holdings.filter(h => h.account_id === _activeAccount.id)
-      : _holdings;
-
+    const vis = _activeAccount ? _holdings.filter(h => h.account_id === _activeAccount.id) : _holdings;
     const groups = {};
-    visibleHoldings.forEach(h => {
-      const p = _prices[h.ticker];
-      if (!p?.price) return;
-      const key = h.account_id || 'other';
+    vis.forEach(h => {
+      const p = _prices[h.ticker]; if (!p?.price) return;
+      const key = h.account_id || 'x';
       const label = accountMap[h.account_id] || _activeAccount?.name || 'Holdings';
       if (!groups[key]) groups[key] = { label, rows: [], dayTotal: 0 };
-      const dc = (h.shares || 0) * p.change;
+      const dc = (h.shares||0) * p.change;
       groups[key].dayTotal += dc;
-      groups[key].rows.push({ ticker: (h.ticker || '').replace(/^TSX:|^NYSE:|^NASDAQ:/i, ''), dc, dcPct: p.changePct ?? null });
+      groups[key].rows.push({ ticker:(h.ticker||'').replace(/^TSX:|^NYSE:|^NASDAQ:/i,''), dc, pct: p.changePct??0 });
     });
-    Object.values(groups).forEach(g => g.rows.sort((a, b) => b.dc - a.dc));
+    const GL = Object.values(groups);
+    GL.forEach(g => g.rows.sort((a,b) => b.dc - a.dc));
 
-    const groupList = Object.values(groups);
-    const totalDay = groupList.reduce((s, g) => s + g.dayTotal, 0);
-    const totalValue = visibleHoldings.reduce((s, h) => {
-      const p = _prices[h.ticker]; return s + (p ? (h.shares||0)*p.price : 0);
-    }, 0);
-    const dayPct = (totalValue - totalDay) > 0 ? (totalDay / (totalValue - totalDay)) * 100 : 0;
+    const totalDay = GL.reduce((s,g) => s + g.dayTotal, 0);
+    const totalVal = vis.reduce((s,h) => { const p=_prices[h.ticker]; return s+(p?(h.shares||0)*p.price:0); },0);
+    const dayPct = (totalVal-totalDay)>0 ? (totalDay/(totalVal-totalDay))*100 : 0;
+    const totPos = totalDay >= 0;
 
-    const PAD = 20, HEADER_H = 90, SUMMARY_H = 58;
-    const SECTION_LABEL_H = 24, ROW_H = 32, GROUP_GAP = 6, FOOTER_H = 28;
-    const contentH = groupList.reduce((s, g) => s + SECTION_LABEL_H + g.rows.length * ROW_H + GROUP_GAP, 0);
-    const H = HEADER_H + SUMMARY_H + contentH + FOOTER_H + 8;
+    // Layout — narrow and compact
+    const W = 340, PAD = 14, RH = 26;
+    const HEADER_H = 70, PILL_H = 38, PILL_GAP = 6;
+    const SH = 20; // section header height
+    const FOOTER_H = 20;
+    const bodyH = GL.reduce((s,g) => s + (GL.length>1 ? SH+4 : 0) + g.rows.length*RH + 6, 0);
+    const H = HEADER_H + PILL_H + PILL_GAP + bodyH + FOOTER_H + 8;
 
     const canvas = document.createElement('canvas');
-    canvas.width = W * 2; canvas.height = H * 2;
+    canvas.width = W*2; canvas.height = H*2;
     const ctx = canvas.getContext('2d');
-    ctx.scale(2, 2);
+    ctx.scale(2,2);
 
-    ctx.fillStyle = BG; ctx.fillRect(0, 0, W, H);
-    const g1 = ctx.createRadialGradient(W/2, 0, 0, W/2, 0, H * 0.6);
-    g1.addColorStop(0, 'rgba(20,50,100,0.35)'); g1.addColorStop(1, 'transparent');
-    ctx.fillStyle = g1; ctx.fillRect(0, 0, W, H);
+    // Background
+    ctx.fillStyle = '#07111f'; ctx.fillRect(0,0,W,H);
+    const grd = ctx.createLinearGradient(0,0,0,H*0.5);
+    grd.addColorStop(0,'rgba(15,40,90,0.4)'); grd.addColorStop(1,'rgba(7,17,31,0)');
+    ctx.fillStyle = grd; ctx.fillRect(0,0,W,H);
 
-    ctx.textAlign = 'center';
-    ctx.font = '700 9px Arial'; ctx.fillStyle = GOLD;
-    ctx.fillText('PARIEUR DISCIPLINÉ', W/2, 18);
-    ctx.font = 'bold 22px Arial'; ctx.fillStyle = WHITE;
-    ctx.fillText(_activePortfolio?.name || 'Portfolio', W/2, 46);
-    if (_activeAccount) {
-      ctx.font = '600 12px Arial'; ctx.fillStyle = SILVER;
-      ctx.fillText(_activeAccount.name, W/2, 62);
-    }
-    const today = new Date().toLocaleDateString('en-CA', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
-    ctx.font = '11px Arial'; ctx.fillStyle = DIM;
-    ctx.fillText(today, W/2, _activeAccount ? 78 : 66);
+    // Header
+    ctx.textAlign='center';
+    ctx.font='600 8px Arial'; ctx.fillStyle=GOLD;
+    ctx.fillText('PARIEUR DISCIPLINÉ', W/2, 13);
+    ctx.font='bold 18px Arial'; ctx.fillStyle=WHITE;
+    ctx.fillText(_activePortfolio?.name||'Portfolio', W/2, 36);
+    const sub = _activeAccount ? _activeAccount.name : new Date().toLocaleDateString('en-CA',{month:'short',day:'numeric',year:'numeric'});
+    ctx.font='10px Arial'; ctx.fillStyle=SILVER;
+    ctx.fillText(sub, W/2, 51);
+    if (_activeAccount) { ctx.font='9px Arial'; ctx.fillStyle=DIM; ctx.fillText(new Date().toLocaleDateString('en-CA',{month:'short',day:'numeric',year:'numeric'}), W/2, 64); }
 
-    const isPos = totalDay >= 0;
-    const pillW = 240, pillH = 42, pillX = (W - pillW) / 2, pillY = HEADER_H + 4;
-    ctx.fillStyle = isPos ? 'rgba(74,222,128,0.1)' : 'rgba(248,113,113,0.08)';
-    roundRect(ctx, pillX, pillY, pillW, pillH, 10); ctx.fill();
-    ctx.strokeStyle = isPos ? 'rgba(74,222,128,0.3)' : 'rgba(248,113,113,0.25)'; ctx.lineWidth = 1;
-    roundRect(ctx, pillX, pillY, pillW, pillH, 10); ctx.stroke();
-    ctx.font = 'bold 20px Arial'; ctx.fillStyle = isPos ? GREEN : RED;
-    ctx.fillText(fmtMoney(totalDay), W/2, pillY + 24);
-    ctx.font = '600 10px Arial'; ctx.fillStyle = isPos ? 'rgba(74,222,128,0.6)' : 'rgba(248,113,113,0.6)';
-    ctx.fillText('Day Change · ' + fmtPct(dayPct), W/2, pillY + 38);
+    // Day pill
+    const PY = HEADER_H;
+    ctx.fillStyle = totPos ? 'rgba(74,222,128,0.1)' : 'rgba(248,113,113,0.08)';
+    roundRect(ctx, PAD, PY, W-PAD*2, PILL_H, 8); ctx.fill();
+    ctx.strokeStyle = totPos ? 'rgba(74,222,128,0.35)' : 'rgba(248,113,113,0.3)'; ctx.lineWidth=0.75;
+    roundRect(ctx, PAD, PY, W-PAD*2, PILL_H, 8); ctx.stroke();
+    ctx.font='bold 17px Arial'; ctx.fillStyle = totPos?GREEN:RED;
+    ctx.fillText(fmt$(totalDay), W/2, PY+22);
+    ctx.font='600 9px Arial'; ctx.fillStyle = totPos?'rgba(74,222,128,0.55)':'rgba(248,113,113,0.55)';
+    ctx.fillText(fmtP(dayPct) + '  ·  Day Change', W/2, PY+35);
 
-    let y = HEADER_H + SUMMARY_H + 8;
-    groupList.forEach((group, gi) => {
-      if (groupList.length > 1) {
-        // Account label left
-        ctx.textAlign = 'left'; ctx.font = '700 10px Arial'; ctx.fillStyle = GOLD;
-        ctx.fillText(group.label.toUpperCase(), PAD, y + 16);
-        // Day change right
-        const gPos = group.dayTotal >= 0;
-        ctx.textAlign = 'right'; ctx.font = '700 11px Arial';
-        ctx.fillStyle = gPos ? GREEN : RED;
-        ctx.fillText(fmtMoney(group.dayTotal), W - PAD, y + 16);
-        // Total value in muted next to change
-        const gVal = groupList.length > 0 ? visibleHoldings
-          .filter(h => (h.account_id || 'other') === Object.keys(groups)[gi])
-          .reduce((s, h) => s + (_prices[h.ticker] ? (h.shares||0)*_prices[h.ticker].price : 0), 0) : 0;
-        ctx.font = '10px Arial'; ctx.fillStyle = MUTED;
-        ctx.fillText('total ' + '$' + gVal.toLocaleString('en-CA', {maximumFractionDigits:0}), W - PAD - ctx.measureText(fmtMoney(group.dayTotal)).width - 10, y + 16);
-        y += SECTION_LABEL_H;
+    // Rows
+    let y = HEADER_H + PILL_H + PILL_GAP + 6;
+    GL.forEach((g, gi) => {
+      // Account header (only when multiple accounts)
+      if (GL.length > 1) {
+        ctx.textAlign='left'; ctx.font='700 8px Arial'; ctx.fillStyle=GOLD;
+        ctx.fillText(g.label.toUpperCase(), PAD, y+14);
+        const gPos = g.dayTotal>=0;
+        ctx.textAlign='right'; ctx.font='700 10px Arial'; ctx.fillStyle=gPos?GREEN:RED;
+        ctx.fillText(fmt$(g.dayTotal) + '  ' + fmtP(g.dayTotal/(totalVal||1)*100*GL.length), W-PAD, y+14);
+        y += SH+2;
       }
-      group.rows.forEach((r, i) => {
-        const rPos = r.dc >= 0;
-        const ry = y + i * ROW_H;
-        if (i % 2 === 0) { ctx.fillStyle = 'rgba(255,255,255,0.015)'; ctx.fillRect(PAD, ry, W-PAD*2, ROW_H); }
-        ctx.fillStyle = rPos ? GREEN : RED; ctx.fillRect(PAD, ry + 6, 3, ROW_H - 12);
-        ctx.textAlign = 'left'; ctx.font = 'bold 12px Arial'; ctx.fillStyle = WHITE;
-        ctx.fillText(r.ticker, PAD + 12, ry + ROW_H/2 + 4);
-        const bW = 58, bH = 18, bX = W-PAD-bW, bY = ry+(ROW_H-bH)/2;
-        ctx.fillStyle = rPos ? 'rgba(74,222,128,0.12)' : 'rgba(248,113,113,0.1)';
-        roundRect(ctx, bX, bY, bW, bH, 4); ctx.fill();
-        ctx.font = 'bold 10px Arial'; ctx.fillStyle = rPos ? GREEN : RED; ctx.textAlign = 'center';
-        ctx.fillText(fmtPct(r.dcPct), bX + bW/2, bY + 13);
-        ctx.textAlign = 'right'; ctx.font = '700 12px Arial'; ctx.fillStyle = rPos ? GREEN : RED;
-        ctx.fillText(fmtMoney(r.dc), W-PAD-bW-10, ry + ROW_H/2 + 4);
-        if (i < group.rows.length - 1) {
-          ctx.strokeStyle = 'rgba(255,255,255,0.04)'; ctx.lineWidth = 0.5;
-          ctx.beginPath(); ctx.moveTo(PAD+12, ry+ROW_H); ctx.lineTo(W-PAD, ry+ROW_H); ctx.stroke();
+
+      g.rows.forEach((r,i) => {
+        const rPos = r.dc>=0;
+        const ry = y + i*RH;
+        // Subtle zebra
+        if (i%2===0) { ctx.fillStyle='rgba(255,255,255,0.018)'; ctx.fillRect(PAD,ry,W-PAD*2,RH); }
+        // Left bar
+        ctx.fillStyle=rPos?GREEN:RED; ctx.fillRect(PAD,ry+5,2,RH-10);
+        // Ticker
+        ctx.textAlign='left'; ctx.font='bold 11px Arial'; ctx.fillStyle=WHITE;
+        ctx.fillText(r.ticker, PAD+8, ry+RH/2+4);
+        // % badge
+        const bW=48, bH=15, bX=W-PAD-bW, bY=ry+(RH-bH)/2;
+        ctx.fillStyle=rPos?'rgba(74,222,128,0.13)':'rgba(248,113,113,0.1)';
+        roundRect(ctx,bX,bY,bW,bH,3); ctx.fill();
+        ctx.font='bold 9px Arial'; ctx.fillStyle=rPos?GREEN:RED; ctx.textAlign='center';
+        ctx.fillText(fmtP(r.pct), bX+bW/2, bY+11);
+        // Day $
+        ctx.textAlign='right'; ctx.font='700 11px Arial'; ctx.fillStyle=rPos?GREEN:RED;
+        ctx.fillText(fmt$(r.dc), W-PAD-bW-6, ry+RH/2+4);
+        // Divider
+        if (i<g.rows.length-1) {
+          ctx.strokeStyle='rgba(255,255,255,0.04)'; ctx.lineWidth=0.5;
+          ctx.beginPath(); ctx.moveTo(PAD+8,ry+RH); ctx.lineTo(W-PAD,ry+RH); ctx.stroke();
         }
       });
-      y += group.rows.length * ROW_H + GROUP_GAP;
-      if (gi < groupList.length - 1) {
-        ctx.strokeStyle = 'rgba(255,255,255,0.06)'; ctx.lineWidth = 0.5;
-        ctx.beginPath(); ctx.moveTo(PAD, y-GROUP_GAP/2); ctx.lineTo(W-PAD, y-GROUP_GAP/2); ctx.stroke();
+      y += g.rows.length*RH + 6;
+
+      // Group divider
+      if (gi<GL.length-1) {
+        ctx.strokeStyle='rgba(255,255,255,0.07)'; ctx.lineWidth=0.5;
+        ctx.beginPath(); ctx.moveTo(PAD,y-2); ctx.lineTo(W-PAD,y-2); ctx.stroke();
+        y+=4;
       }
     });
 
-    ctx.textAlign = 'center'; ctx.font = '9px Arial'; ctx.fillStyle = DIM;
-    ctx.fillText('parieurdiscipline.com/finance', W/2, H - 10);
+    // Footer
+    ctx.textAlign='center'; ctx.font='8px Arial'; ctx.fillStyle=DIM;
+    ctx.fillText('parieurdiscipline.com/finance', W/2, H-7);
 
-    btn.textContent = '📤 Share';
-    btn.disabled = false;
+    btn.textContent='📤 Share'; btn.disabled=false;
 
     try {
-      canvas.toBlob(async (blob) => {
-        await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
-        showToast('📋 Copied to clipboard — paste anywhere to share!');
-      }, 'image/png');
+      canvas.toBlob(async blob => {
+        await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]);
+        showToast('📋 Copied to clipboard!');
+      },'image/png');
     } catch(e) {
-      const link = document.createElement('a');
-      link.download = `portfolio-snapshot-${new Date().toISOString().slice(0,10)}.png`;
-      link.href = canvas.toDataURL('image/png');
-      link.click();
+      const a=document.createElement('a');
+      a.download=`snapshot-${new Date().toISOString().slice(0,10)}.png`;
+      a.href=canvas.toDataURL('image/png'); a.click();
       showToast('Saved as image');
     }
   }
