@@ -263,6 +263,9 @@
     .profile-website { margin-top: 0.75rem; font-size: 0.78rem; font-weight: 600; }
     .profile-website a { color: var(--blue); text-decoration: none; }
     .profile-website a:hover { text-decoration: underline; }
+    .profile-description { margin-top: 0.85rem; padding-top: 0.85rem; border-top: 1px solid rgba(255,255,255,0.07); font-size: 0.82rem; font-weight: 600; color: rgba(255,255,255,0.55); line-height: 1.6; letter-spacing: 0.2px; }
+    .profile-description a { color: rgba(125,180,255,0.5); font-size: 0.72rem; text-decoration: none; }
+    .profile-description a:hover { color: var(--blue); }
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem; }
     .form-row.full { grid-template-columns: 1fr; }
     .form-group { display: flex; flex-direction: column; gap: 3px; }
@@ -1934,17 +1937,20 @@
 
   async function fetchCompanyProfile(ticker, name) {
     try {
-      const res = await fetch(`/api/finance?action=profile&symbol=${encodeURIComponent(ticker)}`);
-      if (!res.ok) throw new Error(res.status);
-      const d = await res.json();
-      if (d.error) throw new Error(d.error);
-      renderCompanyProfile(d, ticker, name);
+      const [profileRes, descRes] = await Promise.all([
+        fetch(`/api/finance?action=profile&symbol=${encodeURIComponent(ticker)}`),
+        fetch(`/api/finance?action=description&name=${encodeURIComponent(name)}`),
+      ]);
+      const d = profileRes.ok ? await profileRes.json() : {};
+      const desc = descRes.ok ? await descRes.json() : {};
+      if (d.error && !d.name) throw new Error(d.error);
+      renderCompanyProfile(d, ticker, name, desc);
     } catch(e) {
       document.getElementById('profile-content').innerHTML = `<div class="empty-state">Could not load profile for ${escHtml(name)}.</div>`;
     }
   }
 
-  function renderCompanyProfile(d, ticker, name) {
+  function renderCompanyProfile(d, ticker, name, desc = {}) {
     const fmtB = (v) => v == null ? '—' : v >= 1000 ? `$${(v/1000).toFixed(1)}B` : `$${v.toFixed(0)}M`;
     const fmtV = (v, suffix='') => v == null ? '—' : v + suffix;
 
@@ -1991,6 +1997,7 @@
       </div>
       ${rangeHtml}
       ${d.website ? `<div class="profile-website">🌐 <a href="${escHtml(d.website)}" target="_blank" rel="noopener">${escHtml(d.website.replace(/^https?:\/\//, ''))}</a></div>` : ''}
+      ${desc.extract ? `<div class="profile-description">${escHtml(desc.extract.slice(0, 400))}${desc.extract.length > 400 ? '…' : ''}${desc.url ? ` <a href="${escHtml(desc.url)}" target="_blank" rel="noopener">Wikipedia →</a>` : ''}</div>` : ''}
     `;
   }
 

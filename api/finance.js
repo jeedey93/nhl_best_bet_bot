@@ -161,6 +161,56 @@ async function handleDetails(req, res) {
   }
 }
 
+// ── Description (Wikipedia) ───────────────────────────────────────────────
+const _descCache = new Map();
+
+async function fetchWikiSummary(name) {
+  // Try direct title first, then search
+  const slug = name.replace(/ /g, '_');
+  const urls = [
+    `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(slug)}`,
+    `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(slug.replace(/_Inc\.?$|_Corp\.?$|_Ltd\.?$|_Limited$/, ''))}`,
+  ];
+  for (const url of urls) {
+    const r = await fetch(url, { headers: { 'User-Agent': 'parieur-discipline-bot/1.0 (finance tracker)' } });
+    if (r.ok) {
+      const d = await r.json();
+      if (d.extract && d.type !== 'disambiguation') {
+        return { extract: d.extract, url: d.content_urls?.desktop?.page || null, thumbnail: d.thumbnail?.source || null };
+      }
+    }
+  }
+  // Fall back to Wikipedia search
+  const searchUrl = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(name + ' company')}&srlimit=1&format=json&origin=*`;
+  const sr = await fetch(searchUrl, { headers: { 'User-Agent': 'parieur-discipline-bot/1.0' } });
+  if (sr.ok) {
+    const sj = await sr.json();
+    const hit = sj?.query?.search?.[0];
+    if (hit) {
+      const r2 = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(hit.title)}`, { headers: { 'User-Agent': 'parieur-discipline-bot/1.0' } });
+      if (r2.ok) {
+        const d2 = await r2.json();
+        if (d2.extract && d2.type !== 'disambiguation') return { extract: d2.extract, url: d2.content_urls?.desktop?.page || null, thumbnail: d2.thumbnail?.source || null };
+      }
+    }
+  }
+  return null;
+}
+
+async function handleDescription(req, res) {
+  const name = (req.query.name || '').trim();
+  if (!name) return res.status(400).json({ error: 'name param required' });
+  const cached = _descCache.get(name);
+  if (cached && Date.now() - cached.ts < 24 * 60 * 60 * 1000) return res.status(200).json(cached.data);
+  try {
+    const data = await fetchWikiSummary(name) || { extract: null };
+    _descCache.set(name, { ts: Date.now(), data });
+    return res.status(200).json(data);
+  } catch(e) {
+    return res.status(200).json({ extract: null });
+  }
+}
+
 // ── Profile ───────────────────────────────────────────────────────────────
 const _profileCache = new Map();
 
@@ -226,10 +276,11 @@ module.exports = async (req, res) => {
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
   try {
     const action = req.query.action;
-    if (action === 'price')   return await handlePrice(req, res);
-    if (action === 'search')  return await handleSearch(req, res);
-    if (action === 'details') return await handleDetails(req, res);
-    if (action === 'profile') return await handleProfile(req, res);
+    if (action === 'price')       return await handlePrice(req, res);
+    if (action === 'search')      return await handleSearch(req, res);
+    if (action === 'details')     return await handleDetails(req, res);
+    if (action === 'profile')     return await handleProfile(req, res);
+    if (action === 'description') return await handleDescription(req, res);
     return res.status(400).json({ error: 'action required: price | search | details' });
   } catch(e) {
     return res.status(500).json({ error: e.message });
