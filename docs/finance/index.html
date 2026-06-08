@@ -36,11 +36,12 @@
 
     /* ── Page ── */
     .page { max-width: 1400px; margin: 0 auto; padding: 1.25rem 1.5rem 4rem; }
+    @media (max-width: 600px) { .page { padding: 0.75rem 0.75rem 4rem; } }
 
     /* ── Home — portfolio cards ── */
     .home-wrap { max-width: 900px; margin: 0 auto; }
     .home-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
-    .home-title { font-family: 'Bebas Neue', cursive; font-size: 2rem; letter-spacing: 5px; color: white; }
+    .home-title { font-family: 'Bebas Neue', cursive; font-size: clamp(1.4rem, 5vw, 2rem); letter-spacing: 5px; color: white; }
     .home-title span { color: var(--gold); }
     .portfolio-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1rem; }
     .portfolio-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 1.25rem 1.5rem; cursor: pointer; transition: background 0.15s, border-color 0.15s, transform 0.1s; }
@@ -67,6 +68,7 @@
 
     /* ── Account tabs (second level) ── */
     .account-bar { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; border-bottom: 1px solid var(--line); padding: 0.75rem 0 0; margin-bottom: 1.25rem; }
+    @media (max-width: 600px) { .account-bar { gap: 0.4rem; } .account-bar-actions { margin-left: auto; } }
     .account-tabs { display: flex; gap: 0.3rem; flex-wrap: wrap; flex: 1; }
     .atab { font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 2px; background: none; border: none; border-bottom: 2px solid transparent; color: rgba(255,255,255,0.35); padding: 0.35rem 0.85rem 0.4rem; cursor: pointer; transition: color 0.15s, border-color 0.15s; margin-bottom: -1px; }
     .atab:hover { color: white; }
@@ -81,7 +83,7 @@
     @media (max-width: 400px) { .summary-bar { grid-template-columns: 1fr; } }
     .stat-card { background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; padding: 1rem 1.25rem; }
     .stat-label { font-size: 0.68rem; font-weight: 700; letter-spacing: 2px; color: rgba(255,255,255,0.3); text-transform: uppercase; margin-bottom: 0.3rem; }
-    .stat-value { font-family: 'Bebas Neue', cursive; font-size: 1.8rem; letter-spacing: 1px; color: white; line-height: 1; }
+    .stat-value { font-family: 'Bebas Neue', cursive; font-size: clamp(1.3rem, 4vw, 1.8rem); letter-spacing: 1px; color: white; line-height: 1; }
     .stat-sub { font-size: 0.75rem; font-weight: 600; color: rgba(255,255,255,0.3); letter-spacing: 0.5px; margin-top: 0.2rem; }
     .stat-value.green { color: #4ade80; }
     .stat-value.red { color: #f87171; }
@@ -92,6 +94,7 @@
 
     /* ── Charts row ── */
     .charts-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem; }
+    @media (max-width: 600px) { .charts-row { grid-template-columns: 1fr; } }
 
     /* ── Holdings table ── */
     .holdings-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.6rem; }
@@ -103,9 +106,13 @@
     table.holdings td.left { text-align: left; }
     table.holdings tr:last-child td { border-bottom: none; }
     table.holdings tr:hover td { background: rgba(255,255,255,0.03); }
-    table.holdings tr.sector-row td { font-family: 'Bebas Neue', cursive; font-size: 0.72rem; letter-spacing: 2px; color: rgba(255,255,255,0.25); background: rgba(255,255,255,0.02); padding: 0.3rem 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.06); }
     table.holdings tr.account-row td { font-family: 'Bebas Neue', cursive; font-size: 0.8rem; letter-spacing: 2px; color: var(--silver); background: rgba(255,255,255,0.035); padding: 0.4rem 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.08); opacity: 0.7; }
     table.holdings tr.total-row td { background: rgba(255,255,255,0.04); font-family: 'Bebas Neue', cursive; font-size: 0.9rem; border-top: 1px solid rgba(255,255,255,0.1); border-bottom: none; }
+    /* Mobile: hide less important columns, reduce min-width */
+    @media (max-width: 700px) {
+      table.holdings { min-width: 420px; }
+      table.holdings .col-hide-mobile { display: none; }
+    }
     .ticker-badge { font-family: 'Bebas Neue', cursive; font-size: 0.78rem; letter-spacing: 1px; color: rgba(255,255,255,0.3); margin-left: 0.4rem; }
     .account-badge { font-size: 0.62rem; font-weight: 700; letter-spacing: 1px; color: rgba(255,255,255,0.25); background: rgba(255,255,255,0.06); border-radius: 3px; padding: 1px 5px; margin-left: 0.4rem; vertical-align: middle; }
     .pos { color: #4ade80; }
@@ -161,7 +168,7 @@
     .upcoming-card.soon { border-color: rgba(34,197,94,0.4); background: rgba(34,197,94,0.08); }
     .upcoming-company { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 1.5px; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .upcoming-ticker { font-size: 0.65rem; font-weight: 700; letter-spacing: 1px; color: rgba(255,255,255,0.3); }
-    .upcoming-amount { font-family: 'Bebas Neue', cursive; font-size: 1.4rem; letter-spacing: 1px; color: var(--green); line-height: 1; margin-top: 0.2rem; }
+    .upcoming-amount { font-family: 'Bebas Neue', cursive; font-size: clamp(1.1rem, 4vw, 1.4rem); letter-spacing: 1px; color: var(--green); line-height: 1; margin-top: 0.2rem; }
     .upcoming-date { font-size: 0.72rem; font-weight: 700; color: rgba(255,255,255,0.4); letter-spacing: 0.5px; margin-top: 0.1rem; }
     .upcoming-pill { display: inline-block; font-family: 'Bebas Neue', cursive; font-size: 0.72rem; letter-spacing: 1.5px; border-radius: 4px; padding: 2px 8px; margin-top: 0.35rem; align-self: flex-start; }
     .upcoming-pill.days-soon { background: rgba(34,197,94,0.2); color: var(--green); }
@@ -169,7 +176,8 @@
     .upcoming-pill.today { background: rgba(255,184,28,0.2); color: var(--gold); }
     .dividend-section { margin-bottom: 1.5rem; }
     .div-calendar { overflow-x: auto; }
-    .div-grid { display: grid; grid-template-columns: 160px repeat(12, 1fr); min-width: 900px; }
+    .div-grid { display: grid; grid-template-columns: 160px repeat(12, 1fr); min-width: 700px; }
+    @media (max-width: 600px) { .div-grid { grid-template-columns: 100px repeat(12, minmax(36px, 1fr)); min-width: 550px; } }
     .div-cell { padding: 0.35rem 0.4rem; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 0.78rem; font-weight: 600; text-align: right; }
     .div-cell.name-cell { text-align: left; color: rgba(255,255,255,0.7); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .div-cell.month-hdr { font-family: 'Bebas Neue', cursive; font-size: 0.72rem; letter-spacing: 1px; color: rgba(255,255,255,0.25); text-align: center; padding: 0.35rem 0.4rem; border-bottom: 1px solid rgba(255,255,255,0.1); }
@@ -183,7 +191,7 @@
     /* ── Modals ── */
     .modal-backdrop { position: fixed; inset: 0; z-index: 600; background: rgba(0,0,0,0.65); backdrop-filter: blur(4px); opacity: 0; pointer-events: none; transition: opacity 0.2s; }
     .modal-backdrop.show { opacity: 1; pointer-events: all; }
-    .modal { position: fixed; left: 50%; top: 50%; z-index: 700; transform: translate(-50%, -52%) scale(0.95); opacity: 0; pointer-events: none; transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1), opacity 0.2s; background: #0e1e35; border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 1.75rem 1.5rem 1.25rem; width: calc(100% - 2rem); max-width: 480px; box-shadow: 0 24px 60px rgba(0,0,0,0.6); }
+    .modal { position: fixed; left: 50%; top: 50%; z-index: 700; transform: translate(-50%, -52%) scale(0.95); opacity: 0; pointer-events: none; transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1), opacity 0.2s; background: #0e1e35; border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 1.75rem 1.25rem 1.25rem; width: calc(100% - 1.5rem); max-width: 480px; max-height: 90vh; overflow-y: auto; box-shadow: 0 24px 60px rgba(0,0,0,0.6); }
     .modal.show { transform: translate(-50%, -50%) scale(1); opacity: 1; pointer-events: all; }
     .modal-title { font-family: 'Bebas Neue', cursive; font-size: 1.4rem; letter-spacing: 3px; color: white; margin-bottom: 1.25rem; }
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem; }
@@ -794,17 +802,17 @@
           const gc = (h.overallGain ?? 0) >= 0 ? 'pos' : 'neg';
           rows += `<tr>
             <td class="left">${escHtml(h.company_name || '')} <span class="ticker-badge">${escHtml(h.ticker || '')}</span></td>
-            <td>${fmt(h.shares, 4)}</td>
-            <td>${fmtC(h.avg_price)}</td>
-            <td>${fmtC(h.cost)}</td>
-            <td class="${h.price ? '' : ''}">${h.price ? fmtC(h.price) : (pricesLoaded ? '—' : '<span class="skeleton" style="width:60px;height:0.9em;display:inline-block">&nbsp;</span>')}</td>
-            <td>${h.marketValue != null ? fmtC(h.marketValue) : (pricesLoaded ? '—' : '<span class="skeleton" style="width:70px;height:0.9em;display:inline-block">&nbsp;</span>')}</td>
-            <td class="${dc}">${h.dayChange != null ? (h.dayChange >= 0 ? '+' : '') + fmtC(h.dayChange) : (pricesLoaded ? '—' : '<span class="skeleton" style="width:55px;height:0.9em;display:inline-block">&nbsp;</span>')}</td>
+            <td class="col-hide-mobile">${fmt(h.shares, 4)}</td>
+            <td class="col-hide-mobile">${fmtC(h.avg_price)}</td>
+            <td class="col-hide-mobile">${fmtC(h.cost)}</td>
+            <td>${h.price ? fmtC(h.price) : (pricesLoaded ? '—' : '<span class="skeleton" style="width:60px;height:0.9em;display:inline-block">&nbsp;</span>')}</td>
+            <td class="col-hide-mobile">${h.marketValue != null ? fmtC(h.marketValue) : (pricesLoaded ? '—' : '<span class="skeleton" style="width:70px;height:0.9em;display:inline-block">&nbsp;</span>')}</td>
+            <td class="col-hide-mobile ${dc}">${h.dayChange != null ? (h.dayChange >= 0 ? '+' : '') + fmtC(h.dayChange) : (pricesLoaded ? '—' : '<span class="skeleton" style="width:55px;height:0.9em;display:inline-block">&nbsp;</span>')}</td>
             <td class="${dc}">${h.changePct != null ? (h.changePct >= 0 ? '+' : '') + fmt(h.changePct) + '%' : (pricesLoaded ? '—' : '<span class="skeleton" style="width:45px;height:0.9em;display:inline-block">&nbsp;</span>')}</td>
-            <td class="${gc}">${h.overallGain != null ? (h.overallGain >= 0 ? '+' : '') + fmtC(h.overallGain) : '—'}</td>
+            <td class="col-hide-mobile ${gc}">${h.overallGain != null ? (h.overallGain >= 0 ? '+' : '') + fmtC(h.overallGain) : '—'}</td>
             <td class="${gc}">${h.overallGain != null && h.cost > 0 ? (h.overallGain >= 0 ? '+' : '') + fmt((h.overallGain / h.cost) * 100) + '%' : '—'}</td>
-            <td class="muted">${h.weight != null ? fmt(h.weight) + '%' : '—'}</td>
-            <td class="muted">${h.annual_dividend ? fmtC((h.shares || 0) * h.annual_dividend / 12) + '/mo' : '—'}</td>
+            <td class="col-hide-mobile muted">${h.weight != null ? fmt(h.weight) + '%' : '—'}</td>
+            <td class="col-hide-mobile muted">${h.annual_dividend ? fmtC((h.shares || 0) * h.annual_dividend / 12) + '/mo' : '—'}</td>
             <td style="white-space:nowrap"><button class="btn-edit-row" data-edit-id="${h.id}">✎</button><button class="btn-delete-row" data-delete-id="${h.id}" data-delete-name="${escHtml(h.company_name || h.ticker || '')}">✕</button></td>
           </tr>`;
         });
@@ -812,24 +820,26 @@
     const tgPct = totalCost > 0 ? (totalGain / totalCost) * 100 : 0;
     const tdPct = (totalMv - totalDay) > 0 ? (totalDay / (totalMv - totalDay)) * 100 : 0;
     rows += `<tr class="total-row">
-      <td class="left">Total</td><td></td><td></td>
-      <td>${fmtC(totalCost)}</td><td></td>
-      <td>${fmtC(totalMv)}</td>
-      <td class="${totalDay >= 0 ? 'pos' : 'neg'}">${totalDay >= 0 ? '+' : ''}${fmtC(totalDay)}</td>
+      <td class="left">Total</td>
+      <td class="col-hide-mobile"></td><td class="col-hide-mobile"></td>
+      <td class="col-hide-mobile">${fmtC(totalCost)}</td>
+      <td></td>
+      <td class="col-hide-mobile">${fmtC(totalMv)}</td>
+      <td class="col-hide-mobile ${totalDay >= 0 ? 'pos' : 'neg'}">${totalDay >= 0 ? '+' : ''}${fmtC(totalDay)}</td>
       <td class="${totalDay >= 0 ? 'pos' : 'neg'}">${totalDay >= 0 ? '+' : ''}${fmt(tdPct)}%</td>
-      <td class="${totalGain >= 0 ? 'pos' : 'neg'}">${totalGain >= 0 ? '+' : ''}${fmtC(totalGain)}</td>
+      <td class="col-hide-mobile ${totalGain >= 0 ? 'pos' : 'neg'}">${totalGain >= 0 ? '+' : ''}${fmtC(totalGain)}</td>
       <td class="${totalGain >= 0 ? 'pos' : 'neg'}">${totalGain >= 0 ? '+' : ''}${fmt(tgPct)}%</td>
-      <td class="muted">100%</td><td></td><td></td>
+      <td class="col-hide-mobile muted">100%</td><td class="col-hide-mobile"></td><td></td>
     </tr>`;
 
     return `<table class="holdings">
       <thead><tr>
         <th class="left">Company</th>
-        <th>Shares</th><th>Avg Price</th><th>Investment</th>
-        <th>Market Price</th><th>Market Value</th>
-        <th>Day $</th><th>Day %</th>
-        <th>Gain $</th><th>Gain %</th>
-        <th>Weight</th><th>Monthly Div</th><th></th>
+        <th class="col-hide-mobile">Shares</th><th class="col-hide-mobile">Avg Price</th><th class="col-hide-mobile">Investment</th>
+        <th>Market Price</th><th class="col-hide-mobile">Market Value</th>
+        <th class="col-hide-mobile">Day $</th><th>Day %</th>
+        <th class="col-hide-mobile">Gain $</th><th>Gain %</th>
+        <th class="col-hide-mobile">Weight</th><th class="col-hide-mobile">Monthly Div</th><th></th>
       </tr></thead>
       <tbody>${rows}</tbody>
     </table>`;
