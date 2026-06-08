@@ -640,7 +640,12 @@
     document.getElementById('portfolio-view').style.display = 'none';
     _activePortfolio = null; _activeAccount = null;
     if (_priceRefreshTimer) { clearInterval(_priceRefreshTimer); _priceRefreshTimer = null; }
+    await _renderHomeCards();
+    // Auto-refresh home prices every 5 minutes
+    _priceRefreshTimer = setInterval(() => _renderHomeCards(), 5 * 60 * 1000);
+  }
 
+  async function _renderHomeCards() {
     if (!_portfolios.length) {
       document.getElementById('portfolio-cards').innerHTML = `<div class="portfolio-card pc-new" onclick="openNewPortfolioModal()">+ Create your first portfolio</div>`;
       return;
