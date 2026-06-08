@@ -2146,7 +2146,7 @@
     const PCT_W = 48, PCT_X = W-PAD-PCT_W; // % badge right-anchored
     const DC_X = PCT_X - 8;         // day $ right-aligned just before badge
     const PRICE_X = TICKER_X + 54;  // current price left-aligned after ticker
-    const HEADER_H = 62, PILL_H=40, FOOTER_H=22;
+    const HEADER_H = 70, PILL_H=40, FOOTER_H=22;
     const SH=22; // section row height
     const bodyH = GL.reduce((s,g)=>s+(GL.length>1?SH:0)+g.rows.length*RH+4,0);
     const H = HEADER_H+PILL_H+10+bodyH+FOOTER_H+4;
@@ -2162,19 +2162,49 @@
     g1.addColorStop(0,'rgba(15,40,90,0.4)'); g1.addColorStop(1,'transparent');
     ctx.fillStyle=g1; ctx.fillRect(0,0,W,H);
 
-    // Header
-    ctx.textAlign='center';
+    // Header — logo left, title right
     const dateStr=new Date().toLocaleDateString('en-CA',{month:'short',day:'numeric',year:'numeric'});
-    // Small label: "MY PORTFOLIO" or "MY PORTFOLIO · TFSA"
-    const acctLabel = _activeAccount ? `My Portfolio · ${_activeAccount.name}` : 'My Portfolio';
-    ctx.font='700 9px Arial'; ctx.fillStyle=SILVER;
-    ctx.fillText(acctLabel.toUpperCase(), W/2, 18);
-    // Date
-    ctx.font='600 9px Arial'; ctx.fillStyle=DIM;
-    ctx.fillText(dateStr, W/2, 32);
-    // Title — portfolio name
-    ctx.font='bold 17px Arial'; ctx.fillStyle=WHITE;
-    ctx.fillText(_activePortfolio?.name||'My Portfolio', W/2, 56);
+    const LOGO_SIZE=36, LOGO_X=PAD, LOGO_Y=PAD;
+
+    const drawHeader = () => {
+      // Portfolio name — large, right of logo
+      const titleX = LOGO_X + LOGO_SIZE + 10;
+      const portfolioName = _activePortfolio?.name || 'My Portfolio';
+      const acctSub = _activeAccount ? _activeAccount.name.toUpperCase() : 'PORTFOLIO';
+      // Sub label
+      ctx.textAlign='left'; ctx.font='700 8px Arial'; ctx.fillStyle=GOLD;
+      ctx.fillText('PARIEUR DISCIPLINE', titleX, LOGO_Y+11);
+      // Portfolio name
+      ctx.font='bold 16px Arial'; ctx.fillStyle=WHITE;
+      ctx.fillText(portfolioName, titleX, LOGO_Y+28);
+      // Date
+      ctx.font='500 8px Arial'; ctx.fillStyle=SILVER;
+      ctx.fillText(dateStr, titleX, LOGO_Y+42);
+      // Gold accent line under name
+      ctx.strokeStyle=GOLD; ctx.lineWidth=1.5;
+      ctx.beginPath(); ctx.moveTo(titleX, LOGO_Y+32); ctx.lineTo(titleX+ctx.measureText(portfolioName).width+4, LOGO_Y+32); ctx.stroke();
+    };
+
+    // Try to draw logo, then header text
+    const logoImg = new Image();
+    logoImg.src = '/parieur_discipline_icon_1024.png';
+    await new Promise(resolve => {
+      logoImg.onload = () => {
+        ctx.save();
+        ctx.beginPath();
+        const r=6, lx=LOGO_X, ly=LOGO_Y, ls=LOGO_SIZE;
+        ctx.moveTo(lx+r,ly); ctx.lineTo(lx+ls-r,ly); ctx.quadraticCurveTo(lx+ls,ly,lx+ls,ly+r);
+        ctx.lineTo(lx+ls,ly+ls-r); ctx.quadraticCurveTo(lx+ls,ly+ls,lx+ls-r,ly+ls);
+        ctx.lineTo(lx+r,ly+ls); ctx.quadraticCurveTo(lx,ly+ls,lx,ly+ls-r);
+        ctx.lineTo(lx,ly+r); ctx.quadraticCurveTo(lx,ly,lx+r,ly); ctx.closePath();
+        ctx.clip();
+        ctx.drawImage(logoImg, lx, ly, ls, ls);
+        ctx.restore();
+        resolve();
+      };
+      logoImg.onerror = resolve;
+    });
+    drawHeader();
 
     // Gradient divider below header
     const divY=HEADER_H+1;
