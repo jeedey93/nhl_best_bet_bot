@@ -1717,7 +1717,7 @@
     const totPos = totalDay >= 0;
 
     // Layout — narrow and compact
-    const W = 340, PAD = 14, RH = 26;
+    const W = 260, PAD = 12, RH = 26;
     const HEADER_H = 70, PILL_H = 38, PILL_GAP = 6;
     const SH = 20; // section header height
     const FOOTER_H = 20;
@@ -1766,38 +1766,64 @@
         ctx.fillText(g.label.toUpperCase(), PAD, y+14);
         const gPos = g.dayTotal>=0;
         ctx.textAlign='right'; ctx.font='700 10px Arial'; ctx.fillStyle=gPos?GREEN:RED;
-        ctx.fillText(fmt$(g.dayTotal) + '  ' + fmtP(g.dayTotal/(totalVal||1)*100*GL.length), W-PAD, y+14);
+        ctx.fillText(fmt$(g.dayTotal), W-PAD, y+14);
         y += SH+2;
       }
 
-      g.rows.forEach((r,i) => {
+          g.rows.forEach((r,i) => {
         const rPos = r.dc>=0;
         const ry = y + i*RH;
-        // Subtle zebra
+        const mid = ry + RH/2 + 4; // vertical center baseline
+
         if (i%2===0) { ctx.fillStyle='rgba(255,255,255,0.018)'; ctx.fillRect(PAD,ry,W-PAD*2,RH); }
-        // Left bar
         ctx.fillStyle=rPos?GREEN:RED; ctx.fillRect(PAD,ry+5,2,RH-10);
+
+        // Measure all 3 text pieces so we can pack them tightly
+        ctx.font='bold 11px Arial';
+        const tickerTxt = r.ticker;
+        const tickerW = ctx.measureText(tickerTxt).width;
+
+        ctx.font='700 11px Arial';
+        const dcTxt = fmt$(r.dc);
+        const dcW = ctx.measureText(dcTxt).width;
+
+        ctx.font='bold 9px Arial';
+        const pctTxt = fmtP(r.pct);
+        const bW = ctx.measureText(pctTxt).width + 10; // badge width = text + padding
+
+        // Total content width: bar(2) + gap(6) + ticker + gap(8) + dc + gap(6) + badge
+        const totalW = 2 + 6 + tickerW + 8 + dcW + 6 + bW;
+        // Center the whole block
+        const startX = PAD + (W - PAD*2 - totalW) / 2;
+
+        let cx = startX;
+        // Left accent bar
+        ctx.fillStyle=rPos?GREEN:RED; ctx.fillRect(PAD, ry+5, 2, RH-10);
+        cx += 8; // bar + gap
+
         // Ticker
         ctx.textAlign='left'; ctx.font='bold 11px Arial'; ctx.fillStyle=WHITE;
-        ctx.fillText(r.ticker, PAD+8, ry+RH/2+4);
-        // % badge
-        const bW=48, bH=15, bX=W-PAD-bW, bY=ry+(RH-bH)/2;
-        ctx.fillStyle=rPos?'rgba(74,222,128,0.13)':'rgba(248,113,113,0.1)';
-        roundRect(ctx,bX,bY,bW,bH,3); ctx.fill();
-        ctx.font='bold 9px Arial'; ctx.fillStyle=rPos?GREEN:RED; ctx.textAlign='center';
-        ctx.fillText(fmtP(r.pct), bX+bW/2, bY+11);
+        ctx.fillText(tickerTxt, cx, mid);
+        cx += tickerW + 8;
+
         // Day $
-        ctx.textAlign='right'; ctx.font='700 11px Arial'; ctx.fillStyle=rPos?GREEN:RED;
-        ctx.fillText(fmt$(r.dc), W-PAD-bW-6, ry+RH/2+4);
-        // Divider
+        ctx.font='700 11px Arial'; ctx.fillStyle=rPos?GREEN:RED;
+        ctx.fillText(dcTxt, cx, mid);
+        cx += dcW + 6;
+
+        // % badge
+        const bH=15, bY=ry+(RH-bH)/2;
+        ctx.fillStyle=rPos?'rgba(74,222,128,0.13)':'rgba(248,113,113,0.1)';
+        roundRect(ctx,cx,bY,bW,bH,3); ctx.fill();
+        ctx.font='bold 9px Arial'; ctx.fillStyle=rPos?GREEN:RED; ctx.textAlign='center';
+        ctx.fillText(pctTxt, cx+bW/2, bY+11);
+
         if (i<g.rows.length-1) {
           ctx.strokeStyle='rgba(255,255,255,0.04)'; ctx.lineWidth=0.5;
           ctx.beginPath(); ctx.moveTo(PAD+8,ry+RH); ctx.lineTo(W-PAD,ry+RH); ctx.stroke();
         }
       });
-      y += g.rows.length*RH + 6;
 
-      // Group divider
       if (gi<GL.length-1) {
         ctx.strokeStyle='rgba(255,255,255,0.07)'; ctx.lineWidth=0.5;
         ctx.beginPath(); ctx.moveTo(PAD,y-2); ctx.lineTo(W-PAD,y-2); ctx.stroke();
