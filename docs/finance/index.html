@@ -1689,160 +1689,134 @@
     const btn = document.getElementById('btn-share');
     btn.textContent = '⏳'; btn.disabled = true;
 
-    const GREEN = '#4ade80', RED = '#f87171', GOLD = '#ffb81c';
-    const SILVER = '#a8b2be', WHITE = '#ffffff', DIM = '#2a4060', MUTED = '#1e3555';
-
-    const fmt$ = (v) => (v >= 0 ? '+' : '−') + '$' + Math.abs(v).toLocaleString('en-CA', {minimumFractionDigits:2,maximumFractionDigits:2});
-    const fmtP = (v) => (v >= 0 ? '+' : '') + v.toFixed(2) + '%';
+    const GREEN='#4ade80', RED='#f87171', GOLD='#ffb81c', SILVER='#a8b2be', WHITE='#ffffff', DIM='#2a4060';
+    const fmt$ = v => (v>=0?'+':'−')+'$'+Math.abs(v).toLocaleString('en-CA',{minimumFractionDigits:2,maximumFractionDigits:2});
+    const fmtP = v => (v>=0?'+':'')+v.toFixed(2)+'%';
 
     // Build groups
-    const accountMap = Object.fromEntries(_accounts.map(a => [a.id, a.name]));
-    const vis = _activeAccount ? _holdings.filter(h => h.account_id === _activeAccount.id) : _holdings;
-    const groups = {};
-    vis.forEach(h => {
-      const p = _prices[h.ticker]; if (!p?.price) return;
-      const key = h.account_id || 'x';
-      const label = accountMap[h.account_id] || _activeAccount?.name || 'Holdings';
-      if (!groups[key]) groups[key] = { label, rows: [], dayTotal: 0 };
-      const dc = (h.shares||0) * p.change;
-      groups[key].dayTotal += dc;
-      groups[key].rows.push({ ticker:(h.ticker||'').replace(/^TSX:|^NYSE:|^NASDAQ:/i,''), dc, pct: p.changePct??0 });
+    const accountMap = Object.fromEntries(_accounts.map(a=>[a.id,a.name]));
+    const vis = _activeAccount ? _holdings.filter(h=>h.account_id===_activeAccount.id) : _holdings;
+    const groups={};
+    vis.forEach(h=>{
+      const p=_prices[h.ticker]; if(!p?.price) return;
+      const key=h.account_id||'x';
+      if(!groups[key]) groups[key]={label:accountMap[h.account_id]||_activeAccount?.name||'Holdings',rows:[],dayTotal:0};
+      const dc=(h.shares||0)*p.change;
+      groups[key].dayTotal+=dc;
+      groups[key].rows.push({ticker:(h.ticker||'').replace(/^TSX:|^NYSE:|^NASDAQ:/i,''),dc,pct:p.changePct??0});
     });
-    const GL = Object.values(groups);
-    GL.forEach(g => g.rows.sort((a,b) => b.dc - a.dc));
+    const GL=Object.values(groups);
+    GL.forEach(g=>g.rows.sort((a,b)=>b.dc-a.dc));
+    const totalDay=GL.reduce((s,g)=>s+g.dayTotal,0);
+    const totalVal=vis.reduce((s,h)=>{const p=_prices[h.ticker];return s+(p?(h.shares||0)*p.price:0);},0);
+    const dayPct=(totalVal-totalDay)>0?(totalDay/(totalVal-totalDay))*100:0;
 
-    const totalDay = GL.reduce((s,g) => s + g.dayTotal, 0);
-    const totalVal = vis.reduce((s,h) => { const p=_prices[h.ticker]; return s+(p?(h.shares||0)*p.price:0); },0);
-    const dayPct = (totalVal-totalDay)>0 ? (totalDay/(totalVal-totalDay))*100 : 0;
-    const totPos = totalDay >= 0;
+    // Fixed layout
+    const W=280, PAD=16, RH=28;
+    const TICKER_X = PAD+10;        // left-aligned ticker
+    const PCT_W = 52, PCT_X = W-PAD-PCT_W; // % badge right-anchored
+    const DC_X = PCT_X - 8;         // day $ right-aligned just before badge
+    const HEADER_H = 68, PILL_H=40, FOOTER_H=22;
+    const SH=22; // section row height
+    const bodyH = GL.reduce((s,g)=>s+(GL.length>1?SH:0)+g.rows.length*RH+4,0);
+    const H = HEADER_H+PILL_H+10+bodyH+FOOTER_H+4;
 
-    // Layout — narrow and compact
-    const W = 260, PAD = 12, RH = 26;
-    const HEADER_H = 70, PILL_H = 38, PILL_GAP = 6;
-    const SH = 20; // section header height
-    const FOOTER_H = 20;
-    const bodyH = GL.reduce((s,g) => s + (GL.length>1 ? SH+4 : 0) + g.rows.length*RH + 6, 0);
-    const H = HEADER_H + PILL_H + PILL_GAP + bodyH + FOOTER_H + 8;
-
-    const canvas = document.createElement('canvas');
-    canvas.width = W*2; canvas.height = H*2;
-    const ctx = canvas.getContext('2d');
+    const canvas=document.createElement('canvas');
+    canvas.width=W*2; canvas.height=H*2;
+    const ctx=canvas.getContext('2d');
     ctx.scale(2,2);
 
-    // Background
-    ctx.fillStyle = '#07111f'; ctx.fillRect(0,0,W,H);
-    const grd = ctx.createLinearGradient(0,0,0,H*0.5);
-    grd.addColorStop(0,'rgba(15,40,90,0.4)'); grd.addColorStop(1,'rgba(7,17,31,0)');
-    ctx.fillStyle = grd; ctx.fillRect(0,0,W,H);
+    // BG
+    ctx.fillStyle='#07111f'; ctx.fillRect(0,0,W,H);
+    const g1=ctx.createLinearGradient(0,0,0,H*0.5);
+    g1.addColorStop(0,'rgba(15,40,90,0.4)'); g1.addColorStop(1,'transparent');
+    ctx.fillStyle=g1; ctx.fillRect(0,0,W,H);
 
     // Header
     ctx.textAlign='center';
-    ctx.font='600 8px Arial'; ctx.fillStyle=GOLD;
-    ctx.fillText('PARIEUR DISCIPLINÉ', W/2, 13);
-    ctx.font='bold 18px Arial'; ctx.fillStyle=WHITE;
-    ctx.fillText(_activePortfolio?.name||'Portfolio', W/2, 36);
-    const sub = _activeAccount ? _activeAccount.name : new Date().toLocaleDateString('en-CA',{month:'short',day:'numeric',year:'numeric'});
-    ctx.font='10px Arial'; ctx.fillStyle=SILVER;
-    ctx.fillText(sub, W/2, 51);
-    if (_activeAccount) { ctx.font='9px Arial'; ctx.fillStyle=DIM; ctx.fillText(new Date().toLocaleDateString('en-CA',{month:'short',day:'numeric',year:'numeric'}), W/2, 64); }
+    ctx.font='600 8px Arial'; ctx.fillStyle=GOLD; ctx.fillText('PARIEUR DISCIPLINÉ',W/2,14);
+    ctx.font='bold 20px Arial'; ctx.fillStyle=WHITE; ctx.fillText(_activePortfolio?.name||'Portfolio',W/2,40);
+    const dateStr=new Date().toLocaleDateString('en-CA',{month:'short',day:'numeric',year:'numeric'});
+    const sub=_activeAccount?_activeAccount.name:dateStr;
+    ctx.font='11px Arial'; ctx.fillStyle=SILVER; ctx.fillText(sub,W/2,56);
+    if(_activeAccount){ctx.font='9px Arial';ctx.fillStyle=DIM;ctx.fillText(dateStr,W/2,67);}
 
     // Day pill
-    const PY = HEADER_H;
-    ctx.fillStyle = totPos ? 'rgba(74,222,128,0.1)' : 'rgba(248,113,113,0.08)';
-    roundRect(ctx, PAD, PY, W-PAD*2, PILL_H, 8); ctx.fill();
-    ctx.strokeStyle = totPos ? 'rgba(74,222,128,0.35)' : 'rgba(248,113,113,0.3)'; ctx.lineWidth=0.75;
-    roundRect(ctx, PAD, PY, W-PAD*2, PILL_H, 8); ctx.stroke();
-    ctx.font='bold 17px Arial'; ctx.fillStyle = totPos?GREEN:RED;
-    ctx.fillText(fmt$(totalDay), W/2, PY+22);
-    ctx.font='600 9px Arial'; ctx.fillStyle = totPos?'rgba(74,222,128,0.55)':'rgba(248,113,113,0.55)';
-    ctx.fillText(fmtP(dayPct) + '  ·  Day Change', W/2, PY+35);
+    const totPos=totalDay>=0;
+    const PY=HEADER_H+2;
+    ctx.fillStyle=totPos?'rgba(74,222,128,0.1)':'rgba(248,113,113,0.08)';
+    roundRect(ctx,PAD,PY,W-PAD*2,PILL_H,8);ctx.fill();
+    ctx.strokeStyle=totPos?'rgba(74,222,128,0.35)':'rgba(248,113,113,0.3)';ctx.lineWidth=0.75;
+    roundRect(ctx,PAD,PY,W-PAD*2,PILL_H,8);ctx.stroke();
+    ctx.font='bold 18px Arial'; ctx.fillStyle=totPos?GREEN:RED;
+    ctx.fillText(fmt$(totalDay),W/2,PY+22);
+    ctx.font='600 9px Arial'; ctx.fillStyle=totPos?'rgba(74,222,128,0.55)':'rgba(248,113,113,0.55)';
+    ctx.fillText(fmtP(dayPct)+' · Day Change',W/2,PY+36);
 
     // Rows
-    let y = HEADER_H + PILL_H + PILL_GAP + 6;
-    GL.forEach((g, gi) => {
-      // Account header (only when multiple accounts)
-      if (GL.length > 1) {
-        ctx.textAlign='left'; ctx.font='700 8px Arial'; ctx.fillStyle=GOLD;
-        ctx.fillText(g.label.toUpperCase(), PAD, y+14);
-        const gPos = g.dayTotal>=0;
+    let y=HEADER_H+PILL_H+12;
+    GL.forEach((g,gi)=>{
+      // Account header
+      if(GL.length>1){
+        const gPos=g.dayTotal>=0;
+        ctx.fillStyle='rgba(255,255,255,0.03)';
+        ctx.fillRect(PAD,y,W-PAD*2,SH);
+        ctx.textAlign='left'; ctx.font='700 9px Arial'; ctx.fillStyle=GOLD;
+        ctx.fillText(g.label.toUpperCase(),PAD+6,y+SH/2+4);
         ctx.textAlign='right'; ctx.font='700 10px Arial'; ctx.fillStyle=gPos?GREEN:RED;
-        ctx.fillText(fmt$(g.dayTotal), W-PAD, y+14);
-        y += SH+2;
+        ctx.fillText(fmt$(g.dayTotal),W-PAD-2,y+SH/2+4);
+        y+=SH+2;
       }
 
-          g.rows.forEach((r,i) => {
-        const rPos = r.dc>=0;
-        const ry = y + i*RH;
-        const mid = ry + RH/2 + 4; // vertical center baseline
+      g.rows.forEach((r,i)=>{
+        const rPos=r.dc>=0;
+        const ry=y+i*RH;
+        const cy=ry+RH/2+4; // text baseline
 
-        if (i%2===0) { ctx.fillStyle='rgba(255,255,255,0.018)'; ctx.fillRect(PAD,ry,W-PAD*2,RH); }
-        ctx.fillStyle=rPos?GREEN:RED; ctx.fillRect(PAD,ry+5,2,RH-10);
+        if(i%2===0){ctx.fillStyle='rgba(255,255,255,0.016)';ctx.fillRect(PAD,ry,W-PAD*2,RH);}
+        ctx.fillStyle=rPos?GREEN:RED; ctx.fillRect(PAD,ry+6,2,RH-12);
 
-        // Measure all 3 text pieces so we can pack them tightly
-        ctx.font='bold 11px Arial';
-        const tickerTxt = r.ticker;
-        const tickerW = ctx.measureText(tickerTxt).width;
+        // Ticker — left
+        ctx.textAlign='left'; ctx.font='bold 12px Arial'; ctx.fillStyle=WHITE;
+        ctx.fillText(r.ticker,TICKER_X,cy);
 
-        ctx.font='700 11px Arial';
-        const dcTxt = fmt$(r.dc);
-        const dcW = ctx.measureText(dcTxt).width;
+        // Day $ — right-aligned at DC_X
+        ctx.textAlign='right'; ctx.font='700 11px Arial'; ctx.fillStyle=rPos?GREEN:RED;
+        ctx.fillText(fmt$(r.dc),DC_X,cy);
 
-        ctx.font='bold 9px Arial';
-        const pctTxt = fmtP(r.pct);
-        const bW = ctx.measureText(pctTxt).width + 10; // badge width = text + padding
-
-        // Total content width: bar(2) + gap(6) + ticker + gap(8) + dc + gap(6) + badge
-        const totalW = 2 + 6 + tickerW + 8 + dcW + 6 + bW;
-        // Center the whole block
-        const startX = PAD + (W - PAD*2 - totalW) / 2;
-
-        let cx = startX;
-        // Left accent bar
-        ctx.fillStyle=rPos?GREEN:RED; ctx.fillRect(PAD, ry+5, 2, RH-10);
-        cx += 8; // bar + gap
-
-        // Ticker
-        ctx.textAlign='left'; ctx.font='bold 11px Arial'; ctx.fillStyle=WHITE;
-        ctx.fillText(tickerTxt, cx, mid);
-        cx += tickerW + 8;
-
-        // Day $
-        ctx.font='700 11px Arial'; ctx.fillStyle=rPos?GREEN:RED;
-        ctx.fillText(dcTxt, cx, mid);
-        cx += dcW + 6;
-
-        // % badge
-        const bH=15, bY=ry+(RH-bH)/2;
+        // % badge — right edge
+        const bH=16, bY=ry+(RH-bH)/2;
         ctx.fillStyle=rPos?'rgba(74,222,128,0.13)':'rgba(248,113,113,0.1)';
-        roundRect(ctx,cx,bY,bW,bH,3); ctx.fill();
+        roundRect(ctx,PCT_X,bY,PCT_W,bH,3);ctx.fill();
         ctx.font='bold 9px Arial'; ctx.fillStyle=rPos?GREEN:RED; ctx.textAlign='center';
-        ctx.fillText(pctTxt, cx+bW/2, bY+11);
+        ctx.fillText(fmtP(r.pct),PCT_X+PCT_W/2,bY+12);
 
-        if (i<g.rows.length-1) {
-          ctx.strokeStyle='rgba(255,255,255,0.04)'; ctx.lineWidth=0.5;
-          ctx.beginPath(); ctx.moveTo(PAD+8,ry+RH); ctx.lineTo(W-PAD,ry+RH); ctx.stroke();
+        // Row divider
+        if(i<g.rows.length-1){
+          ctx.strokeStyle='rgba(255,255,255,0.04)';ctx.lineWidth=0.5;
+          ctx.beginPath();ctx.moveTo(TICKER_X,ry+RH);ctx.lineTo(W-PAD,ry+RH);ctx.stroke();
         }
       });
+      y+=g.rows.length*RH+4;
 
-      if (gi<GL.length-1) {
-        ctx.strokeStyle='rgba(255,255,255,0.07)'; ctx.lineWidth=0.5;
-        ctx.beginPath(); ctx.moveTo(PAD,y-2); ctx.lineTo(W-PAD,y-2); ctx.stroke();
+      if(gi<GL.length-1){
+        ctx.strokeStyle='rgba(255,255,255,0.07)';ctx.lineWidth=0.5;
+        ctx.beginPath();ctx.moveTo(PAD,y);ctx.lineTo(W-PAD,y);ctx.stroke();
         y+=4;
       }
     });
 
     // Footer
     ctx.textAlign='center'; ctx.font='8px Arial'; ctx.fillStyle=DIM;
-    ctx.fillText('parieurdiscipline.com/finance', W/2, H-7);
+    ctx.fillText('parieurdiscipline.com/finance',W/2,H-6);
 
     btn.textContent='📤 Share'; btn.disabled=false;
-
     try {
-      canvas.toBlob(async blob => {
+      canvas.toBlob(async blob=>{
         await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]);
         showToast('📋 Copied to clipboard!');
       },'image/png');
-    } catch(e) {
+    } catch(e){
       const a=document.createElement('a');
       a.download=`snapshot-${new Date().toISOString().slice(0,10)}.png`;
       a.href=canvas.toDataURL('image/png'); a.click();
