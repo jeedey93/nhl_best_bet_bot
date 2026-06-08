@@ -241,6 +241,8 @@
 
     /* ── Allocation chart ── */
     .chart-panel { background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; padding: 1.25rem; display: flex; flex-direction: column; }
+    .chart-wrap { position: relative; width: 100%; }
+    .chart-wrap canvas { position: absolute; top: 0; left: 0; width: 100% !important; height: 100% !important; }
     @media (max-width: 600px) { .chart-panel canvas { max-height: 220px; } }
     .chart-legend { margin-top: 0.85rem; display: flex; flex-direction: column; gap: 0.35rem; }
     .legend-row { display: flex; align-items: center; justify-content: space-between; font-size: 0.78rem; font-weight: 600; }
@@ -938,13 +940,13 @@
         </div>
       </div>
       <div class="charts-row" id="charts-row">
-        <div class="chart-panel chart-panel-fullwidth" style="grid-column:1/-1"><div class="section-title" style="margin-bottom:0.75rem">Portfolio Value</div><canvas id="value-chart"></canvas></div>
+        <div class="chart-panel chart-panel-fullwidth" style="grid-column:1/-1"><div class="section-title" style="margin-bottom:0.75rem">Portfolio Value</div><div class="chart-wrap" style="height:180px"><canvas id="value-chart"></canvas></div></div>
         ${!_activeAccount && _accounts.length > 1 ? `<div class="chart-panel"><div class="section-title" style="margin-bottom:0.75rem">By Account</div><canvas id="account-chart"></canvas><div class="chart-legend" id="account-legend"></div></div>` : ''}
         <div class="chart-panel"><div class="section-title" style="margin-bottom:0.75rem">By Sector</div><canvas id="sector-chart"></canvas><div class="chart-legend" id="sector-legend"></div></div>
-        <div class="chart-panel"><div class="section-title" style="margin-bottom:0.75rem">Gain / Loss</div><canvas id="gainloss-chart"></canvas></div>
-        <div class="chart-panel"><div class="section-title" style="margin-bottom:0.75rem">Monthly Income</div><canvas id="income-chart"></canvas></div>
-        <div class="chart-panel"><div class="section-title" style="margin-bottom:0.75rem">Portfolio Weight</div><canvas id="weight-chart"></canvas></div>
-        <div class="chart-panel chart-hide-mobile"><div class="section-title" style="margin-bottom:0.75rem">Performance Waterfall</div><canvas id="waterfall-chart"></canvas></div>
+        <div class="chart-panel"><div class="section-title" style="margin-bottom:0.75rem">Gain / Loss</div><div class="chart-wrap" id="gainloss-wrap" style="height:200px"><canvas id="gainloss-chart"></canvas></div></div>
+        <div class="chart-panel"><div class="section-title" style="margin-bottom:0.75rem">Monthly Income</div><div class="chart-wrap" style="height:160px"><canvas id="income-chart"></canvas></div></div>
+        <div class="chart-panel"><div class="section-title" style="margin-bottom:0.75rem">Portfolio Weight</div><div class="chart-wrap" id="weight-wrap" style="height:200px"><canvas id="weight-chart"></canvas></div></div>
+        <div class="chart-panel chart-hide-mobile"><div class="section-title" style="margin-bottom:0.75rem">Performance Waterfall</div><div class="chart-wrap" style="height:180px"><canvas id="waterfall-chart"></canvas></div></div>
       </div>
       <div class="dividend-section">
         <div class="holdings-header"><div class="section-title">Upcoming Dividends</div></div>
@@ -1368,8 +1370,6 @@
     const values = holdings.map(h => +h.overallGain.toFixed(2));
     const colors = values.map(v => v >= 0 ? 'rgba(74,222,128,0.75)' : 'rgba(248,113,113,0.75)');
     const borderColors = values.map(v => v >= 0 ? '#4ade80' : '#f87171');
-    const glH = isMobile ? 180 : Math.max(120, holdings.length * 32);
-    canvas.style.height = glH + 'px'; canvas.height = glH * 2;
     _gainLossChart = new Chart(canvas.getContext('2d'), {
       type: 'bar',
       data: { labels, datasets: [{ data: values, backgroundColor: colors, borderColor: borderColors, borderWidth: 1, borderRadius: 4 }] },
@@ -1407,7 +1407,6 @@
       else payMonths = payMonth != null ? [payMonth] : [5];
       payMonths.forEach(m => { monthTotals[m] += annual / (freq === 'monthly' ? 12 : freq === 'quarterly' ? 4 : 1); });
     });
-    canvas.style.height = '160px';
     _incomeChart = new Chart(canvas.getContext('2d'), {
       type: 'bar',
       data: { labels: MONTHS, datasets: [{ data: monthTotals, backgroundColor: 'rgba(255,184,28,0.55)', borderColor: '#ffb81c', borderWidth: 1, borderRadius: 4 }] },
@@ -1432,8 +1431,6 @@
     const labels = holdings.map(h => (h.ticker || h.company_name || '').replace(/^TSX:|^NYSE:/i, ''));
     const values = holdings.map(h => +h.weight.toFixed(2));
     const colors = holdings.map(h => getSectorColor(h.sector));
-    const wtH = isMobile ? 180 : Math.max(120, holdings.length * 32);
-    canvas.style.height = wtH + 'px'; canvas.height = wtH * 2;
     _weightChart = new Chart(canvas.getContext('2d'), {
       type: 'bar',
       data: { labels, datasets: [{ data: values, backgroundColor: colors.map(c => c + 'aa'), borderColor: colors, borderWidth: 1, borderRadius: 4 }] },
@@ -1498,7 +1495,7 @@
     }
 
     if (!snapshots.length) {
-      canvas.style.height = '60px';
+      const wrap = canvas.closest('.chart-wrap'); if (wrap) wrap.style.height = '60px';
       const ctx = canvas.getContext('2d');
       ctx.fillStyle = 'rgba(255,255,255,0.15)';
       ctx.font = '600 12px Barlow Condensed, sans-serif';
@@ -1507,8 +1504,6 @@
       return;
     }
 
-    const vcH = window.innerWidth <= 600 ? 140 : 180;
-    canvas.style.height = vcH + 'px'; canvas.height = vcH * 2;
     const labels = snapshots.map(r => r.snapshot_date);
     const values = snapshots.map(r => r.total_value);
     const costs  = snapshots.map(r => r.total_cost);
