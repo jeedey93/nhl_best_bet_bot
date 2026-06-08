@@ -426,12 +426,14 @@
   async function sbPost(path, body) {
     const r = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, { method: 'POST', headers: { ...sbH(), 'Prefer': 'return=representation' }, body: JSON.stringify(body) });
     if (!r.ok) { const t = await r.text(); throw new Error(t); }
-    return r.json();
+    const text = await r.text();
+    return text ? JSON.parse(text) : [];
   }
   async function sbPatch(path, body) {
     const r = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, { method: 'PATCH', headers: { ...sbH(), 'Prefer': 'return=representation' }, body: JSON.stringify(body) });
     if (!r.ok) { const t = await r.text(); throw new Error(t); }
-    return r.json();
+    const text = await r.text();
+    return text ? JSON.parse(text) : [];
   }
   async function sbDelete(path) {
     const r = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, { method: 'DELETE', headers: sbH() });
@@ -976,7 +978,20 @@
       else await sbPost('finance_holdings', body);
       closeHoldingModal();
       await loadPortfolio(_activePortfolio, null, true);
-    } catch(e) { showToast('Failed to save.', true); }
+    } catch(e) {
+      // If div_pay_date/div_ex_date columns don't exist yet, retry without them
+      if (e.message && e.message.includes('div_pay_date')) {
+        delete body.div_pay_date; delete body.div_ex_date;
+        try {
+          if (id) await sbPatch(`finance_holdings?id=eq.${id}`, body);
+          else await sbPost('finance_holdings', body);
+          closeHoldingModal();
+          await loadPortfolio(_activePortfolio, null, true);
+          return;
+        } catch(_) {}
+      }
+      showToast('Failed to save.', true);
+    }
   }
 
   async function deleteHolding() {
