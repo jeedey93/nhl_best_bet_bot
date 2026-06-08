@@ -244,6 +244,12 @@
 <div class="modal" id="holding-modal">
   <div class="modal-title" id="holding-modal-title">Add Holding</div>
   <input type="hidden" id="hm-id">
+  <div class="form-row full">
+    <div class="form-group">
+      <div class="form-label">Account</div>
+      <select class="form-input" id="hm-account"></select>
+    </div>
+  </div>
   <div class="form-row">
     <div class="form-group">
       <div class="form-label">Company Name</div>
@@ -265,47 +271,20 @@
   </div>
   <div class="form-row">
     <div class="form-group">
-      <div class="form-label">Sector</div>
-      <input class="form-input" id="hm-sector" placeholder="Financials" list="sector-list">
-      <datalist id="sector-list"></datalist>
-    </div>
-    <div class="form-group">
       <div class="form-label">Shares</div>
       <input class="form-input" id="hm-shares" type="number" step="0.0001" placeholder="190.40">
     </div>
-  </div>
-  <div class="form-row">
     <div class="form-group">
       <div class="form-label">Avg Price (CAD)</div>
       <input class="form-input" id="hm-avg-price" type="number" step="0.01" placeholder="47.07">
     </div>
-    <div class="form-group">
-      <div class="form-label">Annual Dividend / Share</div>
-      <input class="form-input" id="hm-dividend" type="number" step="0.01" placeholder="1.56">
-    </div>
   </div>
-  <div class="form-row">
-    <div class="form-group">
-      <div class="form-label">Dividend Frequency</div>
-      <select class="form-input" id="hm-div-freq">
-        <option value="monthly">Monthly</option>
-        <option value="quarterly">Quarterly</option>
-        <option value="annual">Annual</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <div class="form-label">Dividend Month</div>
-      <select class="form-input" id="hm-div-month">
-        <option value="all">Every month / auto</option>
-        <option value="1">January</option><option value="2">February</option>
-        <option value="3">March</option><option value="4">April</option>
-        <option value="5">May</option><option value="6">June</option>
-        <option value="7">July</option><option value="8">August</option>
-        <option value="9">September</option><option value="10">October</option>
-        <option value="11">November</option><option value="12">December</option>
-      </select>
-    </div>
-  </div>
+  <!-- Hidden auto-filled fields -->
+  <input type="hidden" id="hm-sector">
+  <input type="hidden" id="hm-dividend">
+  <input type="hidden" id="hm-div-freq" value="quarterly">
+  <input type="hidden" id="hm-div-month" value="all">
+  <datalist id="sector-list"></datalist>
   <div class="modal-actions">
     <button class="btn-modal-delete" id="hm-delete-btn" onclick="deleteHolding()" style="display:none">Delete</button>
     <button class="btn-modal-cancel" onclick="closeHoldingModal()">Cancel</button>
@@ -886,13 +865,22 @@
   }
 
   // ── Holding modal ─────────────────────────────────────────────────────────
+  function populateAccountSelect(selectedId) {
+    const sel = document.getElementById('hm-account');
+    sel.innerHTML = _accounts.map(a =>
+      `<option value="${a.id}"${a.id === selectedId ? ' selected' : ''}>${escHtml(a.name)}</option>`
+    ).join('');
+    if (!selectedId && _accounts.length) sel.value = _accounts[0].id;
+  }
+
   function openAddHolding() {
     document.getElementById('holding-modal-title').textContent = 'Add Holding';
     document.getElementById('hm-id').value = '';
     ['hm-name','hm-ticker','hm-sector','hm-shares','hm-avg-price','hm-dividend'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('hm-div-month').value = 'all';
-    document.getElementById('hm-div-freq').value = 'monthly';
+    document.getElementById('hm-div-freq').value = 'quarterly';
     document.getElementById('hm-delete-btn').style.display = 'none';
+    populateAccountSelect(_activeAccount?.id || null);
     const sectors = [...new Set(_holdings.map(h => h.sector).filter(Boolean))];
     document.getElementById('sector-list').innerHTML = sectors.map(s => `<option value="${escHtml(s)}">`).join('');
     document.getElementById('holding-backdrop').classList.add('show');
@@ -936,6 +924,7 @@
     document.getElementById('hm-div-month').value = h.div_month || 'all';
     document.getElementById('hm-div-freq').value = h.div_freq || 'monthly';
     document.getElementById('hm-delete-btn').style.display = 'inline-block';
+    populateAccountSelect(h.account_id || null);
     document.getElementById('holding-backdrop').classList.add('show');
     document.getElementById('holding-modal').classList.add('show');
   }
@@ -950,7 +939,7 @@
     const id = document.getElementById('hm-id').value;
     const body = {
       portfolio_id: _activePortfolio.id,
-      account_id: _activeAccount?.id || null,
+      account_id: document.getElementById('hm-account').value || null,
       company_name: document.getElementById('hm-name').value.trim(),
       ticker: document.getElementById('hm-ticker').value.trim().toUpperCase(),
       sector: document.getElementById('hm-sector').value.trim() || 'Other',
