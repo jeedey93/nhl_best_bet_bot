@@ -778,7 +778,8 @@
       fetchPrices();
       startPriceRefresh();
     } catch(e) {
-      document.getElementById('portfolio-content').innerHTML = `<div class="empty-state">Failed to load.</div>`;
+      console.error('loadPortfolio failed:', e.message, e.stack);
+      document.getElementById('portfolio-content').innerHTML = `<div class="empty-state" style="color:rgba(255,100,100,0.8);font-size:0.75rem;text-align:left;padding:1rem;white-space:pre-wrap">${e.message}\n\n${(e.stack||'').slice(0,600)}</div>`;
     }
   }
 
