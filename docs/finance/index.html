@@ -779,7 +779,7 @@
       startPriceRefresh();
     } catch(e) {
       console.error('loadPortfolio failed:', e.message, e.stack);
-      document.getElementById('portfolio-content').innerHTML = `<div class="empty-state" style="color:rgba(255,100,100,0.8);font-size:0.75rem;text-align:left;padding:1rem;white-space:pre-wrap">${e.message}\n\n${(e.stack||'').slice(0,600)}</div>`;
+      document.getElementById('portfolio-content').innerHTML = `<div class="empty-state">Failed to load.</div>`;
     }
   }
 
@@ -878,6 +878,7 @@
         if (h.dayChange != null && accountDayMap[h.account_id]) accountDayMap[h.account_id].day += h.dayChange;
       });
     }
+    const totalGain = totalValue - totalCost;
     const totalGainPct = totalCost > 0 ? (totalGain / totalCost) * 100 : 0;
     const totalDayPct = (totalValue - totalDayChange) > 0 ? (totalDayChange / (totalValue - totalDayChange)) * 100 : 0;
     const dayClr = totalDayChange >= 0 ? 'green' : 'red';
