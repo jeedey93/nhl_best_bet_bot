@@ -2070,11 +2070,13 @@
     const rows = holdings.map(h => {
       const dc = h.day_change || 0;
       const dcPos = dc >= 0;
+      const prevVal = (h.market_value || 0) - dc;
+      const dcPct = prevVal !== 0 ? (dc / prevVal) * 100 : 0;
       return `<tr>
         <td class="left">${escHtml(h.ticker||'')} <span style="color:rgba(255,255,255,0.3);font-size:0.75rem">${escHtml((h.company_name||'').split(' ').slice(0,2).join(' '))}</span></td>
         <td>${fmtC(h.market_value)}</td>
         <td class="${dcPos?'pos':'neg'}">${dcPos?'+':''}${fmtC(dc)}</td>
-        <td class="${dcPos?'pos':'neg'}">${(h.day_change_pct||0)>=0?'+':''}${fmt(h.day_change_pct||0)}%</td>
+        <td class="${dcPos?'pos':'neg'}">${dcPct>=0?'+':''}${fmt(dcPct)}%</td>
       </tr>`;
     }).join('');
 
