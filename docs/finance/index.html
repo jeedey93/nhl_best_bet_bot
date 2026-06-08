@@ -111,11 +111,30 @@
     table.holdings tr.account-row td { font-family: 'Bebas Neue', cursive; font-size: 0.8rem; letter-spacing: 2px; color: var(--silver); background: rgba(255,255,255,0.035); padding: 0.4rem 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.08); opacity: 0.7; }
     table.holdings tr.subtotal-row td { background: rgba(255,184,28,0.04); border-top: 1px solid rgba(255,255,255,0.06); font-family: 'Bebas Neue', cursive; font-size: 0.82rem; color: rgba(255,255,255,0.4); }
     table.holdings tr.total-row td { background: rgba(255,255,255,0.04); font-family: 'Bebas Neue', cursive; font-size: 0.9rem; border-top: 1px solid rgba(255,255,255,0.1); border-bottom: none; }
-    /* Mobile: hide less important columns, reduce min-width */
+    /* Mobile: hide table, show cards instead */
     @media (max-width: 700px) {
-      table.holdings { min-width: 420px; }
-      table.holdings .col-hide-mobile { display: none; }
+      .holdings-table-wrap { overflow-x: visible; background: none; border: none; border-radius: 0; }
+      .holdings-table-wrap::after { display: none; }
+      table.holdings { display: none; }
+      .holding-cards { display: flex; flex-direction: column; gap: 0.5rem; }
     }
+    @media (min-width: 701px) { .holding-cards { display: none; } }
+    .holding-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; padding: 0.75rem 0.9rem; cursor: pointer; transition: background 0.12s; border-left: 3px solid rgba(255,255,255,0.08); }
+    .holding-card.assigned { border-left-color: var(--gold); }
+    .holding-card:active { background: rgba(255,255,255,0.06); }
+    .hc-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.4rem; }
+    .hc-name { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 1.5px; color: white; }
+    .hc-ticker { font-size: 0.7rem; font-weight: 700; color: rgba(255,255,255,0.3); margin-left: 0.35rem; }
+    .hc-price { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 1px; color: rgba(255,255,255,0.6); }
+    .hc-mid { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.35rem; }
+    .hc-sector { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.8px; border-radius: 4px; padding: 1px 6px; }
+    .hc-day { font-family: 'Bebas Neue', cursive; font-size: 1.1rem; letter-spacing: 1px; }
+    .hc-daypct { font-size: 0.78rem; font-weight: 700; margin-left: 0.3rem; }
+    .hc-bottom { display: flex; align-items: center; justify-content: space-between; }
+    .hc-gain { font-size: 0.8rem; font-weight: 700; }
+    .hc-meta { font-size: 0.72rem; font-weight: 600; color: rgba(255,255,255,0.3); }
+    .hc-account-label { font-family: 'Bebas Neue', cursive; font-size: 0.72rem; letter-spacing: 2px; color: var(--gold); opacity: 0.7; padding: 0.3rem 0; margin-top: 0.25rem; }
+    .hc-subtotal { background: rgba(255,184,28,0.04); border: 1px solid rgba(255,184,28,0.1); border-radius: 8px; padding: 0.4rem 0.9rem; display: flex; justify-content: space-between; font-family: 'Bebas Neue', cursive; font-size: 0.82rem; color: rgba(255,255,255,0.4); }
     .ticker-badge { font-family: 'Bebas Neue', cursive; font-size: 0.78rem; letter-spacing: 1px; color: rgba(255,255,255,0.3); margin-left: 0.4rem; }
     .sector-badge { display: inline-block; font-family: 'Barlow Condensed', sans-serif; font-size: 0.62rem; font-weight: 700; letter-spacing: 0.8px; border-radius: 4px; padding: 1px 6px; margin-left: 0.4rem; vertical-align: middle; }
 
@@ -1091,11 +1110,75 @@
       <td class="col-hide-mobile muted">100%</td><td class="col-hide-mobile"></td><td></td>
     </tr>`;
 
-    const sc = _holdingsSort.col;
-    const sd = _holdingsSort.dir;
-    const arr = (col) => sc === col ? (sd === -1 ? ' ↓' : ' ↑') : '';
-    const sh = (col, label, cls='') =>
-      `<th class="sort-th${cls ? ' '+cls : ''}" onclick="setHoldingsSort('${col}')" style="cursor:pointer;user-select:none">${label}${arr(col)}</th>`;
+    // ── Mobile cards ──
+    const accountMap = Object.fromEntries(_accounts.map(a => [a.id, a.name]));
+    const showAccLabels = !_activeAccount && _accounts.length > 1;
+    let cards = '';
+    let lastAccId = '__none__';
+    let grpCost = 0, grpMv = 0, grpDay = 0;
+
+    const allForCards = [];
+    for (const { accountName, bySector } of groups) {
+      Object.values(bySector).flat().forEach(h => allForCards.push({ ...h, _accLabel: accountName }));
+    }
+
+    allForCards.forEach((h, i) => {
+      const accId = h.account_id || 'other';
+      // Account label + subtotal for previous group
+      if (showAccLabels && accId !== lastAccId) {
+        if (lastAccId !== '__none__') {
+          const sgPct = (grpMv - grpDay) > 0 ? (grpDay / (grpMv - grpDay)) * 100 : 0;
+          cards += `<div class="hc-subtotal">
+            <span>${escHtml(accountMap[lastAccId] || 'Other')} subtotal</span>
+            <span class="${grpDay >= 0 ? 'pos' : 'neg'}">${grpDay >= 0 ? '+' : ''}${fmtC(grpDay)} (${grpDay >= 0 ? '+' : ''}${fmt(sgPct)}%)</span>
+          </div>`;
+          grpCost = 0; grpMv = 0; grpDay = 0;
+        }
+        cards += `<div class="hc-account-label">${escHtml(h._accLabel || accountMap[accId] || 'Other')}</div>`;
+        lastAccId = accId;
+      }
+
+      const mv = h.marketValue ?? h.cost;
+      grpMv += mv; grpCost += h.cost;
+      if (h.dayChange != null) grpDay += h.dayChange;
+
+      const dcPos = (h.dayChange ?? 0) >= 0;
+      const gcPos = (h.overallGain ?? 0) >= 0;
+      const sectorColor = getSectorColor(h.sector);
+      cards += `<div class="holding-card${h.dayChange != null ? ' assigned' : ''}" onclick="openCompanyProfile('${h.ticker}','${escHtml(h.company_name||h.ticker).replace(/'/g,"&#39;")}')">
+        <div class="hc-top">
+          <div><span class="hc-name">${escHtml(h.company_name?.split(' ').slice(0,3).join(' ') || '')}</span><span class="hc-ticker">${escHtml(h.ticker||'')}</span></div>
+          <div class="hc-price">${h.price ? fmtC(h.price) : (pricesLoaded ? '—' : '<span class="skeleton-cell" style="width:50px;display:inline-block">&nbsp;</span>')}</div>
+        </div>
+        <div class="hc-mid">
+          ${h.sector ? `<span class="hc-sector" style="background:${sectorColor}22;color:${sectorColor};border:1px solid ${sectorColor}44">${escHtml(h.sector)}</span>` : '<span></span>'}
+          <div>
+            <span class="hc-day ${dcPos ? 'pos' : 'neg'}">${h.dayChange != null ? (dcPos?'+':'') + fmtC(h.dayChange) : (pricesLoaded ? '—' : '<span class="skeleton-cell" style="width:55px;display:inline-block">&nbsp;</span>')}</span>
+            <span class="hc-daypct ${dcPos ? 'pos' : 'neg'}">${h.changePct != null ? (dcPos?'+':'') + fmt(h.changePct) + '%' : ''}</span>
+          </div>
+        </div>
+        <div class="hc-bottom">
+          <div>
+            <span class="hc-gain ${gcPos ? 'pos' : 'neg'}">${h.overallGain != null ? (gcPos?'+':'') + fmtC(h.overallGain) : '—'}</span>
+            ${h.overallGain != null && h.cost > 0 ? `<span class="hc-daypct ${gcPos?'pos':'neg'}"> (${gcPos?'+':''}${fmt((h.overallGain/h.cost)*100)}%)</span>` : ''}
+          </div>
+          <div class="hc-meta">${h.weight != null ? fmt(h.weight) + '%' : ''} · ${h.annual_dividend ? fmtC((h.shares||0)*h.annual_dividend/12)+'/mo' : '—'}</div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;gap:0.4rem;margin-top:0.4rem" onclick="event.stopPropagation()">
+          <button class="btn-edit-row" onclick="openEditHolding('${h.id}')">✎</button>
+          <button class="btn-delete-row" onclick="quickDeleteHolding('${h.id}','${escHtml(h.company_name||h.ticker||'')}')">✕</button>
+        </div>
+      </div>`;
+    });
+
+    // Final group subtotal
+    if (showAccLabels && lastAccId !== '__none__') {
+      const sgPct = (grpMv - grpDay) > 0 ? (grpDay / (grpMv - grpDay)) * 100 : 0;
+      cards += `<div class="hc-subtotal">
+        <span>${escHtml(accountMap[lastAccId] || 'Other')} subtotal</span>
+        <span class="${grpDay >= 0 ? 'pos' : 'neg'}">${grpDay >= 0 ? '+' : ''}${fmtC(grpDay)} (${grpDay >= 0 ? '+' : ''}${fmt(sgPct)}%)</span>
+      </div>`;
+    }
 
     return `<table class="holdings">
       <thead><tr>
@@ -1107,7 +1190,8 @@
         ${sh('weight','Weight','col-hide-mobile')}${sh('divmo','Monthly Div','col-hide-mobile')}<th></th>
       </tr></thead>
       <tbody>${rows}</tbody>
-    </table>`;
+    </table>
+    <div class="holding-cards">${cards}</div>`;
   }
 
   function buildUpcomingDividends(enriched) {
