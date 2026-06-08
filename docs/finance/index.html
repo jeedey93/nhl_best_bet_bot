@@ -855,7 +855,15 @@
     });
     enriched.forEach(h => { h.weight = totalValue > 0 ? ((h.marketValue ?? h.cost) / totalValue) * 100 : null; });
 
-    const totalGain = totalValue - totalCost;
+    // Per-account day change breakdown (only in All view with multiple accounts)
+    const showAccountBreakdown = !_activeAccount && _accounts.length > 1 && pricesLoaded;
+    const accountDayMap = {};
+    if (showAccountBreakdown) {
+      _accounts.forEach(a => { accountDayMap[a.id] = { name: a.name, day: 0 }; });
+      enriched.forEach(h => {
+        if (h.dayChange != null && accountDayMap[h.account_id]) accountDayMap[h.account_id].day += h.dayChange;
+      });
+    }
     const totalGainPct = totalCost > 0 ? (totalGain / totalCost) * 100 : 0;
     const totalDayPct = (totalValue - totalDayChange) > 0 ? (totalDayChange / (totalValue - totalDayChange)) * 100 : 0;
     const dayClr = totalDayChange >= 0 ? 'green' : 'red';
@@ -875,6 +883,15 @@
           <div class="stat-label">Day Change</div>
           <div class="stat-value ${pricesLoaded ? dayClr : ''}" id="sv-day">${pricesLoaded ? (totalDayChange >= 0 ? '+' : '') + fmtC(totalDayChange) : skl('80px')}</div>
           <div class="stat-sub">${pricesLoaded ? (totalDayChange >= 0 ? '+' : '') + fmt(totalDayPct) + '%' : ''}</div>
+          ${showAccountBreakdown ? `<div style="margin-top:0.5rem;padding-top:0.5rem;border-top:1px solid rgba(255,255,255,0.07);display:flex;flex-direction:column;gap:3px">
+            ${Object.values(accountDayMap).map(a => {
+              const pos = a.day >= 0;
+              return `<div style="display:flex;justify-content:space-between;font-size:0.7rem;font-weight:700;letter-spacing:0.5px">
+                <span style="color:rgba(255,255,255,0.35)">${escHtml(a.name)}</span>
+                <span style="color:${pos?'#4ade80':'#f87171'}">${pos?'+':''}${fmtC(a.day)}</span>
+              </div>`;
+            }).join('')}
+          </div>` : ''}
         </div>
         <div class="stat-card">
           <div class="stat-label">Overall Gain</div>
