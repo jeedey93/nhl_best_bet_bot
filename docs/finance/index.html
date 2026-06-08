@@ -94,7 +94,12 @@
 
     /* ── Charts row ── */
     .charts-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem; }
-    @media (max-width: 600px) { .charts-row { grid-template-columns: 1fr; } }
+    @media (max-width: 600px) {
+      .charts-row { grid-template-columns: 1fr; }
+      .charts-row .chart-panel { overflow: hidden; }
+      .chart-panel-fullwidth { grid-column: 1 !important; }
+      .chart-hide-mobile { display: none; }
+    }
 
     /* ── Holdings table ── */
     .holdings-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.6rem; }
@@ -932,13 +937,13 @@
         </div>
       </div>
       <div class="charts-row" id="charts-row">
-        <div class="chart-panel" style="grid-column:1/-1"><div class="section-title" style="margin-bottom:0.75rem">Portfolio Value</div><canvas id="value-chart"></canvas></div>
+        <div class="chart-panel chart-panel-fullwidth" style="grid-column:1/-1"><div class="section-title" style="margin-bottom:0.75rem">Portfolio Value</div><canvas id="value-chart"></canvas></div>
         ${!_activeAccount && _accounts.length > 1 ? `<div class="chart-panel"><div class="section-title" style="margin-bottom:0.75rem">By Account</div><canvas id="account-chart"></canvas><div class="chart-legend" id="account-legend"></div></div>` : ''}
         <div class="chart-panel"><div class="section-title" style="margin-bottom:0.75rem">By Sector</div><canvas id="sector-chart"></canvas><div class="chart-legend" id="sector-legend"></div></div>
         <div class="chart-panel"><div class="section-title" style="margin-bottom:0.75rem">Gain / Loss</div><canvas id="gainloss-chart"></canvas></div>
         <div class="chart-panel"><div class="section-title" style="margin-bottom:0.75rem">Monthly Income</div><canvas id="income-chart"></canvas></div>
         <div class="chart-panel"><div class="section-title" style="margin-bottom:0.75rem">Portfolio Weight</div><canvas id="weight-chart"></canvas></div>
-        <div class="chart-panel"><div class="section-title" style="margin-bottom:0.75rem">Performance Waterfall</div><canvas id="waterfall-chart"></canvas></div>
+        <div class="chart-panel chart-hide-mobile"><div class="section-title" style="margin-bottom:0.75rem">Performance Waterfall</div><canvas id="waterfall-chart"></canvas></div>
       </div>
       <div class="dividend-section">
         <div class="holdings-header"><div class="section-title">Upcoming Dividends</div></div>
@@ -1360,7 +1365,8 @@
     const values = holdings.map(h => +h.overallGain.toFixed(2));
     const colors = values.map(v => v >= 0 ? 'rgba(74,222,128,0.75)' : 'rgba(248,113,113,0.75)');
     const borderColors = values.map(v => v >= 0 ? '#4ade80' : '#f87171');
-    canvas.style.height = Math.max(120, holdings.length * 32) + 'px';
+    const isMobile = window.innerWidth <= 600;
+    canvas.style.height = isMobile ? Math.min(220, Math.max(120, holdings.length * 28)) + 'px' : Math.max(120, holdings.length * 32) + 'px';
     _gainLossChart = new Chart(canvas.getContext('2d'), {
       type: 'bar',
       data: { labels, datasets: [{ data: values, backgroundColor: colors, borderColor: borderColors, borderWidth: 1, borderRadius: 4 }] },
@@ -1484,7 +1490,7 @@
       return;
     }
 
-    canvas.style.height = '180px';
+    canvas.style.height = (window.innerWidth <= 600 ? '140px' : '180px');
     const labels = snapshots.map(r => r.snapshot_date);
     const values = snapshots.map(r => r.total_value);
     const costs  = snapshots.map(r => r.total_cost);
