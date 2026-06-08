@@ -13,7 +13,6 @@ jobs:
     env:
       EMAIL_USERNAME: ${{ secrets.EMAIL_USERNAME }}
       EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
-      SNAPSHOT_SECRET: ${{ secrets.SNAPSHOT_SECRET }}
 
     steps:
       - name: Determine if this cron should run
@@ -35,7 +34,7 @@ jobs:
           RESPONSE=$(curl -s -X POST \
             "https://parieurdiscipline.com/api/finance-snapshot" \
             -H "Content-Type: application/json" \
-            -d "{\"secret\": \"${SNAPSHOT_SECRET}\"}")
+            -d "{}")
           echo "Response: $RESPONSE"
           if echo "$RESPONSE" | grep -q '"error"'; then
             echo "❌ Snapshot failed"

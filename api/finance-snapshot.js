@@ -12,7 +12,7 @@
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://fifurqlitkywtmhgtzeu.supabase.co';
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY; // service role key (bypasses RLS)
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZpZnVycWxpdGt5d3RtaGd0emV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3MDIyMjQsImV4cCI6MjA5MjI3ODIyNH0.KPVPj1qwbSJJMyLR_-AhDcRs0vi2sUU6qbFQ-kH53C0';
-const SNAPSHOT_SECRET = process.env.SNAPSHOT_SECRET;
+const SNAPSHOT_SECRET = process.env.SNAPSHOT_SECRET; // optional — if set, requests must include it
 
 const TMX_URL = 'https://app-money.tmx.com/graphql';
 const TMX_HEADERS = {
@@ -72,7 +72,7 @@ module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  // Auth check
+  // Auth check — only enforced if SNAPSHOT_SECRET env var is set
   const { secret } = req.body || {};
   if (SNAPSHOT_SECRET && secret !== SNAPSHOT_SECRET) {
     return res.status(401).json({ error: 'Unauthorized' });
