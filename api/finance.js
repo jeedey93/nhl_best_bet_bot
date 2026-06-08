@@ -53,16 +53,30 @@ async function handleSearch(req, res) {
   if (!q) return res.status(200).json([]);
   const cached = _searchCache.get(q);
   if (cached && Date.now() - cached.ts < 60 * 1000) return res.status(200).json(cached.data);
-  const url = `https://query1.finance.yahoo.com/v1/finance/search?q=${encodeURIComponent(q)}&quotesCount=8&newsCount=0&enableFuzzyQuery=false&enableCb=false`;
-  const response = await fetch(url, { headers: YF_HEADERS });
-  if (response.status === 304) { _searchCache.set(q, { ts: Date.now(), data: [] }); return res.status(200).json([]); }
-  if (!response.ok) return res.status(200).json([]);
-  const json = await response.json();
-  const quotes = json?.quotes || json?.finance?.result?.[0]?.quotes || [];
-  const data = quotes
-    .filter(r => r.isYahooFinance && (r.quoteType === 'EQUITY' || r.quoteType === 'ETF' || r.quoteType === 'MUTUALFUND'))
+
+  // Search both the raw query and with .TO suffix for TSX stocks
+  const queries = [q];
+  if (!q.includes('.') && !q.includes(':')) queries.push(q + '.TO');
+
+  const allQuotes = [];
+  await Promise.all(queries.map(async term => {
+    try {
+      const url = `https://query1.finance.yahoo.com/v1/finance/search?q=${encodeURIComponent(term)}&quotesCount=8&newsCount=0&enableFuzzyQuery=true&enableCb=false`;
+      const response = await fetch(url, { headers: YF_HEADERS });
+      if (!response.ok || response.status === 304) return;
+      const json = await response.json();
+      allQuotes.push(...(json?.quotes || []));
+    } catch(_) {}
+  }));
+
+  // Deduplicate by symbol, only EQUITY and ETF
+  const seen = new Set();
+  const data = allQuotes
+    .filter(r => r.isYahooFinance && ['EQUITY', 'ETF'].includes(r.quoteType))
+    .filter(r => { if (seen.has(r.symbol)) return false; seen.add(r.symbol); return true; })
     .slice(0, 8)
     .map(r => ({ symbol: r.symbol, name: r.longname || r.shortname || r.symbol, exchange: r.exchDisp || r.exchange || '', type: r.quoteType || '', sector: r.sectorDisp || r.sector || '' }));
+
   _searchCache.set(q, { ts: Date.now(), data });
   return res.status(200).json(data);
 }
