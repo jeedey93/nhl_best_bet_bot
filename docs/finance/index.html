@@ -1716,7 +1716,7 @@
     const TICKER_X = PAD+10;        // left-aligned ticker
     const PCT_W = 52, PCT_X = W-PAD-PCT_W; // % badge right-anchored
     const DC_X = PCT_X - 8;         // day $ right-aligned just before badge
-    const HEADER_H = 68, PILL_H=40, FOOTER_H=22;
+    const HEADER_H = 62, PILL_H=40, FOOTER_H=22;
     const SH=22; // section row height
     const bodyH = GL.reduce((s,g)=>s+(GL.length>1?SH:0)+g.rows.length*RH+4,0);
     const H = HEADER_H+PILL_H+10+bodyH+FOOTER_H+4;
@@ -1734,12 +1734,17 @@
 
     // Header
     ctx.textAlign='center';
-    ctx.font='600 8px Arial'; ctx.fillStyle=GOLD; ctx.fillText('PARIEUR DISCIPLINÉ',W/2,14);
-    ctx.font='bold 20px Arial'; ctx.fillStyle=WHITE; ctx.fillText(_activePortfolio?.name||'Portfolio',W/2,40);
     const dateStr=new Date().toLocaleDateString('en-CA',{month:'short',day:'numeric',year:'numeric'});
-    const sub=_activeAccount?_activeAccount.name:dateStr;
-    ctx.font='11px Arial'; ctx.fillStyle=SILVER; ctx.fillText(sub,W/2,56);
-    if(_activeAccount){ctx.font='9px Arial';ctx.fillStyle=DIM;ctx.fillText(dateStr,W/2,67);}
+    // Small label: "MY PORTFOLIO" or "MY PORTFOLIO · TFSA"
+    const acctLabel = _activeAccount ? `${_activePortfolio?.name||'My Portfolio'} · ${_activeAccount.name}` : (_activePortfolio?.name||'My Portfolio');
+    ctx.font='700 9px Arial'; ctx.fillStyle=SILVER;
+    ctx.fillText(acctLabel.toUpperCase(), W/2, 18);
+    // Date
+    ctx.font='600 9px Arial'; ctx.fillStyle=DIM;
+    ctx.fillText(dateStr, W/2, 32);
+    // Title: "DAILY CHANGES"
+    ctx.font='bold 17px Arial'; ctx.fillStyle=WHITE;
+    ctx.fillText('Daily Changes', W/2, 56);
 
     // Day pill
     const totPos=totalDay>=0;
