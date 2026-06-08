@@ -241,6 +241,7 @@
 
     /* ── Allocation chart ── */
     .chart-panel { background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; padding: 1.25rem; display: flex; flex-direction: column; }
+    @media (max-width: 600px) { .chart-panel canvas { max-height: 220px; } }
     .chart-legend { margin-top: 0.85rem; display: flex; flex-direction: column; gap: 0.35rem; }
     .legend-row { display: flex; align-items: center; justify-content: space-between; font-size: 0.78rem; font-weight: 600; }
     .legend-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; margin-right: 0.5rem; }
@@ -1361,19 +1362,27 @@
     if (_gainLossChart) { _gainLossChart.destroy(); _gainLossChart = null; }
     const holdings = enriched.filter(h => h.overallGain != null).sort((a, b) => b.overallGain - a.overallGain);
     if (!holdings.length) return;
-    const labels = holdings.map(h => h.ticker || h.company_name);
+    const isMobile = window.innerWidth <= 600;
+    // Mobile: vertical bars with short ticker labels; Desktop: horizontal bars
+    const labels = holdings.map(h => (h.ticker || h.company_name || '').replace(/^TSX:|^NYSE:/i, ''));
     const values = holdings.map(h => +h.overallGain.toFixed(2));
     const colors = values.map(v => v >= 0 ? 'rgba(74,222,128,0.75)' : 'rgba(248,113,113,0.75)');
     const borderColors = values.map(v => v >= 0 ? '#4ade80' : '#f87171');
-    const isMobile = window.innerWidth <= 600;
-    canvas.style.height = isMobile ? Math.min(220, Math.max(120, holdings.length * 28)) + 'px' : Math.max(120, holdings.length * 32) + 'px';
+    canvas.style.height = isMobile ? '180px' : Math.max(120, holdings.length * 32) + 'px';
     _gainLossChart = new Chart(canvas.getContext('2d'), {
       type: 'bar',
       data: { labels, datasets: [{ data: values, backgroundColor: colors, borderColor: borderColors, borderWidth: 1, borderRadius: 4 }] },
       options: {
-        indexAxis: 'y', responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${ctx.parsed.x >= 0 ? '+' : ''}${fmtC(ctx.parsed.x)}` } } },
-        scales: {
+        indexAxis: isMobile ? 'x' : 'y',
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: ctx => ` ${(isMobile ? ctx.parsed.y : ctx.parsed.x) >= 0 ? '+' : ''}${fmtC(isMobile ? ctx.parsed.y : ctx.parsed.x)}` } }
+        },
+        scales: isMobile ? {
+          x: { grid: { display: false }, ticks: { color: 'rgba(255,255,255,0.5)', font: { size: 10, family: 'Bebas Neue' }, maxRotation: 0 }, border: { display: false } },
+          y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 9 }, callback: v => '$'+(Math.abs(v)>=1000?(v/1000).toFixed(0)+'k':v.toFixed(0)) }, border: { display: false } }
+        } : {
           x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 10 }, callback: v => fmtC(v) }, border: { display: false } },
           y: { grid: { display: false }, ticks: { color: 'rgba(255,255,255,0.5)', font: { size: 10, family: 'Bebas Neue' } }, border: { display: false } }
         }
@@ -1418,16 +1427,22 @@
     if (_weightChart) { _weightChart.destroy(); _weightChart = null; }
     const holdings = enriched.filter(h => h.weight != null && h.weight > 0).sort((a, b) => b.weight - a.weight);
     if (!holdings.length) return;
-    const labels = holdings.map(h => h.ticker || h.company_name);
+    const isMobile = window.innerWidth <= 600;
+    const labels = holdings.map(h => (h.ticker || h.company_name || '').replace(/^TSX:|^NYSE:/i, ''));
     const values = holdings.map(h => +h.weight.toFixed(2));
     const colors = holdings.map(h => getSectorColor(h.sector));
+    canvas.style.height = isMobile ? '180px' : Math.max(120, holdings.length * 32) + 'px';
     _weightChart = new Chart(canvas.getContext('2d'), {
       type: 'bar',
       data: { labels, datasets: [{ data: values, backgroundColor: colors.map(c => c + 'aa'), borderColor: colors, borderWidth: 1, borderRadius: 4 }] },
       options: {
-        indexAxis: 'y', responsive: true, maintainAspectRatio: true,
-        plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${fmt(ctx.parsed.x)}%` } } },
-        scales: {
+        indexAxis: isMobile ? 'x' : 'y',
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${fmt(isMobile ? ctx.parsed.y : ctx.parsed.x)}%` } } },
+        scales: isMobile ? {
+          x: { grid: { display: false }, ticks: { color: 'rgba(255,255,255,0.5)', font: { size: 10, family: 'Bebas Neue' }, maxRotation: 0 }, border: { display: false } },
+          y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 9 }, callback: v => v + '%' }, border: { display: false } }
+        } : {
           x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 10 }, callback: v => v + '%' }, border: { display: false } },
           y: { grid: { display: false }, ticks: { color: 'rgba(255,255,255,0.5)', font: { size: 10, family: 'Bebas Neue' } }, border: { display: false } }
         }
