@@ -321,17 +321,6 @@
       <input class="form-input" id="am-name" placeholder="TFSA · RRSP · Margin">
     </div>
   </div>
-  <div class="form-row">
-    <div class="form-group">
-      <div class="form-label">Contribution Room ($)</div>
-      <input class="form-input" id="am-room" type="number" step="1" placeholder="7000">
-      <div class="form-hint">TFSA/RRSP limit — optional</div>
-    </div>
-    <div class="form-group">
-      <div class="form-label">YTD Deposits ($)</div>
-      <input class="form-input" id="am-deposits" type="number" step="0.01" placeholder="0">
-    </div>
-  </div>
   <div class="modal-actions">
     <button class="btn-modal-delete" id="am-delete-btn" onclick="deleteAccount()" style="display:none">Delete</button>
     <button class="btn-modal-cancel" onclick="closeAccountModal()">Cancel</button>
@@ -565,15 +554,7 @@
     const totalGainPct = totalCost > 0 ? (totalGain / totalCost) * 100 : 0;
     const totalDayPct = (totalValue - totalDayChange) > 0 ? (totalDayChange / (totalValue - totalDayChange)) * 100 : 0;
 
-    // Active account's contribution room
-    const acc = _activeAccount;
-    const roomHtml = acc?.contribution_room ? `<div class="stat-card">
-      <div class="stat-label">Contribution Room</div>
-      <div class="stat-value gold">${fmtC(acc.contribution_room - (acc.ytd_deposits || 0))}</div>
-      <div class="stat-sub">${fmtC(acc.ytd_deposits || 0)} deposited · ${fmtC(acc.contribution_room)} limit</div>
-    </div>` : '';
-
-    const cols = acc?.contribution_room ? 5 : 4;
+    const cols = 4;
     const dayClr = totalDayChange >= 0 ? 'green' : 'red';
     const gainClr = totalGain >= 0 ? 'green' : 'red';
 
@@ -600,7 +581,6 @@
           <div class="stat-value gold">${fmtC(totalAnnualDiv / 12)}</div>
           <div class="stat-sub">${fmtC(totalAnnualDiv)} / year</div>
         </div>
-        ${roomHtml}
       </div>
       <div class="main-layout">
         <div>
@@ -910,8 +890,6 @@
     document.getElementById('account-modal-title').textContent = 'New Account';
     document.getElementById('am-id').value = '';
     document.getElementById('am-name').value = '';
-    document.getElementById('am-room').value = '';
-    document.getElementById('am-deposits').value = '';
     document.getElementById('am-delete-btn').style.display = 'none';
     document.getElementById('account-backdrop').classList.add('show');
     document.getElementById('account-modal').classList.add('show');
@@ -924,8 +902,6 @@
     document.getElementById('account-modal-title').textContent = 'Edit Account';
     document.getElementById('am-id').value = a.id;
     document.getElementById('am-name').value = a.name || '';
-    document.getElementById('am-room').value = a.contribution_room || '';
-    document.getElementById('am-deposits').value = a.ytd_deposits || '';
     document.getElementById('am-delete-btn').style.display = 'inline-block';
     document.getElementById('account-backdrop').classList.add('show');
     document.getElementById('account-modal').classList.add('show');
@@ -940,12 +916,7 @@
     const id = document.getElementById('am-id').value;
     const name = document.getElementById('am-name').value.trim();
     if (!name) { showToast('Enter an account name.', true); return; }
-    const body = {
-      portfolio_id: _activePortfolio.id,
-      name,
-      contribution_room: parseFloat(document.getElementById('am-room').value) || null,
-      ytd_deposits: parseFloat(document.getElementById('am-deposits').value) || 0,
-    };
+    const body = { portfolio_id: _activePortfolio.id, name };
     try {
       if (id) {
         const [updated] = await sbPatch(`finance_accounts?id=eq.${id}`, body);
