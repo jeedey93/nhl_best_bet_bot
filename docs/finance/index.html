@@ -1704,8 +1704,8 @@
       annual_dividend: parseFloat(document.getElementById('hm-dividend').value) || 0,
       div_month: document.getElementById('hm-div-month').value,
       div_freq: document.getElementById('hm-div-freq').value,
-      div_pay_date: document.getElementById('hm-div-pay-date').value || null,
-      div_ex_date: document.getElementById('hm-div-ex-date').value || null,
+      div_pay_date: (() => { const v = document.getElementById('hm-div-pay-date').value; return v && /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : null; })(),
+      div_ex_date: (() => { const v = document.getElementById('hm-div-ex-date').value; return v && /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : null; })(),
     };
     if (!body.company_name && !body.ticker) { showToast('Enter a company name or ticker.', true); return; }
     try {
@@ -1725,7 +1725,7 @@
           return;
         } catch(_) {}
       }
-      showToast('Failed to save.', true);
+      showToast(`Failed to save: ${e.message?.slice(0,80) || 'Unknown error'}`, true);
     }
   }
 
@@ -1959,8 +1959,8 @@
         document.getElementById('hm-div-freq').value = freqMap[d.dividendFrequency] || 'quarterly';
       }
       // Store payment date for calendar display
-      if (d.dividendPayDate) document.getElementById('hm-div-pay-date').value = d.dividendPayDate;
-      if (d.exDividendDate) document.getElementById('hm-div-ex-date').value = d.exDividendDate;
+      if (d.dividendPayDate && /^\d{4}-\d{2}-\d{2}$/.test(d.dividendPayDate)) document.getElementById('hm-div-pay-date').value = d.dividendPayDate;
+      if (d.exDividendDate && /^\d{4}-\d{2}-\d{2}$/.test(d.exDividendDate)) document.getElementById('hm-div-ex-date').value = d.exDividendDate;
     } catch(_) {}
   }
 
