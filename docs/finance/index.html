@@ -93,8 +93,10 @@
     .pos { color: var(--green); }
     .neg { color: var(--red); }
     .muted { color: rgba(255,255,255,0.3); }
-    .btn-edit-row { background: none; border: none; color: rgba(255,255,255,0.2); cursor: pointer; font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; transition: color 0.15s, background 0.15s; }
+    .btn-edit-row { background: none; border: none; color: rgba(255,255,255,0.35); cursor: pointer; font-size: 0.8rem; padding: 3px 7px; border-radius: 4px; transition: color 0.15s, background 0.15s; }
     .btn-edit-row:hover { color: white; background: rgba(255,255,255,0.08); }
+    .btn-delete-row { background: none; border: none; color: rgba(200,16,46,0.4); cursor: pointer; font-size: 0.8rem; padding: 3px 6px; border-radius: 4px; transition: color 0.15s, background 0.15s; }
+    .btn-delete-row:hover { color: var(--red); background: rgba(200,16,46,0.1); }
     .price-loading { color: rgba(255,255,255,0.2); font-style: italic; }
 
     /* ── Allocation chart ── */
@@ -180,6 +182,18 @@
 </div>
 
 <div id="toast"></div>
+
+<!-- Confirm modal -->
+<div class="modal-backdrop" id="confirm-backdrop"></div>
+<div class="modal" id="confirm-modal" style="max-width:360px;text-align:center">
+  <div style="font-size:2rem;margin-bottom:0.5rem">🗑️</div>
+  <div class="modal-title">Confirm Delete</div>
+  <div id="confirm-body" style="font-family:'Barlow Condensed',sans-serif;font-size:0.9rem;font-weight:600;color:var(--silver);margin-bottom:1.25rem;line-height:1.5"></div>
+  <div class="modal-actions">
+    <button class="btn-modal-cancel" id="confirm-cancel">Cancel</button>
+    <button class="btn-modal-delete" id="confirm-ok" style="flex:2">Delete</button>
+  </div>
+</div>
 
 <!-- Holding modal -->
 <div class="modal-backdrop" id="holding-backdrop" onclick="closeHoldingModal()"></div>
@@ -622,7 +636,7 @@
             <td class="${gc}">${h.overallGain != null && h.cost > 0 ? (h.overallGain >= 0 ? '+' : '') + fmt((h.overallGain / h.cost) * 100) + '%' : '—'}</td>
             <td class="muted">${h.weight != null ? fmt(h.weight) + '%' : '—'}</td>
             <td class="muted">${h.annual_dividend ? fmtC((h.shares || 0) * h.annual_dividend / 12) + '/mo' : '—'}</td>
-            <td><button class="btn-edit-row" onclick="openEditHolding(${escHtml(String(h.id))})">✎</button></td>
+            <td style="white-space:nowrap"><button class="btn-edit-row" onclick="openEditHolding('${h.id}')">✎</button><button class="btn-delete-row" onclick="quickDeleteHolding('${h.id}', '${escHtml(h.company_name || h.ticker || '').replace(/'/g,'')}')">✕</button></td>
           </tr>`;
         });
       }
@@ -713,6 +727,28 @@
     document.getElementById('holding-backdrop').classList.add('show');
     document.getElementById('holding-modal').classList.add('show');
     setTimeout(() => document.getElementById('hm-name').focus(), 100);
+  }
+
+  let _confirmResolve = null;
+  function showConfirm(bodyHtml) {
+    return new Promise(resolve => {
+      _confirmResolve = resolve;
+      document.getElementById('confirm-body').innerHTML = bodyHtml;
+      document.getElementById('confirm-backdrop').classList.add('show');
+      document.getElementById('confirm-modal').classList.add('show');
+    });
+  }
+  document.getElementById('confirm-ok').onclick = () => { document.getElementById('confirm-backdrop').classList.remove('show'); document.getElementById('confirm-modal').classList.remove('show'); if (_confirmResolve) { _confirmResolve(true); _confirmResolve = null; } };
+  document.getElementById('confirm-cancel').onclick = () => { document.getElementById('confirm-backdrop').classList.remove('show'); document.getElementById('confirm-modal').classList.remove('show'); if (_confirmResolve) { _confirmResolve(false); _confirmResolve = null; } };
+  document.getElementById('confirm-backdrop').onclick = () => { document.getElementById('confirm-cancel').onclick(); };
+
+  async function quickDeleteHolding(id, name) {
+    const confirmed = await showConfirm(`Delete <strong>${escHtml(name)}</strong>? This cannot be undone.`);
+    if (!confirmed) return;
+    try {
+      await sbDelete(`finance_holdings?id=eq.${id}`);
+      await loadPortfolio(_activePortfolio);
+    } catch(e) { showToast('Failed to delete.', true); }
   }
 
   function openEditHolding(id) {
