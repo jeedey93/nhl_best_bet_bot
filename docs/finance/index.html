@@ -236,7 +236,6 @@
 
     /* ── Allocation chart ── */
     .chart-panel { background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; padding: 1.25rem; display: flex; flex-direction: column; }
-    .chart-panel canvas { max-height: 260px; }
     .chart-legend { margin-top: 0.85rem; display: flex; flex-direction: column; gap: 0.35rem; }
     .legend-row { display: flex; align-items: center; justify-content: space-between; font-size: 0.78rem; font-weight: 600; }
     .legend-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; margin-right: 0.5rem; }
@@ -1359,11 +1358,12 @@
     const values = holdings.map(h => +h.overallGain.toFixed(2));
     const colors = values.map(v => v >= 0 ? 'rgba(74,222,128,0.75)' : 'rgba(248,113,113,0.75)');
     const borderColors = values.map(v => v >= 0 ? '#4ade80' : '#f87171');
+    canvas.style.height = Math.max(120, holdings.length * 32) + 'px';
     _gainLossChart = new Chart(canvas.getContext('2d'), {
       type: 'bar',
       data: { labels, datasets: [{ data: values, backgroundColor: colors, borderColor: borderColors, borderWidth: 1, borderRadius: 4 }] },
       options: {
-        indexAxis: 'y', responsive: true, maintainAspectRatio: true,
+        indexAxis: 'y', responsive: true, maintainAspectRatio: false,
         plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${ctx.parsed.x >= 0 ? '+' : ''}${fmtC(ctx.parsed.x)}` } } },
         scales: {
           x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 10 }, callback: v => fmtC(v) }, border: { display: false } },
@@ -1389,11 +1389,12 @@
       else payMonths = payMonth != null ? [payMonth] : [5];
       payMonths.forEach(m => { monthTotals[m] += annual / (freq === 'monthly' ? 12 : freq === 'quarterly' ? 4 : 1); });
     });
+    canvas.style.height = '160px';
     _incomeChart = new Chart(canvas.getContext('2d'), {
       type: 'bar',
       data: { labels: MONTHS, datasets: [{ data: monthTotals, backgroundColor: 'rgba(255,184,28,0.55)', borderColor: '#ffb81c', borderWidth: 1, borderRadius: 4 }] },
       options: {
-        responsive: true, maintainAspectRatio: true,
+        responsive: true, maintainAspectRatio: false,
         plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${fmtC(ctx.parsed.y)}` } } },
         scales: {
           x: { grid: { display: false }, ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 10 } }, border: { display: false } },
