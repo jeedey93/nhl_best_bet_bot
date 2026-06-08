@@ -548,8 +548,15 @@
       _portfolios = await sbGet('finance_portfolios?order=created_at.asc&select=id,name,owner_code,password_hash,updated_at');
       await route();
     } catch(e) {
-      document.getElementById('home-view').style.display = 'block';
-      document.getElementById('portfolio-cards').innerHTML = `<div class="empty-state">Failed to load. Check your connection.</div>`;
+      console.error('init error:', e);
+      // Don't show "Failed to load" for rendering errors — only for network errors
+      if (e.message && (e.message.includes('fetch') || e.message.includes('network') || e.message.includes('Failed') || !isNaN(e.message))) {
+        document.getElementById('home-view').style.display = 'block';
+        document.getElementById('portfolio-cards').innerHTML = `<div class="empty-state">Failed to load. Check your connection.</div>`;
+      } else {
+        // Rendering error — try to show cards anyway
+        try { await renderHome(); } catch(e2) { console.error('renderHome error:', e2); }
+      }
     }
   }
 
@@ -589,6 +596,7 @@
     }
 
     document.getElementById('portfolio-cards').innerHTML = _portfolios.map(p => {
+      try {
       const accs = accountsByPortfolio[p.id] || [];
       const holdings = holdingsByPortfolio[p.id] || [];
       const chips = accs.map(a => `<span class="pc-account-chip">${escHtml(a.name)}</span>`).join('');
@@ -642,23 +650,31 @@
         ${accs.length ? `<div class="pc-accounts">${chips}</div>` : `<div class="pc-lock" style="margin-top:0.35rem">No accounts yet</div>`}
         ${financials}
       </div>`;
+      } catch(cardErr) {
+        console.error('card render error:', cardErr);
+        return `<div class="portfolio-card" data-portfolio-code="${escHtml(p.owner_code)}">
+          <div class="pc-name">${escHtml(p.name)}${p.password_hash ? ' 🔒' : ''}</div>
+        </div>`;
+      }
     }).concat([`<div class="portfolio-card pc-new" onclick="openNewPortfolioModal()">+ New Portfolio</div>`]).join('');
 
     // Draw mini sector donuts on each card
     _portfolios.forEach(p => {
-      const canvas = document.getElementById(`pc-donut-${p.id}`);
-      if (!canvas) return;
-      const card = canvas.closest('[data-sectors]');
-      if (!card) return;
-      const sectors = JSON.parse(card.dataset.sectors || '[]');
-      if (!sectors.length) return;
-      const total = sectors.reduce((s, [, v]) => s + v, 0);
-      const colors = sectors.map(([k]) => getSectorColor(k));
-      new Chart(canvas.getContext('2d'), {
-        type: 'doughnut',
-        data: { datasets: [{ data: sectors.map(([, v]) => v), backgroundColor: colors, borderColor: '#07111f', borderWidth: 2 }] },
-        options: { responsive: false, cutout: '60%', plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${sectors[ctx.dataIndex][0]}: ${fmt(ctx.parsed / total * 100)}%` } } }, animation: { duration: 600 } }
-      });
+      try {
+        const canvas = document.getElementById(`pc-donut-${p.id}`);
+        if (!canvas) return;
+        const card = canvas.closest('[data-sectors]');
+        if (!card) return;
+        const sectors = JSON.parse(card.dataset.sectors || '[]');
+        if (!sectors.length) return;
+        const total = sectors.reduce((s, [, v]) => s + v, 0);
+        const colors = sectors.map(([k]) => getSectorColor(k));
+        new Chart(canvas.getContext('2d'), {
+          type: 'doughnut',
+          data: { datasets: [{ data: sectors.map(([, v]) => v), backgroundColor: colors, borderColor: '#07111f', borderWidth: 2 }] },
+          options: { responsive: false, cutout: '60%', plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${sectors[ctx.dataIndex][0]}: ${fmt(ctx.parsed / total * 100)}%` } } }, animation: { duration: 600 } }
+        });
+      } catch(_) {}
     });
   }
 
