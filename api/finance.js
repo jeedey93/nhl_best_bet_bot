@@ -54,19 +54,23 @@ async function handlePrice(req, res) {
   const cached = _priceCache.get(cacheKey);
   if (cached && Date.now() - cached.ts < 5 * 60 * 1000) return res.status(200).json(cached.data);
 
+  const tmxSymbols = symbols.map(toTmx);
+  const body = JSON.stringify({
+    query: `query { getQuoteForSymbols(symbols: ${JSON.stringify(tmxSymbols)}) { symbol longname price priceChange prevClose } }`,
+  });
+  const r = await fetch(TMX_URL, { method: 'POST', headers: TMX_HEADERS, body });
+  if (!r.ok) throw new Error(`TMX ${r.status}`);
+  const json = await r.json();
+  const quotes = json?.data?.getQuoteForSymbols || [];
+
   const data = {};
-  await Promise.all(symbols.map(async symbol => {
-    try {
-      const q = await tmxQuote(symbol);
-      const price = q.price;
-      const previousClose = q.close;
-      const change = price != null && previousClose != null ? +(price - previousClose).toFixed(4) : null;
-      const changePct = previousClose ? +((change / previousClose) * 100).toFixed(4) : null;
-      data[symbol] = { price, previousClose, change, changePct, name: q.name || symbol };
-    } catch(e) {
-      data[symbol] = { error: e.message };
-    }
-  }));
+  symbols.forEach((symbol, i) => {
+    const q = quotes.find(q => q.symbol === toTmx(symbol));
+    if (!q || !q.price) { data[symbol] = { error: 'not found' }; return; }
+    const change = q.price != null && q.prevClose != null ? +(q.price - q.prevClose).toFixed(4) : null;
+    const changePct = q.prevClose ? +((change / q.prevClose) * 100).toFixed(4) : null;
+    data[symbol] = { price: q.price, previousClose: q.prevClose, change, changePct, name: q.longname || symbol };
+  });
 
   _priceCache.set(cacheKey, { ts: Date.now(), data });
   return res.status(200).json(data);
@@ -79,40 +83,47 @@ async function handleSearch(req, res) {
   const cached = _searchCache.get(q);
   if (cached && Date.now() - cached.ts < 60 * 1000) return res.status(200).json(cached.data);
 
-  if (!FINNHUB_KEY) return res.status(200).json([]);
-
-  try {
-    const url = `https://finnhub.io/api/v1/search?q=${encodeURIComponent(q)}&token=${FINNHUB_KEY}`;
-    const r = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
-    if (!r.ok) return res.status(200).json([]);
-    const json = await r.json();
-
-    const data = (json.result || [])
-      .filter(r => r.type === 'Common Stock' || r.type === 'ETP')
-      // Prefer TSX (.TO) and common exchanges
-      .slice(0, 10)
-      .map(r => {
-        // Convert Finnhub symbol to display format: MFC.TO → TSX:MFC
-        let display = r.symbol;
-        let exchange = '';
-        if (r.symbol.endsWith('.TO'))  { display = 'TSX:' + r.symbol.replace('.TO', ''); exchange = 'TSX'; }
-        else if (r.symbol.endsWith('.V')) { display = 'TSX-V:' + r.symbol.replace('.V', ''); exchange = 'TSX-V'; }
-        else { exchange = 'NYSE/NASDAQ'; }
-        return { symbol: display, yahooSymbol: r.symbol, name: r.description, exchange, type: r.type };
-      });
-
-    // Sort TSX results first
-    data.sort((a, b) => {
-      const aCA = a.exchange === 'TSX' || a.exchange === 'TSX-V';
-      const bCA = b.exchange === 'TSX' || b.exchange === 'TSX-V';
-      return aCA === bCA ? 0 : aCA ? -1 : 1;
-    });
-
-    _searchCache.set(q, { ts: Date.now(), data: data.slice(0, 8) });
-    return res.status(200).json(data.slice(0, 8));
-  } catch(e) {
-    return res.status(200).json([]);
+  // Use Finnhub for search (free, reliable, TSX-aware)
+  if (FINNHUB_KEY) {
+    try {
+      const url = `https://finnhub.io/api/v1/search?q=${encodeURIComponent(q)}&token=${FINNHUB_KEY}`;
+      const r = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
+      if (r.ok) {
+        const json = await r.json();
+        const data = (json.result || [])
+          .filter(r => r.type === 'Common Stock' || r.type === 'ETP')
+          .slice(0, 10)
+          .map(r => {
+            let symbol = r.symbol, exchange = 'NYSE/NASDAQ';
+            if (r.symbol.endsWith('.TO'))  { symbol = 'TSX:' + r.symbol.replace('.TO', ''); exchange = 'TSX'; }
+            else if (r.symbol.endsWith('.V')) { symbol = 'TSX-V:' + r.symbol.replace('.V', ''); exchange = 'TSX-V'; }
+            return { symbol, name: r.description, exchange };
+          })
+          .sort((a, b) => {
+            const aCA = a.exchange === 'TSX' || a.exchange === 'TSX-V';
+            const bCA = b.exchange === 'TSX' || b.exchange === 'TSX-V';
+            return aCA === bCA ? 0 : aCA ? -1 : 1;
+          })
+          .slice(0, 8);
+        _searchCache.set(q, { ts: Date.now(), data });
+        return res.status(200).json(data);
+      }
+    } catch(_) {}
   }
+
+  // Fallback: try TMX direct symbol lookup
+  try {
+    const tmxSym = q.toUpperCase().replace(/^TSX:/, '').replace(/\.TO$/, '');
+    const body = JSON.stringify({ query: `query { getQuoteBySymbol(symbol: "${tmxSym}", locale: "en") { symbol name } }` });
+    const r = await fetch(TMX_URL, { method: 'POST', headers: TMX_HEADERS, body });
+    const json = await r.json();
+    const sym = json?.data?.getQuoteBySymbol;
+    const data = sym?.symbol ? [{ symbol: `TSX:${sym.symbol}`, name: sym.name, exchange: 'TSX' }] : [];
+    _searchCache.set(q, { ts: Date.now(), data });
+    return res.status(200).json(data);
+  } catch(_) {}
+
+  return res.status(200).json([]);
 }
 
 // ── Details ───────────────────────────────────────────────────────────────
