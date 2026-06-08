@@ -1,8 +1,10 @@
 /**
  * Unified finance proxy.
- * action=price   &symbols=TSX:MFC,TSX:ENB   → TMX Money GraphQL (CAD, real-time TSX)
- * action=search  &q=manulife                → Finnhub search
- * action=details &symbol=TSX:MFC            → TMX Money GraphQL (dividends, sector)
+ * action=price   &symbols=TSX:MFC,SAP.DE  → TMX (CAD) or Finnhub+FX (non-TSX)
+ * action=search  &q=manulife              → Finnhub search
+ * action=details &symbol=TSX:MFC         → TMX GraphQL (dividends, sector)
+ * action=profile &symbol=TSX:MFC         → Finnhub profile2
+ * action=description &name=Manulife      → Wikipedia summary
  */
 
 const FINNHUB_KEY = process.env.FINNHUB_API_KEY;
@@ -15,14 +17,50 @@ const TMX_HEADERS = {
   'Referer': 'https://money.tmx.com/',
 };
 
-// Convert any ticker format to TMX symbol: "TSX:MFC" or "MFC.TO" → "MFC"
+// European/other exchange suffixes that need Finnhub + FX conversion
+const FOREIGN_SUFFIXES = ['.DE','.PA','.L','.AS','.MI','.SW','.BR','.MC','.HK','.AX','.T','.TYO'];
+
+function isForeignTicker(ticker) {
+  if (!ticker) return false;
+  const u = ticker.toUpperCase();
+  // TSX, TSX-V, or plain symbol → TMX
+  if (u.startsWith('TSX:') || u.startsWith('TSX-V:') || u.endsWith('.TO') || u.endsWith('.V')) return false;
+  // Has a known foreign exchange suffix
+  return FOREIGN_SUFFIXES.some(s => u.endsWith(s));
+}
+
+// Strip exchange suffix to get base symbol for Finnhub (SAP.DE → SAP)
+function toFinnhubBase(ticker) {
+  const u = ticker.toUpperCase();
+  for (const s of FOREIGN_SUFFIXES) {
+    if (u.endsWith(s)) return u.slice(0, -s.length);
+  }
+  return u;
+}
+
+// Convert any ticker format to TMX symbol
 function toTmx(ticker) {
   if (!ticker) return ticker;
   const t = ticker.toUpperCase();
-  if (t.includes(':')) return t.split(':')[1];       // TSX:MFC → MFC
-  if (t.endsWith('.TO')) return t.replace('.TO', ''); // MFC.TO → MFC
-  if (t.endsWith('.V'))  return t.replace('.V', '');  // SPB.V → SPB
+  if (t.includes(':')) return t.split(':')[1];
+  if (t.endsWith('.TO')) return t.replace('.TO', '');
+  if (t.endsWith('.V'))  return t.replace('.V', '');
   return t;
+}
+
+// ── FX rate cache (USD→CAD) ───────────────────────────────────────────────
+let _fxCache = null;
+async function getUsdCad() {
+  if (_fxCache && Date.now() - _fxCache.ts < 60 * 60 * 1000) return _fxCache.rate;
+  try {
+    const r = await fetch('https://open.er-api.com/v6/latest/USD', { headers: { 'User-Agent': 'Mozilla/5.0' } });
+    if (r.ok) {
+      const d = await r.json();
+      const rate = d?.rates?.CAD;
+      if (rate) { _fxCache = { rate, ts: Date.now() }; return rate; }
+    }
+  } catch(_) {}
+  return _fxCache?.rate || 1.38; // fallback to approximate rate
 }
 
 async function tmxQuote(symbol) {
@@ -46,6 +84,24 @@ const _searchCache  = new Map();
 const _detailsCache = new Map();
 
 // ── Price ─────────────────────────────────────────────────────────────────
+async function fetchFinnhubPrice(symbol) {
+  // For foreign tickers (SAP.DE → SAP), fetch from Finnhub and convert to CAD
+  const base = toFinnhubBase(symbol);
+  if (!FINNHUB_KEY) throw new Error('no finnhub key');
+  const r = await fetch(`https://finnhub.io/api/v1/quote?symbol=${encodeURIComponent(base)}&token=${FINNHUB_KEY}`, {
+    headers: { 'User-Agent': 'Mozilla/5.0' }
+  });
+  if (!r.ok) throw new Error(`finnhub ${r.status}`);
+  const q = await r.json();
+  if (!q.c) throw new Error('no data');
+  const fxRate = await getUsdCad();
+  const price = +(q.c * fxRate).toFixed(4);
+  const prevClose = +(q.pc * fxRate).toFixed(4);
+  const change = +(price - prevClose).toFixed(4);
+  const changePct = prevClose ? +((change / prevClose) * 100).toFixed(4) : null;
+  return { price, previousClose: prevClose, change, changePct, name: base, currency: 'CAD', source: 'NYSE+FX' };
+}
+
 async function handlePrice(req, res) {
   const raw = req.query.symbols || '';
   if (!raw) return res.status(400).json({ error: 'symbols param required' });
@@ -54,23 +110,42 @@ async function handlePrice(req, res) {
   const cached = _priceCache.get(cacheKey);
   if (cached && Date.now() - cached.ts < 5 * 60 * 1000) return res.status(200).json(cached.data);
 
-  const tmxSymbols = symbols.map(toTmx);
-  const body = JSON.stringify({
-    query: `query { getQuoteForSymbols(symbols: ${JSON.stringify(tmxSymbols)}) { symbol longname price priceChange prevClose } }`,
-  });
-  const r = await fetch(TMX_URL, { method: 'POST', headers: TMX_HEADERS, body });
-  if (!r.ok) throw new Error(`TMX ${r.status}`);
-  const json = await r.json();
-  const quotes = json?.data?.getQuoteForSymbols || [];
+  // Split: TMX symbols vs foreign symbols needing Finnhub
+  const tmxSymbols = symbols.filter(s => !isForeignTicker(s));
+  const foreignSymbols = symbols.filter(s => isForeignTicker(s));
 
   const data = {};
-  symbols.forEach((symbol, i) => {
-    const q = quotes.find(q => q.symbol === toTmx(symbol));
-    if (!q || !q.price) { data[symbol] = { error: 'not found' }; return; }
-    const change = q.price != null && q.prevClose != null ? +(q.price - q.prevClose).toFixed(4) : null;
-    const changePct = q.prevClose ? +((change / q.prevClose) * 100).toFixed(4) : null;
-    data[symbol] = { price: q.price, previousClose: q.prevClose, change, changePct, name: q.longname || symbol };
-  });
+
+  // Fetch TMX prices in batch
+  if (tmxSymbols.length) {
+    const tmxKeys = tmxSymbols.map(toTmx);
+    const body = JSON.stringify({
+      query: `query { getQuoteForSymbols(symbols: ${JSON.stringify(tmxKeys)}) { symbol longname price priceChange prevClose } }`,
+    });
+    const r = await fetch(TMX_URL, { method: 'POST', headers: TMX_HEADERS, body });
+    if (r.ok) {
+      const json = await r.json();
+      const quotes = json?.data?.getQuoteForSymbols || [];
+      tmxSymbols.forEach(symbol => {
+        const q = quotes.find(q => q.symbol === toTmx(symbol));
+        if (!q || !q.price) { data[symbol] = { error: 'not found' }; return; }
+        const change = q.price != null && q.prevClose != null ? +(q.price - q.prevClose).toFixed(4) : null;
+        const changePct = q.prevClose ? +((change / q.prevClose) * 100).toFixed(4) : null;
+        data[symbol] = { price: q.price, previousClose: q.prevClose, change, changePct, name: q.longname || symbol };
+      });
+    } else {
+      tmxSymbols.forEach(s => { data[s] = { error: `TMX ${r.status}` }; });
+    }
+  }
+
+  // Fetch foreign prices via Finnhub + FX
+  await Promise.all(foreignSymbols.map(async symbol => {
+    try {
+      data[symbol] = await fetchFinnhubPrice(symbol);
+    } catch(e) {
+      data[symbol] = { error: e.message };
+    }
+  }));
 
   _priceCache.set(cacheKey, { ts: Date.now(), data });
   return res.status(200).json(data);
