@@ -101,6 +101,8 @@
     .section-title { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 3px; color: var(--silver); opacity: 0.6; }
     table.holdings { width: 100%; border-collapse: collapse; min-width: 900px; }
     table.holdings th { font-size: 0.65rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.25); padding: 0.55rem 0.75rem; text-align: right; border-bottom: 1px solid rgba(255,255,255,0.08); white-space: nowrap; }
+    table.holdings th.sort-th:hover { color: rgba(255,255,255,0.55); }
+    table.holdings th.sort-th.active { color: var(--gold); }
     table.holdings th.left { text-align: left; }
     table.holdings td { padding: 0.6rem 0.75rem; text-align: right; font-size: 0.9rem; font-weight: 600; border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: middle; white-space: nowrap; }
     table.holdings td.left { text-align: left; }
@@ -451,7 +453,6 @@
       </div>
       <div style="display:flex;gap:0.4rem">
         <button class="btn-sm" id="btn-edit-portfolio" onclick="openEditPortfolioModal()">✎ Portfolio</button>
-        <button class="btn-sm" onclick="openNewPortfolioModal()">+ Portfolio</button>
       </div>
     </div>
     <div id="price-refresh-bar" style="display:none;padding:0.25rem 0 0.5rem">
@@ -491,6 +492,7 @@
   let _activeAccount = null; // null = "All accounts" view
   let _holdings = [];        // all holdings for active portfolio
   let _prices = {};
+  let _holdingsSort = { col: null, dir: -1 }; // null=default, dir: 1=asc -1=desc
   let _accountChart = null, _sectorChart = null, _gainLossChart = null, _incomeChart = null, _weightChart = null;
   let _unlockedIds = new Set(JSON.parse(sessionStorage.getItem('fin_unlocked') || '[]'));
 
@@ -884,6 +886,30 @@
     renderContent();
   }
 
+  function setHoldingsSort(col) {
+    if (_holdingsSort.col === col) _holdingsSort.dir *= -1;
+    else { _holdingsSort.col = col; _holdingsSort.dir = -1; }
+    renderContent();
+  }
+
+  function sortEnrichedHoldings(holdings) {
+    const { col, dir } = _holdingsSort;
+    if (!col) return holdings;
+    return [...holdings].sort((a, b) => {
+      let av, bv;
+      switch(col) {
+        case 'day$':   av = a.dayChange ?? -Infinity;  bv = b.dayChange ?? -Infinity; break;
+        case 'day%':   av = a.changePct ?? -Infinity;  bv = b.changePct ?? -Infinity; break;
+        case 'gain$':  av = a.overallGain ?? -Infinity; bv = b.overallGain ?? -Infinity; break;
+        case 'gain%':  av = a.cost > 0 ? (a.overallGain??0)/a.cost : -Infinity; bv = b.cost > 0 ? (b.overallGain??0)/b.cost : -Infinity; break;
+        case 'weight': av = a.weight ?? -Infinity; bv = b.weight ?? -Infinity; break;
+        case 'divmo':  av = (a.shares||0)*(a.annual_dividend||0)/12; bv = (b.shares||0)*(b.annual_dividend||0)/12; break;
+        default: return 0;
+      }
+      return (av - bv) * dir;
+    });
+  }
+
   function buildHoldingsTable(enriched, pricesLoaded) {
     if (!enriched.length) return `<div class="empty-holdings">
       <div class="empty-holdings-icon">📊</div>
@@ -919,7 +945,7 @@
     for (const { accountName, bySector } of groups) {
       if (accountName) rows += `<tr class="account-row"><td colspan="13">${escHtml(accountName)}</td></tr>`;
       // Flatten all holdings across sectors — no sector sub-headers
-      const allHoldings = Object.values(bySector).flat();
+      const allHoldings = sortEnrichedHoldings(Object.values(bySector).flat());
       let grpCost = 0, grpMv = 0, grpDay = 0, grpGain = 0;
       allHoldings.forEach(h => {
           const mv = h.marketValue ?? h.cost;
@@ -984,14 +1010,20 @@
       <td class="col-hide-mobile muted">100%</td><td class="col-hide-mobile"></td><td></td>
     </tr>`;
 
+    const sc = _holdingsSort.col;
+    const sd = _holdingsSort.dir;
+    const arr = (col) => sc === col ? (sd === -1 ? ' ↓' : ' ↑') : '';
+    const sh = (col, label, cls='') =>
+      `<th class="sort-th${cls ? ' '+cls : ''}" onclick="setHoldingsSort('${col}')" style="cursor:pointer;user-select:none">${label}${arr(col)}</th>`;
+
     return `<table class="holdings">
       <thead><tr>
         <th class="left">Company</th>
         <th class="col-hide-mobile">Shares</th><th class="col-hide-mobile">Avg Price</th><th class="col-hide-mobile">Investment</th>
         <th>Market Price</th><th class="col-hide-mobile">Market Value</th>
-        <th class="col-hide-mobile">Day $</th><th>Day %</th>
-        <th class="col-hide-mobile">Gain $</th><th>Gain %</th>
-        <th class="col-hide-mobile">Weight</th><th class="col-hide-mobile">Monthly Div</th><th></th>
+        ${sh('day$','Day $','col-hide-mobile')}${sh('day%','Day %')}
+        ${sh('gain$','Gain $','col-hide-mobile')}${sh('gain%','Gain %')}
+        ${sh('weight','Weight','col-hide-mobile')}${sh('divmo','Monthly Div','col-hide-mobile')}<th></th>
       </tr></thead>
       <tbody>${rows}</tbody>
     </table>`;
