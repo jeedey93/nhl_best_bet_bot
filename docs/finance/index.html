@@ -2133,7 +2133,7 @@
       if(!groups[key]) groups[key]={label:accountMap[h.account_id]||_activeAccount?.name||'Holdings',rows:[],dayTotal:0};
       const dc=(h.shares||0)*p.change;
       groups[key].dayTotal+=dc;
-      groups[key].rows.push({ticker:(h.ticker||'').replace(/^TSX:|^NYSE:|^NASDAQ:/i,''),dc,pct:p.changePct??0});
+      groups[key].rows.push({ticker:(h.ticker||'').replace(/^TSX:|^NYSE:|^NASDAQ:/i,''),dc,pct:p.changePct??0,price:p.price??0});
     });
     const GL=Object.values(groups);
     GL.forEach(g=>g.rows.sort((a,b)=>b.dc-a.dc));
@@ -2142,10 +2142,11 @@
     const dayPct=(totalVal-totalDay)>0?(totalDay/(totalVal-totalDay))*100:0;
 
     // Fixed layout
-    const W=280, PAD=16, RH=28;
+    const W=300, PAD=16, RH=28;
     const TICKER_X = PAD+10;        // left-aligned ticker
-    const PCT_W = 52, PCT_X = W-PAD-PCT_W; // % badge right-anchored
+    const PCT_W = 48, PCT_X = W-PAD-PCT_W; // % badge right-anchored
     const DC_X = PCT_X - 8;         // day $ right-aligned just before badge
+    const PRICE_X = TICKER_X + 54;  // current price left-aligned after ticker
     const HEADER_H = 62, PILL_H=40, FOOTER_H=22;
     const SH=22; // section row height
     const bodyH = GL.reduce((s,g)=>s+(GL.length>1?SH:0)+g.rows.length*RH+4,0);
@@ -2214,6 +2215,10 @@
         // Ticker — left
         ctx.textAlign='left'; ctx.font='bold 12px Arial'; ctx.fillStyle=WHITE;
         ctx.fillText(r.ticker,TICKER_X,cy);
+
+        // Current price — after ticker, muted
+        ctx.textAlign='left'; ctx.font='600 10px Arial'; ctx.fillStyle=SILVER;
+        ctx.fillText('$'+r.price.toLocaleString('en-CA',{minimumFractionDigits:2,maximumFractionDigits:2}),PRICE_X,cy);
 
         // Day $ — right-aligned at DC_X
         ctx.textAlign='right'; ctx.font='700 11px Arial'; ctx.fillStyle=rPos?GREEN:RED;
