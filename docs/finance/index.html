@@ -407,7 +407,7 @@
     const el = document.getElementById('portfolio-tabs');
     if (!_portfolios.length) { el.innerHTML = `<div style="color:rgba(255,255,255,0.2);font-size:0.85rem;font-weight:600;letter-spacing:1px;padding:0.4rem 0.5rem;">No portfolios yet</div>`; return; }
     el.innerHTML = _portfolios.map(p =>
-      `<button class="ptab${_activePortfolio?.id === p.id ? ' active' : ''}" onclick="selectPortfolio(${JSON.stringify({id:p.id,name:p.name,owner_code:p.owner_code,password_hash:p.password_hash}).replace(/"/g,'&quot;')})">
+      `<button class="ptab${_activePortfolio?.id === p.id ? ' active' : ''}" data-portfolio-id="${p.id}">
         ${escHtml(p.name)}${p.password_hash ? ' 🔒' : ''}
       </button>`
     ).join('');
@@ -569,7 +569,7 @@
       <div class="account-tabs">
         <button class="atab all${!_activeAccount ? ' active' : ''}" onclick="selectAccount(null)">All</button>
         ${_accounts.map(a =>
-          `<button class="atab${_activeAccount?.id === a.id ? ' active' : ''}" onclick="selectAccount('${a.id}')">${escHtml(a.name)}</button>`
+          `<button class="atab${_activeAccount?.id === a.id ? ' active' : ''}" data-account-id="${a.id}">${escHtml(a.name)}</button>`
         ).join('')}
       </div>
       <div class="account-bar-actions">
@@ -1011,7 +1011,14 @@
     setTimeout(() => el.style.display = 'none', 3000);
   }
 
+  document.getElementById('portfolio-tabs').addEventListener('click', e => {
+    const btn = e.target.closest('[data-portfolio-id]');
+    if (btn) selectPortfolio(_portfolios.find(p => p.id === btn.dataset.portfolioId));
+  });
+
   document.getElementById('main-page').addEventListener('click', e => {
+    const accountBtn = e.target.closest('[data-account-id]');
+    if (accountBtn) { selectAccount(accountBtn.dataset.accountId); return; }
     const editBtn = e.target.closest('[data-edit-id]');
     if (editBtn) { openEditHolding(editBtn.dataset.editId); return; }
     const deleteBtn = e.target.closest('[data-delete-id]');
