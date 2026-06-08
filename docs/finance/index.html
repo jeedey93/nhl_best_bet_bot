@@ -1023,7 +1023,7 @@
               ${h.weight != null ? `<div class="weight-bar-wrap"><div class="weight-bar"><div class="weight-bar-fill" style="width:${Math.min(h.weight,100)}%;background:${getSectorColor(h.sector)}"></div></div><span class="muted">${fmt(h.weight)}%</span></div>` : '—'}
             </td>
             <td class="col-hide-mobile muted">${h.annual_dividend ? fmtC((h.shares || 0) * h.annual_dividend / 12) + '/mo' : '—'}</td>
-            <td style="white-space:nowrap" onclick="event.stopPropagation()"><button class="btn-edit-row" data-edit-id="${h.id}">✎</button><button class="btn-delete-row" data-delete-id="${h.id}" data-delete-name="${escHtml(h.company_name || h.ticker || '')}">✕</button></td>
+            <td style="white-space:nowrap"><button class="btn-edit-row" data-edit-id="${h.id}" onclick="event.stopPropagation()">✎</button><button class="btn-delete-row" data-delete-id="${h.id}" data-delete-name="${escHtml(h.company_name || h.ticker || '')}" onclick="event.stopPropagation()">✕</button></td>
           </tr>`;
         });
       // Subtotal row per account (only in All view with multiple accounts)
