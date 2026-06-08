@@ -189,13 +189,17 @@
   <div class="form-row">
     <div class="form-group">
       <div class="form-label">Company Name</div>
-      <input class="form-input" id="hm-name" placeholder="Manulife Financial Corp">
+      <div class="ticker-wrap">
+        <input class="form-input" id="hm-name" placeholder="Manulife Financial Corp" autocomplete="off"
+          oninput="onStockInput('name', this.value)" onkeydown="onStockKeydown(event)">
+        <div class="ticker-dropdown" id="name-dropdown"></div>
+      </div>
     </div>
     <div class="form-group">
       <div class="form-label">Ticker</div>
       <div class="ticker-wrap">
         <input class="form-input" id="hm-ticker" placeholder="TSX:MFC" autocomplete="off"
-          oninput="onTickerInput(this.value)" onkeydown="onTickerKeydown(event)">
+          oninput="onStockInput('ticker', this.value)" onkeydown="onStockKeydown(event)">
         <div class="ticker-dropdown" id="ticker-dropdown"></div>
       </div>
       <div class="form-hint">TSX:MFC · MFC.TO · AAPL</div>
@@ -868,40 +872,41 @@
     } catch(e) { showToast('Failed to delete account.', true); }
   }
 
-  // ── Ticker autocomplete ───────────────────────────────────────────────────
-  let _tickerDebounce = null, _tickerFocusIdx = -1, _tickerResults = [];
-
-  function onTickerInput(val) {
-    _tickerFocusIdx = -1;
-    clearTimeout(_tickerDebounce);
-    const dd = document.getElementById('ticker-dropdown');
-    if (!val || val.length < 1) { dd.classList.remove('show'); dd.innerHTML = ''; return; }
-    dd.innerHTML = `<div class="ticker-searching"><span class="spinner"></span>Searching…</div>`;
-    dd.classList.add('show');
-    _tickerDebounce = setTimeout(() => searchTicker(val), 300);
-  }
-
-  async function searchTicker(q) {
-    try {
-      const res = await fetch(`/api/stock-search?q=${encodeURIComponent(q)}`);
-      _tickerResults = res.ok ? await res.json() : [];
-      renderTickerDropdown();
-    } catch(_) {
-      document.getElementById('ticker-dropdown').innerHTML = `<div class="ticker-searching">No results.</div>`;
-    }
-  }
-
+  // ── Stock autocomplete (shared by name + ticker fields) ──────────────────
   function yahooToDisplay(s) {
     if (s.endsWith('.TO')) return 'TSX:' + s.replace('.TO', '');
     if (s.endsWith('.V')) return 'TSX-V:' + s.replace('.V', '');
     return s;
   }
+  let _stockDebounce = null, _stockFocusIdx = -1, _stockResults = [], _stockActiveField = null;
 
-  function renderTickerDropdown() {
-    const dd = document.getElementById('ticker-dropdown');
-    if (!_tickerResults.length) { dd.innerHTML = `<div class="ticker-searching">No results.</div>`; return; }
-    dd.innerHTML = _tickerResults.map((r, i) =>
-      `<div class="ticker-option${i === _tickerFocusIdx ? ' focused' : ''}" onmousedown="selectTicker(${i})">
+  function onStockInput(field, val) {
+    _stockActiveField = field;
+    _stockFocusIdx = -1;
+    clearTimeout(_stockDebounce);
+    const ddId = field === 'name' ? 'name-dropdown' : 'ticker-dropdown';
+    closeAllDropdowns();
+    if (!val || val.length < 1) return;
+    const dd = document.getElementById(ddId);
+    dd.innerHTML = `<div class="ticker-searching"><span class="spinner"></span>Searching…</div>`;
+    dd.classList.add('show');
+    _stockDebounce = setTimeout(() => searchStock(val, field), 300);
+  }
+
+  async function searchStock(q, field) {
+    try {
+      const res = await fetch(`/api/stock-search?q=${encodeURIComponent(q)}`);
+      _stockResults = res.ok ? await res.json() : [];
+    } catch(_) { _stockResults = []; }
+    renderStockDropdown(field);
+  }
+
+  function renderStockDropdown(field) {
+    const ddId = field === 'name' ? 'name-dropdown' : 'ticker-dropdown';
+    const dd = document.getElementById(ddId);
+    if (!_stockResults.length) { dd.innerHTML = `<div class="ticker-searching">No results.</div>`; return; }
+    dd.innerHTML = _stockResults.map((r, i) =>
+      `<div class="ticker-option${i === _stockFocusIdx ? ' focused' : ''}" onmousedown="selectStock(${i})">
         <span class="to-symbol">${escHtml(yahooToDisplay(r.symbol))}</span>
         <span class="to-name">${escHtml(r.name)}</span>
         <span class="to-exchange">${escHtml(r.exchange)}</span>
@@ -910,30 +915,58 @@
     dd.classList.add('show');
   }
 
-  function selectTicker(idx) {
-    const r = _tickerResults[idx];
+  function selectStock(idx) {
+    const r = _stockResults[idx];
     if (!r) return;
-    document.getElementById('hm-ticker').value = yahooToDisplay(r.symbol);
-    if (!document.getElementById('hm-name').value.trim()) document.getElementById('hm-name').value = r.name;
-    closeTickerDropdown();
+    const display = yahooToDisplay(r.symbol);
+    document.getElementById('hm-ticker').value = display;
+    document.getElementById('hm-name').value = r.name;
+    if (r.sector && !document.getElementById('hm-sector').value.trim()) {
+      document.getElementById('hm-sector').value = r.sector;
+    }
+    closeAllDropdowns();
+    // Fetch dividend + sector details in background
+    autofillStockDetails(r.symbol);
   }
 
-  function closeTickerDropdown() {
-    const dd = document.getElementById('ticker-dropdown');
-    dd.classList.remove('show'); dd.innerHTML = '';
-    _tickerResults = []; _tickerFocusIdx = -1;
+  async function autofillStockDetails(yahooSymbol) {
+    try {
+      const res = await fetch(`/api/stock-details?symbol=${encodeURIComponent(yahooSymbol)}`);
+      if (!res.ok) return;
+      const d = await res.json();
+      if (d.sector && !document.getElementById('hm-sector').value.trim()) {
+        document.getElementById('hm-sector').value = d.sector;
+      }
+      if (d.annualDividend != null && !document.getElementById('hm-dividend').value.trim()) {
+        document.getElementById('hm-dividend').value = d.annualDividend;
+      }
+      if (d.dividendFrequency) {
+        // Map to our select values
+        const freqMap = { 'monthly': 'monthly', 'quarterly': 'quarterly', 'semi-annual': 'quarterly', 'annual': 'annual' };
+        document.getElementById('hm-div-freq').value = freqMap[d.dividendFrequency] || 'quarterly';
+      }
+    } catch(_) {}
   }
 
-  function onTickerKeydown(e) {
-    const dd = document.getElementById('ticker-dropdown');
-    if (!dd.classList.contains('show')) return;
-    if (e.key === 'ArrowDown') { e.preventDefault(); _tickerFocusIdx = Math.min(_tickerFocusIdx + 1, _tickerResults.length - 1); renderTickerDropdown(); }
-    else if (e.key === 'ArrowUp') { e.preventDefault(); _tickerFocusIdx = Math.max(_tickerFocusIdx - 1, 0); renderTickerDropdown(); }
-    else if (e.key === 'Enter' && _tickerFocusIdx >= 0) { e.preventDefault(); selectTicker(_tickerFocusIdx); }
-    else if (e.key === 'Escape') closeTickerDropdown();
+  function closeAllDropdowns() {
+    ['name-dropdown','ticker-dropdown'].forEach(id => {
+      const dd = document.getElementById(id);
+      if (dd) { dd.classList.remove('show'); dd.innerHTML = ''; }
+    });
+    _stockResults = []; _stockFocusIdx = -1; _stockActiveField = null;
   }
 
-  document.addEventListener('mousedown', e => { if (!e.target.closest('.ticker-wrap')) closeTickerDropdown(); });
+  function onStockKeydown(e) {
+    const ddId = _stockActiveField === 'name' ? 'name-dropdown' : 'ticker-dropdown';
+    const dd = document.getElementById(ddId);
+    if (!dd?.classList.contains('show')) return;
+    if (e.key === 'ArrowDown') { e.preventDefault(); _stockFocusIdx = Math.min(_stockFocusIdx + 1, _stockResults.length - 1); renderStockDropdown(_stockActiveField); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); _stockFocusIdx = Math.max(_stockFocusIdx - 1, 0); renderStockDropdown(_stockActiveField); }
+    else if (e.key === 'Enter' && _stockFocusIdx >= 0) { e.preventDefault(); selectStock(_stockFocusIdx); }
+    else if (e.key === 'Escape') closeAllDropdowns();
+  }
+
+  document.addEventListener('mousedown', e => { if (!e.target.closest('.ticker-wrap')) closeAllDropdowns(); });
 
   function showToast(msg, isError = false) {
     const el = document.getElementById('toast');

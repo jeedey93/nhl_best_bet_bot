@@ -48,6 +48,7 @@ module.exports = async (req, res) => {
         name: r.longname || r.shortname || r.symbol,
         exchange: r.exchDisp || r.exchange || '',
         type: r.quoteType || '',
+        sector: r.sectorDisp || r.sector || '',
       }));
 
     _cache.set(q, { ts: Date.now(), data });
