@@ -122,7 +122,7 @@ async function sbGet(path) {
 }
 
 async function sbUpsert(table, body) {
-  const r = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/${table}?on_conflict=portfolio_id,snapshot_date`, {
     method: 'POST',
     headers: { ...sbHeaders(true), 'Prefer': 'resolution=merge-duplicates,return=minimal' },
     body: JSON.stringify(body),
