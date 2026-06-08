@@ -34,15 +34,29 @@
     .lock-btn:hover { opacity: 0.85; }
     @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
 
-    /* ── Portfolio selector ── */
+    /* ── Page ── */
     .page { max-width: 1400px; margin: 0 auto; padding: 1.25rem 1.5rem 4rem; }
-    .portfolio-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.25rem; }
+
+    /* ── Portfolio row (top level) ── */
+    .portfolio-bar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 0; }
     .portfolio-tabs { display: flex; gap: 0.4rem; flex-wrap: wrap; }
     .ptab { font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 2px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); color: var(--silver); border-radius: 8px; padding: 0.4rem 1rem; cursor: pointer; transition: background 0.15s, color 0.15s, border-color 0.15s; }
     .ptab:hover { background: rgba(255,255,255,0.08); color: white; }
     .ptab.active { background: rgba(255,184,28,0.12); border-color: rgba(255,184,28,0.4); color: var(--gold); }
-    .btn-new-portfolio { font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 2px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); color: var(--silver); border-radius: 7px; padding: 0.4rem 0.9rem; cursor: pointer; transition: background 0.15s, color 0.15s; }
-    .btn-new-portfolio:hover { background: rgba(255,255,255,0.1); color: white; }
+    .btn-sm { font-family: 'Bebas Neue', cursive; font-size: 0.82rem; letter-spacing: 1.5px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); color: var(--silver); border-radius: 7px; padding: 0.35rem 0.85rem; cursor: pointer; transition: background 0.15s, color 0.15s; white-space: nowrap; }
+    .btn-sm:hover { background: rgba(255,255,255,0.1); color: white; }
+    .btn-sm.gold { background: rgba(255,184,28,0.08); border-color: rgba(255,184,28,0.25); color: var(--gold); }
+    .btn-sm.gold:hover { background: rgba(255,184,28,0.15); }
+
+    /* ── Account tabs (second level) ── */
+    .account-bar { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; border-bottom: 1px solid var(--line); padding: 0.75rem 0 0; margin-bottom: 1.25rem; }
+    .account-tabs { display: flex; gap: 0.3rem; flex-wrap: wrap; flex: 1; }
+    .atab { font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 2px; background: none; border: none; border-bottom: 2px solid transparent; color: rgba(255,255,255,0.35); padding: 0.35rem 0.85rem 0.4rem; cursor: pointer; transition: color 0.15s, border-color 0.15s; margin-bottom: -1px; }
+    .atab:hover { color: white; }
+    .atab.active { color: var(--gold); border-bottom-color: var(--gold); }
+    .atab.all { color: var(--silver); }
+    .atab.all.active { color: white; border-bottom-color: white; }
+    .account-bar-actions { display: flex; gap: 0.4rem; padding-bottom: 1px; }
 
     /* ── Summary bar ── */
     .summary-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; margin-bottom: 1.25rem; }
@@ -63,9 +77,6 @@
     /* ── Holdings table ── */
     .holdings-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.6rem; }
     .section-title { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 3px; color: var(--silver); opacity: 0.6; }
-    .btn-add-holding { font-family: 'Bebas Neue', cursive; font-size: 0.82rem; letter-spacing: 1.5px; background: rgba(255,184,28,0.1); border: 1px solid rgba(255,184,28,0.3); color: var(--gold); border-radius: 7px; padding: 0.35rem 0.85rem; cursor: pointer; transition: background 0.15s; }
-    .btn-add-holding:hover { background: rgba(255,184,28,0.18); }
-
     .holdings-table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid rgba(255,255,255,0.06); background: rgba(255,255,255,0.015); }
     table.holdings { width: 100%; border-collapse: collapse; min-width: 900px; }
     table.holdings th { font-size: 0.65rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.25); padding: 0.55rem 0.75rem; text-align: right; border-bottom: 1px solid rgba(255,255,255,0.08); white-space: nowrap; }
@@ -75,8 +86,10 @@
     table.holdings tr:last-child td { border-bottom: none; }
     table.holdings tr:hover td { background: rgba(255,255,255,0.03); }
     table.holdings tr.sector-row td { font-family: 'Bebas Neue', cursive; font-size: 0.72rem; letter-spacing: 2px; color: rgba(255,255,255,0.25); background: rgba(255,255,255,0.02); padding: 0.3rem 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    table.holdings tr.account-row td { font-family: 'Bebas Neue', cursive; font-size: 0.8rem; letter-spacing: 2px; color: var(--silver); background: rgba(255,255,255,0.035); padding: 0.4rem 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.08); opacity: 0.7; }
     table.holdings tr.total-row td { background: rgba(255,255,255,0.04); font-family: 'Bebas Neue', cursive; font-size: 0.9rem; border-top: 1px solid rgba(255,255,255,0.1); border-bottom: none; }
     .ticker-badge { font-family: 'Bebas Neue', cursive; font-size: 0.78rem; letter-spacing: 1px; color: rgba(255,255,255,0.3); margin-left: 0.4rem; }
+    .account-badge { font-size: 0.62rem; font-weight: 700; letter-spacing: 1px; color: rgba(255,255,255,0.25); background: rgba(255,255,255,0.06); border-radius: 3px; padding: 1px 5px; margin-left: 0.4rem; vertical-align: middle; }
     .pos { color: var(--green); }
     .neg { color: var(--red); }
     .muted { color: rgba(255,255,255,0.3); }
@@ -132,6 +145,7 @@
     .to-name { font-size: 0.8rem; font-weight: 600; color: white; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .to-exchange { font-size: 0.68rem; font-weight: 600; color: rgba(255,255,255,0.3); flex-shrink: 0; }
     .ticker-searching { padding: 0.5rem 0.75rem; font-size: 0.78rem; color: rgba(255,255,255,0.3); letter-spacing: 0.5px; }
+
     .modal-actions { display: flex; gap: 0.6rem; margin-top: 1.25rem; }
     .btn-modal-cancel { flex: 1; font-family: 'Bebas Neue', cursive; font-size: 0.95rem; letter-spacing: 2px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: var(--silver); border-radius: 8px; padding: 0.6rem; cursor: pointer; transition: background 0.15s; }
     .btn-modal-cancel:hover { background: rgba(255,255,255,0.1); color: white; }
@@ -155,7 +169,7 @@
   </div>
 </nav>
 
-<!-- Lock screen (shown when portfolio has a password) -->
+<!-- Lock screen -->
 <div id="lock-screen" style="display:none">
   <div style="font-size:2.5rem">🔒</div>
   <h2>Portfolio Locked</h2>
@@ -184,7 +198,7 @@
           oninput="onTickerInput(this.value)" onkeydown="onTickerKeydown(event)">
         <div class="ticker-dropdown" id="ticker-dropdown"></div>
       </div>
-      <div class="form-hint">TSX:MFC → MFC.TO for prices</div>
+      <div class="form-hint">TSX:MFC · MFC.TO · AAPL</div>
     </div>
   </div>
   <div class="form-row">
@@ -210,23 +224,23 @@
   </div>
   <div class="form-row">
     <div class="form-group">
+      <div class="form-label">Dividend Frequency</div>
+      <select class="form-input" id="hm-div-freq">
+        <option value="monthly">Monthly</option>
+        <option value="quarterly">Quarterly</option>
+        <option value="annual">Annual</option>
+      </select>
+    </div>
+    <div class="form-group">
       <div class="form-label">Dividend Month</div>
       <select class="form-input" id="hm-div-month">
-        <option value="all">Every month (equal split)</option>
+        <option value="all">Every month / auto</option>
         <option value="1">January</option><option value="2">February</option>
         <option value="3">March</option><option value="4">April</option>
         <option value="5">May</option><option value="6">June</option>
         <option value="7">July</option><option value="8">August</option>
         <option value="9">September</option><option value="10">October</option>
         <option value="11">November</option><option value="12">December</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <div class="form-label">Dividend Frequency</div>
-      <select class="form-input" id="hm-div-freq">
-        <option value="monthly">Monthly</option>
-        <option value="quarterly">Quarterly</option>
-        <option value="annual">Annual</option>
       </select>
     </div>
   </div>
@@ -237,7 +251,7 @@
   </div>
 </div>
 
-<!-- New portfolio modal -->
+<!-- Portfolio modal -->
 <div class="modal-backdrop" id="portfolio-backdrop" onclick="closePortfolioModal()"></div>
 <div class="modal" id="portfolio-modal">
   <div class="modal-title" id="portfolio-modal-title">New Portfolio</div>
@@ -245,25 +259,14 @@
   <div class="form-row full">
     <div class="form-group">
       <div class="form-label">Portfolio Name</div>
-      <input class="form-input" id="pm-name" placeholder="TFSA 2026">
-    </div>
-  </div>
-  <div class="form-row">
-    <div class="form-group">
-      <div class="form-label">Contribution Room ($)</div>
-      <input class="form-input" id="pm-room" type="number" step="1" placeholder="7000">
-      <div class="form-hint">TFSA/RRSP limit — optional</div>
-    </div>
-    <div class="form-group">
-      <div class="form-label">YTD Deposits ($)</div>
-      <input class="form-input" id="pm-deposits" type="number" step="0.01" placeholder="0">
+      <input class="form-input" id="pm-name" placeholder="e.g. Justin">
     </div>
   </div>
   <div class="form-row full">
     <div class="form-group">
       <div class="form-label">Password (optional)</div>
       <input class="form-input" id="pm-password" type="password" placeholder="Leave blank for no lock">
-      <div class="form-hint">Portfolio will be visible only to those with the password</div>
+      <div class="form-hint">Locks the entire portfolio and all its accounts</div>
     </div>
   </div>
   <div class="modal-actions">
@@ -272,19 +275,45 @@
   </div>
 </div>
 
-<div class="page" id="main-page">
+<!-- Account modal -->
+<div class="modal-backdrop" id="account-backdrop" onclick="closeAccountModal()"></div>
+<div class="modal" id="account-modal">
+  <div class="modal-title" id="account-modal-title">New Account</div>
+  <input type="hidden" id="am-id">
+  <div class="form-row full">
+    <div class="form-group">
+      <div class="form-label">Account Name</div>
+      <input class="form-input" id="am-name" placeholder="TFSA · RRSP · Margin">
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="form-group">
+      <div class="form-label">Contribution Room ($)</div>
+      <input class="form-input" id="am-room" type="number" step="1" placeholder="7000">
+      <div class="form-hint">TFSA/RRSP limit — optional</div>
+    </div>
+    <div class="form-group">
+      <div class="form-label">YTD Deposits ($)</div>
+      <input class="form-input" id="am-deposits" type="number" step="0.01" placeholder="0">
+    </div>
+  </div>
+  <div class="modal-actions">
+    <button class="btn-modal-delete" id="am-delete-btn" onclick="deleteAccount()" style="display:none">Delete</button>
+    <button class="btn-modal-cancel" onclick="closeAccountModal()">Cancel</button>
+    <button class="btn-modal-save" onclick="saveAccount()">Save</button>
+  </div>
+</div>
 
-  <div class="portfolio-header">
+<div class="page" id="main-page">
+  <div class="portfolio-bar">
     <div class="portfolio-tabs" id="portfolio-tabs">
       <div style="color:rgba(255,255,255,0.2);font-size:0.85rem;font-weight:600;letter-spacing:1px;padding:0.4rem 0.5rem;"><span class="spinner"></span>Loading…</div>
     </div>
-    <button class="btn-new-portfolio" onclick="openNewPortfolioModal()">+ New Portfolio</button>
+    <button class="btn-sm" onclick="openNewPortfolioModal()">+ Portfolio</button>
   </div>
-
   <div id="portfolio-content">
     <div class="empty-state">Select or create a portfolio above.</div>
   </div>
-
 </div>
 
 <script>
@@ -294,36 +323,33 @@
   function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
   function fmt(n, dec=2) { return n == null ? '—' : Number(n).toLocaleString('en-CA', { minimumFractionDigits: dec, maximumFractionDigits: dec }); }
   function fmtC(n) { if (n == null) return '—'; const abs = Math.abs(n); return (n < 0 ? '-' : '') + '$' + abs.toLocaleString('en-CA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
-  function clr(n) { return n > 0 ? 'pos' : n < 0 ? 'neg' : 'muted'; }
 
   const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   const SECTOR_COLORS = ['#ffb81c','#7db4ff','#22c55e','#ff7a8a','#a78bfa','#fb923c','#34d399','#60a5fa','#f472b6','#facc15'];
 
   let _portfolios = [];
   let _activePortfolio = null;
-  let _holdings = [];
-  let _prices = {}; // ticker → { price, previousClose, change, changePct }
+  let _accounts = [];       // accounts for active portfolio
+  let _activeAccount = null; // null = "All accounts" view
+  let _holdings = [];        // all holdings for active portfolio
+  let _prices = {};
   let _allocationChart = null;
   let _unlockedIds = new Set(JSON.parse(sessionStorage.getItem('fin_unlocked') || '[]'));
 
-  // ── SHA-256 ──────────────────────────────────────────────────────────────
   async function sha256(str) {
     const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
     return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
   }
 
-  // ── Ticker → Yahoo symbol ─────────────────────────────────────────────────
   function toYahoo(ticker) {
-    // "TSX:MFC" → "MFC.TO", "NYSE:T" → "T", already has suffix like "MFC.TO" → passthrough
     if (!ticker) return ticker;
-    const upper = ticker.toUpperCase();
-    if (upper.startsWith('TSX:')) return upper.replace('TSX:', '') + '.TO';
-    if (upper.startsWith('TSX-V:')) return upper.replace('TSX-V:', '') + '.V';
-    if (upper.includes(':')) return upper.split(':')[1]; // generic: strip exchange prefix
-    return upper;
+    const u = ticker.toUpperCase();
+    if (u.startsWith('TSX:')) return u.replace('TSX:', '') + '.TO';
+    if (u.startsWith('TSX-V:')) return u.replace('TSX-V:', '') + '.V';
+    if (u.includes(':')) return u.split(':')[1];
+    return u;
   }
 
-  // ── Supabase helpers ──────────────────────────────────────────────────────
   async function sbGet(path) {
     const r = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, { headers: sbH() });
     if (!r.ok) throw new Error(r.status);
@@ -344,11 +370,11 @@
     if (!r.ok) throw new Error(r.status);
   }
 
-  // ── Init ──────────────────────────────────────────────────────────────────
+  // ── Init ─────────────────────────────────────────────────────────────────
   async function init() {
     try {
       _portfolios = await sbGet('finance_portfolios?order=created_at.asc&select=*');
-      renderTabs();
+      renderPortfolioTabs();
       const urlP = new URLSearchParams(location.search).get('p');
       const target = urlP ? _portfolios.find(p => p.owner_code === urlP) : null;
       const first = target || _portfolios[0];
@@ -358,35 +384,36 @@
     }
   }
 
-  function renderTabs() {
+  // ── Portfolio tabs ────────────────────────────────────────────────────────
+  function renderPortfolioTabs() {
     const el = document.getElementById('portfolio-tabs');
     if (!_portfolios.length) { el.innerHTML = `<div style="color:rgba(255,255,255,0.2);font-size:0.85rem;font-weight:600;letter-spacing:1px;padding:0.4rem 0.5rem;">No portfolios yet</div>`; return; }
-    el.innerHTML = _portfolios.map(p => `
-      <button class="ptab${_activePortfolio?.id === p.id ? ' active' : ''}" onclick="selectPortfolio(${JSON.stringify(p).replace(/"/g,'&quot;')})">
+    el.innerHTML = _portfolios.map(p =>
+      `<button class="ptab${_activePortfolio?.id === p.id ? ' active' : ''}" onclick="selectPortfolio(${JSON.stringify({id:p.id,name:p.name,owner_code:p.owner_code,password_hash:p.password_hash}).replace(/"/g,'&quot;')})">
         ${escHtml(p.name)}${p.password_hash ? ' 🔒' : ''}
-      </button>`).join('');
+      </button>`
+    ).join('');
   }
 
   async function selectPortfolio(p) {
     _activePortfolio = p;
-    renderTabs();
-
-    // Check if locked
-    if (p.password_hash && !_unlockedIds.has(p.id)) {
-      showLockScreen(p);
-      return;
-    }
+    _activeAccount = null;
+    renderPortfolioTabs();
+    if (p.password_hash && !_unlockedIds.has(p.id)) { showLockScreen(p); return; }
     await loadPortfolio(p);
   }
 
   async function loadPortfolio(p) {
-    document.getElementById('portfolio-content').innerHTML = `<div class="empty-state"><span class="spinner"></span>Loading holdings…</div>`;
+    document.getElementById('portfolio-content').innerHTML = `<div class="empty-state"><span class="spinner"></span>Loading…</div>`;
     try {
-      _holdings = await sbGet(`finance_holdings?portfolio_id=eq.${p.id}&order=sector.asc,company_name.asc&select=*`);
-      renderPortfolio();
+      [_accounts, _holdings] = await Promise.all([
+        sbGet(`finance_accounts?portfolio_id=eq.${p.id}&order=created_at.asc&select=*`),
+        sbGet(`finance_holdings?portfolio_id=eq.${p.id}&order=account_id.asc,sector.asc,company_name.asc&select=*`),
+      ]);
+      renderContent();
       fetchPrices();
     } catch(e) {
-      document.getElementById('portfolio-content').innerHTML = `<div class="empty-state">Failed to load holdings.</div>`;
+      document.getElementById('portfolio-content').innerHTML = `<div class="empty-state">Failed to load.</div>`;
     }
   }
 
@@ -398,7 +425,6 @@
     document.getElementById('lock-input').value = '';
     document.getElementById('lock-screen').style.display = 'flex';
   }
-
   async function tryUnlock() {
     const input = document.getElementById('lock-input');
     const val = input.value;
@@ -420,26 +446,26 @@
   async function fetchPrices() {
     const tickers = [...new Set(_holdings.map(h => h.ticker).filter(Boolean))];
     if (!tickers.length) return;
-    const symbols = tickers.map(toYahoo).join(',');
     try {
-      const res = await fetch(`/api/stock-price?symbols=${encodeURIComponent(symbols)}`);
+      const res = await fetch(`/api/stock-price?symbols=${encodeURIComponent(tickers.map(toYahoo).join(','))}`);
       if (!res.ok) return;
       const data = await res.json();
-      // Map yahoo symbols back to our tickers
       _prices = {};
       tickers.forEach(t => { const y = toYahoo(t); if (data[y]) _prices[t] = data[y]; });
-      renderPortfolio();
+      renderContent();
     } catch(_) {}
   }
 
   // ── Render ────────────────────────────────────────────────────────────────
-  function renderPortfolio() {
-    const p = _activePortfolio;
-    if (!p) return;
+  function renderContent() {
+    // Filter holdings by active account (null = all)
+    const visibleHoldings = _activeAccount
+      ? _holdings.filter(h => h.account_id === _activeAccount.id)
+      : _holdings;
 
-    // Compute derived values
+    // Enrich
     let totalCost = 0, totalValue = 0, totalDayChange = 0, totalAnnualDiv = 0;
-    const enriched = _holdings.map(h => {
+    const enriched = visibleHoldings.map(h => {
       const price = _prices[h.ticker];
       const cost = (h.shares || 0) * (h.avg_price || 0);
       const marketValue = price ? (h.shares || 0) * price.price : null;
@@ -447,29 +473,61 @@
       const overallGain = marketValue != null ? marketValue - cost : null;
       const annualDiv = (h.shares || 0) * (h.annual_dividend || 0);
       totalCost += cost;
-      if (marketValue != null) totalValue += marketValue;
+      if (marketValue != null) totalValue += marketValue; else totalValue += cost;
       if (dayChange != null) totalDayChange += dayChange;
       totalAnnualDiv += annualDiv;
-      return { ...h, cost, marketValue, dayChange, overallGain, annualDiv, price: price?.price, previousClose: price?.previousClose, changePct: price?.changePct };
+      return { ...h, cost, marketValue, dayChange, overallGain, annualDiv, price: price?.price, changePct: price?.changePct };
     });
-    if (totalValue === 0) totalValue = totalCost; // fallback before prices load
+    enriched.forEach(h => { h.weight = totalValue > 0 ? ((h.marketValue ?? h.cost) / totalValue) * 100 : null; });
+
     const totalGain = totalValue - totalCost;
     const totalGainPct = totalCost > 0 ? (totalGain / totalCost) * 100 : 0;
     const totalDayPct = (totalValue - totalDayChange) > 0 ? (totalDayChange / (totalValue - totalDayChange)) * 100 : 0;
 
-    // Add weight
-    enriched.forEach(h => { h.weight = totalValue > 0 && h.marketValue != null ? (h.marketValue / totalValue) * 100 : null; });
+    // Active account's contribution room
+    const acc = _activeAccount;
+    const roomHtml = acc?.contribution_room ? `<div class="stat-card">
+      <div class="stat-label">Contribution Room</div>
+      <div class="stat-value gold">${fmtC(acc.contribution_room - (acc.ytd_deposits || 0))}</div>
+      <div class="stat-sub">${fmtC(acc.ytd_deposits || 0)} deposited · ${fmtC(acc.contribution_room)} limit</div>
+    </div>` : '';
 
-    // Build HTML
+    const cols = acc?.contribution_room ? 5 : 4;
+    const dayClr = totalDayChange >= 0 ? 'green' : 'red';
+    const gainClr = totalGain >= 0 ? 'green' : 'red';
+
     document.getElementById('portfolio-content').innerHTML = `
-      ${buildSummaryBar(totalValue, totalCost, totalGain, totalGainPct, totalDayChange, totalDayPct, totalAnnualDiv, p)}
+      ${buildAccountBar()}
+      <div class="summary-bar" style="grid-template-columns:repeat(${cols},1fr)">
+        <div class="stat-card">
+          <div class="stat-label">Market Value</div>
+          <div class="stat-value">${fmtC(totalValue)}</div>
+          <div class="stat-sub">Cost: ${fmtC(totalCost)}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Day Change</div>
+          <div class="stat-value ${dayClr}">${totalDayChange >= 0 ? '+' : ''}${fmtC(totalDayChange)}</div>
+          <div class="stat-sub">${totalDayChange >= 0 ? '+' : ''}${fmt(totalDayPct)}%</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Overall Gain</div>
+          <div class="stat-value ${gainClr}">${totalGain >= 0 ? '+' : ''}${fmtC(totalGain)}</div>
+          <div class="stat-sub">${totalGain >= 0 ? '+' : ''}${fmt(totalGainPct)}%</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Monthly Income</div>
+          <div class="stat-value gold">${fmtC(totalAnnualDiv / 12)}</div>
+          <div class="stat-sub">${fmtC(totalAnnualDiv)} / year</div>
+        </div>
+        ${roomHtml}
+      </div>
       <div class="main-layout">
         <div>
           <div class="holdings-header">
             <div class="section-title">Holdings</div>
-            <button class="btn-add-holding" onclick="openAddHolding()">+ Add Holding</button>
+            <button class="btn-sm gold" onclick="openAddHolding()">+ Add Holding</button>
           </div>
-          <div class="holdings-table-wrap">${buildHoldingsTable(enriched, totalValue)}</div>
+          <div class="holdings-table-wrap">${buildHoldingsTable(enriched)}</div>
         </div>
         <div class="chart-panel">
           <div class="section-title" style="margin-bottom:0.75rem">Allocation</div>
@@ -485,95 +543,97 @@
     renderAllocationChart(enriched);
   }
 
-  function buildSummaryBar(totalValue, totalCost, totalGain, totalGainPct, dayChange, dayPct, annualDiv, p) {
-    const dayClr = dayChange >= 0 ? 'green' : 'red';
-    const gainClr = totalGain >= 0 ? 'green' : 'red';
-    const monthlyIncome = annualDiv / 12;
-
-    let roomHtml = '';
-    if (p.contribution_room) {
-      const remaining = p.contribution_room - (p.ytd_deposits || 0);
-      roomHtml = `<div class="stat-card">
-        <div class="stat-label">TFSA / RRSP Room</div>
-        <div class="stat-value gold">$${fmt(remaining, 0)}</div>
-        <div class="stat-sub">$${fmt(p.ytd_deposits || 0, 0)} deposited YTD · $${fmt(p.contribution_room, 0)} limit</div>
-      </div>`;
-    }
-
-    return `<div class="summary-bar" style="${p.contribution_room ? 'grid-template-columns:repeat(5,1fr)' : ''}">
-      <div class="stat-card">
-        <div class="stat-label">Market Value</div>
-        <div class="stat-value">${fmtC(totalValue)}</div>
-        <div class="stat-sub">Cost: ${fmtC(totalCost)}</div>
+  function buildAccountBar() {
+    const editBtn = _activeAccount
+      ? `<button class="btn-sm" onclick="openEditAccount()" style="font-size:0.75rem;padding:0.25rem 0.6rem">✎ Edit</button>`
+      : '';
+    return `<div class="account-bar">
+      <div class="account-tabs">
+        <button class="atab all${!_activeAccount ? ' active' : ''}" onclick="selectAccount(null)">All</button>
+        ${_accounts.map(a =>
+          `<button class="atab${_activeAccount?.id === a.id ? ' active' : ''}" onclick="selectAccount('${a.id}')">${escHtml(a.name)}</button>`
+        ).join('')}
       </div>
-      <div class="stat-card">
-        <div class="stat-label">Day Change</div>
-        <div class="stat-value ${dayClr}">${dayChange >= 0 ? '+' : ''}${fmtC(dayChange)}</div>
-        <div class="stat-sub">${dayChange >= 0 ? '+' : ''}${fmt(dayPct)}%</div>
+      <div class="account-bar-actions">
+        ${editBtn}
+        <button class="btn-sm" onclick="openNewAccountModal()">+ Account</button>
       </div>
-      <div class="stat-card">
-        <div class="stat-label">Overall Gain</div>
-        <div class="stat-value ${gainClr}">${totalGain >= 0 ? '+' : ''}${fmtC(totalGain)}</div>
-        <div class="stat-sub">${totalGain >= 0 ? '+' : ''}${fmt(totalGainPct)}%</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Monthly Income</div>
-        <div class="stat-value gold">${fmtC(monthlyIncome)}</div>
-        <div class="stat-sub">${fmtC(annualDiv)} / year</div>
-      </div>
-      ${roomHtml}
     </div>`;
   }
 
-  function buildHoldingsTable(enriched, totalValue) {
-    if (!enriched.length) return `<div class="empty-state">No holdings yet. Add your first holding.</div>`;
+  function selectAccount(idOrNull) {
+    _activeAccount = idOrNull ? (_accounts.find(a => a.id === idOrNull) || null) : null;
+    renderContent();
+  }
 
-    const bySector = {};
-    enriched.forEach(h => { (bySector[h.sector || 'Other'] = bySector[h.sector || 'Other'] || []).push(h); });
+  function buildHoldingsTable(enriched) {
+    if (!enriched.length) return `<div class="empty-state">No holdings${_activeAccount ? ' in this account' : ''}. Add your first holding.</div>`;
+    const showAccountCol = !_activeAccount && _accounts.length > 1;
 
-    let totalCost = 0, totalValue2 = 0, totalDay = 0, totalGain = 0;
-    let rows = '';
-    for (const [sector, holdings] of Object.entries(bySector)) {
-      rows += `<tr class="sector-row"><td colspan="14">${escHtml(sector)}</td></tr>`;
-      holdings.forEach(h => {
-        const cost = h.cost;
-        const mv = h.marketValue ?? h.cost;
-        const day = h.dayChange ?? 0;
-        const gain = h.overallGain ?? 0;
-        totalCost += cost; totalValue2 += mv; totalDay += day; totalGain += gain;
-        const dayClr = (h.dayChange ?? 0) >= 0 ? 'pos' : 'neg';
-        const gainClr = gain >= 0 ? 'pos' : 'neg';
-        rows += `<tr>
-          <td class="left">${escHtml(h.company_name || '')} <span class="ticker-badge">${escHtml(h.ticker || '')}</span></td>
-          <td>${fmt(h.shares, 4)}</td>
-          <td>${fmtC(h.avg_price)}</td>
-          <td>${fmtC(cost)}</td>
-          <td class="${h.price ? '' : 'price-loading'}">${h.price ? fmtC(h.price) : 'loading…'}</td>
-          <td>${h.marketValue != null ? fmtC(h.marketValue) : '—'}</td>
-          <td class="${dayClr}">${h.dayChange != null ? (h.dayChange >= 0 ? '+' : '') + fmtC(h.dayChange) : '—'}</td>
-          <td class="${dayClr}">${h.changePct != null ? (h.changePct >= 0 ? '+' : '') + fmt(h.changePct) + '%' : '—'}</td>
-          <td class="${gainClr}">${h.overallGain != null ? (h.overallGain >= 0 ? '+' : '') + fmtC(h.overallGain) : '—'}</td>
-          <td class="${gainClr}">${h.overallGain != null && cost > 0 ? (h.overallGain >= 0 ? '+' : '') + fmt((h.overallGain / cost) * 100) + '%' : '—'}</td>
-          <td class="muted">${h.weight != null ? fmt(h.weight) + '%' : '—'}</td>
-          <td class="muted">${h.annual_dividend ? fmtC((h.shares || 0) * h.annual_dividend / 12) + '/mo' : '—'}</td>
-          <td><button class="btn-edit-row" onclick="openEditHolding(${h.id})">✎</button></td>
-        </tr>`;
+    // Group: if "All" view with multiple accounts, group by account then sector; otherwise just sector
+    const groups = [];
+    if (showAccountCol) {
+      // Group by account
+      const accountMap = Object.fromEntries(_accounts.map(a => [a.id, a.name]));
+      const byAccount = {};
+      enriched.forEach(h => {
+        const key = h.account_id || 'unassigned';
+        (byAccount[key] = byAccount[key] || []).push(h);
       });
+      for (const [accountId, holdings] of Object.entries(byAccount)) {
+        const accountName = accountMap[accountId] || 'Unassigned';
+        const bySector = {};
+        holdings.forEach(h => (bySector[h.sector || 'Other'] = bySector[h.sector || 'Other'] || []).push(h));
+        groups.push({ accountName, bySector });
+      }
+    } else {
+      const bySector = {};
+      enriched.forEach(h => (bySector[h.sector || 'Other'] = bySector[h.sector || 'Other'] || []).push(h));
+      groups.push({ accountName: null, bySector });
     }
-    const totalGainPct = totalCost > 0 ? (totalGain / totalCost) * 100 : 0;
-    const totalDayPct = (totalValue2 - totalDay) > 0 ? (totalDay / (totalValue2 - totalDay)) * 100 : 0;
+
+    let totalCost = 0, totalMv = 0, totalDay = 0, totalGain = 0;
+    let rows = '';
+    for (const { accountName, bySector } of groups) {
+      if (accountName) rows += `<tr class="account-row"><td colspan="13">${escHtml(accountName)}</td></tr>`;
+      for (const [sector, holdings] of Object.entries(bySector)) {
+        rows += `<tr class="sector-row"><td colspan="13">${accountName ? '  ' : ''}${escHtml(sector)}</td></tr>`;
+        holdings.forEach(h => {
+          const mv = h.marketValue ?? h.cost;
+          totalCost += h.cost; totalMv += mv;
+          if (h.dayChange != null) totalDay += h.dayChange;
+          if (h.overallGain != null) totalGain += h.overallGain;
+          const dc = (h.dayChange ?? 0) >= 0 ? 'pos' : 'neg';
+          const gc = (h.overallGain ?? 0) >= 0 ? 'pos' : 'neg';
+          rows += `<tr>
+            <td class="left">${escHtml(h.company_name || '')} <span class="ticker-badge">${escHtml(h.ticker || '')}</span></td>
+            <td>${fmt(h.shares, 4)}</td>
+            <td>${fmtC(h.avg_price)}</td>
+            <td>${fmtC(h.cost)}</td>
+            <td class="${h.price ? '' : 'price-loading'}">${h.price ? fmtC(h.price) : 'loading…'}</td>
+            <td>${h.marketValue != null ? fmtC(h.marketValue) : '—'}</td>
+            <td class="${dc}">${h.dayChange != null ? (h.dayChange >= 0 ? '+' : '') + fmtC(h.dayChange) : '—'}</td>
+            <td class="${dc}">${h.changePct != null ? (h.changePct >= 0 ? '+' : '') + fmt(h.changePct) + '%' : '—'}</td>
+            <td class="${gc}">${h.overallGain != null ? (h.overallGain >= 0 ? '+' : '') + fmtC(h.overallGain) : '—'}</td>
+            <td class="${gc}">${h.overallGain != null && h.cost > 0 ? (h.overallGain >= 0 ? '+' : '') + fmt((h.overallGain / h.cost) * 100) + '%' : '—'}</td>
+            <td class="muted">${h.weight != null ? fmt(h.weight) + '%' : '—'}</td>
+            <td class="muted">${h.annual_dividend ? fmtC((h.shares || 0) * h.annual_dividend / 12) + '/mo' : '—'}</td>
+            <td><button class="btn-edit-row" onclick="openEditHolding(${escHtml(String(h.id))})">✎</button></td>
+          </tr>`;
+        });
+      }
+    }
+    const tgPct = totalCost > 0 ? (totalGain / totalCost) * 100 : 0;
+    const tdPct = (totalMv - totalDay) > 0 ? (totalDay / (totalMv - totalDay)) * 100 : 0;
     rows += `<tr class="total-row">
-      <td class="left">Total</td>
-      <td></td><td></td>
-      <td>${fmtC(totalCost)}</td>
-      <td></td>
-      <td>${fmtC(totalValue2)}</td>
+      <td class="left">Total</td><td></td><td></td>
+      <td>${fmtC(totalCost)}</td><td></td>
+      <td>${fmtC(totalMv)}</td>
       <td class="${totalDay >= 0 ? 'pos' : 'neg'}">${totalDay >= 0 ? '+' : ''}${fmtC(totalDay)}</td>
-      <td class="${totalDay >= 0 ? 'pos' : 'neg'}">${totalDay >= 0 ? '+' : ''}${fmt(totalDayPct)}%</td>
+      <td class="${totalDay >= 0 ? 'pos' : 'neg'}">${totalDay >= 0 ? '+' : ''}${fmt(tdPct)}%</td>
       <td class="${totalGain >= 0 ? 'pos' : 'neg'}">${totalGain >= 0 ? '+' : ''}${fmtC(totalGain)}</td>
-      <td class="${totalGain >= 0 ? 'pos' : 'neg'}">${totalGain >= 0 ? '+' : ''}${fmt(totalGainPct)}%</td>
-      <td class="muted">100%</td>
-      <td></td><td></td>
+      <td class="${totalGain >= 0 ? 'pos' : 'neg'}">${totalGain >= 0 ? '+' : ''}${fmt(tgPct)}%</td>
+      <td class="muted">100%</td><td></td><td></td>
     </tr>`;
 
     return `<table class="holdings">
@@ -591,65 +651,46 @@
 
   function buildDividendCalendar(enriched) {
     const withDiv = enriched.filter(h => h.annual_dividend > 0 && h.shares > 0);
-    if (!withDiv.length) return `<div class="empty-state" style="padding:1.5rem">No dividend data. Add annual dividend per share when editing holdings.</div>`;
-
+    if (!withDiv.length) return `<div class="empty-state" style="padding:1.5rem">No dividend data. Add annual dividend/share when editing holdings.</div>`;
     const monthTotals = Array(12).fill(0);
     const rows = withDiv.map(h => {
       const freq = h.div_freq || 'monthly';
       const annual = (h.shares || 0) * (h.annual_dividend || 0);
       const cells = Array.from({ length: 12 }, (_, i) => {
         let amt = 0;
-        if (freq === 'monthly') {
-          amt = annual / 12;
-        } else if (freq === 'quarterly') {
-          const qMonths = [2, 5, 8, 11]; // Mar, Jun, Sep, Dec
-          amt = qMonths.includes(i) ? annual / 4 : 0;
-        } else if (freq === 'annual') {
-          const divMonth = parseInt(h.div_month) - 1;
-          amt = !isNaN(divMonth) && i === divMonth ? annual : 0;
-        }
+        if (freq === 'monthly') { amt = annual / 12; }
+        else if (freq === 'quarterly') { amt = [2,5,8,11].includes(i) ? annual / 4 : 0; }
+        else if (freq === 'annual') { const m = parseInt(h.div_month) - 1; amt = !isNaN(m) && i === m ? annual : 0; }
         monthTotals[i] += amt;
         return amt;
       });
       return { h, cells };
     });
-
-    const headerCells = ['<div class="div-cell name-hdr">Stock</div>', ...MONTHS.map(m => `<div class="div-cell month-hdr">${m}</div>`)].join('');
-    const dataRows = rows.map(({ h, cells }) =>
+    const hdr = `<div class="div-cell name-hdr">Stock</div>` + MONTHS.map(m => `<div class="div-cell month-hdr">${m}</div>`).join('');
+    const data = rows.map(({ h, cells }) =>
       `<div class="div-cell name-cell">${escHtml(h.company_name || h.ticker || '')}</div>` +
       cells.map(v => `<div class="div-cell ${v > 0 ? 'has-div' : 'zero'}">${v > 0 ? fmtC(v) : '—'}</div>`).join('')
     ).join('');
-    const totalRow = `<div class="div-cell total-label">Monthly Total</div>` +
+    const totals = `<div class="div-cell total-label">Monthly Total</div>` +
       monthTotals.map(v => `<div class="div-cell total-cell">${v > 0 ? fmtC(v) : '—'}</div>`).join('');
-
-    return `<div class="div-grid">${headerCells}${dataRows}${totalRow}</div>`;
+    return `<div class="div-grid">${hdr}${data}${totals}</div>`;
   }
 
   function renderAllocationChart(enriched) {
     const sectors = {};
-    enriched.forEach(h => {
-      const s = h.sector || 'Other';
-      sectors[s] = (sectors[s] || 0) + (h.marketValue ?? h.cost);
-    });
-    const labels = Object.keys(sectors);
-    const values = Object.values(sectors);
+    enriched.forEach(h => { const s = h.sector || 'Other'; sectors[s] = (sectors[s] || 0) + (h.marketValue ?? h.cost); });
+    const labels = Object.keys(sectors), values = Object.values(sectors);
     const total = values.reduce((a, b) => a + b, 0);
     const colors = labels.map((_, i) => SECTOR_COLORS[i % SECTOR_COLORS.length]);
-
     const canvas = document.getElementById('allocation-chart');
     if (!canvas) return;
-
     if (_allocationChart) { _allocationChart.destroy(); _allocationChart = null; }
-
     _allocationChart = new Chart(canvas.getContext('2d'), {
       type: 'doughnut',
       data: { labels, datasets: [{ data: values, backgroundColor: colors, borderColor: '#07111f', borderWidth: 3, hoverOffset: 6 }] },
-      options: {
-        responsive: true, maintainAspectRatio: true, cutout: '65%',
-        plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${fmt(ctx.parsed / total * 100)}%  ${fmtC(ctx.parsed)}` } } }
-      }
+      options: { responsive: true, maintainAspectRatio: true, cutout: '65%',
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${fmt(ctx.parsed / total * 100)}%  ${fmtC(ctx.parsed)}` } } } }
     });
-
     document.getElementById('chart-legend').innerHTML = labels.map((l, i) =>
       `<div class="legend-row"><div style="display:flex;align-items:center;min-width:0"><div class="legend-dot" style="background:${colors[i]}"></div><span class="legend-name">${escHtml(l)}</span></div><span class="legend-pct">${fmt(values[i] / total * 100)}%</span></div>`
     ).join('');
@@ -659,16 +700,10 @@
   function openAddHolding() {
     document.getElementById('holding-modal-title').textContent = 'Add Holding';
     document.getElementById('hm-id').value = '';
-    document.getElementById('hm-name').value = '';
-    document.getElementById('hm-ticker').value = '';
-    document.getElementById('hm-sector').value = '';
-    document.getElementById('hm-shares').value = '';
-    document.getElementById('hm-avg-price').value = '';
-    document.getElementById('hm-dividend').value = '';
+    ['hm-name','hm-ticker','hm-sector','hm-shares','hm-avg-price','hm-dividend'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('hm-div-month').value = 'all';
     document.getElementById('hm-div-freq').value = 'monthly';
     document.getElementById('hm-delete-btn').style.display = 'none';
-    // Populate sector datalist
     const sectors = [...new Set(_holdings.map(h => h.sector).filter(Boolean))];
     document.getElementById('sector-list').innerHTML = sectors.map(s => `<option value="${escHtml(s)}">`).join('');
     document.getElementById('holding-backdrop').classList.add('show');
@@ -677,7 +712,7 @@
   }
 
   function openEditHolding(id) {
-    const h = _holdings.find(x => x.id === id);
+    const h = _holdings.find(x => String(x.id) === String(id));
     if (!h) return;
     document.getElementById('holding-modal-title').textContent = 'Edit Holding';
     document.getElementById('hm-id').value = h.id;
@@ -697,12 +732,14 @@
   function closeHoldingModal() {
     document.getElementById('holding-backdrop').classList.remove('show');
     document.getElementById('holding-modal').classList.remove('show');
+    closeTickerDropdown();
   }
 
   async function saveHolding() {
     const id = document.getElementById('hm-id').value;
     const body = {
       portfolio_id: _activePortfolio.id,
+      account_id: _activeAccount?.id || null,
       company_name: document.getElementById('hm-name').value.trim(),
       ticker: document.getElementById('hm-ticker').value.trim().toUpperCase(),
       sector: document.getElementById('hm-sector').value.trim() || 'Other',
@@ -714,16 +751,11 @@
     };
     if (!body.company_name && !body.ticker) { showToast('Enter a company name or ticker.', true); return; }
     try {
-      if (id) {
-        await sbPatch(`finance_holdings?id=eq.${id}`, body);
-      } else {
-        await sbPost('finance_holdings', body);
-      }
+      if (id) await sbPatch(`finance_holdings?id=eq.${id}`, body);
+      else await sbPost('finance_holdings', body);
       closeHoldingModal();
       await loadPortfolio(_activePortfolio);
-    } catch(e) {
-      showToast('Failed to save holding.', true);
-    }
+    } catch(e) { showToast('Failed to save.', true); }
   }
 
   async function deleteHolding() {
@@ -733,9 +765,7 @@
       await sbDelete(`finance_holdings?id=eq.${id}`);
       closeHoldingModal();
       await loadPortfolio(_activePortfolio);
-    } catch(e) {
-      showToast('Failed to delete.', true);
-    }
+    } catch(e) { showToast('Failed to delete.', true); }
   }
 
   // ── Portfolio modal ───────────────────────────────────────────────────────
@@ -743,8 +773,6 @@
     document.getElementById('portfolio-modal-title').textContent = 'New Portfolio';
     document.getElementById('pm-id').value = '';
     document.getElementById('pm-name').value = '';
-    document.getElementById('pm-room').value = '';
-    document.getElementById('pm-deposits').value = '';
     document.getElementById('pm-password').value = '';
     document.getElementById('portfolio-backdrop').classList.add('show');
     document.getElementById('portfolio-modal').classList.add('show');
@@ -761,36 +789,87 @@
     if (!name) { showToast('Enter a portfolio name.', true); return; }
     const password = document.getElementById('pm-password').value;
     const ownerCode = name.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Date.now().toString(36);
-    const body = {
-      name,
-      owner_code: ownerCode,
-      password_hash: password ? await sha256(password) : null,
-      contribution_room: parseFloat(document.getElementById('pm-room').value) || null,
-      ytd_deposits: parseFloat(document.getElementById('pm-deposits').value) || 0,
-    };
+    const body = { name, owner_code: ownerCode, password_hash: password ? await sha256(password) : null };
     try {
       const [created] = await sbPost('finance_portfolios', body);
       _portfolios.push(created);
       closePortfolioModal();
-      renderTabs();
+      renderPortfolioTabs();
       selectPortfolio(created);
-    } catch(e) {
-      showToast('Failed to create portfolio.', true);
-    }
+    } catch(e) { showToast('Failed to create portfolio.', true); }
   }
 
-  // ── Toast ─────────────────────────────────────────────────────────────────
-  function showToast(msg, isError = false) {
-    const el = document.getElementById('toast');
-    el.textContent = msg; el.style.display = 'block';
-    el.style.borderColor = isError ? 'rgba(200,16,46,0.4)' : 'rgba(255,255,255,0.12)';
-    setTimeout(() => el.style.display = 'none', 3000);
+  // ── Account modal ─────────────────────────────────────────────────────────
+  function openNewAccountModal() {
+    document.getElementById('account-modal-title').textContent = 'New Account';
+    document.getElementById('am-id').value = '';
+    document.getElementById('am-name').value = '';
+    document.getElementById('am-room').value = '';
+    document.getElementById('am-deposits').value = '';
+    document.getElementById('am-delete-btn').style.display = 'none';
+    document.getElementById('account-backdrop').classList.add('show');
+    document.getElementById('account-modal').classList.add('show');
+    setTimeout(() => document.getElementById('am-name').focus(), 100);
+  }
+
+  function openEditAccount() {
+    if (!_activeAccount) return;
+    const a = _activeAccount;
+    document.getElementById('account-modal-title').textContent = 'Edit Account';
+    document.getElementById('am-id').value = a.id;
+    document.getElementById('am-name').value = a.name || '';
+    document.getElementById('am-room').value = a.contribution_room || '';
+    document.getElementById('am-deposits').value = a.ytd_deposits || '';
+    document.getElementById('am-delete-btn').style.display = 'inline-block';
+    document.getElementById('account-backdrop').classList.add('show');
+    document.getElementById('account-modal').classList.add('show');
+  }
+
+  function closeAccountModal() {
+    document.getElementById('account-backdrop').classList.remove('show');
+    document.getElementById('account-modal').classList.remove('show');
+  }
+
+  async function saveAccount() {
+    const id = document.getElementById('am-id').value;
+    const name = document.getElementById('am-name').value.trim();
+    if (!name) { showToast('Enter an account name.', true); return; }
+    const body = {
+      portfolio_id: _activePortfolio.id,
+      name,
+      contribution_room: parseFloat(document.getElementById('am-room').value) || null,
+      ytd_deposits: parseFloat(document.getElementById('am-deposits').value) || 0,
+    };
+    try {
+      if (id) {
+        const [updated] = await sbPatch(`finance_accounts?id=eq.${id}`, body);
+        const idx = _accounts.findIndex(a => a.id === id);
+        if (idx >= 0) _accounts[idx] = updated;
+        if (_activeAccount?.id === id) _activeAccount = updated;
+      } else {
+        const [created] = await sbPost('finance_accounts', body);
+        _accounts.push(created);
+        _activeAccount = created;
+      }
+      closeAccountModal();
+      renderContent();
+    } catch(e) { showToast('Failed to save account.', true); }
+  }
+
+  async function deleteAccount() {
+    const id = document.getElementById('am-id').value;
+    if (!id) return;
+    try {
+      await sbDelete(`finance_accounts?id=eq.${id}`);
+      _accounts = _accounts.filter(a => a.id !== id);
+      _activeAccount = null;
+      closeAccountModal();
+      renderContent();
+    } catch(e) { showToast('Failed to delete account.', true); }
   }
 
   // ── Ticker autocomplete ───────────────────────────────────────────────────
-  let _tickerDebounce = null;
-  let _tickerFocusIdx = -1;
-  let _tickerResults = [];
+  let _tickerDebounce = null, _tickerFocusIdx = -1, _tickerResults = [];
 
   function onTickerInput(val) {
     _tickerFocusIdx = -1;
@@ -805,83 +884,63 @@
   async function searchTicker(q) {
     try {
       const res = await fetch(`/api/stock-search?q=${encodeURIComponent(q)}`);
-      if (!res.ok) throw new Error();
-      _tickerResults = await res.json();
+      _tickerResults = res.ok ? await res.json() : [];
       renderTickerDropdown();
     } catch(_) {
-      const dd = document.getElementById('ticker-dropdown');
-      dd.innerHTML = `<div class="ticker-searching">No results found.</div>`;
+      document.getElementById('ticker-dropdown').innerHTML = `<div class="ticker-searching">No results.</div>`;
     }
+  }
+
+  function yahooToDisplay(s) {
+    if (s.endsWith('.TO')) return 'TSX:' + s.replace('.TO', '');
+    if (s.endsWith('.V')) return 'TSX-V:' + s.replace('.V', '');
+    return s;
   }
 
   function renderTickerDropdown() {
     const dd = document.getElementById('ticker-dropdown');
-    if (!_tickerResults.length) {
-      dd.innerHTML = `<div class="ticker-searching">No results found.</div>`;
-      return;
-    }
-    dd.innerHTML = _tickerResults.map((r, i) => {
-      // Convert Yahoo symbol back to display format: MFC.TO → TSX:MFC
-      const display = yahooToDisplay(r.symbol);
-      return `<div class="ticker-option${i === _tickerFocusIdx ? ' focused' : ''}"
-        onmousedown="selectTicker(${i})" data-idx="${i}">
-        <span class="to-symbol">${escHtml(display)}</span>
+    if (!_tickerResults.length) { dd.innerHTML = `<div class="ticker-searching">No results.</div>`; return; }
+    dd.innerHTML = _tickerResults.map((r, i) =>
+      `<div class="ticker-option${i === _tickerFocusIdx ? ' focused' : ''}" onmousedown="selectTicker(${i})">
+        <span class="to-symbol">${escHtml(yahooToDisplay(r.symbol))}</span>
         <span class="to-name">${escHtml(r.name)}</span>
         <span class="to-exchange">${escHtml(r.exchange)}</span>
-      </div>`;
-    }).join('');
+      </div>`
+    ).join('');
     dd.classList.add('show');
-  }
-
-  function yahooToDisplay(symbol) {
-    if (symbol.endsWith('.TO')) return 'TSX:' + symbol.replace('.TO', '');
-    if (symbol.endsWith('.V')) return 'TSX-V:' + symbol.replace('.V', '');
-    return symbol;
   }
 
   function selectTicker(idx) {
     const r = _tickerResults[idx];
     if (!r) return;
-    const display = yahooToDisplay(r.symbol);
-    document.getElementById('hm-ticker').value = display;
-    // Auto-fill company name if empty
-    if (!document.getElementById('hm-name').value.trim()) {
-      document.getElementById('hm-name').value = r.name;
-    }
+    document.getElementById('hm-ticker').value = yahooToDisplay(r.symbol);
+    if (!document.getElementById('hm-name').value.trim()) document.getElementById('hm-name').value = r.name;
     closeTickerDropdown();
   }
 
   function closeTickerDropdown() {
     const dd = document.getElementById('ticker-dropdown');
-    dd.classList.remove('show');
-    dd.innerHTML = '';
-    _tickerResults = [];
-    _tickerFocusIdx = -1;
+    dd.classList.remove('show'); dd.innerHTML = '';
+    _tickerResults = []; _tickerFocusIdx = -1;
   }
 
   function onTickerKeydown(e) {
     const dd = document.getElementById('ticker-dropdown');
     if (!dd.classList.contains('show')) return;
-    if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      _tickerFocusIdx = Math.min(_tickerFocusIdx + 1, _tickerResults.length - 1);
-      renderTickerDropdown();
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      _tickerFocusIdx = Math.max(_tickerFocusIdx - 1, 0);
-      renderTickerDropdown();
-    } else if (e.key === 'Enter' && _tickerFocusIdx >= 0) {
-      e.preventDefault();
-      selectTicker(_tickerFocusIdx);
-    } else if (e.key === 'Escape') {
-      closeTickerDropdown();
-    }
+    if (e.key === 'ArrowDown') { e.preventDefault(); _tickerFocusIdx = Math.min(_tickerFocusIdx + 1, _tickerResults.length - 1); renderTickerDropdown(); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); _tickerFocusIdx = Math.max(_tickerFocusIdx - 1, 0); renderTickerDropdown(); }
+    else if (e.key === 'Enter' && _tickerFocusIdx >= 0) { e.preventDefault(); selectTicker(_tickerFocusIdx); }
+    else if (e.key === 'Escape') closeTickerDropdown();
   }
 
-  // Close dropdown when clicking outside
-  document.addEventListener('mousedown', e => {
-    if (!e.target.closest('.ticker-wrap')) closeTickerDropdown();
-  });
+  document.addEventListener('mousedown', e => { if (!e.target.closest('.ticker-wrap')) closeTickerDropdown(); });
+
+  function showToast(msg, isError = false) {
+    const el = document.getElementById('toast');
+    el.textContent = msg; el.style.display = 'block';
+    el.style.borderColor = isError ? 'rgba(200,16,46,0.4)' : 'rgba(255,255,255,0.12)';
+    setTimeout(() => el.style.display = 'none', 3000);
+  }
 
   init();
 </script>
