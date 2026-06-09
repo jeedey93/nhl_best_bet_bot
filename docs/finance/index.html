@@ -1198,8 +1198,8 @@
     let lastAccId = '__none__';
     let grpCost = 0, grpMv = 0, grpDay = 0;
 
-    const allForCards = sortEnrichedHoldings(
-      groups.flatMap(({ accountName, bySector }) =>
+    const allForCards = groups.flatMap(({ accountName, bySector }) =>
+      sortEnrichedHoldings(
         Object.values(bySector).flat().map(h => ({ ...h, _accLabel: accountName }))
       )
     );
