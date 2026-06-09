@@ -806,6 +806,7 @@
       renderContent();
       fetchPrices();
       startPriceRefresh();
+      if (!silent) refreshAllDivDates();
     } catch(e) {
       console.error('loadPortfolio failed:', e.message, e.stack);
       document.getElementById('portfolio-content').innerHTML = `<div class="empty-state">Failed to load.</div>`;
@@ -2018,6 +2019,17 @@
         field.value = p.price.toFixed(2);
       }
     } catch(_) {}
+  }
+
+  async function refreshAllDivDates() {
+    // Run concurrently but throttled — don't await, fully background
+    const eligible = _holdings.filter(h => h.ticker && !h.ticker.includes('.DE') && !h.ticker.includes('.PA') && !h.ticker.includes('.L'));
+    // Stagger requests to avoid hammering TMX
+    for (let i = 0; i < eligible.length; i++) {
+      const h = eligible[i];
+      refreshDivDatesFromTmx(h.id, h.ticker);
+      if (i % 3 === 2) await new Promise(r => setTimeout(r, 300)); // small pause every 3
+    }
   }
 
   async function refreshDivDatesFromTmx(holdingId, ticker) {
