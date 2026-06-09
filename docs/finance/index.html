@@ -615,7 +615,7 @@
   let _prices = {};
   let _holdingsSort = { col: 'day%', dir: -1 };
   let _accountChart = null, _sectorChart = null, _gainLossChart = null, _incomeChart = null, _weightChart = null, _valueChart = null;
-  let _unlockedIds = new Set(JSON.parse(sessionStorage.getItem('fin_unlocked') || '[]'));
+  let _unlockedIds = new Set(JSON.parse(localStorage.getItem('fin_unlocked') || '[]'));
 
   async function sha256(str) {
     const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
@@ -845,7 +845,7 @@
     const hash = await sha256(val);
     if (hash === _lockPortfolio.password_hash) {
       _unlockedIds.add(_lockPortfolio.id);
-      sessionStorage.setItem('fin_unlocked', JSON.stringify([..._unlockedIds]));
+      localStorage.setItem('fin_unlocked', JSON.stringify([..._unlockedIds]));
       document.getElementById('lock-screen').style.display = 'none';
       await loadPortfolio(_lockPortfolio, _lockAccountSlug);
     } else {
