@@ -608,7 +608,7 @@
   let _activeAccount = null; // null = "All accounts" view
   let _holdings = [];        // all holdings for active portfolio
   let _prices = {};
-  let _holdingsSort = { col: null, dir: -1 }; // null=default, dir: 1=asc -1=desc
+  let _holdingsSort = { col: 'gain%', dir: -1 };
   let _accountChart = null, _sectorChart = null, _gainLossChart = null, _incomeChart = null, _weightChart = null, _valueChart = null;
   let _unlockedIds = new Set(JSON.parse(sessionStorage.getItem('fin_unlocked') || '[]'));
 
@@ -1065,7 +1065,8 @@
       let av, bv;
       switch(col) {
         case 'mv':     av = a.marketValue ?? -Infinity; bv = b.marketValue ?? -Infinity; break;
-        case 'day%':   av = a.changePct ?? -Infinity;  bv = b.changePct ?? -Infinity; break;
+        case 'day$':   av = a.dayChange ?? -Infinity;   bv = b.dayChange ?? -Infinity; break;
+        case 'day%':   av = a.changePct ?? -Infinity;   bv = b.changePct ?? -Infinity; break;
         case 'gain$':  av = a.overallGain ?? -Infinity; bv = b.overallGain ?? -Infinity; break;
         case 'gain%':  av = a.cost > 0 ? (a.overallGain??0)/a.cost : -Infinity; bv = b.cost > 0 ? (b.overallGain??0)/b.cost : -Infinity; break;
         case 'weight': av = a.weight ?? -Infinity; bv = b.weight ?? -Infinity; break;
