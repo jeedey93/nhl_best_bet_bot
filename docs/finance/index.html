@@ -2456,17 +2456,26 @@
     ctx.fillText('parieurdiscipline.com/finance',W/2,H-6);
 
     btn.textContent='📤 Share'; btn.disabled=false;
-    try {
-      canvas.toBlob(async blob=>{
-        await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]);
-        showToast('📋 Copied to clipboard!');
-      },'image/png');
-    } catch(e){
-      const a=document.createElement('a');
-      a.download=`snapshot-${new Date().toISOString().slice(0,10)}.png`;
-      a.href=canvas.toDataURL('image/png'); a.click();
+
+    canvas.toBlob(async blob=>{
+      const file = new File([blob], `snapshot-${new Date().toISOString().slice(0,10)}.png`, { type: 'image/png' });
+      // 1. Native share sheet (iOS Safari, Android Chrome)
+      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+        try { await navigator.share({ files: [file], title: 'Portfolio Snapshot' }); return; } catch(_) {}
+      }
+      // 2. Clipboard (desktop Chrome/Edge)
+      if (navigator.clipboard?.write) {
+        try {
+          await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+          showToast('📋 Copied to clipboard!'); return;
+        } catch(_) {}
+      }
+      // 3. Download fallback
+      const a = document.createElement('a');
+      a.download = file.name;
+      a.href = canvas.toDataURL('image/png'); a.click();
       showToast('Saved as image');
-    }
+    }, 'image/png');
   }
 
   function roundRect(ctx, x, y, w, h, r) {
