@@ -77,10 +77,18 @@
     .account-bar-actions { display: flex; gap: 0.4rem; padding-bottom: 1px; }
 
     /* ── Summary bar ── */
-    .summary-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; margin-bottom: 1.25rem; }
-    @media (max-width: 700px) { .summary-bar { grid-template-columns: repeat(2, 1fr); } }
+    .summary-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin-bottom: 1.25rem; }
+    .summary-bar .stat-card-day { grid-column: 1 / -1; }
+    @media (max-width: 700px) { .summary-bar { grid-template-columns: repeat(2, 1fr); } .summary-bar .stat-card-day { grid-column: 1 / -1; } }
     @media (max-width: 400px) { .summary-bar { grid-template-columns: 1fr; } }
     .stat-card { background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; padding: 1rem 1.25rem; }
+    .stat-card-day { border-radius: 14px; padding: 1.1rem 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+    .stat-card-day.day-positive { background: rgba(74,222,128,0.08); border: 1px solid rgba(74,222,128,0.3); }
+    .stat-card-day.day-negative { background: rgba(248,113,113,0.07); border: 1px solid rgba(248,113,113,0.25); }
+    .stat-card-day .stat-label { font-size: 0.68rem; font-weight: 700; letter-spacing: 2px; color: rgba(255,255,255,0.35); text-transform: uppercase; margin-bottom: 0.2rem; }
+    .stat-card-day .day-main { font-family: 'Bebas Neue', cursive; font-size: clamp(2.2rem, 8vw, 3.2rem); letter-spacing: 1px; line-height: 1; }
+    .stat-card-day .day-pct { font-family: 'Bebas Neue', cursive; font-size: clamp(1.1rem, 3vw, 1.5rem); letter-spacing: 1px; opacity: 0.75; margin-left: 0.5rem; }
+    .stat-card-day .day-breakdown { display: flex; flex-direction: column; gap: 3px; text-align: right; }
     .stat-label { font-size: 0.68rem; font-weight: 700; letter-spacing: 2px; color: rgba(255,255,255,0.3); text-transform: uppercase; margin-bottom: 0.3rem; }
     .stat-value { font-family: 'Bebas Neue', cursive; font-size: clamp(1.3rem, 4vw, 1.8rem); letter-spacing: 1px; color: white; line-height: 1; }
     .stat-sub { font-size: 0.75rem; font-weight: 600; color: rgba(255,255,255,0.3); letter-spacing: 0.5px; margin-top: 0.2rem; }
@@ -148,14 +156,13 @@
 
     /* ── Animated counter ── */
     @keyframes countUp { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
-    .stat-value.counting { animation: countUp 0.4s ease forwards; }
+    .stat-value.counting, .day-main.counting { animation: countUp 0.4s ease forwards; }
 
     /* ── Positive day glow ── */
-    @keyframes glowPulse { 0%,100% { box-shadow: none; } 50% { box-shadow: 0 0 18px rgba(74,222,128,0.25); } }
-    .stat-card.day-positive { animation: glowPulse 2s ease 0.5s 2; }
-    .stat-card.day-negative { animation: glowPulse 2s ease 0.5s 2; }
-    @keyframes glowPulseRed { 0%,100% { box-shadow: none; } 50% { box-shadow: 0 0 18px rgba(248,113,113,0.2); } }
-    .stat-card.day-negative { animation: glowPulseRed 2s ease 0.5s 2; }
+    @keyframes glowPulse { 0%,100% { box-shadow: none; } 50% { box-shadow: 0 0 28px rgba(74,222,128,0.3); } }
+    .stat-card-day.day-positive { animation: glowPulse 2s ease 0.5s 2; }
+    @keyframes glowPulseRed { 0%,100% { box-shadow: none; } 50% { box-shadow: 0 0 28px rgba(248,113,113,0.25); } }
+    .stat-card-day.day-negative { animation: glowPulseRed 2s ease 0.5s 2; }
 
     /* ── Row skeleton ── */
     .skeleton-row td { padding: 0.6rem 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.04); }
@@ -939,24 +946,28 @@
     document.getElementById('portfolio-content').innerHTML = `
       ${buildAccountBar()}
       <div class="summary-bar">
-        <div class="stat-card">
-          <div class="stat-label">Market Value</div>
-          <div class="stat-value" id="sv-value">${pricesLoaded ? fmtC(totalValue) : skl('90px')}</div>
-          <div class="stat-sub">Cost: ${fmtC(totalCost)}</div>
-        </div>
-        <div class="stat-card${pricesLoaded ? (totalDayChange >= 0 ? ' day-positive' : ' day-negative') : ''}">
-          <div class="stat-label">Day Change</div>
-          <div class="stat-value ${pricesLoaded ? dayClr : ''}" id="sv-day">${pricesLoaded ? (totalDayChange >= 0 ? '+' : '') + fmtC(totalDayChange) : skl('80px')}</div>
-          <div class="stat-sub">${pricesLoaded ? (totalDayChange >= 0 ? '+' : '') + fmt(totalDayPct) + '%' : ''}</div>
-          ${showAccountBreakdown ? `<div style="margin-top:0.5rem;padding-top:0.5rem;border-top:1px solid rgba(255,255,255,0.07);display:flex;flex-direction:column;gap:3px">
+        <div class="stat-card stat-card-day${pricesLoaded ? (totalDayChange >= 0 ? ' day-positive' : ' day-negative') : ''}">
+          <div>
+            <div class="stat-label">Day Change</div>
+            <div style="display:flex;align-items:baseline;gap:0.3rem">
+              <div class="day-main ${pricesLoaded ? dayClr : ''}" id="sv-day">${pricesLoaded ? (totalDayChange >= 0 ? '+' : '') + fmtC(totalDayChange) : skl('120px')}</div>
+              <div class="day-pct ${pricesLoaded ? dayClr : ''}">${pricesLoaded ? (totalDayChange >= 0 ? '+' : '') + fmt(totalDayPct) + '%' : ''}</div>
+            </div>
+          </div>
+          ${showAccountBreakdown ? `<div class="day-breakdown">
             ${Object.values(accountDayMap).map(a => {
               const pos = a.day >= 0;
-              return `<div style="display:flex;justify-content:space-between;font-size:0.7rem;font-weight:700;letter-spacing:0.5px">
+              return `<div style="display:flex;justify-content:flex-end;gap:0.6rem;font-size:0.72rem;font-weight:700;letter-spacing:0.5px">
                 <span style="color:rgba(255,255,255,0.35)">${escHtml(a.name)}</span>
                 <span style="color:${pos?'#4ade80':'#f87171'}">${pos?'+':''}${fmtC(a.day)}</span>
               </div>`;
             }).join('')}
           </div>` : ''}
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Market Value</div>
+          <div class="stat-value" id="sv-value">${pricesLoaded ? fmtC(totalValue) : skl('90px')}</div>
+          <div class="stat-sub">Cost: ${fmtC(totalCost)}</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Overall Gain</div>
