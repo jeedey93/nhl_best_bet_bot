@@ -84,7 +84,7 @@
     /* ── Summary bar ── */
     .summary-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin-bottom: 1.25rem; }
     .summary-bar .stat-card-day { grid-column: 1 / -1; }
-    @media (max-width: 700px) { .summary-bar { grid-template-columns: repeat(2, 1fr); } .summary-bar .stat-card-day { grid-column: 1 / -1; } }
+    @media (max-width: 700px) { .stat-hide-mobile { display: none; } #charts-stats-mobile { display: grid !important; grid-template-columns: repeat(2,1fr); margin-bottom: 1rem; } }
     @media (max-width: 400px) { .summary-bar { grid-template-columns: 1fr; } }
     .stat-card { background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; padding: 1rem 1.25rem; }
     .stat-card-day { border-radius: 14px; padding: 1.1rem 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
@@ -1002,12 +1002,12 @@
           <div class="stat-value" id="sv-value">${pricesLoaded ? fmtC(totalValue) : skl('90px')}</div>
           <div class="stat-sub">Cost: ${fmtC(totalCost)}</div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card stat-hide-mobile">
           <div class="stat-label">Overall Gain</div>
           <div class="stat-value ${pricesLoaded ? gainClr : ''}">${pricesLoaded ? (totalGain >= 0 ? '+' : '') + fmtC(totalGain) : skl('80px')}</div>
           <div class="stat-sub">${pricesLoaded ? (totalGain >= 0 ? '+' : '') + fmt(totalGainPct) + '%' : ''}</div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card stat-hide-mobile">
           <div class="stat-label">Monthly Income</div>
           <div class="stat-value gold">${fmtC(totalAnnualDiv / 12)}</div>
           <div class="stat-sub">${fmtC(totalAnnualDiv)} / year</div>
@@ -1034,6 +1034,18 @@
       </div>
       </div>
       <div class="mobile-section" id="ms-charts">
+      <div class="summary-bar" id="charts-stats-mobile">
+        <div class="stat-card">
+          <div class="stat-label">Overall Gain</div>
+          <div class="stat-value ${pricesLoaded ? gainClr : ''}">${pricesLoaded ? (totalGain >= 0 ? '+' : '') + fmtC(totalGain) : ''}</div>
+          <div class="stat-sub">${pricesLoaded ? (totalGain >= 0 ? '+' : '') + fmt(totalGainPct) + '%' : ''}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Monthly Income</div>
+          <div class="stat-value gold">${fmtC(totalAnnualDiv / 12)}</div>
+          <div class="stat-sub">${fmtC(totalAnnualDiv)} / year</div>
+        </div>
+      </div>
       <div class="charts-row" id="charts-row">
         <div class="chart-panel chart-panel-fullwidth" style="grid-column:1/-1"><div class="section-title" style="margin-bottom:0.75rem">Portfolio Value</div><div class="chart-wrap" style="height:180px"><canvas id="value-chart"></canvas></div></div>
         ${!_activeAccount && _accounts.length > 1 ? `<div class="chart-panel"><div class="section-title" style="margin-bottom:0.75rem">By Account</div><canvas id="account-chart"></canvas><div class="chart-legend" id="account-legend"></div></div>` : ''}
