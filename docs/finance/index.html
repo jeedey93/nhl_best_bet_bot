@@ -1197,10 +1197,11 @@
     let lastAccId = '__none__';
     let grpCost = 0, grpMv = 0, grpDay = 0;
 
-    const allForCards = [];
-    for (const { accountName, bySector } of groups) {
-      Object.values(bySector).flat().forEach(h => allForCards.push({ ...h, _accLabel: accountName }));
-    }
+    const allForCards = sortEnrichedHoldings(
+      groups.flatMap(({ accountName, bySector }) =>
+        Object.values(bySector).flat().map(h => ({ ...h, _accLabel: accountName }))
+      )
+    );
 
     allForCards.forEach((h, i) => {
       const accId = h.account_id || 'other';
