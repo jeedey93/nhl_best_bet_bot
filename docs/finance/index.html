@@ -2033,10 +2033,11 @@
   }
 
   async function refreshDivDatesFromTmx(holdingId, ticker) {
-    // Skip foreign tickers — TMX details only works for TSX
     if (!ticker || ticker.includes('.DE') || ticker.includes('.PA') || ticker.includes('.L')) return;
+    // Strip exchange prefix before sending — Vercel routing chokes on encoded colons
+    const sym = ticker.replace(/^TSX:|^TSX-V:|^NYSE:|^NASDAQ:/i, '');
     try {
-      const r = await fetch(`/api/finance?action=details&symbol=${encodeURIComponent(ticker)}`);
+      const r = await fetch(`/api/finance?action=details&symbol=${encodeURIComponent(sym)}`);
       if (!r.ok) return;
       const d = await r.json();
       const patch = {};
@@ -2057,7 +2058,8 @@
 
   async function autofillStockDetails(yahooSymbol) {
     try {
-      const res = await fetch(`/api/finance?action=details&symbol=${encodeURIComponent(yahooSymbol)}`);
+      const sym = yahooSymbol.replace(/^TSX:|^TSX-V:|^NYSE:|^NASDAQ:/i, '');
+      const res = await fetch(`/api/finance?action=details&symbol=${encodeURIComponent(sym)}`);
       if (!res.ok) return;
       const d = await res.json();
       if (d.sector && !document.getElementById('hm-sector').value.trim())
