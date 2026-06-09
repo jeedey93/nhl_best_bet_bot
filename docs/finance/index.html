@@ -164,13 +164,15 @@
     .pos { color: #4ade80; }
     .neg { color: #f87171; }
     .muted { color: rgba(255,255,255,0.3); }
-    .btn-edit-row { background: none; border: none; color: rgba(255,255,255,0.35); cursor: pointer; font-size: 0.8rem; padding: 3px 7px; border-radius: 4px; transition: color 0.15s, background 0.15s; }
+    .btn-edit-row { background: none; border: none; color: rgba(255,255,255,0.35); cursor: pointer; font-size: 0.8rem; padding: 3px 7px; border-radius: 4px; transition: color 0.15s, background 0.15s; display: none; }
     .btn-edit-row:hover { color: white; background: rgba(255,255,255,0.08); }
-    .btn-delete-row { background: none; border: none; color: rgba(200,16,46,0.4); cursor: pointer; font-size: 0.8rem; padding: 3px 6px; border-radius: 4px; transition: color 0.15s, background 0.15s; }
+    .btn-delete-row { background: none; border: none; color: rgba(200,16,46,0.4); cursor: pointer; font-size: 0.8rem; padding: 3px 6px; border-radius: 4px; transition: color 0.15s, background 0.15s; display: none; }
     .btn-delete-row:hover { color: var(--red); background: rgba(200,16,46,0.1); }
+    .holdings-edit-mode .btn-edit-row, .holdings-edit-mode .btn-delete-row { display: inline-flex; }
     @media (max-width: 700px) {
-      .btn-edit-row { font-size: 1rem; padding: 8px 10px; min-width: 36px; min-height: 36px; display: flex; align-items: center; justify-content: center; }
-      .btn-delete-row { font-size: 1rem; padding: 8px 10px; min-width: 36px; min-height: 36px; display: flex; align-items: center; justify-content: center; }
+      .btn-edit-row { font-size: 1rem; padding: 8px 10px; min-width: 36px; min-height: 36px; align-items: center; justify-content: center; }
+      .btn-delete-row { font-size: 1rem; padding: 8px 10px; min-width: 36px; min-height: 36px; align-items: center; justify-content: center; }
+      .holdings-edit-mode .btn-edit-row, .holdings-edit-mode .btn-delete-row { display: flex; }
     }
     .price-loading { color: rgba(255,255,255,0.2); font-style: italic; }
 
@@ -847,9 +849,17 @@
     const btn = document.getElementById('btn-refresh');
     btn.textContent = '↻'; btn.disabled = true;
     await fetchPrices();
-    refreshAllDivDates();
     btn.textContent = '↻ Refresh'; btn.disabled = false;
     showToast('Refreshed');
+  }
+
+  function toggleEditMode() {
+    const table = document.querySelector('.holdings-table-wrap');
+    const cards = document.querySelector('.holding-cards');
+    const btn = document.getElementById('btn-edit-mode');
+    const active = table?.classList.toggle('holdings-edit-mode');
+    cards?.classList.toggle('holdings-edit-mode', active);
+    if (btn) { btn.textContent = active ? '✎ Done' : '✎ Edit'; btn.style.color = active ? 'var(--gold)' : ''; }
   }
 
   async function fetchPrices() {
@@ -963,7 +973,10 @@
         <div>
           <div class="holdings-header">
             <div class="section-title">Holdings</div>
-            <button class="btn-sm gold" onclick="openAddHolding()">+ Add Holding</button>
+            <div style="display:flex;gap:0.4rem;align-items:center">
+              <button class="btn-sm" id="btn-edit-mode" onclick="toggleEditMode()" style="font-size:0.72rem;padding:0.2rem 0.6rem">✎ Edit</button>
+              <button class="btn-sm gold" onclick="openAddHolding()">+ Add Holding</button>
+            </div>
           </div>
           <div class="holdings-table-wrap">${buildHoldingsTable(enriched, pricesLoaded)}</div>
         </div>
