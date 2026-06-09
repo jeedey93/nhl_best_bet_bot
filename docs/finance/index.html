@@ -563,7 +563,8 @@
     </div>
     <div id="price-refresh-bar" style="display:none;padding:0.25rem 0 0.5rem">
       <div class="price-refresh"><div class="refresh-dot"></div><span id="price-refresh-text">Prices live</span>
-      <button class="btn-sm" id="btn-share" onclick="generateShareImage()" style="margin-left:0.75rem;font-size:0.72rem;padding:0.2rem 0.6rem">📤 Share</button>
+      <button class="btn-sm" id="btn-refresh" onclick="manualRefresh()" style="margin-left:0.75rem;font-size:0.72rem;padding:0.2rem 0.6rem">↻ Refresh</button>
+      <button class="btn-sm" id="btn-share" onclick="generateShareImage()" style="margin-left:0.5rem;font-size:0.72rem;padding:0.2rem 0.6rem">📤 Share</button>
       </div>
     </div>
     <div id="portfolio-content"></div>
@@ -841,6 +842,15 @@
   // ── Prices ────────────────────────────────────────────────────────────────
   let _pricesLastUpdated = null;
   let _priceRefreshTimer = null;
+
+  async function manualRefresh() {
+    const btn = document.getElementById('btn-refresh');
+    btn.textContent = '↻'; btn.disabled = true;
+    await fetchPrices();
+    refreshAllDivDates();
+    btn.textContent = '↻ Refresh'; btn.disabled = false;
+    showToast('Refreshed');
+  }
 
   async function fetchPrices() {
     const tickers = [...new Set(_holdings.map(h => h.ticker).filter(Boolean))];
