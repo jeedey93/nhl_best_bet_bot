@@ -1159,7 +1159,7 @@
             <td class="${gc}">${h.overallGain != null && h.cost > 0 ? (h.overallGain >= 0 ? '+' : '') + fmt((h.overallGain / h.cost) * 100) + '%' : '—'}</td>
             <td class="col-hide-mobile range-cell" data-range="${escHtml(h.ticker)}" data-price="${h.price||''}"></td>
             <td class="col-hide-mobile">
-              ${h.weight != null ? `<div class="weight-bar-wrap"><div class="weight-bar"><div class="weight-bar-fill" style="width:${Math.min(h.weight,100)}%;background:${getSectorColor(h.sector)}"></div></div><span class="muted">${fmt(h.weight)}%</span></div>` : '—'}
+              ${h.weight != null ? `<div class="weight-bar-wrap"><div class="weight-bar"><div class="weight-bar-fill" style="width:${Math.min(h.weight,100)}%;background:rgba(255,255,255,0.4)"></div></div><span class="muted">${fmt(h.weight)}%</span></div>` : '—'}
             </td>
             <td class="col-hide-mobile muted">${h.annual_dividend ? fmtC((h.shares || 0) * h.annual_dividend / 12) + '/mo' : '—'}</td>
             <td style="white-space:nowrap"><button class="btn-edit-row" onclick="event.stopPropagation();openEditHolding('${h.id}')">✎</button><button class="btn-delete-row" onclick="event.stopPropagation();quickDeleteHolding('${h.id}','${escHtml(h.company_name||h.ticker||'')}')">✕</button></td>
