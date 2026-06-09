@@ -68,13 +68,11 @@ jobs:
           def clr(v):
               return '#4ade80' if v >= 0 else '#f87171'
 
-          portfolio_blocks = ''
-          for portfolio_name, stats in results.items():
+          def build_html(portfolio_name, stats):
               day = stats.get('day_change', 0)
               holdings = stats.get('holdings', [])
               accounts = stats.get('accounts', {})
 
-              # Account pills
               account_pills = ''
               for acct_name, acct in accounts.items():
                   ad = acct.get('day_change', 0)
@@ -85,15 +83,12 @@ jobs:
                       <div style="font-size:11px;color:{clr(ad)};margin-top:1px">{fmt_c(ad)}</div>
                     </div>'''
 
-              # Summary row
-              portfolio_blocks += f'''
+              portfolio_block = f'''
               <div style="background:#0e1e35;border-radius:12px;overflow:hidden;border:1px solid #1e3a5f;margin-bottom:24px">
-                <!-- Portfolio header -->
                 <div style="background:#07111f;padding:12px 16px;display:flex;align-items:center;justify-content:space-between">
                   <div style="font-size:13px;font-weight:700;color:#ffffff;letter-spacing:1px">{portfolio_name}</div>
                   <div style="font-size:11px;color:#a8b2be">{len(holdings)} stocks</div>
                 </div>
-                <!-- Summary stats -->
                 <div style="display:table;width:100%;border-collapse:collapse">
                   <div style="display:table-row">
                     <div style="display:table-cell;padding:14px 16px;border-bottom:1px solid #1e3a5f">
@@ -107,9 +102,7 @@ jobs:
                     </div>
                   </div>
                 </div>
-                <!-- Account breakdown -->
                 {f'<div style="padding:10px 16px 4px;border-bottom:1px solid #1e3a5f">{account_pills}</div>' if account_pills else ''}
-                <!-- Holdings breakdown -->
                 <table style="width:100%;border-collapse:collapse">
                   <thead>
                     <tr style="background:rgba(255,255,255,0.03)">
@@ -121,17 +114,15 @@ jobs:
                   </thead>
                   <tbody>'''
 
-              # Sort holdings: biggest day losers first, then gainers
               sorted_holdings = sorted(holdings, key=lambda h: h.get('day_change', 0), reverse=True)
               for h in sorted_holdings:
                   dc = h.get('day_change', 0)
                   price = h.get('price') or 0
-                  prev_close = price - (dc / h.get('shares', 1)) if h.get('shares') else 0
-                  dc_pct = (dc / (h.get('market_value', 1) - dc)) * 100 if (h.get('market_value', 0) - dc) != 0 else 0
+                  dc_pct = (dc / (h.get('market_value', 0) - dc)) * 100 if (h.get('market_value', 0) - dc) != 0 else 0
                   ticker = h.get('ticker', '').replace('TSX:', '')
                   name = h.get('company_name', ticker)
                   name_short = ' '.join(name.split()[:3]) if name else ticker
-                  portfolio_blocks += f'''
+                  portfolio_block += f'''
                     <tr style="border-bottom:1px solid #0d1927">
                       <td style="padding:10px 16px">
                         <div style="font-size:12px;font-weight:700;color:#ffffff">{ticker}</div>
@@ -142,12 +133,12 @@ jobs:
                       <td style="padding:10px 16px;font-size:13px;font-weight:700;color:{clr(dc_pct)};text-align:right">{'+' if dc_pct>=0 else ''}{dc_pct:.2f}%</td>
                     </tr>'''
 
-              portfolio_blocks += '''
+              portfolio_block += '''
                   </tbody>
                 </table>
               </div>'''
 
-          html = f'''<!DOCTYPE html>
+              return f'''<!DOCTYPE html>
           <html>
           <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
           <body style="margin:0;padding:0;background:#07111f;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif">
@@ -157,7 +148,7 @@ jobs:
                 <h1 style="margin:0;font-size:26px;font-weight:700;color:#ffffff;letter-spacing:1px">📊 Daily Snapshot</h1>
                 <div style="margin-top:6px;font-size:13px;color:#a8b2be">{date_str} · Market Close</div>
               </div>
-              {portfolio_blocks}
+              {portfolio_block}
               <div style="text-align:center;margin-top:8px;font-size:12px;color:#2d3748">
                 <a href="https://parieurdiscipline.com/finance" style="color:#ffb81c;text-decoration:none">View Full Dashboard →</a>
               </div>
@@ -165,17 +156,26 @@ jobs:
           </body>
           </html>'''
 
-          msg = MIMEMultipart('alternative')
-          msg['Subject'] = f'📊 Portfolio Snapshot — {date_str}'
-          msg['From'] = f'Parieur Discipliné <{os.environ["EMAIL_USERNAME"]}>'
-          msg['To'] = 'justin.do@hotmail.com'
-          msg.attach(MIMEText(html, 'html', 'utf-8'))
-
+          sent = 0
           with smtplib.SMTP('smtp.gmail.com', 587) as s:
               s.starttls()
               s.login(os.environ['EMAIL_USERNAME'], os.environ['EMAIL_PASSWORD'])
-              s.sendmail(os.environ['EMAIL_USERNAME'], ['justin.do@hotmail.com'], msg.as_string())
-          print('✅ Email sent')
+              for portfolio_name, stats in results.items():
+                  recipient = stats.get('email')
+                  if not recipient:
+                      continue
+                  html = build_html(portfolio_name, stats)
+                  msg = MIMEMultipart('alternative')
+                  msg['Subject'] = f'📊 {portfolio_name} — Daily Snapshot {date_str}'
+                  msg['From'] = f'Parieur Discipliné <{os.environ["EMAIL_USERNAME"]}>'
+                  msg['To'] = recipient
+                  msg.attach(MIMEText(html, 'html', 'utf-8'))
+                  s.sendmail(os.environ['EMAIL_USERNAME'], [recipient], msg.as_string())
+                  print(f'✅ Email sent to {recipient} for {portfolio_name}')
+                  sent += 1
+
+          if sent == 0:
+              print('ℹ️ No portfolios with an email address — nothing sent')
           PYEOF
         env:
           SNAPSHOT_JSON: ${{ steps.snapshot.outputs.snapshot_json }}

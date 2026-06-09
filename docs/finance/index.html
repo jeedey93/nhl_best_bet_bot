@@ -470,6 +470,13 @@
       <div class="form-hint">Locks the entire portfolio and all its accounts</div>
     </div>
   </div>
+  <div class="form-row full">
+    <div class="form-group">
+      <div class="form-label">Email (optional)</div>
+      <input class="form-input" id="pm-email" type="email" placeholder="you@example.com">
+      <div class="form-hint">Receive a daily snapshot email after market close</div>
+    </div>
+  </div>
   <div class="modal-actions">
     <button class="btn-modal-cancel" onclick="closePortfolioModal()">Cancel</button>
     <button class="btn-modal-save" onclick="savePortfolio()">Save</button>
@@ -491,6 +498,13 @@
       <div class="form-label">New Password</div>
       <input class="form-input" id="pem-password" type="password" placeholder="Leave blank to keep existing">
       <div class="form-hint">Enter a new password to change it, or leave blank</div>
+    </div>
+  </div>
+  <div class="form-row full">
+    <div class="form-group">
+      <div class="form-label">Email (optional)</div>
+      <input class="form-input" id="pem-email" type="email" placeholder="you@example.com">
+      <div class="form-hint">Receive a daily snapshot email after market close</div>
     </div>
   </div>
   <div class="modal-actions">
@@ -631,7 +645,7 @@
   // ── Init ─────────────────────────────────────────────────────────────────
   async function init() {
     try {
-      _portfolios = await sbGet('finance_portfolios?order=created_at.asc&select=id,name,owner_code,password_hash,updated_at');
+      _portfolios = await sbGet('finance_portfolios?order=created_at.asc&select=id,name,owner_code,password_hash,updated_at,email');
       await route();
     } catch(e) {
       console.error('init failed:', e.message, e.stack);
@@ -1744,6 +1758,7 @@
     document.getElementById('pm-id').value = '';
     document.getElementById('pm-name').value = '';
     document.getElementById('pm-password').value = '';
+    document.getElementById('pm-email').value = '';
     document.getElementById('portfolio-backdrop').classList.add('show');
     document.getElementById('portfolio-modal').classList.add('show');
     setTimeout(() => document.getElementById('pm-name').focus(), 100);
@@ -1758,10 +1773,10 @@
     const name = document.getElementById('pm-name').value.trim();
     if (!name) { showToast('Enter a portfolio name.', true); return; }
     const password = document.getElementById('pm-password').value;
-    // Use clean slug from name; append short suffix only if slug already taken
+    const email = document.getElementById('pm-email').value.trim() || null;
     let ownerCode = slugify(name);
     if (_portfolios.some(p => p.owner_code === ownerCode)) ownerCode += '-' + Date.now().toString(36).slice(-4);
-    const body = { name, owner_code: ownerCode, password_hash: password ? await sha256(password) : null };
+    const body = { name, owner_code: ownerCode, password_hash: password ? await sha256(password) : null, email };
     try {
       const [created] = await sbPost('finance_portfolios', body);
       _portfolios.push(created);
@@ -1776,6 +1791,7 @@
     if (!_activePortfolio) return;
     document.getElementById('pem-name').value = _activePortfolio.name;
     document.getElementById('pem-password').value = '';
+    document.getElementById('pem-email').value = _activePortfolio.email || '';
     document.getElementById('pedit-backdrop').classList.add('show');
     document.getElementById('pedit-modal').classList.add('show');
     setTimeout(() => document.getElementById('pem-name').focus(), 100);
@@ -1788,7 +1804,8 @@
     const name = document.getElementById('pem-name').value.trim();
     if (!name) { showToast('Enter a name.', true); return; }
     const password = document.getElementById('pem-password').value;
-    const body = { name };
+    const email = document.getElementById('pem-email').value.trim() || null;
+    const body = { name, email };
     if (password) body.password_hash = await sha256(password);
     try {
       const [updated] = await sbPatch(`finance_portfolios?id=eq.${_activePortfolio.id}`, body);

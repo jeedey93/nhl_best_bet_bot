@@ -145,7 +145,7 @@ module.exports = async (req, res) => {
 
     // Fetch portfolios, accounts, and holdings (include account_id)
     const [portfolios, accounts, allHoldings] = await Promise.all([
-      sbGet('finance_portfolios?select=id,name'),
+      sbGet('finance_portfolios?select=id,name,email'),
       sbGet('finance_accounts?select=id,name,portfolio_id'),
       sbGet('finance_holdings?select=portfolio_id,account_id,ticker,shares,avg_price,annual_dividend,company_name,sector'),
     ]);
@@ -214,6 +214,7 @@ module.exports = async (req, res) => {
       };
       snapshots.push(snapshot);
       results[portfolio.name] = {
+        email: portfolio.email || null,
         total_value: snapshot.total_value,
         day_change: snapshot.day_change,
         day_change_pct: snapshot.day_change_pct,
