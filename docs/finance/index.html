@@ -2349,7 +2349,7 @@
     const PCT_W = 50, PCT_X = W-PAD-PCT_W; // % badge right-anchored
     const DC_X = PCT_X - 10;        // day $ right-aligned just before badge
     const PRICE_X = TICKER_X + 58;  // current price left-aligned after ticker
-    const HEADER_H = 70, PILL_H=40, FOOTER_H=22;
+    const HEADER_H = 70, PILL_H=50, FOOTER_H=22;
     const SH=22; // section row height
     const bodyH = GL.reduce((s,g)=>s+(GL.length>1?SH:0)+g.rows.length*RH+4,0);
     const H = HEADER_H+PILL_H+10+bodyH+FOOTER_H+4;
@@ -2424,10 +2424,13 @@
     roundRect(ctx,PAD,PY,W-PAD*2,PILL_H,8);ctx.fill();
     ctx.strokeStyle=totPos?'rgba(74,222,128,0.35)':'rgba(248,113,113,0.3)';ctx.lineWidth=0.75;
     roundRect(ctx,PAD,PY,W-PAD*2,PILL_H,8);ctx.stroke();
+    // Label above amount
+    ctx.font='700 8px Arial'; ctx.fillStyle='rgba(255,255,255,0.3)';
+    ctx.fillText('DAILY P&L', W/2, PY+11);
     ctx.font='bold 18px Arial'; ctx.fillStyle=totPos?GREEN:RED;
-    ctx.fillText(fmt$(totalDay),W/2,PY+22);
+    ctx.fillText(fmt$(totalDay),W/2,PY+27);
     ctx.font='600 9px Arial'; ctx.fillStyle=totPos?'rgba(74,222,128,0.55)':'rgba(248,113,113,0.55)';
-    ctx.fillText(fmtP(dayPct),W/2,PY+36);
+    ctx.fillText(fmtP(dayPct),W/2,PY+40);
 
     // Gradient divider below pill
     const divY2=HEADER_H+PILL_H+10;
