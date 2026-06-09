@@ -2457,25 +2457,22 @@
 
     btn.textContent='📤 Share'; btn.disabled=false;
 
-    canvas.toBlob(async blob=>{
-      const file = new File([blob], `snapshot-${new Date().toISOString().slice(0,10)}.png`, { type: 'image/png' });
-      // 1. Native share sheet (iOS Safari, Android Chrome)
-      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-        try { await navigator.share({ files: [file], title: 'Portfolio Snapshot' }); return; } catch(_) {}
-      }
-      // 2. Clipboard (desktop Chrome/Edge)
-      if (navigator.clipboard?.write) {
-        try {
-          await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
-          showToast('📋 Copied to clipboard!'); return;
-        } catch(_) {}
-      }
-      // 3. Download fallback
-      const a = document.createElement('a');
-      a.download = file.name;
-      a.href = canvas.toDataURL('image/png'); a.click();
-      showToast('Saved as image');
-    }, 'image/png');
+    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+    const file = new File([blob], `snapshot-${new Date().toISOString().slice(0,10)}.png`, { type: 'image/png' });
+
+    // 1. Native share sheet (iOS Safari, Android Chrome)
+    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+      try { await navigator.share({ files: [file], title: 'Portfolio Snapshot' }); return; } catch(e) { if (e.name !== 'AbortError') console.warn('share failed', e); }
+    }
+    // 2. Clipboard (desktop Chrome/Edge)
+    if (navigator.clipboard?.write) {
+      try { await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]); showToast('📋 Copied to clipboard!'); return; } catch(_) {}
+    }
+    // 3. Download fallback
+    const a = document.createElement('a');
+    a.download = file.name;
+    a.href = URL.createObjectURL(blob); a.click();
+    showToast('Saved as image');
   }
 
   function roundRect(ctx, x, y, w, h, r) {
