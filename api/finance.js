@@ -343,7 +343,59 @@ async function handleProfile(req, res) {
 }
 
 // ── Router ────────────────────────────────────────────────────────────────
-const _sparklineCache = new Map();
+const _rangeCache = new Map();
+
+async function handleRange(req, res) {
+  const raw = req.query.symbols || '';
+  if (!raw) return res.status(400).json({ error: 'symbols param required' });
+  const symbols = raw.split(',').map(s => s.trim()).filter(Boolean);
+  const cacheKey = [...symbols].sort().join(',');
+  const cached = _rangeCache.get(cacheKey);
+  if (cached && Date.now() - cached.ts < 4 * 60 * 60 * 1000) return res.status(200).json(cached.data);
+
+  const data = {};
+  const tmxSymbols = symbols.filter(s => !isForeignTicker(s));
+  const foreignSymbols = symbols.filter(s => isForeignTicker(s));
+
+  // TMX: fetch high52/low52 per symbol (no batch endpoint for these fields)
+  await Promise.all(tmxSymbols.map(async symbol => {
+    try {
+      const tmxSym = toTmx(symbol);
+      const body = JSON.stringify({
+        query: `query { getQuoteBySymbol(symbol: "${tmxSym}", locale: "en") { high52 low52 } }`,
+      });
+      const r = await fetch(TMX_URL, { method: 'POST', headers: TMX_HEADERS, body });
+      if (!r.ok) return;
+      const json = await r.json();
+      const q = json?.data?.getQuoteBySymbol;
+      if (q?.high52 && q?.low52) data[symbol] = { high52: q.high52, low52: q.low52 };
+    } catch(_) {}
+  }));
+
+  // Finnhub metrics for foreign tickers
+  if (foreignSymbols.length && FINNHUB_KEY) {
+    await Promise.all(foreignSymbols.map(async symbol => {
+      try {
+        const base = toFinnhubBase(symbol);
+        const r = await fetch(`https://finnhub.io/api/v1/stock/metric?symbol=${base}&metric=all&token=${FINNHUB_KEY}`, {
+          headers: { 'User-Agent': 'Mozilla/5.0' }
+        });
+        if (!r.ok) return;
+        const json = await r.json();
+        const m = json?.metric || {};
+        if (m['52WeekHigh'] && m['52WeekLow']) {
+          const fxRate = await getUsdCad();
+          data[symbol] = { high52: +(m['52WeekHigh'] * fxRate).toFixed(2), low52: +(m['52WeekLow'] * fxRate).toFixed(2) };
+        }
+      } catch(_) {}
+    }));
+  }
+
+  _rangeCache.set(cacheKey, { data, ts: Date.now() });
+  return res.status(200).json(data);
+}
+
+
 
 async function handleSparkline(req, res) {
   const raw = req.query.symbols || '';
@@ -412,6 +464,7 @@ module.exports = async (req, res) => {
     if (action === 'details')     return await handleDetails(req, res);
     if (action === 'profile')     return await handleProfile(req, res);
     if (action === 'sparkline')   return await handleSparkline(req, res);
+    if (action === 'range')       return await handleRange(req, res);
     if (action === 'description') return await handleDescription(req, res);
     return res.status(400).json({ error: 'action required: price | search | details' });
   } catch(e) {
