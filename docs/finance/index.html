@@ -1840,16 +1840,18 @@
       // Silently refresh div dates from TMX in background
       if (body.ticker && saved) refreshDivDatesFromTmx(saved, body.ticker);
     } catch(e) {
-      // If div_pay_date/div_ex_date columns don't exist yet, retry without them
-      if (e.message && e.message.includes('div_pay_date')) {
+      // Retry without div date fields if those columns don't exist yet
+      if (e.message && (e.message.includes('div_pay_date') || e.message.includes('div_ex_date'))) {
         delete body.div_pay_date; delete body.div_ex_date;
         try {
-          if (id) await sbPatch(`finance_holdings?id=eq.${id}`, body);
-          else await sbPost('finance_holdings', body);
+          let saved2;
+          if (id) { await sbPatch(`finance_holdings?id=eq.${id}`, body); saved2 = id; }
+          else { const [row] = await sbPost('finance_holdings', body); saved2 = row?.id; }
           closeHoldingModal();
           await loadPortfolio(_activePortfolio, null, true);
+          if (body.ticker && saved2) refreshDivDatesFromTmx(saved2, body.ticker);
           return;
-        } catch(_) {}
+        } catch(e2) { showToast(`Failed to save: ${e2.message?.slice(0,80) || 'Unknown error'}`, true); return; }
       }
       showToast(`Failed to save: ${e.message?.slice(0,80) || 'Unknown error'}`, true);
     }
