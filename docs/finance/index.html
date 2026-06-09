@@ -265,6 +265,9 @@
     .upcoming-pill.days-soon { background: rgba(34,197,94,0.2); color: var(--green); }
     .upcoming-pill.days-later { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.3); }
     .upcoming-pill.today { background: rgba(255,184,28,0.2); color: var(--gold); }
+    .upcoming-ex { font-size: 0.68rem; font-weight: 600; color: rgba(255,255,255,0.35); letter-spacing: 0.3px; margin-top: 0.15rem; }
+    .upcoming-ex.ex-passed { color: #f87171; text-decoration: line-through; opacity: 0.7; }
+    .upcoming-pill.ex-passed-badge { background: rgba(248,113,113,0.12); color: #f87171; }
     .dividend-section { margin-bottom: 1.5rem; }
     .div-calendar { overflow-x: auto; }
     .div-grid { display: grid; grid-template-columns: 160px repeat(12, 1fr); min-width: 700px; }
@@ -1275,11 +1278,23 @@
       const dateStr = `${MONTH_NAMES[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
       const pillCls = isToday ? 'today' : isSoon ? 'days-soon' : 'days-later';
       const pillTxt = isToday ? 'TODAY' : daysUntil === 1 ? 'TOMORROW' : `IN ${daysUntil} DAYS`;
+
+      // Ex-dividend date
+      let exHtml = '';
+      if (h.div_ex_date) {
+        const exDate = new Date(h.div_ex_date + 'T00:00:00');
+        const exPassed = exDate < today;
+        const exStr = `Ex: ${MONTH_NAMES[exDate.getMonth()]} ${exDate.getDate()}`;
+        exHtml = `<div class="upcoming-ex${exPassed ? ' ex-passed' : ''}">${exStr}</div>`;
+        if (exPassed) exHtml += `<div class="upcoming-pill ex-passed-badge">EX-DATE PASSED</div>`;
+      }
+
       return `<div class="upcoming-card${isSoon ? ' soon' : ''}">
         <div class="upcoming-company">${escHtml(h.company_name || h.ticker || '')}</div>
         <div class="upcoming-ticker">${escHtml(h.ticker || '')}</div>
         <div class="upcoming-amount">${fmtC(amount)}</div>
-        <div class="upcoming-date">${dateStr}</div>
+        <div class="upcoming-date">Pay: ${dateStr}</div>
+        ${exHtml}
         <div class="upcoming-pill ${pillCls}">${pillTxt}</div>
       </div>`;
     }).join('')}</div>`;
@@ -1290,7 +1305,7 @@
     if (!withDiv.length) return `<div class="empty-state" style="padding:1.5rem">No dividend data. Add annual dividend/share when editing holdings.</div>`;
     const monthTotals = Array(12).fill(0);
     const rows = withDiv.map(h => {
-      const freq = h.div_freq || 'monthly';
+      const freq = h.div_freq || 'quarterly';
       const annual = (h.shares || 0) * (h.annual_dividend || 0);
       const payMonth = h.div_pay_date ? new Date(h.div_pay_date).getMonth() : null;
       const payDay = h.div_pay_date ? new Date(h.div_pay_date).getDate() : null;
@@ -1317,7 +1332,7 @@
         else if (freq === 'quarterly') amt = isPayMo ? annual / 4 : 0;
         else if (freq === 'annual') amt = isPayMo ? annual : 0;
         monthTotals[i] += amt;
-        return { amt, isPayMonth: isPayMo, payDay: isPayMo && payMonth === i ? payDay : null };
+        return { amt, isPayMonth: isPayMo, payDay: isPayMo ? payDay : null };
       });
       return { h, cells };
     });
@@ -1763,10 +1778,13 @@
     };
     if (!body.company_name && !body.ticker) { showToast('Enter a company name or ticker.', true); return; }
     try {
-      if (id) await sbPatch(`finance_holdings?id=eq.${id}`, body);
-      else await sbPost('finance_holdings', body);
+      let saved;
+      if (id) { await sbPatch(`finance_holdings?id=eq.${id}`, body); saved = id; }
+      else { const [row] = await sbPost('finance_holdings', body); saved = row?.id; }
       closeHoldingModal();
       await loadPortfolio(_activePortfolio, null, true);
+      // Silently refresh div dates from TMX in background
+      if (body.ticker && saved) refreshDivDatesFromTmx(saved, body.ticker);
     } catch(e) {
       // If div_pay_date/div_ex_date columns don't exist yet, retry without them
       if (e.message && e.message.includes('div_pay_date')) {
@@ -1999,6 +2017,29 @@
       if (p?.price && !field.value.trim()) {
         field.value = p.price.toFixed(2);
       }
+    } catch(_) {}
+  }
+
+  async function refreshDivDatesFromTmx(holdingId, ticker) {
+    // Skip foreign tickers — TMX details only works for TSX
+    if (!ticker || ticker.includes('.DE') || ticker.includes('.PA') || ticker.includes('.L')) return;
+    try {
+      const r = await fetch(`/api/finance?action=details&symbol=${encodeURIComponent(ticker)}`);
+      if (!r.ok) return;
+      const d = await r.json();
+      const patch = {};
+      if (d.dividendPayDate && /^\d{4}-\d{2}-\d{2}$/.test(d.dividendPayDate)) patch.div_pay_date = d.dividendPayDate;
+      if (d.exDividendDate  && /^\d{4}-\d{2}-\d{2}$/.test(d.exDividendDate))  patch.div_ex_date  = d.exDividendDate;
+      if (d.annualDividend  != null) patch.annual_dividend = d.annualDividend;
+      if (d.dividendFrequency) {
+        const freqMap = { 'monthly': 'monthly', 'quarterly': 'quarterly', 'semi-annual': 'quarterly', 'annual': 'annual' };
+        patch.div_freq = freqMap[d.dividendFrequency] || 'quarterly';
+      }
+      if (!Object.keys(patch).length) return;
+      await sbPatch(`finance_holdings?id=eq.${holdingId}`, patch);
+      // Refresh the in-memory holding so calendar updates without reload
+      const h = _holdings.find(h => h.id === holdingId);
+      if (h) Object.assign(h, patch);
     } catch(_) {}
   }
 
