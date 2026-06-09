@@ -118,18 +118,19 @@
     /* ── Holdings table ── */
     .holdings-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.6rem; }
     .section-title { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 3px; color: var(--silver); opacity: 0.6; }
-    table.holdings { width: 100%; border-collapse: collapse; min-width: 900px; }
-    table.holdings th { font-size: 0.65rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.25); padding: 0.55rem 0.75rem; text-align: right; border-bottom: 1px solid rgba(255,255,255,0.08); white-space: nowrap; }
+    table.holdings { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 900px; }
+    table.holdings th { font-size: 0.65rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.2); padding: 0.55rem 0.75rem; text-align: right; border-bottom: 1px solid rgba(255,255,255,0.06); white-space: nowrap; }
     table.holdings th.sort-th:hover { color: rgba(255,255,255,0.55); }
     table.holdings th.sort-th.active { color: var(--gold); }
     table.holdings th.left { text-align: left; }
-    table.holdings td { padding: 0.6rem 0.75rem; text-align: right; font-size: 0.9rem; font-weight: 600; border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: middle; white-space: nowrap; }
+    table.holdings td { padding: 0.65rem 0.75rem; text-align: right; font-size: 0.88rem; font-weight: 600; border-bottom: 1px solid rgba(255,255,255,0.035); vertical-align: middle; white-space: nowrap; }
     table.holdings td.left { text-align: left; }
     table.holdings tr:last-child td { border-bottom: none; }
-    table.holdings tr:hover td { background: rgba(255,255,255,0.03); }
-    table.holdings tr.account-row td { font-family: 'Bebas Neue', cursive; font-size: 0.8rem; letter-spacing: 2px; color: var(--silver); background: rgba(255,255,255,0.035); padding: 0.4rem 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.08); opacity: 0.7; }
-    table.holdings tr.subtotal-row td { background: rgba(255,184,28,0.04); border-top: 1px solid rgba(255,255,255,0.06); font-family: 'Bebas Neue', cursive; font-size: 0.82rem; color: rgba(255,255,255,0.4); }
-    table.holdings tr.total-row td { background: rgba(255,255,255,0.04); font-family: 'Bebas Neue', cursive; font-size: 0.9rem; border-top: 1px solid rgba(255,255,255,0.1); border-bottom: none; }
+    table.holdings tr:hover td { background: rgba(255,255,255,0.035) !important; }
+    table.holdings tr.account-row td { font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 3px; color: var(--gold); background: rgba(255,184,28,0.05); padding: 0.6rem 0.75rem; border-bottom: none; border-top: 2px solid rgba(255,184,28,0.15); }
+    table.holdings tr.account-row:first-child td { border-top: none; }
+    table.holdings tr.subtotal-row td { background: rgba(255,184,28,0.04); border-top: 1px solid rgba(255,184,28,0.12); border-bottom: 2px solid rgba(255,184,28,0.12); font-family: 'Bebas Neue', cursive; font-size: 0.82rem; color: rgba(255,255,255,0.45); }
+    table.holdings tr.total-row td { background: rgba(255,255,255,0.04); font-family: 'Bebas Neue', cursive; font-size: 0.9rem; border-top: 2px solid rgba(255,255,255,0.1); border-bottom: none; }
     /* Mobile: hide table, show cards instead */
     @media (max-width: 700px) {
       .holdings-table-wrap { overflow-x: visible; background: none; border: none; border-radius: 0; }
@@ -1114,12 +1115,18 @@
     }
 
     let totalCost = 0, totalMv = 0, totalDay = 0, totalGain = 0;
-    // Compute max abs overall gain for heat map intensity
-    const allFlat = Object.values(groups.map(g => Object.values(g.bySector).flat())).flat();
-    const maxAbsGain = Math.max(...allFlat.map(h => Math.abs(h.overallGain ?? 0)), 1);
     let rows = '';
     for (const { accountName, bySector } of groups) {
-      if (accountName) rows += `<tr class="account-row"><td colspan="13">${escHtml(accountName)}</td></tr>`;
+      if (accountName) {
+        const acctMv = enriched.filter(h => {
+          const accMap = Object.fromEntries(_accounts.map(a=>[a.id,a.name]));
+          return (accMap[h.account_id]||'Unassigned') === accountName;
+        }).reduce((s,h)=>s+(h.marketValue??h.cost),0);
+        rows += `<tr class="account-row"><td colspan="13">
+          <span>${escHtml(accountName)}</span>
+          <span style="float:right;font-size:0.78rem;opacity:0.6;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px">${fmtC(acctMv)}</span>
+        </td></tr>`;
+      }
       // Flatten all holdings across sectors — no sector sub-headers
       const allHoldings = sortEnrichedHoldings(Object.values(bySector).flat());
       let grpCost = 0, grpMv = 0, grpDay = 0, grpGain = 0;
@@ -1131,11 +1138,7 @@
           if (h.overallGain != null) { totalGain += h.overallGain; grpGain += h.overallGain; }
           const dc = (h.dayChange ?? 0) >= 0 ? 'pos' : 'neg';
           const gc = (h.overallGain ?? 0) >= 0 ? 'pos' : 'neg';
-          const heatIntensity = Math.min((Math.abs(h.overallGain ?? 0) / maxAbsGain) * 0.13, 0.13);
-          const heatBg = h.overallGain == null ? '' : h.overallGain >= 0
-            ? `background:rgba(74,222,128,${heatIntensity.toFixed(3)})`
-            : `background:rgba(248,113,113,${heatIntensity.toFixed(3)})`;
-          rows += `<tr style="cursor:pointer;${heatBg}" onclick="openCompanyProfile('${h.ticker}','${escHtml(h.company_name||h.ticker).replace(/'/g,'&#39;')}')">
+          rows += `<tr style="cursor:pointer" onclick="openCompanyProfile('${h.ticker}','${escHtml(h.company_name||h.ticker).replace(/'/g,'&#39;')}')">
             <td class="left">
               ${escHtml(h.company_name || '')}
               <span class="ticker-badge">${escHtml(h.ticker || '')}</span>
@@ -1163,7 +1166,7 @@
         const grpGainPct = grpCost > 0 ? (grpGain / grpCost) * 100 : 0;
         const grpDayPct = (grpMv - grpDay) > 0 ? (grpDay / (grpMv - grpDay)) * 100 : 0;
         rows += `<tr class="subtotal-row">
-          <td class="left" style="padding-left:1.2rem;opacity:0.7">${escHtml(accountName)} subtotal</td>
+          <td class="left">Subtotal</td>
           <td class="col-hide-mobile"></td><td class="col-hide-mobile"></td>
           <td class="col-hide-mobile">${fmtC(grpCost)}</td>
           <td></td>
