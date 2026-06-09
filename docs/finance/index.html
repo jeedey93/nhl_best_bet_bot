@@ -121,7 +121,7 @@
     table.holdings { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 900px; }
     table.holdings th { font-size: 0.65rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.2); padding: 0.55rem 0.75rem; text-align: right; border-bottom: 1px solid rgba(255,255,255,0.06); white-space: nowrap; }
     table.holdings th.sort-th:hover { color: rgba(255,255,255,0.55); }
-    table.holdings th.sort-th.active { color: var(--gold); }
+    table.holdings th.sort-th.active { color: var(--gold); border-bottom: 2px solid var(--gold); padding-bottom: calc(0.55rem - 1px); }
     table.holdings th.left { text-align: left; }
     table.holdings td { padding: 0.65rem 0.75rem; text-align: right; font-size: 0.88rem; font-weight: 600; border-bottom: 1px solid rgba(255,255,255,0.035); vertical-align: middle; white-space: nowrap; }
     table.holdings td.left { text-align: left; }
@@ -155,12 +155,12 @@
     .sector-badge { display: inline-block; font-family: 'Barlow Condensed', sans-serif; font-size: 0.62rem; font-weight: 700; letter-spacing: 0.8px; border-radius: 4px; padding: 1px 6px; margin-left: 0.4rem; vertical-align: middle; }
 
     /* ── Sparkline ── */
-    .sparkline-cell { width: 70px; padding: 0 6px !important; }
+    .sparkline-cell { width: 70px; padding: 0 4px !important; }
     .sparkline-svg { display: block; overflow: visible; }
 
 
-    .weight-bar-wrap { display: flex; align-items: center; gap: 0.4rem; justify-content: flex-end; }
-    .weight-bar { height: 4px; border-radius: 2px; background: rgba(255,255,255,0.08); flex: 1; max-width: 60px; overflow: hidden; }
+    .weight-bar-wrap { display: flex; align-items: center; gap: 0.3rem; justify-content: flex-end; }
+    .weight-bar { height: 4px; border-radius: 2px; background: rgba(255,255,255,0.08); flex: 1; max-width: 44px; overflow: hidden; }
     .weight-bar-fill { height: 100%; border-radius: 2px; transition: width 0.6s ease; }
 
     /* ── Animated counter ── */
@@ -197,7 +197,7 @@
     .skeleton { background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.09) 50%, rgba(255,255,255,0.04) 75%); background-size: 400px 100%; animation: shimmer 1.4s infinite; border-radius: 4px; display: inline-block; }
 
     /* ── Table scroll hint ── */
-    .holdings-table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid rgba(255,255,255,0.06); background: rgba(255,255,255,0.015); position: relative; }
+    .holdings-table-wrap { overflow-x: auto; border-radius: 14px; border: 1px solid rgba(255,255,255,0.09); background: rgba(255,255,255,0.018); position: relative; box-shadow: 0 2px 16px rgba(0,0,0,0.25); }
     .holdings-table-wrap::after { content: ''; position: absolute; top: 0; right: 0; bottom: 0; width: 32px; background: linear-gradient(to right, transparent, rgba(7,17,31,0.7)); border-radius: 0 12px 12px 0; pointer-events: none; }
     @media (min-width: 900px) { .holdings-table-wrap::after { display: none; } }
 
@@ -1263,7 +1263,7 @@
     const sc = _holdingsSort.col, sd = _holdingsSort.dir;
     const arr = col => sc === col ? (sd === -1 ? ' ↓' : ' ↑') : '';
     const sh = (col, label, cls='') =>
-      `<th class="sort-th${cls ? ' '+cls : ''}" onclick="setHoldingsSort('${col}')" style="cursor:pointer;user-select:none">${label}${arr(col)}</th>`;
+      `<th class="sort-th${sc===col?' active':''}${cls ? ' '+cls : ''}" onclick="setHoldingsSort('${col}')" style="cursor:pointer;user-select:none">${label}${arr(col)}</th>`;
 
     return `<table class="holdings">
       <thead><tr>
