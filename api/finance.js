@@ -362,13 +362,13 @@ async function handleRange(req, res) {
     try {
       const tmxSym = toTmx(symbol);
       const body = JSON.stringify({
-        query: `query { getQuoteBySymbol(symbol: "${tmxSym}", locale: "en") { high52 low52 } }`,
+        query: `query { getQuoteBySymbol(symbol: "${tmxSym}", locale: "en") { weeks52high weeks52low } }`,
       });
       const r = await fetch(TMX_URL, { method: 'POST', headers: TMX_HEADERS, body });
       if (!r.ok) return;
       const json = await r.json();
       const q = json?.data?.getQuoteBySymbol;
-      if (q?.high52 && q?.low52) data[symbol] = { high52: q.high52, low52: q.low52 };
+      if (q?.weeks52high && q?.weeks52low) data[symbol] = { high52: q.weeks52high, low52: q.weeks52low };
     } catch(_) {}
   }));
 
