@@ -343,7 +343,63 @@ async function handleProfile(req, res) {
 }
 
 // ── Router ────────────────────────────────────────────────────────────────
-module.exports = async (req, res) => {
+const _sparklineCache = new Map();
+
+async function handleSparkline(req, res) {
+  const raw = req.query.symbols || '';
+  if (!raw) return res.status(400).json({ error: 'symbols param required' });
+  const symbols = raw.split(',').map(s => s.trim()).filter(Boolean);
+  const cacheKey = [...symbols].sort().join(',');
+  const cached = _sparklineCache.get(cacheKey);
+  if (cached && Date.now() - cached.ts < 60 * 60 * 1000) return res.status(200).json(cached.data);
+
+  const data = {};
+  const tmxSymbols = symbols.filter(s => !isForeignTicker(s));
+  const foreignSymbols = symbols.filter(s => isForeignTicker(s));
+
+  // TMX: getTimeSeriesData for last 10 trading days (gives ~7 data points after weekends)
+  if (tmxSymbols.length) {
+    await Promise.all(tmxSymbols.map(async symbol => {
+      try {
+        const tmxSym = toTmx(symbol);
+        const body = JSON.stringify({
+          query: `query { getTimeSeriesData(symbol: "${tmxSym}", dateSince: "", dateUntil: "", range: "1M", interval: "day") { dateTime open high low close volume } }`,
+        });
+        const r = await fetch(TMX_URL, { method: 'POST', headers: TMX_HEADERS, body });
+        if (!r.ok) return;
+        const json = await r.json();
+        const series = json?.data?.getTimeSeriesData || [];
+        const closes = series.slice(-10).map(d => d.close).filter(v => v != null);
+        if (closes.length >= 2) data[symbol] = closes;
+      } catch(_) {}
+    }));
+  }
+
+  // Finnhub candle for foreign tickers
+  if (foreignSymbols.length && FINNHUB_KEY) {
+    const fxRate = await getUsdCad();
+    const to = Math.floor(Date.now() / 1000);
+    const from = to - 14 * 24 * 3600; // 14 days back
+    await Promise.all(foreignSymbols.map(async symbol => {
+      try {
+        const base = toFinnhubBase(symbol);
+        const r = await fetch(`https://finnhub.io/api/v1/stock/candle?symbol=${base}&resolution=D&from=${from}&to=${to}&token=${FINNHUB_KEY}`, {
+          headers: { 'User-Agent': 'Mozilla/5.0' }
+        });
+        if (!r.ok) return;
+        const json = await r.json();
+        if (json.s !== 'ok' || !json.c?.length) return;
+        const closes = json.c.slice(-10).map(v => +(v * fxRate).toFixed(2));
+        if (closes.length >= 2) data[symbol] = closes;
+      } catch(_) {}
+    }));
+  }
+
+  _sparklineCache.set(cacheKey, { data, ts: Date.now() });
+  return res.status(200).json(data);
+}
+
+
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -355,6 +411,7 @@ module.exports = async (req, res) => {
     if (action === 'search')      return await handleSearch(req, res);
     if (action === 'details')     return await handleDetails(req, res);
     if (action === 'profile')     return await handleProfile(req, res);
+    if (action === 'sparkline')   return await handleSparkline(req, res);
     if (action === 'description') return await handleDescription(req, res);
     return res.status(400).json({ error: 'action required: price | search | details' });
   } catch(e) {

@@ -69,12 +69,11 @@
     /* ── Account tabs (second level) ── */
     .account-bar { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; border-bottom: 1px solid var(--line); padding: 0.75rem 0 0; margin-bottom: 1.25rem; }
     @media (max-width: 600px) { .account-bar { gap: 0.4rem; } .account-bar-actions { margin-left: auto; } }
-    .account-tabs { display: flex; gap: 0.3rem; flex-wrap: wrap; flex: 1; }
-    .atab { font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 2px; background: none; border: none; border-bottom: 2px solid transparent; color: rgba(255,255,255,0.35); padding: 0.35rem 0.85rem 0.4rem; cursor: pointer; transition: color 0.15s, border-color 0.15s; margin-bottom: -1px; }
-    .atab:hover { color: white; }
-    .atab.active { color: var(--gold); border-bottom-color: var(--gold); }
-    .atab.all { color: var(--silver); }
-    .atab.all.active { color: white; border-bottom-color: white; }
+    .account-tabs { display: flex; gap: 0.4rem; flex-wrap: wrap; flex: 1; }
+    .atab { font-family: 'Bebas Neue', cursive; font-size: 0.8rem; letter-spacing: 2px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.45); padding: 0.25rem 0.85rem; border-radius: 20px; cursor: pointer; transition: background 0.15s, color 0.15s, border-color 0.15s; }
+    .atab:hover { background: rgba(255,255,255,0.1); color: white; }
+    .atab.active { background: var(--gold); border-color: var(--gold); color: #07111f; }
+    .atab.all.active { background: white; border-color: white; color: #07111f; }
     .account-bar-actions { display: flex; gap: 0.4rem; padding-bottom: 1px; }
 
     /* ── Summary bar ── */
@@ -138,7 +137,11 @@
     .ticker-badge { font-family: 'Bebas Neue', cursive; font-size: 0.78rem; letter-spacing: 1px; color: rgba(255,255,255,0.3); margin-left: 0.4rem; }
     .sector-badge { display: inline-block; font-family: 'Barlow Condensed', sans-serif; font-size: 0.62rem; font-weight: 700; letter-spacing: 0.8px; border-radius: 4px; padding: 1px 6px; margin-left: 0.4rem; vertical-align: middle; }
 
-    /* ── Weight progress bar ── */
+    /* ── Sparkline ── */
+    .sparkline-cell { width: 70px; padding: 0 6px !important; }
+    .sparkline-svg { display: block; overflow: visible; }
+
+
     .weight-bar-wrap { display: flex; align-items: center; gap: 0.4rem; justify-content: flex-end; }
     .weight-bar { height: 4px; border-radius: 2px; background: rgba(255,255,255,0.08); flex: 1; max-width: 60px; overflow: hidden; }
     .weight-bar-fill { height: 100%; border-radius: 2px; transition: width 0.6s ease; }
@@ -979,6 +982,7 @@
     const showByAccount = !_activeAccount && _accounts.length > 1;
     renderAllocationChart(enriched, showByAccount);
     if (pricesLoaded) animateStatCards(totalValue, totalDayChange, totalGain);
+    if (pricesLoaded) loadSparklines();
     loadHistorySection();
   }
 
@@ -1063,6 +1067,9 @@
     }
 
     let totalCost = 0, totalMv = 0, totalDay = 0, totalGain = 0;
+    // Compute max abs overall gain for heat map intensity
+    const allFlat = Object.values(groups.map(g => Object.values(g.bySector).flat())).flat();
+    const maxAbsGain = Math.max(...allFlat.map(h => Math.abs(h.overallGain ?? 0)), 1);
     let rows = '';
     for (const { accountName, bySector } of groups) {
       if (accountName) rows += `<tr class="account-row"><td colspan="13">${escHtml(accountName)}</td></tr>`;
@@ -1077,7 +1084,11 @@
           if (h.overallGain != null) { totalGain += h.overallGain; grpGain += h.overallGain; }
           const dc = (h.dayChange ?? 0) >= 0 ? 'pos' : 'neg';
           const gc = (h.overallGain ?? 0) >= 0 ? 'pos' : 'neg';
-          rows += `<tr style="cursor:pointer" onclick="openCompanyProfile('${h.ticker}','${escHtml(h.company_name||h.ticker).replace(/'/g,'&#39;')}')">
+          const heatIntensity = Math.min((Math.abs(h.overallGain ?? 0) / maxAbsGain) * 0.13, 0.13);
+          const heatBg = h.overallGain == null ? '' : h.overallGain >= 0
+            ? `background:rgba(74,222,128,${heatIntensity.toFixed(3)})`
+            : `background:rgba(248,113,113,${heatIntensity.toFixed(3)})`;
+          rows += `<tr style="cursor:pointer;${heatBg}" onclick="openCompanyProfile('${h.ticker}','${escHtml(h.company_name||h.ticker).replace(/'/g,'&#39;')}')">
             <td class="left">
               ${escHtml(h.company_name || '')}
               <span class="ticker-badge">${escHtml(h.ticker || '')}</span>
@@ -1092,6 +1103,7 @@
             <td class="${dc}">${h.changePct != null ? (h.changePct >= 0 ? '+' : '') + fmt(h.changePct) + '%' : (pricesLoaded ? '—' : '<span class="skeleton-cell" style="width:45px;display:inline-block">&nbsp;</span>')}</td>
             <td class="col-hide-mobile ${gc}">${h.overallGain != null ? (h.overallGain >= 0 ? '+' : '') + fmtC(h.overallGain) : '—'}</td>
             <td class="${gc}">${h.overallGain != null && h.cost > 0 ? (h.overallGain >= 0 ? '+' : '') + fmt((h.overallGain / h.cost) * 100) + '%' : '—'}</td>
+            <td class="col-hide-mobile sparkline-cell" data-sparkline="${escHtml(h.ticker)}"></td>
             <td class="col-hide-mobile">
               ${h.weight != null ? `<div class="weight-bar-wrap"><div class="weight-bar"><div class="weight-bar-fill" style="width:${Math.min(h.weight,100)}%;background:${getSectorColor(h.sector)}"></div></div><span class="muted">${fmt(h.weight)}%</span></div>` : '—'}
             </td>
@@ -1207,6 +1219,7 @@
         <th>Market Price</th>${sh('mv','Market Value','col-hide-mobile')}
         ${sh('day$','Day $','col-hide-mobile')}${sh('day%','Day %')}
         ${sh('gain$','Gain $','col-hide-mobile')}${sh('gain%','Gain %')}
+        <th class="col-hide-mobile sparkline-cell">7D</th>
         ${sh('weight','Weight','col-hide-mobile')}${sh('divmo','Monthly Div','col-hide-mobile')}<th></th>
       </tr></thead>
       <tbody>${rows}</tbody>
@@ -1587,6 +1600,34 @@
           }
         }
       }
+    });
+  }
+
+  async function loadSparklines() {
+    const cells = [...document.querySelectorAll('td[data-sparkline]')];
+    if (!cells.length) return;
+    const tickers = [...new Set(cells.map(c => c.dataset.sparkline))];
+    let sparkData = {};
+    try {
+      const r = await fetch(`/api/finance?action=sparkline&symbols=${tickers.map(encodeURIComponent).join(',')}`);
+      if (r.ok) sparkData = await r.json();
+    } catch(_) { return; }
+    cells.forEach(cell => {
+      const prices = sparkData[cell.dataset.sparkline];
+      if (!prices || prices.length < 2) return;
+      const isUp = prices[prices.length - 1] >= prices[0];
+      const color = isUp ? '#4ade80' : '#f87171';
+      const W = 64, H = 24;
+      const min = Math.min(...prices), max = Math.max(...prices);
+      const range = max - min || 1;
+      const pts = prices.map((p, i) => {
+        const x = (i / (prices.length - 1)) * W;
+        const y = H - ((p - min) / range) * (H - 4) - 2;
+        return `${x.toFixed(1)},${y.toFixed(1)}`;
+      }).join(' ');
+      cell.innerHTML = `<svg class="sparkline-svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+        <polyline points="${pts}" fill="none" stroke="${color}" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>
+      </svg>`;
     });
   }
 
