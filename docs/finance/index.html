@@ -661,7 +661,10 @@
           <div class="dot-menu" id="portfolio-menu">
             <button class="dot-menu-item" onclick="closeDotMenus();openEditPortfolioModal()">✎ Edit Portfolio</button>
             <button class="dot-menu-item" onclick="closeDotMenus();openNewAccountModal()">+ Add Account</button>
-            <button class="dot-menu-item" onclick="closeDotMenus();generateShareImage()">📸 Snapshot</button>
+            <div class="dot-menu-divider"></div>
+            <button class="dot-menu-item" onclick="closeDotMenus();sharePortfolioLink()">🔗 Share Link</button>
+            <button class="dot-menu-item" onclick="closeDotMenus();generatePublicShareImage()">📊 Holdings Snapshot</button>
+            <button class="dot-menu-item" onclick="closeDotMenus();generateShareImage()">📸 Portfolio Snapshot</button>
             <div class="dot-menu-divider"></div>
             <button class="dot-menu-item danger" onclick="closeDotMenus();deletePortfolio()">Delete Portfolio</button>
           </div>
@@ -671,9 +674,6 @@
     <div id="price-refresh-bar" style="display:none;padding:0.25rem 0 0.5rem">
       <div class="price-refresh"><div class="refresh-dot"></div><span id="price-refresh-text">Prices live</span>
       <button class="btn-sm" id="btn-refresh" onclick="manualRefresh()" style="margin-left:0.75rem;font-size:0.72rem;padding:0.2rem 0.6rem">↻ Refresh</button>
-      <button class="btn-sm" id="btn-share-link" onclick="sharePortfolioLink()" style="margin-left:0.5rem;font-size:0.72rem;padding:0.2rem 0.6rem">🔗 Link</button>
-      <button class="btn-sm" id="btn-share-public" onclick="generatePublicShareImage()" style="margin-left:0.5rem;font-size:0.72rem;padding:0.2rem 0.6rem">📊 Market</button>
-      <button class="btn-sm" id="btn-share" onclick="generateShareImage()" style="margin-left:0.5rem;font-size:0.72rem;padding:0.2rem 0.6rem">📸 Snapshot</button>
       </div>
     </div>
     <div id="portfolio-content"></div>
@@ -2539,9 +2539,6 @@
 
   // ── Share image generator ─────────────────────────────────────────────────
   async function generateShareImage() {
-    const btn = document.getElementById('btn-share');
-    if (btn) { btn.textContent = '⏳'; btn.disabled = true; }
-
     const GREEN='#4ade80', RED='#f87171', GOLD='#ffb81c', SILVER='#a8b2be', WHITE='#ffffff', DIM='#2a4060';
     const fmt$ = v => (v>=0?'+':'−')+'$'+Math.abs(v).toLocaleString('en-CA',{minimumFractionDigits:2,maximumFractionDigits:2});
     const fmtP = v => (v>=0?'+':'')+v.toFixed(2)+'%';
@@ -2721,7 +2718,6 @@
     ctx.textAlign='center'; ctx.font='8px Arial'; ctx.fillStyle=DIM;
     ctx.fillText('parieurdiscipline.com/finance',W/2,H-6);
 
-    if (btn) { btn.textContent='📸 Snapshot'; btn.disabled=false; }
 
     const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
     const file = new File([blob], `snapshot-${new Date().toISOString().slice(0,10)}.png`, { type: 'image/png' });
@@ -2742,9 +2738,6 @@
   }
 
   async function generatePublicShareImage() {
-    const btn = document.getElementById('btn-share-public');
-    if (btn) { btn.textContent = '⏳'; btn.disabled = true; }
-
     const GREEN='#4ade80', RED='#f87171', GOLD='#ffb81c', SILVER='#a8b2be', WHITE='#ffffff', DIM='#2a4060';
     const fmtP = v => (v >= 0 ? '+' : '') + v.toFixed(2) + '%';
 
@@ -2767,7 +2760,6 @@
 
     if (!rows.length) {
       showToast('No live prices yet — try again after prices load');
-      if (btn) { btn.textContent = '📊 Market'; btn.disabled = false; }
       return;
     }
 
@@ -2875,7 +2867,6 @@
     ctx.textAlign = 'center'; ctx.font = '8px Arial'; ctx.fillStyle = DIM;
     ctx.fillText('parieurdiscipline.com/finance', W / 2, H - 6);
 
-    if (btn) { btn.textContent = '📊 Market'; btn.disabled = false; }
 
     const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
     const file = new File([blob], `watchlist-${new Date().toISOString().slice(0, 10)}.png`, { type: 'image/png' });
