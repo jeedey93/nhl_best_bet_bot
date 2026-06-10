@@ -91,13 +91,24 @@
     .atab:hover { background: rgba(255,255,255,0.1); color: white; }
     .atab.active { background: var(--gold); border-color: var(--gold); color: #07111f; }
     .atab.all.active { background: white; border-color: white; color: #07111f; }
+    .atab-bal { display: block; font-family: 'Barlow Condensed', sans-serif; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.3px; opacity: 0.7; margin-top: 1px; }
     .account-bar-actions { display: flex; gap: 0.4rem; padding-bottom: 1px; }
 
     /* ── Summary bar ── */
     .summary-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin-bottom: 1.25rem; }
     .summary-bar .stat-card-day { grid-column: 1 / -1; }
+    .summary-bar .stat-hero { grid-column: 1 / -1; }
     @media (max-width: 700px) { .stat-hide-mobile { display: none; } #charts-stats-mobile { display: grid !important; grid-template-columns: repeat(2,1fr); margin-bottom: 1rem; } }
     @media (max-width: 400px) { .summary-bar { grid-template-columns: 1fr; } }
+    /* Hero total value card */
+    .stat-hero { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 1.25rem 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+    .stat-hero-value { font-family: 'Bebas Neue', cursive; font-size: clamp(2rem, 7vw, 2.8rem); letter-spacing: 1px; color: white; line-height: 1; }
+    .stat-hero-label { font-size: 0.65rem; font-weight: 700; letter-spacing: 2px; color: rgba(255,255,255,0.25); text-transform: uppercase; margin-bottom: 0.3rem; }
+    .stat-hero-sub { font-size: 0.75rem; font-weight: 600; color: rgba(255,255,255,0.3); margin-top: 0.3rem; }
+    .stat-hero-right { text-align: right; }
+    /* Skeleton pulse on stat cards */
+    .stat-card.loading, .stat-hero.loading { animation: cardPulse 1.6s ease-in-out infinite; }
+    @keyframes cardPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
     .stat-card { background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; padding: 1rem 1.25rem; }
     .stat-card-day { border-radius: 14px; padding: 1.1rem 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
     .stat-card-day.day-positive { background: rgba(74,222,128,0.08); border: 1px solid rgba(74,222,128,0.3); }
@@ -193,7 +204,7 @@
 
     /* ── Animated counter ── */
     @keyframes countUp { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
-    .stat-value.counting, .day-main.counting { animation: countUp 0.4s ease forwards; }
+    .stat-value.counting, .day-main.counting, .stat-hero-value.counting { animation: countUp 0.4s ease forwards; }
 
     /* ── Positive day glow ── */
     @keyframes glowPulse { 0%,100% { box-shadow: none; } 50% { box-shadow: 0 0 28px rgba(74,222,128,0.3); } }
@@ -1023,7 +1034,21 @@
     document.getElementById('portfolio-content').innerHTML = `
       ${buildAccountBar()}
       <div class="summary-bar">
-        <div class="stat-card stat-card-day${pricesLoaded ? (totalDayChange >= 0 ? ' day-positive' : ' day-negative') : ''}">
+        <!-- Hero: total portfolio value -->
+        <div class="stat-hero${!pricesLoaded ? ' loading' : ''}">
+          <div>
+            <div class="stat-hero-label">Portfolio Value</div>
+            <div class="stat-hero-value" id="sv-value">${pricesLoaded ? fmtC(totalValue) : skl('130px')}</div>
+            <div class="stat-hero-sub">${pricesLoaded ? `Cost: ${fmtC(totalCost)}` : skl('90px')}</div>
+          </div>
+          <div class="stat-hero-right">
+            <div class="stat-hero-label">Overall Gain</div>
+            <div class="stat-hero-value ${pricesLoaded ? gainClr : ''}" style="font-size:clamp(1.4rem,4vw,2rem)">${pricesLoaded ? (totalGain >= 0 ? '+' : '') + fmtC(totalGain) : skl('80px')}</div>
+            <div class="stat-hero-sub ${pricesLoaded ? gainClr : ''}">${pricesLoaded ? (totalGain >= 0 ? '+' : '') + fmt(totalGainPct) + '%' : ''}</div>
+          </div>
+        </div>
+        <!-- Day change — full width, emotional focal point -->
+        <div class="stat-card stat-card-day${pricesLoaded ? (totalDayChange >= 0 ? ' day-positive' : ' day-negative') : (!pricesLoaded ? ' loading' : '')}">
           <div>
             <div class="stat-label">Day Change</div>
             <div style="display:flex;align-items:baseline;gap:0.3rem">
@@ -1041,20 +1066,11 @@
             }).join('')}
           </div>` : ''}
         </div>
-        <div class="stat-card">
-          <div class="stat-label">Market Value</div>
-          <div class="stat-value" id="sv-value">${pricesLoaded ? fmtC(totalValue) : skl('90px')}</div>
-          <div class="stat-sub">Cost: ${fmtC(totalCost)}</div>
-        </div>
-        <div class="stat-card stat-hide-mobile">
-          <div class="stat-label">Overall Gain</div>
-          <div class="stat-value ${pricesLoaded ? gainClr : ''}">${pricesLoaded ? (totalGain >= 0 ? '+' : '') + fmtC(totalGain) : skl('80px')}</div>
-          <div class="stat-sub">${pricesLoaded ? (totalGain >= 0 ? '+' : '') + fmt(totalGainPct) + '%' : ''}</div>
-        </div>
-        <div class="stat-card stat-hide-mobile">
+        <!-- Market value (desktop only smaller cards) -->
+        <div class="stat-card stat-hide-mobile${!pricesLoaded ? ' loading' : ''}">
           <div class="stat-label">Monthly Income</div>
-          <div class="stat-value gold">${fmtC(totalAnnualDiv / 12)}</div>
-          <div class="stat-sub">${fmtC(totalAnnualDiv)} / year</div>
+          <div class="stat-value gold">${totalAnnualDiv > 0 ? fmtC(totalAnnualDiv / 12) : skl('70px')}</div>
+          <div class="stat-sub">${totalAnnualDiv > 0 ? fmtC(totalAnnualDiv) + ' / year' : ''}</div>
         </div>
       </div>
       <div class="mobile-tabs">
@@ -1138,12 +1154,28 @@
           </div>
         </div>`
       : '';
+
+    // Compute per-account value for tab balance display
+    const acctValueMap = {};
+    _accounts.forEach(a => { acctValueMap[a.id] = 0; });
+    _holdings.forEach(h => {
+      if (!h.account_id || !acctValueMap.hasOwnProperty(h.account_id)) return;
+      const p = _prices[h.ticker];
+      acctValueMap[h.account_id] += p?.price ? (h.shares||0)*p.price : (h.shares||0)*(h.avg_price||0);
+    });
+
     return `<div class="account-bar">
       <div class="account-tabs">
         <button class="atab all${!_activeAccount ? ' active' : ''}" onclick="selectAccount(null)">All</button>
-        ${_accounts.map(a =>
-          `<button class="atab${_activeAccount?.id === a.id ? ' active' : ''}" data-account-id="${a.id}">${escHtml(a.name)}${_activeAccount?.id === a.id ? ' <span onclick="event.stopPropagation();selectAccount(null)" style="margin-left:4px;opacity:0.7;font-size:0.85em">×</span>' : ''}</button>`
-        ).join('')}
+        ${_accounts.map(a => {
+          const isActive = _activeAccount?.id === a.id;
+          const val = acctValueMap[a.id];
+          const valStr = val > 0 ? fmtC(val) : '';
+          return `<button class="atab${isActive ? ' active' : ''}" data-account-id="${a.id}">
+            ${escHtml(a.name)}${isActive ? ' <span onclick="event.stopPropagation();selectAccount(null)" style="margin-left:4px;opacity:0.7;font-size:0.85em">×</span>' : ''}
+            ${valStr ? `<span class="atab-bal">${valStr}</span>` : ''}
+          </button>`;
+        }).join('')}
       </div>
       <div class="account-bar-actions">
         ${editBtn}
@@ -1801,12 +1833,13 @@
   }
 
   function animateStatCards(totalValue, totalDayChange, totalGain) {
-    const el = document.getElementById('sv-value');
-    if (!el) return;
-    // Trigger re-animation by toggling class
-    el.classList.remove('counting');
-    void el.offsetWidth; // reflow
-    el.classList.add('counting');
+    ['sv-value', 'sv-day'].forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.classList.remove('counting');
+      void el.offsetWidth;
+      el.classList.add('counting');
+    });
   }
 
   // ── Holding modal ─────────────────────────────────────────────────────────
