@@ -411,9 +411,41 @@
     .empty-state { text-align: center; padding: 3rem 1rem; color: rgba(255,255,255,0.2); font-size: 0.9rem; letter-spacing: 1px; }
     @keyframes spin { to { transform: rotate(360deg); } }
     .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.15); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
+    /* Pull-to-refresh indicator */
+    #ptr-indicator {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 9999;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      height: 0; overflow: hidden;
+      background: rgba(30,30,40,0.95); backdrop-filter: blur(8px);
+      color: rgba(255,255,255,0.7); font-size: 0.82rem; font-weight: 600;
+      transition: height 0.15s ease;
+      pointer-events: none;
+    }
+    #ptr-indicator.pulling { height: 52px; }
+    #ptr-indicator.loading { height: 52px; }
+    #ptr-indicator .ptr-spinner {
+      width: 18px; height: 18px;
+      border: 2px solid rgba(255,255,255,0.2);
+      border-top-color: var(--gold);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+    }
+    #ptr-indicator.loading .ptr-spinner { display: block; }
+    #ptr-indicator .ptr-arrow {
+      font-size: 1.1rem;
+      transition: transform 0.2s ease;
+    }
+    #ptr-indicator.ready .ptr-arrow { transform: rotate(180deg); }
+    #ptr-indicator.loading .ptr-arrow { display: none; }
   </style>
 </head>
 <body>
+<div id="ptr-indicator">
+  <span class="ptr-arrow">↓</span>
+  <span class="ptr-spinner"></span>
+  <span id="ptr-label">Pull to refresh</span>
+</div>
 
 <nav class="site-nav">
   <div class="site-nav-inner">
@@ -958,6 +990,50 @@
     btn.textContent = '↻ Refresh'; btn.disabled = false;
     showToast('Refreshed');
   }
+
+  // Pull-to-refresh
+  (function() {
+    const THRESHOLD = 72; // px drag needed to trigger
+    let startY = 0, currentY = 0, pulling = false, triggered = false;
+    const ptr = document.getElementById('ptr-indicator');
+    const label = document.getElementById('ptr-label');
+
+    document.addEventListener('touchstart', e => {
+      if (window.scrollY !== 0) return;
+      startY = e.touches[0].clientY;
+      pulling = true;
+      triggered = false;
+    }, { passive: true });
+
+    document.addEventListener('touchmove', e => {
+      if (!pulling) return;
+      currentY = e.touches[0].clientY;
+      const delta = currentY - startY;
+      if (delta <= 0) { pulling = false; return; }
+      const progress = Math.min(delta / THRESHOLD, 1);
+      ptr.classList.add('pulling');
+      ptr.classList.toggle('ready', progress >= 1);
+      label.textContent = progress >= 1 ? 'Release to refresh' : 'Pull to refresh';
+    }, { passive: true });
+
+    document.addEventListener('touchend', async () => {
+      if (!pulling) return;
+      pulling = false;
+      const delta = currentY - startY;
+      if (delta >= THRESHOLD && !triggered) {
+        triggered = true;
+        ptr.classList.remove('pulling', 'ready');
+        ptr.classList.add('loading');
+        label.textContent = 'Refreshing…';
+        await manualRefresh();
+        ptr.classList.remove('loading');
+        label.textContent = 'Pull to refresh';
+      } else {
+        ptr.classList.remove('pulling', 'ready');
+      }
+      currentY = 0;
+    });
+  })();
 
   function toggleDotMenu(id, e) {
     e.stopPropagation();
