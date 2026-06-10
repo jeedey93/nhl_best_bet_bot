@@ -672,6 +672,7 @@
       <div class="price-refresh"><div class="refresh-dot"></div><span id="price-refresh-text">Prices live</span>
       <button class="btn-sm" id="btn-refresh" onclick="manualRefresh()" style="margin-left:0.75rem;font-size:0.72rem;padding:0.2rem 0.6rem">↻ Refresh</button>
       <button class="btn-sm" id="btn-share-link" onclick="sharePortfolioLink()" style="margin-left:0.5rem;font-size:0.72rem;padding:0.2rem 0.6rem">🔗 Link</button>
+      <button class="btn-sm" id="btn-share-public" onclick="generatePublicShareImage()" style="margin-left:0.5rem;font-size:0.72rem;padding:0.2rem 0.6rem">📊 Market</button>
       <button class="btn-sm" id="btn-share" onclick="generateShareImage()" style="margin-left:0.5rem;font-size:0.72rem;padding:0.2rem 0.6rem">📸 Snapshot</button>
       </div>
     </div>
@@ -2734,6 +2735,157 @@
       try { await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]); showToast('📋 Copied to clipboard!'); return; } catch(_) {}
     }
     // 3. Download fallback
+    const a = document.createElement('a');
+    a.download = file.name;
+    a.href = URL.createObjectURL(blob); a.click();
+    showToast('Saved as image');
+  }
+
+  async function generatePublicShareImage() {
+    const btn = document.getElementById('btn-share-public');
+    if (btn) { btn.textContent = '⏳'; btn.disabled = true; }
+
+    const GREEN='#4ade80', RED='#f87171', GOLD='#ffb81c', SILVER='#a8b2be', WHITE='#ffffff', DIM='#2a4060';
+    const fmtP = v => (v >= 0 ? '+' : '') + v.toFixed(2) + '%';
+
+    // Collect unique tickers with live price data, deduplicated
+    const vis = _activeAccount ? _holdings.filter(h => h.account_id === _activeAccount.id) : _holdings;
+    const seen = new Set();
+    const rows = [];
+    vis.forEach(h => {
+      const p = _prices[h.ticker];
+      if (!p?.price || seen.has(h.ticker)) return;
+      seen.add(h.ticker);
+      rows.push({
+        ticker: (h.ticker || '').replace(/^TSX:|^NYSE:|^NASDAQ:/i, ''),
+        price: p.price,
+        pct: p.changePct ?? 0,
+        sectorColor: getSectorColor(h.sector || '')
+      });
+    });
+    rows.sort((a, b) => b.pct - a.pct);
+
+    if (!rows.length) {
+      showToast('No live prices yet — try again after prices load');
+      if (btn) { btn.textContent = '📊 Market'; btn.disabled = false; }
+      return;
+    }
+
+    const W = 320, PAD = 16, RH = 30;
+    const HEADER_H = 62, FOOTER_H = 22;
+    const H = HEADER_H + rows.length * RH + 8 + FOOTER_H;
+
+    const canvas = document.createElement('canvas');
+    canvas.width = W * 2; canvas.height = H * 2;
+    const ctx = canvas.getContext('2d');
+    ctx.scale(2, 2);
+
+    // Background
+    ctx.fillStyle = '#07111f'; ctx.fillRect(0, 0, W, H);
+    const bg = ctx.createLinearGradient(0, 0, 0, H * 0.5);
+    bg.addColorStop(0, 'rgba(15,40,90,0.4)'); bg.addColorStop(1, 'transparent');
+    ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+
+    // Header
+    const dateStr = new Date().toLocaleDateString('en-CA', { month: 'short', day: 'numeric', year: 'numeric' });
+    const LOGO_SIZE = 32, LOGO_X = PAD, LOGO_Y = PAD;
+    const titleX = LOGO_X + LOGO_SIZE + 10;
+
+    const drawPublicHeader = () => {
+      ctx.textAlign = 'left'; ctx.font = '700 8px Arial'; ctx.fillStyle = GOLD;
+      ctx.fillText('PARIEUR DISCIPLINE', titleX, LOGO_Y + 10);
+      ctx.font = 'bold 14px Arial'; ctx.fillStyle = WHITE;
+      ctx.fillText('My Watchlist', titleX, LOGO_Y + 25);
+      ctx.font = '500 8px Arial'; ctx.fillStyle = SILVER;
+      ctx.fillText(dateStr, titleX, LOGO_Y + 38);
+      ctx.strokeStyle = GOLD; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(titleX, LOGO_Y + 29); ctx.lineTo(titleX + 74, LOGO_Y + 29); ctx.stroke();
+    };
+
+    const logoImg = new Image();
+    logoImg.src = '/parieur_discipline_icon_1024.png';
+    await new Promise(resolve => {
+      logoImg.onload = () => {
+        ctx.save();
+        ctx.beginPath();
+        const r = 6, lx = LOGO_X, ly = LOGO_Y, ls = LOGO_SIZE;
+        ctx.moveTo(lx+r,ly); ctx.lineTo(lx+ls-r,ly); ctx.quadraticCurveTo(lx+ls,ly,lx+ls,ly+r);
+        ctx.lineTo(lx+ls,ly+ls-r); ctx.quadraticCurveTo(lx+ls,ly+ls,lx+ls-r,ly+ls);
+        ctx.lineTo(lx+r,ly+ls); ctx.quadraticCurveTo(lx,ly+ls,lx,ly+ls-r);
+        ctx.lineTo(lx,ly+r); ctx.quadraticCurveTo(lx,ly,lx+r,ly); ctx.closePath();
+        ctx.clip(); ctx.drawImage(logoImg, lx, ly, ls, ls); ctx.restore(); resolve();
+      };
+      logoImg.onerror = resolve;
+    });
+    drawPublicHeader();
+
+    // Divider
+    const gDiv = ctx.createLinearGradient(PAD, 0, W-PAD, 0);
+    gDiv.addColorStop(0, 'transparent'); gDiv.addColorStop(0.5, 'rgba(168,178,190,0.25)'); gDiv.addColorStop(1, 'transparent');
+    ctx.strokeStyle = gDiv; ctx.lineWidth = 0.75;
+    ctx.beginPath(); ctx.moveTo(PAD, HEADER_H); ctx.lineTo(W-PAD, HEADER_H); ctx.stroke();
+
+    // Column headers
+    const COL_TICKER_X = PAD + 10;
+    const COL_PRICE_X  = PAD + 110;
+    const COL_PCT_X    = W - PAD - 8;
+    const HDR_Y = HEADER_H + 14;
+    ctx.font = '700 7px Arial'; ctx.fillStyle = 'rgba(255,255,255,0.25)';
+    ctx.textAlign = 'left';  ctx.fillText('TICKER', COL_TICKER_X, HDR_Y);
+    ctx.textAlign = 'right'; ctx.fillText('PRICE', COL_PRICE_X, HDR_Y);
+    ctx.textAlign = 'right'; ctx.fillText('DAY %', COL_PCT_X, HDR_Y);
+
+    // Rows
+    let y = HEADER_H + 20;
+    rows.forEach((r, i) => {
+      const rPos = r.pct >= 0;
+      const ry = y + i * RH;
+      const cy = ry + RH / 2 + 4;
+
+      if (i % 2 === 0) { ctx.fillStyle = 'rgba(255,255,255,0.04)'; ctx.fillRect(PAD, ry, W - PAD * 2, RH); }
+
+      // Sector accent bar
+      ctx.fillStyle = r.sectorColor || (rPos ? GREEN : RED);
+      ctx.globalAlpha = 0.7; ctx.fillRect(PAD, ry + 6, 2, RH - 12); ctx.globalAlpha = 1;
+
+      // Ticker
+      ctx.textAlign = 'left'; ctx.font = 'bold 12px Arial'; ctx.fillStyle = WHITE;
+      ctx.fillText(r.ticker, COL_TICKER_X, cy);
+
+      // Price
+      ctx.textAlign = 'right'; ctx.font = '600 11px Arial'; ctx.fillStyle = SILVER;
+      ctx.fillText('$' + r.price.toLocaleString('en-CA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }), COL_PRICE_X, cy);
+
+      // Day % badge
+      const PCT_W = 46, bH = 16, bY = ry + (RH - bH) / 2;
+      const bX = COL_PCT_X - PCT_W;
+      ctx.fillStyle = rPos ? 'rgba(74,222,128,0.13)' : 'rgba(248,113,113,0.1)';
+      roundRect(ctx, bX, bY, PCT_W, bH, 3); ctx.fill();
+      ctx.font = 'bold 9px Arial'; ctx.fillStyle = rPos ? GREEN : RED; ctx.textAlign = 'center';
+      ctx.fillText(fmtP(r.pct), bX + PCT_W / 2, bY + 12);
+
+      // Row divider
+      if (i < rows.length - 1) {
+        ctx.strokeStyle = 'rgba(255,255,255,0.04)'; ctx.lineWidth = 0.5;
+        ctx.beginPath(); ctx.moveTo(COL_TICKER_X, ry + RH); ctx.lineTo(W - PAD, ry + RH); ctx.stroke();
+      }
+    });
+
+    // Footer
+    ctx.textAlign = 'center'; ctx.font = '8px Arial'; ctx.fillStyle = DIM;
+    ctx.fillText('parieurdiscipline.com/finance', W / 2, H - 6);
+
+    if (btn) { btn.textContent = '📊 Market'; btn.disabled = false; }
+
+    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+    const file = new File([blob], `watchlist-${new Date().toISOString().slice(0, 10)}.png`, { type: 'image/png' });
+
+    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+      try { await navigator.share({ files: [file] }); return; } catch(e) { if (e.name !== 'AbortError') console.warn('share failed', e); }
+    }
+    if (navigator.clipboard?.write) {
+      try { await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]); showToast('📋 Copied to clipboard!'); return; } catch(_) {}
+    }
     const a = document.createElement('a');
     a.download = file.name;
     a.href = URL.createObjectURL(blob); a.click();
