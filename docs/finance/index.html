@@ -6,10 +6,20 @@
   <title>Finance | Parieur Discipliné</title>
   <link rel="icon" type="image/jpeg" href="../parieur_discipline_finance.jpg">
   <link rel="apple-touch-icon" href="../parieur_discipline_finance.jpg">
-  <meta property="og:title" content="Finance | Parieur Discipliné">
+  <meta name="description" content="Track your investment portfolio — real-time prices, dividends, performance charts and daily P&L.">
+  <meta property="og:title" id="og-title" content="Finance | Parieur Discipliné">
+  <meta property="og:description" id="og-desc" content="Track your investment portfolio — real-time prices, dividends, performance charts and daily P&L.">
   <meta property="og:image" content="https://parieurdiscipline.com/parieur_discipline_finance.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://parieurdiscipline.com/finance">
+  <meta property="og:url" id="og-url" content="https://parieurdiscipline.com/finance">
+  <meta property="og:site_name" content="Parieur Discipliné">
+  <meta property="og:locale" content="en_CA">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" id="tw-title" content="Finance | Parieur Discipliné">
+  <meta name="twitter:description" content="Track your investment portfolio — real-time prices, dividends, performance charts and daily P&L.">
+  <meta name="twitter:image" content="https://parieurdiscipline.com/parieur_discipline_finance.jpg">
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700;900&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <style>
@@ -629,6 +639,7 @@
     <div id="price-refresh-bar" style="display:none;padding:0.25rem 0 0.5rem">
       <div class="price-refresh"><div class="refresh-dot"></div><span id="price-refresh-text">Prices live</span>
       <button class="btn-sm" id="btn-refresh" onclick="manualRefresh()" style="margin-left:0.75rem;font-size:0.72rem;padding:0.2rem 0.6rem">↻ Refresh</button>
+      <button class="btn-sm" id="btn-share-link" onclick="sharePortfolioLink()" style="margin-left:0.5rem;font-size:0.72rem;padding:0.2rem 0.6rem">🔗 Link</button>
       <button class="btn-sm" id="btn-share" onclick="generateShareImage()" style="margin-left:0.5rem;font-size:0.72rem;padding:0.2rem 0.6rem">📤 Share</button>
       </div>
     </div>
@@ -865,6 +876,14 @@
     document.getElementById('home-view').style.display = 'none';
     document.getElementById('portfolio-view').style.display = 'block';
     document.getElementById('breadcrumb-portfolio-name').textContent = p.name;
+    // Update meta tags dynamically for share links
+    const url = `https://parieurdiscipline.com/finance#/${p.owner_code}`;
+    const title = `${p.name} | Parieur Discipliné`;
+    document.title = title;
+    document.getElementById('og-title')?.setAttribute('content', title);
+    document.getElementById('tw-title')?.setAttribute('content', title);
+    document.getElementById('og-url')?.setAttribute('content', url);
+    document.getElementById('og-desc')?.setAttribute('content', `View ${p.name}'s investment portfolio on Parieur Discipliné — real-time prices, dividends and daily P&L.`);
     if (p.password_hash && !_unlockedIds.has(p.id)) { showLockScreen(p, accountSlug); return; }
     await loadPortfolio(p, accountSlug);
   }
@@ -917,6 +936,20 @@
   // ── Prices ────────────────────────────────────────────────────────────────
   let _pricesLastUpdated = null;
   let _priceRefreshTimer = null;
+
+  async function sharePortfolioLink() {
+    const url = `https://parieurdiscipline.com/finance#/${_activePortfolio?.owner_code || ''}`;
+    const title = `${_activePortfolio?.name || 'My Portfolio'} | Parieur Discipliné`;
+    if (navigator.share) {
+      try { await navigator.share({ title, url }); return; } catch(e) { if (e.name === 'AbortError') return; }
+    }
+    try {
+      await navigator.clipboard.writeText(url);
+      showToast('🔗 Link copied!');
+    } catch(_) {
+      prompt('Copy this link:', url);
+    }
+  }
 
   async function manualRefresh() {
     const btn = document.getElementById('btn-refresh');
