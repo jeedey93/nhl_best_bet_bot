@@ -618,6 +618,7 @@
     <div id="price-refresh-bar" style="display:none;padding:0.25rem 0 0.5rem">
       <div class="price-refresh"><div class="refresh-dot"></div><span id="price-refresh-text">Prices live</span>
       <button class="btn-sm" id="btn-refresh" onclick="manualRefresh()" style="margin-left:0.75rem;font-size:0.72rem;padding:0.2rem 0.6rem">↻ Refresh</button>
+      <button class="btn-sm" id="btn-share" onclick="generateShareImage()" style="margin-left:0.5rem;font-size:0.72rem;padding:0.2rem 0.6rem">📤 Share</button>
       </div>
     </div>
     <div id="portfolio-content"></div>
@@ -2396,7 +2397,7 @@
   // ── Share image generator ─────────────────────────────────────────────────
   async function generateShareImage() {
     const btn = document.getElementById('btn-share');
-    btn.textContent = '⏳'; btn.disabled = true;
+    if (btn) { btn.textContent = '⏳'; btn.disabled = true; }
 
     const GREEN='#4ade80', RED='#f87171', GOLD='#ffb81c', SILVER='#a8b2be', WHITE='#ffffff', DIM='#2a4060';
     const fmt$ = v => (v>=0?'+':'−')+'$'+Math.abs(v).toLocaleString('en-CA',{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -2577,7 +2578,7 @@
     ctx.textAlign='center'; ctx.font='8px Arial'; ctx.fillStyle=DIM;
     ctx.fillText('parieurdiscipline.com/finance',W/2,H-6);
 
-    btn.textContent='📤 Share'; btn.disabled=false;
+    if (btn) { btn.textContent='📤 Share'; btn.disabled=false; }
 
     const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
     const file = new File([blob], `snapshot-${new Date().toISOString().slice(0,10)}.png`, { type: 'image/png' });
