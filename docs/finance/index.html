@@ -606,7 +606,9 @@
         <div class="dot-menu-wrap">
           <button class="dot-menu-btn" onclick="toggleDotMenu('portfolio-menu',event)">⋯</button>
           <div class="dot-menu" id="portfolio-menu">
-            <button class="dot-menu-item" onclick="closeDotMenus();openEditPortfolioModal()">✎ Edit</button>
+            <button class="dot-menu-item" onclick="closeDotMenus();openEditPortfolioModal()">✎ Edit Portfolio</button>
+            <button class="dot-menu-item" onclick="closeDotMenus();openNewAccountModal()">+ Add Account</button>
+            <button class="dot-menu-item" onclick="closeDotMenus();generateShareImage()">📤 Share</button>
             <div class="dot-menu-divider"></div>
             <button class="dot-menu-item danger" onclick="closeDotMenus();deletePortfolio()">Delete Portfolio</button>
           </div>
@@ -616,7 +618,6 @@
     <div id="price-refresh-bar" style="display:none;padding:0.25rem 0 0.5rem">
       <div class="price-refresh"><div class="refresh-dot"></div><span id="price-refresh-text">Prices live</span>
       <button class="btn-sm" id="btn-refresh" onclick="manualRefresh()" style="margin-left:0.75rem;font-size:0.72rem;padding:0.2rem 0.6rem">↻ Refresh</button>
-      <button class="btn-sm" id="btn-share" onclick="generateShareImage()" style="margin-left:0.5rem;font-size:0.72rem;padding:0.2rem 0.6rem">📤 Share</button>
       </div>
     </div>
     <div id="portfolio-content"></div>
@@ -800,8 +801,18 @@
         ${updatedStr ? `<div class="pc-updated">Updated ${updatedStr}</div>` : '<div></div>'}
       </div>` : '';
 
-      return `<div class="portfolio-card" data-portfolio-code="${escHtml(p.owner_code)}" data-sectors='${JSON.stringify(sectorEntries)}' data-pid="${p.id}">
-        <div class="pc-name">${escHtml(p.name)}${p.password_hash ? ' 🔒' : ''}</div>
+      return `<div class="portfolio-card" data-portfolio-code="${escHtml(p.owner_code)}" data-sectors='${JSON.stringify(sectorEntries)}' data-pid="${p.id}" onclick="handleCardClick(event,'${escHtml(p.owner_code)}')">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.5rem">
+          <div class="pc-name">${escHtml(p.name)}${p.password_hash ? ' 🔒' : ''}</div>
+          <div class="dot-menu-wrap" onclick="event.stopPropagation()">
+            <button class="dot-menu-btn" onclick="toggleDotMenu('pc-menu-${p.id}',event)" style="padding:0.1rem 0.4rem;font-size:0.9rem;margin-top:0.1rem">⋯</button>
+            <div class="dot-menu" id="pc-menu-${p.id}">
+              <button class="dot-menu-item" onclick="closeDotMenus();openEditPortfolioFromCard('${p.id}')">✎ Edit</button>
+              <div class="dot-menu-divider"></div>
+              <button class="dot-menu-item danger" onclick="closeDotMenus();deletePortfolioById('${p.id}','${escHtml(p.name)}')">Delete</button>
+            </div>
+          </div>
+        </div>
         ${accs.length ? `<div class="pc-accounts">${chips}</div>` : `<div class="pc-lock" style="margin-top:0.35rem">No accounts yet</div>`}
         ${financials}
       </div>`;
@@ -1130,12 +1141,11 @@
       <div class="account-tabs">
         <button class="atab all${!_activeAccount ? ' active' : ''}" onclick="selectAccount(null)">All</button>
         ${_accounts.map(a =>
-          `<button class="atab${_activeAccount?.id === a.id ? ' active' : ''}" data-account-id="${a.id}">${escHtml(a.name)}</button>`
+          `<button class="atab${_activeAccount?.id === a.id ? ' active' : ''}" data-account-id="${a.id}">${escHtml(a.name)}${_activeAccount?.id === a.id ? ' <span onclick="event.stopPropagation();selectAccount(null)" style="margin-left:4px;opacity:0.7;font-size:0.85em">×</span>' : ''}</button>`
         ).join('')}
       </div>
       <div class="account-bar-actions">
         ${editBtn}
-        <button class="btn-sm" onclick="openNewAccountModal()">+ Account</button>
       </div>
     </div>`;
   }
@@ -1333,9 +1343,15 @@
           <div class="hc-price">${h.price ? h.price.toFixed(2) : (pricesLoaded ? '—' : '<span class="skeleton-cell" style="width:45px;display:inline-block">&nbsp;</span>')}</div>
           <div class="hc-day ${dcPos ? 'pos' : 'neg'}">${h.dayChange != null ? (dcPos?'+':'') + fmtC(h.dayChange) + ' (' + (dcPos?'+':'') + fmt(h.changePct||0) + '%)' : (pricesLoaded ? '—' : '<span class="skeleton-cell" style="width:60px;display:inline-block">&nbsp;</span>')}</div>
         </div>
-        <div style="display:flex;flex-direction:column;gap:2px;flex-shrink:0" onclick="event.stopPropagation()">
-          <button class="btn-edit-row" onclick="openEditHolding('${h.id}')">✎</button>
-          <button class="btn-delete-row" onclick="quickDeleteHolding('${h.id}','${escHtml(h.company_name||h.ticker||'')}')">✕</button>
+        <div class="dot-menu-wrap" onclick="event.stopPropagation()">
+          <button class="dot-menu-btn" onclick="toggleDotMenu('hc-menu-${h.id}',event)" style="padding:0.15rem 0.45rem;font-size:0.9rem">⋯</button>
+          <div class="dot-menu" id="hc-menu-${h.id}" style="right:0;left:auto">
+            <button class="dot-menu-item" onclick="closeDotMenus();openEditHolding('${h.id}')">✎ Edit</button>
+            <div class="dot-menu-divider"></div>
+            <button class="dot-menu-item danger" onclick="closeDotMenus();quickDeleteHolding('${h.id}','${escHtml(h.company_name||h.ticker||'')}')">Delete</button>
+          </div>
+        </div>
+      </div>`;
         </div>
       </div>`;
     });
@@ -2015,6 +2031,30 @@
     } catch(e) { showToast('Failed to delete.', true); }
   }
 
+  function handleCardClick(e, ownerCode) {
+    if (e.target.closest('.dot-menu-wrap')) return;
+    const p = _portfolios.find(p => p.owner_code === ownerCode);
+    if (p) navigate(`/${p.owner_code}`);
+  }
+
+  function openEditPortfolioFromCard(id) {
+    const p = _portfolios.find(p => p.id === id);
+    if (!p) return;
+    // Navigate to portfolio first, then open edit modal
+    navigate(`/${p.owner_code}`);
+    setTimeout(() => openEditPortfolioModal(), 300);
+  }
+
+  async function deletePortfolioById(id, name) {
+    const confirmed = await showConfirm(`Delete portfolio <strong>${escHtml(name)}</strong> and all its accounts and holdings? This cannot be undone.`);
+    if (!confirmed) return;
+    try {
+      await sbDelete(`finance_portfolios?id=eq.${id}`);
+      _portfolios = _portfolios.filter(p => p.id !== id);
+      renderHome();
+    } catch(e) { showToast('Failed to delete.', true); }
+  }
+
   // ── Account modal ─────────────────────────────────────────────────────────
   function openNewAccountModal() {
     document.getElementById('account-modal-title').textContent = 'New Account';
@@ -2660,8 +2700,6 @@
   }
 
   document.getElementById('main-page').addEventListener('click', e => {
-    const card = e.target.closest('[data-portfolio-code]');
-    if (card) { const p = _portfolios.find(p => p.owner_code === card.dataset.portfolioCode); if (p) navigate(`/${p.owner_code}`); return; }
     const accountBtn = e.target.closest('[data-account-id]');
     if (accountBtn) { selectAccount(accountBtn.dataset.accountId); return; }
     const editBtn = e.target.closest('[data-edit-id]');
