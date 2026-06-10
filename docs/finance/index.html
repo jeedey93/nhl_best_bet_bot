@@ -629,7 +629,7 @@
           <div class="dot-menu" id="portfolio-menu">
             <button class="dot-menu-item" onclick="closeDotMenus();openEditPortfolioModal()">✎ Edit Portfolio</button>
             <button class="dot-menu-item" onclick="closeDotMenus();openNewAccountModal()">+ Add Account</button>
-            <button class="dot-menu-item" onclick="closeDotMenus();generateShareImage()">📤 Share</button>
+            <button class="dot-menu-item" onclick="closeDotMenus();generateShareImage()">📸 Snapshot</button>
             <div class="dot-menu-divider"></div>
             <button class="dot-menu-item danger" onclick="closeDotMenus();deletePortfolio()">Delete Portfolio</button>
           </div>
@@ -640,7 +640,7 @@
       <div class="price-refresh"><div class="refresh-dot"></div><span id="price-refresh-text">Prices live</span>
       <button class="btn-sm" id="btn-refresh" onclick="manualRefresh()" style="margin-left:0.75rem;font-size:0.72rem;padding:0.2rem 0.6rem">↻ Refresh</button>
       <button class="btn-sm" id="btn-share-link" onclick="sharePortfolioLink()" style="margin-left:0.5rem;font-size:0.72rem;padding:0.2rem 0.6rem">🔗 Link</button>
-      <button class="btn-sm" id="btn-share" onclick="generateShareImage()" style="margin-left:0.5rem;font-size:0.72rem;padding:0.2rem 0.6rem">📤 Share</button>
+      <button class="btn-sm" id="btn-share" onclick="generateShareImage()" style="margin-left:0.5rem;font-size:0.72rem;padding:0.2rem 0.6rem">📸 Snapshot</button>
       </div>
     </div>
     <div id="portfolio-content"></div>
@@ -2644,7 +2644,7 @@
     ctx.textAlign='center'; ctx.font='8px Arial'; ctx.fillStyle=DIM;
     ctx.fillText('parieurdiscipline.com/finance',W/2,H-6);
 
-    if (btn) { btn.textContent='📤 Share'; btn.disabled=false; }
+    if (btn) { btn.textContent='📸 Snapshot'; btn.disabled=false; }
 
     const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
     const file = new File([blob], `snapshot-${new Date().toISOString().slice(0,10)}.png`, { type: 'image/png' });
