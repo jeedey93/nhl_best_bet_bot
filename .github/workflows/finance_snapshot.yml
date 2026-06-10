@@ -2,9 +2,9 @@ name: Daily Finance Snapshot
 
 on:
   schedule:
-    # 4:30 PM Montreal (EDT UTC-4) = 20:30 UTC  |  (EST UTC-5) = 21:30 UTC
-    - cron: '30 20 * * 1-5'
-    - cron: '30 21 * * 1-5'
+    # 2:30 PM Montreal (EDT UTC-4) = 18:30 UTC  |  (EST UTC-5) = 19:30 UTC
+    - cron: '30 18 * * 1-5'
+    - cron: '30 19 * * 1-5'
   workflow_dispatch:
 
 jobs:
@@ -15,19 +15,8 @@ jobs:
       EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
 
     steps:
-      - name: Determine if this cron should run
-        id: check_hour
-        run: |
-          HOUR=$(date -u +%H)
-          if [ "$HOUR" -eq 20 ] || [ "$HOUR" -eq 21 ]; then
-            echo "run=true" >> $GITHUB_OUTPUT
-          else
-            echo "Unexpected hour $HOUR — skipping"
-            echo "run=false" >> $GITHUB_OUTPUT
-          fi
-
       - name: Take portfolio snapshot
-        if: steps.check_hour.outputs.run == 'true' || github.event_name == 'workflow_dispatch'
+        if: github.event_name == 'workflow_dispatch' || true
         id: snapshot
         run: |
           echo "Taking snapshot at $(date -u)..."
@@ -44,7 +33,7 @@ jobs:
           echo "✅ Snapshot saved"
 
       - name: Send summary email
-        if: (steps.check_hour.outputs.run == 'true' || github.event_name == 'workflow_dispatch') && steps.snapshot.outcome == 'success'
+        if: steps.snapshot.outcome == 'success'
         run: |
           python3 - <<'PYEOF'
           import smtplib, os, json
