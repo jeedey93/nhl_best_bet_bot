@@ -58,6 +58,12 @@
     .home-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
     .home-title { font-family: 'Bebas Neue', cursive; font-size: clamp(1.4rem, 5vw, 2rem); letter-spacing: 5px; color: white; }
     .home-title span { color: var(--gold); }
+    .portfolio-section { margin-bottom: 1.75rem; }
+    .portfolio-section-label { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.75rem; }
+    .portfolio-section-label span { font-family: 'Bebas Neue', cursive; font-size: 0.72rem; letter-spacing: 2.5px; color: rgba(255,255,255,0.25); white-space: nowrap; }
+    .portfolio-section-label::before, .portfolio-section-label::after { content: ''; flex: 1; height: 1px; background: rgba(255,255,255,0.07); }
+    .portfolio-section-label.label-public span { color: rgba(255,184,28,0.45); }
+    .portfolio-section-label.label-private span { color: rgba(168,178,190,0.4); }
     .portfolio-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1rem; }
     .portfolio-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 1.25rem 1.5rem; cursor: pointer; transition: background 0.15s, border-color 0.15s, transform 0.1s; }
     .portfolio-card:hover { background: rgba(255,255,255,0.06); border-color: rgba(255,184,28,0.3); transform: translateY(-2px); }
@@ -68,6 +74,28 @@
     .pc-account-chip { font-family: 'Bebas Neue', cursive; font-size: 0.72rem; letter-spacing: 1.5px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: var(--silver); border-radius: 5px; padding: 2px 8px; }
     .pc-new { border-style: dashed; border-color: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; gap: 0.5rem; color: rgba(255,255,255,0.3); font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 2px; min-height: 90px; }
     .pc-new:hover { border-color: rgba(255,184,28,0.3); color: var(--gold); transform: none; }
+    /* Mobile compact list */
+    @media (max-width: 700px) {
+      .portfolio-cards { display: flex; flex-direction: column; gap: 0; }
+      .portfolio-card { border-radius: 0; border-left: none; border-right: none; border-bottom: none; padding: 0.7rem 0.25rem; background: none; display: flex; align-items: center; gap: 0.75rem; transform: none !important; }
+      .portfolio-card:first-child { border-top: none; }
+      .portfolio-section .portfolio-cards .portfolio-card:first-child { border-top: 1px solid rgba(255,255,255,0.06); }
+      .portfolio-card:hover { background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.06); }
+      .portfolio-card .pc-mobile-left { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.1rem; }
+      .portfolio-card .pc-mobile-right { display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0; }
+      /* Hide desktop-only card sections on mobile */
+      .portfolio-card .pc-accounts,
+      .portfolio-card .pc-financials,
+      .portfolio-card .pc-card-bottom,
+      .portfolio-card .pc-lock { display: none; }
+      .portfolio-card .pc-name { font-size: 1rem; letter-spacing: 2px; margin-bottom: 0; }
+      .pc-mobile-sub { font-size: 0.65rem; font-weight: 600; color: rgba(255,255,255,0.25); letter-spacing: 0.5px; }
+      .pc-mobile-day { font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 1px; }
+      .pc-mobile-day.pos { color: #4ade80; }
+      .pc-mobile-day.neg { color: #f87171; }
+      .pc-mobile-chevron { color: rgba(255,255,255,0.18); font-size: 0.85rem; }
+      .pc-new { min-height: 48px; border-radius: 10px; border-style: dashed; border: 1px dashed rgba(255,255,255,0.1); margin-top: 0.5rem; }
+    }
 
     /* ── Portfolio nav (breadcrumb + account tabs) ── */
     .portfolio-bar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 0; }
@@ -644,7 +672,7 @@
         <div class="home-title">My <span>Portfolios</span></div>
         <button class="btn-sm" onclick="openNewPortfolioModal()">+ New Portfolio</button>
       </div>
-      <div class="portfolio-cards" id="portfolio-cards"></div>
+      <div id="portfolio-cards"></div>
     </div>
   </div>
   <!-- Portfolio view -->
@@ -810,7 +838,7 @@
       } catch(_) {}
     }
 
-    document.getElementById('portfolio-cards').innerHTML = _portfolios.map(p => {
+    const buildCard = p => {
       try {
       const accs = accountsByPortfolio[p.id] || [];
       const holdings = holdingsByPortfolio[p.id] || [];
@@ -857,17 +885,34 @@
         ${updatedStr ? `<div class="pc-updated">Updated ${updatedStr}</div>` : '<div></div>'}
       </div>` : '';
 
+      // Mobile: day % pill
+      const dayPctVal = (totalValue - totalDay) > 0 ? (totalDay / (totalValue - totalDay)) * 100 : 0;
+      const mobileDayHtml = isLocked
+        ? `<span style="font-size:0.85rem;opacity:0.4">🔒</span>`
+        : hasPrices
+          ? `<span class="pc-mobile-day ${totalDay >= 0 ? 'pos' : 'neg'}">${totalDay >= 0 ? '+' : ''}${fmt(dayPctVal)}%</span>`
+          : '';
+      const mobileSubHtml = accs.length
+        ? `<span class="pc-mobile-sub">${accs.map(a => escHtml(a.name)).join(' · ')}</span>`
+        : `<span class="pc-mobile-sub">No accounts</span>`;
+
       return `<div class="portfolio-card" data-portfolio-code="${escHtml(p.owner_code)}" data-sectors='${JSON.stringify(sectorEntries)}' data-pid="${p.id}" onclick="handleCardClick(event,'${escHtml(p.owner_code)}')">
-        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.5rem">
-          <div class="pc-name">${escHtml(p.name)}${p.password_hash ? ' 🔒' : ''}</div>
-          <div class="dot-menu-wrap" onclick="event.stopPropagation()">
-            <button class="dot-menu-btn" onclick="toggleDotMenu('pc-menu-${p.id}',event)" style="padding:0.1rem 0.4rem;font-size:0.9rem;margin-top:0.1rem">⋯</button>
-            <div class="dot-menu" id="pc-menu-${p.id}">
-              <button class="dot-menu-item" onclick="closeDotMenus();openEditPortfolioFromCard('${p.id}')">✎ Edit</button>
-              <div class="dot-menu-divider"></div>
-              <button class="dot-menu-item danger" onclick="closeDotMenus();deletePortfolioById('${p.id}','${escHtml(p.name)}')">Delete</button>
+        <div class="pc-mobile-left">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem">
+            <div class="pc-name">${escHtml(p.name)}${p.password_hash ? ' 🔒' : ''}</div>
+            <div style="display:flex;align-items:center;gap:0.4rem">
+              <div class="pc-mobile-right">${mobileDayHtml}<span class="pc-mobile-chevron">›</span></div>
+              <div class="dot-menu-wrap" onclick="event.stopPropagation()">
+                <button class="dot-menu-btn" onclick="toggleDotMenu('pc-menu-${p.id}',event)" style="padding:0.1rem 0.4rem;font-size:0.9rem;margin-top:0.1rem">⋯</button>
+                <div class="dot-menu" id="pc-menu-${p.id}">
+                  <button class="dot-menu-item" onclick="closeDotMenus();openEditPortfolioFromCard('${p.id}')">✎ Edit</button>
+                  <div class="dot-menu-divider"></div>
+                  <button class="dot-menu-item danger" onclick="closeDotMenus();deletePortfolioById('${p.id}','${escHtml(p.name)}')">Delete</button>
+                </div>
+              </div>
             </div>
           </div>
+          ${mobileSubHtml}
         </div>
         ${accs.length ? `<div class="pc-accounts">${chips}</div>` : `<div class="pc-lock" style="margin-top:0.35rem">No accounts yet</div>`}
         ${financials}
@@ -878,7 +923,25 @@
           <div class="pc-name">${escHtml(p.name)}${p.password_hash ? ' 🔒' : ''}</div>
         </div>`;
       }
-    }).concat([`<div class="portfolio-card pc-new" onclick="openNewPortfolioModal()">+ New Portfolio</div>`]).join('');
+    };
+
+    const publicPortfolios  = _portfolios.filter(p => !p.password_hash);
+    const privatePortfolios = _portfolios.filter(p =>  p.password_hash);
+
+    const renderSection = (portfolios, label, labelClass) => {
+      if (!portfolios.length) return '';
+      return `<div class="portfolio-section">
+        <div class="portfolio-section-label ${labelClass}"><span>${label}</span></div>
+        <div class="portfolio-cards">${portfolios.map(buildCard).join('')}</div>
+      </div>`;
+    };
+
+    const newBtn = `<div class="portfolio-card pc-new" onclick="openNewPortfolioModal()">+ New Portfolio</div>`;
+
+    document.getElementById('portfolio-cards').innerHTML =
+      renderSection(publicPortfolios,  'Public',  'label-public') +
+      renderSection(privatePortfolios, 'Private 🔒', 'label-private') +
+      newBtn;
 
     // Draw mini sector donuts on each card
     _portfolios.forEach(p => {
