@@ -75,6 +75,7 @@
     .pc-new { border-style: dashed; border-color: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; gap: 0.5rem; color: rgba(255,255,255,0.3); font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 2px; min-height: 90px; }
     .pc-new:hover { border-color: rgba(255,184,28,0.3); color: var(--gold); transform: none; }
     .portfolio-card .pc-mobile-right { display: none; }
+    .portfolio-card .pc-mobile-sub-wrap { display: none; }
     /* Mobile compact list */
     @media (max-width: 700px) {
       .portfolio-cards { display: flex; flex-direction: column; gap: 0; }
@@ -82,8 +83,8 @@
       .portfolio-card:first-child { border-top: none; }
       .portfolio-section .portfolio-cards .portfolio-card:first-child { border-top: 1px solid rgba(255,255,255,0.06); }
       .portfolio-card:hover { background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.06); }
-      .portfolio-card .pc-mobile-left { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.1rem; }
       .portfolio-card .pc-mobile-right { display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0; }
+      .portfolio-card .pc-mobile-sub-wrap { display: block; }
       /* Hide desktop-only card sections on mobile */
       .portfolio-card .pc-accounts,
       .portfolio-card .pc-financials,
@@ -901,23 +902,21 @@
         : `<span class="pc-mobile-sub">No accounts</span>`;
 
       return `<div class="portfolio-card" data-portfolio-code="${escHtml(p.owner_code)}" data-sectors='${JSON.stringify(sectorEntries)}' data-pid="${p.id}" onclick="handleCardClick(event,'${escHtml(p.owner_code)}')">
-        <div class="pc-mobile-left">
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;min-width:0">
-            <div class="pc-name">${escHtml(p.name)}${p.password_hash ? ' 🔒' : ''}</div>
-            <div style="display:flex;align-items:center;gap:0.4rem;flex-shrink:0">
-              <div class="pc-mobile-right">${mobileDayHtml}<span class="pc-mobile-chevron">›</span></div>
-              <div class="dot-menu-wrap" onclick="event.stopPropagation()">
-                <button class="dot-menu-btn" onclick="toggleDotMenu('pc-menu-${p.id}',event)" style="padding:0.1rem 0.4rem;font-size:0.9rem;margin-top:0.1rem">⋯</button>
-                <div class="dot-menu" id="pc-menu-${p.id}">
-                  <button class="dot-menu-item" onclick="closeDotMenus();openEditPortfolioFromCard('${p.id}')">✎ Edit</button>
-                  <div class="dot-menu-divider"></div>
-                  <button class="dot-menu-item danger" onclick="closeDotMenus();deletePortfolioById('${p.id}','${escHtml(p.name)}')">Delete</button>
-                </div>
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.5rem;min-width:0">
+          <div class="pc-name">${escHtml(p.name)}${p.password_hash ? ' 🔒' : ''}</div>
+          <div style="display:flex;align-items:center;gap:0.4rem;flex-shrink:0">
+            <div class="pc-mobile-right">${mobileDayHtml}<span class="pc-mobile-chevron">›</span></div>
+            <div class="dot-menu-wrap" onclick="event.stopPropagation()">
+              <button class="dot-menu-btn" onclick="toggleDotMenu('pc-menu-${p.id}',event)" style="padding:0.1rem 0.4rem;font-size:0.9rem;margin-top:0.1rem">⋯</button>
+              <div class="dot-menu" id="pc-menu-${p.id}">
+                <button class="dot-menu-item" onclick="closeDotMenus();openEditPortfolioFromCard('${p.id}')">✎ Edit</button>
+                <div class="dot-menu-divider"></div>
+                <button class="dot-menu-item danger" onclick="closeDotMenus();deletePortfolioById('${p.id}','${escHtml(p.name)}')">Delete</button>
               </div>
             </div>
           </div>
-          ${mobileSubHtml}
         </div>
+        <div class="pc-mobile-sub-wrap">${mobileSubHtml}</div>
         ${accs.length ? `<div class="pc-accounts">${chips}</div>` : `<div class="pc-lock" style="margin-top:0.35rem">No accounts yet</div>`}
         ${financials}
       </div>`;
