@@ -290,7 +290,28 @@
     /* ── Last updated indicator ── */
     .price-refresh { display: flex; align-items: center; gap: 0.4rem; font-size: 0.68rem; font-weight: 600; color: rgba(255,255,255,0.2); letter-spacing: 0.5px; }
     /* ── Daily history ── */
-    .history-cal { margin-bottom: 1rem; }
+    /* History summary pills */
+    .history-summary { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+    .history-sum-pill { flex: 1; min-width: 0; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 0.55rem 0.75rem; text-align: center; cursor: pointer; transition: border-color 0.15s, background 0.15s; }
+    .history-sum-pill:hover { background: rgba(255,255,255,0.06); }
+    .history-sum-pill.active { border-color: rgba(255,184,28,0.35); background: rgba(255,184,28,0.05); }
+    .history-sum-pill .hsp-label { font-size: 0.58rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.25); margin-bottom: 0.2rem; }
+    .history-sum-pill .hsp-val { font-family: 'Bebas Neue', cursive; font-size: 0.95rem; letter-spacing: 1px; }
+    .history-sum-pill .hsp-pct { font-size: 0.68rem; font-weight: 700; opacity: 0.7; }
+    .hsp-val.pos, .hsp-pct.pos { color: #4ade80; }
+    .hsp-val.neg, .hsp-pct.neg { color: #f87171; }
+    .hsp-val.neu { color: rgba(255,255,255,0.4); }
+    /* Range calculator */
+    .history-calc { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1rem; margin-bottom: 1rem; }
+    .history-calc-title { font-size: 0.62rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.25); margin-bottom: 0.75rem; }
+    .history-calc-inputs { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+    .history-calc-inputs input[type="date"] { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 7px; color: white; font-size: 0.8rem; padding: 0.35rem 0.6rem; flex: 1; min-width: 120px; color-scheme: dark; }
+    .history-calc-inputs input[type="date"]:focus { outline: none; border-color: rgba(255,184,28,0.4); }
+    .history-calc-sep { color: rgba(255,255,255,0.2); font-size: 0.8rem; font-weight: 600; }
+    .history-calc-result { margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid rgba(255,255,255,0.06); display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; }
+    .history-calc-result .hcr-label { font-size: 0.62rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.25); }
+    .history-calc-result .hcr-val { font-family: 'Bebas Neue', cursive; font-size: 1.1rem; letter-spacing: 1px; }
+    .history-calc-result .hcr-days { font-size: 0.68rem; font-weight: 600; color: rgba(255,255,255,0.2); margin-left: auto; }
     .history-cal-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.6rem; }
     .history-cal-title { font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 3px; color: var(--silver); }
     .history-cal-btn { background: none; border: none; color: rgba(255,255,255,0.3); font-size: 1rem; cursor: pointer; padding: 0 0.5rem; transition: color 0.15s; }
@@ -2506,7 +2527,93 @@
     const el = document.getElementById('history-content');
     if (!el) return;
     const dataMap = Object.fromEntries(_snapshotData.map(r => [r.snapshot_date, r]));
-    el.innerHTML = buildHistoryCalendar(dataMap) + buildHistoryDetail(dataMap);
+    el.innerHTML = buildHistorySummary(dataMap) + buildHistoryCalc(dataMap) + buildHistoryCalendar(dataMap) + buildHistoryDetail(dataMap);
+  }
+
+  function sumRange(dataMap, fromDate, toDate) {
+    // Sum day_change for all snapshots between fromDate and toDate inclusive
+    // Returns { total$, totalPct, days } where totalPct is computed vs start value
+    const entries = Object.entries(dataMap)
+      .filter(([d]) => d >= fromDate && d <= toDate)
+      .sort(([a],[b]) => a.localeCompare(b));
+    if (!entries.length) return null;
+    const total = entries.reduce((s, [, r]) => s + (r.day_change || 0), 0);
+    // Approximate % vs portfolio value at start of period
+    const startVal = entries[0][1].total_value - (entries[0][1].day_change || 0);
+    const pct = startVal > 0 ? (total / startVal) * 100 : 0;
+    return { total, pct, days: entries.length };
+  }
+
+  function buildHistorySummary(dataMap) {
+    const today = new Date().toISOString().slice(0, 10);
+    const dates = Object.keys(dataMap).sort();
+    if (!dates.length) return '';
+
+    const toStr = d => d.toISOString().slice(0, 10);
+    const ago = n => { const d = new Date(); d.setDate(d.getDate() - n); return toStr(d); };
+
+    const yesterday = dates.filter(d => d < today).at(-1) || null;
+    const week7  = sumRange(dataMap, ago(6), today);
+    const thisMonth = (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-01`; })();
+    const mtd = sumRange(dataMap, thisMonth, today);
+
+    const pill = (label, result, onclick) => {
+      if (!result) return `<div class="history-sum-pill"><div class="hsp-label">${label}</div><div class="hsp-val neu">—</div></div>`;
+      const pos = result.total >= 0;
+      const cls = pos ? 'pos' : 'neg';
+      const sgn = pos ? '+' : '';
+      return `<div class="history-sum-pill" onclick="${onclick}">
+        <div class="hsp-label">${label}</div>
+        <div class="hsp-val ${cls}">${sgn}${fmtC(result.total)}</div>
+        <div class="hsp-pct ${cls}">${sgn}${fmt(result.pct)}%</div>
+      </div>`;
+    };
+
+    const ydayResult = yesterday ? sumRange(dataMap, yesterday, yesterday) : null;
+    const ytdStart = `${new Date().getFullYear()}-01-01`;
+    const ytd = sumRange(dataMap, ytdStart, today);
+
+    return `<div class="history-summary">
+      ${pill('Yesterday', ydayResult, yesterday ? `selectHistoryDate('${yesterday}')` : '')}
+      ${pill('7 Days', week7, '')}
+      ${pill('This Month', mtd, '')}
+      ${pill('This Year', ytd, '')}
+    </div>`;
+  }
+
+  function buildHistoryCalc(dataMap) {
+    const dates = Object.keys(dataMap).sort();
+    const minDate = dates[0] || '';
+    const maxDate = dates.at(-1) || '';
+    return `<div class="history-calc">
+      <div class="history-calc-title">Range Calculator</div>
+      <div class="history-calc-inputs">
+        <input type="date" id="hcalc-from" value="${minDate}" min="${minDate}" max="${maxDate}">
+        <span class="history-calc-sep">→</span>
+        <input type="date" id="hcalc-to" value="${maxDate}" min="${minDate}" max="${maxDate}">
+        <button class="btn-sm" onclick="runHistoryCalc()">Calculate</button>
+      </div>
+      <div id="hcalc-result"></div>
+    </div>`;
+  }
+
+  function runHistoryCalc() {
+    const from = document.getElementById('hcalc-from')?.value;
+    const to   = document.getElementById('hcalc-to')?.value;
+    const res  = document.getElementById('hcalc-result');
+    if (!from || !to || !res) return;
+    if (from > to) { res.innerHTML = `<div style="font-size:0.75rem;color:#f87171;margin-top:0.5rem">Start date must be before end date.</div>`; return; }
+    const dataMap = Object.fromEntries(_snapshotData.map(r => [r.snapshot_date, r]));
+    const result = sumRange(dataMap, from, to);
+    if (!result) { res.innerHTML = `<div style="font-size:0.75rem;color:rgba(255,255,255,0.3);margin-top:0.5rem">No data in this range.</div>`; return; }
+    const pos = result.total >= 0;
+    const cls = pos ? 'pos' : 'neg';
+    const sgn = pos ? '+' : '';
+    res.innerHTML = `<div class="history-calc-result">
+      <div><div class="hcr-label">Total</div><div class="hcr-val ${cls}">${sgn}${fmtC(result.total)}</div></div>
+      <div><div class="hcr-label">Return</div><div class="hcr-val ${cls}">${sgn}${fmt(result.pct)}%</div></div>
+      <div class="hcr-days">${result.days} trading day${result.days !== 1 ? 's' : ''}</div>
+    </div>`;
   }
 
   function buildHistoryCalendar(dataMap) {
@@ -2594,7 +2701,7 @@
   function selectHistoryDate(dateStr) {
     _historySelectedDate = dateStr;
     const dataMap = Object.fromEntries(_snapshotData.map(r => [r.snapshot_date, r]));
-    document.getElementById('history-content').innerHTML = buildHistoryCalendar(dataMap) + buildHistoryDetail(dataMap);
+    const dataMap2 = Object.fromEntries(_snapshotData.map(r => [r.snapshot_date, r])); document.getElementById('history-content').innerHTML = buildHistorySummary(dataMap2) + buildHistoryCalc(dataMap2) + buildHistoryCalendar(dataMap2) + buildHistoryDetail(dataMap2);
   }
 
   function historyCalNav(dir) {
@@ -2604,7 +2711,7 @@
     if (month > 11) { month = 0; year++; }
     _historyCalMonth = { year, month };
     const dataMap = Object.fromEntries(_snapshotData.map(r => [r.snapshot_date, r]));
-    document.getElementById('history-content').innerHTML = buildHistoryCalendar(dataMap) + buildHistoryDetail(dataMap);
+    const dataMap2 = Object.fromEntries(_snapshotData.map(r => [r.snapshot_date, r])); document.getElementById('history-content').innerHTML = buildHistorySummary(dataMap2) + buildHistoryCalc(dataMap2) + buildHistoryCalendar(dataMap2) + buildHistoryDetail(dataMap2);
   }
 
 
