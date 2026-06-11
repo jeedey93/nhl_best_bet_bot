@@ -227,17 +227,29 @@
     .range-labels { display: flex; justify-content: space-between; font-size: 0.6rem; font-weight: 600; color: rgba(255,255,255,0.25); letter-spacing: 0.3px; }
 
 
-    /* ── Mobile section tabs ── */
-    .mobile-tabs { display: none; }
-    @media (max-width: 700px) {
-      .mobile-tabs { display: flex; gap: 0; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; overflow: hidden; margin-bottom: 1rem; }
-      .mobile-tab { flex: 1; font-family: 'Bebas Neue', cursive; font-size: 0.78rem; letter-spacing: 1.5px; text-align: center; padding: 0.55rem 0.25rem; background: none; border: none; color: rgba(255,255,255,0.35); cursor: pointer; transition: background 0.15s, color 0.15s; border-right: 1px solid rgba(255,255,255,0.06); }
-      .mobile-tab:last-child { border-right: none; }
-      .mobile-tab.active { background: rgba(255,184,28,0.12); color: var(--gold); }
-      .mobile-section { display: none; }
-      .mobile-section.active { display: block; }
+    /* ── Section tabs (mobile + desktop) ── */
+    .mobile-tabs {
+      display: flex; gap: 0;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      margin-bottom: 1.5rem;
     }
-    @media (min-width: 701px) { .mobile-section { display: block !important; } }
+    .mobile-tab {
+      font-family: 'Bebas Neue', cursive; font-size: 0.82rem; letter-spacing: 2px;
+      padding: 0.6rem 1.1rem; background: none; border: none;
+      color: rgba(255,255,255,0.3); cursor: pointer;
+      transition: color 0.15s; border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+    }
+    .mobile-tab:hover { color: rgba(255,255,255,0.65); }
+    .mobile-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+    .mobile-section { display: none; }
+    .mobile-section.active { display: block; }
+    @media (max-width: 700px) {
+      .mobile-tabs { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; overflow: hidden; margin-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.08); }
+      .mobile-tab { flex: 1; font-size: 0.75rem; letter-spacing: 1.5px; text-align: center; padding: 0.55rem 0.25rem; border-right: 1px solid rgba(255,255,255,0.06); border-bottom: none; margin-bottom: 0; }
+      .mobile-tab:last-child { border-right: none; }
+      .mobile-tab.active { background: rgba(255,184,28,0.12); color: var(--gold); border-bottom: none; }
+    }
 
     .weight-bar-wrap { display: flex; align-items: center; gap: 0.3rem; justify-content: flex-end; }
     .weight-bar { height: 4px; border-radius: 2px; background: rgba(255,255,255,0.08); flex: 1; max-width: 44px; overflow: hidden; }
