@@ -1159,7 +1159,16 @@
     document.querySelectorAll('.mobile-section').forEach(s => s.classList.remove('active'));
     btn.classList.add('active');
     const sec = document.getElementById('ms-' + name);
-    if (sec) sec.classList.add('active');
+    if (sec) {
+      sec.classList.add('active');
+      // Charts need a resize after becoming visible
+      if (name === 'charts') {
+        requestAnimationFrame(() => {
+          [_accountChart, _sectorChart, _gainLossChart, _incomeChart, _weightChart, _waterfallChart, _valueChart]
+            .forEach(c => c?.resize());
+        });
+      }
+    }
   }
 
   function toggleEditMode() {
