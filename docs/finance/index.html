@@ -68,7 +68,7 @@
     .portfolio-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 1.25rem 1.5rem; cursor: pointer; transition: background 0.15s, border-color 0.15s, transform 0.1s; }
     .portfolio-card:hover { background: rgba(255,255,255,0.06); border-color: rgba(255,184,28,0.3); transform: translateY(-2px); }
     .portfolio-card:active { transform: translateY(0); }
-    .pc-name { font-family: 'Bebas Neue', cursive; font-size: 1.4rem; letter-spacing: 3px; color: white; margin-bottom: 0.35rem; }
+    .pc-name { font-family: 'Bebas Neue', cursive; font-size: 1.4rem; letter-spacing: 3px; color: white; margin-bottom: 0.35rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
     .pc-lock { color: var(--silver); font-size: 0.8rem; letter-spacing: 1px; opacity: 0.5; }
     .pc-accounts { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.6rem; }
     .pc-account-chip { font-family: 'Bebas Neue', cursive; font-size: 0.72rem; letter-spacing: 1.5px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: var(--silver); border-radius: 5px; padding: 2px 8px; }
@@ -890,7 +890,10 @@
       const mobileDayHtml = isLocked
         ? `<span style="font-size:0.85rem;opacity:0.4">🔒</span>`
         : hasPrices
-          ? `<span class="pc-mobile-day ${totalDay >= 0 ? 'pos' : 'neg'}">${totalDay >= 0 ? '+' : ''}${fmt(dayPctVal)}%</span>`
+          ? `<div style="display:flex;flex-direction:column;align-items:flex-end;gap:0.05rem">
+              <span class="pc-mobile-day ${totalDay >= 0 ? 'pos' : 'neg'}">${totalDay >= 0 ? '+' : ''}${fmtC(totalDay)}</span>
+              <span class="pc-mobile-day ${totalDay >= 0 ? 'pos' : 'neg'}" style="font-size:0.72rem;opacity:0.7">${totalDay >= 0 ? '+' : ''}${fmt(dayPctVal)}%</span>
+            </div>`
           : '';
       const mobileSubHtml = accs.length
         ? `<span class="pc-mobile-sub">${accs.map(a => escHtml(a.name)).join(' · ')}</span>`
@@ -898,9 +901,9 @@
 
       return `<div class="portfolio-card" data-portfolio-code="${escHtml(p.owner_code)}" data-sectors='${JSON.stringify(sectorEntries)}' data-pid="${p.id}" onclick="handleCardClick(event,'${escHtml(p.owner_code)}')">
         <div class="pc-mobile-left">
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;min-width:0">
             <div class="pc-name">${escHtml(p.name)}${p.password_hash ? ' 🔒' : ''}</div>
-            <div style="display:flex;align-items:center;gap:0.4rem">
+            <div style="display:flex;align-items:center;gap:0.4rem;flex-shrink:0">
               <div class="pc-mobile-right">${mobileDayHtml}<span class="pc-mobile-chevron">›</span></div>
               <div class="dot-menu-wrap" onclick="event.stopPropagation()">
                 <button class="dot-menu-btn" onclick="toggleDotMenu('pc-menu-${p.id}',event)" style="padding:0.1rem 0.4rem;font-size:0.9rem;margin-top:0.1rem">⋯</button>
