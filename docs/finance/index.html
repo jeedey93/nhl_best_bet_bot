@@ -79,11 +79,12 @@
     /* Mobile compact list */
     @media (max-width: 700px) {
       .portfolio-cards { display: flex; flex-direction: column; gap: 0; }
-      .portfolio-card { border-radius: 0; border-left: none; border-right: none; border-bottom: none; padding: 0.7rem 0.25rem; background: none; display: flex; align-items: center; gap: 0.75rem; transform: none !important; }
-      .portfolio-card:first-child { border-top: none; }
-      .portfolio-section .portfolio-cards .portfolio-card:first-child { border-top: 1px solid rgba(255,255,255,0.06); }
-      .portfolio-card:hover { background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.06); }
-      .portfolio-card .pc-mobile-right { display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0; }
+      .portfolio-card { border-radius: 0; border-left: none; border-right: none; border-bottom: none; padding: 0.65rem 0; background: none; display: block; transform: none !important; }
+      .portfolio-section .portfolio-cards .portfolio-card { border-top: 1px solid rgba(255,255,255,0.06); }
+      .portfolio-card:hover { background: rgba(255,255,255,0.03); }
+      .portfolio-card .pc-content { display: flex; align-items: center; gap: 0.5rem; min-width: 0; }
+      .portfolio-card .pc-content > div:first-child { flex: 1; min-width: 0; }
+      .portfolio-card .pc-mobile-right { display: flex; flex-direction: column; align-items: flex-end; gap: 0; flex-shrink: 0; }
       .portfolio-card .pc-mobile-sub-wrap { display: block; }
       /* Hide desktop-only card sections on mobile */
       .portfolio-card .pc-accounts,
@@ -92,11 +93,11 @@
       .portfolio-card .pc-lock { display: none; }
       .portfolio-card .pc-name { font-size: 1rem; letter-spacing: 2px; margin-bottom: 0; }
       .pc-mobile-sub { font-size: 0.65rem; font-weight: 600; color: rgba(255,255,255,0.25); letter-spacing: 0.5px; }
-      .pc-mobile-day { font-family: 'Bebas Neue', cursive; font-size: 0.9rem; letter-spacing: 1px; }
+      .pc-mobile-day { font-family: 'Bebas Neue', cursive; font-size: 0.88rem; letter-spacing: 1px; }
       .pc-mobile-day.pos { color: #4ade80; }
       .pc-mobile-day.neg { color: #f87171; }
-      .pc-mobile-chevron { color: rgba(255,255,255,0.18); font-size: 0.85rem; }
-      .pc-new { min-height: 48px; border-radius: 10px; border-style: dashed; border: 1px dashed rgba(255,255,255,0.1); margin-top: 0.5rem; }
+      .pc-mobile-chevron { display: none; }
+      .pc-new { min-height: 48px; border-radius: 10px; border: 1px dashed rgba(255,255,255,0.1); margin-top: 0.5rem; }
     }
 
     /* ── Portfolio nav (breadcrumb + account tabs) ── */
@@ -902,21 +903,25 @@
         : `<span class="pc-mobile-sub">No accounts</span>`;
 
       return `<div class="portfolio-card" data-portfolio-code="${escHtml(p.owner_code)}" data-sectors='${JSON.stringify(sectorEntries)}' data-pid="${p.id}" onclick="handleCardClick(event,'${escHtml(p.owner_code)}')">
-        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.5rem;min-width:0">
-          <div class="pc-name">${escHtml(p.name)}${p.password_hash ? ' 🔒' : ''}</div>
-          <div style="display:flex;align-items:center;gap:0.4rem;flex-shrink:0">
-            <div class="pc-mobile-right">${mobileDayHtml}<span class="pc-mobile-chevron">›</span></div>
-            <div class="dot-menu-wrap" onclick="event.stopPropagation()">
-              <button class="dot-menu-btn" onclick="toggleDotMenu('pc-menu-${p.id}',event)" style="padding:0.1rem 0.4rem;font-size:0.9rem;margin-top:0.1rem">⋯</button>
-              <div class="dot-menu" id="pc-menu-${p.id}">
-                <button class="dot-menu-item" onclick="closeDotMenus();openEditPortfolioFromCard('${p.id}')">✎ Edit</button>
-                <div class="dot-menu-divider"></div>
-                <button class="dot-menu-item danger" onclick="closeDotMenus();deletePortfolioById('${p.id}','${escHtml(p.name)}')">Delete</button>
+        <div class="pc-content">
+          <div style="flex:1;min-width:0">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;min-width:0">
+              <div class="pc-name">${escHtml(p.name)}${p.password_hash ? ' 🔒' : ''}</div>
+              <div style="display:flex;align-items:center;gap:0.4rem;flex-shrink:0">
+                <div class="pc-mobile-right">${mobileDayHtml}</div>
+                <div class="dot-menu-wrap" onclick="event.stopPropagation()">
+                  <button class="dot-menu-btn" onclick="toggleDotMenu('pc-menu-${p.id}',event)" style="padding:0.1rem 0.4rem;font-size:0.9rem;margin-top:0.1rem">⋯</button>
+                  <div class="dot-menu" id="pc-menu-${p.id}">
+                    <button class="dot-menu-item" onclick="closeDotMenus();openEditPortfolioFromCard('${p.id}')">✎ Edit</button>
+                    <div class="dot-menu-divider"></div>
+                    <button class="dot-menu-item danger" onclick="closeDotMenus();deletePortfolioById('${p.id}','${escHtml(p.name)}')">Delete</button>
+                  </div>
+                </div>
               </div>
             </div>
+            <div class="pc-mobile-sub-wrap">${mobileSubHtml}</div>
           </div>
         </div>
-        <div class="pc-mobile-sub-wrap">${mobileSubHtml}</div>
         ${accs.length ? `<div class="pc-accounts">${chips}</div>` : `<div class="pc-lock" style="margin-top:0.35rem">No accounts yet</div>`}
         ${financials}
       </div>`;
