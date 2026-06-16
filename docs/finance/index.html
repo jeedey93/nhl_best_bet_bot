@@ -128,6 +128,7 @@
     .account-bar { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; border-bottom: 1px solid var(--line); padding: 0.75rem 0 0; margin-bottom: 1.25rem; }
     @media (max-width: 600px) { .account-bar { gap: 0.4rem; } .account-bar-actions { margin-left: auto; } }
     .account-tabs { display: flex; gap: 0.4rem; flex-wrap: wrap; flex: 1; }
+    @media (max-width: 700px) { .account-tabs { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; } .account-tabs::-webkit-scrollbar { display: none; } }
     .atab { font-family: 'Bebas Neue', cursive; font-size: 0.8rem; letter-spacing: 2px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.45); padding: 0.25rem 0.85rem; border-radius: 20px; cursor: pointer; transition: background 0.15s, color 0.15s, border-color 0.15s; }
     .atab:hover { background: rgba(255,255,255,0.1); color: white; }
     .atab.active { background: var(--gold); border-color: var(--gold); color: #07111f; }
@@ -143,6 +144,7 @@
     @media (max-width: 400px) { .summary-bar { grid-template-columns: 1fr; } }
     /* Hero total value card */
     .stat-hero { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 1.25rem 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+    @media (max-width: 700px) { .stat-hero { flex-direction: column; align-items: flex-start; gap: 0.75rem; } .stat-hero-right { text-align: left; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 0.75rem; width: 100%; } }
     .stat-hero-value { font-family: 'Bebas Neue', cursive; font-size: clamp(2rem, 7vw, 2.8rem); letter-spacing: 1px; color: white; line-height: 1; }
     .stat-hero-label { font-size: 0.65rem; font-weight: 700; letter-spacing: 2px; color: rgba(255,255,255,0.25); text-transform: uppercase; margin-bottom: 0.3rem; }
     .stat-hero-sub { font-size: 0.75rem; font-weight: 600; color: rgba(255,255,255,0.3); margin-top: 0.3rem; }
@@ -1325,8 +1327,8 @@
         </div>
         <div class="stat-card">
           <div class="stat-label">Monthly Income</div>
-          <div class="stat-value gold">${fmtC(totalAnnualDiv / 12)}</div>
-          <div class="stat-sub">${fmtC(totalAnnualDiv)} / year</div>
+          <div class="stat-value gold">${fmtC(totalAnnualDiv > 0 ? totalAnnualDiv / 12 : 0)}</div>
+          <div class="stat-sub">${totalAnnualDiv > 0 ? fmtC(totalAnnualDiv) + ' / year' : '—'}</div>
         </div>
       </div>
       <div class="charts-row" id="charts-row">
@@ -1568,9 +1570,14 @@
       if (showAccLabels && accId !== lastAccId) {
         if (lastAccId !== '__none__') {
           const sgPct = (grpMv - grpDay) > 0 ? (grpDay / (grpMv - grpDay)) * 100 : 0;
+          const sgGain = grpMv - grpCost;
+          const sgGainPct = grpCost > 0 ? (sgGain / grpCost) * 100 : 0;
           cards += `<div class="hc-subtotal">
             <span>Subtotal</span>
-            <span class="${grpDay >= 0 ? 'pos' : 'neg'}">${grpDay >= 0 ? '+' : ''}${fmtC(grpDay)} (${grpDay >= 0 ? '+' : ''}${fmt(sgPct)}%)</span>
+            <span style="display:flex;flex-direction:column;align-items:flex-end;gap:2px">
+              <span class="${grpDay >= 0 ? 'pos' : 'neg'}">${grpDay >= 0 ? '+' : ''}${fmtC(grpDay)} (${grpDay >= 0 ? '+' : ''}${fmt(sgPct)}%) today</span>
+              <span class="${sgGain >= 0 ? 'pos' : 'neg'}" style="font-size:0.72rem;opacity:0.8">${sgGain >= 0 ? '+' : ''}${fmtC(sgGain)} (${sgGain >= 0 ? '+' : ''}${fmt(sgGainPct)}%) overall</span>
+            </span>
           </div>`;
           grpCost = 0; grpMv = 0; grpDay = 0;
         }
@@ -1593,14 +1600,15 @@
             <span class="hc-ticker">${escHtml((h.ticker||'').replace(/^TSX:|^NYSE:/i,''))}</span>
             ${h.sector ? `<span style="margin-left:0.4rem;font-size:0.68rem;font-weight:700;color:${sectorColor};letter-spacing:0.5px">${escHtml(h.sector)}</span>` : ''}
           </div>
-          ${gainPct != null ? `<div class="hc-gain ${gcPos?'pos':'neg'}">${gcPos?'+':''}${fmt(gainPct)}% overall</div>` : ''}
+          <div class="hc-gain" style="color:rgba(255,255,255,0.2)">${fmt(h.shares, 4)} shares @ $${fmt(h.avg_price)}</div>
+          ${gainPct != null ? `<div class="hc-gain ${gcPos?'pos':'neg'}">${gcPos?'+':''}${fmtC(h.overallGain)} (${gcPos?'+':''}${fmt(gainPct)}%) overall</div>` : ''}
         </div>
         <div class="hc-right">
-          <div class="hc-price">${h.price ? h.price.toFixed(2) : (pricesLoaded ? '—' : '<span class="skeleton-cell" style="width:45px;display:inline-block">&nbsp;</span>')}</div>
+          <div class="hc-price">${h.price ? '$' + h.price.toFixed(2) : (pricesLoaded ? '—' : '<span class="skeleton-cell" style="width:45px;display:inline-block">&nbsp;</span>')}</div>
           <div class="hc-day ${dcPos ? 'pos' : 'neg'}">${h.dayChange != null ? (dcPos?'+':'') + fmtC(h.dayChange) + ' (' + (dcPos?'+':'') + fmt(h.changePct||0) + '%)' : (pricesLoaded ? '—' : '<span class="skeleton-cell" style="width:60px;display:inline-block">&nbsp;</span>')}</div>
         </div>
         <div class="dot-menu-wrap" onclick="event.stopPropagation()">
-          <button class="dot-menu-btn" onclick="toggleDotMenu('hc-menu-${h.id}',event)" style="padding:0.15rem 0.45rem;font-size:0.9rem">⋯</button>
+          <button class="dot-menu-btn" onclick="toggleDotMenu('hc-menu-${h.id}',event)" style="padding:0.5rem 0.65rem;font-size:0.9rem;min-width:36px;min-height:36px">⋯</button>
           <div class="dot-menu" id="hc-menu-${h.id}" style="right:0;left:auto">
             <button class="dot-menu-item" onclick="closeDotMenus();openEditHolding('${h.id}')">✎ Edit</button>
             <div class="dot-menu-divider"></div>
@@ -1613,9 +1621,14 @@
     // Final group subtotal
     if (showAccLabels && lastAccId !== '__none__') {
       const sgPct = (grpMv - grpDay) > 0 ? (grpDay / (grpMv - grpDay)) * 100 : 0;
+      const sgGain = grpMv - grpCost;
+      const sgGainPct = grpCost > 0 ? (sgGain / grpCost) * 100 : 0;
       cards += `<div class="hc-subtotal">
         <span>${escHtml(accountMap[lastAccId] || 'Other')} subtotal</span>
-        <span class="${grpDay >= 0 ? 'pos' : 'neg'}">${grpDay >= 0 ? '+' : ''}${fmtC(grpDay)} (${grpDay >= 0 ? '+' : ''}${fmt(sgPct)}%)</span>
+        <span style="display:flex;flex-direction:column;align-items:flex-end;gap:2px">
+          <span class="${grpDay >= 0 ? 'pos' : 'neg'}">${grpDay >= 0 ? '+' : ''}${fmtC(grpDay)} (${grpDay >= 0 ? '+' : ''}${fmt(sgPct)}%) today</span>
+          <span class="${sgGain >= 0 ? 'pos' : 'neg'}" style="font-size:0.72rem;opacity:0.8">${sgGain >= 0 ? '+' : ''}${fmtC(sgGain)} (${sgGain >= 0 ? '+' : ''}${fmt(sgGainPct)}%) overall</span>
+        </span>
       </div>`;
     }
 
@@ -1628,7 +1641,7 @@
       <thead><tr>
         <th class="left">Company</th>
         <th class="col-hide-mobile">Shares</th><th class="col-hide-mobile">Avg Price</th><th class="col-hide-mobile">Investment</th>
-        <th>Market Price</th>${sh('mv','Market Value','col-hide-mobile')}
+        <th class="col-hide-mobile">Market Price</th>${sh('mv','Market Value','col-hide-mobile')}
         ${sh('day$','Day $','col-hide-mobile')}${sh('day%','Day %')}
         ${sh('gain$','Gain $','col-hide-mobile')}${sh('gain%','Gain %')}
         <th class="col-hide-mobile range-cell" style="text-align:center">52W Range</th>
