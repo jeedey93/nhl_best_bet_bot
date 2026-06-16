@@ -1570,14 +1570,9 @@
       if (showAccLabels && accId !== lastAccId) {
         if (lastAccId !== '__none__') {
           const sgPct = (grpMv - grpDay) > 0 ? (grpDay / (grpMv - grpDay)) * 100 : 0;
-          const sgGain = grpMv - grpCost;
-          const sgGainPct = grpCost > 0 ? (sgGain / grpCost) * 100 : 0;
           cards += `<div class="hc-subtotal">
             <span>Subtotal</span>
-            <span style="display:flex;flex-direction:column;align-items:flex-end;gap:2px">
-              <span class="${grpDay >= 0 ? 'pos' : 'neg'}">${grpDay >= 0 ? '+' : ''}${fmtC(grpDay)} (${grpDay >= 0 ? '+' : ''}${fmt(sgPct)}%) today</span>
-              <span class="${sgGain >= 0 ? 'pos' : 'neg'}" style="font-size:0.72rem;opacity:0.8">${sgGain >= 0 ? '+' : ''}${fmtC(sgGain)} (${sgGain >= 0 ? '+' : ''}${fmt(sgGainPct)}%) overall</span>
-            </span>
+            <span class="${grpDay >= 0 ? 'pos' : 'neg'}">${grpDay >= 0 ? '+' : ''}${fmtC(grpDay)} (${grpDay >= 0 ? '+' : ''}${fmt(sgPct)}%) today</span>
           </div>`;
           grpCost = 0; grpMv = 0; grpDay = 0;
         }
@@ -1621,14 +1616,9 @@
     // Final group subtotal
     if (showAccLabels && lastAccId !== '__none__') {
       const sgPct = (grpMv - grpDay) > 0 ? (grpDay / (grpMv - grpDay)) * 100 : 0;
-      const sgGain = grpMv - grpCost;
-      const sgGainPct = grpCost > 0 ? (sgGain / grpCost) * 100 : 0;
       cards += `<div class="hc-subtotal">
         <span>${escHtml(accountMap[lastAccId] || 'Other')} subtotal</span>
-        <span style="display:flex;flex-direction:column;align-items:flex-end;gap:2px">
-          <span class="${grpDay >= 0 ? 'pos' : 'neg'}">${grpDay >= 0 ? '+' : ''}${fmtC(grpDay)} (${grpDay >= 0 ? '+' : ''}${fmt(sgPct)}%) today</span>
-          <span class="${sgGain >= 0 ? 'pos' : 'neg'}" style="font-size:0.72rem;opacity:0.8">${sgGain >= 0 ? '+' : ''}${fmtC(sgGain)} (${sgGain >= 0 ? '+' : ''}${fmt(sgGainPct)}%) overall</span>
-        </span>
+        <span class="${grpDay >= 0 ? 'pos' : 'neg'}">${grpDay >= 0 ? '+' : ''}${fmtC(grpDay)} (${grpDay >= 0 ? '+' : ''}${fmt(sgPct)}%) today</span>
       </div>`;
     }
 
