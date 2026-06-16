@@ -144,7 +144,12 @@
     @media (max-width: 400px) { .summary-bar { grid-template-columns: 1fr; } }
     /* Hero total value card */
     .stat-hero { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 1.25rem 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
-    @media (max-width: 700px) { .stat-hero { flex-direction: column; align-items: flex-start; gap: 0.75rem; } .stat-hero-right { text-align: left; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 0.75rem; width: 100%; } }
+    @media (max-width: 700px) {
+      .stat-hero { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+      .stat-hero-right { text-align: left; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 0.75rem; width: 100%; }
+      .stat-hero.stat-hero-compact { flex-direction: row; align-items: center; gap: 0; padding: 0.85rem 1rem; }
+      .stat-hero.stat-hero-compact .stat-hero-right { border-top: none; padding-top: 0; width: auto; }
+    }
     .stat-hero-value { font-family: 'Bebas Neue', cursive; font-size: clamp(2rem, 7vw, 2.8rem); letter-spacing: 1px; color: white; line-height: 1; }
     .stat-hero-label { font-size: 0.65rem; font-weight: 700; letter-spacing: 2px; color: rgba(255,255,255,0.25); text-transform: uppercase; margin-bottom: 0.3rem; }
     .stat-hero-sub { font-size: 0.75rem; font-weight: 600; color: rgba(255,255,255,0.3); margin-top: 0.3rem; }
@@ -1260,17 +1265,16 @@
       ${buildAccountBar()}
       <div class="summary-bar">
         <!-- Hero: total portfolio value -->
-        <div class="stat-hero${!pricesLoaded ? ' loading' : ''}">
-          <div>
+        <div class="stat-hero stat-hero-compact${!pricesLoaded ? ' loading' : ''}">
+          <div style="flex:1;min-width:0">
             <div class="stat-hero-label">Portfolio Value</div>
-            <div class="stat-hero-value" id="sv-value">${pricesLoaded ? fmtC(totalValue) : skl('130px')}</div>
+            <div style="display:flex;align-items:baseline;gap:0.6rem;flex-wrap:wrap">
+              <div class="stat-hero-value" id="sv-value">${pricesLoaded ? fmtC(totalValue) : skl('130px')}</div>
+              <div class="stat-hero-value ${pricesLoaded ? gainClr : ''}" style="font-size:clamp(1rem,3vw,1.4rem)">${pricesLoaded ? (totalGain >= 0 ? '+' : '') + fmtC(totalGain) : skl('80px')}</div>
+            </div>
             <div class="stat-hero-sub">${pricesLoaded ? `Cost: ${fmtC(totalCost)}` : skl('90px')}</div>
           </div>
-          <div class="stat-hero-right">
-            <div class="stat-hero-label">Overall Gain</div>
-            <div class="stat-hero-value ${pricesLoaded ? gainClr : ''}" style="font-size:clamp(1.4rem,4vw,2rem)">${pricesLoaded ? (totalGain >= 0 ? '+' : '') + fmtC(totalGain) : skl('80px')}</div>
-            <div class="stat-hero-sub ${pricesLoaded ? gainClr : ''}">${pricesLoaded ? (totalGain >= 0 ? '+' : '') + fmt(totalGainPct) + '%' : ''}</div>
-          </div>
+          <div class="stat-hero-right" style="display:none"></div>
         </div>
         <!-- Day change — full width, emotional focal point -->
         <div class="stat-card stat-card-day${pricesLoaded ? (totalDayChange >= 0 ? ' day-positive' : ' day-negative') : (!pricesLoaded ? ' loading' : '')}">
