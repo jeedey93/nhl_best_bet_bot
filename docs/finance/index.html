@@ -1594,8 +1594,8 @@
           <div class="hc-sub">
             <span class="hc-ticker">${escHtml((h.ticker||'').replace(/^TSX:|^NYSE:/i,''))}</span>
             ${h.sector ? `<span style="margin-left:0.4rem;font-size:0.68rem;font-weight:700;color:${sectorColor};letter-spacing:0.5px">${escHtml(h.sector)}</span>` : ''}
+            <span style="margin-left:0.4rem;color:rgba(255,255,255,0.2)">${fmt(h.shares, 4)} @ $${fmt(h.avg_price)}</span>
           </div>
-          <div class="hc-gain" style="color:rgba(255,255,255,0.2)">${fmt(h.shares, 4)} shares @ $${fmt(h.avg_price)}</div>
           ${gainPct != null ? `<div class="hc-gain ${gcPos?'pos':'neg'}">${gcPos?'+':''}${fmtC(h.overallGain)} (${gcPos?'+':''}${fmt(gainPct)}%) overall</div>` : ''}
         </div>
         <div class="hc-right">
