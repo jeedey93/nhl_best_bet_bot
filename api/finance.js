@@ -116,26 +116,38 @@ async function handlePrice(req, res) {
 
   const data = {};
 
-  // Fetch TMX prices in batch
+  // Fetch TMX prices in parallel chunks of 10
   if (tmxSymbols.length) {
-    const tmxKeys = tmxSymbols.map(toTmx);
-    const body = JSON.stringify({
-      query: `query { getQuoteForSymbols(symbols: ${JSON.stringify(tmxKeys)}) { symbol longname price priceChange prevClose } }`,
-    });
-    const r = await fetch(TMX_URL, { method: 'POST', headers: TMX_HEADERS, body });
-    if (r.ok) {
-      const json = await r.json();
-      const quotes = json?.data?.getQuoteForSymbols || [];
-      tmxSymbols.forEach(symbol => {
-        const q = quotes.find(q => q.symbol === toTmx(symbol));
-        if (!q || !q.price) { data[symbol] = { error: 'not found' }; return; }
-        const change = q.price != null && q.prevClose != null ? +(q.price - q.prevClose).toFixed(4) : null;
-        const changePct = q.prevClose ? +((change / q.prevClose) * 100).toFixed(4) : null;
-        data[symbol] = { price: q.price, previousClose: q.prevClose, change, changePct, name: q.longname || symbol };
+    const chunkSize = 10;
+    const chunks = [];
+    for (let i = 0; i < tmxSymbols.length; i += chunkSize) chunks.push(tmxSymbols.slice(i, i + chunkSize));
+    await Promise.all(chunks.map(async chunk => {
+      const tmxKeys = chunk.map(toTmx);
+      const body = JSON.stringify({
+        query: `query { getQuoteForSymbols(symbols: ${JSON.stringify(tmxKeys)}) { symbol longname price priceChange prevClose } }`,
       });
-    } else {
-      tmxSymbols.forEach(s => { data[s] = { error: `TMX ${r.status}` }; });
-    }
+      try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 8000);
+        const r = await fetch(TMX_URL, { method: 'POST', headers: TMX_HEADERS, body, signal: controller.signal });
+        clearTimeout(timeout);
+        if (r.ok) {
+          const json = await r.json();
+          const quotes = json?.data?.getQuoteForSymbols || [];
+          chunk.forEach(symbol => {
+            const q = quotes.find(q => q.symbol === toTmx(symbol));
+            if (!q || !q.price) { data[symbol] = { error: 'not found' }; return; }
+            const change = q.price != null && q.prevClose != null ? +(q.price - q.prevClose).toFixed(4) : null;
+            const changePct = q.prevClose ? +((change / q.prevClose) * 100).toFixed(4) : null;
+            data[symbol] = { price: q.price, previousClose: q.prevClose, change, changePct, name: q.longname || symbol };
+          });
+        } else {
+          chunk.forEach(s => { data[s] = { error: `TMX ${r.status}` }; });
+        }
+      } catch(e) {
+        chunk.forEach(s => { data[s] = { error: e.name === 'AbortError' ? 'TMX timeout' : e.message }; });
+      }
+    }));
   }
 
   // Fetch foreign prices via Finnhub + FX
