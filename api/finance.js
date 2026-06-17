@@ -106,15 +106,22 @@ async function handlePrice(req, res) {
   const raw = req.query.symbols || '';
   if (!raw) return res.status(400).json({ error: 'symbols param required' });
   const symbols = raw.split(',').map(s => s.trim()).filter(Boolean);
-  const cacheKey = [...symbols].sort().join(',');
-  const cached = _priceCache.get(cacheKey);
-  if (cached && Date.now() - cached.ts < 5 * 60 * 1000) return res.status(200).json(cached.data);
+
+  // Per-symbol cache — only fetch symbols not already cached
+  const data = {};
+  const now = Date.now();
+  const TTL = 5 * 60 * 1000;
+  const uncached = symbols.filter(s => {
+    const hit = _priceCache.get(s);
+    if (hit && now - hit.ts < TTL) { data[s] = hit.data; return false; }
+    return true;
+  });
+
+  if (uncached.length === 0) return res.status(200).json(data);
 
   // Split: TMX symbols vs foreign symbols needing Finnhub
-  const tmxSymbols = symbols.filter(s => !isForeignTicker(s));
-  const foreignSymbols = symbols.filter(s => isForeignTicker(s));
-
-  const data = {};
+  const tmxSymbols = uncached.filter(s => !isForeignTicker(s));
+  const foreignSymbols = uncached.filter(s => isForeignTicker(s));
 
   // Fetch TMX prices in parallel chunks of 10
   if (tmxSymbols.length) {
@@ -140,6 +147,7 @@ async function handlePrice(req, res) {
             const change = q.price != null && q.prevClose != null ? +(q.price - q.prevClose).toFixed(4) : null;
             const changePct = q.prevClose ? +((change / q.prevClose) * 100).toFixed(4) : null;
             data[symbol] = { price: q.price, previousClose: q.prevClose, change, changePct, name: q.longname || symbol };
+            _priceCache.set(symbol, { ts: now, data: data[symbol] });
           });
         } else {
           chunk.forEach(s => { data[s] = { error: `TMX ${r.status}` }; });
@@ -154,12 +162,12 @@ async function handlePrice(req, res) {
   await Promise.all(foreignSymbols.map(async symbol => {
     try {
       data[symbol] = await fetchFinnhubPrice(symbol);
+      _priceCache.set(symbol, { ts: now, data: data[symbol] });
     } catch(e) {
       data[symbol] = { error: e.message };
     }
   }));
 
-  _priceCache.set(cacheKey, { ts: Date.now(), data });
   return res.status(200).json(data);
 }
 
