@@ -144,8 +144,8 @@ async function handlePrice(req, res) {
           chunk.forEach(symbol => {
             const q = quotes.find(q => q.symbol === toTmx(symbol));
             if (!q || !q.price) { data[symbol] = { error: 'not found' }; return; }
-            const change = q.price != null && q.prevClose != null ? +(q.price - q.prevClose).toFixed(4) : null;
-            const changePct = q.prevClose ? +((change / q.prevClose) * 100).toFixed(4) : null;
+            const change = q.price != null && q.prevClose != null && !isNaN(q.price) && !isNaN(q.prevClose) ? +(q.price - q.prevClose).toFixed(4) : null;
+            const changePct = change != null && q.prevClose ? +((change / q.prevClose) * 100).toFixed(4) : null;
             data[symbol] = { price: q.price, previousClose: q.prevClose, change, changePct, name: q.longname || symbol };
             _priceCache.set(symbol, { ts: now, data: data[symbol] });
           });

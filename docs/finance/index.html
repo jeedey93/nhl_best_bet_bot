@@ -1606,7 +1606,7 @@
         </div>
         <div class="hc-right">
           <div class="hc-price">${h.price ? '$' + h.price.toFixed(2) : (pricesLoaded ? '—' : '<span class="skeleton-cell" style="width:45px;display:inline-block">&nbsp;</span>')}</div>
-          <div class="hc-day ${dcPos ? 'pos' : 'neg'}">${h.dayChange != null ? (dcPos?'+':'') + fmtC(h.dayChange) + ' (' + (dcPos?'+':'') + fmt(h.changePct||0) + '%)' : (pricesLoaded ? '—' : '<span class="skeleton-cell" style="width:60px;display:inline-block">&nbsp;</span>')}</div>
+          <div class="hc-day ${dcPos ? 'pos' : 'neg'}">${h.dayChange != null && !isNaN(h.dayChange) ? (dcPos?'+':'') + fmtC(h.dayChange) + ' (' + (dcPos?'+':'') + fmt(h.changePct != null && !isNaN(h.changePct) ? h.changePct : 0) + '%)' : (pricesLoaded ? '—' : '<span class="skeleton-cell" style="width:60px;display:inline-block">&nbsp;</span>')}</div>
         </div>
         <div class="dot-menu-wrap" onclick="event.stopPropagation()">
           <button class="dot-menu-btn" onclick="toggleDotMenu('hc-menu-${h.id}',event)" style="padding:0.5rem 0.65rem;font-size:0.9rem;min-width:36px;min-height:36px">⋯</button>
