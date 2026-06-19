@@ -1669,18 +1669,23 @@
         : [2, 5, 8, 11];
       else payMonths = payMonth != null ? [payMonth] : [5];
 
-      // Find the next 2 upcoming dates
+      // Find the next upcoming date (>= today, i.e. include today)
+      let found = false;
       for (let yearOffset = 0; yearOffset <= 1; yearOffset++) {
         const year = today.getFullYear() + yearOffset;
         for (const m of payMonths.slice().sort((a, b) => a - b)) {
           const d = new Date(year, m, payDay);
-          if (d >= today) {
+          // Compare date-only (strip time) to avoid timezone issues
+          if (d.getFullYear() > today.getFullYear() ||
+              d.getMonth() > today.getMonth() ||
+              (d.getMonth() === today.getMonth() && d.getDate() >= today.getDate())) {
             const daysUntil = Math.round((d - today) / 86400000);
             upcoming.push({ h, date: d, daysUntil, amount });
-            break; // only next upcoming per holding
+            found = true;
+            break;
           }
         }
-        if (upcoming.find(u => u.h === h)) break;
+        if (found) break;
       }
     });
 
