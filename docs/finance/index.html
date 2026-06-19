@@ -1708,12 +1708,13 @@
       }
 
       return `<div class="upcoming-card${isSoon ? ' soon' : ''}">
+        <div class="upcoming-pill ${pillCls}" style="margin-bottom:0.4rem">${pillTxt}</div>
         <div class="upcoming-company">${escHtml(h.company_name || h.ticker || '')}</div>
         <div class="upcoming-ticker">${escHtml(h.ticker || '')}</div>
         <div class="upcoming-amount">${fmtC(amount)}</div>
-        <div class="upcoming-date">Pay: ${dateStr}</div>
+        <div style="font-family:'Bebas Neue',cursive;font-size:clamp(1.1rem,4vw,1.4rem);letter-spacing:2px;color:white;margin-top:0.35rem;line-height:1">${dateStr}</div>
+        <div style="font-size:0.62rem;font-weight:700;letter-spacing:1.5px;color:rgba(255,255,255,0.3);text-transform:uppercase;margin-top:2px">Pay Date</div>
         ${exHtml}
-        <div class="upcoming-pill ${pillCls}">${pillTxt}</div>
       </div>`;
     }).join('')}</div>`;
   }
