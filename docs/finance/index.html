@@ -2279,6 +2279,8 @@
       return;
     }
     closeHoldingModal();
+    const label = body.company_name || body.ticker;
+    showToast(id ? `${label} updated.` : `${label} added.`);
     await loadPortfolio(_activePortfolio, null, true);
     // Silently refresh div dates from TMX in background
     if (body.ticker && saved) refreshDivDatesFromTmx(saved, body.ticker);
