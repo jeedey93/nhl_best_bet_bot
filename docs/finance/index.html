@@ -590,7 +590,19 @@
       <div class="form-hint">Search by ticker (MFC, ENB) or name</div>
     </div>
   </div>
-  <div class="form-row">
+  <!-- Mode toggle: shares+price vs amount -->
+  <div id="hm-mode-toggle" style="display:flex;gap:0.4rem;margin-bottom:0.75rem">
+    <button type="button" id="hm-mode-shares-btn" onclick="setHoldingMode('shares')"
+      style="flex:1;font-family:'Bebas Neue',cursive;font-size:0.8rem;letter-spacing:1.5px;padding:0.45rem 0.5rem;border-radius:6px;cursor:pointer;border:1px solid rgba(255,184,28,0.6);background:rgba(255,184,28,0.15);color:var(--gold);transition:all 0.15s">
+      Shares + Avg Price
+    </button>
+    <button type="button" id="hm-mode-amount-btn" onclick="setHoldingMode('amount')"
+      style="flex:1;font-family:'Bebas Neue',cursive;font-size:0.8rem;letter-spacing:1.5px;padding:0.45rem 0.5rem;border-radius:6px;cursor:pointer;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.05);color:var(--silver);transition:all 0.15s">
+      By Amount
+    </button>
+  </div>
+  <!-- Shares + Avg Price mode -->
+  <div id="hm-shares-row" class="form-row">
     <div class="form-group">
       <div class="form-label">Shares</div>
       <input class="form-input" id="hm-shares" type="number" step="0.0001" placeholder="190.40">
@@ -598,6 +610,14 @@
     <div class="form-group">
       <div class="form-label">Avg Price (CAD)</div>
       <input class="form-input" id="hm-avg-price" type="number" step="0.01" placeholder="47.07">
+    </div>
+  </div>
+  <!-- Amount mode -->
+  <div id="hm-amount-row" style="display:none">
+    <div class="form-group">
+      <div class="form-label">Amount Invested (CAD)</div>
+      <input class="form-input" id="hm-amount" type="number" step="0.01" placeholder="5000.00">
+      <div class="form-hint" id="hm-amount-hint" style="margin-top:0.35rem">Shares will be calculated using the current market price.</div>
     </div>
   </div>
   <!-- Add shares section — only shown when editing an existing holding -->
@@ -2101,6 +2121,23 @@
     if (!selectedId && _accounts.length) sel.value = _accounts[0].id;
   }
 
+  let _holdingMode = 'shares'; // 'shares' | 'amount'
+
+  function setHoldingMode(mode) {
+    _holdingMode = mode;
+    const sharesActive = mode === 'shares';
+    document.getElementById('hm-shares-row').style.display = sharesActive ? '' : 'none';
+    document.getElementById('hm-amount-row').style.display = sharesActive ? 'none' : '';
+    const sharesBtn = document.getElementById('hm-mode-shares-btn');
+    const amountBtn = document.getElementById('hm-mode-amount-btn');
+    sharesBtn.style.background = sharesActive ? 'rgba(255,184,28,0.15)' : 'rgba(255,255,255,0.05)';
+    sharesBtn.style.borderColor = sharesActive ? 'rgba(255,184,28,0.6)' : 'rgba(255,255,255,0.12)';
+    sharesBtn.style.color = sharesActive ? 'var(--gold)' : 'var(--silver)';
+    amountBtn.style.background = !sharesActive ? 'rgba(255,184,28,0.15)' : 'rgba(255,255,255,0.05)';
+    amountBtn.style.borderColor = !sharesActive ? 'rgba(255,184,28,0.6)' : 'rgba(255,255,255,0.12)';
+    amountBtn.style.color = !sharesActive ? 'var(--gold)' : 'var(--silver)';
+  }
+
   function openAddHolding() {
     document.getElementById('holding-modal-title').textContent = 'Add Holding';
     document.getElementById('hm-id').value = '';
@@ -2112,6 +2149,10 @@
     document.getElementById('hm-add-shares').value = '';
     document.getElementById('hm-add-price').value = '';
     document.getElementById('hm-add-preview').textContent = '';
+    document.getElementById('hm-amount').value = '';
+    document.getElementById('hm-amount-hint').textContent = 'Shares will be calculated using the current market price.';
+    document.getElementById('hm-mode-toggle').style.display = 'flex';
+    setHoldingMode('shares');
     populateAccountSelect(_activeAccount?.id || null);
     const sectors = [...new Set(_holdings.map(h => h.sector).filter(Boolean))];
     document.getElementById('sector-list').innerHTML = sectors.map(s => `<option value="${escHtml(s)}">`).join('');
@@ -2162,6 +2203,9 @@
     document.getElementById('hm-add-shares').value = '';
     document.getElementById('hm-add-price').value = '';
     document.getElementById('hm-add-preview').textContent = '';
+    document.getElementById('hm-amount').value = '';
+    document.getElementById('hm-mode-toggle').style.display = 'none';
+    setHoldingMode('shares');
     populateAccountSelect(h.account_id || null);
     document.getElementById('holding-backdrop').classList.add('show');
     document.getElementById('holding-modal').classList.add('show');
@@ -2175,26 +2219,50 @@
 
   async function saveHolding() {
     const id = document.getElementById('hm-id').value;
+    const ticker = document.getElementById('hm-ticker').value.trim().toUpperCase();
+
+    let sharesVal, avgPriceVal;
+
+    if (_holdingMode === 'amount' && !id) {
+      const amount = parseFloat(document.getElementById('hm-amount').value) || 0;
+      if (!amount) { showToast('Enter an amount to invest.', true); return; }
+      if (!ticker) { showToast('Enter a ticker to look up current price.', true); return; }
+      // Fetch current price
+      let currentPrice = null;
+      try {
+        const res = await fetch(`/api/finance?action=price&symbols=${encodeURIComponent(ticker)}`);
+        if (res.ok) {
+          const data = await res.json();
+          currentPrice = data[ticker]?.price || null;
+        }
+      } catch(_) {}
+      if (!currentPrice) { showToast('Could not fetch current price. Use Shares + Avg Price mode instead.', true); return; }
+      sharesVal = amount / currentPrice;
+      avgPriceVal = currentPrice;
+      document.getElementById('hm-amount-hint').textContent = `${sharesVal.toFixed(4)} shares @ $${currentPrice.toFixed(2)}`;
+    } else {
+      const base = parseFloat(document.getElementById('hm-shares').value) || 0;
+      const add  = parseFloat(document.getElementById('hm-add-shares').value) || 0;
+      sharesVal = base + add;
+      const baseAvg    = parseFloat(document.getElementById('hm-avg-price').value) || 0;
+      const addShares  = parseFloat(document.getElementById('hm-add-shares').value) || 0;
+      const addPrice   = parseFloat(document.getElementById('hm-add-price').value) || 0;
+      if (addShares && addPrice) {
+        const total = base + addShares;
+        avgPriceVal = total > 0 ? (base * baseAvg + addShares * addPrice) / total : baseAvg;
+      } else {
+        avgPriceVal = baseAvg;
+      }
+    }
+
     const body = {
       portfolio_id: _activePortfolio.id,
       account_id: document.getElementById('hm-account').value || null,
       company_name: document.getElementById('hm-name').value.trim(),
-      ticker: document.getElementById('hm-ticker').value.trim().toUpperCase(),
+      ticker,
       sector: document.getElementById('hm-sector').value.trim() || 'Other',
-      shares: (() => {
-        const base = parseFloat(document.getElementById('hm-shares').value) || 0;
-        const add  = parseFloat(document.getElementById('hm-add-shares').value) || 0;
-        return base + add;
-      })(),
-      avg_price: (() => {
-        const baseShares = parseFloat(document.getElementById('hm-shares').value) || 0;
-        const baseAvg    = parseFloat(document.getElementById('hm-avg-price').value) || 0;
-        const addShares  = parseFloat(document.getElementById('hm-add-shares').value) || 0;
-        const addPrice   = parseFloat(document.getElementById('hm-add-price').value) || 0;
-        if (!addShares || !addPrice) return baseAvg;
-        const total = baseShares + addShares;
-        return total > 0 ? (baseShares * baseAvg + addShares * addPrice) / total : baseAvg;
-      })(),
+      shares: sharesVal,
+      avg_price: avgPriceVal,
       annual_dividend: parseFloat(document.getElementById('hm-dividend').value) || 0,
       div_month: document.getElementById('hm-div-month').value,
       div_freq: document.getElementById('hm-div-freq').value,
@@ -2202,17 +2270,18 @@
       div_ex_date: (() => { const v = document.getElementById('hm-div-ex-date').value; return v && /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : null; })(),
     };
     if (!body.company_name && !body.ticker) { showToast('Enter a company name or ticker.', true); return; }
+    let saved;
     try {
-      let saved;
       if (id) { await sbPatch(`finance_holdings?id=eq.${id}`, body); saved = id; }
       else { const [row] = await sbPost('finance_holdings', body); saved = row?.id; }
-      closeHoldingModal();
-      await loadPortfolio(_activePortfolio, null, true);
-      // Silently refresh div dates from TMX in background
-      if (body.ticker && saved) refreshDivDatesFromTmx(saved, body.ticker);
     } catch(e) {
       showToast(`Failed to save: ${e.message?.slice(0,80) || 'Unknown error'}`, true);
+      return;
     }
+    closeHoldingModal();
+    await loadPortfolio(_activePortfolio, null, true);
+    // Silently refresh div dates from TMX in background
+    if (body.ticker && saved) refreshDivDatesFromTmx(saved, body.ticker);
   }
 
   async function deleteHolding() {
