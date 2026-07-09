@@ -17,6 +17,8 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: lin
 .nav-logo { display: flex; align-items: center; gap: 10px; }
 .nav-logo img { width: 32px; height: 32px; border-radius: 50%; }
 .nav-logo span { color: white; font-weight: 700; font-size: 1em; }
+.nav-back { color: rgba(255,255,255,0.7); text-decoration: none; font-size: 0.83em; margin-left: auto; padding: 7px 16px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.3); font-weight: 600; transition: all 0.2s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
+.nav-back:hover { background: rgba(255,255,255,0.12); color: white; }
 
 /* ── LAYOUT ── */
 .page-wrap { max-width: 1500px; margin: 0 auto; padding: 80px 16px 60px; }
@@ -180,6 +182,38 @@ td.col-proj-last  { border-right: 2px solid #bbf7d0 !important; }
 .empty-state { text-align: center; padding: 60px 20px; color: #64748b; }
 .empty-state .icon { font-size: 2.5em; margin-bottom: 12px; }
 
+/* ── MOBILE ── */
+@media (max-width: 768px) {
+  .page-wrap { padding: 70px 10px 40px; }
+  /* hero */
+  .page-header { padding: 20px 16px; border-radius: 10px; }
+  .page-header h1 { font-size: 1.15em; }
+  /* controls */
+  .controls { gap: 6px; }
+  .search-box { width: 100%; min-width: unset; flex: unset; }
+  .search-box input { font-size: 0.95em; }
+  .filter-select { font-size: 0.85em; padding: 7px 8px; }
+  .ctrl-btn { font-size: 0.82em; padding: 7px 10px; }
+  /* tabs */
+  .tabs { display: flex; width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; flex-wrap: nowrap; padding-bottom: 2px; }
+  .tab-btn { white-space: nowrap; flex-shrink: 0; padding: 8px 14px; }
+  /* table */
+  table { min-width: 900px; }
+  tbody td { padding: 8px 10px; }
+  /* team grid */
+  .team-grid { grid-template-columns: minmax(280px, 1fr); }
+  /* sleepers */
+  .sleepers-grid { grid-template-columns: 1fr; }
+  /* column toggle menu */
+  .col-toggle-menu { max-width: calc(100vw - 32px); }
+}
+
+@media (max-width: 480px) {
+  .page-header h1 { font-size: 1em; }
+  .results-count { display: none; }
+  .nav-back { max-width: 120px; font-size: 0.75em; padding: 6px 10px; }
+}
+
 /* ── PRINT ── */
 @media print {
   @page { size: landscape; margin: 10mm; }
@@ -224,7 +258,7 @@ td.col-proj-last  { border-right: 2px solid #bbf7d0 !important; }
       <img src='../../parieur_discipline_icon_1024.png' alt='Logo'>
       <span>Parieur Discipliné</span>
     </div>
-    <a href='../index.html' style='color:rgba(255,255,255,0.7);text-decoration:none;font-size:0.83em;margin-left:auto;padding:7px 16px;border-radius:20px;border:1px solid rgba(255,255,255,0.3);font-weight:600;transition:all 0.2s' onmouseover='this.style.background="rgba(255,255,255,0.12)";this.style.color="white"' onmouseout='this.style.background="";this.style.color="rgba(255,255,255,0.7)"'>← About this Guide</a>
+    <a href='/poolers-guide/' class='nav-back' onmouseover='this.style.background="rgba(255,255,255,0.12)";this.style.color="white"' onmouseout='this.style.background="";this.style.color="rgba(255,255,255,0.7)"'>← About this Guide</a>
   </div>
 </nav>
 
