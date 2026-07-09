@@ -137,7 +137,7 @@ tbody tr.dirty td:first-child { border-left: 3px solid #3b82f6; }
       <thead>
         <tr>
           <th class='ro-col'>#</th>
-          <th>Name</th>
+          <th class='ro-col'>Name</th>
           <th class='ro-col'>Team</th>
           <th class='ro-col'>Pos</th>
           <th class='ro-col'>Age</th>
@@ -251,7 +251,7 @@ function rowHTML(p) {
   const ro = v => `<span class='ro'>${v ?? '—'}</span>`;
   return `<tr id='row-${id}'>
     <td class='ro-td'>${ro(p.rank)}</td>
-    <td><input class='ci w' id='${id}-name' type='text' value='${esc(p.name)}' oninput='markDirty(${id})'></td>
+    <td class='ro-td' style='min-width:140px'>${ro(p.name)}</td>
     <td class='ro-td'>${ro(p.team)}</td>
     <td class='ro-td'>${ro(p.pos)}</td>
     <td class='ro-td'>${ro(p.age)}</td>
@@ -288,7 +288,6 @@ async function saveAll() {
       return isFloat ? parseFloat(v) : parseInt(v);
     };
     const data = {
-      name:     document.getElementById(`${id}-name`)?.value?.trim(),
       proj_g:   num('proj_g'),
       proj_a:   num('proj_a'),
       proj_pts: num('proj_pts'),
