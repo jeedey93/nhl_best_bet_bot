@@ -65,9 +65,15 @@ thead th.sorted-desc .sort-icon::after { content: ' ↓'; color: #60a5fa; }
 thead th:not(.sorted-asc):not(.sorted-desc) .sort-icon::after { content: ' ↕'; }
 tbody tr { border-bottom: 1px solid #1e293b; transition: background 0.15s; }
 tbody tr:last-child { border-bottom: none; }
-tbody tr:hover { background: rgba(255,255,255,0.03); }
+tbody tr:hover { filter: brightness(1.08); }
 tbody td { padding: 10px 12px; color: #cbd5e1; vertical-align: middle; }
 tbody td:first-child { color: #64748b; font-size: 0.85em; font-weight: 600; }
+
+/* Tier row tints */
+tbody tr.tier-row-Elite   { background: rgba(180, 83, 9, 0.08); border-left: 3px solid #b45309; }
+tbody tr.tier-row-Top     { background: rgba(29, 78, 216, 0.07); border-left: 3px solid #1d4ed8; }
+tbody tr.tier-row-Mid     { background: transparent; border-left: 3px solid #1e293b; }
+tbody tr.tier-row-Sleeper { background: rgba(6, 95, 70, 0.07); border-left: 3px solid #065f46; }
 
 /* Player name cell */
 .player-name { font-weight: 700; color: #f1f5f9; }
@@ -527,7 +533,7 @@ function renderAll() {
     const aav      = p.aav ? `$${p.aav}M` : '—';
     const ppPct    = p.pp_pct != null ? p.pp_pct + '%' : '—';
 
-    return `<tr>
+    return `<tr class='tier-row-${p.tier}'>
       <td>${p.rank}</td>
       <td>
         <div class='player-name'>${p.name}</div>
