@@ -114,8 +114,19 @@ thead tr.col-row th { border-top: none; }
 .trend-down { background: #2d0a0a; color: #f87171; border: 1px solid #7f1d1d; }
 .trend-flat { background: #1e2a3a; color: #94a3b8; border: 1px solid #334155; }
 
-/* Notes */
-.notes-cell { color: #64748b; font-size: 0.82em; font-style: italic; max-width: 200px; }
+/* Notes tooltip */
+.notes-cell { color: #64748b; font-size: 0.82em; font-style: italic; max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: default; position: relative; }
+.tooltip { position: fixed; z-index: 9000; background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 8px 12px; font-size: 0.82em; font-style: italic; color: #cbd5e1; max-width: 240px; pointer-events: none; box-shadow: 0 4px 16px rgba(0,0,0,0.4); line-height: 1.4; }
+
+/* Pool value score */
+.pv-bar { display: flex; align-items: center; gap: 6px; min-width: 90px; }
+.pv-num { font-weight: 800; font-size: 0.95em; min-width: 24px; text-align: right; }
+.pv-track { flex: 1; height: 5px; background: #1e293b; border-radius: 99px; overflow: hidden; }
+.pv-fill  { height: 100%; border-radius: 99px; transition: width 0.3s; }
+.pv-90 { color: #fbbf24; } .pv-90 .pv-fill { background: linear-gradient(90deg,#f59e0b,#fbbf24); }
+.pv-70 { color: #60a5fa; } .pv-70 .pv-fill { background: linear-gradient(90deg,#2563eb,#60a5fa); }
+.pv-50 { color: #94a3b8; } .pv-50 .pv-fill { background: #475569; }
+.pv-lo { color: #64748b; } .pv-lo .pv-fill { background: #334155; }
 
 /* ── BY TEAM ── */
 .team-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
@@ -213,6 +224,7 @@ thead tr.col-row th { border-top: none; }
         <option value=''>All Teams</option>
       </select>
       <span class='results-count' id='resultsCount'></span>
+      <button onclick='exportCSV()' style='background:#1e293b; border:1px solid #334155; border-radius:8px; color:#94a3b8; padding:9px 14px; font-size:0.85em; font-weight:600; cursor:pointer; white-space:nowrap;' onmouseover='this.style.color="#e2e8f0"' onmouseout='this.style.color="#94a3b8"'>⬇ CSV</button>
     </div>
     <div class='table-wrap'>
       <table id='playerTable'>
@@ -221,7 +233,7 @@ thead tr.col-row th { border-top: none; }
             <th colspan='5' style='background:#1e293b;'></th>
             <th colspan='4' class='col-group-last' style='text-align:center; color:#64748b;'>2025-26 ACTUAL</th>
             <th colspan='5' class='col-group-proj' style='text-align:center; color:#6ee7b7;'>2026-27 PROJECTION</th>
-            <th colspan='2' style='background:#1e293b;'></th>
+            <th colspan='3' style='background:#1e293b;'></th>
           </tr>
           <tr class='col-row'>
             <th onclick='sortBy("rank")' data-col='rank'>#<span class='sort-icon'></span></th>
@@ -240,6 +252,7 @@ thead tr.col-row th { border-top: none; }
             <th onclick='sortBy("proj_pm")' data-col='proj_pm' class='col-group-proj'>+/-<span class='sort-icon'></span></th>
             <th onclick='sortBy("tier")' data-col='tier'>Tier<span class='sort-icon'></span></th>
             <th onclick='sortBy("_trend")' data-col='_trend'>Trend<span class='sort-icon'></span></th>
+            <th onclick='sortBy("_pv")' data-col='_pv'>Value<span class='sort-icon'></span></th>
           </tr>
         </thead>
         <tbody id='playerTbody'></tbody>
@@ -280,12 +293,63 @@ async function init() {
   const sel = document.getElementById('filterTeam');
   teams.forEach(t => { const o = document.createElement('option'); o.value = t; o.textContent = t; sel.appendChild(o); });
 
+  normalizePVs(allPlayers);
   renderAll();
   renderByTeam();
   renderSleepers();
 }
 
-// ── SORTING ──────────────────────────────────────────────
+// ── POOL VALUE SCORE (1-100) ──────────────────────────────
+// Formula: pts/GP rate (50%) + GP durability (30%) + tier bonus (20%)
+const TIER_BONUS = { Elite: 20, Top: 14, Mid: 8, Sleeper: 4 };
+let _pvMin = 0, _pvMax = 100;
+
+function calcPV(p) {
+  const rate = p.proj_gp > 0 ? (p.proj_pts / p.proj_gp) : 0;
+  const dur  = p.proj_gp / 82;
+  const tier = TIER_BONUS[p.tier] || 0;
+  return rate * 50 + dur * 30 + tier;
+}
+
+function normalizePVs(players) {
+  const vals = players.map(calcPV);
+  _pvMin = Math.min(...vals);
+  _pvMax = Math.max(...vals);
+}
+
+function getPV(p) {
+  if (_pvMax === _pvMin) return 100;
+  return Math.round(((calcPV(p) - _pvMin) / (_pvMax - _pvMin)) * 99) + 1;
+}
+
+function pvClass(score) {
+  if (score >= 90) return 'pv-90';
+  if (score >= 70) return 'pv-70';
+  if (score >= 50) return 'pv-50';
+  return 'pv-lo';
+}
+
+// ── TOOLTIP ───────────────────────────────────────────────
+let tooltip = null;
+function showTooltip(el, text) {
+  if (!text) return;
+  if (!tooltip) { tooltip = document.createElement('div'); tooltip.className = 'tooltip'; document.body.appendChild(tooltip); }
+  tooltip.textContent = text;
+  tooltip.style.display = 'block';
+  moveTooltip(el);
+}
+function moveTooltip(el) {
+  if (!tooltip) return;
+  const r = el.getBoundingClientRect();
+  const tw = tooltip.offsetWidth;
+  let left = r.left + r.width / 2 - tw / 2;
+  left = Math.max(8, Math.min(left, window.innerWidth - tw - 8));
+  tooltip.style.left = left + 'px';
+  tooltip.style.top  = (r.top - tooltip.offsetHeight - 6) + window.scrollY + 'px';
+}
+function hideTooltip() { if (tooltip) tooltip.style.display = 'none'; }
+
+
 function sortBy(col) {
   if (sortCol === col) {
     sortDir = sortDir === 'asc' ? 'desc' : 'asc';
@@ -303,8 +367,8 @@ function sortBy(col) {
 
 function sorted(players) {
   return [...players].sort((a, b) => {
-    let av = sortCol === '_trend' ? getTrend(a) : a[sortCol];
-    let bv = sortCol === '_trend' ? getTrend(b) : b[sortCol];
+    let av = sortCol === '_trend' ? getTrend(a) : sortCol === '_pv' ? getPV(a) : a[sortCol];
+    let bv = sortCol === '_trend' ? getTrend(b) : sortCol === '_pv' ? getPV(b) : b[sortCol];
     if (typeof av === 'string') av = av.toLowerCase();
     if (typeof bv === 'string') bv = bv.toLowerCase();
     if (av < bv) return sortDir === 'asc' ? -1 : 1;
@@ -349,7 +413,7 @@ function renderAll() {
   document.getElementById('resultsCount').textContent = filtered.length + ' players';
 
   if (!filtered.length) {
-    tbody.innerHTML = '<tr><td colspan="16"><div class="empty-state"><div class="icon">🔍</div>No players match your filters.</div></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="17"><div class="empty-state"><div class="icon">🔍</div>No players match your filters.</div></td></tr>';
     return;
   }
 
@@ -361,9 +425,12 @@ function renderAll() {
     const diffStr = diff > 0 ? '+' + diff : '' + diff;
     const trendLabel = trend === 'up' ? `↑ ${diffStr}` : trend === 'down' ? `↓ ${diffStr}` : `→ ${diffStr}`;
     const trendClass = `trend trend-${trend}`;
+    const pv = getPV(p);
+    const pc = pvClass(pv);
+    const noteEsc = (p.notes || '').replace(/'/g, '&#39;');
     return `<tr>
       <td>${p.rank}</td>
-      <td><div class='player-name'>${p.name}</div></td>
+      <td><div class='player-name'>${p.name}</div>${noteEsc ? `<div class='notes-cell' onmouseenter='showTooltip(this,"${noteEsc}")' onmouseleave='hideTooltip()'>${noteEsc}</div>` : ''}</td>
       <td><span class='team-tag'>${p.team}</span></td>
       <td><span class='pos-tag pos-${p.pos}'>${p.pos}</span></td>
       <td>${p.age}</td>
@@ -378,6 +445,10 @@ function renderAll() {
       <td class='${pmClass}'>${pm}</td>
       <td><span class='tier tier-${p.tier}'>${p.tier}</span></td>
       <td><span class='${trendClass}'>${trendLabel}</span></td>
+      <td><div class='pv-bar ${pc}' onmouseenter='showTooltip(this,"Pool Value: ${pv}/100 — pts/GP rate + durability + tier bonus")' onmouseleave='hideTooltip()'>
+        <span class='pv-num'>${pv}</span>
+        <div class='pv-track'><div class='pv-fill' style='width:${pv}%'></div></div>
+      </div></td>
     </tr>`;
   }).join('');
 }
@@ -458,6 +529,22 @@ function switchTab(name, btn) {
 
 function toggleMobileMenu() {
   document.getElementById('navLinks').classList.toggle('active');
+}
+
+// ── CSV EXPORT ────────────────────────────────────────────
+function exportCSV() {
+  const headers = ['Rank','Player','Team','Pos','Age','Last GP','Last G','Last A','Last PTS','Proj GP','Proj G','Proj A','Proj PTS','Proj +/-','Tier','Trend','Pool Value'];
+  const rows = sorted(getFiltered()).map(p => {
+    const trend = getTrend(p);
+    const diff = p.proj_pts - (p.last_pts || p.proj_pts);
+    const trendLabel = trend === 'up' ? `+${diff}` : `${diff}`;
+    return [p.rank, p.name, p.team, p.pos, p.age, p.last_gp??'', p.last_g??'', p.last_a??'', p.last_pts??'', p.proj_gp, p.proj_g, p.proj_a, p.proj_pts, p.proj_pm, p.tier, trendLabel, getPV(p)];
+  });
+  const csv = [headers, ...rows].map(r => r.map(v => `"${v}"`).join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = 'poolers-guide-2026-27.csv';
+  a.click();
 }
 
 // Default sort header
