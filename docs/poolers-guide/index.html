@@ -257,6 +257,7 @@ thead tr.col-row th { border-top: none; }
       </select>
       <span class='results-count' id='resultsCount'></span>
       <button onclick='exportCSV()' style='background:#1e293b; border:1px solid #334155; border-radius:8px; color:#94a3b8; padding:9px 14px; font-size:0.85em; font-weight:600; cursor:pointer; white-space:nowrap;' onmouseover='this.style.color="#e2e8f0"' onmouseout='this.style.color="#94a3b8"'>🖨 Print</button>
+      <button onclick='downloadCSV()' style='background:#1e293b; border:1px solid #334155; border-radius:8px; color:#94a3b8; padding:9px 14px; font-size:0.85em; font-weight:600; cursor:pointer; white-space:nowrap;' onmouseover='this.style.color="#e2e8f0"' onmouseout='this.style.color="#94a3b8"'>⬇ CSV</button>
     </div>
     <div class='table-wrap'>
       <table id='playerTable'>
@@ -566,6 +567,22 @@ function toggleMobileMenu() {
 // ── PRINT ─────────────────────────────────────────────────
 function exportCSV() {
   window.print();
+}
+
+// ── CSV EXPORT ────────────────────────────────────────────
+function downloadCSV() {
+  const headers = ['Rank','Player','Team','Pos','Age','Last GP','Last G','Last A','Last PTS','Proj GP','Proj G','Proj A','Proj PTS','Proj +/-','Tier','Trend','Pool Value'];
+  const rows = sorted(getFiltered()).map(p => {
+    const trend = getTrend(p);
+    const diff = p.proj_pts - (p.last_pts || p.proj_pts);
+    const trendLabel = trend === 'up' ? `+${diff}` : `${diff}`;
+    return [p.rank, p.name, p.team, p.pos, p.age, p.last_gp??'', p.last_g??'', p.last_a??'', p.last_pts??'', p.proj_gp, p.proj_g, p.proj_a, p.proj_pts, p.proj_pm, p.tier, trendLabel, getPV(p)];
+  });
+  const csv = [headers, ...rows].map(r => r.map(v => `"${v}"`).join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = 'poolers-guide-2026-27.csv';
+  a.click();
 }
 
 // Default sort header
