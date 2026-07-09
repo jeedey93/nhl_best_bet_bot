@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='UTF-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+<title>Poolers Guide 2026-27 — Parieur Discipliné</title>
+<meta name='description' content='NHL fantasy pool player projections for 2026-27. Sort and filter by points, goals, assists, tier and more.'>
+<link rel='icon' type='image/png' href='../../parieur_discipline_icon_1024.png'>
+<link rel='apple-touch-icon' href='../../parieur_discipline_icon_1024.png?v=2'>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8fafc; color: #1e293b; min-height: 100vh; }
+
+/* ── NAV ── */
+nav { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: linear-gradient(135deg, #2c5aa0 0%, #1e3a8a 100%); box-shadow: 0 2px 10px rgba(0,0,0,0.3); }
+.nav-inner { max-width: 1600px; margin: 0 auto; padding: 10px 15px; display: flex; align-items: center; }
+.nav-logo { display: flex; align-items: center; gap: 10px; }
+.nav-logo img { width: 32px; height: 32px; border-radius: 50%; }
+.nav-logo span { color: white; font-weight: 700; font-size: 1em; }
+
+/* ── LAYOUT ── */
+.page-wrap { max-width: 1500px; margin: 0 auto; padding: 80px 16px 60px; }
+.page-header { text-align: center; margin-bottom: 24px; background: linear-gradient(135deg, #1e3a8a 0%, #2c5aa0 50%, #1d4ed8 100%); border-radius: 12px; padding: 40px 24px; }
+.page-header h1 { font-size: 2em; font-weight: 800; color: white; margin-bottom: 6px; }
+.page-header p { color: rgba(255,255,255,0.8); font-size: 0.95em; }
+.badge { display: inline-block; background: rgba(255,255,255,0.2); color: white; font-size: 0.75em; font-weight: 700; padding: 3px 10px; border-radius: 99px; margin-left: 8px; vertical-align: middle; border: 1px solid rgba(255,255,255,0.3); }
+
+/* ── TABS ── */
+.tabs { background: #f1f5f9; border-radius: 10px; padding: 4px; border: none; display: inline-flex; gap: 2px; margin-bottom: 20px; }
+.tab-btn { background: none; border: none; color: #64748b; font-size: 0.88em; font-weight: 600; padding: 8px 20px; cursor: pointer; border-radius: 7px; transition: color 0.2s, background 0.2s, box-shadow 0.2s; }
+.tab-btn:hover { color: #1e293b; }
+.tab-btn.active { background: white; color: #1e293b; box-shadow: 0 1px 3px rgba(0,0,0,0.12); }
+.tab-pane { display: none; }
+.tab-pane.active { display: block; }
+
+/* ── CONTROLS ── */
+.controls { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; align-items: center; background: white; border-radius: 10px; padding: 12px 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+.search-box { flex: 1; min-width: 180px; position: relative; }
+.search-box input { width: 100%; background: white; border: 1px solid #e2e8f0; border-radius: 8px; color: #1e293b; padding: 10px 12px 10px 36px; font-size: 0.88em; outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
+.search-box input:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+.search-box::before { content: '🔍'; position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 0.85em; pointer-events: none; }
+.filter-select { background: white; border: 1px solid #e2e8f0; border-radius: 8px; color: #1e293b; padding: 8px 10px; font-size: 0.88em; outline: none; cursor: pointer; }
+.filter-select:focus { border-color: #2563eb; }
+.results-count { color: #64748b; font-size: 0.82em; white-space: nowrap; }
+.ctrl-btn { background: white; border: 1px solid #e2e8f0; border-radius: 8px; color: #64748b; padding: 8px 13px; font-size: 0.85em; font-weight: 600; cursor: pointer; white-space: nowrap; transition: color 0.2s, border-color 0.2s; }
+.ctrl-btn:hover { color: #1e293b; border-color: #cbd5e1; }
+.ctrl-btn.btn-primary { background: #2563eb; color: white; border-color: #2563eb; }
+.ctrl-btn.btn-primary:hover { background: #1d4ed8; border-color: #1d4ed8; color: white; }
+
+/* ── COLUMN TOGGLE MENU ── */
+.col-toggle-wrap { position: relative; }
+.col-toggle-menu { display: none; position: absolute; top: calc(100% + 6px); right: 0; background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px; min-width: 200px; z-index: 500; box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+.col-toggle-menu.open { display: block; }
+.col-toggle-menu label { display: flex; align-items: center; gap: 8px; padding: 6px 8px; font-size: 0.85em; color: #1e293b; cursor: pointer; border-radius: 6px; transition: background 0.15s; }
+.col-toggle-menu label:hover { background: #f1f5f9; }
+.col-toggle-menu input[type=checkbox] { accent-color: #2563eb; width: 14px; height: 14px; cursor: pointer; }
+.col-toggle-menu .menu-title { font-size: 0.72em; font-weight: 700; color: #64748b; letter-spacing: 0.8px; text-transform: uppercase; padding: 4px 8px 8px; border-bottom: 1px solid #e2e8f0; margin-bottom: 4px; }
+
+/* ── TABLE ── */
+.table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+table { width: 100%; border-collapse: collapse; font-size: 0.87em; background: white; }
+thead th { background: #f1f5f9; color: #475569; font-weight: 700; font-size: 0.78em; letter-spacing: 0.5px; text-transform: uppercase; padding: 11px 14px; text-align: left; cursor: pointer; user-select: none; white-space: nowrap; border-bottom: 2px solid #e2e8f0; position: sticky; top: 0; z-index: 2; box-shadow: 0 2px 4px rgba(0,0,0,0.06); }
+thead th:hover { color: #1e293b; }
+thead th .sort-icon { margin-left: 3px; color: #94a3b8; }
+thead th.sorted-asc .sort-icon::after { content: ' ↑'; color: #2563eb; }
+thead th.sorted-desc .sort-icon::after { content: ' ↓'; color: #2563eb; }
+thead th:not(.sorted-asc):not(.sorted-desc) .sort-icon::after { content: ' ↕'; }
+tbody tr { border-bottom: 1px solid #e2e8f0; transition: background 0.15s; }
+tbody tr:nth-child(even) td { background-color: #f8fafc; }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { filter: brightness(0.97); }
+tbody td { padding: 11px 14px; color: #1e293b; vertical-align: middle; }
+tbody td:first-child { color: #94a3b8; font-size: 0.82em; font-weight: 600; }
+
+/* Tier row tints */
+tbody tr.tier-row-Elite   { background: rgba(245,158,11,0.10); border-left: 3px solid #f59e0b; }
+tbody tr.tier-row-Top     { background: rgba(59,130,246,0.08); border-left: 3px solid #3b82f6; }
+tbody tr.tier-row-Mid     { background: transparent; border-left: 3px solid #e2e8f0; }
+tbody tr.tier-row-Sleeper { background: rgba(52,211,153,0.10); border-left: 3px solid #34d399; }
+
+/* Player name cell */
+.player-name { font-weight: 700; color: #1e293b; font-size: 1em; }
+
+/* Team / pos badges */
+.team-tag { display: inline-block; background: #dbeafe; color: #1e40af; font-size: 0.78em; font-weight: 700; padding: 2px 7px; border-radius: 4px; }
+.pos-tag { display: inline-block; font-size: 0.78em; font-weight: 700; padding: 2px 7px; border-radius: 4px; }
+.pos-C  { background: #dbeafe; color: #1e40af; }
+.pos-LW { background: #d1fae5; color: #065f46; }
+.pos-RW { background: #fce7f3; color: #9d174d; }
+.pos-D  { background: #fef3c7; color: #92400e; }
+.pos-G  { background: #ede9fe; color: #5b21b6; }
+
+/* Tier badge */
+.tier { display: inline-block; font-size: 0.75em; font-weight: 700; padding: 4px 10px; border-radius: 99px; white-space: nowrap; letter-spacing: 0.3px; }
+.tier-Elite   { background: #fef3c7; color: #92400e; border: 1px solid #f59e0b; }
+.tier-Top     { background: #dbeafe; color: #1e40af; border: 1px solid #3b82f6; }
+.tier-Mid     { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+.tier-Sleeper { background: #d1fae5; color: #065f46; border: 1px solid #34d399; }
+
+/* Salary */
+.salary { color: #b45309; font-weight: 600; font-size: 0.88em; }
+
+/* PPG */
+.ppg-last { color: #2563eb; font-weight: 600; }
+.ppg-proj { color: #15803d; font-weight: 700; }
+
+/* PP% */
+.pp-pct { color: #7c3aed; font-weight: 600; font-size: 0.88em; }
+
+/* Last year vs projection group headers */
+.col-group-last { background: #eff6ff !important; color: #1d4ed8 !important; border-top: 3px solid #93c5fd !important; }
+.col-group-proj { background: #f0fdf4 !important; color: #15803d !important; border-top: 3px solid #86efac !important; }
+thead tr.group-row th { font-size: 0.8em; text-align: center; padding: 8px 12px; letter-spacing: 1.5px; font-weight: 800; border-bottom: none; cursor: default; }
+thead tr.group-row th:hover { color: inherit; }
+thead tr.col-row th { border-top: none; }
+
+/* Last year cell tint */
+td.col-last { background: #f0f7ff; }
+td.col-last-first { border-left: 2px solid #bfdbfe !important; }
+td.col-last-last  { border-right: 2px solid #bfdbfe !important; }
+.last-stat { color: #2563eb; }
+.last-pts  { color: #1d4ed8; font-weight: 700; }
+
+/* Projection cell tint */
+td.col-proj { background: #f0fdf4; }
+td.col-proj-first { border-left: 2px solid #bbf7d0 !important; }
+td.col-proj-last  { border-right: 2px solid #bbf7d0 !important; }
+.proj-stat { color: #15803d; }
+.proj-pts  { color: #065f46; font-weight: 800; font-size: 1.05em; }
+
+/* Trend badge */
+.trend { display: inline-flex; align-items: center; gap: 4px; font-size: 0.82em; font-weight: 700; padding: 4px 10px; border-radius: 99px; white-space: nowrap; }
+.trend-up   { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+.trend-down { background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; }
+.trend-flat { background: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; }
+
+/* Notes display */
+.notes-display { color: #94a3b8; font-size: 0.75em; font-style: italic; margin-top: 3px; line-height: 1.4; max-width: 220px; }
+
+/* Tooltip */
+.tooltip { position: fixed; z-index: 9000; background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; font-size: 0.82em; font-style: italic; color: #1e293b; max-width: 260px; pointer-events: none; box-shadow: 0 4px 16px rgba(0,0,0,0.12); line-height: 1.4; }
+
+/* Pool value score */
+.pv-bar { display: flex; align-items: center; gap: 6px; min-width: 80px; }
+.pv-num { font-weight: 800; font-size: 0.95em; min-width: 24px; text-align: right; padding: 2px 6px; border-radius: 4px; }
+.pv-track { flex: 1; height: 6px; background: #e2e8f0; border-radius: 99px; overflow: hidden; }
+.pv-fill  { height: 100%; border-radius: 99px; }
+.pv-90 { color: #b45309; } .pv-90 .pv-fill { background: linear-gradient(90deg,#f59e0b,#fbbf24); } .pv-90 .pv-num { background: #fef3c7; color: #b45309; }
+.pv-70 { color: #2563eb; } .pv-70 .pv-fill { background: linear-gradient(90deg,#2563eb,#60a5fa); } .pv-70 .pv-num { background: #dbeafe; color: #1d4ed8; }
+.pv-50 { color: #64748b; } .pv-50 .pv-fill { background: #94a3b8; } .pv-50 .pv-num { background: #f1f5f9; color: #475569; }
+.pv-lo { color: #94a3b8; } .pv-lo .pv-fill { background: #cbd5e1; } .pv-lo .pv-num { background: #f1f5f9; color: #94a3b8; }
+
+/* ── BY TEAM ── */
+.team-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+.team-card { background: white; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.06); transition: box-shadow 0.2s; }
+.team-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+.team-card-header { background: linear-gradient(135deg, #2c5aa0, #1e3a8a); padding: 12px 16px; display: flex; align-items: center; gap: 10px; }
+.team-card-header .team-abbr { font-size: 1.1em; font-weight: 800; color: white; }
+.team-card-header .team-count { font-size: 0.8em; color: rgba(255,255,255,0.7); margin-left: auto; }
+.team-card table { width: 100%; font-size: 0.83em; }
+.team-card thead th { background: #f1f5f9; padding: 7px 10px; font-size: 0.75em; }
+.team-card tbody td { padding: 7px 10px; }
+
+/* ── SLEEPERS ── */
+.sleepers-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+.sleeper-card { background: white; border: 2px solid #34d399; border-radius: 12px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); transition: box-shadow 0.2s; }
+.sleeper-card:hover { box-shadow: 0 4px 12px rgba(52,211,153,0.2); }
+.sleeper-rank { font-size: 0.75em; color: #065f46; font-weight: 700; margin-bottom: 6px; }
+.sleeper-name { font-size: 1.05em; font-weight: 800; color: #1e293b; margin-bottom: 4px; }
+.sleeper-meta { font-size: 0.82em; color: #64748b; margin-bottom: 10px; }
+.sleeper-stats { display: flex; gap: 14px; margin-bottom: 10px; }
+.sleeper-stat .val { font-size: 1.2em; font-weight: 800; color: #1e293b; text-align: center; }
+.sleeper-stat .lbl { font-size: 0.7em; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; text-align: center; }
+.sleeper-note { font-size: 0.82em; color: #065f46; font-style: italic; }
+
+/* ── DISCLAIMER ── */
+.disclaimer { margin-top: 28px; padding: 12px 16px; background: #eff6ff; border-left: 4px solid #2563eb; border-radius: 0 10px 10px 0; font-size: 0.78em; color: #1d4ed8; }
+
+/* ── EMPTY STATE ── */
+.empty-state { text-align: center; padding: 60px 20px; color: #64748b; }
+.empty-state .icon { font-size: 2.5em; margin-bottom: 12px; }
+
+/* ── PRINT ── */
+@media print {
+  @page { size: landscape; margin: 10mm; }
+  nav, .controls, .tabs, .disclaimer, .tooltip, .col-toggle-menu { display: none !important; }
+  body { background: white !important; color: black !important; font-size: 8.5pt; }
+  .page-wrap { padding: 0 !important; max-width: 100% !important; }
+  .page-header { margin-bottom: 8px !important; background: #eee !important; border-radius: 4px !important; padding: 10px !important; }
+  .page-header h1 { font-size: 13pt !important; color: black !important; }
+  .page-header p  { color: #555 !important; font-size: 7.5pt !important; }
+  .badge { background: #ccc !important; color: #333 !important; border: none !important; }
+  .tab-pane { display: block !important; }
+  #tab-byteam, #tab-sleepers { display: none !important; }
+  .table-wrap { border: 1px solid #bbb !important; border-radius: 0 !important; overflow: visible !important; }
+  table { font-size: 7pt !important; }
+  thead th { background: #f0f0f0 !important; color: #333 !important; padding: 4px 5px !important; border-bottom: 1.5px solid #999 !important; }
+  .col-group-last { background: #dbeafe !important; color: #1e4a7a !important; border-color: #93c5fd !important; }
+  .col-group-proj { background: #dcfce7 !important; color: #166534 !important; border-color: #86efac !important; }
+  td.col-last { background: #eff6ff !important; }
+  td.col-proj { background: #f0fdf4 !important; }
+  .last-stat, .last-pts, .proj-stat, .proj-pts, .ppg-last, .ppg-proj, .salary, .pp-pct { color: #111 !important; font-size: inherit !important; }
+  tbody td { padding: 3px 5px !important; color: #111 !important; border-bottom: 1px solid #e0e0e0 !important; }
+  tbody tr:nth-child(even) td { background: #f8f8f8 !important; }
+  .player-name { color: #000 !important; }
+  .notes-display  { color: #555 !important; font-size: 6.5pt !important; }
+  .team-tag    { background: #e5e7eb !important; color: #1e3a5f !important; }
+  .pos-tag     { background: #e5e7eb !important; color: #333 !important; }
+  .tier        { background: #e5e7eb !important; color: #333 !important; border: none !important; }
+  .trend       { background: none !important; border: none !important; color: #333 !important; }
+  .pv-bar      { gap: 3px; }
+  .pv-num      { color: #000 !important; }
+  .pv-track    { display: none; }
+  .sort-icon   { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class='nav-inner'>
+    <div class='nav-logo'>
+      <img src='../../parieur_discipline_icon_1024.png' alt='Logo'>
+      <span>Parieur Discipliné</span>
+    </div>
+    <a href='../index.html' style='color:rgba(255,255,255,0.7);text-decoration:none;font-size:0.83em;margin-left:auto;padding:7px 16px;border-radius:20px;border:1px solid rgba(255,255,255,0.3);font-weight:600;transition:all 0.2s' onmouseover='this.style.background="rgba(255,255,255,0.12)";this.style.color="white"' onmouseout='this.style.background="";this.style.color="rgba(255,255,255,0.7)"'>← About this Guide</a>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class='page-wrap'>
+  <div class='page-header'>
+    <h1>📋 Poolers Guide <span class='badge'>2026-27</span></h1>
+    <p>NHL player projections · Sort any column · Filter by team, position, tier or trend</p>
+  </div>
+
+  <!-- TABS -->
+  <div class='tabs'>
+    <button class='tab-btn active' onclick='switchTab("all", this)'>All Players</button>
+    <button class='tab-btn' onclick='switchTab("byteam", this)'>By Team</button>
+    <button class='tab-btn' onclick='switchTab("sleepers", this)'>🌟 Sleepers</button>
+  </div>
+
+  <!-- TAB: ALL PLAYERS -->
+  <div id='tab-all' class='tab-pane active'>
+    <div class='controls'>
+      <div class='search-box'>
+        <input type='text' id='searchInput' placeholder='Search player or team…' oninput='applyFilters()'>
+      </div>
+      <select class='filter-select' id='filterPos' onchange='applyFilters()'>
+        <option value=''>All Positions</option>
+        <option value='C'>C</option>
+        <option value='LW'>LW</option>
+        <option value='RW'>RW</option>
+        <option value='D'>D</option>
+        <option value='G'>G</option>
+      </select>
+      <select class='filter-select' id='filterTier' onchange='applyFilters()'>
+        <option value=''>All Tiers</option>
+        <option value='Elite'>Elite</option>
+        <option value='Top'>Top</option>
+        <option value='Mid'>Mid</option>
+        <option value='Sleeper'>Sleeper</option>
+      </select>
+      <select class='filter-select' id='filterTrend' onchange='applyFilters()'>
+        <option value=''>All Trends</option>
+        <option value='up'>↑ Progression</option>
+        <option value='flat'>→ Stable</option>
+        <option value='down'>↓ Regression</option>
+      </select>
+      <select class='filter-select' id='filterTeam' onchange='applyFilters()'>
+        <option value=''>All Teams</option>
+      </select>
+      <span class='results-count' id='resultsCount'></span>
+      <!-- Column toggle -->
+      <div class='col-toggle-wrap'>
+        <button class='ctrl-btn' onclick='toggleColMenu(event)'>⚙ Columns</button>
+        <div class='col-toggle-menu' id='colMenu'>
+          <div class='menu-title'>Show / Hide</div>
+          <label><input type='checkbox' id='col-last' checked onchange='applyColVis()'> 📅 Last year stats</label>
+          <label><input type='checkbox' id='col-ppg' checked onchange='applyColVis()'> PPG (pts/game)</label>
+          <label><input type='checkbox' id='col-salary' checked onchange='applyColVis()'> 💰 Salary (AAV)</label>
+          <label><input type='checkbox' id='col-pp' checked onchange='applyColVis()'> PP% (powerplay points)</label>
+          <label><input type='checkbox' id='col-tier' checked onchange='applyColVis()'> Tier</label>
+          <label><input type='checkbox' id='col-trend' checked onchange='applyColVis()'> Trend</label>
+          <label><input type='checkbox' id='col-value' checked onchange='applyColVis()'> Pool Value</label>
+        </div>
+      </div>
+      <button class='ctrl-btn btn-primary' onclick='window.print()'>🖨 Print</button>
+      <button class='ctrl-btn btn-primary' onclick='downloadCSV()'>⬇ CSV</button>
+    </div>
+    <div class='table-wrap'>
+      <table id='playerTable'>
+        <thead id='playerThead'></thead>
+        <tbody id='playerTbody'></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- TAB: BY TEAM -->
+  <div id='tab-byteam' class='tab-pane'>
+    <div id='teamGrid' class='team-grid'></div>
+  </div>
+
+  <!-- TAB: SLEEPERS -->
+  <div id='tab-sleepers' class='tab-pane'>
+    <div id='sleepersGrid' class='sleepers-grid'></div>
+  </div>
+
+  <div class='disclaimer'>
+    ⚠️ Projections are estimates based on prior seasons, line combos, and team context. Updated manually — last refreshed <span id='lastUpdated'></span>.
+    Not financial or gambling advice.
+  </div>
+</div>
+
+<!-- TOOLTIP -->
+<div class='tooltip' id='tooltip' style='display:none'></div>
+
+<script>
+let allPlayers = [];
+let sortCol = 'rank';
+let sortDir = 'asc';
+
+const SUPABASE_URL = 'https://fifurqlitkywtmhgtzeu.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZpZnVycWxpdGt5d3RtaGd0emV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3MDIyMjQsImV4cCI6MjA5MjI3ODIyNH0.KPVPj1qwbSJJMyLR_-AhDcRs0vi2sUU6qbFQ-kH53C0';
+const SB_HEADERS = { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` };
+
+// ── INIT ─────────────────────────────────────────────────
+async function init() {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/poolers_players?order=rank.asc&select=*`, { headers: SB_HEADERS });
+  allPlayers = await res.json();
+  document.getElementById('lastUpdated').textContent = new Date().toLocaleDateString('en-CA');
+  const teams = [...new Set(allPlayers.map(p => p.team))].sort();
+  const sel = document.getElementById('filterTeam');
+  teams.forEach(t => { const o = document.createElement('option'); o.value = t; o.textContent = t; sel.appendChild(o); });
+  normalizePVs(allPlayers);
+  renderHeader();
+  renderAll();
+  renderByTeam();
+  renderSleepers();
+  applyColVis();
+}
+
+// ── POOL VALUE SCORE ──────────────────────────────────────
+const TIER_BONUS = { Elite: 20, Top: 14, Mid: 8, Sleeper: 4 };
+let _pvMin = 0, _pvMax = 100;
+function calcPV(p) {
+  const rate = p.proj_gp > 0 ? p.proj_pts / p.proj_gp : 0;
+  return rate * 50 + (p.proj_gp / 82) * 30 + (TIER_BONUS[p.tier] || 0);
+}
+function normalizePVs(players) {
+  const vals = players.map(calcPV);
+  _pvMin = Math.min(...vals); _pvMax = Math.max(...vals);
+}
+function getPV(p) {
+  if (_pvMax === _pvMin) return 100;
+  return Math.round(((calcPV(p) - _pvMin) / (_pvMax - _pvMin)) * 99) + 1;
+}
+function pvClass(s) { return s >= 90 ? 'pv-90' : s >= 70 ? 'pv-70' : s >= 50 ? 'pv-50' : 'pv-lo'; }
+
+// ── TREND ─────────────────────────────────────────────────
+function getTrend(p) {
+  if (!p.last_pts) return 'flat';
+  const d = p.proj_pts - p.last_pts;
+  return d >= 5 ? 'up' : d <= -5 ? 'down' : 'flat';
+}
+
+// ── PPG ───────────────────────────────────────────────────
+function ppg(pts, gp) { return gp > 0 ? (pts / gp).toFixed(2) : '—'; }
+
+// ── TOOLTIP ───────────────────────────────────────────────
+const _tt = document.getElementById('tooltip');
+function showTooltip(el, text) {
+  if (!text) return;
+  _tt.textContent = text; _tt.style.display = 'block';
+  const r = el.getBoundingClientRect();
+  const tw = _tt.offsetWidth;
+  let left = r.left + r.width / 2 - tw / 2;
+  left = Math.max(8, Math.min(left, window.innerWidth - tw - 8));
+  _tt.style.left = left + 'px';
+  _tt.style.top = (r.top - _tt.offsetHeight - 6 + window.scrollY) + 'px';
+}
+function hideTooltip() { _tt.style.display = 'none'; }
+
+// ── COLUMN VISIBILITY ─────────────────────────────────────
+const COL_GROUPS = {
+  'col-last':    ['cg-last'],
+  'col-ppg':     ['cg-ppg-last', 'cg-ppg-proj'],
+  'col-salary':  ['cg-salary'],
+  'col-pp':      ['cg-pp'],
+  'col-tier':    ['cg-tier'],
+  'col-trend':   ['cg-trend'],
+  'col-value':   ['cg-value'],
+};
+
+function applyColVis() {
+  Object.entries(COL_GROUPS).forEach(([chkId, colClasses]) => {
+    const show = document.getElementById(chkId).checked;
+    colClasses.forEach(cls => {
+      document.querySelectorAll('.' + cls).forEach(el => {
+        el.style.display = show ? '' : 'none';
+      });
+    });
+  });
+  // Update group-row colspan for last year block
+  updateGroupColspan();
+}
+
+function updateGroupColspan() {
+  // Recount visible ths in col-row for each group
+  const ths = [...document.querySelectorAll('thead tr.col-row th')];
+  let lastCount = 0, projCount = 0;
+  ths.forEach(th => {
+    if (th.style.display === 'none') return;
+    if (th.classList.contains('col-group-last')) lastCount++;
+    if (th.classList.contains('col-group-proj')) projCount++;
+  });
+  const lastGh = document.getElementById('gh-last');
+  const projGh = document.getElementById('gh-proj');
+  if (lastGh) lastGh.colSpan = Math.max(1, lastCount);
+  if (projGh) projGh.colSpan = Math.max(1, projCount);
+}
+
+function toggleColMenu(e) {
+  e.stopPropagation();
+  document.getElementById('colMenu').classList.toggle('open');
+}
+document.addEventListener('click', () => document.getElementById('colMenu').classList.remove('open'));
+
+// ── SORTING ───────────────────────────────────────────────
+function sortBy(col) {
+  sortDir = sortCol === col ? (sortDir === 'asc' ? 'desc' : 'asc') : (col === 'rank' ? 'asc' : 'desc');
+  sortCol = col;
+  document.querySelectorAll('thead th[data-col]').forEach(th => {
+    th.classList.remove('sorted-asc', 'sorted-desc');
+    if (th.dataset.col === col) th.classList.add(sortDir === 'asc' ? 'sorted-asc' : 'sorted-desc');
+  });
+  renderAll();
+}
+
+function sorted(players) {
+  const getVal = p => {
+    if (sortCol === '_trend') return getTrend(p);
+    if (sortCol === '_pv')    return getPV(p);
+    if (sortCol === '_ppg_last') return p.last_gp > 0 ? p.last_pts / p.last_gp : 0;
+    if (sortCol === '_ppg_proj') return p.proj_gp > 0 ? p.proj_pts / p.proj_gp : 0;
+    return p[sortCol];
+  };
+  return [...players].sort((a, b) => {
+    let av = getVal(a), bv = getVal(b);
+    if (typeof av === 'string') av = av.toLowerCase();
+    if (typeof bv === 'string') bv = bv.toLowerCase();
+    if (av < bv) return sortDir === 'asc' ? -1 : 1;
+    if (av > bv) return sortDir === 'asc' ? 1 : -1;
+    return 0;
+  });
+}
+
+// ── FILTERS ───────────────────────────────────────────────
+function getFiltered() {
+  const q     = document.getElementById('searchInput').value.toLowerCase();
+  const pos   = document.getElementById('filterPos').value;
+  const tier  = document.getElementById('filterTier').value;
+  const team  = document.getElementById('filterTeam').value;
+  const trend = document.getElementById('filterTrend').value;
+  return allPlayers.filter(p => {
+    if (q     && !p.name.toLowerCase().includes(q) && !p.team.toLowerCase().includes(q)) return false;
+    if (pos   && p.pos  !== pos)          return false;
+    if (tier  && p.tier !== tier)         return false;
+    if (team  && p.team !== team)         return false;
+    if (trend && getTrend(p) !== trend)   return false;
+    return true;
+  });
+}
+function applyFilters() { renderAll(); }
+
+// ── RENDER HEADER ─────────────────────────────────────────
+function renderHeader() {
+  document.getElementById('playerThead').innerHTML = `
+  <tr class='group-row'>
+    <th colspan='5' style='background:#f1f5f9;'></th>
+    <th id='gh-last' colspan='5' class='col-group-last cg-last'>📅 2025-26 ACTUAL</th>
+    <th colspan='4' class='col-group-proj'>🎯 2026-27 PROJECTION</th>
+    <th colspan='6' style='background:#f1f5f9;'></th>
+  </tr>
+  <tr class='col-row'>
+    <th onclick='sortBy("rank")'    data-col='rank'>#<span class='sort-icon'></span></th>
+    <th onclick='sortBy("name")'    data-col='name'>Player<span class='sort-icon'></span></th>
+    <th onclick='sortBy("team")'    data-col='team'>Team<span class='sort-icon'></span></th>
+    <th onclick='sortBy("pos")'     data-col='pos'>Pos<span class='sort-icon'></span></th>
+    <th onclick='sortBy("age")'     data-col='age'>Age<span class='sort-icon'></span></th>
+
+    <th onclick='sortBy("last_gp")' data-col='last_gp' class='col-group-last cg-last' style='border-left:2px solid #bfdbfe;color:#1d4ed8;'>GP<span class='sort-icon'></span></th>
+    <th onclick='sortBy("last_g")'  data-col='last_g'  class='col-group-last cg-last' style='color:#1d4ed8;'>G<span class='sort-icon'></span></th>
+    <th onclick='sortBy("last_a")'  data-col='last_a'  class='col-group-last cg-last' style='color:#1d4ed8;'>A<span class='sort-icon'></span></th>
+    <th onclick='sortBy("last_pts")' data-col='last_pts' class='col-group-last cg-last' style='color:#1d4ed8;font-weight:800;'>PTS<span class='sort-icon'></span></th>
+    <th onclick='sortBy("_ppg_last")' data-col='_ppg_last' class='col-group-last cg-last cg-ppg-last' style='border-right:2px solid #bfdbfe;color:#1d4ed8;'>PPG<span class='sort-icon'></span></th>
+
+    <th onclick='sortBy("proj_gp")' data-col='proj_gp' class='col-group-proj' style='border-left:2px solid #bbf7d0;color:#15803d;'>GP<span class='sort-icon'></span></th>
+    <th onclick='sortBy("proj_g")'  data-col='proj_g'  class='col-group-proj' style='color:#15803d;'>G<span class='sort-icon'></span></th>
+    <th onclick='sortBy("proj_a")'  data-col='proj_a'  class='col-group-proj' style='color:#15803d;'>A<span class='sort-icon'></span></th>
+    <th onclick='sortBy("proj_pts")' data-col='proj_pts' class='col-group-proj' style='color:#15803d;font-weight:800;'>PTS<span class='sort-icon'></span></th>
+    <th onclick='sortBy("_ppg_proj")' data-col='_ppg_proj' class='col-group-proj cg-ppg-proj' style='border-right:2px solid #bbf7d0;color:#15803d;'>PPG<span class='sort-icon'></span></th>
+
+    <th onclick='sortBy("aav")'     data-col='aav'     class='cg-salary'>💰 AAV<span class='sort-icon'></span></th>
+    <th onclick='sortBy("pp_pct")' data-col='pp_pct' class='cg-pp' onmouseenter='showTooltip(this,"PP% = powerplay points ÷ total points × 100")' onmouseleave='hideTooltip()'>PP%<span class='sort-icon'></span></th>
+    <th onclick='sortBy("tier")'    data-col='tier'     class='cg-tier'>Tier<span class='sort-icon'></span></th>
+    <th onclick='sortBy("_trend")'  data-col='_trend'   class='cg-trend'>Trend<span class='sort-icon'></span></th>
+    <th onclick='sortBy("_pv")'     data-col='_pv'      class='cg-value'>Value<span class='sort-icon'></span></th>
+  </tr>`;
+  // Set initial sort indicator
+  document.querySelector('thead th[data-col="rank"]').classList.add('sorted-asc');
+}
+
+// ── RENDER TABLE ──────────────────────────────────────────
+function renderAll() {
+  const filtered = sorted(getFiltered());
+  const tbody = document.getElementById('playerTbody');
+  document.getElementById('resultsCount').textContent = filtered.length + ' players';
+
+  if (!filtered.length) {
+    tbody.innerHTML = '<tr><td colspan="21"><div class="empty-state"><div class="icon">🔍</div>No players match your filters.</div></td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(p => {
+    const trend    = getTrend(p);
+    const diff     = p.proj_pts - (p.last_pts || p.proj_pts);
+    const diffStr  = diff > 0 ? '+' + diff : '' + diff;
+    const trendLbl = trend === 'up' ? `↑ ${diffStr}` : trend === 'down' ? `↓ ${diffStr}` : `→ ${diffStr}`;
+    const pv       = getPV(p);
+    const pc       = pvClass(pv);
+    const noteEsc  = (p.notes || '').replace(/'/g, '&#39;').replace(/"/g, '&quot;');
+    const aav      = p.aav ? `$${p.aav}M` : '—';
+    const ppPct    = p.pp_pct != null ? p.pp_pct + '%' : '—';
+
+    return `<tr class='tier-row-${p.tier}'>
+      <td>${p.rank}</td>
+      <td>
+        <div class='player-name'>${p.name}</div>
+        ${noteEsc ? `<div class='notes-display'>${noteEsc}</div>` : ''}
+      </td>
+      <td><span class='team-tag'>${p.team}</span></td>
+      <td><span class='pos-tag pos-${p.pos}'>${p.pos}</span></td>
+      <td>${p.age}</td>
+
+      <td class='col-last col-last-first last-stat cg-last'>${p.last_gp ?? '—'}</td>
+      <td class='col-last last-stat cg-last'>${p.last_g ?? '—'}</td>
+      <td class='col-last last-stat cg-last'>${p.last_a ?? '—'}</td>
+      <td class='col-last last-pts cg-last'>${p.last_pts ?? '—'}</td>
+      <td class='col-last col-last-last cg-last cg-ppg-last'><span class='ppg-last'>${ppg(p.last_pts, p.last_gp)}</span></td>
+
+      <td class='col-proj col-proj-first proj-stat'>${p.proj_gp}</td>
+      <td class='col-proj proj-stat'>${p.proj_g}</td>
+      <td class='col-proj proj-stat'>${p.proj_a}</td>
+      <td class='col-proj proj-pts'>${p.proj_pts}</td>
+      <td class='col-proj col-proj-last cg-ppg-proj'><span class='ppg-proj'>${ppg(p.proj_pts, p.proj_gp)}</span></td>
+
+      <td class='cg-salary'><span class='salary'>${aav}</span></td>
+      <td class='cg-pp'><span class='pp-pct'>${ppPct}</span></td>
+      <td class='cg-tier'><span class='tier tier-${p.tier}'>${p.tier}</span></td>
+      <td class='cg-trend'><span class='trend trend-${trend}'>${trendLbl}</span></td>
+      <td class='cg-value'><div class='pv-bar ${pc}' onmouseenter='showTooltip(this,"Pool Value: ${pv}/100 — pts/GP rate + durability + tier bonus")' onmouseleave='hideTooltip()'>
+        <span class='pv-num'>${pv}</span><div class='pv-track'><div class='pv-fill' style='width:${pv}%'></div></div>
+      </div></td>
+    </tr>`;
+  }).join('');
+
+  applyColVis();
+}
+
+// ── RENDER BY TEAM ────────────────────────────────────────
+function renderByTeam() {
+  const teams = {};
+  allPlayers.forEach(p => { if (!teams[p.team]) teams[p.team] = []; teams[p.team].push(p); });
+  const grid = document.getElementById('teamGrid');
+  grid.innerHTML = Object.keys(teams).sort().map(team => {
+    const players = teams[team].sort((a, b) => b.proj_pts - a.proj_pts);
+    const rows = players.map(p => `<tr>
+      <td><span class='player-name' style='font-size:0.88em'>${p.name}</span></td>
+      <td><span class='pos-tag pos-${p.pos}'>${p.pos}</span></td>
+      <td class='last-pts'>${p.last_pts ?? '—'}</td>
+      <td class='proj-pts'>${p.proj_pts}</td>
+      <td><span class='ppg-proj'>${ppg(p.proj_pts, p.proj_gp)}</span></td>
+      <td><span class='tier tier-${p.tier}' style='font-size:0.7em'>${p.tier}</span></td>
+    </tr>`).join('');
+    return `<div class='team-card'>
+      <div class='team-card-header'><span class='team-abbr'>${team}</span><span class='team-count'>${players.length} players</span></div>
+      <div style='overflow-x:auto'><table>
+        <thead><tr><th>Player</th><th>Pos</th><th>Last PTS</th><th>Proj PTS</th><th>PPG</th><th>Tier</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table></div>
+    </div>`;
+  }).join('');
+}
+
+// ── RENDER SLEEPERS ───────────────────────────────────────
+function renderSleepers() {
+  const sleepers = allPlayers.filter(p => p.tier === 'Sleeper').sort((a, b) => b.proj_pts - a.proj_pts);
+  const grid = document.getElementById('sleepersGrid');
+  if (!sleepers.length) { grid.innerHTML = '<div class="empty-state"><div class="icon">🌟</div>No sleepers yet.</div>'; return; }
+  grid.innerHTML = sleepers.map((p, i) => `<div class='sleeper-card'>
+    <div class='sleeper-rank'><span style='color:#34d399'>●</span> Sleeper Pick #${i + 1}</div>
+    <div class='sleeper-name'>${p.name}</div>
+    <div class='sleeper-meta'>${p.team} · ${p.pos} · Age ${p.age} · ${p.proj_gp} GP${p.aav ? ' · $' + p.aav + 'M' : ''}</div>
+    <div class='sleeper-stats'>
+      <div class='sleeper-stat'><div class='val proj-pts'>${p.proj_pts}</div><div class='lbl'>PTS</div></div>
+      <div class='sleeper-stat'><div class='val ppg-proj'>${ppg(p.proj_pts, p.proj_gp)}</div><div class='lbl'>PPG</div></div>
+      <div class='sleeper-stat'><div class='val last-pts'>${p.last_pts ?? '—'}</div><div class='lbl'>Last PTS</div></div>
+    </div>
+    <div class='sleeper-note'>"${p.notes}"</div>
+  </div>`).join('');
+}
+
+// ── TABS ─────────────────────────────────────────────────
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ── CSV EXPORT ────────────────────────────────────────────
+function downloadCSV() {
+  const headers = ['Rank','Player','Team','Pos','Age','Last GP','Last G','Last A','Last PTS','Last PPG','Proj GP','Proj G','Proj A','Proj PTS','Proj PPG','AAV','PP%','Tier','Trend','Pool Value','Notes'];
+  const rows = sorted(getFiltered()).map(p => {
+    const trend = getTrend(p);
+    const diff  = p.proj_pts - (p.last_pts || p.proj_pts);
+    return [p.rank, p.name, p.team, p.pos, p.age,
+      p.last_gp??'', p.last_g??'', p.last_a??'', p.last_pts??'', ppg(p.last_pts, p.last_gp),
+      p.proj_gp, p.proj_g, p.proj_a, p.proj_pts, ppg(p.proj_pts, p.proj_gp),
+      p.aav ? '$'+p.aav+'M' : '', p.pp_pct != null ? p.pp_pct+'%' : '',
+      p.tier, (trend==='up'?'+':'')+diff, getPV(p), p.notes||''];
+  });
+  const csv = [headers, ...rows].map(r => r.map(v => `"${v}"`).join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = 'poolers-guide-2026-27.csv';
+  a.click();
+}
+
+init();
+</script>
+</body>
+</html>
