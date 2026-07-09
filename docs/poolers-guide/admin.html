@@ -138,10 +138,10 @@ tbody tr.dirty td:first-child { border-left: 3px solid #3b82f6; }
         <tr>
           <th class='ro-col'>#</th>
           <th class='ro-col'>Name</th>
-          <th class='ro-col'>Team</th>
+          <th '>Team</th>
           <th class='ro-col'>Pos</th>
           <th class='ro-col'>Age</th>
-          <th class='ro-col'>AAV</th>
+          <th '>AAV ($M)</th>
           <th class='ro-col'><span class='sl sl-last'>25-26</span> G</th>
           <th class='ro-col'><span class='sl sl-last'>25-26</span> A</th>
           <th class='ro-col'><span class='sl sl-last'>25-26</span> PTS</th>
@@ -252,10 +252,10 @@ function rowHTML(p) {
   return `<tr id='row-${id}'>
     <td class='ro-td'>${ro(p.rank)}</td>
     <td class='ro-td' style='min-width:140px'>${ro(p.name)}</td>
-    <td class='ro-td'>${ro(p.team)}</td>
+    <td><input class='ci' id='${id}-team' type='text' value='${esc(p.team)}' style='width:52px;text-transform:uppercase' oninput='this.value=this.value.toUpperCase();markDirty(${id})'></td>
     <td class='ro-td'>${ro(p.pos)}</td>
     <td class='ro-td'>${ro(p.age)}</td>
-    <td class='ro-td'>${ro(p.aav ? '$'+p.aav+'M' : '—')}</td>
+    <td><input class='ci n' id='${id}-aav' type='number' step='0.01' value='${p.aav??''}' oninput='markDirty(${id})' placeholder='—'></td>
     <td class='ro-td'>${ro(p.last_g)}</td>
     <td class='ro-td'>${ro(p.last_a)}</td>
     <td class='ro-td'>${ro(p.last_pts)}</td>
@@ -288,6 +288,8 @@ async function saveAll() {
       return isFloat ? parseFloat(v) : parseInt(v);
     };
     const data = {
+      team:     document.getElementById(`${id}-team`)?.value?.trim().toUpperCase(),
+      aav:      num('aav', true),
       proj_g:   num('proj_g'),
       proj_a:   num('proj_a'),
       proj_pts: num('proj_pts'),
