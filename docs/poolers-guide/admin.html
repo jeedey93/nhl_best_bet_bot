@@ -199,17 +199,6 @@ async function loadPlayers() {
     if (!res.ok) throw new Error(await res.text());
     players = await res.json();
     setStatus(`${players.length} players`);
-    // Build logo strip
-    const teams = [...new Set(players.map(p => p.team))].sort();
-    const strip = document.getElementById('teamFilter');
-    teams.forEach(t => {
-      const btn = document.createElement('button');
-      btn.className = 'team-logo-btn';
-      btn.title = t;
-      btn.innerHTML = `<img src='https://assets.nhle.com/logos/nhl/svg/${t}_light.svg' alt='${t}'>`;
-      btn.onclick = () => setTeam(t, btn);
-      strip.appendChild(btn);
-    });
     renderTable();
   } catch (e) {
     setStatus('Load failed');
@@ -218,7 +207,20 @@ async function loadPlayers() {
 }
 
 // ── RENDER ────────────────────────────────────────────────
-const TIERS = ['Elite','Top','Mid','Sleeper'];
+const ALL_TEAMS = ['ANA','BOS','BUF','CAR','CBJ','CGY','CHI','COL','DAL','DET','EDM','FLA','LAK','MIN','MTL','NJD','NSH','NYI','NYR','OTT','PHI','PIT','SEA','SJS','STL','TBL','TOR','UTA','VAN','VGK','WPG','WSH'];
+
+// Build logo strip immediately (before data loads)
+(function buildLogoStrip() {
+  const strip = document.getElementById('teamFilter');
+  ALL_TEAMS.forEach(t => {
+    const btn = document.createElement('button');
+    btn.className = 'team-logo-btn';
+    btn.title = t;
+    btn.innerHTML = `<img src='https://assets.nhle.com/logos/nhl/svg/${t}_dark.svg' alt='${t}'>`;
+    btn.onclick = () => setTeam(t, btn);
+    strip.appendChild(btn);
+  });
+})();
 
 function markDirty(id) {
   dirty.add(id);
