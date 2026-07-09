@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='UTF-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+<title>Poolers Guide 2026-27 — Parieur Discipliné</title>
+<meta name='description' content='NHL fantasy pool player projections for 2026-27. Sort and filter by points, goals, assists, tier and more.'>
+<link rel='icon' type='image/png' href='../parieur_discipline_icon_1024.png'>
+<link rel='apple-touch-icon' href='../parieur_discipline_icon_1024.png?v=2'>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; }
+
+/* ── NAV ── */
+nav { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: linear-gradient(135deg, #2c5aa0 0%, #1e3a8a 100%); box-shadow: 0 2px 10px rgba(0,0,0,0.3); }
+.nav-inner { max-width: 1600px; margin: 0 auto; padding: 10px 15px; display: flex; align-items: center; justify-content: space-between; }
+.nav-logo { display: flex; align-items: center; gap: 10px; }
+.nav-logo img { width: 32px; height: 32px; border-radius: 50%; }
+.nav-logo span { color: white; font-weight: 700; font-size: 1em; }
+#mobileMenuBtn { display: none; background: none; border: none; color: white; font-size: 1.5em; cursor: pointer; padding: 5px; }
+#navLinks { display: flex; gap: 8px; align-items: center; }
+#navLinks a { color: white; text-decoration: none; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 0.9em; transition: background 0.2s; white-space: nowrap; }
+#navLinks a:hover { background: rgba(255,255,255,0.15); }
+#navLinks a.active { background: rgba(255,255,255,0.2); }
+@media (max-width: 768px) {
+  #mobileMenuBtn { display: block !important; }
+  #navLinks { display: none !important; position: absolute; top: 100%; left: 0; right: 0; background: linear-gradient(135deg, #2c5aa0 0%, #1e3a8a 100%); flex-direction: column; gap: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.2); align-items: stretch; }
+  #navLinks.active { display: flex !important; }
+  #navLinks a { padding: 14px 20px; font-size: 1em; border-radius: 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
+}
+
+/* ── LAYOUT ── */
+.page-wrap { max-width: 1400px; margin: 0 auto; padding: 100px 16px 60px; }
+
+.page-header { text-align: center; margin-bottom: 32px; }
+.page-header h1 { font-size: 2em; font-weight: 800; color: #f8fafc; margin-bottom: 8px; }
+.page-header p { color: #94a3b8; font-size: 0.95em; }
+.badge { display: inline-block; background: linear-gradient(135deg, #2c5aa0, #1e3a8a); color: white; font-size: 0.75em; font-weight: 700; padding: 3px 10px; border-radius: 99px; margin-left: 8px; vertical-align: middle; letter-spacing: 0.5px; }
+
+/* ── TABS ── */
+.tabs { display: flex; gap: 6px; margin-bottom: 24px; border-bottom: 2px solid #1e293b; padding-bottom: 0; }
+.tab-btn { background: none; border: none; color: #94a3b8; font-size: 0.9em; font-weight: 600; padding: 10px 18px; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; transition: color 0.2s, border-color 0.2s; }
+.tab-btn:hover { color: #e2e8f0; }
+.tab-btn.active { color: #60a5fa; border-bottom-color: #60a5fa; }
+.tab-pane { display: none; }
+.tab-pane.active { display: block; }
+
+/* ── CONTROLS ── */
+.controls { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; align-items: center; }
+.search-box { flex: 1; min-width: 200px; position: relative; }
+.search-box input { width: 100%; background: #1e293b; border: 1px solid #334155; border-radius: 8px; color: #e2e8f0; padding: 9px 12px 9px 36px; font-size: 0.9em; outline: none; transition: border-color 0.2s; }
+.search-box input:focus { border-color: #60a5fa; }
+.search-box::before { content: '🔍'; position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 0.9em; pointer-events: none; }
+.filter-select { background: #1e293b; border: 1px solid #334155; border-radius: 8px; color: #e2e8f0; padding: 9px 12px; font-size: 0.9em; outline: none; cursor: pointer; }
+.filter-select:focus { border-color: #60a5fa; }
+.results-count { color: #64748b; font-size: 0.85em; margin-left: auto; white-space: nowrap; }
+
+/* ── TABLE ── */
+.table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid #1e293b; }
+table { width: 100%; border-collapse: collapse; font-size: 0.88em; }
+thead th { background: #1e293b; color: #94a3b8; font-weight: 700; font-size: 0.8em; letter-spacing: 0.5px; text-transform: uppercase; padding: 12px 14px; text-align: left; cursor: pointer; user-select: none; white-space: nowrap; border-bottom: 2px solid #0f172a; position: sticky; top: 0; z-index: 2; }
+thead th:hover { color: #e2e8f0; }
+thead th .sort-icon { margin-left: 4px; color: #475569; }
+thead th.sorted-asc .sort-icon::after { content: ' ↑'; color: #60a5fa; }
+thead th.sorted-desc .sort-icon::after { content: ' ↓'; color: #60a5fa; }
+thead th:not(.sorted-asc):not(.sorted-desc) .sort-icon::after { content: ' ↕'; }
+tbody tr { border-bottom: 1px solid #1e293b; transition: background 0.15s; }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: #1e293b; }
+tbody td { padding: 11px 14px; color: #cbd5e1; vertical-align: middle; }
+tbody td:first-child { color: #64748b; font-size: 0.85em; font-weight: 600; }
+
+/* Player name cell */
+.player-name { font-weight: 700; color: #f1f5f9; }
+.player-team-pos { font-size: 0.78em; color: #64748b; margin-top: 2px; }
+
+/* Team badge */
+.team-tag { display: inline-block; background: #1e3a5f; color: #93c5fd; font-size: 0.78em; font-weight: 700; padding: 2px 7px; border-radius: 4px; letter-spacing: 0.3px; }
+
+/* Position */
+.pos-tag { display: inline-block; font-size: 0.78em; font-weight: 700; padding: 2px 7px; border-radius: 4px; }
+.pos-C  { background: #1e3a5f; color: #7dd3fc; }
+.pos-LW { background: #1a3a2a; color: #6ee7b7; }
+.pos-RW { background: #3a1a2a; color: #f9a8d4; }
+.pos-D  { background: #3a2a1a; color: #fcd34d; }
+.pos-G  { background: #2a1a3a; color: #c4b5fd; }
+
+/* Tier badge */
+.tier { display: inline-block; font-size: 0.78em; font-weight: 700; padding: 3px 9px; border-radius: 99px; white-space: nowrap; }
+.tier-Elite   { background: linear-gradient(135deg, #b45309, #92400e); color: #fef3c7; }
+.tier-Top     { background: linear-gradient(135deg, #1d4ed8, #1e3a8a); color: #dbeafe; }
+.tier-Mid     { background: #1e293b; color: #94a3b8; border: 1px solid #334155; }
+.tier-Sleeper { background: linear-gradient(135deg, #065f46, #064e3b); color: #a7f3d0; }
+
+/* Stat cells */
+.stat-pts { font-weight: 800; color: #f8fafc; }
+.stat-g   { color: #f87171; }
+.stat-a   { color: #60a5fa; }
+.stat-pm-pos { color: #4ade80; }
+.stat-pm-neg { color: #f87171; }
+
+/* Notes */
+.notes-cell { color: #64748b; font-size: 0.82em; font-style: italic; max-width: 200px; }
+
+/* ── BY TEAM ── */
+.team-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+.team-card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; overflow: hidden; }
+.team-card-header { background: linear-gradient(135deg, #1e3a5f, #1e293b); padding: 12px 16px; display: flex; align-items: center; gap: 10px; }
+.team-card-header .team-abbr { font-size: 1.1em; font-weight: 800; color: #60a5fa; }
+.team-card-header .team-count { font-size: 0.8em; color: #64748b; margin-left: auto; }
+.team-card table { width: 100%; font-size: 0.83em; }
+.team-card thead th { background: #0f172a; padding: 8px 12px; font-size: 0.75em; }
+.team-card tbody td { padding: 8px 12px; }
+
+/* ── SLEEPERS ── */
+.sleepers-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+.sleeper-card { background: linear-gradient(135deg, #0d2818, #0f172a); border: 1px solid #065f46; border-radius: 12px; padding: 16px; }
+.sleeper-rank { font-size: 0.75em; color: #6ee7b7; font-weight: 700; margin-bottom: 6px; }
+.sleeper-name { font-size: 1.05em; font-weight: 800; color: #f1f5f9; margin-bottom: 4px; }
+.sleeper-meta { font-size: 0.82em; color: #64748b; margin-bottom: 10px; }
+.sleeper-stats { display: flex; gap: 12px; margin-bottom: 10px; }
+.sleeper-stat { text-align: center; }
+.sleeper-stat .val { font-size: 1.2em; font-weight: 800; color: #f8fafc; }
+.sleeper-stat .lbl { font-size: 0.7em; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+.sleeper-note { font-size: 0.82em; color: #6ee7b7; font-style: italic; }
+
+/* ── DISCLAIMER ── */
+.disclaimer { margin-top: 32px; padding: 14px 18px; background: #1e293b; border: 1px solid #334155; border-radius: 10px; font-size: 0.8em; color: #64748b; text-align: center; }
+
+/* ── EMPTY STATE ── */
+.empty-state { text-align: center; padding: 60px 20px; color: #475569; }
+.empty-state .icon { font-size: 2.5em; margin-bottom: 12px; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class='nav-inner'>
+    <div class='nav-logo'>
+      <img src='../parieur_discipline_icon_1024.png' alt='Logo'>
+      <span>Parieur Discipliné</span>
+    </div>
+    <button id='mobileMenuBtn' onclick='toggleMobileMenu()'>☰</button>
+    <div id='navLinks'>
+      <a href='../index.html'>Home</a>
+      <a href='../daily-picks.html'>🎯 Daily Picks</a>
+      <a href='../nba.html'>🏀 NBA</a>
+      <a href='../performance.html'>📊 Performance</a>
+      <a href='../pool-2027/index.html'>🏊 Pool 2027</a>
+      <a href='index.html' class='active'>📋 Poolers Guide</a>
+    </div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class='page-wrap'>
+  <div class='page-header'>
+    <h1>📋 Poolers Guide <span class='badge'>2026-27</span></h1>
+    <p>NHL player projections · Sort any column · Filter by team, position, or tier</p>
+  </div>
+
+  <!-- TABS -->
+  <div class='tabs'>
+    <button class='tab-btn active' onclick='switchTab("all")'>All Players</button>
+    <button class='tab-btn' onclick='switchTab("byteam")'>By Team</button>
+    <button class='tab-btn' onclick='switchTab("sleepers")'>🌟 Sleepers</button>
+  </div>
+
+  <!-- TAB: ALL PLAYERS -->
+  <div id='tab-all' class='tab-pane active'>
+    <div class='controls'>
+      <div class='search-box'>
+        <input type='text' id='searchInput' placeholder='Search player or team…' oninput='applyFilters()'>
+      </div>
+      <select class='filter-select' id='filterPos' onchange='applyFilters()'>
+        <option value=''>All Positions</option>
+        <option value='C'>C</option>
+        <option value='LW'>LW</option>
+        <option value='RW'>RW</option>
+        <option value='D'>D</option>
+        <option value='G'>G</option>
+      </select>
+      <select class='filter-select' id='filterTier' onchange='applyFilters()'>
+        <option value=''>All Tiers</option>
+        <option value='Elite'>Elite</option>
+        <option value='Top'>Top</option>
+        <option value='Mid'>Mid</option>
+        <option value='Sleeper'>Sleeper</option>
+      </select>
+      <select class='filter-select' id='filterTeam' onchange='applyFilters()'>
+        <option value=''>All Teams</option>
+      </select>
+      <span class='results-count' id='resultsCount'></span>
+    </div>
+    <div class='table-wrap'>
+      <table id='playerTable'>
+        <thead>
+          <tr>
+            <th onclick='sortBy("rank")' data-col='rank'>#<span class='sort-icon'></span></th>
+            <th onclick='sortBy("name")' data-col='name'>Player<span class='sort-icon'></span></th>
+            <th onclick='sortBy("team")' data-col='team'>Team<span class='sort-icon'></span></th>
+            <th onclick='sortBy("pos")' data-col='pos'>Pos<span class='sort-icon'></span></th>
+            <th onclick='sortBy("age")' data-col='age'>Age<span class='sort-icon'></span></th>
+            <th onclick='sortBy("proj_gp")' data-col='proj_gp'>GP<span class='sort-icon'></span></th>
+            <th onclick='sortBy("proj_g")' data-col='proj_g'>G<span class='sort-icon'></span></th>
+            <th onclick='sortBy("proj_a")' data-col='proj_a'>A<span class='sort-icon'></span></th>
+            <th onclick='sortBy("proj_pts")' data-col='proj_pts'>PTS<span class='sort-icon'></span></th>
+            <th onclick='sortBy("proj_pm")' data-col='proj_pm'>+/-<span class='sort-icon'></span></th>
+            <th onclick='sortBy("tier")' data-col='tier'>Tier<span class='sort-icon'></span></th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody id='playerTbody'></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- TAB: BY TEAM -->
+  <div id='tab-byteam' class='tab-pane'>
+    <div id='teamGrid' class='team-grid'></div>
+  </div>
+
+  <!-- TAB: SLEEPERS -->
+  <div id='tab-sleepers' class='tab-pane'>
+    <div id='sleepersGrid' class='sleepers-grid'></div>
+  </div>
+
+  <div class='disclaimer'>
+    ⚠️ Projections are estimates based on prior seasons, line combos, and team context. Updated manually — last refreshed <span id='lastUpdated'></span>.
+    Not financial or gambling advice.
+  </div>
+</div>
+
+<script>
+let allPlayers = [];
+let sortCol = 'rank';
+let sortDir = 'asc';
+
+async function init() {
+  const res = await fetch('players.json?' + Date.now());
+  allPlayers = await res.json();
+
+  // Set last updated to today
+  document.getElementById('lastUpdated').textContent = new Date().toLocaleDateString('en-CA');
+
+  // Populate team filter
+  const teams = [...new Set(allPlayers.map(p => p.team))].sort();
+  const sel = document.getElementById('filterTeam');
+  teams.forEach(t => { const o = document.createElement('option'); o.value = t; o.textContent = t; sel.appendChild(o); });
+
+  renderAll();
+  renderByTeam();
+  renderSleepers();
+}
+
+// ── SORTING ──────────────────────────────────────────────
+function sortBy(col) {
+  if (sortCol === col) {
+    sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+  } else {
+    sortCol = col;
+    sortDir = col === 'rank' ? 'asc' : 'desc';
+  }
+  // Update header classes
+  document.querySelectorAll('thead th').forEach(th => {
+    th.classList.remove('sorted-asc', 'sorted-desc');
+    if (th.dataset.col === col) th.classList.add(sortDir === 'asc' ? 'sorted-asc' : 'sorted-desc');
+  });
+  renderAll();
+}
+
+function sorted(players) {
+  return [...players].sort((a, b) => {
+    let av = a[sortCol], bv = b[sortCol];
+    if (typeof av === 'string') av = av.toLowerCase();
+    if (typeof bv === 'string') bv = bv.toLowerCase();
+    if (av < bv) return sortDir === 'asc' ? -1 : 1;
+    if (av > bv) return sortDir === 'asc' ? 1 : -1;
+    return 0;
+  });
+}
+
+// ── FILTERS ─────────────────────────────────────────────
+function getFiltered() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const pos = document.getElementById('filterPos').value;
+  const tier = document.getElementById('filterTier').value;
+  const team = document.getElementById('filterTeam').value;
+  return allPlayers.filter(p => {
+    if (q && !p.name.toLowerCase().includes(q) && !p.team.toLowerCase().includes(q)) return false;
+    if (pos && p.pos !== pos) return false;
+    if (tier && p.tier !== tier) return false;
+    if (team && p.team !== team) return false;
+    return true;
+  });
+}
+
+function applyFilters() {
+  renderAll();
+}
+
+// ── RENDER TABLE ─────────────────────────────────────────
+function renderAll() {
+  const filtered = sorted(getFiltered());
+  const tbody = document.getElementById('playerTbody');
+  document.getElementById('resultsCount').textContent = filtered.length + ' players';
+
+  if (!filtered.length) {
+    tbody.innerHTML = '<tr><td colspan="12"><div class="empty-state"><div class="icon">🔍</div>No players match your filters.</div></td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(p => {
+    const pm = p.proj_pm >= 0 ? '+' + p.proj_pm : p.proj_pm;
+    const pmClass = p.proj_pm >= 0 ? 'stat-pm-pos' : 'stat-pm-neg';
+    return `<tr>
+      <td>${p.rank}</td>
+      <td><div class='player-name'>${p.name}</div></td>
+      <td><span class='team-tag'>${p.team}</span></td>
+      <td><span class='pos-tag pos-${p.pos}'>${p.pos}</span></td>
+      <td>${p.age}</td>
+      <td>${p.proj_gp}</td>
+      <td class='stat-g'>${p.proj_g}</td>
+      <td class='stat-a'>${p.proj_a}</td>
+      <td class='stat-pts'>${p.proj_pts}</td>
+      <td class='${pmClass}'>${pm}</td>
+      <td><span class='tier tier-${p.tier}'>${p.tier}</span></td>
+      <td class='notes-cell'>${p.notes || ''}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ── RENDER BY TEAM ────────────────────────────────────────
+function renderByTeam() {
+  const teams = {};
+  allPlayers.forEach(p => {
+    if (!teams[p.team]) teams[p.team] = [];
+    teams[p.team].push(p);
+  });
+  const sorted_teams = Object.keys(teams).sort();
+  const grid = document.getElementById('teamGrid');
+  grid.innerHTML = sorted_teams.map(team => {
+    const players = teams[team].sort((a, b) => b.proj_pts - a.proj_pts);
+    const rows = players.map(p => {
+      const pm = p.proj_pm >= 0 ? '+' + p.proj_pm : p.proj_pm;
+      const pmClass = p.proj_pm >= 0 ? 'stat-pm-pos' : 'stat-pm-neg';
+      return `<tr>
+        <td><span class='player-name' style='font-size:0.9em'>${p.name}</span></td>
+        <td><span class='pos-tag pos-${p.pos}'>${p.pos}</span></td>
+        <td class='stat-pts'>${p.proj_pts}</td>
+        <td class='stat-g'>${p.proj_g}</td>
+        <td class='stat-a'>${p.proj_a}</td>
+        <td class='${pmClass}'>${pm}</td>
+        <td><span class='tier tier-${p.tier}' style='font-size:0.72em'>${p.tier}</span></td>
+      </tr>`;
+    }).join('');
+    return `<div class='team-card'>
+      <div class='team-card-header'>
+        <span class='team-abbr'>${team}</span>
+        <span class='team-count'>${players.length} players</span>
+      </div>
+      <div style='overflow-x:auto'>
+        <table>
+          <thead><tr>
+            <th>Player</th><th>Pos</th><th>PTS</th><th>G</th><th>A</th><th>+/-</th><th>Tier</th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── RENDER SLEEPERS ───────────────────────────────────────
+function renderSleepers() {
+  const sleepers = allPlayers.filter(p => p.tier === 'Sleeper').sort((a, b) => b.proj_pts - a.proj_pts);
+  const grid = document.getElementById('sleepersGrid');
+  if (!sleepers.length) {
+    grid.innerHTML = '<div class="empty-state"><div class="icon">🌟</div>No sleepers in dataset yet.</div>';
+    return;
+  }
+  grid.innerHTML = sleepers.map((p, i) => {
+    const pm = p.proj_pm >= 0 ? '+' + p.proj_pm : p.proj_pm;
+    return `<div class='sleeper-card'>
+      <div class='sleeper-rank'>🌟 Sleeper Pick #${i + 1}</div>
+      <div class='sleeper-name'>${p.name}</div>
+      <div class='sleeper-meta'>${p.team} · ${p.pos} · Age ${p.age} · ${p.proj_gp} GP</div>
+      <div class='sleeper-stats'>
+        <div class='sleeper-stat'><div class='val'>${p.proj_pts}</div><div class='lbl'>PTS</div></div>
+        <div class='sleeper-stat'><div class='val stat-g'>${p.proj_g}</div><div class='lbl'>G</div></div>
+        <div class='sleeper-stat'><div class='val stat-a'>${p.proj_a}</div><div class='lbl'>A</div></div>
+        <div class='sleeper-stat'><div class='val ${p.proj_pm >= 0 ? 'stat-pm-pos' : 'stat-pm-neg'}'>${pm}</div><div class='lbl'>+/-</div></div>
+      </div>
+      <div class='sleeper-note'>"${p.notes}"</div>
+    </div>`;
+  }).join('');
+}
+
+// ── TABS ─────────────────────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.target.classList.add('active');
+}
+
+function toggleMobileMenu() {
+  document.getElementById('navLinks').classList.toggle('active');
+}
+
+// Default sort header
+document.querySelector('thead th[data-col="rank"]').classList.add('sorted-asc');
+
+init();
+</script>
+
+<!-- PASSWORD GATE (commented out — uncomment to enable paywall)
+<div id='pw-gate' style='display:none; position:fixed; inset:0; background:#0f172a; z-index:9999; display:flex; align-items:center; justify-content:center;'>
+  <div style='background:#1e293b; border:1px solid #334155; border-radius:16px; padding:40px; max-width:360px; width:90%; text-align:center;'>
+    <div style='font-size:2em; margin-bottom:12px;'>🔒</div>
+    <h2 style='color:#f1f5f9; margin-bottom:8px;'>Poolers Guide</h2>
+    <p style='color:#94a3b8; font-size:0.9em; margin-bottom:24px;'>Enter your access code to view 2026-27 projections.</p>
+    <input id='pw-input' type='password' placeholder='Access code…' style='width:100%; background:#0f172a; border:1px solid #334155; border-radius:8px; color:#e2e8f0; padding:10px 14px; font-size:1em; outline:none; margin-bottom:12px;'>
+    <div id='pw-error' style='color:#f87171; font-size:0.82em; margin-bottom:12px; display:none;'>Wrong code. Try again.</div>
+    <button onclick='checkPw()' style='width:100%; background:linear-gradient(135deg,#2c5aa0,#1e3a8a); color:white; border:none; border-radius:8px; padding:11px; font-weight:700; cursor:pointer; font-size:1em;'>Unlock →</button>
+  </div>
+</div>
+<script>
+const PW = 'your-password-here';
+const PW_KEY = 'poolers_guide_2027';
+if (sessionStorage.getItem(PW_KEY) !== PW) document.getElementById('pw-gate').style.display = 'flex';
+function checkPw() {
+  if (document.getElementById('pw-input').value === PW) {
+    sessionStorage.setItem(PW_KEY, PW);
+    document.getElementById('pw-gate').style.display = 'none';
+  } else {
+    document.getElementById('pw-error').style.display = 'block';
+  }
+}
+document.getElementById('pw-input').addEventListener('keydown', e => { if (e.key === 'Enter') checkPw(); });
+</script>
+-->
+
+</body>
+</html>
