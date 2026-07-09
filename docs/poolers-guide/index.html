@@ -162,9 +162,9 @@ tbody td:first-child { color: #64748b; font-size: 0.85em; font-weight: 600; }
 
   <!-- TABS -->
   <div class='tabs'>
-    <button class='tab-btn active' onclick='switchTab("all")'>All Players</button>
-    <button class='tab-btn' onclick='switchTab("byteam")'>By Team</button>
-    <button class='tab-btn' onclick='switchTab("sleepers")'>🌟 Sleepers</button>
+    <button class='tab-btn active' onclick='switchTab("all", this)'>All Players</button>
+    <button class='tab-btn' onclick='switchTab("byteam", this)'>By Team</button>
+    <button class='tab-btn' onclick='switchTab("sleepers", this)'>🌟 Sleepers</button>
   </div>
 
   <!-- TAB: ALL PLAYERS -->
@@ -398,11 +398,11 @@ function renderSleepers() {
 }
 
 // ── TABS ─────────────────────────────────────────────────
-function switchTab(name) {
+function switchTab(name, btn) {
   document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('tab-' + name).classList.add('active');
-  event.target.classList.add('active');
+  btn.classList.add('active');
 }
 
 function toggleMobileMenu() {
