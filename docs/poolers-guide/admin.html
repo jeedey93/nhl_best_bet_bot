@@ -301,17 +301,20 @@ async function saveAll() {
         headers: { ...HEADERS, 'Prefer': 'return=minimal' },
         body: JSON.stringify(data)
       });
-      if (!res.ok) throw new Error();
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.message || err.hint || res.status);
+      }
       row?.classList.remove('dirty');
       dirty.delete(id);
       const i = players.findIndex(p => p.id === id);
       if (i >= 0) players[i] = { ...players[i], ...data };
-    } catch { failed++; }
+    } catch (e) { failed++; console.error('Save failed for id', id, e.message); }
   }));
 
   btn.textContent = '💾 Save All';
   btn.disabled = dirty.size === 0;
-  if (failed) toast(`${failed} row(s) failed to save`, 'error');
+  if (failed) toast(`Save failed — check console for details`, 'error');
   else toast(`${ids.length} player${ids.length > 1 ? 's' : ''} saved ✓`, 'success');
 }
 

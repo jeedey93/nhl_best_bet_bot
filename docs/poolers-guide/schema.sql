@@ -23,7 +23,13 @@ create table if not exists poolers_players (
 
 -- Allow public read (for the guide page)
 alter table poolers_players enable row level security;
-create policy "Public read" on poolers_players for select using (true);
+create policy "Public read"   on poolers_players for select using (true);
+
+-- Allow public write (anon key used by admin page)
+-- If you want to restrict this, add an auth check instead of `true`
+create policy "Public insert" on poolers_players for insert with check (true);
+create policy "Public update" on poolers_players for update using (true);
+create policy "Public delete" on poolers_players for delete using (true);
 
 -- Seed data
 insert into poolers_players (rank,name,team,pos,age,aav,pp_pct,last_gp,last_g,last_a,last_pts,proj_gp,proj_g,proj_a,proj_pts,tier,notes) values
