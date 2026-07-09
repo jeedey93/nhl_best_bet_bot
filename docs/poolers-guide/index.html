@@ -314,9 +314,13 @@ let allPlayers = [];
 let sortCol = 'rank';
 let sortDir = 'asc';
 
+const SUPABASE_URL = 'https://fifurqlitkywtmhgtzeu.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZpZnVycWxpdGt5d3RtaGd0emV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3MDIyMjQsImV4cCI6MjA5MjI3ODIyNH0.KPVPj1qwbSJJMyLR_-AhDcRs0vi2sUU6qbFQ-kH53C0';
+const SB_HEADERS = { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` };
+
 // ── INIT ─────────────────────────────────────────────────
 async function init() {
-  const res = await fetch('/poolers-guide/players.json?' + Date.now());
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/poolers_players?order=rank.asc&select=*`, { headers: SB_HEADERS });
   allPlayers = await res.json();
   document.getElementById('lastUpdated').textContent = new Date().toLocaleDateString('en-CA');
   const teams = [...new Set(allPlayers.map(p => p.team))].sort();
