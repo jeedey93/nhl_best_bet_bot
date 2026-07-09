@@ -65,7 +65,9 @@ tbody td { padding: 5px 6px; vertical-align: middle; }
 .ci.w { width: 170px; }
 .ci.m { width: 100px; }
 /* Read-only cells (last year stats) */
-.ro { color: #475569; font-size: 0.88em; text-align: right; padding: 3px 4px; display: block; width: 52px; }
+.ro { color: #334155; font-size: 0.8em; text-align: right; padding: 2px 4px; display: block; white-space: nowrap; }
+tbody tr.dirty { background: rgba(96,165,250,0.06); }
+tbody tr.dirty td:first-child { border-left: 3px solid #3b82f6; }
 
 .cs { background: #1e293b; border: 1px solid #334155; border-radius: 6px; color: #e2e8f0; padding: 3px 6px; font-size: 0.85em; outline: none; cursor: pointer; }
 .cs:focus { border-color: #60a5fa; }
@@ -114,13 +116,17 @@ tbody td { padding: 5px 6px; vertical-align: middle; }
     <h1>📋 Poolers Guide Editor <span class='badge'>2026-27</span></h1>
     <div class='header-actions'>
       <button class='btn btn-ghost' onclick='addPlayer()'>+ Add Player</button>
+      <button class='btn btn-green' id='saveAllBtn' onclick='saveAll()' disabled>💾 Save All</button>
     </div>
   </div>
 
   <div class='toolbar'>
     <div class='search-wrap'>
-      <input type='text' id='searchInput' placeholder='Filter players…' oninput='renderTable()'>
+      <input type='text' id='searchInput' placeholder='Filter by name…' oninput='renderTable()'>
     </div>
+    <select id='filterTeam' onchange='renderTable()' style='background:#1e293b;border:1px solid #334155;border-radius:8px;color:#e2e8f0;padding:8px 10px;font-size:0.88em;outline:none;cursor:pointer;'>
+      <option value=''>All Teams</option>
+    </select>
     <span class='status-msg' id='statusMsg'>Loading…</span>
   </div>
 
@@ -164,6 +170,7 @@ const HEADERS   = { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Cont
 const TABLE     = `${SB_URL}/rest/v1/poolers_players`;
 
 let players = [];
+let dirty = new Set(); // ids of modified rows
 
 // ── AUTH ────────────────────────────────────────────────
 function checkPw() {
@@ -192,6 +199,10 @@ async function loadPlayers() {
     if (!res.ok) throw new Error(await res.text());
     players = await res.json();
     setStatus(`${players.length} players`);
+    // Populate team filter
+    const teams = [...new Set(players.map(p => p.team))].sort();
+    const sel = document.getElementById('filterTeam');
+    teams.forEach(t => { const o = document.createElement('option'); o.value = t; o.textContent = t; sel.appendChild(o); });
     renderTable();
   } catch (e) {
     setStatus('Load failed');
@@ -201,87 +212,94 @@ async function loadPlayers() {
 
 // ── RENDER ────────────────────────────────────────────────
 const TIERS = ['Elite','Top','Mid','Sleeper'];
-const POS   = ['C','LW','RW','D','G'];
+
+function markDirty(id) {
+  dirty.add(id);
+  document.getElementById(`row-${id}`)?.classList.add('dirty');
+  document.getElementById('saveAllBtn').disabled = false;
+}
 
 function renderTable() {
-  const q = document.getElementById('searchInput').value.toLowerCase();
-  const visible = players.filter(p => !q || p.name.toLowerCase().includes(q) || (p.team||'').toLowerCase().includes(q));
+  const q    = document.getElementById('searchInput').value.toLowerCase();
+  const team = document.getElementById('filterTeam').value;
+  const visible = players.filter(p =>
+    (!q    || p.name.toLowerCase().includes(q)) &&
+    (!team || p.team === team)
+  );
   document.getElementById('tbody').innerHTML = visible.map(p => rowHTML(p)).join('');
+  setStatus(`${visible.length} of ${players.length} players${dirty.size ? ` · ${dirty.size} unsaved` : ''}`);
 }
 
 function rowHTML(p) {
   const id = p.id;
   const ro = v => `<span class='ro'>${v ?? '—'}</span>`;
   return `<tr id='row-${id}'>
-    <td><input class='ci n' id='${id}-rank' type='number' value='${p.rank}'></td>
-    <td><input class='ci w' id='${id}-name' type='text' value='${esc(p.name)}'></td>
-    <td><input class='ci s' id='${id}-team' type='text' value='${esc(p.team)}' style='width:48px'></td>
-    <td><select class='cs' id='${id}-pos'>${POS.map(v=>`<option${p.pos===v?' selected':''}>${v}</option>`).join('')}</select></td>
-    <td><input class='ci n' id='${id}-age' type='number' value='${p.age??''}'></td>
-    <td><input class='ci n' id='${id}-aav' type='number' step='0.01' value='${p.aav??''}'></td>
+    <td>${ro(p.rank)}</td>
+    <td><input class='ci w' id='${id}-name' type='text' value='${esc(p.name)}' oninput='markDirty(${id})'></td>
+    <td>${ro(p.team)}</td>
+    <td>${ro(p.pos)}</td>
+    <td>${ro(p.age)}</td>
+    <td>${ro(p.aav ? '$'+p.aav+'M' : '—')}</td>
     <td>${ro(p.last_gp)}</td>
     <td>${ro(p.last_g)}</td>
     <td>${ro(p.last_a)}</td>
     <td>${ro(p.last_pts)}</td>
-    <td>${ro(p.pp_pct)}</td>
-    <td><input class='ci n' id='${id}-proj_gp' type='number' value='${p.proj_gp??''}'></td>
-    <td><input class='ci n' id='${id}-proj_g'  type='number' value='${p.proj_g??''}'></td>
-    <td><input class='ci n' id='${id}-proj_a'  type='number' value='${p.proj_a??''}'></td>
-    <td><input class='ci n' id='${id}-proj_pts' type='number' value='${p.proj_pts??''}'></td>
-    <td><select class='cs' id='${id}-tier'>${TIERS.map(v=>`<option${p.tier===v?' selected':''}>${v}</option>`).join('')}</select></td>
-    <td><input class='ci w' id='${id}-notes' type='text' value='${esc(p.notes||'')}' style='width:200px'></td>
-    <td><div class='row-actions'>
-      <button class='save-row-btn' onclick='saveRow(${id})'>💾 Save</button>
-      <button class='del-row-btn'  onclick='deleteRow(${id})'>✕</button>
-    </div></td>
+    <td>${ro(p.pp_pct != null ? p.pp_pct+'%' : '—')}</td>
+    <td>${ro(p.proj_gp)}</td>
+    <td><input class='ci n' id='${id}-proj_g'   type='number' value='${p.proj_g??''}' oninput='markDirty(${id})'></td>
+    <td><input class='ci n' id='${id}-proj_a'   type='number' value='${p.proj_a??''}' oninput='markDirty(${id})'></td>
+    <td><input class='ci n' id='${id}-proj_pts' type='number' value='${p.proj_pts??''}' oninput='markDirty(${id})'></td>
+    <td><select class='cs' id='${id}-tier' onchange='markDirty(${id})'>${TIERS.map(v=>`<option${p.tier===v?' selected':''}>${v}</option>`).join('')}</select></td>
+    <td><input class='ci w' id='${id}-notes' type='text' value='${esc(p.notes||'')}' style='width:220px' oninput='markDirty(${id})'></td>
+    <td><button class='del-row-btn' onclick='deleteRow(${id})'>✕</button></td>
   </tr>`;
 }
 
 function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 
-// ── READ ROW FROM DOM ─────────────────────────────────────
-function readRow(id) {
-  const num = (f, isFloat) => {
-    const v = document.getElementById(`${id}-${f}`)?.value;
-    if (v === '' || v == null) return null;
-    return isFloat ? parseFloat(v) : parseInt(v);
-  };
-  return {
-    rank:     num('rank'),
-    name:     document.getElementById(`${id}-name`)?.value?.trim(),
-    team:     document.getElementById(`${id}-team`)?.value?.trim().toUpperCase(),
-    pos:      document.getElementById(`${id}-pos`)?.value,
-    age:      num('age'),
-    aav:      num('aav', true),
-    proj_gp:  num('proj_gp'),
-    proj_g:   num('proj_g'),
-    proj_a:   num('proj_a'),
-    proj_pts: num('proj_pts'),
-    tier:     document.getElementById(`${id}-tier`)?.value,
-    notes:    document.getElementById(`${id}-notes`)?.value?.trim(),
-  };
-}
+// ── SAVE ALL ──────────────────────────────────────────────
+async function saveAll() {
+  if (!dirty.size) return;
+  const btn = document.getElementById('saveAllBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Saving…';
 
-// ── SAVE ROW ─────────────────────────────────────────────
-async function saveRow(id) {
-  const row = document.getElementById(`row-${id}`);
-  row.classList.add('saving');
-  const data = readRow(id);
-  try {
-    const res = await fetch(`${TABLE}?id=eq.${id}`, {
-      method: 'PATCH',
-      headers: { ...HEADERS, 'Prefer': 'return=representation' },
-      body: JSON.stringify(data)
-    });
-    if (!res.ok) throw new Error(await res.text());
-    // Update local cache
-    const i = players.findIndex(p => p.id === id);
-    if (i >= 0) players[i] = { ...players[i], ...data };
-    toast(`${data.name} saved ✓`, 'success');
-  } catch (e) {
-    toast('Save failed: ' + e.message, 'error');
-  }
-  row.classList.remove('saving');
+  const ids = [...dirty];
+  let failed = 0;
+
+  await Promise.all(ids.map(async id => {
+    const row = document.getElementById(`row-${id}`);
+    const num = (f, isFloat) => {
+      const v = document.getElementById(`${id}-${f}`)?.value;
+      if (v === '' || v == null) return null;
+      return isFloat ? parseFloat(v) : parseInt(v);
+    };
+    const data = {
+      name:     document.getElementById(`${id}-name`)?.value?.trim(),
+      proj_g:   num('proj_g'),
+      proj_a:   num('proj_a'),
+      proj_pts: num('proj_pts'),
+      tier:     document.getElementById(`${id}-tier`)?.value,
+      notes:    document.getElementById(`${id}-notes`)?.value?.trim(),
+    };
+    try {
+      const res = await fetch(`${TABLE}?id=eq.${id}`, {
+        method: 'PATCH',
+        headers: { ...HEADERS, 'Prefer': 'return=minimal' },
+        body: JSON.stringify(data)
+      });
+      if (!res.ok) throw new Error();
+      row?.classList.remove('dirty');
+      dirty.delete(id);
+      const i = players.findIndex(p => p.id === id);
+      if (i >= 0) players[i] = { ...players[i], ...data };
+    } catch { failed++; }
+  }));
+
+  btn.textContent = '💾 Save All';
+  btn.disabled = dirty.size === 0;
+  if (failed) toast(`${failed} row(s) failed to save`, 'error');
+  else toast(`${ids.length} player${ids.length > 1 ? 's' : ''} saved ✓`, 'success');
 }
 
 // ── ADD PLAYER ────────────────────────────────────────────
@@ -298,10 +316,9 @@ async function addPlayer() {
     const [created] = await res.json();
     players.push(created);
     renderTable();
-    // Scroll to the new row
     const newRow = document.getElementById(`row-${created.id}`);
     if (newRow) { newRow.scrollIntoView({ behavior: 'smooth', block: 'center' }); newRow.querySelector('input').focus(); }
-    toast('Player added', 'success');
+    toast('Player added — edit and hit Save All', 'success');
   } catch (e) {
     toast('Add failed: ' + e.message, 'error');
   }
