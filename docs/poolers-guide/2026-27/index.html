@@ -182,8 +182,34 @@ td.col-proj-last  { border-right: 2px solid #bbf7d0 !important; }
 .empty-state { text-align: center; padding: 60px 20px; color: #64748b; }
 .empty-state .icon { font-size: 2.5em; margin-bottom: 12px; }
 
-/* ── MOBILE ── */
+/* ── MOBILE CARDS (replaces table on small screens) ── */
+.card-list { display: none; flex-direction: column; gap: 10px; }
+.player-card { background: white; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 1px 4px rgba(0,0,0,0.06); overflow: hidden; }
+.player-card.tier-Elite   { border-left: 4px solid #f59e0b; }
+.player-card.tier-Top     { border-left: 4px solid #3b82f6; }
+.player-card.tier-Mid     { border-left: 4px solid #e2e8f0; }
+.player-card.tier-Sleeper { border-left: 4px solid #34d399; }
+.card-header { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-bottom: 1px solid #f1f5f9; }
+.card-rank   { color: #94a3b8; font-size: 0.8em; font-weight: 700; min-width: 22px; }
+.card-name   { font-weight: 800; color: #1e293b; font-size: 0.95em; flex: 1; }
+.card-badges { display: flex; gap: 5px; align-items: center; margin-left: auto; flex-shrink: 0; }
+.card-body   { padding: 10px 14px; display: flex; flex-direction: column; gap: 8px; }
+.card-note   { color: #94a3b8; font-size: 0.75em; font-style: italic; }
+.card-stats  { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.card-stat-group { background: #f8fafc; border-radius: 8px; padding: 8px 10px; }
+.card-stat-label { font-size: 0.65em; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 5px; }
+.card-stat-label.last { color: #1d4ed8; }
+.card-stat-label.proj { color: #15803d; }
+.card-stat-row { display: flex; gap: 12px; }
+.card-stat-item { text-align: center; }
+.card-stat-item .v { font-size: 1.05em; font-weight: 800; }
+.card-stat-item .l { font-size: 0.62em; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; }
+.card-footer { display: flex; align-items: center; gap: 8px; padding: 8px 14px; background: #fafafa; border-top: 1px solid #f1f5f9; flex-wrap: wrap; }
+
 @media (max-width: 768px) {
+  .table-wrap { display: none; }
+  .card-list  { display: flex; }
+}
   .page-wrap { padding: 70px 10px 40px; }
   /* hero */
   .page-header { padding: 20px 16px; border-radius: 10px; }
@@ -330,6 +356,7 @@ td.col-proj-last  { border-right: 2px solid #bbf7d0 !important; }
         <tbody id='playerTbody'></tbody>
       </table>
     </div>
+    <div class='card-list' id='playerCards'></div>
   </div>
 
   <!-- TAB: BY TEAM -->
@@ -602,6 +629,70 @@ function renderAll() {
   }).join('');
 
   applyColVis();
+  renderCards(filtered);
+}
+
+// ── RENDER MOBILE CARDS ───────────────────────────────────
+function renderCards(filtered) {
+  const container = document.getElementById('playerCards');
+  if (!container) return;
+  if (!filtered.length) {
+    container.innerHTML = '<div class="empty-state"><div class="icon">🔍</div>No players match your filters.</div>';
+    return;
+  }
+  container.innerHTML = filtered.map(p => {
+    const trend    = getTrend(p);
+    const diff     = p.proj_pts - (p.last_pts || p.proj_pts);
+    const diffStr  = diff > 0 ? '+' + diff : '' + diff;
+    const trendLbl = trend === 'up' ? `↑ ${diffStr}` : trend === 'down' ? `↓ ${diffStr}` : `→ ${diffStr}`;
+    const pv       = getPV(p);
+    const pc       = pvClass(pv);
+    const aav      = p.aav ? `$${p.aav}M` : '—';
+    return `<div class='player-card tier-${p.tier}'>
+      <div class='card-header'>
+        <span class='card-rank'>${p.rank}</span>
+        <div>
+          <div class='card-name'>${p.name}</div>
+          ${p.notes ? `<div class='card-note'>${p.notes}</div>` : ''}
+        </div>
+        <div class='card-badges'>
+          <span class='team-tag'>${p.team}</span>
+          <span class='pos-tag pos-${p.pos}'>${p.pos}</span>
+        </div>
+      </div>
+      <div class='card-body'>
+        <div class='card-stats'>
+          <div class='card-stat-group'>
+            <div class='card-stat-label last'>📅 2025-26</div>
+            <div class='card-stat-row'>
+              <div class='card-stat-item'><div class='v last-pts'>${p.last_pts ?? '—'}</div><div class='l'>PTS</div></div>
+              <div class='card-stat-item'><div class='v last-stat'>${p.last_g ?? '—'}</div><div class='l'>G</div></div>
+              <div class='card-stat-item'><div class='v last-stat'>${p.last_a ?? '—'}</div><div class='l'>A</div></div>
+              <div class='card-stat-item'><div class='v ppg-last'>${ppg(p.last_pts, p.last_gp)}</div><div class='l'>PPG</div></div>
+            </div>
+          </div>
+          <div class='card-stat-group'>
+            <div class='card-stat-label proj'>🎯 2026-27</div>
+            <div class='card-stat-row'>
+              <div class='card-stat-item'><div class='v proj-pts'>${p.proj_pts ?? '—'}</div><div class='l'>PTS</div></div>
+              <div class='card-stat-item'><div class='v proj-stat'>${p.proj_g ?? '—'}</div><div class='l'>G</div></div>
+              <div class='card-stat-item'><div class='v proj-stat'>${p.proj_a ?? '—'}</div><div class='l'>A</div></div>
+              <div class='card-stat-item'><div class='v ppg-proj'>${ppg(p.proj_pts, p.proj_gp)}</div><div class='l'>PPG</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class='card-footer'>
+        <span class='tier tier-${p.tier}'>${p.tier}</span>
+        <span class='trend trend-${trend}'>${trendLbl}</span>
+        <div class='pv-bar ${pc}' style='flex:1;min-width:60px' onmouseenter='showTooltip(this,"Pool Value: ${pv}/100")' onmouseleave='hideTooltip()'>
+          <span class='pv-num'>${pv}</span>
+          <div class='pv-track'><div class='pv-fill' style='width:${pv}%'></div></div>
+        </div>
+        <span class='salary'>${aav}</span>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 // ── RENDER BY TEAM ────────────────────────────────────────
