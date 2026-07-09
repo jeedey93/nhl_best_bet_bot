@@ -64,8 +64,10 @@ tbody td { padding: 5px 6px; vertical-align: middle; }
 .ci.n { text-align: right; width: 52px; }
 .ci.w { width: 170px; }
 .ci.m { width: 100px; }
-/* Read-only cells (last year stats) */
-.ro { color: #334155; font-size: 0.8em; text-align: right; padding: 2px 4px; display: block; white-space: nowrap; }
+/* Read-only cells */
+.ro { color: #2d3f55; font-size: 0.75em; padding: 0 4px; white-space: nowrap; }
+thead th.ro-col { color: #2d3f55; font-size: 0.7em; padding: 10px 5px; }
+tbody td.ro-td  { padding: 5px 4px; }
 tbody tr.dirty { background: rgba(96,165,250,0.06); }
 tbody tr.dirty td:first-child { border-left: 3px solid #3b82f6; }
 
@@ -76,13 +78,6 @@ tbody tr.dirty td:first-child { border-left: 3px solid #3b82f6; }
 .sl { font-size: 0.68em; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; padding: 2px 6px; border-radius: 3px; display: inline-block; margin-bottom: 2px; }
 .sl-last { background: rgba(30,74,122,0.4); color: #93c5fd; }
 .sl-proj { background: rgba(22,101,52,0.4); color: #4ade80; }
-
-/* Save indicator per row */
-.save-row-btn { background: none; border: 1px solid #334155; border-radius: 5px; color: #64748b; padding: 3px 8px; cursor: pointer; font-size: 0.78em; transition: all 0.15s; white-space: nowrap; }
-.save-row-btn:hover { color: #4ade80; border-color: #4ade80; }
-.del-row-btn { background: none; border: 1px solid #334155; border-radius: 5px; color: #64748b; padding: 3px 7px; cursor: pointer; font-size: 0.78em; transition: all 0.15s; }
-.del-row-btn:hover { color: #f87171; border-color: #f87171; }
-.row-actions { display: flex; gap: 4px; }
 
 /* Toast */
 #toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(80px); background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 10px 20px; font-size: 0.88em; font-weight: 600; color: white; box-shadow: 0 4px 20px rgba(0,0,0,0.4); transition: transform 0.3s; pointer-events: none; z-index: 9999; white-space: nowrap; }
@@ -134,24 +129,21 @@ tbody tr.dirty td:first-child { border-left: 3px solid #3b82f6; }
     <table>
       <thead>
         <tr>
-          <th>Rank</th>
+          <th class='ro-col'>#</th>
           <th>Name</th>
-          <th>Team</th>
-          <th>Pos</th>
-          <th>Age</th>
-          <th>AAV ($M)</th>
-          <th><span class='sl sl-last'>25-26</span> GP</th>
-          <th><span class='sl sl-last'>25-26</span> G</th>
-          <th><span class='sl sl-last'>25-26</span> A</th>
-          <th><span class='sl sl-last'>25-26</span> PTS</th>
-          <th><span class='sl sl-last'>25-26</span> PP%</th>
-          <th><span class='sl sl-proj'>Proj</span> GP</th>
+          <th class='ro-col'>Team</th>
+          <th class='ro-col'>Pos</th>
+          <th class='ro-col'>Age</th>
+          <th class='ro-col'>AAV</th>
+          <th class='ro-col'><span class='sl sl-last'>25-26</span> G</th>
+          <th class='ro-col'><span class='sl sl-last'>25-26</span> A</th>
+          <th class='ro-col'><span class='sl sl-last'>25-26</span> PTS</th>
+          <th class='ro-col'><span class='sl sl-last'>25-26</span> PP%</th>
           <th><span class='sl sl-proj'>Proj</span> G</th>
           <th><span class='sl sl-proj'>Proj</span> A</th>
           <th><span class='sl sl-proj'>Proj</span> PTS</th>
           <th>Tier</th>
           <th>Notes</th>
-          <th>Actions</th>
         </tr>
       </thead>
       <tbody id='tbody'></tbody>
@@ -234,24 +226,21 @@ function rowHTML(p) {
   const id = p.id;
   const ro = v => `<span class='ro'>${v ?? '—'}</span>`;
   return `<tr id='row-${id}'>
-    <td>${ro(p.rank)}</td>
+    <td class='ro-td'>${ro(p.rank)}</td>
     <td><input class='ci w' id='${id}-name' type='text' value='${esc(p.name)}' oninput='markDirty(${id})'></td>
-    <td>${ro(p.team)}</td>
-    <td>${ro(p.pos)}</td>
-    <td>${ro(p.age)}</td>
-    <td>${ro(p.aav ? '$'+p.aav+'M' : '—')}</td>
-    <td>${ro(p.last_gp)}</td>
-    <td>${ro(p.last_g)}</td>
-    <td>${ro(p.last_a)}</td>
-    <td>${ro(p.last_pts)}</td>
-    <td>${ro(p.pp_pct != null ? p.pp_pct+'%' : '—')}</td>
-    <td>${ro(p.proj_gp)}</td>
+    <td class='ro-td'>${ro(p.team)}</td>
+    <td class='ro-td'>${ro(p.pos)}</td>
+    <td class='ro-td'>${ro(p.age)}</td>
+    <td class='ro-td'>${ro(p.aav ? '$'+p.aav+'M' : '—')}</td>
+    <td class='ro-td'>${ro(p.last_g)}</td>
+    <td class='ro-td'>${ro(p.last_a)}</td>
+    <td class='ro-td'>${ro(p.last_pts)}</td>
+    <td class='ro-td'>${ro(p.pp_pct != null ? p.pp_pct+'%' : '—')}</td>
     <td><input class='ci n' id='${id}-proj_g'   type='number' value='${p.proj_g??''}' oninput='markDirty(${id})'></td>
     <td><input class='ci n' id='${id}-proj_a'   type='number' value='${p.proj_a??''}' oninput='markDirty(${id})'></td>
     <td><input class='ci n' id='${id}-proj_pts' type='number' value='${p.proj_pts??''}' oninput='markDirty(${id})'></td>
     <td><select class='cs' id='${id}-tier' onchange='markDirty(${id})'>${TIERS.map(v=>`<option${p.tier===v?' selected':''}>${v}</option>`).join('')}</select></td>
-    <td><input class='ci w' id='${id}-notes' type='text' value='${esc(p.notes||'')}' style='width:220px' oninput='markDirty(${id})'></td>
-    <td><button class='del-row-btn' onclick='deleteRow(${id})'>✕</button></td>
+    <td><input class='ci w' id='${id}-notes' type='text' value='${esc(p.notes||'')}' style='width:240px' oninput='markDirty(${id})'></td>
   </tr>`;
 }
 
@@ -325,20 +314,6 @@ async function addPlayer() {
 }
 
 // ── DELETE ROW ────────────────────────────────────────────
-async function deleteRow(id) {
-  const p = players.find(p => p.id === id);
-  if (!confirm(`Delete "${p?.name}"?`)) return;
-  try {
-    const res = await fetch(`${TABLE}?id=eq.${id}`, { method: 'DELETE', headers: HEADERS });
-    if (!res.ok) throw new Error(await res.text());
-    players = players.filter(p => p.id !== id);
-    document.getElementById(`row-${id}`)?.remove();
-    setStatus(`${players.length} players`);
-    toast('Deleted', 'success');
-  } catch (e) {
-    toast('Delete failed: ' + e.message, 'error');
-  }
-}
 
 // ── HELPERS ──────────────────────────────────────────────
 function setStatus(msg) { document.getElementById('statusMsg').textContent = msg; }
