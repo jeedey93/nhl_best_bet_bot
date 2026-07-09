@@ -126,13 +126,11 @@ td.col-proj-last  { border-right: 2px solid #166534 !important; }
 .trend-flat { background: #1e2a3a; color: #94a3b8; border: 1px solid #334155; }
 
 /* Notes (from JSON) tooltip trigger */
-.scout-note { color: #64748b; font-size: 0.78em; font-style: italic; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: default; margin-top: 2px; }
+/* Notes display */
+.notes-display { color: #64748b; font-size: 0.78em; font-style: italic; margin-top: 3px; line-height: 1.4; max-width: 220px; }
 
-/* User comment cell */
-.comment-cell { min-width: 160px; }
-.comment-input { background: transparent; border: none; border-bottom: 1px dashed #334155; color: #94a3b8; font-size: 0.82em; font-style: italic; width: 100%; outline: none; padding: 2px 4px; transition: border-color 0.2s, color 0.2s; }
-.comment-input:focus { border-bottom-color: #60a5fa; color: #e2e8f0; background: rgba(96,165,250,0.05); }
-.comment-input::placeholder { color: #334155; }
+/* Notes display */
+.notes-display { color: #64748b; font-size: 0.78em; font-style: italic; margin-top: 3px; line-height: 1.4; max-width: 220px; }
 
 /* Tooltip */
 .tooltip { position: fixed; z-index: 9000; background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 8px 12px; font-size: 0.82em; font-style: italic; color: #cbd5e1; max-width: 260px; pointer-events: none; box-shadow: 0 4px 16px rgba(0,0,0,0.4); line-height: 1.4; }
@@ -198,7 +196,7 @@ td.col-proj-last  { border-right: 2px solid #166534 !important; }
   tbody td { padding: 3px 5px !important; color: #111 !important; border-bottom: 1px solid #e0e0e0 !important; }
   tbody tr:nth-child(even) td { background: #f8f8f8 !important; }
   .player-name { color: #000 !important; }
-  .scout-note  { color: #555 !important; font-size: 6.5pt !important; }
+  .notes-display  { color: #555 !important; font-size: 6.5pt !important; }
   .team-tag    { background: #e5e7eb !important; color: #1e3a5f !important; }
   .pos-tag     { background: #e5e7eb !important; color: #333 !important; }
   .tier        { background: #e5e7eb !important; color: #333 !important; border: none !important; }
@@ -207,7 +205,6 @@ td.col-proj-last  { border-right: 2px solid #166534 !important; }
   .pv-num      { color: #000 !important; }
   .pv-track    { display: none; }
   .sort-icon   { display: none; }
-  .comment-input { border-bottom: 1px solid #ccc !important; color: #333 !important; }
 }
 </style>
 </head>
@@ -280,7 +277,6 @@ td.col-proj-last  { border-right: 2px solid #166534 !important; }
           <label><input type='checkbox' id='col-tier' checked onchange='applyColVis()'> Tier</label>
           <label><input type='checkbox' id='col-trend' checked onchange='applyColVis()'> Trend</label>
           <label><input type='checkbox' id='col-value' checked onchange='applyColVis()'> Pool Value</label>
-          <label><input type='checkbox' id='col-comment' checked onchange='applyColVis()'> 📝 My Notes</label>
         </div>
       </div>
       <button class='ctrl-btn' onclick='window.print()'>🖨 Print</button>
@@ -317,7 +313,6 @@ td.col-proj-last  { border-right: 2px solid #166534 !important; }
 let allPlayers = [];
 let sortCol = 'rank';
 let sortDir = 'asc';
-const COMMENT_KEY = 'poolers_comments_2627';
 
 // ── INIT ─────────────────────────────────────────────────
 async function init() {
@@ -362,15 +357,6 @@ function getTrend(p) {
 // ── PPG ───────────────────────────────────────────────────
 function ppg(pts, gp) { return gp > 0 ? (pts / gp).toFixed(2) : '—'; }
 
-// ── COMMENTS (localStorage) ───────────────────────────────
-function getComments() {
-  try { return JSON.parse(localStorage.getItem(COMMENT_KEY)) || {}; } catch { return {}; }
-}
-function saveComment(name, val) {
-  const c = getComments(); c[name] = val;
-  localStorage.setItem(COMMENT_KEY, JSON.stringify(c));
-}
-
 // ── TOOLTIP ───────────────────────────────────────────────
 const _tt = document.getElementById('tooltip');
 function showTooltip(el, text) {
@@ -394,7 +380,6 @@ const COL_GROUPS = {
   'col-tier':    ['cg-tier'],
   'col-trend':   ['cg-trend'],
   'col-value':   ['cg-value'],
-  'col-comment': ['cg-comment'],
 };
 
 function applyColVis() {
@@ -511,7 +496,6 @@ function renderHeader() {
     <th onclick='sortBy("tier")'    data-col='tier'     class='cg-tier'>Tier<span class='sort-icon'></span></th>
     <th onclick='sortBy("_trend")'  data-col='_trend'   class='cg-trend'>Trend<span class='sort-icon'></span></th>
     <th onclick='sortBy("_pv")'     data-col='_pv'      class='cg-value'>Value<span class='sort-icon'></span></th>
-    <th class='cg-comment'>📝 Notes</th>
   </tr>`;
   // Set initial sort indicator
   document.querySelector('thead th[data-col="rank"]').classList.add('sorted-asc');
@@ -522,7 +506,6 @@ function renderAll() {
   const filtered = sorted(getFiltered());
   const tbody = document.getElementById('playerTbody');
   document.getElementById('resultsCount').textContent = filtered.length + ' players';
-  const comments = getComments();
 
   if (!filtered.length) {
     tbody.innerHTML = '<tr><td colspan="21"><div class="empty-state"><div class="icon">🔍</div>No players match your filters.</div></td></tr>';
@@ -539,13 +522,12 @@ function renderAll() {
     const noteEsc  = (p.notes || '').replace(/'/g, '&#39;').replace(/"/g, '&quot;');
     const aav      = p.aav ? `$${p.aav}M` : '—';
     const ppPct    = p.pp_pct != null ? p.pp_pct + '%' : '—';
-    const comment  = (comments[p.name] || '').replace(/"/g, '&quot;');
 
     return `<tr>
       <td>${p.rank}</td>
       <td>
         <div class='player-name'>${p.name}</div>
-        ${noteEsc ? `<div class='scout-note' onmouseenter='showTooltip(this,"${noteEsc}")' onmouseleave='hideTooltip()'>${noteEsc}</div>` : ''}
+        ${noteEsc ? `<div class='notes-display'>${noteEsc}</div>` : ''}
       </td>
       <td><span class='team-tag'>${p.team}</span></td>
       <td><span class='pos-tag pos-${p.pos}'>${p.pos}</span></td>
@@ -570,11 +552,6 @@ function renderAll() {
       <td class='cg-value'><div class='pv-bar ${pc}' onmouseenter='showTooltip(this,"Pool Value: ${pv}/100 — pts/GP rate + durability + tier bonus")' onmouseleave='hideTooltip()'>
         <span class='pv-num'>${pv}</span><div class='pv-track'><div class='pv-fill' style='width:${pv}%'></div></div>
       </div></td>
-      <td class='comment-cell cg-comment'>
-        <input class='comment-input' type='text' placeholder='Add a note…' value="${comment}"
-          onchange='saveComment("${p.name.replace(/"/g,'&quot;')}", this.value)'
-          onclick='event.stopPropagation()'>
-      </td>
     </tr>`;
   }).join('');
 
@@ -634,8 +611,7 @@ function switchTab(name, btn) {
 
 // ── CSV EXPORT ────────────────────────────────────────────
 function downloadCSV() {
-  const comments = getComments();
-  const headers = ['Rank','Player','Team','Pos','Age','Last GP','Last G','Last A','Last PTS','Last PPG','Proj GP','Proj G','Proj A','Proj PTS','Proj PPG','AAV','PP%','Tier','Trend','Pool Value','My Notes'];
+  const headers = ['Rank','Player','Team','Pos','Age','Last GP','Last G','Last A','Last PTS','Last PPG','Proj GP','Proj G','Proj A','Proj PTS','Proj PPG','AAV','PP%','Tier','Trend','Pool Value','Notes'];
   const rows = sorted(getFiltered()).map(p => {
     const trend = getTrend(p);
     const diff  = p.proj_pts - (p.last_pts || p.proj_pts);
@@ -643,7 +619,7 @@ function downloadCSV() {
       p.last_gp??'', p.last_g??'', p.last_a??'', p.last_pts??'', ppg(p.last_pts, p.last_gp),
       p.proj_gp, p.proj_g, p.proj_a, p.proj_pts, ppg(p.proj_pts, p.proj_gp),
       p.aav ? '$'+p.aav+'M' : '', p.pp_pct != null ? p.pp_pct+'%' : '',
-      p.tier, (trend==='up'?'+':'')+diff, getPV(p), comments[p.name]||''];
+      p.tier, (trend==='up'?'+':'')+diff, getPV(p), p.notes||''];
   });
   const csv = [headers, ...rows].map(r => r.map(v => `"${v}"`).join(',')).join('\n');
   const a = document.createElement('a');
