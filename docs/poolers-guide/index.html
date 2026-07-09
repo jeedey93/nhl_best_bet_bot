@@ -99,6 +99,21 @@ tbody td:first-child { color: #64748b; font-size: 0.85em; font-weight: 600; }
 .stat-pm-pos { color: #4ade80; }
 .stat-pm-neg { color: #f87171; }
 
+/* Last year vs projection group headers */
+.col-group-last { background: #1a2535 !important; }
+.col-group-proj { background: #1a2a1a !important; }
+thead tr.group-row th { font-size: 0.72em; text-align: center; padding: 5px 8px; letter-spacing: 0.8px; border-bottom: none; cursor: default; }
+thead tr.group-row th:hover { color: #94a3b8; }
+thead tr.col-row th { border-top: none; }
+.last-stat { color: #94a3b8; }
+.last-pts  { color: #cbd5e1; font-weight: 700; }
+
+/* Trend badge */
+.trend { display: inline-flex; align-items: center; gap: 4px; font-size: 0.8em; font-weight: 700; padding: 3px 8px; border-radius: 99px; white-space: nowrap; }
+.trend-up   { background: #052e16; color: #4ade80; border: 1px solid #166534; }
+.trend-down { background: #2d0a0a; color: #f87171; border: 1px solid #7f1d1d; }
+.trend-flat { background: #1e2a3a; color: #94a3b8; border: 1px solid #334155; }
+
 /* Notes */
 .notes-cell { color: #64748b; font-size: 0.82em; font-style: italic; max-width: 200px; }
 
@@ -188,6 +203,12 @@ tbody td:first-child { color: #64748b; font-size: 0.85em; font-weight: 600; }
         <option value='Mid'>Mid</option>
         <option value='Sleeper'>Sleeper</option>
       </select>
+      <select class='filter-select' id='filterTrend' onchange='applyFilters()'>
+        <option value=''>All Trends</option>
+        <option value='up'>↑ Progression</option>
+        <option value='flat'>→ Stable</option>
+        <option value='down'>↓ Regression</option>
+      </select>
       <select class='filter-select' id='filterTeam' onchange='applyFilters()'>
         <option value=''>All Teams</option>
       </select>
@@ -196,19 +217,29 @@ tbody td:first-child { color: #64748b; font-size: 0.85em; font-weight: 600; }
     <div class='table-wrap'>
       <table id='playerTable'>
         <thead>
-          <tr>
+          <tr class='group-row'>
+            <th colspan='5' style='background:#1e293b;'></th>
+            <th colspan='4' class='col-group-last' style='text-align:center; color:#64748b;'>2025-26 ACTUAL</th>
+            <th colspan='5' class='col-group-proj' style='text-align:center; color:#6ee7b7;'>2026-27 PROJECTION</th>
+            <th colspan='2' style='background:#1e293b;'></th>
+          </tr>
+          <tr class='col-row'>
             <th onclick='sortBy("rank")' data-col='rank'>#<span class='sort-icon'></span></th>
             <th onclick='sortBy("name")' data-col='name'>Player<span class='sort-icon'></span></th>
             <th onclick='sortBy("team")' data-col='team'>Team<span class='sort-icon'></span></th>
             <th onclick='sortBy("pos")' data-col='pos'>Pos<span class='sort-icon'></span></th>
             <th onclick='sortBy("age")' data-col='age'>Age<span class='sort-icon'></span></th>
-            <th onclick='sortBy("proj_gp")' data-col='proj_gp'>GP<span class='sort-icon'></span></th>
-            <th onclick='sortBy("proj_g")' data-col='proj_g'>G<span class='sort-icon'></span></th>
-            <th onclick='sortBy("proj_a")' data-col='proj_a'>A<span class='sort-icon'></span></th>
-            <th onclick='sortBy("proj_pts")' data-col='proj_pts'>PTS<span class='sort-icon'></span></th>
-            <th onclick='sortBy("proj_pm")' data-col='proj_pm'>+/-<span class='sort-icon'></span></th>
+            <th onclick='sortBy("last_gp")' data-col='last_gp' class='col-group-last'>GP<span class='sort-icon'></span></th>
+            <th onclick='sortBy("last_g")' data-col='last_g' class='col-group-last'>G<span class='sort-icon'></span></th>
+            <th onclick='sortBy("last_a")' data-col='last_a' class='col-group-last'>A<span class='sort-icon'></span></th>
+            <th onclick='sortBy("last_pts")' data-col='last_pts' class='col-group-last'>PTS<span class='sort-icon'></span></th>
+            <th onclick='sortBy("proj_gp")' data-col='proj_gp' class='col-group-proj'>GP<span class='sort-icon'></span></th>
+            <th onclick='sortBy("proj_g")' data-col='proj_g' class='col-group-proj'>G<span class='sort-icon'></span></th>
+            <th onclick='sortBy("proj_a")' data-col='proj_a' class='col-group-proj'>A<span class='sort-icon'></span></th>
+            <th onclick='sortBy("proj_pts")' data-col='proj_pts' class='col-group-proj'>PTS<span class='sort-icon'></span></th>
+            <th onclick='sortBy("proj_pm")' data-col='proj_pm' class='col-group-proj'>+/-<span class='sort-icon'></span></th>
             <th onclick='sortBy("tier")' data-col='tier'>Tier<span class='sort-icon'></span></th>
-            <th>Notes</th>
+            <th onclick='sortBy("_trend")' data-col='_trend'>Trend<span class='sort-icon'></span></th>
           </tr>
         </thead>
         <tbody id='playerTbody'></tbody>
@@ -272,7 +303,8 @@ function sortBy(col) {
 
 function sorted(players) {
   return [...players].sort((a, b) => {
-    let av = a[sortCol], bv = b[sortCol];
+    let av = sortCol === '_trend' ? getTrend(a) : a[sortCol];
+    let bv = sortCol === '_trend' ? getTrend(b) : b[sortCol];
     if (typeof av === 'string') av = av.toLowerCase();
     if (typeof bv === 'string') bv = bv.toLowerCase();
     if (av < bv) return sortDir === 'asc' ? -1 : 1;
@@ -282,16 +314,26 @@ function sorted(players) {
 }
 
 // ── FILTERS ─────────────────────────────────────────────
+function getTrend(p) {
+  if (!p.last_pts) return 'flat';
+  const diff = p.proj_pts - p.last_pts;
+  if (diff >= 5) return 'up';
+  if (diff <= -5) return 'down';
+  return 'flat';
+}
+
 function getFiltered() {
   const q = document.getElementById('searchInput').value.toLowerCase();
   const pos = document.getElementById('filterPos').value;
   const tier = document.getElementById('filterTier').value;
   const team = document.getElementById('filterTeam').value;
+  const trend = document.getElementById('filterTrend').value;
   return allPlayers.filter(p => {
     if (q && !p.name.toLowerCase().includes(q) && !p.team.toLowerCase().includes(q)) return false;
     if (pos && p.pos !== pos) return false;
     if (tier && p.tier !== tier) return false;
     if (team && p.team !== team) return false;
+    if (trend && getTrend(p) !== trend) return false;
     return true;
   });
 }
@@ -307,26 +349,35 @@ function renderAll() {
   document.getElementById('resultsCount').textContent = filtered.length + ' players';
 
   if (!filtered.length) {
-    tbody.innerHTML = '<tr><td colspan="12"><div class="empty-state"><div class="icon">🔍</div>No players match your filters.</div></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="16"><div class="empty-state"><div class="icon">🔍</div>No players match your filters.</div></td></tr>';
     return;
   }
 
   tbody.innerHTML = filtered.map(p => {
     const pm = p.proj_pm >= 0 ? '+' + p.proj_pm : p.proj_pm;
     const pmClass = p.proj_pm >= 0 ? 'stat-pm-pos' : 'stat-pm-neg';
+    const trend = getTrend(p);
+    const diff = p.proj_pts - (p.last_pts || p.proj_pts);
+    const diffStr = diff > 0 ? '+' + diff : '' + diff;
+    const trendLabel = trend === 'up' ? `↑ ${diffStr}` : trend === 'down' ? `↓ ${diffStr}` : `→ ${diffStr}`;
+    const trendClass = `trend trend-${trend}`;
     return `<tr>
       <td>${p.rank}</td>
       <td><div class='player-name'>${p.name}</div></td>
       <td><span class='team-tag'>${p.team}</span></td>
       <td><span class='pos-tag pos-${p.pos}'>${p.pos}</span></td>
       <td>${p.age}</td>
+      <td class='last-stat'>${p.last_gp ?? '—'}</td>
+      <td class='last-stat stat-g'>${p.last_g ?? '—'}</td>
+      <td class='last-stat stat-a'>${p.last_a ?? '—'}</td>
+      <td class='last-pts'>${p.last_pts ?? '—'}</td>
       <td>${p.proj_gp}</td>
       <td class='stat-g'>${p.proj_g}</td>
       <td class='stat-a'>${p.proj_a}</td>
       <td class='stat-pts'>${p.proj_pts}</td>
       <td class='${pmClass}'>${pm}</td>
       <td><span class='tier tier-${p.tier}'>${p.tier}</span></td>
-      <td class='notes-cell'>${p.notes || ''}</td>
+      <td><span class='${trendClass}'>${trendLabel}</span></td>
     </tr>`;
   }).join('');
 }
