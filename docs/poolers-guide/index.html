@@ -13,32 +13,20 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 
 /* ── NAV ── */
 nav { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: linear-gradient(135deg, #2c5aa0 0%, #1e3a8a 100%); box-shadow: 0 2px 10px rgba(0,0,0,0.3); }
-.nav-inner { max-width: 1600px; margin: 0 auto; padding: 10px 15px; display: flex; align-items: center; justify-content: space-between; }
+.nav-inner { max-width: 1600px; margin: 0 auto; padding: 10px 15px; display: flex; align-items: center; }
 .nav-logo { display: flex; align-items: center; gap: 10px; }
 .nav-logo img { width: 32px; height: 32px; border-radius: 50%; }
 .nav-logo span { color: white; font-weight: 700; font-size: 1em; }
-#mobileMenuBtn { display: none; background: none; border: none; color: white; font-size: 1.5em; cursor: pointer; padding: 5px; }
-#navLinks { display: flex; gap: 8px; align-items: center; }
-#navLinks a { color: white; text-decoration: none; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 0.9em; transition: background 0.2s; white-space: nowrap; }
-#navLinks a:hover { background: rgba(255,255,255,0.15); }
-#navLinks a.active { background: rgba(255,255,255,0.2); }
-@media (max-width: 768px) {
-  #mobileMenuBtn { display: block !important; }
-  #navLinks { display: none !important; position: absolute; top: 100%; left: 0; right: 0; background: linear-gradient(135deg, #2c5aa0 0%, #1e3a8a 100%); flex-direction: column; gap: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.2); align-items: stretch; }
-  #navLinks.active { display: flex !important; }
-  #navLinks a { padding: 14px 20px; font-size: 1em; border-radius: 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
-}
 
 /* ── LAYOUT ── */
-.page-wrap { max-width: 1400px; margin: 0 auto; padding: 100px 16px 60px; }
-
-.page-header { text-align: center; margin-bottom: 32px; }
-.page-header h1 { font-size: 2em; font-weight: 800; color: #f8fafc; margin-bottom: 8px; }
+.page-wrap { max-width: 1500px; margin: 0 auto; padding: 80px 16px 60px; }
+.page-header { text-align: center; margin-bottom: 24px; }
+.page-header h1 { font-size: 2em; font-weight: 800; color: #f8fafc; margin-bottom: 6px; }
 .page-header p { color: #94a3b8; font-size: 0.95em; }
-.badge { display: inline-block; background: linear-gradient(135deg, #2c5aa0, #1e3a8a); color: white; font-size: 0.75em; font-weight: 700; padding: 3px 10px; border-radius: 99px; margin-left: 8px; vertical-align: middle; letter-spacing: 0.5px; }
+.badge { display: inline-block; background: linear-gradient(135deg, #2c5aa0, #1e3a8a); color: white; font-size: 0.75em; font-weight: 700; padding: 3px 10px; border-radius: 99px; margin-left: 8px; vertical-align: middle; }
 
 /* ── TABS ── */
-.tabs { display: flex; gap: 6px; margin-bottom: 24px; border-bottom: 2px solid #1e293b; padding-bottom: 0; }
+.tabs { display: flex; gap: 6px; margin-bottom: 20px; border-bottom: 2px solid #1e293b; }
 .tab-btn { background: none; border: none; color: #94a3b8; font-size: 0.9em; font-weight: 600; padding: 10px 18px; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; transition: color 0.2s, border-color 0.2s; }
 .tab-btn:hover { color: #e2e8f0; }
 .tab-btn.active { color: #60a5fa; border-bottom-color: #60a5fa; }
@@ -46,38 +34,46 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: lin
 .tab-pane.active { display: block; }
 
 /* ── CONTROLS ── */
-.controls { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; align-items: center; }
-.search-box { flex: 1; min-width: 200px; position: relative; }
-.search-box input { width: 100%; background: #1e293b; border: 1px solid #334155; border-radius: 8px; color: #e2e8f0; padding: 9px 12px 9px 36px; font-size: 0.9em; outline: none; transition: border-color 0.2s; }
+.controls { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; align-items: center; }
+.search-box { flex: 1; min-width: 180px; position: relative; }
+.search-box input { width: 100%; background: #1e293b; border: 1px solid #334155; border-radius: 8px; color: #e2e8f0; padding: 8px 12px 8px 34px; font-size: 0.88em; outline: none; transition: border-color 0.2s; }
 .search-box input:focus { border-color: #60a5fa; }
-.search-box::before { content: '🔍'; position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 0.9em; pointer-events: none; }
-.filter-select { background: #1e293b; border: 1px solid #334155; border-radius: 8px; color: #e2e8f0; padding: 9px 12px; font-size: 0.9em; outline: none; cursor: pointer; }
+.search-box::before { content: '🔍'; position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 0.85em; pointer-events: none; }
+.filter-select { background: #1e293b; border: 1px solid #334155; border-radius: 8px; color: #e2e8f0; padding: 8px 10px; font-size: 0.88em; outline: none; cursor: pointer; }
 .filter-select:focus { border-color: #60a5fa; }
-.results-count { color: #64748b; font-size: 0.85em; margin-left: auto; white-space: nowrap; }
+.results-count { color: #64748b; font-size: 0.82em; white-space: nowrap; }
+.ctrl-btn { background: #1e293b; border: 1px solid #334155; border-radius: 8px; color: #94a3b8; padding: 8px 13px; font-size: 0.85em; font-weight: 600; cursor: pointer; white-space: nowrap; transition: color 0.2s, border-color 0.2s; }
+.ctrl-btn:hover { color: #e2e8f0; border-color: #475569; }
+
+/* ── COLUMN TOGGLE MENU ── */
+.col-toggle-wrap { position: relative; }
+.col-toggle-menu { display: none; position: absolute; top: calc(100% + 6px); right: 0; background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 10px; min-width: 200px; z-index: 500; box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
+.col-toggle-menu.open { display: block; }
+.col-toggle-menu label { display: flex; align-items: center; gap: 8px; padding: 6px 8px; font-size: 0.85em; color: #cbd5e1; cursor: pointer; border-radius: 6px; transition: background 0.15s; }
+.col-toggle-menu label:hover { background: #334155; }
+.col-toggle-menu input[type=checkbox] { accent-color: #60a5fa; width: 14px; height: 14px; cursor: pointer; }
+.col-toggle-menu .menu-title { font-size: 0.72em; font-weight: 700; color: #475569; letter-spacing: 0.8px; text-transform: uppercase; padding: 4px 8px 8px; border-bottom: 1px solid #334155; margin-bottom: 4px; }
 
 /* ── TABLE ── */
 .table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid #1e293b; }
-table { width: 100%; border-collapse: collapse; font-size: 0.88em; }
-thead th { background: #1e293b; color: #94a3b8; font-weight: 700; font-size: 0.8em; letter-spacing: 0.5px; text-transform: uppercase; padding: 12px 14px; text-align: left; cursor: pointer; user-select: none; white-space: nowrap; border-bottom: 2px solid #0f172a; position: sticky; top: 0; z-index: 2; }
+table { width: 100%; border-collapse: collapse; font-size: 0.87em; }
+thead th { background: #1e293b; color: #94a3b8; font-weight: 700; font-size: 0.78em; letter-spacing: 0.5px; text-transform: uppercase; padding: 11px 12px; text-align: left; cursor: pointer; user-select: none; white-space: nowrap; border-bottom: 2px solid #0f172a; position: sticky; top: 0; z-index: 2; }
 thead th:hover { color: #e2e8f0; }
-thead th .sort-icon { margin-left: 4px; color: #475569; }
+thead th .sort-icon { margin-left: 3px; color: #475569; }
 thead th.sorted-asc .sort-icon::after { content: ' ↑'; color: #60a5fa; }
 thead th.sorted-desc .sort-icon::after { content: ' ↓'; color: #60a5fa; }
 thead th:not(.sorted-asc):not(.sorted-desc) .sort-icon::after { content: ' ↕'; }
 tbody tr { border-bottom: 1px solid #1e293b; transition: background 0.15s; }
 tbody tr:last-child { border-bottom: none; }
-tbody tr:hover { background: #1e293b; }
-tbody td { padding: 11px 14px; color: #cbd5e1; vertical-align: middle; }
+tbody tr:hover { background: rgba(255,255,255,0.03); }
+tbody td { padding: 10px 12px; color: #cbd5e1; vertical-align: middle; }
 tbody td:first-child { color: #64748b; font-size: 0.85em; font-weight: 600; }
 
 /* Player name cell */
 .player-name { font-weight: 700; color: #f1f5f9; }
-.player-team-pos { font-size: 0.78em; color: #64748b; margin-top: 2px; }
 
-/* Team badge */
-.team-tag { display: inline-block; background: #1e3a5f; color: #93c5fd; font-size: 0.78em; font-weight: 700; padding: 2px 7px; border-radius: 4px; letter-spacing: 0.3px; }
-
-/* Position */
+/* Team / pos badges */
+.team-tag { display: inline-block; background: #1e3a5f; color: #93c5fd; font-size: 0.78em; font-weight: 700; padding: 2px 7px; border-radius: 4px; }
 .pos-tag { display: inline-block; font-size: 0.78em; font-weight: 700; padding: 2px 7px; border-radius: 4px; }
 .pos-C  { background: #1e3a5f; color: #7dd3fc; }
 .pos-LW { background: #1a3a2a; color: #6ee7b7; }
@@ -92,32 +88,34 @@ tbody td:first-child { color: #64748b; font-size: 0.85em; font-weight: 600; }
 .tier-Mid     { background: #1e293b; color: #94a3b8; border: 1px solid #334155; }
 .tier-Sleeper { background: linear-gradient(135deg, #065f46, #064e3b); color: #a7f3d0; }
 
-/* Stat cells */
-.stat-pts { font-weight: 800; color: #f8fafc; }
-.stat-g   { color: #f87171; }
-.stat-a   { color: #60a5fa; }
-.stat-pm-pos { color: #4ade80; }
-.stat-pm-neg { color: #f87171; }
+/* Salary */
+.salary { color: #fbbf24; font-weight: 600; font-size: 0.88em; }
+
+/* PPG */
+.ppg-last { color: #7eb8f7; font-weight: 600; }
+.ppg-proj { color: #86efac; font-weight: 700; }
+
+/* PP% */
+.pp-pct { color: #c4b5fd; font-weight: 600; font-size: 0.88em; }
 
 /* Last year vs projection group headers */
-.col-group-last { background: #0f1e30 !important; border-left: 2px solid #1e4a7a !important; border-right: 2px solid #1e4a7a !important; }
-.col-group-proj { background: #0a1f14 !important; border-left: 2px solid #166534 !important; border-right: 2px solid #166534 !important; }
+.col-group-last { background: #0f1e30 !important; }
+.col-group-proj { background: #0a1f14 !important; }
 thead tr.group-row th { font-size: 0.72em; text-align: center; padding: 6px 8px; letter-spacing: 1px; font-weight: 800; border-bottom: none; cursor: default; }
 thead tr.group-row th:hover { color: inherit; }
 thead tr.col-row th { border-top: none; }
 
 /* Last year cell tint */
-td.col-last { background: rgba(30, 74, 122, 0.07); border-left: 1px solid rgba(30,74,122,0.15); border-right: 1px solid rgba(30,74,122,0.15); }
+td.col-last { background: rgba(30, 74, 122, 0.07); }
 td.col-last-first { border-left: 2px solid #1e4a7a !important; }
 td.col-last-last  { border-right: 2px solid #1e4a7a !important; }
+.last-stat { color: #7eb8f7; }
+.last-pts  { color: #93c5fd; font-weight: 800; }
 
 /* Projection cell tint */
-td.col-proj { background: rgba(22, 101, 52, 0.07); border-left: 1px solid rgba(22,101,52,0.15); border-right: 1px solid rgba(22,101,52,0.15); }
+td.col-proj { background: rgba(22, 101, 52, 0.07); }
 td.col-proj-first { border-left: 2px solid #166534 !important; }
 td.col-proj-last  { border-right: 2px solid #166534 !important; }
-
-.last-stat { color: #7eb8f7; }
-.last-pts  { color: #93c5fd; font-weight: 800; font-size: 1em; }
 .proj-stat { color: #86efac; }
 .proj-pts  { color: #4ade80; font-weight: 800; font-size: 1.05em; }
 
@@ -127,29 +125,37 @@ td.col-proj-last  { border-right: 2px solid #166534 !important; }
 .trend-down { background: #2d0a0a; color: #f87171; border: 1px solid #7f1d1d; }
 .trend-flat { background: #1e2a3a; color: #94a3b8; border: 1px solid #334155; }
 
-/* Notes tooltip */
-.notes-cell { color: #64748b; font-size: 0.82em; font-style: italic; max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: default; position: relative; }
-.tooltip { position: fixed; z-index: 9000; background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 8px 12px; font-size: 0.82em; font-style: italic; color: #cbd5e1; max-width: 240px; pointer-events: none; box-shadow: 0 4px 16px rgba(0,0,0,0.4); line-height: 1.4; }
+/* Notes (from JSON) tooltip trigger */
+.scout-note { color: #64748b; font-size: 0.78em; font-style: italic; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: default; margin-top: 2px; }
+
+/* User comment cell */
+.comment-cell { min-width: 160px; }
+.comment-input { background: transparent; border: none; border-bottom: 1px dashed #334155; color: #94a3b8; font-size: 0.82em; font-style: italic; width: 100%; outline: none; padding: 2px 4px; transition: border-color 0.2s, color 0.2s; }
+.comment-input:focus { border-bottom-color: #60a5fa; color: #e2e8f0; background: rgba(96,165,250,0.05); }
+.comment-input::placeholder { color: #334155; }
+
+/* Tooltip */
+.tooltip { position: fixed; z-index: 9000; background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 8px 12px; font-size: 0.82em; font-style: italic; color: #cbd5e1; max-width: 260px; pointer-events: none; box-shadow: 0 4px 16px rgba(0,0,0,0.4); line-height: 1.4; }
 
 /* Pool value score */
-.pv-bar { display: flex; align-items: center; gap: 6px; min-width: 90px; }
+.pv-bar { display: flex; align-items: center; gap: 6px; min-width: 80px; }
 .pv-num { font-weight: 800; font-size: 0.95em; min-width: 24px; text-align: right; }
 .pv-track { flex: 1; height: 5px; background: #1e293b; border-radius: 99px; overflow: hidden; }
-.pv-fill  { height: 100%; border-radius: 99px; transition: width 0.3s; }
+.pv-fill  { height: 100%; border-radius: 99px; }
 .pv-90 { color: #fbbf24; } .pv-90 .pv-fill { background: linear-gradient(90deg,#f59e0b,#fbbf24); }
 .pv-70 { color: #60a5fa; } .pv-70 .pv-fill { background: linear-gradient(90deg,#2563eb,#60a5fa); }
 .pv-50 { color: #94a3b8; } .pv-50 .pv-fill { background: #475569; }
 .pv-lo { color: #64748b; } .pv-lo .pv-fill { background: #334155; }
 
 /* ── BY TEAM ── */
-.team-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+.team-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
 .team-card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; overflow: hidden; }
 .team-card-header { background: linear-gradient(135deg, #1e3a5f, #1e293b); padding: 12px 16px; display: flex; align-items: center; gap: 10px; }
 .team-card-header .team-abbr { font-size: 1.1em; font-weight: 800; color: #60a5fa; }
 .team-card-header .team-count { font-size: 0.8em; color: #64748b; margin-left: auto; }
 .team-card table { width: 100%; font-size: 0.83em; }
-.team-card thead th { background: #0f172a; padding: 8px 12px; font-size: 0.75em; }
-.team-card tbody td { padding: 8px 12px; }
+.team-card thead th { background: #0f172a; padding: 7px 10px; font-size: 0.75em; }
+.team-card tbody td { padding: 7px 10px; }
 
 /* ── SLEEPERS ── */
 .sleepers-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
@@ -157,14 +163,13 @@ td.col-proj-last  { border-right: 2px solid #166534 !important; }
 .sleeper-rank { font-size: 0.75em; color: #6ee7b7; font-weight: 700; margin-bottom: 6px; }
 .sleeper-name { font-size: 1.05em; font-weight: 800; color: #f1f5f9; margin-bottom: 4px; }
 .sleeper-meta { font-size: 0.82em; color: #64748b; margin-bottom: 10px; }
-.sleeper-stats { display: flex; gap: 12px; margin-bottom: 10px; }
-.sleeper-stat { text-align: center; }
-.sleeper-stat .val { font-size: 1.2em; font-weight: 800; color: #f8fafc; }
-.sleeper-stat .lbl { font-size: 0.7em; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+.sleeper-stats { display: flex; gap: 14px; margin-bottom: 10px; }
+.sleeper-stat .val { font-size: 1.2em; font-weight: 800; color: #f8fafc; text-align: center; }
+.sleeper-stat .lbl { font-size: 0.7em; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; text-align: center; }
 .sleeper-note { font-size: 0.82em; color: #6ee7b7; font-style: italic; }
 
 /* ── DISCLAIMER ── */
-.disclaimer { margin-top: 32px; padding: 14px 18px; background: #1e293b; border: 1px solid #334155; border-radius: 10px; font-size: 0.8em; color: #64748b; text-align: center; }
+.disclaimer { margin-top: 28px; padding: 12px 16px; background: #1e293b; border: 1px solid #334155; border-radius: 10px; font-size: 0.78em; color: #64748b; text-align: center; }
 
 /* ── EMPTY STATE ── */
 .empty-state { text-align: center; padding: 60px 20px; color: #475569; }
@@ -172,37 +177,37 @@ td.col-proj-last  { border-right: 2px solid #166534 !important; }
 
 /* ── PRINT ── */
 @media print {
-  @page { size: landscape; margin: 12mm; }
-  nav, .controls, .tabs, .disclaimer, .tooltip { display: none !important; }
-  body { background: white !important; color: black !important; font-size: 9pt; }
+  @page { size: landscape; margin: 10mm; }
+  nav, .controls, .tabs, .disclaimer, .tooltip, .col-toggle-menu { display: none !important; }
+  body { background: white !important; color: black !important; font-size: 8.5pt; }
   .page-wrap { padding: 0 !important; max-width: 100% !important; }
-  .page-header { margin-bottom: 10px !important; }
-  .page-header h1 { font-size: 14pt !important; color: black !important; }
-  .page-header p  { color: #555 !important; font-size: 8pt !important; }
+  .page-header { margin-bottom: 8px !important; }
+  .page-header h1 { font-size: 13pt !important; color: black !important; }
+  .page-header p  { color: #555 !important; font-size: 7.5pt !important; }
   .badge { background: #eee !important; color: #333 !important; }
   .tab-pane { display: block !important; }
   #tab-byteam, #tab-sleepers { display: none !important; }
-  .table-wrap { border: 1px solid #ccc !important; border-radius: 0 !important; overflow: visible !important; }
-  table { font-size: 7.5pt !important; }
-  thead th { background: #f0f0f0 !important; color: #333 !important; padding: 5px 6px !important; border-bottom: 1.5px solid #999 !important; }
-  .col-group-last { background: #dbeafe !important; border-color: #93c5fd !important; }
-  .col-group-proj { background: #dcfce7 !important; border-color: #86efac !important; }
-  td.col-last { background: #eff6ff !important; border-color: #bfdbfe !important; }
-  td.col-proj { background: #f0fdf4 !important; border-color: #bbf7d0 !important; }
-  .last-stat, .last-pts, .proj-stat, .proj-pts { color: #111 !important; }
-  tbody td { padding: 4px 6px !important; color: #111 !important; border-bottom: 1px solid #e5e5e5 !important; }
-  tbody tr:nth-child(even) td { background: #fafafa !important; }
-  .player-name { color: #000 !important; font-size: 8pt !important; }
-  .notes-cell  { color: #666 !important; font-size: 7pt !important; }
+  .table-wrap { border: 1px solid #bbb !important; border-radius: 0 !important; overflow: visible !important; }
+  table { font-size: 7pt !important; }
+  thead th { background: #f0f0f0 !important; color: #333 !important; padding: 4px 5px !important; border-bottom: 1.5px solid #999 !important; }
+  .col-group-last { background: #dbeafe !important; color: #1e4a7a !important; border-color: #93c5fd !important; }
+  .col-group-proj { background: #dcfce7 !important; color: #166534 !important; border-color: #86efac !important; }
+  td.col-last { background: #eff6ff !important; }
+  td.col-proj { background: #f0fdf4 !important; }
+  .last-stat, .last-pts, .proj-stat, .proj-pts, .ppg-last, .ppg-proj, .salary, .pp-pct { color: #111 !important; font-size: inherit !important; }
+  tbody td { padding: 3px 5px !important; color: #111 !important; border-bottom: 1px solid #e0e0e0 !important; }
+  tbody tr:nth-child(even) td { background: #f8f8f8 !important; }
+  .player-name { color: #000 !important; }
+  .scout-note  { color: #555 !important; font-size: 6.5pt !important; }
   .team-tag    { background: #e5e7eb !important; color: #1e3a5f !important; }
   .pos-tag     { background: #e5e7eb !important; color: #333 !important; }
   .tier        { background: #e5e7eb !important; color: #333 !important; border: none !important; }
-  .trend       { background: none !important; border: none !important; color: #333 !important; font-size: 7.5pt !important; }
-  .stat-g, .stat-a, .stat-pts, .stat-pm-pos, .stat-pm-neg, .last-stat, .last-pts { color: #111 !important; }
-  .pv-bar      { display: flex; gap: 4px; align-items: center; }
-  .pv-num      { font-weight: 700; color: #000 !important; }
+  .trend       { background: none !important; border: none !important; color: #333 !important; }
+  .pv-bar      { gap: 3px; }
+  .pv-num      { color: #000 !important; }
   .pv-track    { display: none; }
   .sort-icon   { display: none; }
+  .comment-input { border-bottom: 1px solid #ccc !important; color: #333 !important; }
 }
 </style>
 </head>
@@ -222,7 +227,7 @@ td.col-proj-last  { border-right: 2px solid #166534 !important; }
 <div class='page-wrap'>
   <div class='page-header'>
     <h1>📋 Poolers Guide <span class='badge'>2026-27</span></h1>
-    <p>NHL player projections · Sort any column · Filter by team, position, or tier</p>
+    <p>NHL player projections · Sort any column · Filter by team, position, tier or trend</p>
   </div>
 
   <!-- TABS -->
@@ -263,38 +268,27 @@ td.col-proj-last  { border-right: 2px solid #166534 !important; }
         <option value=''>All Teams</option>
       </select>
       <span class='results-count' id='resultsCount'></span>
-      <button onclick='exportCSV()' style='background:#1e293b; border:1px solid #334155; border-radius:8px; color:#94a3b8; padding:9px 14px; font-size:0.85em; font-weight:600; cursor:pointer; white-space:nowrap;' onmouseover='this.style.color="#e2e8f0"' onmouseout='this.style.color="#94a3b8"'>🖨 Print</button>
-      <button onclick='downloadCSV()' style='background:#1e293b; border:1px solid #334155; border-radius:8px; color:#94a3b8; padding:9px 14px; font-size:0.85em; font-weight:600; cursor:pointer; white-space:nowrap;' onmouseover='this.style.color="#e2e8f0"' onmouseout='this.style.color="#94a3b8"'>⬇ CSV</button>
+      <!-- Column toggle -->
+      <div class='col-toggle-wrap'>
+        <button class='ctrl-btn' onclick='toggleColMenu(event)'>⚙ Columns</button>
+        <div class='col-toggle-menu' id='colMenu'>
+          <div class='menu-title'>Show / Hide</div>
+          <label><input type='checkbox' id='col-last' checked onchange='applyColVis()'> 📅 Last year stats</label>
+          <label><input type='checkbox' id='col-ppg' checked onchange='applyColVis()'> PPG (pts/game)</label>
+          <label><input type='checkbox' id='col-salary' checked onchange='applyColVis()'> 💰 Salary (AAV)</label>
+          <label><input type='checkbox' id='col-pp' checked onchange='applyColVis()'> PP% (powerplay time)</label>
+          <label><input type='checkbox' id='col-tier' checked onchange='applyColVis()'> Tier</label>
+          <label><input type='checkbox' id='col-trend' checked onchange='applyColVis()'> Trend</label>
+          <label><input type='checkbox' id='col-value' checked onchange='applyColVis()'> Pool Value</label>
+          <label><input type='checkbox' id='col-comment' checked onchange='applyColVis()'> 📝 My Notes</label>
+        </div>
+      </div>
+      <button class='ctrl-btn' onclick='window.print()'>🖨 Print</button>
+      <button class='ctrl-btn' onclick='downloadCSV()'>⬇ CSV</button>
     </div>
     <div class='table-wrap'>
       <table id='playerTable'>
-        <thead>
-          <tr class='group-row'>
-            <th colspan='5' style='background:#1e293b;'></th>
-            <th colspan='4' class='col-group-last' style='text-align:center; color:#93c5fd; border-top:2px solid #1e4a7a;'>📅 2025-26 ACTUAL</th>
-            <th colspan='5' class='col-group-proj' style='text-align:center; color:#4ade80; border-top:2px solid #166534;'>🎯 2026-27 PROJECTION</th>
-            <th colspan='3' style='background:#1e293b;'></th>
-          </tr>
-          <tr class='col-row'>
-            <th onclick='sortBy("rank")' data-col='rank'>#<span class='sort-icon'></span></th>
-            <th onclick='sortBy("name")' data-col='name'>Player<span class='sort-icon'></span></th>
-            <th onclick='sortBy("team")' data-col='team'>Team<span class='sort-icon'></span></th>
-            <th onclick='sortBy("pos")' data-col='pos'>Pos<span class='sort-icon'></span></th>
-            <th onclick='sortBy("age")' data-col='age'>Age<span class='sort-icon'></span></th>
-            <th onclick='sortBy("last_gp")' data-col='last_gp' class='col-group-last' style='border-left:2px solid #1e4a7a; color:#93c5fd;'>GP<span class='sort-icon'></span></th>
-            <th onclick='sortBy("last_g")' data-col='last_g' class='col-group-last' style='color:#93c5fd;'>G<span class='sort-icon'></span></th>
-            <th onclick='sortBy("last_a")' data-col='last_a' class='col-group-last' style='color:#93c5fd;'>A<span class='sort-icon'></span></th>
-            <th onclick='sortBy("last_pts")' data-col='last_pts' class='col-group-last' style='border-right:2px solid #1e4a7a; color:#93c5fd; font-weight:800;'>PTS<span class='sort-icon'></span></th>
-            <th onclick='sortBy("proj_gp")' data-col='proj_gp' class='col-group-proj' style='border-left:2px solid #166534; color:#4ade80;'>GP<span class='sort-icon'></span></th>
-            <th onclick='sortBy("proj_g")' data-col='proj_g' class='col-group-proj' style='color:#4ade80;'>G<span class='sort-icon'></span></th>
-            <th onclick='sortBy("proj_a")' data-col='proj_a' class='col-group-proj' style='color:#4ade80;'>A<span class='sort-icon'></span></th>
-            <th onclick='sortBy("proj_pts")' data-col='proj_pts' class='col-group-proj' style='color:#4ade80; font-weight:800;'>PTS<span class='sort-icon'></span></th>
-            <th onclick='sortBy("proj_pm")' data-col='proj_pm' class='col-group-proj' style='border-right:2px solid #166534; color:#4ade80;'>+/-<span class='sort-icon'></span></th>
-            <th onclick='sortBy("tier")' data-col='tier'>Tier<span class='sort-icon'></span></th>
-            <th onclick='sortBy("_trend")' data-col='_trend'>Trend<span class='sort-icon'></span></th>
-            <th onclick='sortBy("_pv")' data-col='_pv'>Value<span class='sort-icon'></span></th>
-          </tr>
-        </thead>
+        <thead id='playerThead'></thead>
         <tbody id='playerTbody'></tbody>
       </table>
     </div>
@@ -316,89 +310,132 @@ td.col-proj-last  { border-right: 2px solid #166534 !important; }
   </div>
 </div>
 
+<!-- TOOLTIP -->
+<div class='tooltip' id='tooltip' style='display:none'></div>
+
 <script>
 let allPlayers = [];
 let sortCol = 'rank';
 let sortDir = 'asc';
+const COMMENT_KEY = 'poolers_comments_2627';
 
+// ── INIT ─────────────────────────────────────────────────
 async function init() {
   const res = await fetch('/poolers-guide/players.json?' + Date.now());
   allPlayers = await res.json();
-
-  // Set last updated to today
   document.getElementById('lastUpdated').textContent = new Date().toLocaleDateString('en-CA');
-
-  // Populate team filter
   const teams = [...new Set(allPlayers.map(p => p.team))].sort();
   const sel = document.getElementById('filterTeam');
   teams.forEach(t => { const o = document.createElement('option'); o.value = t; o.textContent = t; sel.appendChild(o); });
-
   normalizePVs(allPlayers);
+  renderHeader();
   renderAll();
   renderByTeam();
   renderSleepers();
+  applyColVis();
 }
 
-// ── POOL VALUE SCORE (1-100) ──────────────────────────────
-// Formula: pts/GP rate (50%) + GP durability (30%) + tier bonus (20%)
+// ── POOL VALUE SCORE ──────────────────────────────────────
 const TIER_BONUS = { Elite: 20, Top: 14, Mid: 8, Sleeper: 4 };
 let _pvMin = 0, _pvMax = 100;
-
 function calcPV(p) {
-  const rate = p.proj_gp > 0 ? (p.proj_pts / p.proj_gp) : 0;
-  const dur  = p.proj_gp / 82;
-  const tier = TIER_BONUS[p.tier] || 0;
-  return rate * 50 + dur * 30 + tier;
+  const rate = p.proj_gp > 0 ? p.proj_pts / p.proj_gp : 0;
+  return rate * 50 + (p.proj_gp / 82) * 30 + (TIER_BONUS[p.tier] || 0);
 }
-
 function normalizePVs(players) {
   const vals = players.map(calcPV);
-  _pvMin = Math.min(...vals);
-  _pvMax = Math.max(...vals);
+  _pvMin = Math.min(...vals); _pvMax = Math.max(...vals);
 }
-
 function getPV(p) {
   if (_pvMax === _pvMin) return 100;
   return Math.round(((calcPV(p) - _pvMin) / (_pvMax - _pvMin)) * 99) + 1;
 }
+function pvClass(s) { return s >= 90 ? 'pv-90' : s >= 70 ? 'pv-70' : s >= 50 ? 'pv-50' : 'pv-lo'; }
 
-function pvClass(score) {
-  if (score >= 90) return 'pv-90';
-  if (score >= 70) return 'pv-70';
-  if (score >= 50) return 'pv-50';
-  return 'pv-lo';
+// ── TREND ─────────────────────────────────────────────────
+function getTrend(p) {
+  if (!p.last_pts) return 'flat';
+  const d = p.proj_pts - p.last_pts;
+  return d >= 5 ? 'up' : d <= -5 ? 'down' : 'flat';
+}
+
+// ── PPG ───────────────────────────────────────────────────
+function ppg(pts, gp) { return gp > 0 ? (pts / gp).toFixed(2) : '—'; }
+
+// ── COMMENTS (localStorage) ───────────────────────────────
+function getComments() {
+  try { return JSON.parse(localStorage.getItem(COMMENT_KEY)) || {}; } catch { return {}; }
+}
+function saveComment(name, val) {
+  const c = getComments(); c[name] = val;
+  localStorage.setItem(COMMENT_KEY, JSON.stringify(c));
 }
 
 // ── TOOLTIP ───────────────────────────────────────────────
-let tooltip = null;
+const _tt = document.getElementById('tooltip');
 function showTooltip(el, text) {
   if (!text) return;
-  if (!tooltip) { tooltip = document.createElement('div'); tooltip.className = 'tooltip'; document.body.appendChild(tooltip); }
-  tooltip.textContent = text;
-  tooltip.style.display = 'block';
-  moveTooltip(el);
-}
-function moveTooltip(el) {
-  if (!tooltip) return;
+  _tt.textContent = text; _tt.style.display = 'block';
   const r = el.getBoundingClientRect();
-  const tw = tooltip.offsetWidth;
+  const tw = _tt.offsetWidth;
   let left = r.left + r.width / 2 - tw / 2;
   left = Math.max(8, Math.min(left, window.innerWidth - tw - 8));
-  tooltip.style.left = left + 'px';
-  tooltip.style.top  = (r.top - tooltip.offsetHeight - 6) + window.scrollY + 'px';
+  _tt.style.left = left + 'px';
+  _tt.style.top = (r.top - _tt.offsetHeight - 6 + window.scrollY) + 'px';
 }
-function hideTooltip() { if (tooltip) tooltip.style.display = 'none'; }
+function hideTooltip() { _tt.style.display = 'none'; }
 
+// ── COLUMN VISIBILITY ─────────────────────────────────────
+const COL_GROUPS = {
+  'col-last':    ['cg-last'],
+  'col-ppg':     ['cg-ppg-last', 'cg-ppg-proj'],
+  'col-salary':  ['cg-salary'],
+  'col-pp':      ['cg-pp'],
+  'col-tier':    ['cg-tier'],
+  'col-trend':   ['cg-trend'],
+  'col-value':   ['cg-value'],
+  'col-comment': ['cg-comment'],
+};
 
+function applyColVis() {
+  Object.entries(COL_GROUPS).forEach(([chkId, colClasses]) => {
+    const show = document.getElementById(chkId).checked;
+    colClasses.forEach(cls => {
+      document.querySelectorAll('.' + cls).forEach(el => {
+        el.style.display = show ? '' : 'none';
+      });
+    });
+  });
+  // Update group-row colspan for last year block
+  updateGroupColspan();
+}
+
+function updateGroupColspan() {
+  // Recount visible ths in col-row for each group
+  const ths = [...document.querySelectorAll('thead tr.col-row th')];
+  let lastCount = 0, projCount = 0;
+  ths.forEach(th => {
+    if (th.style.display === 'none') return;
+    if (th.classList.contains('col-group-last')) lastCount++;
+    if (th.classList.contains('col-group-proj')) projCount++;
+  });
+  const lastGh = document.getElementById('gh-last');
+  const projGh = document.getElementById('gh-proj');
+  if (lastGh) lastGh.colSpan = Math.max(1, lastCount);
+  if (projGh) projGh.colSpan = Math.max(1, projCount);
+}
+
+function toggleColMenu(e) {
+  e.stopPropagation();
+  document.getElementById('colMenu').classList.toggle('open');
+}
+document.addEventListener('click', () => document.getElementById('colMenu').classList.remove('open'));
+
+// ── SORTING ───────────────────────────────────────────────
 function sortBy(col) {
-  if (sortCol === col) {
-    sortDir = sortDir === 'asc' ? 'desc' : 'asc';
-  } else {
-    sortCol = col;
-    sortDir = col === 'rank' ? 'asc' : 'desc';
-  }
-  // Update header classes
-  document.querySelectorAll('thead th').forEach(th => {
+  sortDir = sortCol === col ? (sortDir === 'asc' ? 'desc' : 'asc') : (col === 'rank' ? 'asc' : 'desc');
+  sortCol = col;
+  document.querySelectorAll('thead th[data-col]').forEach(th => {
     th.classList.remove('sorted-asc', 'sorted-desc');
     if (th.dataset.col === col) th.classList.add(sortDir === 'asc' ? 'sorted-asc' : 'sorted-desc');
   });
@@ -406,9 +443,15 @@ function sortBy(col) {
 }
 
 function sorted(players) {
+  const getVal = p => {
+    if (sortCol === '_trend') return getTrend(p);
+    if (sortCol === '_pv')    return getPV(p);
+    if (sortCol === '_ppg_last') return p.last_gp > 0 ? p.last_pts / p.last_gp : 0;
+    if (sortCol === '_ppg_proj') return p.proj_gp > 0 ? p.proj_pts / p.proj_gp : 0;
+    return p[sortCol];
+  };
   return [...players].sort((a, b) => {
-    let av = sortCol === '_trend' ? getTrend(a) : sortCol === '_pv' ? getPV(a) : a[sortCol];
-    let bv = sortCol === '_trend' ? getTrend(b) : sortCol === '_pv' ? getPV(b) : b[sortCol];
+    let av = getVal(a), bv = getVal(b);
     if (typeof av === 'string') av = av.toLowerCase();
     if (typeof bv === 'string') bv = bv.toLowerCase();
     if (av < bv) return sortDir === 'asc' ? -1 : 1;
@@ -417,119 +460,148 @@ function sorted(players) {
   });
 }
 
-// ── FILTERS ─────────────────────────────────────────────
-function getTrend(p) {
-  if (!p.last_pts) return 'flat';
-  const diff = p.proj_pts - p.last_pts;
-  if (diff >= 5) return 'up';
-  if (diff <= -5) return 'down';
-  return 'flat';
-}
-
+// ── FILTERS ───────────────────────────────────────────────
 function getFiltered() {
-  const q = document.getElementById('searchInput').value.toLowerCase();
-  const pos = document.getElementById('filterPos').value;
-  const tier = document.getElementById('filterTier').value;
-  const team = document.getElementById('filterTeam').value;
+  const q     = document.getElementById('searchInput').value.toLowerCase();
+  const pos   = document.getElementById('filterPos').value;
+  const tier  = document.getElementById('filterTier').value;
+  const team  = document.getElementById('filterTeam').value;
   const trend = document.getElementById('filterTrend').value;
   return allPlayers.filter(p => {
-    if (q && !p.name.toLowerCase().includes(q) && !p.team.toLowerCase().includes(q)) return false;
-    if (pos && p.pos !== pos) return false;
-    if (tier && p.tier !== tier) return false;
-    if (team && p.team !== team) return false;
-    if (trend && getTrend(p) !== trend) return false;
+    if (q     && !p.name.toLowerCase().includes(q) && !p.team.toLowerCase().includes(q)) return false;
+    if (pos   && p.pos  !== pos)          return false;
+    if (tier  && p.tier !== tier)         return false;
+    if (team  && p.team !== team)         return false;
+    if (trend && getTrend(p) !== trend)   return false;
     return true;
   });
 }
+function applyFilters() { renderAll(); }
 
-function applyFilters() {
-  renderAll();
+// ── RENDER HEADER ─────────────────────────────────────────
+function renderHeader() {
+  document.getElementById('playerThead').innerHTML = `
+  <tr class='group-row'>
+    <th colspan='5' style='background:#1e293b;'></th>
+    <th id='gh-last' colspan='5' class='col-group-last cg-last' style='text-align:center;color:#93c5fd;border-top:2px solid #1e4a7a;'>📅 2025-26 ACTUAL</th>
+    <th colspan='4' class='col-group-proj' style='text-align:center;color:#4ade80;border-top:2px solid #166534;'>🎯 2026-27 PROJECTION</th>
+    <th colspan='6' style='background:#1e293b;'></th>
+  </tr>
+  <tr class='col-row'>
+    <th onclick='sortBy("rank")'    data-col='rank'>#<span class='sort-icon'></span></th>
+    <th onclick='sortBy("name")'    data-col='name'>Player<span class='sort-icon'></span></th>
+    <th onclick='sortBy("team")'    data-col='team'>Team<span class='sort-icon'></span></th>
+    <th onclick='sortBy("pos")'     data-col='pos'>Pos<span class='sort-icon'></span></th>
+    <th onclick='sortBy("age")'     data-col='age'>Age<span class='sort-icon'></span></th>
+
+    <th onclick='sortBy("last_gp")' data-col='last_gp' class='col-group-last cg-last' style='border-left:2px solid #1e4a7a;color:#93c5fd;'>GP<span class='sort-icon'></span></th>
+    <th onclick='sortBy("last_g")'  data-col='last_g'  class='col-group-last cg-last' style='color:#93c5fd;'>G<span class='sort-icon'></span></th>
+    <th onclick='sortBy("last_a")'  data-col='last_a'  class='col-group-last cg-last' style='color:#93c5fd;'>A<span class='sort-icon'></span></th>
+    <th onclick='sortBy("last_pts")' data-col='last_pts' class='col-group-last cg-last' style='color:#93c5fd;font-weight:800;'>PTS<span class='sort-icon'></span></th>
+    <th onclick='sortBy("_ppg_last")' data-col='_ppg_last' class='col-group-last cg-last cg-ppg-last' style='border-right:2px solid #1e4a7a;color:#93c5fd;'>PPG<span class='sort-icon'></span></th>
+
+    <th onclick='sortBy("proj_gp")' data-col='proj_gp' class='col-group-proj' style='border-left:2px solid #166534;color:#4ade80;'>GP<span class='sort-icon'></span></th>
+    <th onclick='sortBy("proj_g")'  data-col='proj_g'  class='col-group-proj' style='color:#4ade80;'>G<span class='sort-icon'></span></th>
+    <th onclick='sortBy("proj_a")'  data-col='proj_a'  class='col-group-proj' style='color:#4ade80;'>A<span class='sort-icon'></span></th>
+    <th onclick='sortBy("proj_pts")' data-col='proj_pts' class='col-group-proj' style='color:#4ade80;font-weight:800;'>PTS<span class='sort-icon'></span></th>
+    <th onclick='sortBy("_ppg_proj")' data-col='_ppg_proj' class='col-group-proj cg-ppg-proj' style='border-right:2px solid #166534;color:#4ade80;'>PPG<span class='sort-icon'></span></th>
+
+    <th onclick='sortBy("aav")'     data-col='aav'     class='cg-salary'>💰 AAV<span class='sort-icon'></span></th>
+    <th onclick='sortBy("pp_pct")'  data-col='pp_pct'  class='cg-pp'>PP%<span class='sort-icon'></span></th>
+    <th onclick='sortBy("tier")'    data-col='tier'     class='cg-tier'>Tier<span class='sort-icon'></span></th>
+    <th onclick='sortBy("_trend")'  data-col='_trend'   class='cg-trend'>Trend<span class='sort-icon'></span></th>
+    <th onclick='sortBy("_pv")'     data-col='_pv'      class='cg-value'>Value<span class='sort-icon'></span></th>
+    <th class='cg-comment'>📝 Notes</th>
+  </tr>`;
+  // Set initial sort indicator
+  document.querySelector('thead th[data-col="rank"]').classList.add('sorted-asc');
 }
 
-// ── RENDER TABLE ─────────────────────────────────────────
+// ── RENDER TABLE ──────────────────────────────────────────
 function renderAll() {
   const filtered = sorted(getFiltered());
   const tbody = document.getElementById('playerTbody');
   document.getElementById('resultsCount').textContent = filtered.length + ' players';
+  const comments = getComments();
 
   if (!filtered.length) {
-    tbody.innerHTML = '<tr><td colspan="17"><div class="empty-state"><div class="icon">🔍</div>No players match your filters.</div></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="21"><div class="empty-state"><div class="icon">🔍</div>No players match your filters.</div></td></tr>';
     return;
   }
 
   tbody.innerHTML = filtered.map(p => {
-    const pm = p.proj_pm >= 0 ? '+' + p.proj_pm : p.proj_pm;
-    const pmClass = p.proj_pm >= 0 ? 'stat-pm-pos' : 'stat-pm-neg';
-    const trend = getTrend(p);
-    const diff = p.proj_pts - (p.last_pts || p.proj_pts);
-    const diffStr = diff > 0 ? '+' + diff : '' + diff;
-    const trendLabel = trend === 'up' ? `↑ ${diffStr}` : trend === 'down' ? `↓ ${diffStr}` : `→ ${diffStr}`;
-    const trendClass = `trend trend-${trend}`;
-    const pv = getPV(p);
-    const pc = pvClass(pv);
-    const noteEsc = (p.notes || '').replace(/'/g, '&#39;');
+    const trend    = getTrend(p);
+    const diff     = p.proj_pts - (p.last_pts || p.proj_pts);
+    const diffStr  = diff > 0 ? '+' + diff : '' + diff;
+    const trendLbl = trend === 'up' ? `↑ ${diffStr}` : trend === 'down' ? `↓ ${diffStr}` : `→ ${diffStr}`;
+    const pv       = getPV(p);
+    const pc       = pvClass(pv);
+    const noteEsc  = (p.notes || '').replace(/'/g, '&#39;').replace(/"/g, '&quot;');
+    const aav      = p.aav ? `$${p.aav}M` : '—';
+    const ppPct    = p.pp_pct != null ? p.pp_pct + '%' : '—';
+    const comment  = (comments[p.name] || '').replace(/"/g, '&quot;');
+
     return `<tr>
       <td>${p.rank}</td>
-      <td><div class='player-name'>${p.name}</div>${noteEsc ? `<div class='notes-cell' onmouseenter='showTooltip(this,"${noteEsc}")' onmouseleave='hideTooltip()'>${noteEsc}</div>` : ''}</td>
+      <td>
+        <div class='player-name'>${p.name}</div>
+        ${noteEsc ? `<div class='scout-note' onmouseenter='showTooltip(this,"${noteEsc}")' onmouseleave='hideTooltip()'>${noteEsc}</div>` : ''}
+      </td>
       <td><span class='team-tag'>${p.team}</span></td>
       <td><span class='pos-tag pos-${p.pos}'>${p.pos}</span></td>
       <td>${p.age}</td>
-      <td class='col-last col-last-first last-stat'>${p.last_gp ?? '—'}</td>
-      <td class='col-last last-stat'>${p.last_g ?? '—'}</td>
-      <td class='col-last last-stat'>${p.last_a ?? '—'}</td>
-      <td class='col-last col-last-last last-pts'>${p.last_pts ?? '—'}</td>
+
+      <td class='col-last col-last-first last-stat cg-last'>${p.last_gp ?? '—'}</td>
+      <td class='col-last last-stat cg-last'>${p.last_g ?? '—'}</td>
+      <td class='col-last last-stat cg-last'>${p.last_a ?? '—'}</td>
+      <td class='col-last last-pts cg-last'>${p.last_pts ?? '—'}</td>
+      <td class='col-last col-last-last cg-last cg-ppg-last'><span class='ppg-last'>${ppg(p.last_pts, p.last_gp)}</span></td>
+
       <td class='col-proj col-proj-first proj-stat'>${p.proj_gp}</td>
       <td class='col-proj proj-stat'>${p.proj_g}</td>
       <td class='col-proj proj-stat'>${p.proj_a}</td>
       <td class='col-proj proj-pts'>${p.proj_pts}</td>
-      <td class='col-proj col-proj-last ${pmClass}'>${pm}</td>
-      <td><span class='tier tier-${p.tier}'>${p.tier}</span></td>
-      <td><span class='${trendClass}'>${trendLabel}</span></td>
-      <td><div class='pv-bar ${pc}' onmouseenter='showTooltip(this,"Pool Value: ${pv}/100 — pts/GP rate + durability + tier bonus")' onmouseleave='hideTooltip()'>
-        <span class='pv-num'>${pv}</span>
-        <div class='pv-track'><div class='pv-fill' style='width:${pv}%'></div></div>
+      <td class='col-proj col-proj-last cg-ppg-proj'><span class='ppg-proj'>${ppg(p.proj_pts, p.proj_gp)}</span></td>
+
+      <td class='cg-salary'><span class='salary'>${aav}</span></td>
+      <td class='cg-pp'><span class='pp-pct'>${ppPct}</span></td>
+      <td class='cg-tier'><span class='tier tier-${p.tier}'>${p.tier}</span></td>
+      <td class='cg-trend'><span class='trend trend-${trend}'>${trendLbl}</span></td>
+      <td class='cg-value'><div class='pv-bar ${pc}' onmouseenter='showTooltip(this,"Pool Value: ${pv}/100 — pts/GP rate + durability + tier bonus")' onmouseleave='hideTooltip()'>
+        <span class='pv-num'>${pv}</span><div class='pv-track'><div class='pv-fill' style='width:${pv}%'></div></div>
       </div></td>
+      <td class='comment-cell cg-comment'>
+        <input class='comment-input' type='text' placeholder='Add a note…' value="${comment}"
+          onchange='saveComment("${p.name.replace(/"/g,'&quot;')}", this.value)'
+          onclick='event.stopPropagation()'>
+      </td>
     </tr>`;
   }).join('');
+
+  applyColVis();
 }
 
 // ── RENDER BY TEAM ────────────────────────────────────────
 function renderByTeam() {
   const teams = {};
-  allPlayers.forEach(p => {
-    if (!teams[p.team]) teams[p.team] = [];
-    teams[p.team].push(p);
-  });
-  const sorted_teams = Object.keys(teams).sort();
+  allPlayers.forEach(p => { if (!teams[p.team]) teams[p.team] = []; teams[p.team].push(p); });
   const grid = document.getElementById('teamGrid');
-  grid.innerHTML = sorted_teams.map(team => {
+  grid.innerHTML = Object.keys(teams).sort().map(team => {
     const players = teams[team].sort((a, b) => b.proj_pts - a.proj_pts);
-    const rows = players.map(p => {
-      const pm = p.proj_pm >= 0 ? '+' + p.proj_pm : p.proj_pm;
-      const pmClass = p.proj_pm >= 0 ? 'stat-pm-pos' : 'stat-pm-neg';
-      return `<tr>
-        <td><span class='player-name' style='font-size:0.9em'>${p.name}</span></td>
-        <td><span class='pos-tag pos-${p.pos}'>${p.pos}</span></td>
-        <td class='stat-pts'>${p.proj_pts}</td>
-        <td class='stat-g'>${p.proj_g}</td>
-        <td class='stat-a'>${p.proj_a}</td>
-        <td class='${pmClass}'>${pm}</td>
-        <td><span class='tier tier-${p.tier}' style='font-size:0.72em'>${p.tier}</span></td>
-      </tr>`;
-    }).join('');
+    const rows = players.map(p => `<tr>
+      <td><span class='player-name' style='font-size:0.88em'>${p.name}</span></td>
+      <td><span class='pos-tag pos-${p.pos}'>${p.pos}</span></td>
+      <td class='last-pts'>${p.last_pts ?? '—'}</td>
+      <td class='proj-pts'>${p.proj_pts}</td>
+      <td><span class='ppg-proj'>${ppg(p.proj_pts, p.proj_gp)}</span></td>
+      <td><span class='tier tier-${p.tier}' style='font-size:0.7em'>${p.tier}</span></td>
+    </tr>`).join('');
     return `<div class='team-card'>
-      <div class='team-card-header'>
-        <span class='team-abbr'>${team}</span>
-        <span class='team-count'>${players.length} players</span>
-      </div>
-      <div style='overflow-x:auto'>
-        <table>
-          <thead><tr>
-            <th>Player</th><th>Pos</th><th>PTS</th><th>G</th><th>A</th><th>+/-</th><th>Tier</th>
-          </tr></thead>
-          <tbody>${rows}</tbody>
-        </table>
-      </div>
+      <div class='team-card-header'><span class='team-abbr'>${team}</span><span class='team-count'>${players.length} players</span></div>
+      <div style='overflow-x:auto'><table>
+        <thead><tr><th>Player</th><th>Pos</th><th>Last PTS</th><th>Proj PTS</th><th>PPG</th><th>Tier</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table></div>
     </div>`;
   }).join('');
 }
@@ -538,25 +610,18 @@ function renderByTeam() {
 function renderSleepers() {
   const sleepers = allPlayers.filter(p => p.tier === 'Sleeper').sort((a, b) => b.proj_pts - a.proj_pts);
   const grid = document.getElementById('sleepersGrid');
-  if (!sleepers.length) {
-    grid.innerHTML = '<div class="empty-state"><div class="icon">🌟</div>No sleepers in dataset yet.</div>';
-    return;
-  }
-  grid.innerHTML = sleepers.map((p, i) => {
-    const pm = p.proj_pm >= 0 ? '+' + p.proj_pm : p.proj_pm;
-    return `<div class='sleeper-card'>
-      <div class='sleeper-rank'>🌟 Sleeper Pick #${i + 1}</div>
-      <div class='sleeper-name'>${p.name}</div>
-      <div class='sleeper-meta'>${p.team} · ${p.pos} · Age ${p.age} · ${p.proj_gp} GP</div>
-      <div class='sleeper-stats'>
-        <div class='sleeper-stat'><div class='val'>${p.proj_pts}</div><div class='lbl'>PTS</div></div>
-        <div class='sleeper-stat'><div class='val stat-g'>${p.proj_g}</div><div class='lbl'>G</div></div>
-        <div class='sleeper-stat'><div class='val stat-a'>${p.proj_a}</div><div class='lbl'>A</div></div>
-        <div class='sleeper-stat'><div class='val ${p.proj_pm >= 0 ? 'stat-pm-pos' : 'stat-pm-neg'}'>${pm}</div><div class='lbl'>+/-</div></div>
-      </div>
-      <div class='sleeper-note'>"${p.notes}"</div>
-    </div>`;
-  }).join('');
+  if (!sleepers.length) { grid.innerHTML = '<div class="empty-state"><div class="icon">🌟</div>No sleepers yet.</div>'; return; }
+  grid.innerHTML = sleepers.map((p, i) => `<div class='sleeper-card'>
+    <div class='sleeper-rank'>🌟 Sleeper Pick #${i + 1}</div>
+    <div class='sleeper-name'>${p.name}</div>
+    <div class='sleeper-meta'>${p.team} · ${p.pos} · Age ${p.age} · ${p.proj_gp} GP${p.aav ? ' · $' + p.aav + 'M' : ''}</div>
+    <div class='sleeper-stats'>
+      <div class='sleeper-stat'><div class='val proj-pts'>${p.proj_pts}</div><div class='lbl'>PTS</div></div>
+      <div class='sleeper-stat'><div class='val ppg-proj'>${ppg(p.proj_pts, p.proj_gp)}</div><div class='lbl'>PPG</div></div>
+      <div class='sleeper-stat'><div class='val last-pts'>${p.last_pts ?? '—'}</div><div class='lbl'>Last PTS</div></div>
+    </div>
+    <div class='sleeper-note'>"${p.notes}"</div>
+  </div>`).join('');
 }
 
 // ── TABS ─────────────────────────────────────────────────
@@ -567,23 +632,18 @@ function switchTab(name, btn) {
   btn.classList.add('active');
 }
 
-function toggleMobileMenu() {
-  document.getElementById('navLinks').classList.toggle('active');
-}
-
-// ── PRINT ─────────────────────────────────────────────────
-function exportCSV() {
-  window.print();
-}
-
 // ── CSV EXPORT ────────────────────────────────────────────
 function downloadCSV() {
-  const headers = ['Rank','Player','Team','Pos','Age','Last GP','Last G','Last A','Last PTS','Proj GP','Proj G','Proj A','Proj PTS','Proj +/-','Tier','Trend','Pool Value'];
+  const comments = getComments();
+  const headers = ['Rank','Player','Team','Pos','Age','Last GP','Last G','Last A','Last PTS','Last PPG','Proj GP','Proj G','Proj A','Proj PTS','Proj PPG','AAV','PP%','Tier','Trend','Pool Value','My Notes'];
   const rows = sorted(getFiltered()).map(p => {
     const trend = getTrend(p);
-    const diff = p.proj_pts - (p.last_pts || p.proj_pts);
-    const trendLabel = trend === 'up' ? `+${diff}` : `${diff}`;
-    return [p.rank, p.name, p.team, p.pos, p.age, p.last_gp??'', p.last_g??'', p.last_a??'', p.last_pts??'', p.proj_gp, p.proj_g, p.proj_a, p.proj_pts, p.proj_pm, p.tier, trendLabel, getPV(p)];
+    const diff  = p.proj_pts - (p.last_pts || p.proj_pts);
+    return [p.rank, p.name, p.team, p.pos, p.age,
+      p.last_gp??'', p.last_g??'', p.last_a??'', p.last_pts??'', ppg(p.last_pts, p.last_gp),
+      p.proj_gp, p.proj_g, p.proj_a, p.proj_pts, ppg(p.proj_pts, p.proj_gp),
+      p.aav ? '$'+p.aav+'M' : '', p.pp_pct != null ? p.pp_pct+'%' : '',
+      p.tier, (trend==='up'?'+':'')+diff, getPV(p), comments[p.name]||''];
   });
   const csv = [headers, ...rows].map(r => r.map(v => `"${v}"`).join(',')).join('\n');
   const a = document.createElement('a');
@@ -592,38 +652,7 @@ function downloadCSV() {
   a.click();
 }
 
-// Default sort header
-document.querySelector('thead th[data-col="rank"]').classList.add('sorted-asc');
-
 init();
 </script>
-
-<!-- PASSWORD GATE (commented out — uncomment to enable paywall)
-<div id='pw-gate' style='display:none; position:fixed; inset:0; background:#0f172a; z-index:9999; display:flex; align-items:center; justify-content:center;'>
-  <div style='background:#1e293b; border:1px solid #334155; border-radius:16px; padding:40px; max-width:360px; width:90%; text-align:center;'>
-    <div style='font-size:2em; margin-bottom:12px;'>🔒</div>
-    <h2 style='color:#f1f5f9; margin-bottom:8px;'>Poolers Guide</h2>
-    <p style='color:#94a3b8; font-size:0.9em; margin-bottom:24px;'>Enter your access code to view 2026-27 projections.</p>
-    <input id='pw-input' type='password' placeholder='Access code…' style='width:100%; background:#0f172a; border:1px solid #334155; border-radius:8px; color:#e2e8f0; padding:10px 14px; font-size:1em; outline:none; margin-bottom:12px;'>
-    <div id='pw-error' style='color:#f87171; font-size:0.82em; margin-bottom:12px; display:none;'>Wrong code. Try again.</div>
-    <button onclick='checkPw()' style='width:100%; background:linear-gradient(135deg,#2c5aa0,#1e3a8a); color:white; border:none; border-radius:8px; padding:11px; font-weight:700; cursor:pointer; font-size:1em;'>Unlock →</button>
-  </div>
-</div>
-<script>
-const PW = 'your-password-here';
-const PW_KEY = 'poolers_guide_2027';
-if (sessionStorage.getItem(PW_KEY) !== PW) document.getElementById('pw-gate').style.display = 'flex';
-function checkPw() {
-  if (document.getElementById('pw-input').value === PW) {
-    sessionStorage.setItem(PW_KEY, PW);
-    document.getElementById('pw-gate').style.display = 'none';
-  } else {
-    document.getElementById('pw-error').style.display = 'block';
-  }
-}
-document.getElementById('pw-input').addEventListener('keydown', e => { if (e.key === 'Enter') checkPw(); });
-</script>
--->
-
 </body>
 </html>
