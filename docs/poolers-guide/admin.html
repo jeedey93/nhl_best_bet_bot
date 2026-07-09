@@ -7,89 +7,115 @@
 <link rel='icon' type='image/png' href='../parieur_discipline_icon_1024.png'>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f1f5f9; color: #1e293b; min-height: 100vh; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f4f8; color: #1e293b; min-height: 100vh; }
 
 /* ── NAV ── */
-nav { background: linear-gradient(135deg, #2c5aa0, #1e3a8a); padding: 10px 20px; display: flex; align-items: center; gap: 12px; }
-nav img { width: 28px; height: 28px; border-radius: 50%; }
-nav span { color: white; font-weight: 700; }
-nav a { color: rgba(255,255,255,0.7); text-decoration: none; font-size: 0.85em; margin-left: auto; padding: 6px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); transition: background 0.2s; }
-nav a:hover { background: rgba(255,255,255,0.1); }
+nav { background: linear-gradient(135deg, #1e3a8a, #2c5aa0); padding: 12px 24px; display: flex; align-items: center; gap: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+nav img { width: 30px; height: 30px; border-radius: 50%; }
+nav span { color: white; font-weight: 700; font-size: 1em; }
+nav a { color: rgba(255,255,255,0.75); text-decoration: none; font-size: 0.83em; margin-left: auto; padding: 6px 14px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.25); transition: all 0.2s; }
+nav a:hover { background: rgba(255,255,255,0.12); color: white; border-color: rgba(255,255,255,0.4); }
 
 /* ── LOCK ── */
-#lock { position: fixed; inset: 0; background: linear-gradient(135deg, #f8fafc, #eff6ff); z-index: 999; display: flex; align-items: center; justify-content: center; }
-.lock-box { background: white; border: none; border-top: 4px solid #2563eb; border-radius: 16px; padding: 40px 32px; width: 360px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.12); }
-.lock-box h2 { font-size: 1.3em; font-weight: 800; margin-bottom: 6px; color: #1e293b; }
-.lock-box p  { color: #64748b; font-size: 0.85em; margin-bottom: 24px; }
-.lock-box input { width: 100%; background: white; border: 1px solid #e2e8f0; border-radius: 8px; color: #1e293b; padding: 10px 14px; font-size: 0.95em; outline: none; margin-bottom: 16px; }
-.lock-box input:focus { border-color: #2563eb; }
-.lock-box input.error { border-color: #f87171; animation: shake 0.3s; }
-.lock-box button { width: 100%; background: linear-gradient(135deg, #2c5aa0, #1e3a8a); color: white; border: none; border-radius: 8px; padding: 11px; font-weight: 700; font-size: 0.95em; cursor: pointer; }
+#lock { position: fixed; inset: 0; background: linear-gradient(135deg, #e0e7ff 0%, #f0f9ff 50%, #ecfdf5 100%); z-index: 999; display: flex; align-items: center; justify-content: center; }
+.lock-box { background: white; border-radius: 20px; padding: 48px 40px; width: 380px; text-align: center; box-shadow: 0 24px 64px rgba(0,0,0,0.12); border-top: 4px solid #2563eb; }
+.lock-icon { font-size: 2.5em; margin-bottom: 16px; display: block; }
+.lock-box h2 { font-size: 1.4em; font-weight: 800; color: #1e293b; margin-bottom: 8px; }
+.lock-box p { color: #64748b; font-size: 0.88em; margin-bottom: 28px; line-height: 1.5; }
+.lock-box input { width: 100%; background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 10px; color: #1e293b; padding: 12px 16px; font-size: 1em; outline: none; margin-bottom: 14px; transition: border-color 0.2s, box-shadow 0.2s; text-align: center; letter-spacing: 2px; }
+.lock-box input:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); background: white; }
+.lock-box input.error { border-color: #ef4444; animation: shake 0.3s; }
+.lock-box button { width: 100%; background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; border: none; border-radius: 10px; padding: 13px; font-weight: 700; font-size: 0.95em; cursor: pointer; transition: opacity 0.2s, transform 0.1s; }
+.lock-box button:hover { opacity: 0.92; transform: translateY(-1px); }
 @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
 
 /* ── LAYOUT ── */
-.wrap { max-width: 1700px; margin: 0 auto; padding: 28px 16px 80px; }
-.page-header { background: linear-gradient(135deg, #1e3a8a 0%, #2c5aa0 100%); padding: 28px 24px; border-radius: 12px; margin-bottom: 24px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
-.page-header h1 { font-size: 1.5em; font-weight: 800; color: white; }
-.badge { background: rgba(255,255,255,0.2); color: white; font-size: 0.7em; font-weight: 700; padding: 3px 10px; border-radius: 99px; border: 1px solid rgba(255,255,255,0.3); }
-.header-actions { display: flex; gap: 8px; margin-left: auto; flex-wrap: wrap; }
+.wrap { max-width: 1800px; margin: 0 auto; padding: 24px 20px 80px; }
+
+/* ── PAGE HEADER ── */
+.page-header { background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%); padding: 28px 32px; border-radius: 16px; margin-bottom: 20px; display: flex; align-items: center; gap: 20px; flex-wrap: wrap; box-shadow: 0 4px 16px rgba(37,99,235,0.25); }
+.page-header-left { display: flex; flex-direction: column; gap: 4px; }
+.page-header h1 { font-size: 1.4em; font-weight: 800; color: white; line-height: 1.2; }
+.page-header-sub { color: rgba(255,255,255,0.65); font-size: 0.82em; }
+.badge { display: inline-block; background: rgba(255,255,255,0.18); color: white; font-size: 0.68em; font-weight: 700; padding: 3px 10px; border-radius: 99px; border: 1px solid rgba(255,255,255,0.3); letter-spacing: 0.5px; margin-left: 8px; vertical-align: middle; }
+.header-actions { display: flex; gap: 10px; margin-left: auto; flex-wrap: wrap; align-items: center; }
 
 /* ── BUTTONS ── */
-.btn { padding: 9px 16px; border-radius: 8px; font-size: 0.88em; font-weight: 700; cursor: pointer; border: none; transition: opacity 0.2s; white-space: nowrap; }
-.btn:hover { opacity: 0.85; }
-.btn:disabled { opacity: 0.4; cursor: default; }
-.btn-green { background: linear-gradient(135deg, #065f46, #047857); color: #a7f3d0; padding: 10px 20px; font-size: 0.9em; }
-.btn-ghost { background: white; border: 1px solid rgba(255,255,255,0.3); color: rgba(255,255,255,0.9); }
+.btn { padding: 10px 18px; border-radius: 10px; font-size: 0.88em; font-weight: 700; cursor: pointer; border: none; transition: all 0.2s; white-space: nowrap; }
+.btn:hover { transform: translateY(-1px); }
+.btn:disabled { opacity: 0.45; cursor: default; transform: none; }
+.btn-green  { background: linear-gradient(135deg, #059669, #047857); color: white; box-shadow: 0 2px 8px rgba(5,150,105,0.3); padding: 10px 22px; }
+.btn-ghost  { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.35); color: white; }
+.btn-ghost:hover { background: rgba(255,255,255,0.22); }
+
+/* ── CARDS ── */
+.card { background: white; border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); border: 1px solid #e8edf2; }
 
 /* ── TOOLBAR ── */
-.toolbar { background: white; border-radius: 10px; padding: 12px 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); margin-bottom: 12px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.toolbar { padding: 14px 18px; margin-bottom: 12px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 .search-wrap { position: relative; }
-.search-wrap input { background: white; border: 1px solid #e2e8f0; border-radius: 8px; color: #1e293b; padding: 8px 12px 8px 32px; font-size: 0.88em; outline: none; width: 220px; }
-.search-wrap input:focus { border-color: #2563eb; }
-.search-wrap::before { content: '🔍'; position: absolute; left: 9px; top: 50%; transform: translateY(-50%); font-size: 0.82em; pointer-events: none; }
-.status-msg { font-size: 0.82em; color: #64748b; margin-left: auto; }
+.search-wrap input { background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 8px; color: #1e293b; padding: 9px 12px 9px 34px; font-size: 0.88em; outline: none; width: 230px; transition: border-color 0.2s, box-shadow 0.2s; }
+.search-wrap input:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.08); background: white; }
+.search-wrap::before { content: '🔍'; position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 0.82em; pointer-events: none; }
+.status-pill { margin-left: auto; background: #f1f5f9; border-radius: 99px; padding: 5px 12px; font-size: 0.78em; font-weight: 600; color: #64748b; white-space: nowrap; }
+
+/* ── TEAM LOGO STRIP ── */
+.team-filter { padding: 14px 18px; margin-bottom: 14px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.team-filter-label { font-size: 0.7em; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-right: 6px; }
+.team-logo-btn { width: 42px; height: 42px; border-radius: 10px; border: 2px solid #e8edf2; background: #f8fafc; padding: 5px; cursor: pointer; transition: all 0.18s; opacity: 0.55; display: flex; align-items: center; justify-content: center; }
+.team-logo-btn:hover { opacity: 1; border-color: #93c5fd; background: #eff6ff; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.08); }
+.team-logo-btn.active { opacity: 1; border-color: #2563eb; background: #eff6ff; box-shadow: 0 0 0 3px rgba(37,99,235,0.15), 0 4px 8px rgba(0,0,0,0.08); transform: translateY(-2px); }
+.team-logo-btn img { width: 100%; height: 100%; object-fit: contain; }
+.team-logo-btn.all-btn { font-size: 0.72em; font-weight: 700; color: #475569; width: auto; padding: 6px 14px; letter-spacing: 0.3px; }
 
 /* ── TABLE ── */
-.table-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid #e2e8f0; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-table { width: 100%; border-collapse: collapse; font-size: 0.83em; background: white; }
-thead th { background: #f1f5f9; color: #475569; font-weight: 700; font-size: 0.76em; letter-spacing: 0.5px; text-transform: uppercase; padding: 10px 8px; text-align: left; white-space: nowrap; position: sticky; top: 0; z-index: 2; border-bottom: 2px solid #e2e8f0; }
-tbody tr { border-bottom: 1px solid #e2e8f0; transition: background 0.1s; }
+.table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid #e8edf2; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+table { width: 100%; border-collapse: collapse; font-size: 0.84em; background: white; }
+
+thead th { background: #f8fafc; color: #64748b; font-weight: 700; font-size: 0.72em; letter-spacing: 0.6px; text-transform: uppercase; padding: 10px 10px; text-align: left; white-space: nowrap; position: sticky; top: 0; z-index: 2; border-bottom: 2px solid #e8edf2; }
+thead th.ro-col { color: #94a3b8; font-size: 0.68em; background: #fafbfc; }
+
+/* Column group bands */
+thead th.col-last { background: #eff6ff; color: #1d4ed8; border-bottom: 2px solid #bfdbfe; }
+thead th.col-proj { background: #f0fdf4; color: #15803d; border-bottom: 2px solid #bbf7d0; }
+
+tbody tr { border-bottom: 1px solid #f0f4f8; transition: background 0.1s; }
 tbody tr:hover { background: #f8fafc; }
-tbody tr.saving { opacity: 0.5; pointer-events: none; }
-tbody td { padding: 5px 6px; vertical-align: middle; }
+tbody td { padding: 7px 8px; vertical-align: middle; }
+tbody td.ro-td { padding: 7px 6px; background: #fafbfc; }
+tbody td.last-td { background: #f7fbff; }
+tbody td.proj-td { background: #f7fdf9; }
 
-/* Inline inputs */
-.ci { background: white; border: 1px solid #e2e8f0; border-radius: 6px; color: #1e293b; font-size: 0.88em; outline: none; padding: 5px 8px; transition: border-color 0.15s, background 0.15s; }
-.ci:focus { border-color: #2563eb; background: #f8fafc; }
-.ci.n { text-align: right; width: 58px; }
+/* Dirty row */
+tbody tr.dirty { background: #fffbeb; }
+tbody tr.dirty td:first-child { border-left: 3px solid #f59e0b; }
+
+/* ── INLINE INPUTS ── */
+.ci { background: white; border: 1.5px solid #e2e8f0; border-radius: 7px; color: #1e293b; font-size: 0.88em; outline: none; padding: 5px 8px; transition: border-color 0.15s, box-shadow 0.15s; }
+.ci:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+.ci.n { text-align: right; width: 60px; }
 .ci.w { width: 170px; }
-.ci.m { width: 100px; }
-.cs { background: white; border: 1px solid #e2e8f0; border-radius: 6px; color: #1e293b; padding: 5px 8px; font-size: 0.85em; outline: none; cursor: pointer; }
-.cs:focus { border-color: #2563eb; }
-/* Read-only cells */
-.ro { color: #94a3b8; font-size: 0.75em; padding: 0 4px; white-space: nowrap; }
-thead th.ro-col { color: #94a3b8; font-size: 0.7em; padding: 10px 5px; }
-tbody td.ro-td  { padding: 5px 4px; }
-tbody tr.dirty { background: #eff6ff; border-left: 3px solid #3b82f6; }
-tbody tr.dirty td:first-child { border-left: 3px solid #3b82f6; }
+.cs { background: white; border: 1.5px solid #e2e8f0; border-radius: 7px; color: #1e293b; padding: 5px 8px; font-size: 0.85em; outline: none; cursor: pointer; transition: border-color 0.15s, box-shadow 0.15s; }
+.cs:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
 
-/* Section labels */
-.sl { font-size: 0.68em; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; padding: 2px 6px; border-radius: 3px; display: inline-block; margin-bottom: 2px; }
+/* Read-only values */
+.ro { color: #94a3b8; font-size: 0.82em; padding: 0 2px; white-space: nowrap; display: inline-block; }
+
+/* Section label chips */
+.sl { font-size: 0.68em; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; padding: 2px 7px; border-radius: 99px; display: inline-block; }
 .sl-last { background: #dbeafe; color: #1d4ed8; }
-.sl-proj { background: #d1fae5; color: #065f46; }
+.sl-proj  { background: #d1fae5; color: #065f46; }
 
-/* Team logo filter strip */
-.team-filter { background: white; border-radius: 10px; padding: 12px 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); margin-bottom: 16px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
-.team-filter-label { font-size: 0.75em; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.8px; margin-right: 4px; white-space: nowrap; }
-.team-logo-btn { width: 40px; height: 40px; border-radius: 8px; border: 2px solid transparent; background: white; padding: 4px; cursor: pointer; transition: border-color 0.15s, background 0.15s, box-shadow 0.15s; opacity: 0.5; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 2px rgba(0,0,0,0.08); }
-.team-logo-btn:hover { opacity: 0.85; border-color: #cbd5e1; }
-.team-logo-btn.active { opacity: 1; border-color: #2563eb; background: #eff6ff; box-shadow: 0 0 0 3px rgba(37,99,235,0.15); }
-.team-logo-btn img { width: 100%; height: 100%; object-fit: contain; }
-.team-logo-btn.all-btn { font-size: 0.72em; font-weight: 700; color: #475569; width: auto; padding: 4px 10px; }
-#toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(80px); background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px 20px; font-size: 0.88em; font-weight: 600; color: #1e293b; box-shadow: 0 4px 20px rgba(0,0,0,0.12); transition: transform 0.3s; pointer-events: none; z-index: 9999; white-space: nowrap; }
-#toast.show { transform: translateX(-50%) translateY(0); }
-#toast.success { border-color: #86efac; color: #15803d; }
-#toast.error   { border-color: #fca5a5; color: #dc2626; }
+/* Tier select color coding */
+.tier-Elite   { color: #92400e; font-weight: 700; }
+.tier-Top     { color: #1e40af; font-weight: 700; }
+.tier-Sleeper { color: #065f46; font-weight: 700; }
+
+/* ── TOAST ── */
+#toast { position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(80px); background: white; border-radius: 12px; padding: 12px 22px; font-size: 0.88em; font-weight: 600; color: #1e293b; box-shadow: 0 8px 32px rgba(0,0,0,0.14); transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1); pointer-events: none; z-index: 9999; white-space: nowrap; border-left: 4px solid #e2e8f0; }
+#toast.show    { transform: translateX(-50%) translateY(0); }
+#toast.success { border-left-color: #22c55e; color: #15803d; }
+#toast.error   { border-left-color: #ef4444; color: #dc2626; }
 </style>
 </head>
 <body>
@@ -103,33 +129,38 @@ tbody tr.dirty td:first-child { border-left: 3px solid #3b82f6; }
 <!-- LOCK SCREEN -->
 <div id='lock'>
   <div class='lock-box'>
-    <div style='font-size:2em;margin-bottom:12px'>🔒</div>
-    <h2>Admin — Poolers Guide</h2>
-    <p>Enter your admin password to access the editor.</p>
-    <input type='password' id='pwInput' placeholder='Admin password…'>
+    <span class='lock-icon'>🔒</span>
+    <h2>Poolers Guide Admin</h2>
+    <p>Enter your admin password to access the projection editor.</p>
+    <input type='password' id='pwInput' placeholder='Password'>
     <button onclick='checkPw()'>Unlock →</button>
   </div>
 </div>
 
 <!-- MAIN -->
 <div class='wrap'>
+
   <div class='page-header'>
-    <h1>📋 Poolers Guide Editor <span class='badge'>2026-27</span></h1>
+    <div class='page-header-left'>
+      <h1>📋 Poolers Guide Editor <span class='badge'>2026-27</span></h1>
+      <span class='page-header-sub'>Edit projections, tier, notes and team info for each player</span>
+    </div>
     <div class='header-actions'>
       <button class='btn btn-ghost' onclick='addPlayer()'>+ Add Player</button>
       <button class='btn btn-green' id='saveAllBtn' onclick='saveAll()' disabled>💾 Save All</button>
     </div>
   </div>
 
-  <div class='toolbar'>
+  <div class='card toolbar'>
     <div class='search-wrap'>
-      <input type='text' id='searchInput' placeholder='Filter by name…' oninput='renderTable()'>
+      <input type='text' id='searchInput' placeholder='Search by player name…' oninput='renderTable()'>
     </div>
-    <span class='status-msg' id='statusMsg'>Loading…</span>
+    <span class='status-pill' id='statusMsg'>Loading…</span>
   </div>
-  <div class='team-filter' id='teamFilter'>
-    <span class='team-filter-label'>Team</span>
-    <button class='team-logo-btn all-btn active' onclick='setTeam("", this)'>All</button>
+
+  <div class='card team-filter' id='teamFilter'>
+    <span class='team-filter-label'>Filter by team</span>
+    <button class='team-logo-btn all-btn active' onclick='setTeam("", this)'>All Teams</button>
   </div>
 
   <div class='table-wrap'>
@@ -137,18 +168,18 @@ tbody tr.dirty td:first-child { border-left: 3px solid #3b82f6; }
       <thead>
         <tr>
           <th class='ro-col'>#</th>
-          <th class='ro-col'>Name</th>
-          <th '>Team</th>
+          <th class='ro-col'>Player</th>
+          <th>Team</th>
           <th class='ro-col'>Pos</th>
           <th class='ro-col'>Age</th>
-          <th '>AAV ($M)</th>
-          <th class='ro-col'><span class='sl sl-last'>25-26</span> G</th>
-          <th class='ro-col'><span class='sl sl-last'>25-26</span> A</th>
-          <th class='ro-col'><span class='sl sl-last'>25-26</span> PTS</th>
-          <th class='ro-col'><span class='sl sl-last'>25-26</span> PP%</th>
-          <th><span class='sl sl-proj'>Proj</span> G</th>
-          <th><span class='sl sl-proj'>Proj</span> A</th>
-          <th><span class='sl sl-proj'>Proj</span> PTS</th>
+          <th>AAV ($M)</th>
+          <th class='ro-col col-last'><span class='sl sl-last'>25-26</span> G</th>
+          <th class='ro-col col-last'><span class='sl sl-last'>25-26</span> A</th>
+          <th class='ro-col col-last'><span class='sl sl-last'>25-26</span> PTS</th>
+          <th class='ro-col col-last'><span class='sl sl-last'>25-26</span> PP%</th>
+          <th class='col-proj'><span class='sl sl-proj'>Proj</span> G</th>
+          <th class='col-proj'><span class='sl sl-proj'>Proj</span> A</th>
+          <th class='col-proj'><span class='sl sl-proj'>Proj</span> PTS</th>
           <th>Tier</th>
           <th>Notes</th>
         </tr>
@@ -161,18 +192,18 @@ tbody tr.dirty td:first-child { border-left: 3px solid #3b82f6; }
 <div id='toast'></div>
 
 <script>
-const ADMIN_PW  = 'parieur2026';
-const PW_KEY    = 'poolers_admin_auth';
-const SB_URL    = 'https://fifurqlitkywtmhgtzeu.supabase.co';
-const SB_KEY    = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZpZnVycWxpdGt5d3RtaGd0emV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3MDIyMjQsImV4cCI6MjA5MjI3ODIyNH0.KPVPj1qwbSJJMyLR_-AhDcRs0vi2sUU6qbFQ-kH53C0';
-const HEADERS   = { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Content-Type': 'application/json' };
-const TABLE     = `${SB_URL}/rest/v1/poolers_players`;
+const ADMIN_PW = 'parieur2026';
+const PW_KEY   = 'poolers_admin_auth';
+const SB_URL   = 'https://fifurqlitkywtmhgtzeu.supabase.co';
+const SB_KEY   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZpZnVycWxpdGt5d3RtaGd0emV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3MDIyMjQsImV4cCI6MjA5MjI3ODIyNH0.KPVPj1qwbSJJMyLR_-AhDcRs0vi2sUU6qbFQ-kH53C0';
+const HEADERS  = { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Content-Type': 'application/json' };
+const TABLE    = `${SB_URL}/rest/v1/poolers_players`;
 
 let players = [];
 let dirty = new Set();
 let activeTeam = '';
 
-// ── AUTH ────────────────────────────────────────────────
+// ── AUTH ─────────────────────────────────────────────────
 function checkPw() {
   const pw = document.getElementById('pwInput').value;
   if (pw === ADMIN_PW) {
@@ -206,12 +237,12 @@ async function loadPlayers() {
   }
 }
 
-// ── RENDER ────────────────────────────────────────────────
+// ── CONSTANTS ────────────────────────────────────────────
 const ALL_TEAMS = ['ANA','BOS','BUF','CAR','CBJ','CGY','CHI','COL','DAL','DET','EDM','FLA','LAK','MIN','MTL','NJD','NSH','NYI','NYR','OTT','PHI','PIT','SEA','SJS','STL','TBL','TOR','UTA','VAN','VGK','WPG','WSH'];
 const TIERS = ['Elite','Top','Mid','Sleeper'];
 
-// Build logo strip immediately (before data loads)
-(function buildLogoStrip() {
+// Build logo strip immediately
+(function() {
   const strip = document.getElementById('teamFilter');
   ALL_TEAMS.forEach(t => {
     const btn = document.createElement('button');
@@ -227,6 +258,7 @@ function markDirty(id) {
   dirty.add(id);
   document.getElementById(`row-${id}`)?.classList.add('dirty');
   document.getElementById('saveAllBtn').disabled = false;
+  updateStatus();
 }
 
 function setTeam(team, btn) {
@@ -243,34 +275,37 @@ function renderTable() {
     (!activeTeam || p.team === activeTeam)
   );
   document.getElementById('tbody').innerHTML = visible.map(p => rowHTML(p)).join('');
-  setStatus(`${visible.length} of ${players.length} players${dirty.size ? ` · ${dirty.size} unsaved` : ''}`);
+  updateStatus(visible.length);
 }
+
+const TIER_COLORS = { Elite: '#92400e', Top: '#1e40af', Mid: '#475569', Sleeper: '#065f46' };
 
 function rowHTML(p) {
   const id = p.id;
   const ro = v => `<span class='ro'>${v ?? '—'}</span>`;
+  const tierColor = TIER_COLORS[p.tier] || '#475569';
   return `<tr id='row-${id}'>
     <td class='ro-td'>${ro(p.rank)}</td>
-    <td class='ro-td' style='min-width:140px'>${ro(p.name)}</td>
-    <td><input class='ci' id='${id}-team' type='text' value='${esc(p.team)}' style='width:52px;text-transform:uppercase' oninput='this.value=this.value.toUpperCase();markDirty(${id})'></td>
+    <td class='ro-td' style='min-width:150px;font-weight:600;color:#1e293b;font-size:0.9em'>${p.name}</td>
+    <td><input class='ci' id='${id}-team' type='text' value='${esc(p.team)}' style='width:54px;text-transform:uppercase;text-align:center;font-weight:700' oninput='this.value=this.value.toUpperCase();markDirty(${id})'></td>
     <td class='ro-td'>${ro(p.pos)}</td>
     <td class='ro-td'>${ro(p.age)}</td>
     <td><input class='ci n' id='${id}-aav' type='number' step='0.01' value='${p.aav??''}' oninput='markDirty(${id})' placeholder='—'></td>
-    <td class='ro-td'>${ro(p.last_g)}</td>
-    <td class='ro-td'>${ro(p.last_a)}</td>
-    <td class='ro-td'>${ro(p.last_pts)}</td>
-    <td class='ro-td'>${ro(p.pp_pct != null ? p.pp_pct+'%' : '—')}</td>
-    <td><input class='ci n' id='${id}-proj_g'   type='number' value='${p.proj_g??''}' oninput='markDirty(${id})'></td>
-    <td><input class='ci n' id='${id}-proj_a'   type='number' value='${p.proj_a??''}' oninput='markDirty(${id})'></td>
-    <td><input class='ci n' id='${id}-proj_pts' type='number' value='${p.proj_pts??''}' oninput='markDirty(${id})'></td>
-    <td><select class='cs' id='${id}-tier' onchange='markDirty(${id})'>${TIERS.map(v=>`<option${p.tier===v?' selected':''}>${v}</option>`).join('')}</select></td>
-    <td><input class='ci w' id='${id}-notes' type='text' value='${esc(p.notes||'')}' style='width:240px' oninput='markDirty(${id})'></td>
+    <td class='ro-td last-td'>${ro(p.last_g)}</td>
+    <td class='ro-td last-td'>${ro(p.last_a)}</td>
+    <td class='ro-td last-td' style='font-weight:700;color:#1d4ed8'>${ro(p.last_pts)}</td>
+    <td class='ro-td last-td'>${ro(p.pp_pct != null ? p.pp_pct + '%' : '—')}</td>
+    <td class='proj-td'><input class='ci n' id='${id}-proj_g'   type='number' value='${p.proj_g??''}' oninput='markDirty(${id})'></td>
+    <td class='proj-td'><input class='ci n' id='${id}-proj_a'   type='number' value='${p.proj_a??''}' oninput='markDirty(${id})'></td>
+    <td class='proj-td'><input class='ci n' id='${id}-proj_pts' type='number' value='${p.proj_pts??''}' style='font-weight:700' oninput='markDirty(${id})'></td>
+    <td><select class='cs' id='${id}-tier' style='color:${tierColor};font-weight:700' onchange='markDirty(${id})'>${TIERS.map(v=>`<option value='${v}'${p.tier===v?' selected':''}>${v}</option>`).join('')}</select></td>
+    <td><input class='ci w' id='${id}-notes' type='text' value='${esc(p.notes||'')}' style='width:240px;color:#64748b;font-style:italic' oninput='markDirty(${id})'></td>
   </tr>`;
 }
 
 function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 
-// ── SAVE ALL ──────────────────────────────────────────────
+// ── SAVE ALL ─────────────────────────────────────────────
 async function saveAll() {
   if (!dirty.size) return;
   const btn = document.getElementById('saveAllBtn');
@@ -315,7 +350,8 @@ async function saveAll() {
 
   btn.textContent = '💾 Save All';
   btn.disabled = dirty.size === 0;
-  if (failed) toast(`Save failed — check console for details`, 'error');
+  updateStatus();
+  if (failed) toast('Save failed — check console', 'error');
   else toast(`${ids.length} player${ids.length > 1 ? 's' : ''} saved ✓`, 'success');
 }
 
@@ -335,15 +371,18 @@ async function addPlayer() {
     renderTable();
     const newRow = document.getElementById(`row-${created.id}`);
     if (newRow) { newRow.scrollIntoView({ behavior: 'smooth', block: 'center' }); newRow.querySelector('input').focus(); }
-    toast('Player added — edit and hit Save All', 'success');
+    toast('Player added — fill in and hit Save All', 'success');
   } catch (e) {
     toast('Add failed: ' + e.message, 'error');
   }
 }
 
-// ── DELETE ROW ────────────────────────────────────────────
-
 // ── HELPERS ──────────────────────────────────────────────
+function updateStatus(visibleCount) {
+  const count = visibleCount ?? players.length;
+  const unsaved = dirty.size ? ` · <strong style="color:#f59e0b">${dirty.size} unsaved</strong>` : '';
+  document.getElementById('statusMsg').innerHTML = `${count} of ${players.length} players${unsaved}`;
+}
 function setStatus(msg) { document.getElementById('statusMsg').textContent = msg; }
 
 function toast(msg, type = '') {
