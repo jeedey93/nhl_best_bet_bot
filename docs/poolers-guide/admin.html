@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='UTF-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+<title>Admin — Poolers Guide 2026-27</title>
+<link rel='icon' type='image/png' href='../parieur_discipline_icon_1024.png'>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; }
+
+/* ── NAV ── */
+nav { background: linear-gradient(135deg, #2c5aa0, #1e3a8a); padding: 10px 20px; display: flex; align-items: center; gap: 12px; }
+nav img { width: 28px; height: 28px; border-radius: 50%; }
+nav span { color: white; font-weight: 700; }
+nav a { color: rgba(255,255,255,0.7); text-decoration: none; font-size: 0.85em; margin-left: auto; padding: 6px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); transition: background 0.2s; }
+nav a:hover { background: rgba(255,255,255,0.1); }
+
+/* ── LOCK ── */
+#lock { position: fixed; inset: 0; background: #0f172a; z-index: 999; display: flex; align-items: center; justify-content: center; }
+.lock-box { background: #1e293b; border: 1px solid #334155; border-radius: 16px; padding: 40px 32px; width: 360px; text-align: center; }
+.lock-box h2 { font-size: 1.3em; font-weight: 800; margin-bottom: 6px; }
+.lock-box p  { color: #64748b; font-size: 0.85em; margin-bottom: 24px; }
+.lock-box input { width: 100%; background: #0f172a; border: 1px solid #334155; border-radius: 8px; color: #e2e8f0; padding: 10px 14px; font-size: 0.95em; outline: none; margin-bottom: 10px; }
+.lock-box input:focus { border-color: #60a5fa; }
+.lock-box input.error { border-color: #f87171; animation: shake 0.3s; }
+.lock-box .sub { font-size: 0.78em; color: #475569; margin-bottom: 16px; }
+.lock-box button { width: 100%; background: linear-gradient(135deg, #2c5aa0, #1e3a8a); color: white; border: none; border-radius: 8px; padding: 11px; font-weight: 700; font-size: 0.95em; cursor: pointer; }
+@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+
+/* ── LAYOUT ── */
+.wrap { max-width: 1600px; margin: 0 auto; padding: 28px 16px 80px; }
+.page-header { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
+.page-header h1 { font-size: 1.5em; font-weight: 800; }
+.badge { background: linear-gradient(135deg, #2c5aa0, #1e3a8a); color: white; font-size: 0.7em; font-weight: 700; padding: 3px 10px; border-radius: 99px; }
+.header-actions { display: flex; gap: 8px; margin-left: auto; flex-wrap: wrap; }
+
+/* ── BUTTONS ── */
+.btn { padding: 9px 16px; border-radius: 8px; font-size: 0.88em; font-weight: 700; cursor: pointer; border: none; transition: opacity 0.2s; white-space: nowrap; }
+.btn:hover { opacity: 0.85; }
+.btn:disabled { opacity: 0.4; cursor: default; }
+.btn-primary { background: linear-gradient(135deg, #2c5aa0, #1e3a8a); color: white; }
+.btn-green   { background: linear-gradient(135deg, #065f46, #047857); color: #a7f3d0; }
+.btn-red     { background: linear-gradient(135deg, #7f1d1d, #991b1b); color: #fca5a5; }
+.btn-ghost   { background: #1e293b; border: 1px solid #334155; color: #94a3b8; }
+
+/* ── TOOLBAR ── */
+.toolbar { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; align-items: center; }
+.toolbar input[type=text] { background: #1e293b; border: 1px solid #334155; border-radius: 8px; color: #e2e8f0; padding: 8px 12px 8px 32px; font-size: 0.88em; outline: none; width: 220px; }
+.toolbar input[type=text]:focus { border-color: #60a5fa; }
+.search-wrap { position: relative; }
+.search-wrap::before { content: '🔍'; position: absolute; left: 9px; top: 50%; transform: translateY(-50%); font-size: 0.82em; pointer-events: none; }
+.status-msg { font-size: 0.82em; color: #64748b; margin-left: auto; }
+
+/* ── TABLE ── */
+.table-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid #1e293b; }
+table { width: 100%; border-collapse: collapse; font-size: 0.83em; }
+thead th { background: #1e293b; color: #94a3b8; font-weight: 700; font-size: 0.78em; letter-spacing: 0.5px; text-transform: uppercase; padding: 10px 8px; text-align: left; white-space: nowrap; position: sticky; top: 0; z-index: 2; border-bottom: 2px solid #0f172a; }
+tbody tr { border-bottom: 1px solid #1e293b; }
+tbody tr:hover { background: rgba(255,255,255,0.02); }
+tbody tr.dirty { background: rgba(96,165,250,0.05); }
+tbody tr.dirty td:first-child { border-left: 3px solid #60a5fa; }
+tbody td { padding: 6px 8px; vertical-align: middle; }
+
+/* Cell inputs */
+.cell-input { background: transparent; border: none; border-bottom: 1px solid transparent; color: #e2e8f0; font-size: 0.88em; width: 100%; outline: none; padding: 3px 4px; border-radius: 0; transition: border-color 0.15s, background 0.15s; }
+.cell-input:focus { border-bottom-color: #60a5fa; background: rgba(96,165,250,0.06); border-radius: 4px 4px 0 0; }
+.cell-input.num { text-align: right; width: 54px; }
+.cell-input.wide { width: 180px; }
+.cell-input.med { width: 110px; }
+td.name-td { min-width: 160px; }
+td.notes-td { min-width: 220px; }
+
+/* Select inputs */
+.cell-select { background: #1e293b; border: 1px solid #334155; border-radius: 6px; color: #e2e8f0; padding: 3px 6px; font-size: 0.85em; outline: none; cursor: pointer; }
+.cell-select:focus { border-color: #60a5fa; }
+
+/* Rank / row actions */
+.row-actions { display: flex; gap: 4px; }
+.row-btn { background: none; border: 1px solid #334155; border-radius: 5px; color: #64748b; padding: 3px 7px; cursor: pointer; font-size: 0.78em; transition: color 0.15s, border-color 0.15s; }
+.row-btn:hover { color: #f87171; border-color: #f87171; }
+.row-btn.add:hover { color: #4ade80; border-color: #4ade80; }
+
+/* Section dividers */
+.section-label { font-size: 0.7em; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: 3px 8px; border-radius: 3px; white-space: nowrap; }
+.sl-last { background: rgba(30,74,122,0.4); color: #93c5fd; }
+.sl-proj { background: rgba(22,101,52,0.4); color: #4ade80; }
+.sl-meta { background: rgba(100,116,139,0.3); color: #94a3b8; }
+
+/* Toast */
+#toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(80px); background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 10px 20px; font-size: 0.88em; font-weight: 600; color: white; box-shadow: 0 4px 20px rgba(0,0,0,0.4); transition: transform 0.3s; pointer-events: none; z-index: 9999; white-space: nowrap; }
+#toast.show { transform: translateX(-50%) translateY(0); }
+#toast.success { border-color: #166534; color: #4ade80; }
+#toast.error   { border-color: #7f1d1d; color: #f87171; }
+</style>
+</head>
+<body>
+
+<nav>
+  <img src='../parieur_discipline_icon_1024.png' alt=''>
+  <span>Parieur Discipliné</span>
+  <a href='index.html'>← Back to Guide</a>
+</nav>
+
+<!-- LOCK SCREEN -->
+<div id='lock'>
+  <div class='lock-box'>
+    <div style='font-size:2em;margin-bottom:12px'>🔒</div>
+    <h2>Admin — Poolers Guide</h2>
+    <p>Enter your admin password to access the editor.</p>
+    <input type='password' id='pwInput' placeholder='Admin password…' onkeydown='if(event.key==="Enter")checkPw()'>
+    <div class='sub'>You'll also need a GitHub token with repo write access to save changes.</div>
+    <button onclick='checkPw()'>Unlock →</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class='wrap'>
+  <div class='page-header'>
+    <h1>📋 Poolers Guide Editor <span class='badge'>2026-27</span></h1>
+    <div class='header-actions'>
+      <button class='btn btn-ghost' onclick='addPlayer()'>+ Add Player</button>
+      <button class='btn btn-green' id='saveBtn' onclick='saveToGitHub()' disabled>💾 Save to GitHub</button>
+    </div>
+  </div>
+
+  <div class='toolbar'>
+    <div class='search-wrap'>
+      <input type='text' id='searchInput' placeholder='Filter players…' oninput='renderTable()'>
+    </div>
+    <span class='status-msg' id='statusMsg'>Loading…</span>
+  </div>
+
+  <div class='table-wrap'>
+    <table>
+      <thead>
+        <tr>
+          <th>Rank</th>
+          <th>Name</th>
+          <th>Team</th>
+          <th>Pos</th>
+          <th>Age</th>
+          <th>AAV ($M)</th>
+          <th><span class='section-label sl-last'>2025-26</span> GP</th>
+          <th><span class='section-label sl-last'>2025-26</span> G</th>
+          <th><span class='section-label sl-last'>2025-26</span> A</th>
+          <th><span class='section-label sl-last'>2025-26</span> PTS</th>
+          <th><span class='section-label sl-last'>2025-26</span> PP%</th>
+          <th><span class='section-label sl-proj'>Proj</span> GP</th>
+          <th><span class='section-label sl-proj'>Proj</span> G</th>
+          <th><span class='section-label sl-proj'>Proj</span> A</th>
+          <th><span class='section-label sl-proj'>Proj</span> PTS</th>
+          <th>Tier</th>
+          <th class='notes-td'>Notes</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id='tbody'></tbody>
+    </table>
+  </div>
+</div>
+
+<div id='toast'></div>
+
+<script>
+const ADMIN_PW   = 'parieur2026';
+const PW_KEY     = 'poolers_admin_auth';
+const GH_OWNER   = 'jeedey93';
+const GH_REPO    = 'parieur-discipline-bot';
+const GH_PATH    = 'docs/poolers-guide/players.json';
+const GH_TOKEN_KEY = 'poolers_admin_gh_token';
+
+let players = [];
+let fileSha = '';
+let dirty = new Set();
+
+// ── AUTH ────────────────────────────────────────────────
+function checkPw() {
+  const pw = document.getElementById('pwInput').value;
+  if (pw === ADMIN_PW) {
+    sessionStorage.setItem(PW_KEY, ADMIN_PW);
+    document.getElementById('lock').style.display = 'none';
+    loadPlayers();
+  } else {
+    const el = document.getElementById('pwInput');
+    el.classList.add('error');
+    el.value = '';
+    setTimeout(() => el.classList.remove('error'), 400);
+  }
+}
+document.getElementById('pwInput').addEventListener('keydown', e => { if (e.key === 'Enter') checkPw(); });
+if (sessionStorage.getItem(PW_KEY) === ADMIN_PW) {
+  document.getElementById('lock').style.display = 'none';
+  loadPlayers();
+}
+
+// ── GITHUB TOKEN ─────────────────────────────────────────
+function getToken() {
+  let t = sessionStorage.getItem(GH_TOKEN_KEY);
+  if (!t) {
+    t = prompt('Enter your GitHub token (repo write access):\n(stored in sessionStorage only — cleared on tab close)');
+    if (t) sessionStorage.setItem(GH_TOKEN_KEY, t.trim());
+  }
+  return t ? t.trim() : null;
+}
+
+// ── LOAD ─────────────────────────────────────────────────
+async function loadPlayers() {
+  setStatus('Loading…');
+  try {
+    const res = await fetch(`https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${GH_PATH}`, {
+      headers: { 'Accept': 'application/vnd.github.v3+json' }
+    });
+    if (!res.ok) throw new Error('Failed to load');
+    const data = await res.json();
+    fileSha = data.sha;
+    players = JSON.parse(atob(data.content.replace(/\n/g, '')));
+    setStatus(`${players.length} players loaded`);
+    renderTable();
+  } catch (e) {
+    setStatus('Error loading file');
+    toast('Failed to load players.json', 'error');
+  }
+}
+
+// ── RENDER ────────────────────────────────────────────────
+function renderTable() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const tbody = document.getElementById('tbody');
+  tbody.innerHTML = players
+    .filter(p => !q || p.name.toLowerCase().includes(q) || p.team.toLowerCase().includes(q))
+    .map((p, i) => rowHTML(p, i))
+    .join('');
+}
+
+const TIERS = ['Elite','Top','Mid','Sleeper'];
+const POSITIONS = ['C','LW','RW','D','G'];
+
+function rowHTML(p, i) {
+  const isDirty = dirty.has(p._id ?? i);
+  return `<tr id='row-${i}' class='${isDirty ? 'dirty' : ''}'>
+    <td><input class='cell-input num' type='number' value='${p.rank}' onchange='edit(${i},"rank",+this.value)' style='width:40px'></td>
+    <td class='name-td'><input class='cell-input wide' type='text' value='${esc(p.name)}' onchange='edit(${i},"name",this.value)'></td>
+    <td><input class='cell-input med' type='text' value='${esc(p.team)}' onchange='edit(${i},"team",this.value)' style='width:52px'></td>
+    <td><select class='cell-select' onchange='edit(${i},"pos",this.value)'>${POSITIONS.map(pos=>`<option value='${pos}'${p.pos===pos?' selected':''}>${pos}</option>`).join('')}</select></td>
+    <td><input class='cell-input num' type='number' value='${p.age}' onchange='edit(${i},"age",+this.value)'></td>
+    <td><input class='cell-input num' type='number' step='0.1' value='${p.aav??''}' onchange='edit(${i},"aav",+this.value)' placeholder='—'></td>
+
+    <td><input class='cell-input num' type='number' value='${p.last_gp??''}' onchange='edit(${i},"last_gp",+this.value)' placeholder='—'></td>
+    <td><input class='cell-input num' type='number' value='${p.last_g??''}' onchange='edit(${i},"last_g",+this.value)' placeholder='—'></td>
+    <td><input class='cell-input num' type='number' value='${p.last_a??''}' onchange='edit(${i},"last_a",+this.value)' placeholder='—'></td>
+    <td><input class='cell-input num' type='number' value='${p.last_pts??''}' onchange='edit(${i},"last_pts",+this.value)' placeholder='—'></td>
+    <td><input class='cell-input num' type='number' value='${p.pp_pct??''}' onchange='edit(${i},"pp_pct",+this.value)' placeholder='—' style='width:46px'></td>
+
+    <td><input class='cell-input num' type='number' value='${p.proj_gp}' onchange='edit(${i},"proj_gp",+this.value)'></td>
+    <td><input class='cell-input num' type='number' value='${p.proj_g}' onchange='edit(${i},"proj_g",+this.value)'></td>
+    <td><input class='cell-input num' type='number' value='${p.proj_a}' onchange='edit(${i},"proj_a",+this.value)'></td>
+    <td><input class='cell-input num' type='number' value='${p.proj_pts}' onchange='edit(${i},"proj_pts",+this.value)'></td>
+
+    <td><select class='cell-select' onchange='edit(${i},"tier",this.value)'>${TIERS.map(t=>`<option value='${t}'${p.tier===t?' selected':''}>${t}</option>`).join('')}</select></td>
+    <td class='notes-td'><input class='cell-input wide' type='text' value='${esc(p.notes||'')}' onchange='edit(${i},"notes",this.value)'></td>
+    <td><div class='row-actions'>
+      <button class='row-btn add' title='Duplicate' onclick='dupPlayer(${i})'>⧉</button>
+      <button class='row-btn' title='Delete' onclick='deletePlayer(${i})'>✕</button>
+    </div></td>
+  </tr>`;
+}
+
+function esc(s) { return (s||'').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+
+// ── EDIT ──────────────────────────────────────────────────
+function edit(i, field, value) {
+  players[i][field] = value;
+  dirty.add(i);
+  document.getElementById('row-' + i).classList.add('dirty');
+  document.getElementById('saveBtn').disabled = false;
+  setStatus(`${dirty.size} unsaved change${dirty.size > 1 ? 's' : ''}`);
+}
+
+// ── ADD / DUP / DELETE ────────────────────────────────────
+function addPlayer() {
+  const newP = {
+    rank: players.length + 1, name: 'New Player', team: 'NHL', pos: 'C', age: 25,
+    aav: null, pp_pct: null,
+    last_gp: null, last_g: null, last_a: null, last_pts: null,
+    proj_gp: 82, proj_g: 0, proj_a: 0, proj_pts: 0,
+    tier: 'Mid', notes: ''
+  };
+  players.push(newP);
+  dirty.add(players.length - 1);
+  document.getElementById('saveBtn').disabled = false;
+  renderTable();
+  // Scroll to bottom
+  document.querySelector('.table-wrap').scrollTop = 99999;
+}
+
+function dupPlayer(i) {
+  const copy = { ...players[i], rank: players.length + 1, name: players[i].name + ' (copy)' };
+  players.push(copy);
+  dirty.add(players.length - 1);
+  document.getElementById('saveBtn').disabled = false;
+  renderTable();
+}
+
+function deletePlayer(i) {
+  if (!confirm(`Delete "${players[i].name}"?`)) return;
+  players.splice(i, 1);
+  // Renumber dirty indices
+  const newDirty = new Set();
+  dirty.forEach(d => { if (d < i) newDirty.add(d); else if (d > i) newDirty.add(d - 1); });
+  dirty = newDirty;
+  document.getElementById('saveBtn').disabled = dirty.size === 0 && players.length > 0;
+  renderTable();
+  setStatus(`${dirty.size} unsaved change${dirty.size !== 1 ? 's' : ''}`);
+}
+
+// ── SAVE TO GITHUB ────────────────────────────────────────
+async function saveToGitHub() {
+  const token = getToken();
+  if (!token) return;
+
+  const btn = document.getElementById('saveBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Saving…';
+
+  // Re-read current values from inputs before serialising
+  syncFromInputs();
+
+  // Sort by rank before saving
+  players.sort((a, b) => a.rank - b.rank);
+
+  const content = btoa(unescape(encodeURIComponent(JSON.stringify(players, null, 2) + '\n')));
+
+  try {
+    const res = await fetch(`https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${GH_PATH}`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `token ${token}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/vnd.github.v3+json'
+      },
+      body: JSON.stringify({
+        message: 'Poolers Guide: update players.json via admin',
+        content,
+        sha: fileSha
+      })
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.message || res.statusText);
+    }
+
+    const data = await res.json();
+    fileSha = data.content.sha;
+    dirty.clear();
+    btn.textContent = '💾 Save to GitHub';
+    renderTable();
+    setStatus(`${players.length} players saved`);
+    toast('Saved to GitHub ✓', 'success');
+  } catch (e) {
+    btn.disabled = false;
+    btn.textContent = '💾 Save to GitHub';
+    toast('Save failed: ' + e.message, 'error');
+  }
+}
+
+// Read all current input values back into the players array before saving
+function syncFromInputs() {
+  document.querySelectorAll('#tbody tr').forEach(tr => {
+    const i = parseInt(tr.id.replace('row-', ''));
+    if (isNaN(i) || !players[i]) return;
+    const inputs = tr.querySelectorAll('input, select');
+    const fields = ['rank','name','team','pos','age','aav','last_gp','last_g','last_a','last_pts','pp_pct','proj_gp','proj_g','proj_a','proj_pts','tier','notes'];
+    inputs.forEach((el, fi) => {
+      if (fi >= fields.length) return;
+      const f = fields[fi];
+      const numFields = ['rank','age','aav','last_gp','last_g','last_a','last_pts','pp_pct','proj_gp','proj_g','proj_a','proj_pts'];
+      let v = el.value;
+      if (numFields.includes(f)) {
+        v = v === '' ? null : parseFloat(v);
+        if (!isNaN(v) && Number.isInteger(parseFloat(v)) && f !== 'aav') v = parseInt(v);
+      }
+      players[i][f] = v;
+    });
+  });
+}
+
+// ── HELPERS ──────────────────────────────────────────────
+function setStatus(msg) { document.getElementById('statusMsg').textContent = msg; }
+
+function toast(msg, type = '') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'show ' + type;
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.className = '', 3000);
+}
+</script>
+</body>
+</html>
