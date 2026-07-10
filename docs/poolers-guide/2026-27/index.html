@@ -781,7 +781,7 @@ function renderAll() {
       </td>
       <td><span class='team-tag'>${p.team}</span></td>
       <td><span class='pos-tag pos-${p.pos}'>${p.pos}</span></td>
-      <td>${p.age}</td>
+      <td>${p.age ?? 'N/A'}</td>
 
       <td class='col-last col-last-first last-stat cg-last'>${p.last_gp ?? '—'}</td>
       <td class='col-last last-stat cg-last'>${p.last_g ?? '—'}</td>
@@ -907,7 +907,7 @@ function renderSleepers() {
   grid.innerHTML = sleepers.map((p, i) => `<div class='sleeper-card'>
     <div class='sleeper-rank'><span style='color:#34d399'>●</span> Sleeper Pick #${i + 1}</div>
     <div class='sleeper-name'>${p.name}</div>
-    <div class='sleeper-meta'>${p.team} · ${p.pos} · Age ${p.age} · ${p.proj_gp} GP${p.aav ? ' · $' + p.aav + 'M' : ''}</div>
+    <div class='sleeper-meta'>${p.team} · ${p.pos} · Age ${p.age ?? 'N/A'} · ${p.proj_gp} GP${p.aav ? ' · $' + p.aav + 'M' : ''}</div>
     <div class='sleeper-stats'>
       <div class='sleeper-stat'><div class='val proj-pts'>${p.proj_pts}</div><div class='lbl'>PTS</div></div>
       <div class='sleeper-stat'><div class='val ppg-proj'>${ppg(p.proj_pts, p.proj_gp)}</div><div class='lbl'>PPG</div></div>
@@ -933,7 +933,7 @@ function renderBusts() {
     return `<div class='sleeper-card' style='border-color:#fda4af;background:#fff1f2' onclick='openModal(${p.id})'>
       <div class='sleeper-rank' style='color:#be123c'>💣 Bust Alert — Rank #${p.rank}</div>
       <div class='sleeper-name'>${p.name}</div>
-      <div class='sleeper-meta'>${p.team} · ${p.pos} · Age ${p.age}${p.aav ? ' · $' + p.aav + 'M' : ''}</div>
+      <div class='sleeper-meta'>${p.team} · ${p.pos} · Age ${p.age ?? 'N/A'}${p.aav ? ' · $' + p.aav + 'M' : ''}</div>
       <div class='sleeper-stats'>
         <div class='sleeper-stat'><div class='val last-pts'>${p.last_pts ?? '—'}</div><div class='lbl'>Last PTS</div></div>
         <div class='sleeper-stat'><div class='val proj-pts'>${p.proj_pts}</div><div class='lbl'>Proj PTS</div></div>
