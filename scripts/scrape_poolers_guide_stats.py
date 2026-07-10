@@ -116,7 +116,7 @@ def build_stats_map(skaters: list[dict], age_map: dict[int, int]) -> dict[str, d
         result[name] = {
             "nhl_player_id": pid,
             "full_name":     f"{s['firstName']['default']} {s['lastName']['default']}",
-            "team":          s.get("_team", ""),
+            "team":          TEAM_REMAP.get(s.get("_team", ""), s.get("_team", "")),
             "pos":           POS_MAP.get(s.get("positionCode", "C"), "C"),
             "age":           age_map.get(pid),
             "last_gp":       s.get("gamesPlayed") or 0,
