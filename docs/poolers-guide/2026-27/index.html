@@ -36,16 +36,20 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: lin
 .tab-pane.active { display: block; }
 
 /* ── CONTROLS ── */
-.controls { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; align-items: center; background: white; border-radius: 10px; padding: 12px 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+.controls { display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; background: white; border-radius: 12px; padding: 14px 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+.controls-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .search-box { flex: 1; min-width: 180px; position: relative; }
-.search-box input { width: 100%; background: white; border: 1px solid #e2e8f0; border-radius: 8px; color: #1e293b; padding: 10px 12px 10px 36px; font-size: 0.88em; outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
-.search-box input:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+.search-box input { width: 100%; background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 8px; color: #1e293b; padding: 9px 12px 9px 34px; font-size: 0.88em; outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
+.search-box input:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); background: white; }
 .search-box::before { content: '🔍'; position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 0.85em; pointer-events: none; }
-.results-count { color: #64748b; font-size: 0.82em; white-space: nowrap; }
+.results-count { color: #94a3b8; font-size: 0.8em; white-space: nowrap; }
 .ctrl-btn { background: white; border: 1px solid #e2e8f0; border-radius: 8px; color: #64748b; padding: 8px 13px; font-size: 0.85em; font-weight: 600; cursor: pointer; white-space: nowrap; transition: color 0.2s, border-color 0.2s; }
 .ctrl-btn:hover { color: #1e293b; border-color: #cbd5e1; }
 .ctrl-btn.btn-primary { background: #2563eb; color: white; border-color: #2563eb; }
-.ctrl-btn.btn-primary:hover { background: #1d4ed8; border-color: #1d4ed8; color: white; }
+.ctrl-btn.btn-primary:hover { background: #1d4ed8; }
+/* Team select */
+.team-select { background: white; border: 1.5px solid #e2e8f0; border-radius: 8px; color: #1e293b; padding: 6px 10px; font-size: 0.82em; font-weight: 600; outline: none; cursor: pointer; transition: border-color 0.2s; }
+.team-select:focus { border-color: #2563eb; }
 
 /* ── FILTER PILLS ── */
 .filter-group { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; }
@@ -392,67 +396,71 @@ td.col-proj-last  { border-right: 2px solid #bbf7d0 !important; }
   <!-- TAB: ALL PLAYERS -->
   <div id='tab-all' class='tab-pane active'>
     <div class='controls'>
-      <div class='search-box'>
-        <input type='text' id='searchInput' placeholder='Search player or team…' oninput='applyFilters()'>
-      </div>
-      <div class='controls-divider'></div>
-      <div class='filter-group'>
-        <span class='filter-label'>Pos</span>
-        <button class='pill active' data-filter='pos' data-value='' onclick='setPill(this,"pos")'>All</button>
-        <button class='pill' data-filter='pos' data-value='C' onclick='setPill(this,"pos")'>C</button>
-        <button class='pill' data-filter='pos' data-value='LW' onclick='setPill(this,"pos")'>LW</button>
-        <button class='pill' data-filter='pos' data-value='RW' onclick='setPill(this,"pos")'>RW</button>
-        <button class='pill' data-filter='pos' data-value='D' onclick='setPill(this,"pos")'>D</button>
-        <button class='pill' data-filter='pos' data-value='G' onclick='setPill(this,"pos")'>G</button>
-      </div>
-      <div class='controls-divider'></div>
-      <div class='filter-group'>
-        <span class='filter-label'>Tier</span>
-        <button class='pill active' data-filter='tier' data-value='' onclick='setPill(this,"tier")'>All</button>
-        <button class='pill' data-filter='tier' data-value='Elite' onclick='setPill(this,"tier")'>Elite</button>
-        <button class='pill' data-filter='tier' data-value='Top' onclick='setPill(this,"tier")'>Top</button>
-        <button class='pill' data-filter='tier' data-value='Mid' onclick='setPill(this,"tier")'>Mid</button>
-        <button class='pill' data-filter='tier' data-value='Sleeper' onclick='setPill(this,"tier")'>Sleeper</button>
-      </div>
-      <div class='controls-divider'></div>
-      <div class='filter-group'>
-        <span class='filter-label'>Trend</span>
-        <button class='pill active' data-filter='trend' data-value='' onclick='setPill(this,"trend")'>All</button>
-        <button class='pill' data-filter='trend' data-value='up' onclick='setPill(this,"trend")'>↑ Up</button>
-        <button class='pill' data-filter='trend' data-value='flat' onclick='setPill(this,"trend")'>→ Flat</button>
-        <button class='pill' data-filter='trend' data-value='down' onclick='setPill(this,"trend")'>↓ Down</button>
-      </div>
-      <div class='controls-divider'></div>
-      <div class='filter-group'>
-        <span class='filter-label'>Risk</span>
-        <button class='pill active' data-filter='risk' data-value='' onclick='setPill(this,"risk")'>All</button>
-        <button class='pill' data-filter='risk' data-value='Low' onclick='setPill(this,"risk")'>🟢 Low</button>
-        <button class='pill' data-filter='risk' data-value='Medium' onclick='setPill(this,"risk")'>🟡 Medium</button>
-        <button class='pill' data-filter='risk' data-value='High' onclick='setPill(this,"risk")'>🔴 High</button>
-      </div>
-      <div class='controls-divider'></div>
-      <div class='filter-group' id='teamPills'>
-        <span class='filter-label'>Team</span>
-        <button class='pill active' data-filter='team' data-value='' onclick='setPill(this,"team")'>All</button>
-      </div>
-      <span class='results-count' id='resultsCount'></span>
-      <!-- Column toggle -->
-      <div class='col-toggle-wrap'>
-        <button class='ctrl-btn' onclick='toggleColMenu(event)'>⚙ Columns</button>
-        <div class='col-toggle-menu' id='colMenu'>
-          <div class='menu-title'>Show / Hide</div>
-          <label><input type='checkbox' id='col-last' checked onchange='applyColVis()'> 📅 Last year stats</label>
-          <label><input type='checkbox' id='col-ppg' checked onchange='applyColVis()'> PPG (pts/game)</label>
-          <label><input type='checkbox' id='col-salary' checked onchange='applyColVis()'> 💰 Salary (AAV)</label>
-          <label><input type='checkbox' id='col-pp' checked onchange='applyColVis()'> PP% (powerplay points)</label>
-          <label><input type='checkbox' id='col-tier' checked onchange='applyColVis()'> Tier</label>
-          <label><input type='checkbox' id='col-trend' checked onchange='applyColVis()'> Trend</label>
-          <label><input type='checkbox' id='col-value' checked onchange='applyColVis()'> Pool Value</label>
-          <label><input type='checkbox' id='col-risk' checked onchange='applyColVis()'> 🔴 Risk Rating</label>
+      <!-- Row 1: search, team, actions -->
+      <div class='controls-row'>
+        <div class='search-box'>
+          <input type='text' id='searchInput' placeholder='Search player…' oninput='applyFilters()'>
+        </div>
+        <select class='team-select' id='teamSelect' onchange='setTeam(this.value)'>
+          <option value=''>All Teams</option>
+        </select>
+        <span class='results-count' id='resultsCount'></span>
+        <div style='margin-left:auto;display:flex;gap:6px;align-items:center;flex-wrap:wrap'>
+          <div class='col-toggle-wrap'>
+            <button class='ctrl-btn' onclick='toggleColMenu(event)'>⚙ Columns</button>
+            <div class='col-toggle-menu' id='colMenu'>
+              <div class='menu-title'>Show / Hide</div>
+              <label><input type='checkbox' id='col-last' checked onchange='applyColVis()'> 📅 Last year stats</label>
+              <label><input type='checkbox' id='col-ppg' checked onchange='applyColVis()'> PPG (pts/game)</label>
+              <label><input type='checkbox' id='col-salary' checked onchange='applyColVis()'> 💰 Salary (AAV)</label>
+              <label><input type='checkbox' id='col-pp' checked onchange='applyColVis()'> PP% (powerplay points)</label>
+              <label><input type='checkbox' id='col-tier' checked onchange='applyColVis()'> Tier</label>
+              <label><input type='checkbox' id='col-trend' checked onchange='applyColVis()'> Trend</label>
+              <label><input type='checkbox' id='col-value' checked onchange='applyColVis()'> Pool Value</label>
+              <label><input type='checkbox' id='col-risk' checked onchange='applyColVis()'> 🔴 Risk Rating</label>
+            </div>
+          </div>
+          <button class='ctrl-btn btn-primary' onclick='window.print()'>🖨 Print</button>
+          <button class='ctrl-btn btn-primary' onclick='downloadCSV()'>⬇ CSV</button>
         </div>
       </div>
-      <button class='ctrl-btn btn-primary' onclick='window.print()'>🖨 Print</button>
-      <button class='ctrl-btn btn-primary' onclick='downloadCSV()'>⬇ CSV</button>
+      <!-- Row 2: filter pills -->
+      <div class='controls-row'>
+        <div class='filter-group'>
+          <span class='filter-label'>Pos</span>
+          <button class='pill active' data-filter='pos' data-value='' onclick='setPill(this,"pos")'>All</button>
+          <button class='pill' data-filter='pos' data-value='C' onclick='setPill(this,"pos")'>C</button>
+          <button class='pill' data-filter='pos' data-value='LW' onclick='setPill(this,"pos")'>LW</button>
+          <button class='pill' data-filter='pos' data-value='RW' onclick='setPill(this,"pos")'>RW</button>
+          <button class='pill' data-filter='pos' data-value='D' onclick='setPill(this,"pos")'>D</button>
+          <button class='pill' data-filter='pos' data-value='G' onclick='setPill(this,"pos")'>G</button>
+        </div>
+        <div class='controls-divider'></div>
+        <div class='filter-group'>
+          <span class='filter-label'>Tier</span>
+          <button class='pill active' data-filter='tier' data-value='' onclick='setPill(this,"tier")'>All</button>
+          <button class='pill' data-filter='tier' data-value='Elite' onclick='setPill(this,"tier")'>Elite</button>
+          <button class='pill' data-filter='tier' data-value='Top' onclick='setPill(this,"tier")'>Top</button>
+          <button class='pill' data-filter='tier' data-value='Mid' onclick='setPill(this,"tier")'>Mid</button>
+          <button class='pill' data-filter='tier' data-value='Sleeper' onclick='setPill(this,"tier")'>Sleeper</button>
+        </div>
+        <div class='controls-divider'></div>
+        <div class='filter-group'>
+          <span class='filter-label'>Trend</span>
+          <button class='pill active' data-filter='trend' data-value='' onclick='setPill(this,"trend")'>All</button>
+          <button class='pill' data-filter='trend' data-value='up' onclick='setPill(this,"trend")'>↑ Up</button>
+          <button class='pill' data-filter='trend' data-value='flat' onclick='setPill(this,"trend")'>→ Flat</button>
+          <button class='pill' data-filter='trend' data-value='down' onclick='setPill(this,"trend")'>↓ Down</button>
+        </div>
+        <div class='controls-divider'></div>
+        <div class='filter-group'>
+          <span class='filter-label'>Risk</span>
+          <button class='pill active' data-filter='risk' data-value='' onclick='setPill(this,"risk")'>All</button>
+          <button class='pill' data-filter='risk' data-value='Low' onclick='setPill(this,"risk")'>🟢 Low</button>
+          <button class='pill' data-filter='risk' data-value='Medium' onclick='setPill(this,"risk")'>🟡 Medium</button>
+          <button class='pill' data-filter='risk' data-value='High' onclick='setPill(this,"risk")'>🔴 High</button>
+        </div>
+      </div>
     </div>
     <div class='table-wrap'>
       <table id='playerTable'>
@@ -516,16 +524,12 @@ async function init() {
   const res = await fetch(`${SUPABASE_URL}/rest/v1/poolers_players?order=rank.asc&select=*`, { headers: SB_HEADERS });
   allPlayers = await res.json();
   document.getElementById('lastUpdated').textContent = new Date().toLocaleDateString('en-CA');
-  const teamPills = document.getElementById('teamPills');
+  const teamSelect = document.getElementById('teamSelect');
   const teams = [...new Set(allPlayers.map(p => p.team))].sort();
   teams.forEach(t => {
-    const btn = document.createElement('button');
-    btn.className = 'pill';
-    btn.dataset.filter = 'team';
-    btn.dataset.value = t;
-    btn.textContent = t;
-    btn.onclick = () => setPill(btn, 'team');
-    teamPills.appendChild(btn);
+    const o = document.createElement('option');
+    o.value = t; o.textContent = t;
+    teamSelect.appendChild(o);
   });
   normalizePVs(allPlayers);
   renderHeader();
@@ -677,13 +681,16 @@ function setPill(btn, filterKey) {
   renderAll();
 }
 
+function setTeam(val) { activeFilters.team = val; renderAll(); }
+
 function getFiltered() {
-  const q = document.getElementById('searchInput').value.toLowerCase();
+  const q       = document.getElementById('searchInput').value.toLowerCase();
+  const teamVal = document.getElementById('teamSelect')?.value || '';
   return allPlayers.filter(p => {
-    if (q && !p.name.toLowerCase().includes(q) && !p.team.toLowerCase().includes(q)) return false;
+    if (q       && !p.name.toLowerCase().includes(q) && !p.team.toLowerCase().includes(q)) return false;
     if (activeFilters.pos   && p.pos  !== activeFilters.pos)          return false;
     if (activeFilters.tier  && p.tier !== activeFilters.tier)         return false;
-    if (activeFilters.team  && p.team !== activeFilters.team)         return false;
+    if (teamVal             && p.team !== teamVal)                    return false;
     if (activeFilters.trend && getTrend(p) !== activeFilters.trend)   return false;
     if (activeFilters.risk  && p.risk !== activeFilters.risk)         return false;
     return true;
