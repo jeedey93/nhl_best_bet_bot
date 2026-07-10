@@ -41,15 +41,27 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: lin
 .search-box input { width: 100%; background: white; border: 1px solid #e2e8f0; border-radius: 8px; color: #1e293b; padding: 10px 12px 10px 36px; font-size: 0.88em; outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
 .search-box input:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
 .search-box::before { content: '🔍'; position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 0.85em; pointer-events: none; }
-.filter-select { background: white; border: 1px solid #e2e8f0; border-radius: 8px; color: #1e293b; padding: 8px 10px; font-size: 0.88em; outline: none; cursor: pointer; }
-.filter-select:focus { border-color: #2563eb; }
 .results-count { color: #64748b; font-size: 0.82em; white-space: nowrap; }
 .ctrl-btn { background: white; border: 1px solid #e2e8f0; border-radius: 8px; color: #64748b; padding: 8px 13px; font-size: 0.85em; font-weight: 600; cursor: pointer; white-space: nowrap; transition: color 0.2s, border-color 0.2s; }
 .ctrl-btn:hover { color: #1e293b; border-color: #cbd5e1; }
 .ctrl-btn.btn-primary { background: #2563eb; color: white; border-color: #2563eb; }
 .ctrl-btn.btn-primary:hover { background: #1d4ed8; border-color: #1d4ed8; color: white; }
 
-/* ── COLUMN TOGGLE MENU ── */
+/* ── FILTER PILLS ── */
+.filter-group { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; }
+.filter-label { font-size: 0.68em; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #94a3b8; margin-right: 2px; white-space: nowrap; }
+.pill { background: #f1f5f9; border: 1.5px solid #e2e8f0; border-radius: 99px; color: #64748b; font-size: 0.8em; font-weight: 600; padding: 5px 12px; cursor: pointer; transition: all 0.15s; white-space: nowrap; user-select: none; }
+.pill:hover { border-color: #cbd5e1; color: #1e293b; background: #e8edf5; }
+.pill.active { background: #2563eb; border-color: #2563eb; color: white; box-shadow: 0 2px 6px rgba(37,99,235,0.25); }
+.pill.active-elite   { background: #f59e0b; border-color: #f59e0b; color: white; box-shadow: 0 2px 6px rgba(245,158,11,0.3); }
+.pill.active-top     { background: #3b82f6; border-color: #3b82f6; color: white; box-shadow: 0 2px 6px rgba(59,130,246,0.3); }
+.pill.active-sleeper { background: #34d399; border-color: #34d399; color: #065f46; box-shadow: 0 2px 6px rgba(52,211,153,0.3); }
+.pill.active-up   { background: #15803d; border-color: #15803d; color: white; }
+.pill.active-down { background: #dc2626; border-color: #dc2626; color: white; }
+.pill.active-low  { background: #15803d; border-color: #15803d; color: white; }
+.pill.active-medium { background: #a16207; border-color: #a16207; color: white; }
+.pill.active-high { background: #dc2626; border-color: #dc2626; color: white; }
+.controls-divider { width: 1px; height: 24px; background: #e2e8f0; margin: 0 4px; flex-shrink: 0; }
 .col-toggle-wrap { position: relative; }
 .col-toggle-menu { display: none; position: absolute; top: calc(100% + 6px); right: 0; background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px; min-width: 200px; z-index: 500; box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
 .col-toggle-menu.open { display: block; }
@@ -383,30 +395,46 @@ td.col-proj-last  { border-right: 2px solid #bbf7d0 !important; }
       <div class='search-box'>
         <input type='text' id='searchInput' placeholder='Search player or team…' oninput='applyFilters()'>
       </div>
-      <select class='filter-select' id='filterPos' onchange='applyFilters()'>
-        <option value=''>All Positions</option>
-        <option value='C'>C</option>
-        <option value='LW'>LW</option>
-        <option value='RW'>RW</option>
-        <option value='D'>D</option>
-        <option value='G'>G</option>
-      </select>
-      <select class='filter-select' id='filterTier' onchange='applyFilters()'>
-        <option value=''>All Tiers</option>
-        <option value='Elite'>Elite</option>
-        <option value='Top'>Top</option>
-        <option value='Mid'>Mid</option>
-        <option value='Sleeper'>Sleeper</option>
-      </select>
-      <select class='filter-select' id='filterTrend' onchange='applyFilters()'>
-        <option value=''>All Trends</option>
-        <option value='up'>↑ Progression</option>
-        <option value='flat'>→ Stable</option>
-        <option value='down'>↓ Regression</option>
-      </select>
-      <select class='filter-select' id='filterTeam' onchange='applyFilters()'>
-        <option value=''>All Teams</option>
-      </select>
+      <div class='controls-divider'></div>
+      <div class='filter-group'>
+        <span class='filter-label'>Pos</span>
+        <button class='pill active' data-filter='pos' data-value='' onclick='setPill(this,"pos")'>All</button>
+        <button class='pill' data-filter='pos' data-value='C' onclick='setPill(this,"pos")'>C</button>
+        <button class='pill' data-filter='pos' data-value='LW' onclick='setPill(this,"pos")'>LW</button>
+        <button class='pill' data-filter='pos' data-value='RW' onclick='setPill(this,"pos")'>RW</button>
+        <button class='pill' data-filter='pos' data-value='D' onclick='setPill(this,"pos")'>D</button>
+        <button class='pill' data-filter='pos' data-value='G' onclick='setPill(this,"pos")'>G</button>
+      </div>
+      <div class='controls-divider'></div>
+      <div class='filter-group'>
+        <span class='filter-label'>Tier</span>
+        <button class='pill active' data-filter='tier' data-value='' onclick='setPill(this,"tier")'>All</button>
+        <button class='pill' data-filter='tier' data-value='Elite' onclick='setPill(this,"tier")'>Elite</button>
+        <button class='pill' data-filter='tier' data-value='Top' onclick='setPill(this,"tier")'>Top</button>
+        <button class='pill' data-filter='tier' data-value='Mid' onclick='setPill(this,"tier")'>Mid</button>
+        <button class='pill' data-filter='tier' data-value='Sleeper' onclick='setPill(this,"tier")'>Sleeper</button>
+      </div>
+      <div class='controls-divider'></div>
+      <div class='filter-group'>
+        <span class='filter-label'>Trend</span>
+        <button class='pill active' data-filter='trend' data-value='' onclick='setPill(this,"trend")'>All</button>
+        <button class='pill' data-filter='trend' data-value='up' onclick='setPill(this,"trend")'>↑ Up</button>
+        <button class='pill' data-filter='trend' data-value='flat' onclick='setPill(this,"trend")'>→ Flat</button>
+        <button class='pill' data-filter='trend' data-value='down' onclick='setPill(this,"trend")'>↓ Down</button>
+      </div>
+      <div class='controls-divider'></div>
+      <div class='filter-group'>
+        <span class='filter-label'>Risk</span>
+        <button class='pill active' data-filter='risk' data-value='' onclick='setPill(this,"risk")'>All</button>
+        <button class='pill' data-filter='risk' data-value='Low' onclick='setPill(this,"risk")'>🟢 Low</button>
+        <button class='pill' data-filter='risk' data-value='Medium' onclick='setPill(this,"risk")'>🟡 Medium</button>
+        <button class='pill' data-filter='risk' data-value='High' onclick='setPill(this,"risk")'>🔴 High</button>
+      </div>
+      <div class='controls-divider'></div>
+      <div class='filter-group' id='teamPills'>
+        <span class='filter-label'>Team</span>
+        <button class='pill active' data-filter='team' data-value='' onclick='setPill(this,"team")'>All</button>
+      </div>
       <span class='results-count' id='resultsCount'></span>
       <!-- Column toggle -->
       <div class='col-toggle-wrap'>
@@ -489,8 +517,17 @@ async function init() {
   allPlayers = await res.json();
   document.getElementById('lastUpdated').textContent = new Date().toLocaleDateString('en-CA');
   const teams = [...new Set(allPlayers.map(p => p.team))].sort();
-  const sel = document.getElementById('filterTeam');
-  teams.forEach(t => { const o = document.createElement('option'); o.value = t; o.textContent = t; sel.appendChild(o); });
+  const teamPills = document.getElementById('teamPills');
+  const teams = [...new Set(allPlayers.map(p => p.team))].sort();
+  teams.forEach(t => {
+    const btn = document.createElement('button');
+    btn.className = 'pill';
+    btn.dataset.filter = 'team';
+    btn.dataset.value = t;
+    btn.textContent = t;
+    btn.onclick = () => setPill(btn, 'team');
+    teamPills.appendChild(btn);
+  });
   normalizePVs(allPlayers);
   renderHeader();
   renderAll();
@@ -617,18 +654,39 @@ function sorted(players) {
 }
 
 // ── FILTERS ───────────────────────────────────────────────
+const activeFilters = { pos: '', tier: '', trend: '', team: '', risk: '' };
+
+function setPill(btn, filterKey) {
+  // Deactivate siblings
+  document.querySelectorAll(`.pill[data-filter="${filterKey}"]`).forEach(b => {
+    b.classList.remove('active', 'active-elite', 'active-top', 'active-sleeper',
+      'active-up', 'active-down', 'active-low', 'active-medium', 'active-high');
+  });
+  // Activate clicked
+  const val = btn.dataset.value;
+  activeFilters[filterKey] = val;
+  if (!val) {
+    btn.classList.add('active');
+  } else {
+    const colorMap = {
+      Elite: 'active-elite', Top: 'active-top', Sleeper: 'active-sleeper',
+      up: 'active-up', down: 'active-down',
+      Low: 'active-low', Medium: 'active-medium', High: 'active-high',
+    };
+    btn.classList.add(colorMap[val] || 'active');
+  }
+  renderAll();
+}
+
 function getFiltered() {
-  const q     = document.getElementById('searchInput').value.toLowerCase();
-  const pos   = document.getElementById('filterPos').value;
-  const tier  = document.getElementById('filterTier').value;
-  const team  = document.getElementById('filterTeam').value;
-  const trend = document.getElementById('filterTrend').value;
+  const q = document.getElementById('searchInput').value.toLowerCase();
   return allPlayers.filter(p => {
-    if (q     && !p.name.toLowerCase().includes(q) && !p.team.toLowerCase().includes(q)) return false;
-    if (pos   && p.pos  !== pos)          return false;
-    if (tier  && p.tier !== tier)         return false;
-    if (team  && p.team !== team)         return false;
-    if (trend && getTrend(p) !== trend)   return false;
+    if (q && !p.name.toLowerCase().includes(q) && !p.team.toLowerCase().includes(q)) return false;
+    if (activeFilters.pos   && p.pos  !== activeFilters.pos)          return false;
+    if (activeFilters.tier  && p.tier !== activeFilters.tier)         return false;
+    if (activeFilters.team  && p.team !== activeFilters.team)         return false;
+    if (activeFilters.trend && getTrend(p) !== activeFilters.trend)   return false;
+    if (activeFilters.risk  && p.risk !== activeFilters.risk)         return false;
     return true;
   });
 }
