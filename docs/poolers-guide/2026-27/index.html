@@ -242,36 +242,73 @@ td.col-proj-last  { border-right: 2px solid #bbf7d0 !important; }
 
 /* ── PRINT ── */
 @media print {
-  @page { size: landscape; margin: 10mm; }
-  nav, .controls, .tabs, .disclaimer, .tooltip, .col-toggle-menu { display: none !important; }
-  body { background: white !important; color: black !important; font-size: 8.5pt; }
+  @page { size: landscape; margin: 12mm 8mm; }
+
+  /* Hide UI chrome */
+  nav, .controls, .tabs, .disclaimer, .tooltip, .col-toggle-menu,
+  .card-list { display: none !important; }
+
+  /* Force table visible (hidden on mobile) */
+  .table-wrap { display: block !important; overflow: visible !important; border: none !important; border-radius: 0 !important; box-shadow: none !important; }
+
+  body { background: white !important; color: #000 !important; font-size: 8pt; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .page-wrap { padding: 0 !important; max-width: 100% !important; }
-  .page-header { margin-bottom: 8px !important; background: #eee !important; border-radius: 4px !important; padding: 10px !important; }
-  .page-header h1 { font-size: 13pt !important; color: black !important; }
-  .page-header p  { color: #555 !important; font-size: 7.5pt !important; }
-  .badge { background: #ccc !important; color: #333 !important; border: none !important; }
-  .tab-pane { display: block !important; }
-  #tab-byteam, #tab-sleepers { display: none !important; }
-  .table-wrap { border: 1px solid #bbb !important; border-radius: 0 !important; overflow: visible !important; }
-  table { font-size: 7pt !important; }
-  thead th { background: #f0f0f0 !important; color: #333 !important; padding: 4px 5px !important; border-bottom: 1.5px solid #999 !important; }
-  .col-group-last { background: #dbeafe !important; color: #1e4a7a !important; border-color: #93c5fd !important; }
-  .col-group-proj { background: #dcfce7 !important; color: #166534 !important; border-color: #86efac !important; }
+
+  /* Header */
+  .page-header { background: #1e3a8a !important; border-radius: 6px !important; padding: 10px 14px !important; margin-bottom: 10px !important; display: flex !important; align-items: center !important; gap: 12px !important; }
+  .page-header h1 { font-size: 11pt !important; color: white !important; }
+  .page-header p  { font-size: 7pt !important; color: rgba(255,255,255,0.8) !important; }
+  .badge { background: rgba(255,255,255,0.2) !important; color: white !important; border: 1px solid rgba(255,255,255,0.3) !important; }
+
+  /* Show only the main tab */
+  .tab-pane { display: none !important; }
+  #tab-all  { display: block !important; }
+
+  /* Table */
+  table { font-size: 6.8pt !important; width: 100% !important; border-collapse: collapse !important; }
+  thead th { background: #f1f5f9 !important; color: #333 !important; padding: 4px 5px !important; border-bottom: 1.5px solid #ccc !important; white-space: nowrap; position: static !important; box-shadow: none !important; }
+  thead tr.group-row th { padding: 3px 5px !important; font-size: 6.5pt !important; }
+  .col-group-last { background: #dbeafe !important; color: #1d4ed8 !important; }
+  .col-group-proj { background: #dcfce7 !important; color: #166534 !important; }
   td.col-last { background: #eff6ff !important; }
   td.col-proj { background: #f0fdf4 !important; }
-  .last-stat, .last-pts, .proj-stat, .proj-pts, .ppg-last, .ppg-proj, .salary, .pp-pct { color: #111 !important; font-size: inherit !important; }
-  tbody td { padding: 3px 5px !important; color: #111 !important; border-bottom: 1px solid #e0e0e0 !important; }
-  tbody tr:nth-child(even) td { background: #f8f8f8 !important; }
-  .player-name { color: #000 !important; }
-  .notes-display  { color: #555 !important; font-size: 6.5pt !important; }
-  .team-tag    { background: #e5e7eb !important; color: #1e3a5f !important; }
-  .pos-tag     { background: #e5e7eb !important; color: #333 !important; }
-  .tier        { background: #e5e7eb !important; color: #333 !important; border: none !important; }
-  .trend       { background: none !important; border: none !important; color: #333 !important; }
-  .pv-bar      { gap: 3px; }
-  .pv-num      { color: #000 !important; }
-  .pv-track    { display: none; }
-  .sort-icon   { display: none; }
+
+  tbody td { padding: 3px 5px !important; color: #111 !important; border-bottom: 1px solid #e8e8e8 !important; }
+  tbody tr:nth-child(even) td { background: #f9fafb !important; }
+
+  /* Tier row tints */
+  tbody tr.tier-row-Elite   { background: rgba(245,158,11,0.08) !important; border-left: 3px solid #f59e0b !important; }
+  tbody tr.tier-row-Top     { background: rgba(59,130,246,0.06) !important; border-left: 3px solid #3b82f6 !important; }
+  tbody tr.tier-row-Sleeper { background: rgba(52,211,153,0.08) !important; border-left: 3px solid #34d399 !important; }
+
+  /* Text colors */
+  .player-name  { color: #000 !important; font-size: 7.5pt !important; }
+  .notes-display { color: #777 !important; font-size: 6pt !important; }
+  .last-stat, .last-pts { color: #1d4ed8 !important; }
+  .proj-stat, .proj-pts { color: #15803d !important; }
+  .ppg-last { color: #1d4ed8 !important; }
+  .ppg-proj { color: #15803d !important; }
+  .salary   { color: #b45309 !important; }
+
+  /* Badges */
+  .team-tag { background: #e8edf5 !important; color: #1e3a8a !important; }
+  .pos-tag  { background: #e8edf5 !important; color: #333 !important; }
+  .tier     { background: #eee !important; color: #333 !important; border: 1px solid #ccc !important; font-size: 6pt !important; padding: 2px 5px !important; }
+  .tier-Elite   { background: #fef3c7 !important; color: #92400e !important; }
+  .tier-Top     { background: #dbeafe !important; color: #1e40af !important; }
+  .tier-Sleeper { background: #d1fae5 !important; color: #065f46 !important; }
+  .trend  { background: none !important; border: none !important; color: #333 !important; font-size: 6.5pt !important; padding: 1px 4px !important; }
+  .trend-up   { color: #15803d !important; }
+  .trend-down { color: #dc2626 !important; }
+
+  /* Pool value — just the number */
+  .pv-bar   { gap: 3px !important; min-width: unset !important; }
+  .pv-num   { font-size: 7pt !important; padding: 1px 3px !important; }
+  .pv-track { display: none !important; }
+  .sort-icon { display: none !important; }
+
+  /* Page break */
+  tbody tr { page-break-inside: avoid; }
 }
 </style>
 </head>
