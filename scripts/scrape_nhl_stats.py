@@ -32,7 +32,7 @@ from supabase import create_client
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 SEASON   = "20252026"
-GAMETYPE = 3          # playoffs
+GAMETYPE = 2          # regular season
 
 NHL_TEAM_ABBR = {
     "anaheim-ducks":        "ANA",
@@ -115,7 +115,7 @@ def fetch_roster_injury_map(abbr: str) -> dict[int, str]:
 
 def fetch_last5_game_pts(player_id: int, position: str, scoring: dict) -> list[int]:
     """Return list of pool-points for the last ≤5 games (oldest→newest)."""
-    url = f"https://api-web.nhle.com/v1/player/{player_id}/game-log/{SEASON}/3"
+    url = f"https://api-web.nhle.com/v1/player/{player_id}/game-log/{SEASON}/2"
     try:
         r = SESSION.get(url, timeout=15)
         r.raise_for_status()
@@ -192,7 +192,7 @@ def main():
     # Default scoring multipliers (matches pool defaults)
     scoring = {"g_wins": 2, "g_shutouts": 3}
 
-    print(f"📊  NHL Stats Scraper — {SEASON} playoffs → Supabase")
+    print(f"📊  NHL Stats Scraper — {SEASON} regular season → Supabase")
     print("─" * 50)
 
     total_matched = 0
