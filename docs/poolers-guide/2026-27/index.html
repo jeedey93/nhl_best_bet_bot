@@ -195,9 +195,9 @@ td.col-proj-last  { border-right: 2px solid #bbf7d0 !important; }
 /* Tooltip */
 .tooltip { position: fixed; z-index: 9000; background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; font-size: 0.82em; font-style: italic; color: #1e293b; max-width: 260px; pointer-events: none; box-shadow: 0 4px 16px rgba(0,0,0,0.12); line-height: 1.4; }
 
-/* Pool value score */
+/* Efficiency score */
 .pv-bar { display: flex; align-items: center; gap: 6px; min-width: 80px; }
-.pv-num { font-weight: 800; font-size: 0.95em; min-width: 24px; text-align: right; padding: 2px 6px; border-radius: 4px; }
+.pv-num { font-weight: 800; font-size: 0.92em; min-width: 28px; text-align: right; padding: 2px 6px; border-radius: 4px; }
 .pv-track { flex: 1; height: 6px; background: #e2e8f0; border-radius: 99px; overflow: hidden; }
 .pv-fill  { height: 100%; border-radius: 99px; }
 .pv-90 { color: #b45309; } .pv-90 .pv-fill { background: linear-gradient(90deg,#f59e0b,#fbbf24); } .pv-90 .pv-num { background: #fef3c7; color: #b45309; }
@@ -416,7 +416,7 @@ td.col-proj-last  { border-right: 2px solid #bbf7d0 !important; }
               <label><input type='checkbox' id='col-pp' checked onchange='applyColVis()'> PP% (powerplay points)</label>
               <label><input type='checkbox' id='col-tier' checked onchange='applyColVis()'> Tier</label>
               <label><input type='checkbox' id='col-trend' checked onchange='applyColVis()'> Trend</label>
-              <label><input type='checkbox' id='col-value' checked onchange='applyColVis()'> Pool Value</label>
+              <label><input type='checkbox' id='col-value' checked onchange='applyColVis()'> Efficiency (PTS÷√AAV)</label>
               <label><input type='checkbox' id='col-risk' checked onchange='applyColVis()'> 🔴 Risk Rating</label>
             </div>
           </div>
@@ -541,21 +541,32 @@ async function init() {
 }
 
 // ── POOL VALUE SCORE ──────────────────────────────────────
-const TIER_BONUS = { Elite: 20, Top: 14, Mid: 8, Sleeper: 4 };
-let _pvMin = 0, _pvMax = 100;
-function calcPV(p) {
-  const rate = p.proj_gp > 0 ? p.proj_pts / p.proj_gp : 0;
-  return rate * 50 + (p.proj_gp / 82) * 30 + (TIER_BONUS[p.tier] || 0);
+// ── EFFICIENCY SCORE: Proj PTS ÷ √AAV ($M) ───────────────
+// Higher = more points per cap dollar. Players with no AAV get null.
+let _effMax = 1; // used to scale the bar width
+
+function calcEff(p) {
+  if (!p.aav || p.aav <= 0 || !p.proj_pts) return null;
+  return p.proj_pts / Math.sqrt(p.aav);
 }
+
 function normalizePVs(players) {
-  const vals = players.map(calcPV);
-  _pvMin = Math.min(...vals); _pvMax = Math.max(...vals);
+  const vals = players.map(calcEff).filter(v => v !== null);
+  _effMax = Math.max(...vals, 1);
 }
+
 function getPV(p) {
-  if (_pvMax === _pvMin) return 100;
-  return Math.round(((calcPV(p) - _pvMin) / (_pvMax - _pvMin)) * 99) + 1;
+  const v = calcEff(p);
+  return v !== null ? Math.round(v * 10) / 10 : null;
 }
-function pvClass(s) { return s >= 90 ? 'pv-90' : s >= 70 ? 'pv-70' : s >= 50 ? 'pv-50' : 'pv-lo'; }
+
+function pvClass(score) {
+  if (score === null) return 'pv-lo';
+  if (score >= 40) return 'pv-90';
+  if (score >= 28) return 'pv-70';
+  if (score >= 18) return 'pv-50';
+  return 'pv-lo';
+}
 
 // ── TREND ─────────────────────────────────────────────────
 function getTrend(p) {
@@ -730,7 +741,7 @@ function renderHeader() {
     <th onclick='sortBy("pp_pct")' data-col='pp_pct' class='cg-pp' onmouseenter='showTooltip(this,"PP% = powerplay points ÷ total points × 100")' onmouseleave='hideTooltip()'>PP%<span class='sort-icon'></span></th>
     <th onclick='sortBy("tier")'    data-col='tier'     class='cg-tier'>Tier<span class='sort-icon'></span></th>
     <th onclick='sortBy("_trend")'  data-col='_trend'   class='cg-trend'>Trend<span class='sort-icon'></span></th>
-    <th onclick='sortBy("_pv")'     data-col='_pv'      class='cg-value'>Value<span class='sort-icon'></span></th>
+    <th onclick='sortBy("_pv")'     data-col='_pv'      class='cg-value'>Efficiency<span class='sort-icon'></span></th>
     <th onclick='sortBy("risk")'    data-col='risk'     class='cg-risk'>Risk<span class='sort-icon'></span></th>
   </tr>`;
   // Set initial sort indicator
@@ -788,8 +799,9 @@ function renderAll() {
       <td class='cg-pp'><span class='pp-pct'>${ppPct}</span></td>
       <td class='cg-tier'><span class='tier tier-${p.tier}'>${p.tier}</span></td>
       <td class='cg-trend'><span class='trend trend-${trend}'>${trendLbl}</span></td>
-      <td class='cg-value'><div class='pv-bar ${pc}' onmouseenter='showTooltip(this,"Pool Value: ${pv}/100 — pts/GP rate + durability + tier bonus")' onmouseleave='hideTooltip()'>
-        <span class='pv-num'>${pv}</span><div class='pv-track'><div class='pv-fill' style='width:${pv}%'></div></div>
+      <td class='cg-value'><div class='pv-bar ${pc}' onmouseenter='showTooltip(this,"Efficiency = Proj PTS ÷ √AAV($M)${pv !== null ? ` = ${pv}` : ` — no AAV data`}")' onmouseleave='hideTooltip()'>
+        <span class='pv-num'>${pv !== null ? pv : '—'}</span>
+        ${pv !== null ? `<div class='pv-track'><div class='pv-fill' style='width:${Math.min(100, Math.round((pv/_effMax)*100))}%'></div></div>` : ''}
       </div></td>
       <td class='cg-risk'>${riskHtml}</td>
     </tr>`;
@@ -852,9 +864,9 @@ function renderCards(filtered) {
       <div class='card-footer'>
         <span class='tier tier-${p.tier}'>${p.tier}</span>
         <span class='trend trend-${trend}'>${trendLbl}</span>
-        <div class='pv-bar ${pc}' style='flex:1;min-width:60px' onmouseenter='showTooltip(this,"Pool Value: ${pv}/100")' onmouseleave='hideTooltip()'>
-          <span class='pv-num'>${pv}</span>
-          <div class='pv-track'><div class='pv-fill' style='width:${pv}%'></div></div>
+        <div class='pv-bar ${pc}' style='flex:1;min-width:60px' onmouseenter='showTooltip(this,"Efficiency: ${pv !== null ? pv : `—`}")' onmouseleave='hideTooltip()'>
+          <span class='pv-num'>${pv !== null ? pv : '—'}</span>
+          <div class='pv-track'><div class='pv-fill' style='width:${pv !== null ? Math.min(100, Math.round((pv/_effMax)*100)) : 0}%'></div></div>
         </div>
         <span class='salary'>${aav}</span>
       </div>
@@ -1003,7 +1015,7 @@ function switchTab(name, btn) {
 
 // ── CSV EXPORT ────────────────────────────────────────────
 function downloadCSV() {
-  const headers = ['Rank','Player','Team','Pos','Age','Last GP','Last G','Last A','Last PTS','Last PPG','Proj GP','Proj G','Proj A','Proj PTS','Proj PPG','AAV','PP%','Tier','Trend','Pool Value','Notes'];
+  const headers = ['Rank','Player','Team','Pos','Age','Last GP','Last G','Last A','Last PTS','Last PPG','Proj GP','Proj G','Proj A','Proj PTS','Proj PPG','AAV','PP%','Tier','Trend','Efficiency','Notes'];
   const rows = sorted(getFiltered()).map(p => {
     const trend = getTrend(p);
     const diff  = p.proj_pts - (p.last_pts || p.proj_pts);
