@@ -516,7 +516,6 @@ async function init() {
   const res = await fetch(`${SUPABASE_URL}/rest/v1/poolers_players?order=rank.asc&select=*`, { headers: SB_HEADERS });
   allPlayers = await res.json();
   document.getElementById('lastUpdated').textContent = new Date().toLocaleDateString('en-CA');
-  const teams = [...new Set(allPlayers.map(p => p.team))].sort();
   const teamPills = document.getElementById('teamPills');
   const teams = [...new Set(allPlayers.map(p => p.team))].sort();
   teams.forEach(t => {
