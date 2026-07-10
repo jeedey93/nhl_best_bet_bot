@@ -81,7 +81,44 @@ tbody tr.tier-row-Mid     { background: transparent; border-left: 3px solid #e2e
 tbody tr.tier-row-Sleeper { background: rgba(52,211,153,0.10); border-left: 3px solid #34d399; }
 
 /* Player name cell */
-.player-name { font-weight: 700; color: #1e293b; font-size: 1em; }
+.player-name { font-weight: 700; color: #1e293b; font-size: 1em; cursor: pointer; transition: color 0.15s; }
+.player-name:hover { color: #2563eb; text-decoration: underline; }
+
+/* Risk badge */
+.risk { display: inline-flex; align-items: center; gap: 4px; font-size: 0.75em; font-weight: 700; padding: 3px 8px; border-radius: 99px; white-space: nowrap; }
+.risk-Low    { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+.risk-Medium { background: #fef9c3; color: #a16207; border: 1px solid #fde047; }
+.risk-High   { background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; }
+
+/* Bust alert badge */
+.bust { display: inline-flex; align-items: center; gap: 3px; font-size: 0.72em; font-weight: 800; padding: 3px 8px; border-radius: 99px; background: #fff1f2; color: #be123c; border: 1px solid #fda4af; white-space: nowrap; }
+
+/* ── SCOUTING MODAL ── */
+.modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,0.5); z-index: 8000; display: flex; align-items: center; justify-content: center; padding: 16px; backdrop-filter: blur(4px); }
+.modal-overlay.hidden { display: none; }
+.modal-box { background: white; border-radius: 20px; width: 100%; max-width: 560px; box-shadow: 0 24px 60px rgba(0,0,0,0.2); overflow: hidden; animation: modalIn 0.2s ease; }
+@keyframes modalIn { from { opacity:0; transform: scale(0.95) translateY(8px); } to { opacity:1; transform: none; } }
+.modal-header { padding: 20px 24px 16px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: flex-start; gap: 12px; }
+.modal-header-info { flex: 1; }
+.modal-player-name { font-size: 1.3em; font-weight: 800; color: #1e293b; margin-bottom: 6px; }
+.modal-badges { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.modal-close { background: #f1f5f9; border: none; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; font-size: 1em; color: #64748b; flex-shrink: 0; transition: background 0.15s; display: flex; align-items: center; justify-content: center; }
+.modal-close:hover { background: #e2e8f0; color: #1e293b; }
+.modal-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 16px 24px; border-bottom: 1px solid #f1f5f9; }
+.modal-stat-group { background: #f8fafc; border-radius: 10px; padding: 10px 14px; }
+.modal-stat-label { font-size: 0.65em; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; }
+.modal-stat-label.last { color: #1d4ed8; }
+.modal-stat-label.proj { color: #15803d; }
+.modal-stat-row { display: flex; gap: 16px; }
+.modal-stat-item .v { font-size: 1.1em; font-weight: 800; }
+.modal-stat-item .l { font-size: 0.65em; color: #94a3b8; text-transform: uppercase; }
+.modal-body { padding: 16px 24px 20px; display: flex; flex-direction: column; gap: 14px; }
+.modal-section-title { font-size: 0.72em; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #94a3b8; margin-bottom: 6px; }
+.modal-scouting { font-size: 0.88em; color: #374151; line-height: 1.65; }
+.modal-comp { display: flex; align-items: center; gap: 8px; background: #eff6ff; border-radius: 8px; padding: 8px 12px; font-size: 0.85em; color: #1d4ed8; font-weight: 600; }
+.modal-risks { display: flex; flex-direction: column; gap: 5px; }
+.modal-risk-item { display: flex; align-items: center; gap: 7px; font-size: 0.83em; color: #475569; }
+.modal-risk-item::before { content: '⚠️'; font-size: 0.85em; }
 
 /* Team / pos badges */
 .team-tag { display: inline-block; background: #dbeafe; color: #1e40af; font-size: 0.78em; font-weight: 700; padding: 2px 7px; border-radius: 4px; }
@@ -337,6 +374,7 @@ td.col-proj-last  { border-right: 2px solid #bbf7d0 !important; }
     <button class='tab-btn active' onclick='switchTab("all", this)'>All Players</button>
     <button class='tab-btn' onclick='switchTab("byteam", this)'>By Team</button>
     <button class='tab-btn' onclick='switchTab("sleepers", this)'>🌟 Sleepers</button>
+    <button class='tab-btn' onclick='switchTab("busts", this)'>💣 Bust Alerts</button>
   </div>
 
   <!-- TAB: ALL PLAYERS -->
@@ -382,6 +420,7 @@ td.col-proj-last  { border-right: 2px solid #bbf7d0 !important; }
           <label><input type='checkbox' id='col-tier' checked onchange='applyColVis()'> Tier</label>
           <label><input type='checkbox' id='col-trend' checked onchange='applyColVis()'> Trend</label>
           <label><input type='checkbox' id='col-value' checked onchange='applyColVis()'> Pool Value</label>
+          <label><input type='checkbox' id='col-risk' checked onchange='applyColVis()'> 🔴 Risk Rating</label>
         </div>
       </div>
       <button class='ctrl-btn btn-primary' onclick='window.print()'>🖨 Print</button>
@@ -406,9 +445,29 @@ td.col-proj-last  { border-right: 2px solid #bbf7d0 !important; }
     <div id='sleepersGrid' class='sleepers-grid'></div>
   </div>
 
+  <!-- TAB: BUSTS -->
+  <div id='tab-busts' class='tab-pane'>
+    <div id='bustsGrid' class='sleepers-grid'></div>
+  </div>
+
   <div class='disclaimer'>
     ⚠️ Projections are estimates based on prior seasons, line combos, and team context. Updated manually — last refreshed <span id='lastUpdated'></span>.
     Not financial or gambling advice.
+  </div>
+</div>
+
+<!-- SCOUTING MODAL -->
+<div class='modal-overlay hidden' id='scoutingModal' onclick='closeModal(event)'>
+  <div class='modal-box'>
+    <div class='modal-header'>
+      <div class='modal-header-info'>
+        <div class='modal-player-name' id='modalName'></div>
+        <div class='modal-badges' id='modalBadges'></div>
+      </div>
+      <button class='modal-close' onclick='closeModalDirect()'>✕</button>
+    </div>
+    <div class='modal-stats' id='modalStats'></div>
+    <div class='modal-body' id='modalBody'></div>
   </div>
 </div>
 
@@ -437,6 +496,7 @@ async function init() {
   renderAll();
   renderByTeam();
   renderSleepers();
+  renderBusts();
   applyColVis();
 }
 
@@ -490,6 +550,7 @@ const COL_GROUPS = {
   'col-tier':    ['cg-tier'],
   'col-trend':   ['cg-trend'],
   'col-value':   ['cg-value'],
+  'col-risk':    ['cg-risk'],
 };
 
 function applyColVis() {
@@ -580,7 +641,7 @@ function renderHeader() {
     <th colspan='5' style='background:#f1f5f9;'></th>
     <th id='gh-last' colspan='5' class='col-group-last cg-last'>📅 2025-26 ACTUAL</th>
     <th colspan='4' class='col-group-proj'>🎯 2026-27 PROJECTION</th>
-    <th colspan='6' style='background:#f1f5f9;'></th>
+    <th colspan='7' style='background:#f1f5f9;'></th>
   </tr>
   <tr class='col-row'>
     <th onclick='sortBy("rank")'    data-col='rank'>#<span class='sort-icon'></span></th>
@@ -606,6 +667,7 @@ function renderHeader() {
     <th onclick='sortBy("tier")'    data-col='tier'     class='cg-tier'>Tier<span class='sort-icon'></span></th>
     <th onclick='sortBy("_trend")'  data-col='_trend'   class='cg-trend'>Trend<span class='sort-icon'></span></th>
     <th onclick='sortBy("_pv")'     data-col='_pv'      class='cg-value'>Value<span class='sort-icon'></span></th>
+    <th onclick='sortBy("risk")'    data-col='risk'     class='cg-risk'>Risk<span class='sort-icon'></span></th>
   </tr>`;
   // Set initial sort indicator
   document.querySelector('thead th[data-col="rank"]').classList.add('sorted-asc');
@@ -632,12 +694,15 @@ function renderAll() {
     const noteEsc  = (p.notes || '').replace(/'/g, '&#39;').replace(/"/g, '&quot;');
     const aav      = p.aav ? `$${p.aav}M` : '—';
     const ppPct    = p.pp_pct != null ? p.pp_pct + '%' : '—';
+    const riskHtml = p.risk ? `<span class='risk risk-${p.risk}'>${p.risk === 'Low' ? '🟢' : p.risk === 'Medium' ? '🟡' : '🔴'} ${p.risk}</span>` : '—';
+    const bustHtml = p.bust_alert ? `<span class='bust'>💣 Bust</span>` : '';
 
     return `<tr class='tier-row-${p.tier}'>
       <td>${p.rank}</td>
       <td>
-        <div class='player-name'>${p.name}</div>
+        <div class='player-name' onclick='openModal(${p.id})'>${p.name}</div>
         ${noteEsc ? `<div class='notes-display'>${noteEsc}</div>` : ''}
+        ${bustHtml}
       </td>
       <td><span class='team-tag'>${p.team}</span></td>
       <td><span class='pos-tag pos-${p.pos}'>${p.pos}</span></td>
@@ -662,6 +727,7 @@ function renderAll() {
       <td class='cg-value'><div class='pv-bar ${pc}' onmouseenter='showTooltip(this,"Pool Value: ${pv}/100 — pts/GP rate + durability + tier bonus")' onmouseleave='hideTooltip()'>
         <span class='pv-num'>${pv}</span><div class='pv-track'><div class='pv-fill' style='width:${pv}%'></div></div>
       </div></td>
+      <td class='cg-risk'>${riskHtml}</td>
     </tr>`;
   }).join('');
 
@@ -774,6 +840,94 @@ function renderSleepers() {
     <div class='sleeper-note'>"${p.notes}"</div>
   </div>`).join('');
 }
+
+// ── RENDER BUSTS ─────────────────────────────────────────
+function renderBusts() {
+  const busts = allPlayers.filter(p => p.bust_alert).sort((a, b) => a.rank - b.rank);
+  const grid = document.getElementById('bustsGrid');
+  if (!busts.length) {
+    grid.innerHTML = '<div class="empty-state"><div class="icon">💣</div>No bust alerts set yet.</div>';
+    return;
+  }
+  grid.innerHTML = busts.map(p => {
+    const trend = getTrend(p);
+    const diff  = p.proj_pts - (p.last_pts || p.proj_pts);
+    const diffStr = diff > 0 ? '+' + diff : '' + diff;
+    const trendLbl = trend === 'up' ? `↑ ${diffStr}` : trend === 'down' ? `↓ ${diffStr}` : `→ ${diffStr}`;
+    return `<div class='sleeper-card' style='border-color:#fda4af;background:#fff1f2' onclick='openModal(${p.id})'>
+      <div class='sleeper-rank' style='color:#be123c'>💣 Bust Alert — Rank #${p.rank}</div>
+      <div class='sleeper-name'>${p.name}</div>
+      <div class='sleeper-meta'>${p.team} · ${p.pos} · Age ${p.age}${p.aav ? ' · $' + p.aav + 'M' : ''}</div>
+      <div class='sleeper-stats'>
+        <div class='sleeper-stat'><div class='val last-pts'>${p.last_pts ?? '—'}</div><div class='lbl'>Last PTS</div></div>
+        <div class='sleeper-stat'><div class='val proj-pts'>${p.proj_pts}</div><div class='lbl'>Proj PTS</div></div>
+        <div class='sleeper-stat'><div class='val' style='color:#be123c'>${trendLbl}</div><div class='lbl'>Trend</div></div>
+      </div>
+      ${p.notes ? `<div class='sleeper-note' style='color:#be123c'>"${p.notes}"</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+// ── SCOUTING MODAL ───────────────────────────────────────
+function openModal(id) {
+  const p = allPlayers.find(p => p.id === id);
+  if (!p) return;
+  document.getElementById('modalName').textContent = p.name;
+
+  // Badges
+  const badges = [
+    `<span class='team-tag'>${p.team}</span>`,
+    `<span class='pos-tag pos-${p.pos}'>${p.pos}</span>`,
+    `<span class='tier tier-${p.tier}'>${p.tier}</span>`,
+    p.risk ? `<span class='risk risk-${p.risk}'>${p.risk === 'Low' ? '🟢' : p.risk === 'Medium' ? '🟡' : '🔴'} ${p.risk} Risk</span>` : '',
+    p.bust_alert ? `<span class='bust'>💣 Bust Alert</span>` : '',
+  ].filter(Boolean).join('');
+  document.getElementById('modalBadges').innerHTML = badges;
+
+  // Stats
+  document.getElementById('modalStats').innerHTML = `
+    <div class='modal-stat-group'>
+      <div class='modal-stat-label last'>📅 2025-26 Actual</div>
+      <div class='modal-stat-row'>
+        <div class='modal-stat-item'><div class='v last-pts'>${p.last_pts ?? '—'}</div><div class='l'>PTS</div></div>
+        <div class='modal-stat-item'><div class='v last-stat'>${p.last_g ?? '—'}</div><div class='l'>G</div></div>
+        <div class='modal-stat-item'><div class='v last-stat'>${p.last_a ?? '—'}</div><div class='l'>A</div></div>
+        <div class='modal-stat-item'><div class='v ppg-last'>${ppg(p.last_pts, p.last_gp)}</div><div class='l'>PPG</div></div>
+      </div>
+    </div>
+    <div class='modal-stat-group'>
+      <div class='modal-stat-label proj'>🎯 2026-27 Projection</div>
+      <div class='modal-stat-row'>
+        <div class='modal-stat-item'><div class='v proj-pts'>${p.proj_pts}</div><div class='l'>PTS</div></div>
+        <div class='modal-stat-item'><div class='v proj-stat'>${p.proj_g}</div><div class='l'>G</div></div>
+        <div class='modal-stat-item'><div class='v proj-stat'>${p.proj_a}</div><div class='l'>A</div></div>
+        <div class='modal-stat-item'><div class='v ppg-proj'>${ppg(p.proj_pts, p.proj_gp)}</div><div class='l'>PPG</div></div>
+      </div>
+    </div>`;
+
+  // Body
+  let body = '';
+  if (p.scouting) body += `<div><div class='modal-section-title'>Scouting Report</div><div class='modal-scouting'>${p.scouting}</div></div>`;
+  if (p.comp_player) body += `<div><div class='modal-section-title'>Comparable Player</div><div class='modal-comp'>🏒 ${p.comp_player}</div></div>`;
+  if (p.key_risks) {
+    const risks = p.key_risks.split(',').map(r => r.trim()).filter(Boolean);
+    body += `<div><div class='modal-section-title'>Key Risks</div><div class='modal-risks'>${risks.map(r => `<div class='modal-risk-item'>${r}</div>`).join('')}</div></div>`;
+  }
+  if (!body) body = `<div class='modal-scouting' style='color:#94a3b8;font-style:italic'>No scouting report available yet.</div>`;
+  document.getElementById('modalBody').innerHTML = body;
+
+  document.getElementById('scoutingModal').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('scoutingModal')) closeModalDirect();
+}
+function closeModalDirect() {
+  document.getElementById('scoutingModal').classList.add('hidden');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModalDirect(); });
 
 // ── TABS ─────────────────────────────────────────────────
 function switchTab(name, btn) {
