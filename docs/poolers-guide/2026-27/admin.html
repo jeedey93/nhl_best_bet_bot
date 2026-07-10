@@ -122,7 +122,6 @@ tbody tr.dirty td:first-child { border-left: 3px solid #f59e0b; }
       <span class='page-header-sub'>Edit projections, tier, notes and team info for each player</span>
     </div>
     <div class='header-actions'>
-      <button class='btn btn-ghost' onclick='addPlayer()'>+ Add Player</button>
       <button class='btn btn-green' id='saveAllBtn' onclick='saveAll()' disabled>💾 Save All</button>
     </div>
   </div>
@@ -329,28 +328,6 @@ async function saveAll() {
   updateStatus();
   if (failed) toast('Save failed — check console', 'error');
   else toast(`${ids.length} player${ids.length > 1 ? 's' : ''} saved ✓`, 'success');
-}
-
-// ── ADD PLAYER ────────────────────────────────────────────
-async function addPlayer() {
-  const maxRank = players.length ? Math.max(...players.map(p => p.rank)) : 0;
-  const data = { rank: maxRank + 1, name: 'New Player', team: 'NHL', pos: 'C', age: 25, proj_gp: 82, proj_g: 0, proj_a: 0, proj_pts: 0, tier: 'Mid', notes: '' };
-  try {
-    const res = await fetch(TABLE, {
-      method: 'POST',
-      headers: { ...HEADERS, 'Prefer': 'return=representation' },
-      body: JSON.stringify(data)
-    });
-    if (!res.ok) throw new Error(await res.text());
-    const [created] = await res.json();
-    players.push(created);
-    renderTable();
-    const newRow = document.getElementById(`row-${created.id}`);
-    if (newRow) { newRow.scrollIntoView({ behavior: 'smooth', block: 'center' }); newRow.querySelector('input').focus(); }
-    toast('Player added — fill in and hit Save All', 'success');
-  } catch (e) {
-    toast('Add failed: ' + e.message, 'error');
-  }
 }
 
 // ── HELPERS ──────────────────────────────────────────────
