@@ -77,14 +77,13 @@ def parse_players():
         if r[0] is None:
             continue
         try:
-            rank = int(float(r[0]))
+            int(float(r[0]))
         except (TypeError, ValueError):
             continue
         name = str(r[1]).strip() if r[1] else None
         if not name:
             continue
         players.append({
-            "rank":     rank,
             "name":     name,
             "age":      int(float(r[2])) if r[2] else None,
             "pos":      normalize_pos(r[3], "F"),
@@ -104,14 +103,13 @@ def parse_players():
         if r[0] is None:
             continue
         try:
-            rank = int(float(r[0]))
+            int(float(r[0]))
         except (TypeError, ValueError):
             continue
         name = str(r[1]).strip() if r[1] else None
         if not name:
             continue
         players.append({
-            "rank":     rank,
             "name":     name,
             "age":      int(float(r[2])) if r[2] else None,
             "pos":      "D",
@@ -127,7 +125,6 @@ def parse_players():
 
     # ── GOALIES ──
     ws = wb["Gardiens"]
-    goalie_rank = 1
     for r in list(ws.iter_rows(values_only=True))[2:]:
         if r[0] is None:
             continue
@@ -136,7 +133,6 @@ def parse_players():
             continue
         upside = int(float(r[15])) if r[15] else None
         players.append({
-            "rank":     goalie_rank,
             "name":     name,
             "age":      int(float(r[1])) if r[1] else None,
             "pos":      "G",
@@ -149,7 +145,13 @@ def parse_players():
             "upside":   upside,
             "notes":    str(r[16]).strip() if r[16] else None,
         })
-        goalie_rank += 1
+
+    # Global rank by proj_pts descending (nulls last), then sheet order as tiebreak.
+    # This means rank reflects overall value across all positions.
+    players_with_pts = [(p["proj_pts"] or 0, i, p) for i, p in enumerate(players)]
+    players_with_pts.sort(key=lambda x: (-x[0], x[1]))
+    for rank, (_, _, p) in enumerate(players_with_pts, start=1):
+        p["rank"] = rank
 
     return players
 
@@ -181,15 +183,18 @@ def upload(players):
     existing = fetch_existing()
     print(f"  {len(existing)} players already in DB.")
 
+    excel_names = {p["name"].lower() for p in players}
+
     to_update = []
     to_insert = []
+    to_delete = [(name, pid) for name, pid in existing.items() if name not in excel_names]
     for p in players:
-        if p["name"] in existing:
-            to_update.append((existing[p["name"]], p))
+        if p["name"].lower() in existing:
+            to_update.append((existing[p["name"].lower()], p))
         else:
             to_insert.append(p)
 
-    print(f"  {len(to_update)} to update, {len(to_insert)} to insert.")
+    print(f"  {len(to_update)} to update, {len(to_insert)} to insert, {len(to_delete)} to delete.")
 
     # Projection-only fields — never touch last_*, tier, risk, pp_pct, bust_alert
     PROJ_FIELDS = ["rank", "name", "age", "pos", "team",
@@ -231,7 +236,26 @@ def upload(players):
             inserted += len(batch)
             print(f"  Inserted {inserted}/{len(to_insert)}…")
 
-    print(f"\nDone! {len(to_update)} updated, {len(to_insert)} inserted. Last-year stats and tier/risk untouched.")
+    # DELETE players no longer in the Excel
+    if to_delete:
+        BATCH = 100
+        deleted = 0
+        delete_ids = [pid for _, pid in to_delete]
+        for i in range(0, len(delete_ids), BATCH):
+            batch = delete_ids[i:i + BATCH]
+            id_list = ",".join(str(x) for x in batch)
+            res = requests.delete(
+                f"{SUPABASE_URL}/rest/v1/poolers_players?id=in.({id_list})",
+                headers=HEADERS,
+            )
+            if res.status_code not in (200, 204):
+                print(f"  DELETE failed: {res.status_code} {res.text[:200]}")
+                sys.exit(1)
+            deleted += len(batch)
+            print(f"  Deleted {deleted}/{len(delete_ids)}…")
+        print(f"  Deleted {deleted}/{len(delete_ids)}.")
+
+    print(f"\nDone! {len(to_update)} updated, {len(to_insert)} inserted, {len(to_delete)} deleted. Last-year stats and tier/risk untouched.")
 
 
 def main():
@@ -253,7 +277,7 @@ def main():
               f"AAV:${p['aav']}M  Upside:{p['upside']}")
 
     print()
-    confirm = input("Upload to Supabase? Projections will be updated; last-year stats/tier/risk untouched. [y/N] ")
+    confirm = input("Upload to Supabase? Projections updated, players not in Excel deleted, last-year stats/tier/risk untouched. [y/N] ")
     if confirm.lower() != "y":
         print("Aborted.")
         sys.exit(0)
