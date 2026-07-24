@@ -55,6 +55,23 @@ def normalize_pos(raw, fallback="F"):
     return POS_MAP.get(key, key.split("/")[0][:2])
 
 
+def compute_risk(bandaid, risque):
+    b = str(bandaid).strip().upper() if bandaid else ''
+    r = str(risque).strip().upper() if risque else ''
+    is_injured = b == 'OUI' or b == 'C'
+    is_risky   = r == 'OUI'
+    is_medium  = r == 'MOYEN'
+    if is_risky:
+        return 'High'
+    if is_injured and is_medium:
+        return 'High'
+    if is_injured:
+        return 'Medium'
+    if is_medium:
+        return 'Medium'
+    return 'Low'
+
+
 def parse_salary(val):
     if val is None:
         return None
@@ -93,6 +110,7 @@ def parse_players():
             "proj_a":   int(float(r[7])) if r[7] else None,
             "proj_pts": (int(float(r[6])) if r[6] else 0) + (int(float(r[7])) if r[7] else 0),
             "aav":      parse_salary(r[10]),
+            "risk":     compute_risk(r[11], r[12]),
             "upside":   int(float(r[13])) if r[13] else None,
             "notes":    str(r[14]).strip() if r[14] else None,
         })
@@ -119,6 +137,7 @@ def parse_players():
             "proj_a":   int(float(r[7])) if r[7] else None,
             "proj_pts": (int(float(r[6])) if r[6] else 0) + (int(float(r[7])) if r[7] else 0),
             "aav":      parse_salary(r[10]),
+            "risk":     compute_risk(r[11], r[12]),
             "upside":   int(float(r[13])) if r[13] else None,
             "notes":    str(r[14]).strip() if r[14] else None,
         })
@@ -142,6 +161,7 @@ def parse_players():
             "proj_a":   None,
             "proj_pts": upside,
             "aav":      parse_salary(r[12]),
+            "risk":     compute_risk(r[13], r[14]),
             "upside":   upside,
             "notes":    str(r[16]).strip() if r[16] else None,
         })
@@ -199,7 +219,7 @@ def upload(players):
     # Projection-only fields — never touch last_*, tier, risk, pp_pct, bust_alert
     PROJ_FIELDS = ["rank", "name", "age", "pos", "team",
                    "proj_gp", "proj_g", "proj_a", "proj_pts",
-                   "aav", "upside", "notes"]
+                   "aav", "risk", "upside", "notes"]
 
     # PATCH existing players one by one (Supabase REST doesn't bulk-patch by id list)
     updated = 0
