@@ -155,13 +155,19 @@ tbody tr.tier-row-Sleeper { background: rgba(52,211,153,0.10); border-left: 3px 
 /* Salary */
 .salary { color: #b45309; font-weight: 600; font-size: 0.88em; }
 
+/* Age tints */
+.age-young { color: #15803d; font-weight: 700; }
+.age-old   { color: #dc2626; font-weight: 600; }
+
+/* Band-aid icon */
+.bandaid { font-size: 0.78em; margin-left: 4px; vertical-align: middle; }
+
+/* Upside inline */
+.upside-inline { font-size: 0.75em; color: #7c3aed; font-weight: 700; margin-left: 4px; opacity: 0.9; cursor: default; }
+
 /* PPG */
 .ppg-last { color: #2563eb; font-weight: 600; }
 .ppg-proj { color: #15803d; font-weight: 700; }
-
-/* Upside */
-.upside { color: #7c3aed; font-weight: 700; font-size: 0.92em; }
-td.col-upside { background: #f0fdf4; }
 
 /* PP% */
 .pp-pct { color: #7c3aed; font-weight: 600; font-size: 0.88em; }
@@ -194,7 +200,7 @@ td.col-proj-last  { border-right: 2px solid #bbf7d0 !important; }
 .trend-flat { background: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; }
 
 /* Notes display */
-.notes-display { color: #94a3b8; font-size: 0.75em; font-style: italic; margin-top: 3px; line-height: 1.4; max-width: 220px; }
+.notes-display { color: #94a3b8; font-size: 0.75em; font-style: italic; margin-top: 3px; line-height: 1.4; max-width: 220px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: default; }
 
 /* Tooltip */
 .tooltip { position: fixed; z-index: 9000; background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; font-size: 0.82em; font-style: italic; color: #1e293b; max-width: 260px; pointer-events: none; box-shadow: 0 4px 16px rgba(0,0,0,0.12); line-height: 1.4; }
@@ -448,7 +454,6 @@ td.col-proj-last  { border-right: 2px solid #bbf7d0 !important; }
             <div class='col-toggle-menu' id='colMenu'>
               <div class='menu-title'>Show / Hide</div>
               <label><input type='checkbox' id='col-last' checked onchange='applyColVis()'> 📅 Last year stats</label>
-              <label><input type='checkbox' id='col-upside' checked onchange='applyColVis()'> 🔝 Upside</label>
               <label><input type='checkbox' id='col-ppg' checked onchange='applyColVis()'> PPG (pts/game)</label>
               <label><input type='checkbox' id='col-salary' checked onchange='applyColVis()'> 💰 Salary (AAV)</label>
               <label><input type='checkbox' id='col-pp' onchange='applyColVis()'> PP% (powerplay points)</label>
@@ -639,7 +644,6 @@ function hideTooltip() { _tt.style.display = 'none'; }
 // ── COLUMN VISIBILITY ─────────────────────────────────────
 const COL_GROUPS = {
   'col-last':    ['cg-last'],
-  'col-upside':  ['cg-upside'],
   'col-ppg':     ['cg-ppg-last', 'cg-ppg-proj'],
   'col-salary':  ['cg-salary'],
   'col-pp':      ['cg-pp'],
@@ -760,9 +764,8 @@ function renderHeader() {
   <tr class='group-row'>
     <th colspan='5' style='background:#f1f5f9;'></th>
     <th id='gh-last' colspan='5' class='col-group-last cg-last'>📅 2025-26 ACTUAL</th>
-    <th colspan='5' class='col-group-proj'>🎯 2026-27 PROJECTION</th>
-    <th colspan='7' style='background:#f1f5f9;'></th>
-  </tr>
+    <th colspan='4' class='col-group-proj'>🎯 2026-27 PROJECTION</th>
+    <th colspan='7' style='background:#f1f5f9;'></th>  </tr>
   <tr class='col-row'>
     <th onclick='sortBy("rank")'    data-col='rank'>#<span class='sort-icon'></span></th>
     <th onclick='sortBy("name")'    data-col='name'>Player<span class='sort-icon'></span></th>
@@ -781,7 +784,6 @@ function renderHeader() {
     <th onclick='sortBy("proj_a")'  data-col='proj_a'  class='col-group-proj' style='color:#15803d;'>A<span class='sort-icon'></span></th>
     <th onclick='sortBy("proj_pts")' data-col='proj_pts' class='col-group-proj' style='color:#15803d;font-weight:800;'>PTS<span class='sort-icon'></span></th>
     <th onclick='sortBy("_ppg_proj")' data-col='_ppg_proj' class='col-group-proj cg-ppg-proj' style='border-right:2px solid #bbf7d0;color:#15803d;'>PPG<span class='sort-icon'></span></th>
-    <th onclick='sortBy("upside")' data-col='upside' class='col-group-proj cg-upside' onmouseenter='showTooltip(this,"Upside = ceiling projection if everything goes right")' onmouseleave='hideTooltip()'>🔝 Upside<span class='sort-icon'></span></th>
 
     <th onclick='sortBy("aav")'     data-col='aav'     class='cg-salary'>💰 AAV<span class='sort-icon'></span></th>
     <th onclick='sortBy("pp_pct")' data-col='pp_pct' class='cg-pp' onmouseenter='showTooltip(this,"PP% = powerplay points ÷ total points × 100")' onmouseleave='hideTooltip()'>PP%<span class='sort-icon'></span></th>
@@ -801,7 +803,7 @@ function renderAll() {
   document.getElementById('resultsCount').textContent = filtered.length + ' players';
 
   if (!filtered.length) {
-    tbody.innerHTML = '<tr><td colspan="22"><div class="empty-state"><div class="icon">🔍</div>No players match your filters.</div></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="21"><div class="empty-state"><div class="icon">🔍</div>No players match your filters.</div></td></tr>';
     return;
   }
 
@@ -813,21 +815,27 @@ function renderAll() {
     const pv       = getPV(p);
     const pc       = pvClass(pv);
     const noteEsc  = (p.notes || '').replace(/'/g, '&#39;').replace(/"/g, '&quot;');
-    const aav      = p.aav ? `$${p.aav}M` : '—';
+    const noteFull = (p.notes || '').replace(/"/g, '&quot;');
+    const aav      = p.aav ? `$${parseFloat(p.aav).toFixed(2)}M` : '—';
     const ppPct    = p.pp_pct != null ? p.pp_pct + '%' : '—';
     const riskHtml = p.risk ? `<span class='risk risk-${p.risk}'>${p.risk === 'Low' ? '🟢' : p.risk === 'Medium' ? '🟡' : '🔴'} ${p.risk}</span>` : '—';
     const bustHtml = p.bust_alert ? `<span class='bust'>💣 Bust</span>` : '';
+    const bandaid  = p.risk === 'Medium' || p.risk === 'High' ? `<span class='bandaid' title='${p.risk === 'High' ? 'High risk / injury prone' : 'Injury prone'}'>🩹</span>` : '';
+    const ageClass = p.age <= 22 ? 'age-young' : p.age >= 32 ? 'age-old' : '';
+    const upsideHtml = p.upside != null && p.proj_pts != null
+      ? `<span class='upside-inline' onmouseenter='showTooltip(this,"Upside: ${p.upside} pts ceiling")' onmouseleave='hideTooltip()'>↑${p.upside}</span>`
+      : '';
 
     return `<tr class='tier-row-${p.tier}'>
       <td>${p.rank}</td>
       <td>
-        <div class='player-name' onclick='openModal(${p.id})'>${p.name}</div>
-        ${noteEsc ? `<div class='notes-display'>${noteEsc}</div>` : ''}
+        <div class='player-name' onclick='openModal(${p.id})'>${p.name}${bandaid}</div>
+        ${noteEsc ? `<div class='notes-display' title="${noteFull}">${noteEsc}</div>` : ''}
         ${bustHtml}
       </td>
       <td><span class='team-tag'>${p.team}</span></td>
       <td><span class='pos-tag pos-${p.pos}'>${p.pos}</span></td>
-      <td>${p.age ?? 'N/A'}</td>
+      <td class='${ageClass}'>${p.age ?? 'N/A'}</td>
 
       <td class='col-last col-last-first last-stat cg-last'>${p.last_gp ?? '—'}</td>
       <td class='col-last last-stat cg-last'>${p.last_g ?? '—'}</td>
@@ -838,9 +846,8 @@ function renderAll() {
       <td class='col-proj col-proj-first proj-stat'>${p.proj_gp}</td>
       <td class='col-proj proj-stat'>${p.proj_g}</td>
       <td class='col-proj proj-stat'>${p.proj_a}</td>
-      <td class='col-proj proj-pts'>${p.proj_pts}</td>
+      <td class='col-proj proj-pts'>${p.proj_pts}${upsideHtml}</td>
       <td class='col-proj col-proj-last cg-ppg-proj'><span class='ppg-proj'>${ppg(p.proj_pts, p.proj_gp)}</span></td>
-      <td class='col-upside cg-upside'>${p.upside != null ? `<span class='upside'>${p.upside}</span>` : '—'}</td>
 
       <td class='cg-salary'><span class='salary'>${aav}</span></td>
       <td class='cg-pp'><span class='pp-pct'>${ppPct}</span></td>
@@ -873,8 +880,7 @@ function renderCards(filtered) {
     const trendLbl = trend === 'up' ? `↑ ${diffStr}` : trend === 'down' ? `↓ ${diffStr}` : `→ ${diffStr}`;
     const pv       = getPV(p);
     const pc       = pvClass(pv);
-    const aav      = p.aav ? `$${p.aav}M` : '—';
-    return `<div class='player-card tier-${p.tier}'>
+    const aav      = p.aav ? `$${parseFloat(p.aav).toFixed(2)}M` : '—';
       <div class='card-header'>
         <span class='card-rank'>${p.rank}</span>
         <div>
@@ -1152,7 +1158,7 @@ function switchTab(name, btn) {
 
 // ── CSV EXPORT ────────────────────────────────────────────
 function downloadCSV() {
-  const headers = ['Rank','Player','Team','Pos','Age','Last GP','Last G','Last A','Last PTS','Last PPG','Proj GP','Proj G','Proj A','Proj PTS','Proj PPG','Upside','AAV','PP%','Tier','Trend','Efficiency','Notes'];
+  const headers = ['Rank','Player','Team','Pos','Age','Last GP','Last G','Last A','Last PTS','Last PPG','Proj GP','Proj G','Proj A','Proj PTS','Upside','Proj PPG','AAV','PP%','Tier','Trend','Efficiency','Notes'];
   const rows = sorted(getFiltered()).map(p => {
     const trend = getTrend(p);
     const diff  = p.proj_pts - (p.last_pts || p.proj_pts);
