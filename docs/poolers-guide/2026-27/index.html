@@ -820,10 +820,10 @@ function renderAll() {
     const ppPct    = p.pp_pct != null ? p.pp_pct + '%' : '—';
     const riskHtml = p.risk ? `<span class='risk risk-${p.risk}'>${p.risk === 'Low' ? '🟢' : p.risk === 'Medium' ? '🟡' : '🔴'} ${p.risk}</span>` : '—';
     const bustHtml = p.bust_alert ? `<span class='bust'>💣 Bust</span>` : '';
-    const bandaid  = p.risk === 'Medium' || p.risk === 'High' ? `<span class='bandaid' title='${p.risk === 'High' ? 'High risk / injury prone' : 'Injury prone'}'>🩹</span>` : '';
+    const bandaid  = p.risk === 'Medium' || p.risk === 'High' ? `<span class='bandaid' title='${p.risk === "High" ? "High risk / injury prone" : "Injury prone"}'>🩹</span>` : '';
     const ageClass = p.age <= 22 ? 'age-young' : p.age >= 32 ? 'age-old' : '';
     const upsideHtml = p.upside != null && p.proj_pts != null
-      ? `<span class='upside-inline' onmouseenter='showTooltip(this,"Upside: ${p.upside} pts ceiling")' onmouseleave='hideTooltip()'>↑${p.upside}</span>`
+      ? `<span class='upside-inline' onmouseenter='showTooltip(this,\`Upside: ${p.upside} pts ceiling\`)' onmouseleave='hideTooltip()'>↑${p.upside}</span>`
       : '';
 
     return `<tr class='tier-row-${p.tier}'>
@@ -881,6 +881,7 @@ function renderCards(filtered) {
     const pv       = getPV(p);
     const pc       = pvClass(pv);
     const aav      = p.aav ? `$${parseFloat(p.aav).toFixed(2)}M` : '—';
+    return `<div class='player-card tier-${p.tier}'>
       <div class='card-header'>
         <span class='card-rank'>${p.rank}</span>
         <div>
