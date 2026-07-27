@@ -93,13 +93,20 @@ def compute_tier(pos, proj_pts, aav, upside, rank):
     return 'Mid'
 
 
-def compute_bust(pos, rank, risk, proj_pts, upside, aav):
+def compute_bust(pos, rank, risk, proj_pts, upside, aav, last_pts=None):
     if pos == 'G':
         return False
     pts = proj_pts or 0
     ceiling = upside or pts
     delta = ceiling - pts
-    return risk == 'High' and rank <= 120 and delta <= 15
+    eff = pts / math.sqrt(aav) if aav and aav > 0 else 999
+    # Overpaid + high risk + tight ceiling
+    if risk == 'High' and rank <= 120 and delta <= 15 and eff < 25:
+        return True
+    # Significant regression from last year — uncomment when last_pts data populated
+    # if last_pts and last_pts - pts > 15 and risk == 'High':
+    #     return True
+    return False
 
 
 def parse_salary(val):
