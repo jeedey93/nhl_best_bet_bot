@@ -82,16 +82,14 @@ def compute_tier(pos, proj_pts, aav, upside):
     if pos == 'D':
         if pts >= 80:  return 'Elite'
         if pts >= 55:  return 'Top'
-        # Sleeper D: low salary, meaningful upside ceiling
-        if pts >= 35 and usd < 3 and delta >= 10: return 'Sleeper'
+        if pts >= 35 and delta >= 20: return 'Sleeper'
         if pts >= 30:  return 'Mid'
         return 'Mid'
 
     # Forwards (C, LW, RW)
     if pts >= 100: return 'Elite'
     if pts >= 70:  return 'Top'
-    # Sleeper: cheap contract with notable upside ceiling
-    if pts >= 30 and usd < 3 and delta >= 15: return 'Sleeper'
+    if pts >= 40 and delta >= 20: return 'Sleeper'
     if pts >= 40:  return 'Mid'
     return 'Mid'
 
