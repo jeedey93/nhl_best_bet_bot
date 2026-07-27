@@ -72,6 +72,30 @@ def compute_risk(bandaid, risque):
     return 'Low'
 
 
+def compute_tier(pos, proj_pts, aav, upside):
+    if pos == 'G':
+        return None
+    pts = proj_pts or 0
+    usd = aav or 99
+    delta = (upside or pts) - pts
+
+    if pos == 'D':
+        if pts >= 80:  return 'Elite'
+        if pts >= 55:  return 'Top'
+        # Sleeper D: low salary, meaningful upside ceiling
+        if pts >= 35 and usd < 3 and delta >= 10: return 'Sleeper'
+        if pts >= 30:  return 'Mid'
+        return 'Mid'
+
+    # Forwards (C, LW, RW)
+    if pts >= 100: return 'Elite'
+    if pts >= 70:  return 'Top'
+    # Sleeper: cheap contract with notable upside ceiling
+    if pts >= 30 and usd < 3 and delta >= 15: return 'Sleeper'
+    if pts >= 40:  return 'Mid'
+    return 'Mid'
+
+
 def parse_salary(val):
     if val is None:
         return None
@@ -113,6 +137,7 @@ def parse_players():
             "risk":     compute_risk(r[11], r[12]),
             "upside":   int(float(r[13])) if r[13] else None,
             "notes":    str(r[14]).strip() if r[14] else None,
+            "tier":     compute_tier(normalize_pos(r[3], "F"), (int(float(r[6])) if r[6] else 0) + (int(float(r[7])) if r[7] else 0), parse_salary(r[10]), int(float(r[13])) if r[13] else None),
         })
 
     # ── DEFENCEMEN ──
@@ -140,6 +165,7 @@ def parse_players():
             "risk":     compute_risk(r[11], r[12]),
             "upside":   int(float(r[13])) if r[13] else None,
             "notes":    str(r[14]).strip() if r[14] else None,
+            "tier":     compute_tier("D", (int(float(r[6])) if r[6] else 0) + (int(float(r[7])) if r[7] else 0), parse_salary(r[10]), int(float(r[13])) if r[13] else None),
         })
 
     # ── GOALIES ──
@@ -162,6 +188,7 @@ def parse_players():
             "proj_pts": upside,
             "aav":      parse_salary(r[12]),
             "risk":     compute_risk(r[13], r[14]),
+            "tier":     None,
             "upside":   upside,
             "notes":    str(r[16]).strip() if r[16] else None,
         })
@@ -219,7 +246,7 @@ def upload(players):
     # Projection-only fields — never touch last_*, tier, risk, pp_pct, bust_alert
     PROJ_FIELDS = ["rank", "name", "age", "pos", "team",
                    "proj_gp", "proj_g", "proj_a", "proj_pts",
-                   "aav", "risk", "upside", "notes"]
+                   "aav", "risk", "tier", "upside", "notes"]
 
     # PATCH existing players one by one (Supabase REST doesn't bulk-patch by id list)
     updated = 0
