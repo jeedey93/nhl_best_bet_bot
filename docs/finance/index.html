@@ -1230,7 +1230,8 @@
     if (!bar || !txt || !_pricesLastUpdated) return;
     bar.style.display = 'block';
     const secs = Math.round((Date.now() - _pricesLastUpdated) / 1000);
-    txt.textContent = secs < 30 ? 'Prices live' : secs < 120 ? `Updated ${secs}s ago` : `Updated ${Math.round(secs/60)}m ago`;
+    const timeStr = new Date(_pricesLastUpdated).toLocaleTimeString('en-CA', { hour: '2-digit', minute: '2-digit' });
+    txt.textContent = secs < 30 ? `Prices live · ${timeStr}` : secs < 120 ? `Updated ${secs}s ago · ${timeStr}` : `Updated ${Math.round(secs/60)}m ago · ${timeStr}`;
   }
 
   function startPriceRefresh() {
@@ -1262,7 +1263,7 @@
       if (marketValue != null) totalValue += marketValue; else totalValue += cost;
       if (dayChange != null) totalDayChange += dayChange;
       totalAnnualDiv += annualDiv;
-      return { ...h, cost, marketValue, dayChange, overallGain, annualDiv, price: p?.price, changePct: p?.changePct };
+      return { ...h, cost, marketValue, dayChange, overallGain, annualDiv, price: p?.price, changePct: p?.changePct, yield: p?.price && h.annual_dividend ? (h.annual_dividend / p.price) * 100 : null };
     });
     enriched.forEach(h => { h.weight = totalValue > 0 ? ((h.marketValue ?? h.cost) / totalValue) * 100 : null; });
 
@@ -1325,7 +1326,7 @@
         </div>
       </div>
       <div class="mobile-tabs">
-        <button class="mobile-tab active" onclick="switchMobileTab('holdings',this)">Holdings</button>
+        <button class="mobile-tab active" onclick="switchMobileTab('holdings',this)">Holdings <span style="opacity:0.45;font-size:0.8em">${enriched.length}</span></button>
         <button class="mobile-tab" onclick="switchMobileTab('charts',this)">Charts</button>
         <button class="mobile-tab" onclick="switchMobileTab('dividends',this)">Dividends</button>
         <button class="mobile-tab" onclick="switchMobileTab('history',this)">History</button>
@@ -1406,13 +1407,14 @@
         </div>`
       : '';
 
-    // Compute per-account value for tab balance display
-    const acctValueMap = {};
-    _accounts.forEach(a => { acctValueMap[a.id] = 0; });
+    // Compute per-account value and day change for tab balance display
+    const acctValueMap = {}, acctDayMap = {};
+    _accounts.forEach(a => { acctValueMap[a.id] = 0; acctDayMap[a.id] = 0; });
     _holdings.forEach(h => {
       if (!h.account_id || !acctValueMap.hasOwnProperty(h.account_id)) return;
       const p = _prices[h.ticker];
       acctValueMap[h.account_id] += p?.price ? (h.shares||0)*p.price : (h.shares||0)*(h.avg_price||0);
+      if (p?.change != null) acctDayMap[h.account_id] += (h.shares||0)*p.change;
     });
 
     return `<div class="account-bar">
@@ -1421,10 +1423,12 @@
         ${_accounts.map(a => {
           const isActive = _activeAccount?.id === a.id;
           const val = acctValueMap[a.id];
+          const day = acctDayMap[a.id];
           const valStr = val > 0 ? fmtC(val) : '';
+          const dayStr = Object.keys(_prices).length > 0 && day !== 0 ? `${day >= 0 ? '+' : ''}${fmtC(day)}` : '';
           return `<button class="atab${isActive ? ' active' : ''}" data-account-id="${a.id}">
             ${escHtml(a.name)}${isActive ? ' <span onclick="event.stopPropagation();selectAccount(null)" style="margin-left:4px;opacity:0.7;font-size:0.85em">×</span>' : ''}
-            ${valStr ? `<span class="atab-bal">${valStr}</span>` : ''}
+            ${valStr ? `<span class="atab-bal">${valStr}${dayStr ? ` <span style="color:${day>=0?'#4ade80':'#f87171'};font-size:0.85em">${dayStr}</span>` : ''}</span>` : ''}
           </button>`;
         }).join('')}
       </div>
@@ -1460,6 +1464,7 @@
         case 'gain$':  av = a.overallGain ?? -Infinity; bv = b.overallGain ?? -Infinity; break;
         case 'gain%':  av = a.cost > 0 ? (a.overallGain??0)/a.cost : -Infinity; bv = b.cost > 0 ? (b.overallGain??0)/b.cost : -Infinity; break;
         case 'weight': av = a.weight ?? -Infinity; bv = b.weight ?? -Infinity; break;
+        case 'yield':  av = a.yield  ?? -Infinity; bv = b.yield  ?? -Infinity; break;
         case 'divmo':  av = (a.shares||0)*(a.annual_dividend||0)/12; bv = (b.shares||0)*(b.annual_dividend||0)/12; break;
         default: return 0;
       }
@@ -1540,6 +1545,7 @@
             <td class="col-hide-mobile">
               ${h.weight != null ? `<div class="weight-bar-wrap"><div class="weight-bar"><div class="weight-bar-fill" style="width:${Math.min(h.weight,100)}%;background:rgba(255,255,255,0.4)"></div></div><span class="muted">${fmt(h.weight)}%</span></div>` : '—'}
             </td>
+            <td class="col-hide-mobile" style="color:${h.yield != null ? '#22c55e' : 'rgba(255,255,255,0.3)'};font-weight:600">${h.yield != null ? fmt(h.yield) + '%' : '—'}</td>
             <td class="col-hide-mobile muted">${h.annual_dividend ? fmtC((h.shares || 0) * h.annual_dividend / 12) + '/mo' : '—'}</td>
             <td style="white-space:nowrap"><button class="btn-edit-row" onclick="event.stopPropagation();openEditHolding('${h.id}')">✎</button><button class="btn-delete-row" onclick="event.stopPropagation();quickDeleteHolding('${h.id}','${escHtml(h.company_name||h.ticker||'')}')">✕</button></td>
           </tr>`;
@@ -1558,13 +1564,13 @@
           <td class="${grpDay >= 0 ? 'pos' : 'neg'}">${grpDay >= 0 ? '+' : ''}${fmt(grpDayPct)}%</td>
           <td class="col-hide-mobile ${grpGain >= 0 ? 'pos' : 'neg'}">${grpGain >= 0 ? '+' : ''}${fmtC(grpGain)}</td>
           <td class="${grpGain >= 0 ? 'pos' : 'neg'}">${grpGain >= 0 ? '+' : ''}${fmt(grpGainPct)}%</td>
-          <td class="col-hide-mobile"></td><td class="col-hide-mobile"></td><td></td>
+          <td class="col-hide-mobile"></td><td class="col-hide-mobile"></td><td class="col-hide-mobile"></td><td></td>
         </tr>`;
       }
     }
     const tgPct = totalCost > 0 ? (totalGain / totalCost) * 100 : 0;
     const tdPct = (totalMv - totalDay) > 0 ? (totalDay / (totalMv - totalDay)) * 100 : 0;
-    rows += `<tr class="total-row">
+    rows += `<tr class="total-row" style="box-shadow:inset 0 0 0 1px ${totalGain >= 0 ? 'rgba(74,222,128,0.15)' : 'rgba(248,113,113,0.15)'}">
       <td class="left">Total</td>
       <td class="col-hide-mobile"></td><td class="col-hide-mobile"></td>
       <td class="col-hide-mobile">${fmtC(totalCost)}</td>
@@ -1573,8 +1579,8 @@
       <td class="col-hide-mobile ${totalDay >= 0 ? 'pos' : 'neg'}">${totalDay >= 0 ? '+' : ''}${fmtC(totalDay)}</td>
       <td class="${totalDay >= 0 ? 'pos' : 'neg'}">${totalDay >= 0 ? '+' : ''}${fmt(tdPct)}%</td>
       <td class="col-hide-mobile ${totalGain >= 0 ? 'pos' : 'neg'}">${totalGain >= 0 ? '+' : ''}${fmtC(totalGain)}</td>
-      <td class="${totalGain >= 0 ? 'pos' : 'neg'}">${totalGain >= 0 ? '+' : ''}${fmt(tgPct)}%</td>
-      <td class="col-hide-mobile muted">100%</td><td class="col-hide-mobile"></td><td></td>
+      <td class="${totalGain >= 0 ? 'pos' : 'neg'}" style="font-size:1.05em;font-weight:800">${totalGain >= 0 ? '+' : ''}${fmt(tgPct)}%</td>
+      <td class="col-hide-mobile muted">100%</td><td class="col-hide-mobile"></td><td class="col-hide-mobile"></td><td></td>
     </tr>`;
 
     // ── Mobile cards ──
@@ -1614,13 +1620,15 @@
       const gcPos = (h.overallGain ?? 0) >= 0;
       const sectorColor = getSectorColor(h.sector);
       const gainPct = h.cost > 0 && h.overallGain != null ? (h.overallGain / h.cost) * 100 : null;
-      cards += `<div class="holding-card" style="border-left-color:${sectorColor}" onclick="openCompanyProfile('${h.ticker}','${escHtml(h.company_name||h.ticker).replace(/'/g,"&#39;")}')">
+      const gainPill = gainPct != null ? `<span style="font-size:0.68rem;font-weight:700;padding:1px 6px;border-radius:4px;margin-left:0.35rem;background:${gcPos?'rgba(74,222,128,0.15)':'rgba(248,113,113,0.12)'};color:${gcPos?'#4ade80':'#f87171'}">${gcPos?'+':''}${fmt(gainPct)}%</span>` : '';
+      cards += `<div class="holding-card" style="border-left-color:${sectorColor}" data-ticker="${escHtml(h.ticker||'')}" data-price="${h.price||''}" onclick="openCompanyProfile('${h.ticker}','${escHtml(h.company_name||h.ticker).replace(/'/g,"&#39;")}')">
         <div class="hc-left">
-          <div class="hc-name">${escHtml(h.company_name?.split(' ').slice(0,3).join(' ') || h.ticker || '')}</div>
+          <div class="hc-name">${escHtml(h.company_name?.split(' ').slice(0,3).join(' ') || h.ticker || '')}${gainPill}</div>
           <div class="hc-sub">
             <span class="hc-ticker">${escHtml((h.ticker||'').replace(/^TSX:|^NYSE:/i,''))}</span>
             ${h.sector ? `<span style="margin-left:0.4rem;font-size:0.68rem;font-weight:700;color:${sectorColor};letter-spacing:0.5px">${escHtml(h.sector)}</span>` : ''}
             <span style="margin-left:0.4rem;color:rgba(255,255,255,0.45)">${fmt(h.shares, 4)} @ $${fmt(h.avg_price)}</span>
+            <span class="hc-52w" style="margin-left:0.4rem;font-size:0.68rem;font-weight:700;letter-spacing:0.3px"></span>
           </div>
           ${h.marketValue != null ? `<div class="hc-gain"><span style="color:rgba(255,255,255,0.7)">${fmtC(h.marketValue)}</span>${h.overallGain != null ? ` <span class="${gcPos?'pos':'neg'}">(${gcPos?'+':''}${fmtC(h.overallGain)})</span>` : ''}</div>` : ''}
         </div>
@@ -1661,7 +1669,7 @@
         ${sh('day$','Day $','col-hide-mobile')}${sh('day%','Day %')}
         ${sh('gain$','Gain $','col-hide-mobile')}${sh('gain%','Gain %')}
         <th class="col-hide-mobile range-cell" style="text-align:center">52W Range</th>
-        ${sh('weight','Weight','col-hide-mobile')}${sh('divmo','Monthly Div','col-hide-mobile')}<th></th>
+        ${sh('weight','Weight','col-hide-mobile')}${sh('yield','Yield','col-hide-mobile')}${sh('divmo','Monthly Div','col-hide-mobile')}<th></th>
       </tr></thead>
       <tbody>${rows}</tbody>
     </table>
@@ -1974,12 +1982,12 @@
     }
 
     if (!snapshots.length) {
-      const wrap = canvas.closest('.chart-wrap'); if (wrap) wrap.style.height = '60px';
-      const ctx = canvas.getContext('2d');
-      ctx.fillStyle = 'rgba(255,255,255,0.15)';
-      ctx.font = '600 12px Barlow Condensed, sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('No data yet — chart will populate after first market close snapshot', canvas.offsetWidth / 2, 36);
+      const wrap = canvas.closest('.chart-wrap');
+      if (wrap) wrap.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:0.4rem;padding:1rem;text-align:center">
+        <div style="font-size:1.5rem;opacity:0.3">📈</div>
+        <div style="font-family:'Bebas Neue',cursive;font-size:0.85rem;letter-spacing:2px;color:rgba(255,255,255,0.2)">No history yet</div>
+        <div style="font-size:0.72rem;font-weight:600;color:rgba(255,255,255,0.15);letter-spacing:0.3px">Chart populates after first market-close snapshot</div>
+      </div>`;
       return;
     }
 
@@ -2062,17 +2070,20 @@
     });
   }
 
+  let _rangeData = {};
+
   async function loadRangeBars() {
     const cells = [...document.querySelectorAll('td[data-range]')];
-    if (!cells.length) return;
-    const tickers = [...new Set(cells.map(c => c.dataset.range))];
-    let rangeData = {};
+    const mobileTickers = [...new Set(_holdings.map(h => h.ticker).filter(Boolean))];
+    const allTickers = [...new Set([...cells.map(c => c.dataset.range), ...mobileTickers])];
+    if (!allTickers.length) return;
     try {
-      const r = await fetch(`/api/finance?action=range&symbols=${tickers.map(encodeURIComponent).join(',')}`);
-      if (r.ok) rangeData = await r.json();
+      const r = await fetch(`/api/finance?action=range&symbols=${allTickers.map(encodeURIComponent).join(',')}`);
+      if (r.ok) _rangeData = await r.json();
     } catch(_) { return; }
+    // Desktop table cells
     cells.forEach(cell => {
-      const d = rangeData[cell.dataset.range];
+      const d = _rangeData[cell.dataset.range];
       const price = parseFloat(cell.dataset.price);
       if (!d || !price) return;
       const { low52, high52 } = d;
@@ -2087,6 +2098,22 @@
         </div>
         <div class="range-labels"><span>${fmtR(low52)}</span><span>${fmtR(high52)}</span></div>
       </div>`;
+    });
+    // Mobile cards — add 52W hint
+    document.querySelectorAll('.holding-card[data-ticker]').forEach(card => {
+      const ticker = card.dataset.ticker;
+      const d = _rangeData[ticker];
+      const price = parseFloat(card.dataset.price || '0');
+      if (!d || !price) return;
+      const { low52, high52 } = d;
+      const range = high52 - low52;
+      if (range <= 0) return;
+      const pct = Math.min(Math.max((price - low52) / range, 0), 1) * 100;
+      const label = pct >= 80 ? '▲ Near 52W high' : pct <= 20 ? '▼ Near 52W low' : null;
+      if (!label) return;
+      const color = pct >= 80 ? '#4ade80' : '#f87171';
+      const hint = card.querySelector('.hc-52w');
+      if (hint) { hint.textContent = label; hint.style.color = color; }
     });
   }
 
