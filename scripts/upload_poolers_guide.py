@@ -101,7 +101,7 @@ def compute_bust(pos, rank, risk, proj_pts, upside, aav, last_pts=None):
     delta = ceiling - pts
     eff = pts / math.sqrt(aav) if aav and aav > 0 else 999
     # Overpaid + high risk + tight ceiling
-    if risk == 'High' and rank <= 120 and delta <= 15 and eff < 25:
+    if risk == 'High' and rank <= 150 and delta <= 20 and eff < 25:
         return True
     # Significant regression from last year — uncomment when last_pts data populated
     # if last_pts and last_pts - pts > 15 and risk == 'High':
