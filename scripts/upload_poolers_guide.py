@@ -96,6 +96,15 @@ def compute_tier(pos, proj_pts, aav, upside):
     return 'Mid'
 
 
+def compute_bust(pos, rank, risk, proj_pts, upside, aav):
+    if pos == 'G':
+        return False
+    pts = proj_pts or 0
+    ceiling = upside or pts
+    delta = ceiling - pts
+    return risk == 'High' and rank <= 120 and delta <= 15
+
+
 def parse_salary(val):
     if val is None:
         return None
@@ -199,6 +208,7 @@ def parse_players():
     players_with_pts.sort(key=lambda x: (-x[0], x[1]))
     for rank, (_, _, p) in enumerate(players_with_pts, start=1):
         p["rank"] = rank
+        p["bust_alert"] = compute_bust(p["pos"], rank, p["risk"], p["proj_pts"], p["upside"], p["aav"])
 
     return players
 
@@ -246,7 +256,7 @@ def upload(players):
     # Projection-only fields — never touch last_*, tier, risk, pp_pct, bust_alert
     PROJ_FIELDS = ["rank", "name", "age", "pos", "team",
                    "proj_gp", "proj_g", "proj_a", "proj_pts",
-                   "aav", "risk", "tier", "upside", "notes"]
+                   "aav", "risk", "tier", "bust_alert", "upside", "notes"]
 
     # PATCH existing players one by one (Supabase REST doesn't bulk-patch by id list)
     updated = 0
