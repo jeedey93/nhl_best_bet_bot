@@ -433,6 +433,8 @@ td.col-proj-last  { border-right: 2px solid #bbf7d0 !important; }
     <button class='tab-btn' onclick='switchTab("byteam", this)'>By Team</button>
     <button class='tab-btn' onclick='switchTab("sleepers", this)'>🌟 Sleepers</button>
     <button class='tab-btn' onclick='switchTab("busts", this)'>💣 Bust Alerts</button>
+    <button class='tab-btn' onclick='switchTab("improvers", this)'>📈 Top Improvers</button>
+    <button class='tab-btn' onclick='switchTab("regression", this)'>📉 Regression</button>
     <button class='tab-btn' onclick='switchTab("scarcity", this)'>📊 Scarcity</button>
   </div>
 
@@ -534,9 +536,24 @@ td.col-proj-last  { border-right: 2px solid #bbf7d0 !important; }
     <div id='bustsGrid' class='sleepers-grid'></div>
   </div>
 
+  <!-- TAB: IMPROVERS -->
+  <div id='tab-improvers' class='tab-pane'>
+    <div style='background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:0.83em;color:#15803d;line-height:1.6'>
+      <strong>📈 Top Improvers:</strong> Players projected to score significantly more points than last season — ranked by the largest positive delta (2026-27 projection minus 2025-26 actuals). Requires last season stats to be populated.
+    </div>
+    <div id='improversGrid' class='sleepers-grid'></div>
+  </div>
+
+  <!-- TAB: REGRESSION -->
+  <div id='tab-regression' class='tab-pane'>
+    <div style='background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:0.83em;color:#c2410c;line-height:1.6'>
+      <strong>📉 Regression Candidates:</strong> Players projected to score significantly fewer points than last season — ranked by the largest negative delta (2025-26 actuals minus 2026-27 projection). Age, injury history, or weaker team context driving the drop.
+    </div>
+    <div id='regressionGrid' class='sleepers-grid'></div>
+  </div>
+
   <!-- TAB: SCARCITY -->
-  <div id='tab-scarcity' class='tab-pane'>
-    <div id='scarcityChart'></div>
+  <div id='tab-scarcity' class='tab-pane'>    <div id='scarcityChart'></div>
   </div>
 
   <div class='disclaimer'>
@@ -590,6 +607,8 @@ async function init() {
   renderByTeam();
   renderSleepers();
   renderBusts();
+  renderImprovers();
+  renderRegression();
   renderScarcity();
   applyColVis();
 }
@@ -1003,7 +1022,59 @@ function renderBusts() {
   }).join('');
 }
 
-// ── RENDER SCARCITY ───────────────────────────────────────
+// ── RENDER IMPROVERS ─────────────────────────────────────
+function renderImprovers() {
+  const grid = document.getElementById('improversGrid');
+  const eligible = allPlayers.filter(p => p.last_pts != null && p.proj_pts != null)
+    .map(p => ({ ...p, delta: p.proj_pts - p.last_pts }))
+    .filter(p => p.delta > 0)
+    .sort((a, b) => b.delta - a.delta)
+    .slice(0, 20);
+
+  if (!eligible.length) {
+    grid.innerHTML = `<div class='empty-state'><div class='icon'>📈</div>No last-season data yet — this tab will populate once 2025-26 stats are entered.</div>`;
+    return;
+  }
+  grid.innerHTML = eligible.map((p, i) => `<div class='sleeper-card' style='border-color:#86efac'>
+    <div class='sleeper-rank' style='color:#15803d'>📈 Improver #${i + 1}</div>
+    <div class='sleeper-name'>${p.name}</div>
+    <div class='sleeper-meta'>${p.team} · ${p.pos} · Age ${p.age ?? 'N/A'}${p.aav ? ' · $' + p.aav + 'M' : ''}</div>
+    <div class='sleeper-stats'>
+      <div class='sleeper-stat'><div class='val last-pts'>${p.last_pts}</div><div class='lbl'>Last PTS</div></div>
+      <div class='sleeper-stat'><div class='val proj-pts'>${p.proj_pts}</div><div class='lbl'>Proj PTS</div></div>
+      <div class='sleeper-stat'><div class='val' style='color:#15803d;font-size:1.3em'>+${p.delta}</div><div class='lbl'>Delta</div></div>
+    </div>
+    ${p.notes ? `<div class='sleeper-note' style='color:#15803d'>"${p.notes}"</div>` : ''}
+  </div>`).join('');
+}
+
+// ── RENDER REGRESSION ────────────────────────────────────
+function renderRegression() {
+  const grid = document.getElementById('regressionGrid');
+  const eligible = allPlayers.filter(p => p.last_pts != null && p.proj_pts != null)
+    .map(p => ({ ...p, delta: p.proj_pts - p.last_pts }))
+    .filter(p => p.delta < 0)
+    .sort((a, b) => a.delta - b.delta)
+    .slice(0, 20);
+
+  if (!eligible.length) {
+    grid.innerHTML = `<div class='empty-state'><div class='icon'>📉</div>No last-season data yet — this tab will populate once 2025-26 stats are entered.</div>`;
+    return;
+  }
+  grid.innerHTML = eligible.map((p, i) => `<div class='sleeper-card' style='border-color:#fca5a5;background:#fff8f8'>
+    <div class='sleeper-rank' style='color:#dc2626'>📉 Regression #${i + 1}</div>
+    <div class='sleeper-name'>${p.name}</div>
+    <div class='sleeper-meta'>${p.team} · ${p.pos} · Age ${p.age ?? 'N/A'}${p.aav ? ' · $' + p.aav + 'M' : ''}</div>
+    <div class='sleeper-stats'>
+      <div class='sleeper-stat'><div class='val last-pts'>${p.last_pts}</div><div class='lbl'>Last PTS</div></div>
+      <div class='sleeper-stat'><div class='val proj-pts'>${p.proj_pts}</div><div class='lbl'>Proj PTS</div></div>
+      <div class='sleeper-stat'><div class='val' style='color:#dc2626;font-size:1.3em'>${p.delta}</div><div class='lbl'>Delta</div></div>
+    </div>
+    ${p.notes ? `<div class='sleeper-note' style='color:#dc2626'>"${p.notes}"</div>` : ''}
+  </div>`).join('');
+}
+
+
 function renderScarcity() {
   const POSITIONS = ['C', 'LW', 'RW', 'D', 'G'];
   const TIERS_ORDER = ['Elite', 'Top', 'Mid', 'Sleeper'];
