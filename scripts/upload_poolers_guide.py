@@ -19,6 +19,7 @@ import openpyxl
 import requests
 import sys
 import os
+import math
 
 EXCEL_PATH = os.path.join(
     os.path.dirname(__file__), "..", "docs", "poolers-guide",
@@ -72,25 +73,23 @@ def compute_risk(bandaid, risque):
     return 'Low'
 
 
-def compute_tier(pos, proj_pts, aav, upside):
+def compute_tier(pos, proj_pts, aav, upside, rank):
     if pos == 'G':
         return None
     pts = proj_pts or 0
-    usd = aav or 99
     delta = (upside or pts) - pts
+    eff = pts / math.sqrt(aav) if aav and aav > 0 else 0
 
     if pos == 'D':
-        if pts >= 80:  return 'Elite'
-        if pts >= 55:  return 'Top'
-        if pts >= 35 and delta >= 20: return 'Sleeper'
-        if pts >= 30:  return 'Mid'
+        if pts >= 80: return 'Elite'
+        if pts >= 55: return 'Top'
+        if eff >= 25 and delta >= 20 and rank > 30: return 'Sleeper'
         return 'Mid'
 
-    # Forwards (C, LW, RW)
+    # Forwards
     if pts >= 100: return 'Elite'
     if pts >= 70:  return 'Top'
-    if pts >= 40 and delta >= 20: return 'Sleeper'
-    if pts >= 40:  return 'Mid'
+    if eff >= 25 and delta >= 20 and rank > 30: return 'Sleeper'
     return 'Mid'
 
 
@@ -144,7 +143,7 @@ def parse_players():
             "risk":     compute_risk(r[11], r[12]),
             "upside":   int(float(r[13])) if r[13] else None,
             "notes":    str(r[14]).strip() if r[14] else None,
-            "tier":     compute_tier(normalize_pos(r[3], "F"), (int(float(r[6])) if r[6] else 0) + (int(float(r[7])) if r[7] else 0), parse_salary(r[10]), int(float(r[13])) if r[13] else None),
+            "tier":     None,
         })
 
     # ── DEFENCEMEN ──
@@ -172,7 +171,7 @@ def parse_players():
             "risk":     compute_risk(r[11], r[12]),
             "upside":   int(float(r[13])) if r[13] else None,
             "notes":    str(r[14]).strip() if r[14] else None,
-            "tier":     compute_tier("D", (int(float(r[6])) if r[6] else 0) + (int(float(r[7])) if r[7] else 0), parse_salary(r[10]), int(float(r[13])) if r[13] else None),
+            "tier":     None,
         })
 
     # ── GOALIES ──
@@ -206,6 +205,7 @@ def parse_players():
     players_with_pts.sort(key=lambda x: (-x[0], x[1]))
     for rank, (_, _, p) in enumerate(players_with_pts, start=1):
         p["rank"] = rank
+        p["tier"] = compute_tier(p["pos"], p["proj_pts"], p["aav"], p["upside"], rank)
         p["bust_alert"] = compute_bust(p["pos"], rank, p["risk"], p["proj_pts"], p["upside"], p["aav"])
 
     return players
