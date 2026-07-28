@@ -724,7 +724,7 @@ function sortBy(col) {
 
 function sorted(players) {
   const getVal = p => {
-    if (sortCol === '_trend') { const t = getTrend(p); return t === 'up' ? 1 : t === 'down' ? -1 : 0; }
+    if (sortCol === '_trend') return p.last_pts ? p.proj_pts - p.last_pts : 0;
     if (sortCol === '_pv')    return getPV(p);
     if (sortCol === '_ppg_last') return p.last_gp > 0 ? p.last_pts / p.last_gp : 0;
     if (sortCol === '_ppg_proj') return p.proj_gp > 0 ? p.proj_pts / p.proj_gp : 0;
