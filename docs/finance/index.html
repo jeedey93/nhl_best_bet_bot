@@ -141,11 +141,34 @@
     .account-bar-actions { display: flex; gap: 0.4rem; padding-bottom: 1px; }
 
     /* ── Summary bar ── */
-    .summary-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin-bottom: 1.25rem; }
-    .summary-bar .stat-card-day { grid-column: 1 / -1; }
-    .summary-bar .stat-hero { grid-column: 1 / -1; }
-    @media (max-width: 700px) { .stat-hide-mobile { display: none; } #charts-stats-mobile { display: grid !important; grid-template-columns: repeat(2,1fr); margin-bottom: 1rem; } }
-    @media (max-width: 400px) { .summary-bar { grid-template-columns: 1fr; } }
+    .summary-bar { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1.25rem; }
+    .summary-bar .hero-donut-panel { grid-row: 1 / 3; }
+    @media (max-width: 700px) {
+      .summary-bar { grid-template-columns: 1fr; }
+      .summary-bar .hero-donut-panel { grid-row: auto; }
+      .stat-hide-mobile { display: none; }
+      #charts-stats-mobile { display: grid !important; grid-template-columns: repeat(2,1fr); margin-bottom: 1rem; }
+    }
+    /* Hero donut panel */
+    .hero-donut-panel { background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 1.25rem; display: flex; align-items: center; justify-content: center; position: relative; min-height: 220px; }
+    .hero-donut-wrap { position: relative; width: 200px; height: 200px; flex-shrink: 0; }
+    @media (max-width: 900px) { .hero-donut-wrap { width: 160px; height: 160px; } }
+    .hero-donut-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; gap: 2px; }
+    .hero-donut-value { font-family: 'Bebas Neue', cursive; font-size: clamp(1.1rem, 3vw, 1.5rem); letter-spacing: 1px; color: white; line-height: 1; }
+    .hero-donut-label { font-size: 0.6rem; font-weight: 700; letter-spacing: 1.5px; color: rgba(255,255,255,0.3); text-transform: uppercase; }
+    /* Return stat cards */
+    .ret-stat-card { background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 1.25rem 1.5rem; display: flex; flex-direction: column; justify-content: center; gap: 0.4rem; }
+    .ret-stat-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 1.5px; color: rgba(255,255,255,0.4); text-transform: uppercase; }
+    .ret-stat-main { font-family: 'Bebas Neue', cursive; font-size: clamp(1.6rem, 4vw, 2.2rem); letter-spacing: 1px; line-height: 1; }
+    .ret-stat-sub { font-size: 0.85rem; font-weight: 700; opacity: 0.8; }
+    .ret-stat-main.green, .ret-stat-sub.green { color: #4ade80; }
+    .ret-stat-main.red,   .ret-stat-sub.red   { color: #f87171; }
+    /* Actions card */
+    .actions-card { background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 1rem 1.5rem; display: flex; align-items: center; justify-content: space-around; gap: 0.5rem; }
+    .action-btn { display: flex; flex-direction: column; align-items: center; gap: 0.4rem; background: none; border: none; cursor: pointer; color: rgba(255,255,255,0.5); transition: color 0.15s; padding: 0.25rem 0.75rem; border-radius: 8px; }
+    .action-btn:hover { color: white; background: rgba(255,255,255,0.06); }
+    .action-btn-icon { font-size: 1.2rem; }
+    .action-btn-label { font-size: 0.65rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; white-space: nowrap; }
     /* Hero total value card */
     .stat-hero { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 1.25rem 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
     @media (max-width: 700px) {
@@ -206,9 +229,12 @@
     table.holdings tr:hover td { background: rgba(255,255,255,0.035) !important; }
     table.holdings tr.account-row td { font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 3px; color: var(--gold); background: rgba(255,184,28,0.05); padding: 0.6rem 0.85rem; border-bottom: none; border-top: 2px solid rgba(255,184,28,0.15); }
     table.holdings tr.account-row:first-child td { border-top: none; }
-    table.holdings tr.subtotal-row td { background: rgba(255,184,28,0.04); border-top: 1px solid rgba(255,184,28,0.12); border-bottom: 2px solid rgba(255,184,28,0.12); font-family: 'Bebas Neue', cursive; font-size: 0.82rem; color: rgba(255,255,255,0.45); }
+    table.holdings tr.subtotal-row td { background: rgba(255,184,28,0.06); border-top: 1px solid rgba(255,184,28,0.2); border-bottom: 2px solid rgba(255,184,28,0.2); font-family: 'Bebas Neue', cursive; font-size: 0.9rem; color: rgba(255,255,255,0.65); padding: 0.85rem 0.85rem; }
+    table.holdings tr.subtotal-row td .ret-main { font-size: 1rem; }
+    table.holdings tr.subtotal-row td .ret-sub { font-size: 0.82rem; }
     /* Ticker avatar bubble */
-    .ticker-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Bebas Neue', cursive; font-size: 0.72rem; letter-spacing: 1px; flex-shrink: 0; font-weight: 700; }
+    .ticker-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Bebas Neue', cursive; font-size: 0.72rem; letter-spacing: 1px; flex-shrink: 0; font-weight: 700; overflow: hidden; position: relative; }
+    .ticker-avatar img { width: 100%; height: 100%; object-fit: contain; border-radius: 50%; position: absolute; inset: 0; }
     /* Shares pill inside position cell */
     .shares-pill { display: inline-block; background: rgba(255,255,255,0.08); border-radius: 4px; font-size: 0.72rem; font-weight: 700; color: rgba(255,255,255,0.5); padding: 2px 7px; margin-top: 4px; letter-spacing: 0.3px; }
     /* Two-line return cells */
@@ -805,6 +831,20 @@
     return _sectorColorMap[sector];
   }
 
+  function tickerAvatarHtml(ticker, sector, size = 36) {
+    const color = getSectorColor(sector);
+    const clean = (ticker || '').replace(/^TSX:|^NYSE:|^NASDAQ:/i, '');
+    const short = escHtml(clean.slice(0, 4));
+    const logoUrl = `https://assets.parqet.com/logos/symbol/${encodeURIComponent(clean)}?format=png`;
+    const fallbackStyle = `background:${color}22;border:1.5px solid ${color}55;color:${color}`;
+    return `<div class="ticker-avatar" style="width:${size}px;height:${size}px;${fallbackStyle}" data-ticker-avatar="${escHtml(clean)}">` +
+      `<img src="${logoUrl}" alt="" width="${size}" height="${size}" ` +
+      `onerror="this.style.display='none'" ` +
+      `onload="this.parentElement.style.background='rgba(255,255,255,0.06)';this.parentElement.style.border='1px solid rgba(255,255,255,0.1)';this.parentElement.style.color='transparent'">` +
+      `<span style="position:absolute">${short}</span>` +
+      `</div>`;
+  }
+
   let _portfolios = [];
   let _activePortfolio = null;
   let _accounts = [];       // accounts for active portfolio
@@ -1299,42 +1339,51 @@
     document.getElementById('portfolio-content').innerHTML = `
       ${buildAccountBar()}
       <div class="summary-bar">
-        <!-- Hero: total portfolio value -->
-        <div class="stat-hero stat-hero-compact${!pricesLoaded ? ' loading' : ''}">
-          <div style="flex:1;min-width:0">
-            <div class="stat-hero-label">Portfolio Value</div>
-            <div style="display:flex;align-items:baseline;gap:0.6rem;flex-wrap:wrap">
-              <div class="stat-hero-value" id="sv-value">${pricesLoaded ? fmtC(totalValue) : skl('130px')}</div>
-              <div class="stat-hero-value ${pricesLoaded ? gainClr : ''}" style="font-size:clamp(1rem,3vw,1.4rem)">${pricesLoaded ? (totalGain >= 0 ? '+' : '') + fmtC(totalGain) : skl('80px')}</div>
+        <!-- Left: hero donut -->
+        <div class="hero-donut-panel${!pricesLoaded ? ' loading' : ''}">
+          <div class="hero-donut-wrap">
+            <canvas id="hero-donut-canvas"></canvas>
+            <div class="hero-donut-center">
+              <div class="hero-donut-value">${pricesLoaded ? fmtC(totalValue) : skl('90px')}</div>
+              <div class="hero-donut-label">Portfolio Value</div>
             </div>
-            <div class="stat-hero-sub">${pricesLoaded ? `Cost: ${fmtC(totalCost)}` : skl('90px')}</div>
           </div>
-          <div class="stat-hero-right" style="display:none"></div>
         </div>
-        <!-- Day change — full width, emotional focal point -->
-        <div class="stat-card stat-card-day${pricesLoaded ? (totalDayChange >= 0 ? ' day-positive' : ' day-negative') : (!pricesLoaded ? ' loading' : '')}">
-          <div>
-            <div class="stat-label">Day Change</div>
-            <div style="display:flex;align-items:baseline;gap:0.3rem">
-              <div class="day-main ${pricesLoaded ? dayClr : ''}" id="sv-day">${pricesLoaded ? (totalDayChange >= 0 ? '+' : '') + fmtC(totalDayChange) : skl('120px')}</div>
-              <div class="day-pct ${pricesLoaded ? dayClr : ''}">${pricesLoaded ? (totalDayChange >= 0 ? '+' : '') + fmt(totalDayPct) + '%' : ''}</div>
-            </div>
-          </div>
-          ${showAccountBreakdown ? `<div class="day-breakdown">
+        <!-- Today's Return -->
+        <div class="ret-stat-card${!pricesLoaded ? ' loading' : ''}">
+          <div class="ret-stat-label">Today's Return</div>
+          <div class="ret-stat-main ${pricesLoaded ? dayClr : ''}">${pricesLoaded ? (totalDayChange >= 0 ? '+' : '') + fmtC(totalDayChange) : skl('120px')}</div>
+          <div class="ret-stat-sub ${pricesLoaded ? dayClr : ''}">${pricesLoaded ? (totalDayChange >= 0 ? '+' : '') + fmt(totalDayPct) + '% Today' : ''}</div>
+          ${showAccountBreakdown ? `<div style="margin-top:0.5rem;padding-top:0.5rem;border-top:1px solid rgba(255,255,255,0.06);display:flex;flex-direction:column;gap:3px">
             ${Object.values(accountDayMap).map(a => {
               const pos = a.day >= 0;
-              return `<div style="display:flex;justify-content:flex-end;gap:0.6rem;font-size:0.72rem;font-weight:700;letter-spacing:0.5px">
-                <span style="color:rgba(255,255,255,0.35)">${escHtml(a.name)}</span>
+              return `<div style="display:flex;justify-content:space-between;gap:0.6rem;font-size:0.72rem;font-weight:700">
+                <span style="color:rgba(255,255,255,0.3)">${escHtml(a.name)}</span>
                 <span style="color:${pos?'#4ade80':'#f87171'}">${pos?'+':''}${fmtC(a.day)}</span>
               </div>`;
             }).join('')}
           </div>` : ''}
         </div>
-        <!-- Market value (desktop only smaller cards) -->
-        <div class="stat-card stat-hide-mobile${!pricesLoaded ? ' loading' : ''}">
-          <div class="stat-label">Monthly Income</div>
-          <div class="stat-value gold">${totalAnnualDiv > 0 ? fmtC(totalAnnualDiv / 12) : skl('70px')}</div>
-          <div class="stat-sub">${totalAnnualDiv > 0 ? fmtC(totalAnnualDiv) + ' / year' : ''}</div>
+        <!-- All-Time Return -->
+        <div class="ret-stat-card${!pricesLoaded ? ' loading' : ''}">
+          <div class="ret-stat-label">All-Time Return</div>
+          <div class="ret-stat-main ${pricesLoaded ? gainClr : ''}">${pricesLoaded ? (totalGain >= 0 ? '+' : '') + fmtC(totalGain) : skl('120px')}</div>
+          <div class="ret-stat-sub ${pricesLoaded ? gainClr : ''}">${pricesLoaded ? (totalGain >= 0 ? '+' : '') + fmt(totalGainPct) + '% All time' : ''}</div>
+        </div>
+        <!-- Actions -->
+        <div class="actions-card">
+          <button class="action-btn" onclick="openAddHolding()">
+            <span class="action-btn-icon">🏦</span>
+            <span class="action-btn-label">Add Investment</span>
+          </button>
+          <button class="action-btn" onclick="openEditPortfolioModal()">
+            <span class="action-btn-icon">✎</span>
+            <span class="action-btn-label">Edit Portfolio</span>
+          </button>
+          <button class="action-btn" onclick="openNewAccountModal()">
+            <span class="action-btn-icon">＋</span>
+            <span class="action-btn-label">Add Account</span>
+          </button>
         </div>
       </div>
       <div class="mobile-tabs">
@@ -1522,9 +1571,8 @@
           const accMap = Object.fromEntries(_accounts.map(a=>[a.id,a.name]));
           return (accMap[h.account_id]||'Unassigned') === accountName;
         }).reduce((s,h)=>s+(h.marketValue??h.cost),0);
-        rows += `<tr class="account-row"><td colspan="13">
+        rows += `<tr class="account-row"><td colspan="6">
           <span>${escHtml(accountName)}</span>
-          <span style="float:right;font-size:0.78rem;opacity:0.6;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px">${fmtC(acctMv)}</span>
         </td></tr>`;
       }
       // Flatten all holdings across sectors — no sector sub-headers
@@ -1544,7 +1592,7 @@
           rows += `<tr style="cursor:pointer" onclick="openCompanyProfile('${h.ticker}','${escHtml(h.company_name||h.ticker).replace(/'/g,'&#39;')}')">
             <td class="left">
               <div style="display:flex;align-items:center;gap:0.75rem">
-                <div class="ticker-avatar" style="background:${avatarColor}22;border:1.5px solid ${avatarColor}55;color:${avatarColor}">${escHtml(tickerShort)}</div>
+                ${tickerAvatarHtml(h.ticker, h.sector)}
                 <div>
                   <div style="font-weight:700;color:white;font-size:0.9rem;line-height:1.2">${escHtml(tickerShort)}</div>
                   <div style="font-size:0.75rem;font-weight:600;color:rgba(255,255,255,0.4);margin-top:2px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escHtml(h.company_name || '')}</div>
@@ -1580,9 +1628,9 @@
         const grpGainPct = grpCost > 0 ? (grpGain / grpCost) * 100 : 0;
         const grpDayPct = (grpMv - grpDay) > 0 ? (grpDay / (grpMv - grpDay)) * 100 : 0;
         rows += `<tr class="subtotal-row">
-          <td class="left">Subtotal</td>
-          <td></td>
-          <td>${fmtC(grpMv)}</td>
+          <td class="left" style="color:var(--gold);letter-spacing:2px">${escHtml(accountName)}</td>
+          <td><span style="font-size:0.9rem;font-weight:700;color:rgba(255,184,28,0.7)">${grpCost > 0 ? fmt(grpMv/grpCost*100-100 > -100 ? grpMv/grpCost*100 : 0, 1) + '%' : ''}</span></td>
+          <td><span style="font-size:1rem;font-weight:700;color:white">${fmtC(grpMv)}</span></td>
           <td><div class="ret-cell"><span class="ret-main ${grpDay >= 0 ? 'pos' : 'neg'}">${grpDay >= 0 ? '+' : ''}${fmtC(grpDay)}</span><span class="ret-sub ${grpDay >= 0 ? 'pos' : 'neg'}">${grpDay >= 0 ? '+' : ''}${fmt(grpDayPct)}%</span></div></td>
           <td><div class="ret-cell"><span class="ret-main ${grpGain >= 0 ? 'pos' : 'neg'}">${grpGain >= 0 ? '+' : ''}${fmtC(grpGain)}</span><span class="ret-sub ${grpGain >= 0 ? 'pos' : 'neg'}">${grpGain >= 0 ? '+' : ''}${fmt(grpGainPct)}%</span></div></td>
           <td></td>
@@ -1639,7 +1687,7 @@
       const gainPct = h.cost > 0 && h.overallGain != null ? (h.overallGain / h.cost) * 100 : null;
       const tickerShort = (h.ticker || '').replace(/^TSX:|^NYSE:|^NASDAQ:/i, '').slice(0, 4);
       cards += `<div class="holding-card" style="border-left-color:${sectorColor}" data-ticker="${escHtml(h.ticker||'')}" data-price="${h.price||''}" onclick="openCompanyProfile('${h.ticker}','${escHtml(h.company_name||h.ticker).replace(/'/g,"&#39;")}')">
-        <div class="ticker-avatar" style="background:${sectorColor}22;border:1.5px solid ${sectorColor}55;color:${sectorColor};flex-shrink:0">${escHtml(tickerShort)}</div>
+        ${tickerAvatarHtml(h.ticker, h.sector)}
         <div class="hc-left">
           <div class="hc-name">${escHtml(tickerShort)}<span style="font-size:0.78rem;font-weight:600;color:rgba(255,255,255,0.35);margin-left:0.4rem">${escHtml(h.company_name?.split(' ').slice(0,3).join(' ') || '')}</span></div>
           <div class="hc-sub">
@@ -1839,8 +1887,37 @@
     return chart;
   }
 
+  function renderHeroDonut(enriched) {
+    const canvas = document.getElementById('hero-donut-canvas');
+    if (!canvas) return;
+    if (_heroDonutChart) { _heroDonutChart.destroy(); _heroDonutChart = null; }
+    const totalMv = enriched.reduce((s, h) => s + (h.marketValue ?? h.cost), 0);
+    if (!totalMv) return;
+    const sorted = [...enriched].sort((a, b) => (b.marketValue ?? b.cost) - (a.marketValue ?? a.cost));
+    const labels = sorted.map(h => (h.ticker || '').replace(/^TSX:|^NYSE:|^NASDAQ:/i, ''));
+    const values = sorted.map(h => h.marketValue ?? h.cost);
+    const colors = sorted.map(h => getSectorColor(h.sector));
+    _heroDonutChart = new Chart(canvas.getContext('2d'), {
+      type: 'doughnut',
+      data: { labels, datasets: [{ data: values, backgroundColor: colors.map(c => c + 'cc'), borderColor: colors, borderWidth: 1.5 }] },
+      options: {
+        responsive: true, maintainAspectRatio: true, cutout: '68%',
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${fmtC(ctx.parsed)} (${fmt(ctx.parsed / totalMv * 100)}%)` } }
+        },
+        animation: { duration: 700 }
+      }
+    });
+  }
+
+  let _heroDonutChart = null;
+
   function renderAllocationChart(enriched, showByAccount) {
     const accountMap = Object.fromEntries(_accounts.map(a => [a.id, a.name]));
+
+    // Hero donut (holdings by weight, with ticker labels)
+    renderHeroDonut(enriched);
 
     // Always render sector chart
     const sectorGroups = {};
