@@ -195,18 +195,26 @@
     /* ── Holdings table ── */
     .holdings-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.6rem; }
     .section-title { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 3px; color: var(--silver); opacity: 0.6; }
-    table.holdings { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 900px; }
-    table.holdings th { font-size: 0.65rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.2); padding: 0.55rem 0.75rem; text-align: right; border-bottom: 1px solid rgba(255,255,255,0.06); white-space: nowrap; }
+    table.holdings { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 600px; }
+    table.holdings th { font-size: 0.65rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.2); padding: 0.5rem 0.85rem; text-align: right; border-bottom: 1px solid rgba(255,255,255,0.06); white-space: nowrap; }
     table.holdings th.sort-th:hover { color: rgba(255,255,255,0.55); }
-    table.holdings th.sort-th.active { color: var(--gold); border-bottom: 2px solid var(--gold); padding-bottom: calc(0.55rem - 1px); }
+    table.holdings th.sort-th.active { color: var(--gold); border-bottom: 2px solid var(--gold); padding-bottom: calc(0.5rem - 1px); }
     table.holdings th.left { text-align: left; }
-    table.holdings td { padding: 0.65rem 0.75rem; text-align: right; font-size: 0.88rem; font-weight: 600; border-bottom: 1px solid rgba(255,255,255,0.035); vertical-align: middle; white-space: nowrap; }
+    table.holdings td { padding: 0.75rem 0.85rem; text-align: right; font-size: 0.88rem; font-weight: 600; border-bottom: 1px solid rgba(255,255,255,0.05); vertical-align: middle; white-space: nowrap; }
     table.holdings td.left { text-align: left; }
     table.holdings tr:last-child td { border-bottom: none; }
     table.holdings tr:hover td { background: rgba(255,255,255,0.035) !important; }
-    table.holdings tr.account-row td { font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 3px; color: var(--gold); background: rgba(255,184,28,0.05); padding: 0.6rem 0.75rem; border-bottom: none; border-top: 2px solid rgba(255,184,28,0.15); }
+    table.holdings tr.account-row td { font-family: 'Bebas Neue', cursive; font-size: 0.85rem; letter-spacing: 3px; color: var(--gold); background: rgba(255,184,28,0.05); padding: 0.6rem 0.85rem; border-bottom: none; border-top: 2px solid rgba(255,184,28,0.15); }
     table.holdings tr.account-row:first-child td { border-top: none; }
     table.holdings tr.subtotal-row td { background: rgba(255,184,28,0.04); border-top: 1px solid rgba(255,184,28,0.12); border-bottom: 2px solid rgba(255,184,28,0.12); font-family: 'Bebas Neue', cursive; font-size: 0.82rem; color: rgba(255,255,255,0.45); }
+    /* Ticker avatar bubble */
+    .ticker-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Bebas Neue', cursive; font-size: 0.72rem; letter-spacing: 1px; flex-shrink: 0; font-weight: 700; }
+    /* Shares pill inside position cell */
+    .shares-pill { display: inline-block; background: rgba(255,255,255,0.08); border-radius: 4px; font-size: 0.72rem; font-weight: 700; color: rgba(255,255,255,0.5); padding: 2px 7px; margin-top: 4px; letter-spacing: 0.3px; }
+    /* Two-line return cells */
+    .ret-cell { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+    .ret-main { font-size: 0.9rem; font-weight: 700; line-height: 1; }
+    .ret-sub { font-size: 0.78rem; font-weight: 700; opacity: 0.8; }
     table.holdings tr.total-row td { background: rgba(255,255,255,0.04); font-family: 'Bebas Neue', cursive; font-size: 0.9rem; border-top: 2px solid rgba(255,255,255,0.1); border-bottom: none; }
     /* Mobile: hide table, show cards instead */
     @media (max-width: 700px) {
@@ -1530,27 +1538,40 @@
           if (h.overallGain != null) { totalGain += h.overallGain; grpGain += h.overallGain; }
           const dc = (h.dayChange ?? 0) >= 0 ? 'pos' : 'neg';
           const gc = (h.overallGain ?? 0) >= 0 ? 'pos' : 'neg';
+          const tickerShort = (h.ticker || '').replace(/^TSX:|^NYSE:|^NASDAQ:/i, '').slice(0, 4);
+          const avatarColor = getSectorColor(h.sector);
+          const gainPct = h.cost > 0 && h.overallGain != null ? (h.overallGain / h.cost) * 100 : null;
           rows += `<tr style="cursor:pointer" onclick="openCompanyProfile('${h.ticker}','${escHtml(h.company_name||h.ticker).replace(/'/g,'&#39;')}')">
             <td class="left">
-              ${escHtml(h.company_name || '')}
-              <span class="ticker-badge">${escHtml(h.ticker || '')}</span>
-              ${h.sector ? `<span class="sector-badge" style="background:${getSectorColor(h.sector)}22;color:${getSectorColor(h.sector)};border:1px solid ${getSectorColor(h.sector)}44">${escHtml(h.sector)}</span>` : ''}
+              <div style="display:flex;align-items:center;gap:0.75rem">
+                <div class="ticker-avatar" style="background:${avatarColor}22;border:1.5px solid ${avatarColor}55;color:${avatarColor}">${escHtml(tickerShort)}</div>
+                <div>
+                  <div style="font-weight:700;color:white;font-size:0.9rem;line-height:1.2">${escHtml(tickerShort)}</div>
+                  <div style="font-size:0.75rem;font-weight:600;color:rgba(255,255,255,0.4);margin-top:2px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escHtml(h.company_name || '')}</div>
+                </div>
+              </div>
             </td>
-            <td class="col-hide-mobile">${fmt(h.shares, 4)}</td>
-            <td class="col-hide-mobile">${fmtC(h.avg_price)}</td>
-            <td class="col-hide-mobile">${fmtC(h.cost)}</td>
-            <td>${h.price ? fmtC(h.price) : (pricesLoaded ? '—' : '<span class="skeleton-cell" style="width:60px;display:inline-block">&nbsp;</span>')}</td>
-            <td class="col-hide-mobile">${h.marketValue != null ? fmtC(h.marketValue) : (pricesLoaded ? '—' : '<span class="skeleton-cell" style="width:70px;display:inline-block">&nbsp;</span>')}</td>
-            <td class="col-hide-mobile ${dc}">${h.dayChange != null ? (h.dayChange >= 0 ? '+' : '') + fmtC(h.dayChange) : (pricesLoaded ? '—' : '<span class="skeleton-cell" style="width:55px;display:inline-block">&nbsp;</span>')}</td>
-            <td class="${dc}">${h.changePct != null ? (h.changePct >= 0 ? '+' : '') + fmt(h.changePct) + '%' : (pricesLoaded ? '—' : '<span class="skeleton-cell" style="width:45px;display:inline-block">&nbsp;</span>')}</td>
-            <td class="col-hide-mobile ${gc}">${h.overallGain != null ? (h.overallGain >= 0 ? '+' : '') + fmtC(h.overallGain) : '—'}</td>
-            <td class="${gc}">${h.overallGain != null && h.cost > 0 ? (h.overallGain >= 0 ? '+' : '') + fmt((h.overallGain / h.cost) * 100) + '%' : '—'}</td>
-            <td class="col-hide-mobile range-cell" data-range="${escHtml(h.ticker)}" data-price="${h.price||''}"></td>
-            <td class="col-hide-mobile">
-              ${h.weight != null ? `<div class="weight-bar-wrap"><div class="weight-bar"><div class="weight-bar-fill" style="width:${Math.min(h.weight,100)}%;background:rgba(255,255,255,0.4)"></div></div><span class="muted">${fmt(h.weight)}%</span></div>` : '—'}
+            <td>
+              ${h.weight != null ? `<div class="weight-bar-wrap" style="justify-content:flex-end"><span style="font-size:0.9rem;font-weight:700;color:rgba(255,255,255,0.75)">${fmt(h.weight)}%</span></div>` : '—'}
             </td>
-            <td class="col-hide-mobile" style="color:${h.yield != null ? '#22c55e' : 'rgba(255,255,255,0.3)'};font-weight:600">${h.yield != null ? fmt(h.yield) + '%' : '—'}</td>
-            <td class="col-hide-mobile muted">${h.annual_dividend ? fmtC((h.shares || 0) * h.annual_dividend / 12) + '/mo' : '—'}</td>
+            <td>
+              <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+                <span style="font-size:0.9rem;font-weight:700;color:white">${h.marketValue != null ? fmtC(h.marketValue) : (pricesLoaded ? fmtC(h.cost) : '<span class="skeleton-cell" style="width:70px;display:inline-block">&nbsp;</span>')}</span>
+                <span class="shares-pill">${fmt(h.shares, 2)} shares</span>
+              </div>
+            </td>
+            <td>
+              <div class="ret-cell">
+                <span class="ret-main ${dc}">${h.dayChange != null ? (h.dayChange >= 0 ? '+' : '') + fmtC(h.dayChange) : (pricesLoaded ? '—' : '<span class="skeleton-cell" style="width:55px;display:inline-block">&nbsp;</span>')}</span>
+                <span class="ret-sub ${dc}">${h.changePct != null ? (h.changePct >= 0 ? '+' : '') + fmt(h.changePct) + '%' : ''}</span>
+              </div>
+            </td>
+            <td>
+              <div class="ret-cell">
+                <span class="ret-main ${gc}">${h.overallGain != null ? (h.overallGain >= 0 ? '+' : '') + fmtC(h.overallGain) : '—'}</span>
+                <span class="ret-sub ${gc}">${gainPct != null ? (gainPct >= 0 ? '+' : '') + fmt(gainPct) + '%' : ''}</span>
+              </div>
+            </td>
             <td style="white-space:nowrap"><button class="btn-edit-row" onclick="event.stopPropagation();openEditHolding('${h.id}')">✎</button><button class="btn-delete-row" onclick="event.stopPropagation();quickDeleteHolding('${h.id}','${escHtml(h.company_name||h.ticker||'')}')">✕</button></td>
           </tr>`;
         });
@@ -1560,15 +1581,11 @@
         const grpDayPct = (grpMv - grpDay) > 0 ? (grpDay / (grpMv - grpDay)) * 100 : 0;
         rows += `<tr class="subtotal-row">
           <td class="left">Subtotal</td>
-          <td class="col-hide-mobile"></td><td class="col-hide-mobile"></td>
-          <td class="col-hide-mobile">${fmtC(grpCost)}</td>
           <td></td>
-          <td class="col-hide-mobile">${fmtC(grpMv)}</td>
-          <td class="col-hide-mobile ${grpDay >= 0 ? 'pos' : 'neg'}">${grpDay >= 0 ? '+' : ''}${fmtC(grpDay)}</td>
-          <td class="${grpDay >= 0 ? 'pos' : 'neg'}">${grpDay >= 0 ? '+' : ''}${fmt(grpDayPct)}%</td>
-          <td class="col-hide-mobile ${grpGain >= 0 ? 'pos' : 'neg'}">${grpGain >= 0 ? '+' : ''}${fmtC(grpGain)}</td>
-          <td class="${grpGain >= 0 ? 'pos' : 'neg'}">${grpGain >= 0 ? '+' : ''}${fmt(grpGainPct)}%</td>
-          <td class="col-hide-mobile"></td><td class="col-hide-mobile"></td><td class="col-hide-mobile"></td><td></td>
+          <td>${fmtC(grpMv)}</td>
+          <td><div class="ret-cell"><span class="ret-main ${grpDay >= 0 ? 'pos' : 'neg'}">${grpDay >= 0 ? '+' : ''}${fmtC(grpDay)}</span><span class="ret-sub ${grpDay >= 0 ? 'pos' : 'neg'}">${grpDay >= 0 ? '+' : ''}${fmt(grpDayPct)}%</span></div></td>
+          <td><div class="ret-cell"><span class="ret-main ${grpGain >= 0 ? 'pos' : 'neg'}">${grpGain >= 0 ? '+' : ''}${fmtC(grpGain)}</span><span class="ret-sub ${grpGain >= 0 ? 'pos' : 'neg'}">${grpGain >= 0 ? '+' : ''}${fmt(grpGainPct)}%</span></div></td>
+          <td></td>
         </tr>`;
       }
     }
@@ -1576,15 +1593,11 @@
     const tdPct = (totalMv - totalDay) > 0 ? (totalDay / (totalMv - totalDay)) * 100 : 0;
     rows += `<tr class="total-row" style="box-shadow:inset 0 0 0 1px ${totalGain >= 0 ? 'rgba(74,222,128,0.15)' : 'rgba(248,113,113,0.15)'}">
       <td class="left">Total</td>
-      <td class="col-hide-mobile"></td><td class="col-hide-mobile"></td>
-      <td class="col-hide-mobile">${fmtC(totalCost)}</td>
+      <td><span style="font-size:0.9rem;font-weight:700;color:rgba(255,255,255,0.6)">100%</span></td>
+      <td><span style="font-size:0.9rem;font-weight:700;color:white">${fmtC(totalMv)}</span></td>
+      <td><div class="ret-cell"><span class="ret-main ${totalDay >= 0 ? 'pos' : 'neg'}">${totalDay >= 0 ? '+' : ''}${fmtC(totalDay)}</span><span class="ret-sub ${totalDay >= 0 ? 'pos' : 'neg'}">${totalDay >= 0 ? '+' : ''}${fmt(tdPct)}%</span></div></td>
+      <td><div class="ret-cell"><span class="ret-main ${totalGain >= 0 ? 'pos' : 'neg'}">${totalGain >= 0 ? '+' : ''}${fmtC(totalGain)}</span><span class="ret-sub ${totalGain >= 0 ? 'pos' : 'neg'}" style="font-size:0.9em;font-weight:800">${totalGain >= 0 ? '+' : ''}${fmt(tgPct)}%</span></div></td>
       <td></td>
-      <td class="col-hide-mobile">${fmtC(totalMv)}</td>
-      <td class="col-hide-mobile ${totalDay >= 0 ? 'pos' : 'neg'}">${totalDay >= 0 ? '+' : ''}${fmtC(totalDay)}</td>
-      <td class="${totalDay >= 0 ? 'pos' : 'neg'}">${totalDay >= 0 ? '+' : ''}${fmt(tdPct)}%</td>
-      <td class="col-hide-mobile ${totalGain >= 0 ? 'pos' : 'neg'}">${totalGain >= 0 ? '+' : ''}${fmtC(totalGain)}</td>
-      <td class="${totalGain >= 0 ? 'pos' : 'neg'}" style="font-size:1.05em;font-weight:800">${totalGain >= 0 ? '+' : ''}${fmt(tgPct)}%</td>
-      <td class="col-hide-mobile muted">100%</td><td class="col-hide-mobile"></td><td class="col-hide-mobile"></td><td></td>
     </tr>`;
 
     // ── Mobile cards ──
@@ -1624,21 +1637,22 @@
       const gcPos = (h.overallGain ?? 0) >= 0;
       const sectorColor = getSectorColor(h.sector);
       const gainPct = h.cost > 0 && h.overallGain != null ? (h.overallGain / h.cost) * 100 : null;
-      const gainPill = gainPct != null ? `<span style="font-size:0.68rem;font-weight:700;padding:1px 6px;border-radius:4px;margin-left:0.35rem;background:${gcPos?'rgba(74,222,128,0.15)':'rgba(248,113,113,0.12)'};color:${gcPos?'#4ade80':'#f87171'}">${gcPos?'+':''}${fmt(gainPct)}%</span>` : '';
+      const tickerShort = (h.ticker || '').replace(/^TSX:|^NYSE:|^NASDAQ:/i, '').slice(0, 4);
       cards += `<div class="holding-card" style="border-left-color:${sectorColor}" data-ticker="${escHtml(h.ticker||'')}" data-price="${h.price||''}" onclick="openCompanyProfile('${h.ticker}','${escHtml(h.company_name||h.ticker).replace(/'/g,"&#39;")}')">
+        <div class="ticker-avatar" style="background:${sectorColor}22;border:1.5px solid ${sectorColor}55;color:${sectorColor};flex-shrink:0">${escHtml(tickerShort)}</div>
         <div class="hc-left">
-          <div class="hc-name">${escHtml(h.company_name?.split(' ').slice(0,3).join(' ') || h.ticker || '')}${gainPill}</div>
+          <div class="hc-name">${escHtml(tickerShort)}<span style="font-size:0.78rem;font-weight:600;color:rgba(255,255,255,0.35);margin-left:0.4rem">${escHtml(h.company_name?.split(' ').slice(0,3).join(' ') || '')}</span></div>
           <div class="hc-sub">
-            <span class="hc-ticker">${escHtml((h.ticker||'').replace(/^TSX:|^NYSE:/i,''))}</span>
-            ${h.sector ? `<span style="margin-left:0.4rem;font-size:0.68rem;font-weight:700;color:${sectorColor};letter-spacing:0.5px">${escHtml(h.sector)}</span>` : ''}
-            <span style="margin-left:0.4rem;color:rgba(255,255,255,0.45)">${fmt(h.shares, 4)} @ $${fmt(h.avg_price)}</span>
-            <span class="hc-52w" style="margin-left:0.4rem;font-size:0.68rem;font-weight:700;letter-spacing:0.3px"></span>
+            ${h.sector ? `<span style="font-size:0.68rem;font-weight:700;color:${sectorColor};letter-spacing:0.5px">${escHtml(h.sector)}</span>` : ''}
+            <span style="margin-left:${h.sector?'0.4rem':'0'};color:rgba(255,255,255,0.35)">${fmt(h.shares, 2)} shares</span>
           </div>
-          ${h.marketValue != null ? `<div class="hc-gain"><span style="color:rgba(255,255,255,0.7)">${fmtC(h.marketValue)}</span>${h.overallGain != null ? ` <span class="${gcPos?'pos':'neg'}">(${gcPos?'+':''}${fmtC(h.overallGain)})</span>` : ''}</div>` : ''}
         </div>
         <div class="hc-right">
-          <div class="hc-price">${h.price ? '$' + h.price.toFixed(2) : (pricesLoaded ? '—' : '<span class="skeleton-cell" style="width:45px;display:inline-block">&nbsp;</span>')}</div>
-          <div class="hc-day ${dcPos ? 'pos' : 'neg'}">${h.dayChange != null && !isNaN(h.dayChange) ? (dcPos?'+':'') + fmtC(h.dayChange) + ' (' + (dcPos?'+':'') + fmt(h.changePct != null && !isNaN(h.changePct) ? h.changePct : 0) + '%)' : (pricesLoaded ? '—' : '<span class="skeleton-cell" style="width:60px;display:inline-block">&nbsp;</span>')}</div>
+          <div class="hc-price" style="font-size:0.95rem">${h.marketValue != null ? fmtC(h.marketValue) : (pricesLoaded ? fmtC(h.cost) : '<span class="skeleton-cell" style="width:60px;display:inline-block">&nbsp;</span>')}</div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:1px;margin-top:3px">
+            <div class="hc-day ${dcPos ? 'pos' : 'neg'}" style="font-size:0.78rem">${h.dayChange != null && !isNaN(h.dayChange) ? (dcPos?'+':'') + fmtC(h.dayChange) + ' (' + (dcPos?'+':'') + fmt(h.changePct ?? 0) + '%)' : (pricesLoaded ? '—' : '<span class="skeleton-cell" style="width:55px;display:inline-block">&nbsp;</span>')}</div>
+            ${gainPct != null ? `<div style="font-size:0.72rem;font-weight:700;color:${gcPos?'#4ade80':'#f87171'}">${gcPos?'+':''}${fmt(gainPct)}% all-time</div>` : ''}
+          </div>
         </div>
         <div class="dot-menu-wrap" onclick="event.stopPropagation()">
           <button class="dot-menu-btn" onclick="toggleDotMenu('hc-menu-${h.id}',event)" style="padding:0.5rem 0.65rem;font-size:0.9rem;min-width:36px;min-height:36px">⋯</button>
@@ -1667,13 +1681,12 @@
 
     return `<table class="holdings">
       <thead><tr>
-        <th class="left">Company</th>
-        <th class="col-hide-mobile">Shares</th><th class="col-hide-mobile">Avg Price</th><th class="col-hide-mobile">Investment</th>
-        <th class="col-hide-mobile">Market Price</th>${sh('mv','Market Value','col-hide-mobile')}
-        ${sh('day$','Day $','col-hide-mobile')}${sh('day%','Day %')}
-        ${sh('gain$','Gain $','col-hide-mobile')}${sh('gain%','Gain %')}
-        <th class="col-hide-mobile range-cell" style="text-align:center">52W Range</th>
-        ${sh('weight','Weight','col-hide-mobile')}${sh('yield','Yield','col-hide-mobile')}${sh('divmo','Monthly Div','col-hide-mobile')}<th></th>
+        <th class="left">Holdings</th>
+        ${sh('weight','% of Portfolio')}
+        ${sh('mv','Position')}
+        ${sh('day%','Today\'s Return')}
+        ${sh('gain%','All-Time Return')}
+        <th></th>
       </tr></thead>
       <tbody>${rows}</tbody>
     </table>
