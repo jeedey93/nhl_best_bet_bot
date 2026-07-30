@@ -1311,7 +1311,16 @@
       totalAnnualDiv += annualDiv;
       return { ...h, cost, marketValue, dayChange, overallGain, annualDiv, price: p?.price, changePct: p?.changePct, yield: p?.price && h.annual_dividend ? (h.annual_dividend / p.price) * 100 : null };
     });
-    enriched.forEach(h => { h.weight = totalValue > 0 ? ((h.marketValue ?? h.cost) / totalValue) * 100 : null; });
+    // Compute per-account totals for weight calculation
+    const acctTotals = {};
+    enriched.forEach(h => {
+      const key = h.account_id || '__none__';
+      acctTotals[key] = (acctTotals[key] || 0) + (h.marketValue ?? h.cost);
+    });
+    enriched.forEach(h => {
+      const acctTotal = _activeAccount ? totalValue : (acctTotals[h.account_id || '__none__'] || totalValue);
+      h.weight = acctTotal > 0 ? ((h.marketValue ?? h.cost) / acctTotal) * 100 : null;
+    });
 
     // Per-account day change breakdown (only in All view with multiple accounts)
     const showAccountBreakdown = !_activeAccount && _accounts.length > 1 && pricesLoaded;
