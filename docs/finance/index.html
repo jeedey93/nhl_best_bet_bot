@@ -1349,12 +1349,12 @@
           <div class="ret-stat-label">Today's Return</div>
           <div class="ret-stat-main ${pricesLoaded ? dayClr : ''}">${pricesLoaded ? (totalDayChange >= 0 ? '+' : '') + fmtC(totalDayChange) : skl('120px')}</div>
           <div class="ret-stat-sub ${pricesLoaded ? dayClr : ''}">${pricesLoaded ? (totalDayChange >= 0 ? '+' : '') + fmt(totalDayPct) + '% Today' : ''}</div>
-          ${showAccountBreakdown ? `<div style="margin-top:0.5rem;padding-top:0.5rem;border-top:1px solid rgba(255,255,255,0.06);display:flex;flex-direction:column;gap:3px">
+          ${showAccountBreakdown ? `<div style="margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid rgba(255,255,255,0.08);display:flex;flex-direction:column;gap:0.5rem">
             ${Object.values(accountDayMap).map(a => {
               const pos = a.day >= 0;
-              return `<div style="display:flex;justify-content:space-between;gap:0.6rem;font-size:0.72rem;font-weight:700">
-                <span style="color:rgba(255,255,255,0.3)">${escHtml(a.name)}</span>
-                <span style="color:${pos?'#4ade80':'#f87171'}">${pos?'+':''}${fmtC(a.day)}</span>
+              return `<div style="display:flex;justify-content:space-between;align-items:center;gap:0.6rem">
+                <span style="font-size:0.82rem;font-weight:700;letter-spacing:0.5px;color:rgba(255,255,255,0.5)">${escHtml(a.name)}</span>
+                <span style="font-family:'Bebas Neue',cursive;font-size:1.1rem;letter-spacing:1px;color:${pos?'#4ade80':'#f87171'}">${pos?'+':''}${fmtC(a.day)}</span>
               </div>`;
             }).join('')}
           </div>` : ''}
