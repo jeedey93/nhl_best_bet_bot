@@ -163,12 +163,6 @@
     .ret-stat-sub { font-size: 0.85rem; font-weight: 700; opacity: 0.8; }
     .ret-stat-main.green, .ret-stat-sub.green { color: #4ade80; }
     .ret-stat-main.red,   .ret-stat-sub.red   { color: #f87171; }
-    /* Actions card */
-    .actions-card { background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 1rem 1.5rem; display: flex; align-items: center; justify-content: space-around; gap: 0.5rem; }
-    .action-btn { display: flex; flex-direction: column; align-items: center; gap: 0.4rem; background: none; border: none; cursor: pointer; color: rgba(255,255,255,0.5); transition: color 0.15s; padding: 0.25rem 0.75rem; border-radius: 8px; }
-    .action-btn:hover { color: white; background: rgba(255,255,255,0.06); }
-    .action-btn-icon { font-size: 1.2rem; }
-    .action-btn-label { font-size: 0.65rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; white-space: nowrap; }
     /* Hero total value card */
     .stat-hero { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 1.25rem 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
     @media (max-width: 700px) {
@@ -1346,6 +1340,7 @@
             <div class="hero-donut-center">
               <div class="hero-donut-value">${pricesLoaded ? fmtC(totalValue) : skl('90px')}</div>
               <div class="hero-donut-label">Portfolio Value</div>
+              ${totalAnnualDiv > 0 ? `<div style="margin-top:5px;font-size:0.68rem;font-weight:700;color:var(--gold);letter-spacing:0.5px">${fmtC(totalAnnualDiv/12)}<span style="font-size:0.58rem;opacity:0.7">/mo</span></div>` : ''}
             </div>
           </div>
         </div>
@@ -1369,21 +1364,6 @@
           <div class="ret-stat-label">All-Time Return</div>
           <div class="ret-stat-main ${pricesLoaded ? gainClr : ''}">${pricesLoaded ? (totalGain >= 0 ? '+' : '') + fmtC(totalGain) : skl('120px')}</div>
           <div class="ret-stat-sub ${pricesLoaded ? gainClr : ''}">${pricesLoaded ? (totalGain >= 0 ? '+' : '') + fmt(totalGainPct) + '% All time' : ''}</div>
-        </div>
-        <!-- Actions -->
-        <div class="actions-card">
-          <button class="action-btn" onclick="openAddHolding()">
-            <span class="action-btn-icon">🏦</span>
-            <span class="action-btn-label">Add Investment</span>
-          </button>
-          <button class="action-btn" onclick="openEditPortfolioModal()">
-            <span class="action-btn-icon">✎</span>
-            <span class="action-btn-label">Edit Portfolio</span>
-          </button>
-          <button class="action-btn" onclick="openNewAccountModal()">
-            <span class="action-btn-icon">＋</span>
-            <span class="action-btn-label">Add Account</span>
-          </button>
         </div>
       </div>
       <div class="mobile-tabs">
