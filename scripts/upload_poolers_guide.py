@@ -152,7 +152,7 @@ def parse_players():
             "risk":     compute_risk(r[12], r[13]),
             "upside":   int(float(r[14])) if r[14] else None,
             "notes":    str(r[15]).strip() if r[15] else None,
-            "tier":     None,
+            "tier":     str(r[2]).strip() if r[2] else None,
         })
 
     # ── DEFENCEMEN ──
@@ -182,7 +182,7 @@ def parse_players():
             "risk":     compute_risk(r[13], r[14]),
             "upside":   int(float(r[15])) if r[15] else None,
             "notes":    str(r[16]).strip() if r[16] else None,
-            "tier":     None,
+            "tier":     str(r[3]).strip() if r[3] else None,
         })
 
     # ── GOALIES ──
@@ -226,20 +226,17 @@ def parse_players():
             "proj_pts": score,
             "aav":      parse_salary(r[20]),
             "risk":     compute_risk(r[21], r[22]),
-            "tier":     None,
-            "upside":   upside,
+            "tier":     str(r[2]).strip() if r[2] else None,
             "notes":    str(r[24]).strip() if r[24] else None,
             "scouting": goalie_stats,
         })
 
     # Global rank by proj_pts descending (nulls last), then sheet order as tiebreak.
-    # This means rank reflects overall value across all positions.
     players_with_pts = [(p["proj_pts"] or 0, i, p) for i, p in enumerate(players)]
     players_with_pts.sort(key=lambda x: (-x[0], x[1]))
     for rank, (_, _, p) in enumerate(players_with_pts, start=1):
         p["rank"] = rank
-        p["tier"] = compute_tier(p["pos"], p["proj_pts"], p["aav"], p["upside"], rank)
-        p["bust_alert"] = compute_bust(p["pos"], rank, p["risk"], p["proj_pts"], p["upside"], p["aav"])
+        p["bust_alert"] = compute_bust(p["pos"], rank, p["risk"], p["proj_pts"], p.get("upside"), p["aav"])
 
     return players
 
@@ -293,7 +290,7 @@ def upload(players):
     # PATCH existing players one by one (Supabase REST doesn't bulk-patch by id list)
     updated = 0
     for pid, p in to_update:
-        patch = {k: p[k] for k in PROJ_FIELDS}
+        patch = {k: p.get(k) for k in PROJ_FIELDS}
         if p.get('pos') == 'G':
             for k in GOALIE_EXTRA:
                 if k in p:
