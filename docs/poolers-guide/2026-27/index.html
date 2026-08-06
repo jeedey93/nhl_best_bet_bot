@@ -852,9 +852,8 @@ function goalieHeaderHTML() {
   return `
   <tr class='group-row'>
     <th colspan='5' style='background:#f1f5f9;'></th>
-    <th id='gh-last' colspan='4' class='col-group-last cg-last'>📅 2025-26 ACTUAL</th>
     <th colspan='7' class='col-group-proj'>🥅 2026-27 PROJECTION</th>
-    <th colspan='4' style='background:#f1f5f9;'></th>
+    <th colspan='3' style='background:#f1f5f9;'></th>
   </tr>
   <tr class='col-row'>
     <th onclick='sortBy("rank")'    data-col='rank'>#<span class='sort-icon'></span></th>
@@ -862,10 +861,6 @@ function goalieHeaderHTML() {
     <th onclick='sortBy("team")'    data-col='team'>Team<span class='sort-icon'></span></th>
     <th onclick='sortBy("pos")'     data-col='pos'>Pos<span class='sort-icon'></span></th>
     <th onclick='sortBy("age")'     data-col='age'>Age<span class='sort-icon'></span></th>
-    <th onclick='sortBy("last_gp")' data-col='last_gp' class='col-group-last cg-last' style='border-left:2px solid #bfdbfe;color:#1d4ed8;'>GP<span class='sort-icon'></span></th>
-    <th onclick='sortBy("last_g")'  data-col='last_g'  class='col-group-last cg-last' style='color:#1d4ed8;'>W<span class='sort-icon'></span></th>
-    <th onclick='sortBy("last_a")'  data-col='last_a'  class='col-group-last cg-last' style='color:#1d4ed8;'>SO<span class='sort-icon'></span></th>
-    <th onclick='sortBy("last_pts")' data-col='last_pts' class='col-group-last cg-last' style='border-right:2px solid #bfdbfe;color:#1d4ed8;font-weight:800;'>Score<span class='sort-icon'></span></th>
     <th onclick='sortBy("proj_gp")' data-col='proj_gp' class='col-group-proj' style='border-left:2px solid #bbf7d0;color:#15803d;'>GP<span class='sort-icon'></span></th>
     <th onclick='sortBy("proj_g")'  data-col='proj_g'  class='col-group-proj' style='color:#15803d;'>W<span class='sort-icon'></span></th>
     <th onclick='sortBy("_goalie_l")'   data-col='_goalie_l'   class='col-group-proj' style='color:#15803d;'>L<span class='sort-icon'></span></th>
@@ -875,7 +870,6 @@ function goalieHeaderHTML() {
     <th onclick='sortBy("proj_a")'  data-col='proj_a'  class='col-group-proj' style='border-right:2px solid #bbf7d0;color:#15803d;'>SO<span class='sort-icon'></span></th>
     <th onclick='sortBy("aav")'  data-col='aav'  class='cg-salary'>💰 AAV<span class='sort-icon'></span></th>
     <th onclick='sortBy("tier")' data-col='tier' class='cg-tier'>Tier<span class='sort-icon'></span></th>
-    <th onclick='sortBy("_pv")'  data-col='_pv'  class='cg-value'>Efficiency<span class='sort-icon'></span></th>
     <th onclick='sortBy("risk")' data-col='risk' class='cg-risk'>Risk<span class='sort-icon'></span></th>
   </tr>`;
 }
@@ -920,7 +914,7 @@ function renderHeader() {
 }
 
 // ── RENDER TABLE ──────────────────────────────────────────
-function buildRowHTML(p) {
+function buildRowHTML(p, displayRank) {
     const trend    = getTrend(p);
     const diff     = p.proj_pts - (p.last_pts || p.proj_pts);
     const diffStr  = diff > 0 ? '+' + diff : '' + diff;
@@ -945,7 +939,7 @@ function buildRowHTML(p) {
     const projPtsDisplay = p.proj_pts ?? '—';
 
     return `<tr class='${tierRowClass(p.tier)}'>
-      <td>${p.rank}</td>
+      <td>${displayRank ?? p.rank}</td>
       <td>
         <div class='player-name' onclick='openModal(${p.id})'>${p.name}${bandaid}</div>
         ${noteEsc ? `<div class='notes-display' title="${noteFull}">${noteEsc}</div>` : ''}
@@ -955,11 +949,13 @@ function buildRowHTML(p) {
       <td><span class='pos-tag pos-${p.pos}'>${p.pos}</span></td>
       <td class='${ageClass}'>${p.age ?? 'N/A'}</td>
 
+      ${!isGoalie ? `
       <td class='col-last col-last-first last-stat cg-last'>${p.last_gp ?? '—'}</td>
       <td class='col-last last-stat cg-last'>${p.last_g ?? '—'}</td>
       <td class='col-last last-stat cg-last'>${p.last_a ?? '—'}</td>
       <td class='col-last last-pts cg-last'>${p.last_pts ?? '—'}</td>
-      ${!isGoalie ? `<td class='col-last col-last-last cg-last cg-ppg-last'><span class='ppg-last'>${ppgLastHtml}</span></td>` : ''}
+      <td class='col-last col-last-last cg-last cg-ppg-last'><span class='ppg-last'>${ppgLastHtml}</span></td>
+      ` : ''}
 
       <td class='col-proj col-proj-first proj-stat'>${p.proj_gp ?? '—'}</td>
       <td class='col-proj proj-stat'>${p.proj_g ?? '—'}</td>
@@ -999,6 +995,9 @@ function renderAll() {
   const skaters = filtered.filter(p => p.pos !== 'G');
   const goalies  = filtered.filter(p => p.pos === 'G');
 
+  // Use position rank (1-based within the filtered list) when a pos filter is active; global rank otherwise
+  const useLocalRank = !!posFilter;
+
   document.getElementById('resultsCount').textContent = filtered.length + ' players';
 
   // ── Skater table ──
@@ -1009,7 +1008,7 @@ function renderAll() {
     if (!skaters.length) {
       tbody.innerHTML = '<tr><td colspan="21"><div class="empty-state"><div class="icon">🔍</div>No players match your filters.</div></td></tr>';
     } else {
-      tbody.innerHTML = skaters.map(buildRowHTML).join('');
+      tbody.innerHTML = skaters.map((p, i) => buildRowHTML(p, useLocalRank ? i + 1 : null)).join('');
     }
     applyColVis();
   }
@@ -1022,7 +1021,8 @@ function renderAll() {
     if (!goalies.length) {
       gtbody.innerHTML = '<tr><td colspan="17"><div class="empty-state"><div class="icon">🔍</div>No goalies match your filters.</div></td></tr>';
     } else {
-      gtbody.innerHTML = goalies.map(buildRowHTML).join('');
+      // Goalies always get their own 1-based rank
+      gtbody.innerHTML = goalies.map((p, i) => buildRowHTML(p, i + 1)).join('');
     }
   } else {
     goalieWrap.style.display = 'none';
@@ -1032,7 +1032,7 @@ function renderAll() {
   if (posFilter === 'G') {
     document.getElementById('playerThead').innerHTML = goalieHeaderHTML();
     document.querySelector('#playerTable thead th[data-col="rank"]').classList.add('sorted-asc');
-    document.getElementById('playerTbody').innerHTML = goalies.map(buildRowHTML).join('');
+    document.getElementById('playerTbody').innerHTML = goalies.map((p, i) => buildRowHTML(p, i + 1)).join('');
     goalieWrap.style.display = 'none';
   }
 
@@ -1335,23 +1335,34 @@ function openModal(id) {
   document.getElementById('modalBadges').innerHTML = badges;
 
   // Stats
+  const isG = p.pos === 'G';
+  const gs  = getGoalieStats(p);
   document.getElementById('modalStats').innerHTML = `
-    <div class='modal-stat-group'>
+    ${!isG ? `<div class='modal-stat-group'>
       <div class='modal-stat-label last'>📅 2025-26 Actual</div>
       <div class='modal-stat-row'>
-        <div class='modal-stat-item'><div class='v last-pts'>${p.last_pts ?? '—'}</div><div class='l'>PTS</div></div>
         <div class='modal-stat-item'><div class='v last-stat'>${p.last_g ?? '—'}</div><div class='l'>G</div></div>
         <div class='modal-stat-item'><div class='v last-stat'>${p.last_a ?? '—'}</div><div class='l'>A</div></div>
+        <div class='modal-stat-item'><div class='v last-pts'>${p.last_pts ?? '—'}</div><div class='l'>PTS</div></div>
         <div class='modal-stat-item'><div class='v ppg-last'>${ppg(p.last_pts, p.last_gp)}</div><div class='l'>PPG</div></div>
       </div>
-    </div>
+    </div>` : ''}
     <div class='modal-stat-group'>
-      <div class='modal-stat-label proj'>🎯 2026-27 Projection</div>
+      <div class='modal-stat-label proj'>${isG ? '🥅' : '🎯'} 2026-27 Projection</div>
       <div class='modal-stat-row'>
-        <div class='modal-stat-item'><div class='v proj-pts'>${p.proj_pts}</div><div class='l'>PTS</div></div>
+        ${isG ? `
+        <div class='modal-stat-item'><div class='v proj-stat'>${p.proj_g ?? '—'}</div><div class='l'>W</div></div>
+        <div class='modal-stat-item'><div class='v proj-stat'>${gs.l ?? '—'}</div><div class='l'>L</div></div>
+        <div class='modal-stat-item'><div class='v proj-stat'>${gs.otl ?? '—'}</div><div class='l'>OT</div></div>
+        <div class='modal-stat-item'><div class='v proj-stat'>${gs.gaa ?? '—'}</div><div class='l'>GAA</div></div>
+        <div class='modal-stat-item'><div class='v proj-stat'>${gs.svp != null ? gs.svp.toFixed(3) : '—'}</div><div class='l'>SV%</div></div>
+        <div class='modal-stat-item'><div class='v proj-stat'>${p.proj_a ?? '—'}</div><div class='l'>SO</div></div>
+        ` : `
         <div class='modal-stat-item'><div class='v proj-stat'>${p.proj_g}</div><div class='l'>G</div></div>
         <div class='modal-stat-item'><div class='v proj-stat'>${p.proj_a}</div><div class='l'>A</div></div>
+        <div class='modal-stat-item'><div class='v proj-pts'>${p.proj_pts}</div><div class='l'>PTS</div></div>
         <div class='modal-stat-item'><div class='v ppg-proj'>${ppg(p.proj_pts, p.proj_gp)}</div><div class='l'>PPG</div></div>
+        `}
       </div>
     </div>`;
 
