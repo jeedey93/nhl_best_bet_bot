@@ -606,6 +606,8 @@ td.col-proj-last  { border-right: 2px solid #bbf7d0 !important; }
 let allPlayers = [];
 let sortCol = 'rank';
 let sortDir = 'asc';
+let goalieSortCol = 'proj_g';
+let goalieSortDir = 'desc';
 
 const SUPABASE_URL = 'https://fifurqlitkywtmhgtzeu.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZpZnVycWxpdGt5d3RtaGd0emV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3MDIyMjQsImV4cCI6MjA5MjI3ODIyNH0.KPVPj1qwbSJJMyLR_-AhDcRs0vi2sUU6qbFQ-kH53C0';
@@ -802,6 +804,30 @@ function sorted(players) {
   });
 }
 
+function sortedGoalies(players) {
+  const getVal = p => {
+    if (goalieSortCol === '_goalie_l')   return getGoalieStats(p).l ?? 0;
+    if (goalieSortCol === '_goalie_otl') return getGoalieStats(p).otl ?? 0;
+    if (goalieSortCol === '_goalie_gaa') return getGoalieStats(p).gaa ?? 99;
+    if (goalieSortCol === '_goalie_svp') return getGoalieStats(p).svp ?? 0;
+    return p[goalieSortCol];
+  };
+  return [...players].sort((a, b) => {
+    let av = getVal(a), bv = getVal(b);
+    if (typeof av === 'string') av = av.toLowerCase();
+    if (typeof bv === 'string') bv = bv.toLowerCase();
+    if (av < bv) return goalieSortDir === 'asc' ? -1 : 1;
+    if (av > bv) return goalieSortDir === 'asc' ? 1 : -1;
+    return 0;
+  });
+}
+
+function sortGoalieBy(col) {
+  goalieSortDir = goalieSortCol === col ? (goalieSortDir === 'asc' ? 'desc' : 'asc') : (col === 'rank' ? 'asc' : 'desc');
+  goalieSortCol = col;
+  renderAll();
+}
+
 // ── FILTERS ───────────────────────────────────────────────
 const activeFilters = { pos: '', tier: '', trend: '', team: '', risk: '' };
 
@@ -856,21 +882,21 @@ function goalieHeaderHTML() {
     <th colspan='3' style='background:#f1f5f9;'></th>
   </tr>
   <tr class='col-row'>
-    <th onclick='sortBy("rank")'    data-col='rank'>#<span class='sort-icon'></span></th>
-    <th onclick='sortBy("name")'    data-col='name'>Player<span class='sort-icon'></span></th>
-    <th onclick='sortBy("team")'    data-col='team'>Team<span class='sort-icon'></span></th>
-    <th onclick='sortBy("pos")'     data-col='pos'>Pos<span class='sort-icon'></span></th>
-    <th onclick='sortBy("age")'     data-col='age'>Age<span class='sort-icon'></span></th>
-    <th onclick='sortBy("proj_gp")' data-col='proj_gp' class='col-group-proj' style='border-left:2px solid #bbf7d0;color:#15803d;'>GP<span class='sort-icon'></span></th>
-    <th onclick='sortBy("proj_g")'  data-col='proj_g'  class='col-group-proj' style='color:#15803d;'>W<span class='sort-icon'></span></th>
-    <th onclick='sortBy("_goalie_l")'   data-col='_goalie_l'   class='col-group-proj' style='color:#15803d;'>L<span class='sort-icon'></span></th>
-    <th onclick='sortBy("_goalie_otl")' data-col='_goalie_otl' class='col-group-proj' style='color:#15803d;'>OT<span class='sort-icon'></span></th>
-    <th onclick='sortBy("_goalie_gaa")' data-col='_goalie_gaa' class='col-group-proj' style='color:#15803d;'>GAA<span class='sort-icon'></span></th>
-    <th onclick='sortBy("_goalie_svp")' data-col='_goalie_svp' class='col-group-proj' style='color:#15803d;'>SV%<span class='sort-icon'></span></th>
-    <th onclick='sortBy("proj_a")'  data-col='proj_a'  class='col-group-proj' style='border-right:2px solid #bbf7d0;color:#15803d;'>SO<span class='sort-icon'></span></th>
-    <th onclick='sortBy("aav")'  data-col='aav'  class='cg-salary'>💰 AAV<span class='sort-icon'></span></th>
-    <th onclick='sortBy("tier")' data-col='tier' class='cg-tier'>Tier<span class='sort-icon'></span></th>
-    <th onclick='sortBy("risk")' data-col='risk' class='cg-risk'>Risk<span class='sort-icon'></span></th>
+    <th onclick='sortGoalieBy("rank")'        data-col='rank'>#<span class='sort-icon'></span></th>
+    <th onclick='sortGoalieBy("name")'        data-col='name'>Player<span class='sort-icon'></span></th>
+    <th onclick='sortGoalieBy("team")'        data-col='team'>Team<span class='sort-icon'></span></th>
+    <th onclick='sortGoalieBy("pos")'         data-col='pos'>Pos<span class='sort-icon'></span></th>
+    <th onclick='sortGoalieBy("age")'         data-col='age'>Age<span class='sort-icon'></span></th>
+    <th onclick='sortGoalieBy("proj_gp")'     data-col='proj_gp' class='col-group-proj' style='border-left:2px solid #bbf7d0;color:#15803d;'>GP<span class='sort-icon'></span></th>
+    <th onclick='sortGoalieBy("proj_g")'      data-col='proj_g'  class='col-group-proj' style='color:#15803d;'>W<span class='sort-icon'></span></th>
+    <th onclick='sortGoalieBy("_goalie_l")'   data-col='_goalie_l'   class='col-group-proj' style='color:#15803d;'>L<span class='sort-icon'></span></th>
+    <th onclick='sortGoalieBy("_goalie_otl")' data-col='_goalie_otl' class='col-group-proj' style='color:#15803d;'>OT<span class='sort-icon'></span></th>
+    <th onclick='sortGoalieBy("_goalie_gaa")' data-col='_goalie_gaa' class='col-group-proj' style='color:#15803d;'>GAA<span class='sort-icon'></span></th>
+    <th onclick='sortGoalieBy("_goalie_svp")' data-col='_goalie_svp' class='col-group-proj' style='color:#15803d;'>SV%<span class='sort-icon'></span></th>
+    <th onclick='sortGoalieBy("proj_a")'      data-col='proj_a'  class='col-group-proj' style='border-right:2px solid #bbf7d0;color:#15803d;'>SO<span class='sort-icon'></span></th>
+    <th onclick='sortGoalieBy("aav")'         data-col='aav'  class='cg-salary'>💰 AAV<span class='sort-icon'></span></th>
+    <th onclick='sortGoalieBy("tier")'        data-col='tier' class='cg-tier'>Tier<span class='sort-icon'></span></th>
+    <th onclick='sortGoalieBy("risk")'        data-col='risk' class='cg-risk'>Risk<span class='sort-icon'></span></th>
   </tr>`;
 }
 
@@ -1017,12 +1043,17 @@ function renderAll() {
   if (showGoalieTable) {
     goalieWrap.style.display = '';
     document.getElementById('goalieThead').innerHTML = goalieHeaderHTML();
+    const sortedG = sortedGoalies(goalies);
+    // Mark active sort column in goalie header
+    document.querySelectorAll('#goalieTable thead th[data-col]').forEach(th => {
+      th.classList.remove('sorted-asc', 'sorted-desc');
+      if (th.dataset.col === goalieSortCol) th.classList.add(goalieSortDir === 'asc' ? 'sorted-asc' : 'sorted-desc');
+    });
     const gtbody = document.getElementById('goalieTbody');
-    if (!goalies.length) {
+    if (!sortedG.length) {
       gtbody.innerHTML = '<tr><td colspan="17"><div class="empty-state"><div class="icon">🔍</div>No goalies match your filters.</div></td></tr>';
     } else {
-      // Goalies always get their own 1-based rank
-      gtbody.innerHTML = goalies.map((p, i) => buildRowHTML(p, i + 1)).join('');
+      gtbody.innerHTML = sortedG.map((p, i) => buildRowHTML(p, i + 1)).join('');
     }
   } else {
     goalieWrap.style.display = 'none';
@@ -1030,9 +1061,13 @@ function renderAll() {
 
   // When G-only filter, replace skater table with goalie table
   if (posFilter === 'G') {
+    const sortedG = sortedGoalies(goalies);
     document.getElementById('playerThead').innerHTML = goalieHeaderHTML();
-    document.querySelector('#playerTable thead th[data-col="rank"]').classList.add('sorted-asc');
-    document.getElementById('playerTbody').innerHTML = goalies.map((p, i) => buildRowHTML(p, i + 1)).join('');
+    document.querySelectorAll('#playerTable thead th[data-col]').forEach(th => {
+      th.classList.remove('sorted-asc', 'sorted-desc');
+      if (th.dataset.col === goalieSortCol) th.classList.add(goalieSortDir === 'asc' ? 'sorted-asc' : 'sorted-desc');
+    });
+    document.getElementById('playerTbody').innerHTML = sortedG.map((p, i) => buildRowHTML(p, i + 1)).join('');
     goalieWrap.style.display = 'none';
   }
 
