@@ -528,6 +528,13 @@ td.col-proj-last  { border-right: 2px solid #bbf7d0 !important; }
         <tbody id='playerTbody'></tbody>
       </table>
     </div>
+    <div class='table-wrap' id='goalieTableWrap' style='display:none;margin-top:28px;'>
+      <div style='font-size:0.85em;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#64748b;padding:0 0 8px 4px;'>🥅 Goalies</div>
+      <table id='goalieTable'>
+        <thead id='goalieThead'></thead>
+        <tbody id='goalieTbody'></tbody>
+      </table>
+    </div>
     <div class='card-list' id='playerCards'></div>
   </div>
 
@@ -736,18 +743,20 @@ function applyColVis() {
 }
 
 function updateGroupColspan() {
-  // Recount visible ths in col-row for each group
-  const ths = [...document.querySelectorAll('thead tr.col-row th')];
-  let lastCount = 0, projCount = 0;
-  ths.forEach(th => {
-    if (th.style.display === 'none') return;
-    if (th.classList.contains('col-group-last')) lastCount++;
-    if (th.classList.contains('col-group-proj')) projCount++;
+  // Update each table's group-row colspans independently
+  document.querySelectorAll('table').forEach(tbl => {
+    const ths = [...tbl.querySelectorAll('thead tr.col-row th')];
+    let lastCount = 0, projCount = 0;
+    ths.forEach(th => {
+      if (th.style.display === 'none') return;
+      if (th.classList.contains('col-group-last')) lastCount++;
+      if (th.classList.contains('col-group-proj')) projCount++;
+    });
+    const lastGh = tbl.querySelector('#gh-last, [id="gh-last"]');
+    const projGh = tbl.querySelector('#gh-proj, [id="gh-proj"]');
+    if (lastGh) lastGh.colSpan = Math.max(1, lastCount);
+    if (projGh) projGh.colSpan = Math.max(1, projCount);
   });
-  const lastGh = document.getElementById('gh-last');
-  const projGh = document.getElementById('gh-proj');
-  if (lastGh) lastGh.colSpan = Math.max(1, lastCount);
-  if (projGh) projGh.colSpan = Math.max(1, projCount);
 }
 
 function toggleColMenu(e) {
@@ -839,9 +848,8 @@ function getFiltered() {
 function applyFilters() { renderAll(); }
 
 // ── RENDER HEADER ─────────────────────────────────────────
-function renderHeader() {
-  const isG = activeFilters.pos === 'G';
-  document.getElementById('playerThead').innerHTML = isG ? `
+function goalieHeaderHTML() {
+  return `
   <tr class='group-row'>
     <th colspan='5' style='background:#f1f5f9;'></th>
     <th id='gh-last' colspan='4' class='col-group-last cg-last'>📅 2025-26 ACTUAL</th>
@@ -854,25 +862,26 @@ function renderHeader() {
     <th onclick='sortBy("team")'    data-col='team'>Team<span class='sort-icon'></span></th>
     <th onclick='sortBy("pos")'     data-col='pos'>Pos<span class='sort-icon'></span></th>
     <th onclick='sortBy("age")'     data-col='age'>Age<span class='sort-icon'></span></th>
-
     <th onclick='sortBy("last_gp")' data-col='last_gp' class='col-group-last cg-last' style='border-left:2px solid #bfdbfe;color:#1d4ed8;'>GP<span class='sort-icon'></span></th>
     <th onclick='sortBy("last_g")'  data-col='last_g'  class='col-group-last cg-last' style='color:#1d4ed8;'>W<span class='sort-icon'></span></th>
     <th onclick='sortBy("last_a")'  data-col='last_a'  class='col-group-last cg-last' style='color:#1d4ed8;'>SO<span class='sort-icon'></span></th>
     <th onclick='sortBy("last_pts")' data-col='last_pts' class='col-group-last cg-last' style='border-right:2px solid #bfdbfe;color:#1d4ed8;font-weight:800;'>Score<span class='sort-icon'></span></th>
-
     <th onclick='sortBy("proj_gp")' data-col='proj_gp' class='col-group-proj' style='border-left:2px solid #bbf7d0;color:#15803d;'>GP<span class='sort-icon'></span></th>
     <th onclick='sortBy("proj_g")'  data-col='proj_g'  class='col-group-proj' style='color:#15803d;'>W<span class='sort-icon'></span></th>
-    <th onclick='sortBy("_goalie_l")'  data-col='_goalie_l'  class='col-group-proj' style='color:#15803d;'>L<span class='sort-icon'></span></th>
+    <th onclick='sortBy("_goalie_l")'   data-col='_goalie_l'   class='col-group-proj' style='color:#15803d;'>L<span class='sort-icon'></span></th>
     <th onclick='sortBy("_goalie_otl")' data-col='_goalie_otl' class='col-group-proj' style='color:#15803d;'>OT<span class='sort-icon'></span></th>
     <th onclick='sortBy("_goalie_gaa")' data-col='_goalie_gaa' class='col-group-proj' style='color:#15803d;'>GAA<span class='sort-icon'></span></th>
     <th onclick='sortBy("_goalie_svp")' data-col='_goalie_svp' class='col-group-proj' style='color:#15803d;'>SV%<span class='sort-icon'></span></th>
     <th onclick='sortBy("proj_a")'  data-col='proj_a'  class='col-group-proj' style='border-right:2px solid #bbf7d0;color:#15803d;'>SO<span class='sort-icon'></span></th>
-
     <th onclick='sortBy("aav")'  data-col='aav'  class='cg-salary'>💰 AAV<span class='sort-icon'></span></th>
     <th onclick='sortBy("tier")' data-col='tier' class='cg-tier'>Tier<span class='sort-icon'></span></th>
     <th onclick='sortBy("_pv")'  data-col='_pv'  class='cg-value'>Efficiency<span class='sort-icon'></span></th>
     <th onclick='sortBy("risk")' data-col='risk' class='cg-risk'>Risk<span class='sort-icon'></span></th>
-  </tr>` : `
+  </tr>`;
+}
+
+function skaterHeaderHTML() {
+  return `
   <tr class='group-row'>
     <th colspan='5' style='background:#f1f5f9;'></th>
     <th id='gh-last' colspan='5' class='col-group-last cg-last'>📅 2025-26 ACTUAL</th>
@@ -885,19 +894,16 @@ function renderHeader() {
     <th onclick='sortBy("team")'    data-col='team'>Team<span class='sort-icon'></span></th>
     <th onclick='sortBy("pos")'     data-col='pos'>Pos<span class='sort-icon'></span></th>
     <th onclick='sortBy("age")'     data-col='age'>Age<span class='sort-icon'></span></th>
-
     <th onclick='sortBy("last_gp")' data-col='last_gp' class='col-group-last cg-last' style='border-left:2px solid #bfdbfe;color:#1d4ed8;'>GP<span class='sort-icon'></span></th>
     <th onclick='sortBy("last_g")'  data-col='last_g'  class='col-group-last cg-last' style='color:#1d4ed8;'>G<span class='sort-icon'></span></th>
     <th onclick='sortBy("last_a")'  data-col='last_a'  class='col-group-last cg-last' style='color:#1d4ed8;'>A<span class='sort-icon'></span></th>
     <th onclick='sortBy("last_pts")' data-col='last_pts' class='col-group-last cg-last' style='color:#1d4ed8;font-weight:800;'>PTS<span class='sort-icon'></span></th>
     <th onclick='sortBy("_ppg_last")' data-col='_ppg_last' class='col-group-last cg-last cg-ppg-last' style='border-right:2px solid #bfdbfe;color:#1d4ed8;'>PPG<span class='sort-icon'></span></th>
-
     <th onclick='sortBy("proj_gp")' data-col='proj_gp' class='col-group-proj' style='border-left:2px solid #bbf7d0;color:#15803d;'>GP<span class='sort-icon'></span></th>
     <th onclick='sortBy("proj_g")'  data-col='proj_g'  class='col-group-proj' style='color:#15803d;'>G<span class='sort-icon'></span></th>
     <th onclick='sortBy("proj_a")'  data-col='proj_a'  class='col-group-proj' style='color:#15803d;'>A<span class='sort-icon'></span></th>
     <th onclick='sortBy("proj_pts")' data-col='proj_pts' class='col-group-proj' style='color:#15803d;font-weight:800;'>PTS<span class='sort-icon'></span></th>
     <th onclick='sortBy("_ppg_proj")' data-col='_ppg_proj' class='col-group-proj cg-ppg-proj' style='border-right:2px solid #bbf7d0;color:#15803d;'>PPG<span class='sort-icon'></span></th>
-
     <th onclick='sortBy("aav")'     data-col='aav'     class='cg-salary'>💰 AAV<span class='sort-icon'></span></th>
     <th onclick='sortBy("pp_pct")' data-col='pp_pct' class='cg-pp' onmouseenter='showTooltip(this,"PP% = powerplay points ÷ total points × 100")' onmouseleave='hideTooltip()'>PP%<span class='sort-icon'></span></th>
     <th onclick='sortBy("tier")'    data-col='tier'     class='cg-tier'>Tier<span class='sort-icon'></span></th>
@@ -905,22 +911,16 @@ function renderHeader() {
     <th onclick='sortBy("_pv")'     data-col='_pv'      class='cg-value'>Efficiency<span class='sort-icon'></span></th>
     <th onclick='sortBy("risk")'    data-col='risk'     class='cg-risk'>Risk<span class='sort-icon'></span></th>
   </tr>`;
+}
+
+function renderHeader() {
+  const isG = activeFilters.pos === 'G';
+  document.getElementById('playerThead').innerHTML = isG ? goalieHeaderHTML() : skaterHeaderHTML();
   document.querySelector('thead th[data-col="rank"]').classList.add('sorted-asc');
 }
 
 // ── RENDER TABLE ──────────────────────────────────────────
-function renderAll() {
-  renderHeader();
-  const filtered = sorted(getFiltered());
-  const tbody = document.getElementById('playerTbody');
-  document.getElementById('resultsCount').textContent = filtered.length + ' players';
-
-  if (!filtered.length) {
-    tbody.innerHTML = '<tr><td colspan="21"><div class="empty-state"><div class="icon">🔍</div>No players match your filters.</div></td></tr>';
-    return;
-  }
-
-  tbody.innerHTML = filtered.map(p => {
+function buildRowHTML(p) {
     const trend    = getTrend(p);
     const diff     = p.proj_pts - (p.last_pts || p.proj_pts);
     const diffStr  = diff > 0 ? '+' + diff : '' + diff;
@@ -985,9 +985,57 @@ function renderAll() {
       </div></td>
       <td class='cg-risk'>${riskHtml}</td>
     </tr>`;
-  }).join('');
+}
 
-  if (activeFilters.pos !== 'G') applyColVis();
+function renderAll() {
+  const filtered = sorted(getFiltered());
+  const posFilter = activeFilters.pos;
+  const goalieWrap = document.getElementById('goalieTableWrap');
+
+  // Decide which tables to show
+  const showGoalieTable = !posFilter || posFilter === 'G';
+  const showSkaterTable = posFilter !== 'G';
+
+  const skaters = filtered.filter(p => p.pos !== 'G');
+  const goalies  = filtered.filter(p => p.pos === 'G');
+
+  document.getElementById('resultsCount').textContent = filtered.length + ' players';
+
+  // ── Skater table ──
+  if (showSkaterTable) {
+    document.getElementById('playerThead').innerHTML = skaterHeaderHTML();
+    document.querySelector('#playerTable thead th[data-col="rank"]').classList.add('sorted-asc');
+    const tbody = document.getElementById('playerTbody');
+    if (!skaters.length) {
+      tbody.innerHTML = '<tr><td colspan="21"><div class="empty-state"><div class="icon">🔍</div>No players match your filters.</div></td></tr>';
+    } else {
+      tbody.innerHTML = skaters.map(buildRowHTML).join('');
+    }
+    applyColVis();
+  }
+
+  // ── Goalie table ──
+  if (showGoalieTable) {
+    goalieWrap.style.display = '';
+    document.getElementById('goalieThead').innerHTML = goalieHeaderHTML();
+    const gtbody = document.getElementById('goalieTbody');
+    if (!goalies.length) {
+      gtbody.innerHTML = '<tr><td colspan="17"><div class="empty-state"><div class="icon">🔍</div>No goalies match your filters.</div></td></tr>';
+    } else {
+      gtbody.innerHTML = goalies.map(buildRowHTML).join('');
+    }
+  } else {
+    goalieWrap.style.display = 'none';
+  }
+
+  // When G-only filter, replace skater table with goalie table
+  if (posFilter === 'G') {
+    document.getElementById('playerThead').innerHTML = goalieHeaderHTML();
+    document.querySelector('#playerTable thead th[data-col="rank"]').classList.add('sorted-asc');
+    document.getElementById('playerTbody').innerHTML = goalies.map(buildRowHTML).join('');
+    goalieWrap.style.display = 'none';
+  }
+
   renderCards(filtered);
 }
 
