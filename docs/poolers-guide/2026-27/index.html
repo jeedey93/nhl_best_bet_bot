@@ -474,9 +474,7 @@ td.col-proj-last  { border-right: 2px solid #bbf7d0 !important; }
         <div class='filter-group'>
           <span class='filter-label'>Pos</span>
           <button class='pill active' data-filter='pos' data-value='' onclick='setPill(this,"pos")'>All</button>
-          <button class='pill' data-filter='pos' data-value='C' onclick='setPill(this,"pos")'>C</button>
-          <button class='pill' data-filter='pos' data-value='LW' onclick='setPill(this,"pos")'>LW</button>
-          <button class='pill' data-filter='pos' data-value='RW' onclick='setPill(this,"pos")'>RW</button>
+          <button class='pill' data-filter='pos' data-value='F' onclick='setPill(this,"pos")'>F</button>
           <button class='pill' data-filter='pos' data-value='D' onclick='setPill(this,"pos")'>D</button>
           <button class='pill' data-filter='pos' data-value='G' onclick='setPill(this,"pos")'>G</button>
         </div>
@@ -602,7 +600,6 @@ async function init() {
     teamSelect.appendChild(o);
   });
   normalizePVs(allPlayers);
-  renderHeader();
   renderAll();
   renderByTeam();
   renderSleepers();
@@ -772,7 +769,10 @@ function getFiltered() {
   const teamVal = document.getElementById('teamSelect')?.value || '';
   return allPlayers.filter(p => {
     if (q       && !p.name.toLowerCase().includes(q) && !p.team.toLowerCase().includes(q)) return false;
-    if (activeFilters.pos   && p.pos  !== activeFilters.pos)          return false;
+    if (activeFilters.pos) {
+      if (activeFilters.pos === 'F' && !['C','LW','RW'].includes(p.pos)) return false;
+      if (activeFilters.pos !== 'F' && p.pos !== activeFilters.pos) return false;
+    }
     if (activeFilters.tier  && p.tier !== activeFilters.tier)         return false;
     if (teamVal             && p.team !== teamVal)                    return false;
     if (activeFilters.trend && getTrend(p) !== activeFilters.trend)   return false;
@@ -784,11 +784,16 @@ function applyFilters() { renderAll(); }
 
 // ── RENDER HEADER ─────────────────────────────────────────
 function renderHeader() {
+  const isG = activeFilters.pos === 'G';
+  const g2Label = isG ? 'W' : 'G';
+  const g3Label = isG ? 'SO' : 'A';
+  const g4Label = isG ? 'Score' : 'PTS';
+  const projGroup = isG ? '🥅 GOALIE STATS' : '🎯 2026-27 PROJECTION';
   document.getElementById('playerThead').innerHTML = `
   <tr class='group-row'>
     <th colspan='5' style='background:#f1f5f9;'></th>
     <th id='gh-last' colspan='5' class='col-group-last cg-last'>📅 2025-26 ACTUAL</th>
-    <th colspan='4' class='col-group-proj'>🎯 2026-27 PROJECTION</th>
+    <th colspan='4' class='col-group-proj'>${projGroup}</th>
     <th colspan='7' style='background:#f1f5f9;'></th>  </tr>
   <tr class='col-row'>
     <th onclick='sortBy("rank")'    data-col='rank'>#<span class='sort-icon'></span></th>
@@ -798,16 +803,16 @@ function renderHeader() {
     <th onclick='sortBy("age")'     data-col='age'>Age<span class='sort-icon'></span></th>
 
     <th onclick='sortBy("last_gp")' data-col='last_gp' class='col-group-last cg-last' style='border-left:2px solid #bfdbfe;color:#1d4ed8;'>GP<span class='sort-icon'></span></th>
-    <th onclick='sortBy("last_g")'  data-col='last_g'  class='col-group-last cg-last' style='color:#1d4ed8;'>G<span class='sort-icon'></span></th>
-    <th onclick='sortBy("last_a")'  data-col='last_a'  class='col-group-last cg-last' style='color:#1d4ed8;'>A<span class='sort-icon'></span></th>
-    <th onclick='sortBy("last_pts")' data-col='last_pts' class='col-group-last cg-last' style='color:#1d4ed8;font-weight:800;'>PTS<span class='sort-icon'></span></th>
-    <th onclick='sortBy("_ppg_last")' data-col='_ppg_last' class='col-group-last cg-last cg-ppg-last' style='border-right:2px solid #bfdbfe;color:#1d4ed8;'>PPG<span class='sort-icon'></span></th>
+    <th onclick='sortBy("last_g")'  data-col='last_g'  class='col-group-last cg-last' style='color:#1d4ed8;'>${isG ? 'W' : 'G'}<span class='sort-icon'></span></th>
+    <th onclick='sortBy("last_a")'  data-col='last_a'  class='col-group-last cg-last' style='color:#1d4ed8;'>${isG ? 'SO' : 'A'}<span class='sort-icon'></span></th>
+    <th onclick='sortBy("last_pts")' data-col='last_pts' class='col-group-last cg-last' style='color:#1d4ed8;font-weight:800;'>${isG ? 'Score' : 'PTS'}<span class='sort-icon'></span></th>
+    <th onclick='sortBy("_ppg_last")' data-col='_ppg_last' class='col-group-last cg-last cg-ppg-last' style='border-right:2px solid #bfdbfe;color:#1d4ed8;'>${isG ? 'W/GP' : 'PPG'}<span class='sort-icon'></span></th>
 
     <th onclick='sortBy("proj_gp")' data-col='proj_gp' class='col-group-proj' style='border-left:2px solid #bbf7d0;color:#15803d;'>GP<span class='sort-icon'></span></th>
-    <th onclick='sortBy("proj_g")'  data-col='proj_g'  class='col-group-proj' style='color:#15803d;'>G<span class='sort-icon'></span></th>
-    <th onclick='sortBy("proj_a")'  data-col='proj_a'  class='col-group-proj' style='color:#15803d;'>A<span class='sort-icon'></span></th>
-    <th onclick='sortBy("proj_pts")' data-col='proj_pts' class='col-group-proj' style='color:#15803d;font-weight:800;'>PTS<span class='sort-icon'></span></th>
-    <th onclick='sortBy("_ppg_proj")' data-col='_ppg_proj' class='col-group-proj cg-ppg-proj' style='border-right:2px solid #bbf7d0;color:#15803d;'>PPG<span class='sort-icon'></span></th>
+    <th onclick='sortBy("proj_g")'  data-col='proj_g'  class='col-group-proj' style='color:#15803d;'>${g2Label}<span class='sort-icon'></span></th>
+    <th onclick='sortBy("proj_a")'  data-col='proj_a'  class='col-group-proj' style='color:#15803d;'>${g3Label}<span class='sort-icon'></span></th>
+    <th onclick='sortBy("proj_pts")' data-col='proj_pts' class='col-group-proj' style='color:#15803d;font-weight:800;'>${g4Label}<span class='sort-icon'></span></th>
+    <th onclick='sortBy("_ppg_proj")' data-col='_ppg_proj' class='col-group-proj cg-ppg-proj' style='border-right:2px solid #bbf7d0;color:#15803d;'>${isG ? 'W/GP' : 'PPG'}<span class='sort-icon'></span></th>
 
     <th onclick='sortBy("aav")'     data-col='aav'     class='cg-salary'>💰 AAV<span class='sort-icon'></span></th>
     <th onclick='sortBy("pp_pct")' data-col='pp_pct' class='cg-pp' onmouseenter='showTooltip(this,"PP% = powerplay points ÷ total points × 100")' onmouseleave='hideTooltip()'>PP%<span class='sort-icon'></span></th>
@@ -816,12 +821,12 @@ function renderHeader() {
     <th onclick='sortBy("_pv")'     data-col='_pv'      class='cg-value'>Efficiency<span class='sort-icon'></span></th>
     <th onclick='sortBy("risk")'    data-col='risk'     class='cg-risk'>Risk<span class='sort-icon'></span></th>
   </tr>`;
-  // Set initial sort indicator
   document.querySelector('thead th[data-col="rank"]').classList.add('sorted-asc');
 }
 
 // ── RENDER TABLE ──────────────────────────────────────────
 function renderAll() {
+  renderHeader();
   const filtered = sorted(getFiltered());
   const tbody = document.getElementById('playerTbody');
   document.getElementById('resultsCount').textContent = filtered.length + ' players';
@@ -846,9 +851,19 @@ function renderAll() {
     const bustHtml = p.bust_alert ? `<span class='bust'>💣 Bust</span>` : '';
     const bandaid  = p.risk === 'Medium' || p.risk === 'High' ? `<span class='bandaid' title='${p.risk === "High" ? "High risk / injury prone" : "Injury prone"}'>🩹</span>` : '';
     const ageClass = p.age <= 22 ? 'age-young' : p.age >= 32 ? 'age-old' : '';
-    const upsideHtml = p.upside != null && p.proj_pts != null
+    const isGoalie  = p.pos === 'G';
+    const projG     = isGoalie ? (p.proj_g ?? '—') : (p.proj_g ?? '—');
+    const projA     = isGoalie ? (p.proj_a ?? '—') : (p.proj_a ?? '—');
+    const projPtsDisplay = p.proj_pts ?? '—';
+    const upsideHtml = !isGoalie && p.upside != null && p.proj_pts != null
       ? `<span class='upside-inline' onmouseenter='showTooltip(this,\`Upside: ${p.upside} pts ceiling\`)' onmouseleave='hideTooltip()'>↑${p.upside}</span>`
       : '';
+    const ppgLastHtml  = isGoalie
+      ? (p.last_g != null && p.last_gp > 0 ? (p.last_g / p.last_gp).toFixed(2) : '—')
+      : ppg(p.last_pts, p.last_gp);
+    const ppgProjHtml  = isGoalie
+      ? (p.proj_g != null && p.proj_gp > 0 ? (p.proj_g / p.proj_gp).toFixed(2) : '—')
+      : ppg(p.proj_pts, p.proj_gp);
 
     return `<tr class='tier-row-${p.tier}'>
       <td>${p.rank}</td>
@@ -865,13 +880,13 @@ function renderAll() {
       <td class='col-last last-stat cg-last'>${p.last_g ?? '—'}</td>
       <td class='col-last last-stat cg-last'>${p.last_a ?? '—'}</td>
       <td class='col-last last-pts cg-last'>${p.last_pts ?? '—'}</td>
-      <td class='col-last col-last-last cg-last cg-ppg-last'><span class='ppg-last'>${ppg(p.last_pts, p.last_gp)}</span></td>
+      <td class='col-last col-last-last cg-last cg-ppg-last'><span class='ppg-last'>${ppgLastHtml}</span></td>
 
       <td class='col-proj col-proj-first proj-stat'>${p.proj_gp}</td>
-      <td class='col-proj proj-stat'>${p.proj_g}</td>
-      <td class='col-proj proj-stat'>${p.proj_a}</td>
-      <td class='col-proj proj-pts'>${p.proj_pts}${upsideHtml}</td>
-      <td class='col-proj col-proj-last cg-ppg-proj'><span class='ppg-proj'>${ppg(p.proj_pts, p.proj_gp)}</span></td>
+      <td class='col-proj proj-stat'>${projG}</td>
+      <td class='col-proj proj-stat'>${projA}</td>
+      <td class='col-proj proj-pts'>${projPtsDisplay}${upsideHtml}</td>
+      <td class='col-proj col-proj-last cg-ppg-proj'><span class='ppg-proj'>${ppgProjHtml}</span></td>
 
       <td class='cg-salary'><span class='salary'>${aav}</span></td>
       <td class='cg-pp'><span class='pp-pct'>${ppPct}</span></td>

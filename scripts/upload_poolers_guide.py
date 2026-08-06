@@ -126,6 +126,8 @@ def parse_players():
     players = []
 
     # ── FORWARDS ──
+    # Cols: 0=Rang, 1=Noms, 2=Tier, 3=Âge, 4=Pos, 5=Équipe, 6=PJ, 7=B, 8=A,
+    #       9=Pts, 10=PPG, 11=Salaire, 12=Band-aid, 13=Risqué, 14=Upside, 15=Notes
     ws = wb["Attaquants"]
     for r in list(ws.iter_rows(values_only=True))[2:]:
         if r[0] is None:
@@ -139,22 +141,56 @@ def parse_players():
             continue
         players.append({
             "name":     name,
-            "age":      int(float(r[2])) if r[2] else None,
-            "pos":      normalize_pos(r[3], "F"),
-            "team":     str(r[4]).strip() if r[4] else None,
-            "proj_gp":  int(float(r[5])) if r[5] else None,
-            "proj_g":   int(float(r[6])) if r[6] else None,
-            "proj_a":   int(float(r[7])) if r[7] else None,
-            "proj_pts": (int(float(r[6])) if r[6] else 0) + (int(float(r[7])) if r[7] else 0),
-            "aav":      parse_salary(r[10]),
-            "risk":     compute_risk(r[11], r[12]),
-            "upside":   int(float(r[13])) if r[13] else None,
-            "notes":    str(r[14]).strip() if r[14] else None,
+            "age":      int(float(r[3])) if r[3] else None,
+            "pos":      normalize_pos(r[4], "F"),
+            "team":     str(r[5]).strip() if r[5] else None,
+            "proj_gp":  int(float(r[6])) if r[6] else None,
+            "proj_g":   int(float(r[7])) if r[7] else None,
+            "proj_a":   int(float(r[8])) if r[8] else None,
+            "proj_pts": (int(float(r[7])) if r[7] else 0) + (int(float(r[8])) if r[8] else 0),
+            "aav":      parse_salary(r[11]),
+            "risk":     compute_risk(r[12], r[13]),
+            "upside":   int(float(r[14])) if r[14] else None,
+            "notes":    str(r[15]).strip() if r[15] else None,
             "tier":     None,
         })
 
     # ── DEFENCEMEN ──
+    # Cols: 0=None, 1=Rang, 2=Noms, 3=Tier, 4=Âge, 5=Pos, 6=Équipe, 7=PJ, 8=B, 9=A,
+    #       10=Pts, 11=PPG, 12=Salaire, 13=Band-aid, 14=Risqué, 15=Upside, 16=Notes
     ws = wb["Défenseurs"]
+    for r in list(ws.iter_rows(values_only=True))[2:]:
+        if r[1] is None:
+            continue
+        try:
+            int(float(r[1]))
+        except (TypeError, ValueError):
+            continue
+        name = str(r[2]).strip() if r[2] else None
+        if not name:
+            continue
+        players.append({
+            "name":     name,
+            "age":      int(float(r[4])) if r[4] else None,
+            "pos":      "D",
+            "team":     str(r[6]).strip() if r[6] else None,
+            "proj_gp":  int(float(r[7])) if r[7] else None,
+            "proj_g":   int(float(r[8])) if r[8] else None,
+            "proj_a":   int(float(r[9])) if r[9] else None,
+            "proj_pts": (int(float(r[8])) if r[8] else 0) + (int(float(r[9])) if r[9] else 0),
+            "aav":      parse_salary(r[12]),
+            "risk":     compute_risk(r[13], r[14]),
+            "upside":   int(float(r[15])) if r[15] else None,
+            "notes":    str(r[16]).strip() if r[16] else None,
+            "tier":     None,
+        })
+
+    # ── GOALIES ──
+    # Cols: 0=Rang, 1=Noms, 2=Tier, 3=Âge, 4=Pos, 5=Équipe, 6=GP, 7=W, 8=L, 9=OTL,
+    #       10=GAA, 11=SV%, 12=SO, 13=2V+1OTL+3SO, 14=QS%, 15=RBS%, 16=RBW%,
+    #       17=GSAx, 18=SV%5v5, 19=Score, 20=Salaire, 21=Band-aid, 22=Risqué,
+    #       23=Upside, 24=Notes
+    ws = wb["Gardiens"]
     for r in list(ws.iter_rows(values_only=True))[2:]:
         if r[0] is None:
             continue
@@ -165,45 +201,35 @@ def parse_players():
         name = str(r[1]).strip() if r[1] else None
         if not name:
             continue
-        players.append({
-            "name":     name,
-            "age":      int(float(r[2])) if r[2] else None,
-            "pos":      "D",
-            "team":     str(r[4]).strip() if r[4] else None,
-            "proj_gp":  int(float(r[5])) if r[5] else None,
-            "proj_g":   int(float(r[6])) if r[6] else None,
-            "proj_a":   int(float(r[7])) if r[7] else None,
-            "proj_pts": (int(float(r[6])) if r[6] else 0) + (int(float(r[7])) if r[7] else 0),
-            "aav":      parse_salary(r[10]),
-            "risk":     compute_risk(r[11], r[12]),
-            "upside":   int(float(r[13])) if r[13] else None,
-            "notes":    str(r[14]).strip() if r[14] else None,
-            "tier":     None,
+        # proj_g=W, proj_a=SO, proj_pts=Score; extra goalie stats packed into scouting as JSON
+        import json as _json
+        score  = round(float(r[19])) if r[19] else None
+        wins   = int(float(r[7])) if r[7] else None
+        so     = int(float(r[12])) if r[12] else None
+        upside = int(float(r[23])) if r[23] else None
+        goalie_stats = _json.dumps({
+            'w':   wins,
+            'l':   int(float(r[8])) if r[8] else None,
+            'otl': int(float(r[9])) if r[9] else None,
+            'gaa': round(float(r[10]), 2) if r[10] else None,
+            'svp': round(float(r[11]), 3) if r[11] else None,
+            'so':  so,
         })
-
-    # ── GOALIES ──
-    ws = wb["Gardiens"]
-    for r in list(ws.iter_rows(values_only=True))[2:]:
-        if r[0] is None:
-            continue
-        name = str(r[0]).strip()
-        if not name:
-            continue
-        upside = int(float(r[15])) if r[15] else None
         players.append({
             "name":     name,
-            "age":      int(float(r[1])) if r[1] else None,
+            "age":      int(float(r[3])) if r[3] else None,
             "pos":      "G",
-            "team":     str(r[3]).strip() if r[3] else "FA",
-            "proj_gp":  int(float(r[4])) if r[4] else None,
-            "proj_g":   None,
-            "proj_a":   None,
-            "proj_pts": upside,
-            "aav":      parse_salary(r[12]),
-            "risk":     compute_risk(r[13], r[14]),
+            "team":     str(r[5]).strip() if r[5] else "FA",
+            "proj_gp":  int(float(r[6])) if r[6] else None,
+            "proj_g":   wins,
+            "proj_a":   so,
+            "proj_pts": score,
+            "aav":      parse_salary(r[20]),
+            "risk":     compute_risk(r[21], r[22]),
             "tier":     None,
             "upside":   upside,
-            "notes":    str(r[16]).strip() if r[16] else None,
+            "notes":    str(r[24]).strip() if r[24] else None,
+            "scouting": goalie_stats,
         })
 
     # Global rank by proj_pts descending (nulls last), then sheet order as tiebreak.
@@ -262,11 +288,16 @@ def upload(players):
     PROJ_FIELDS = ["rank", "name", "age", "pos", "team",
                    "proj_gp", "proj_g", "proj_a", "proj_pts",
                    "aav", "risk", "tier", "bust_alert", "upside", "notes"]
+    GOALIE_EXTRA = ["scouting"]
 
     # PATCH existing players one by one (Supabase REST doesn't bulk-patch by id list)
     updated = 0
     for pid, p in to_update:
         patch = {k: p[k] for k in PROJ_FIELDS}
+        if p.get('pos') == 'G':
+            for k in GOALIE_EXTRA:
+                if k in p:
+                    patch[k] = p[k]
         res = requests.patch(
             f"{SUPABASE_URL}/rest/v1/poolers_players?id=eq.{pid}",
             headers={**HEADERS, "Prefer": "return=minimal"},
