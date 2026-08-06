@@ -634,16 +634,16 @@ async function init() {
   });
   normalizePVs(allPlayers);
 
-  // Build tier pills from actual data, sorted by tier number
-  const tiersSeen = [...new Set(allPlayers.map(p => p.tier).filter(Boolean))]
-    .sort((a, b) => (parseInt(tierNum(a)) || 99) - (parseInt(tierNum(b)) || 99));
+  // Build tier pills Tier 1 … Tier 11 (by number, not full label)
+  const tierNumsSeen = [...new Set(allPlayers.map(p => tierNum(p.tier)).filter(Boolean))]
+    .sort((a, b) => parseInt(a) - parseInt(b));
   const tierPills = document.getElementById('tierPills');
-  tiersSeen.forEach(t => {
+  tierNumsSeen.forEach(n => {
     const btn = document.createElement('button');
     btn.className = 'pill';
     btn.dataset.filter = 'tier';
-    btn.dataset.value = t;
-    btn.textContent = t;
+    btn.dataset.value = n;
+    btn.textContent = 'Tier ' + n;
     btn.onclick = function() { setPill(this, 'tier'); };
     tierPills.appendChild(btn);
   });
@@ -829,7 +829,7 @@ function getFiltered() {
       if (activeFilters.pos === 'F' && !['C','LW','RW'].includes(p.pos)) return false;
       if (activeFilters.pos !== 'F' && p.pos !== activeFilters.pos) return false;
     }
-    if (activeFilters.tier  && p.tier !== activeFilters.tier)         return false;
+    if (activeFilters.tier  && tierNum(p.tier) !== activeFilters.tier)    return false;
     if (teamVal             && p.team !== teamVal)                    return false;
     if (activeFilters.trend && getTrend(p) !== activeFilters.trend)   return false;
     if (activeFilters.risk  && p.risk !== activeFilters.risk)         return false;
