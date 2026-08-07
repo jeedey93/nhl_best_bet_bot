@@ -685,7 +685,7 @@ async function init() {
 }
 
 // ── POOL VALUE SCORE ──────────────────────────────────────
-// ── EFFICIENCY SCORE: Proj PTS ÷ √AAV ($M) ───────────────
+// ── EFFICIENCY SCORE: (Proj PTS ÷ √AAV) scaled to 0–10 ───
 // Higher = more points per cap dollar. Players with no AAV get null.
 let _effMax = 1; // used to scale the bar width
 
@@ -701,14 +701,16 @@ function normalizePVs(players) {
 
 function getPV(p) {
   const v = calcEff(p);
-  return v !== null ? Math.round(v * 10) / 10 : null;
+  if (v === null) return null;
+  const SCALE_MAX = 40;
+  return Math.round((v / SCALE_MAX) * 100) / 10;
 }
 
 function pvClass(score) {
   if (score === null) return 'pv-lo';
-  if (score >= 40) return 'pv-90';
-  if (score >= 28) return 'pv-70';
-  if (score >= 18) return 'pv-50';
+  if (score >= 8.5) return 'pv-90';
+  if (score >= 6.0) return 'pv-70';
+  if (score >= 4.0) return 'pv-50';
   return 'pv-lo';
 }
 
