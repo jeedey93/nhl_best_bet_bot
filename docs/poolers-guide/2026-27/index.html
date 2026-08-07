@@ -293,7 +293,6 @@ td.col-proj-last  { border-right: 2px solid #bbf7d0 !important; }
 @media (max-width: 768px) {
   .table-wrap { display: none; }
   .card-list  { display: flex; }
-}
   .page-wrap { padding: 70px 10px 40px; }
   /* hero */
   .page-header { padding: 20px 16px; border-radius: 10px; }
@@ -844,7 +843,6 @@ function setPill(btn, filterKey) {
     btn.classList.add('active');
   } else {
     const colorMap = {
-      Elite: 'active-elite', Top: 'active-top', Sleeper: 'active-sleeper',
       up: 'active-up', down: 'active-down',
       Low: 'active-low', Medium: 'active-medium', High: 'active-high',
     };
@@ -931,12 +929,6 @@ function skaterHeaderHTML() {
     <th onclick='sortBy("_pv")'     data-col='_pv'      class='cg-value'>Efficiency<span class='sort-icon'></span></th>
     <th onclick='sortBy("risk")'    data-col='risk'     class='cg-risk'>Risk<span class='sort-icon'></span></th>
   </tr>`;
-}
-
-function renderHeader() {
-  const isG = activeFilters.pos === 'G';
-  document.getElementById('playerThead').innerHTML = isG ? goalieHeaderHTML() : skaterHeaderHTML();
-  document.querySelector('thead th[data-col="rank"]').classList.add('sorted-asc');
 }
 
 // ── RENDER TABLE ──────────────────────────────────────────
@@ -1039,35 +1031,37 @@ function renderAll() {
     applyColVis();
   }
 
-  // ── Goalie table ──
-  if (showGoalieTable) {
+  // ── Goalie table (All/F/D view: shown below skater table) ──
+  if (showGoalieTable && posFilter !== 'G') {
     goalieWrap.style.display = '';
     document.getElementById('goalieThead').innerHTML = goalieHeaderHTML();
     const sortedG = sortedGoalies(goalies);
-    // Mark active sort column in goalie header
     document.querySelectorAll('#goalieTable thead th[data-col]').forEach(th => {
       th.classList.remove('sorted-asc', 'sorted-desc');
       if (th.dataset.col === goalieSortCol) th.classList.add(goalieSortDir === 'asc' ? 'sorted-asc' : 'sorted-desc');
     });
     const gtbody = document.getElementById('goalieTbody');
     if (!sortedG.length) {
-      gtbody.innerHTML = '<tr><td colspan="17"><div class="empty-state"><div class="icon">🔍</div>No goalies match your filters.</div></td></tr>';
+      gtbody.innerHTML = '<tr><td colspan="15"><div class="empty-state"><div class="icon">🔍</div>No goalies match your filters.</div></td></tr>';
     } else {
       gtbody.innerHTML = sortedG.map((p, i) => buildRowHTML(p, i + 1)).join('');
     }
-  } else {
+  } else if (posFilter === 'G') {
+    // G-only filter: put goalie table in the main slot, hide the separate goalie wrap
     goalieWrap.style.display = 'none';
-  }
-
-  // When G-only filter, replace skater table with goalie table
-  if (posFilter === 'G') {
     const sortedG = sortedGoalies(goalies);
     document.getElementById('playerThead').innerHTML = goalieHeaderHTML();
     document.querySelectorAll('#playerTable thead th[data-col]').forEach(th => {
       th.classList.remove('sorted-asc', 'sorted-desc');
       if (th.dataset.col === goalieSortCol) th.classList.add(goalieSortDir === 'asc' ? 'sorted-asc' : 'sorted-desc');
     });
-    document.getElementById('playerTbody').innerHTML = sortedG.map((p, i) => buildRowHTML(p, i + 1)).join('');
+    const tbody = document.getElementById('playerTbody');
+    if (!sortedG.length) {
+      tbody.innerHTML = '<tr><td colspan="15"><div class="empty-state"><div class="icon">🔍</div>No goalies match your filters.</div></td></tr>';
+    } else {
+      tbody.innerHTML = sortedG.map((p, i) => buildRowHTML(p, i + 1)).join('');
+    }
+  } else {
     goalieWrap.style.display = 'none';
   }
 
@@ -1090,6 +1084,36 @@ function renderCards(filtered) {
     const pv       = getPV(p);
     const pc       = pvClass(pv);
     const aav      = p.aav ? `$${parseFloat(p.aav).toFixed(2)}M` : '—';
+    const isGoalie = p.pos === 'G';
+    const gs       = isGoalie ? getGoalieStats(p) : {};
+    const statBlock = isGoalie ? `
+      <div class='card-stat-group'>
+        <div class='card-stat-label proj'>🥅 2026-27</div>
+        <div class='card-stat-row'>
+          <div class='card-stat-item'><div class='v proj-stat'>${p.proj_g ?? '—'}</div><div class='l'>W</div></div>
+          <div class='card-stat-item'><div class='v proj-stat'>${gs.l ?? '—'}</div><div class='l'>L</div></div>
+          <div class='card-stat-item'><div class='v proj-stat'>${gs.gaa ?? '—'}</div><div class='l'>GAA</div></div>
+          <div class='card-stat-item'><div class='v proj-stat'>${gs.svp != null ? gs.svp.toFixed(3) : '—'}</div><div class='l'>SV%</div></div>
+        </div>
+      </div>` : `
+      <div class='card-stat-group'>
+        <div class='card-stat-label last'>📅 2025-26</div>
+        <div class='card-stat-row'>
+          <div class='card-stat-item'><div class='v last-stat'>${p.last_g ?? '—'}</div><div class='l'>G</div></div>
+          <div class='card-stat-item'><div class='v last-stat'>${p.last_a ?? '—'}</div><div class='l'>A</div></div>
+          <div class='card-stat-item'><div class='v last-pts'>${p.last_pts ?? '—'}</div><div class='l'>PTS</div></div>
+          <div class='card-stat-item'><div class='v ppg-last'>${ppg(p.last_pts, p.last_gp)}</div><div class='l'>PPG</div></div>
+        </div>
+      </div>
+      <div class='card-stat-group'>
+        <div class='card-stat-label proj'>🎯 2026-27</div>
+        <div class='card-stat-row'>
+          <div class='card-stat-item'><div class='v proj-stat'>${p.proj_g ?? '—'}</div><div class='l'>G</div></div>
+          <div class='card-stat-item'><div class='v proj-stat'>${p.proj_a ?? '—'}</div><div class='l'>A</div></div>
+          <div class='card-stat-item'><div class='v proj-pts'>${p.proj_pts ?? '—'}</div><div class='l'>PTS</div></div>
+          <div class='card-stat-item'><div class='v ppg-proj'>${ppg(p.proj_pts, p.proj_gp)}</div><div class='l'>PPG</div></div>
+        </div>
+      </div>`;
     return `<div class='player-card ${tierClass(p.tier)}'>
       <div class='card-header'>
         <span class='card-rank'>${p.rank}</span>
@@ -1102,28 +1126,7 @@ function renderCards(filtered) {
           <span class='pos-tag pos-${p.pos}'>${p.pos}</span>
         </div>
       </div>
-      <div class='card-body'>
-        <div class='card-stats'>
-          <div class='card-stat-group'>
-            <div class='card-stat-label last'>📅 2025-26</div>
-            <div class='card-stat-row'>
-              <div class='card-stat-item'><div class='v last-pts'>${p.last_pts ?? '—'}</div><div class='l'>PTS</div></div>
-              <div class='card-stat-item'><div class='v last-stat'>${p.last_g ?? '—'}</div><div class='l'>G</div></div>
-              <div class='card-stat-item'><div class='v last-stat'>${p.last_a ?? '—'}</div><div class='l'>A</div></div>
-              <div class='card-stat-item'><div class='v ppg-last'>${ppg(p.last_pts, p.last_gp)}</div><div class='l'>PPG</div></div>
-            </div>
-          </div>
-          <div class='card-stat-group'>
-            <div class='card-stat-label proj'>🎯 2026-27</div>
-            <div class='card-stat-row'>
-              <div class='card-stat-item'><div class='v proj-pts'>${p.proj_pts ?? '—'}</div><div class='l'>PTS</div></div>
-              <div class='card-stat-item'><div class='v proj-stat'>${p.proj_g ?? '—'}</div><div class='l'>G</div></div>
-              <div class='card-stat-item'><div class='v proj-stat'>${p.proj_a ?? '—'}</div><div class='l'>A</div></div>
-              <div class='card-stat-item'><div class='v ppg-proj'>${ppg(p.proj_pts, p.proj_gp)}</div><div class='l'>PPG</div></div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <div class='card-body'><div class='card-stats'>${statBlock}</div></div>
       <div class='card-footer'>
         <span class='tier ${tierClass(p.tier)}'>${p.tier ?? '—'}</span>
         <span class='trend trend-${trend}'>${trendLbl}</span>
@@ -1435,7 +1438,7 @@ function switchTab(name, btn) {
 
 // ── CSV EXPORT ────────────────────────────────────────────
 function downloadCSV() {
-  const headers = ['Rank','Player','Team','Pos','Age','Last GP','Last G','Last A','Last PTS','Last PPG','Proj GP','Proj G','Proj A','Proj PTS','Upside','Proj PPG','AAV','PP%','Tier','Trend','Efficiency','Notes'];
+  const headers = ['Rank','Player','Team','Pos','Age','Last GP','Last G','Last A','Last PTS','Last PPG','Proj GP','Proj G','Proj A','Proj PTS','Proj PPG','Upside','AAV','PP%','Tier','Trend','Efficiency','Notes'];
   const rows = sorted(getFiltered()).map(p => {
     const trend = getTrend(p);
     const diff  = p.proj_pts - (p.last_pts || p.proj_pts);
