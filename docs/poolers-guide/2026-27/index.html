@@ -659,9 +659,10 @@ async function init() {
   });
   normalizePVs(allPlayers);
 
-  // Build tier pills Tier 1 … Tier 11 (by number, not full label)
-  const tierNumsSeen = [...new Set(allPlayers.map(p => tierNum(p.tier)).filter(Boolean))]
-    .sort((a, b) => parseInt(a) - parseInt(b));
+  // Build tier pills Tier 1 … Tier 11 with full-label tooltip
+  const tierLabelMap = {};
+  allPlayers.forEach(p => { if (p.tier) { const n = tierNum(p.tier); if (n && !tierLabelMap[n]) tierLabelMap[n] = p.tier; } });
+  const tierNumsSeen = Object.keys(tierLabelMap).sort((a, b) => parseInt(a) - parseInt(b));
   const tierPills = document.getElementById('tierPills');
   tierNumsSeen.forEach(n => {
     const btn = document.createElement('button');
@@ -669,6 +670,7 @@ async function init() {
     btn.dataset.filter = 'tier';
     btn.dataset.value = n;
     btn.textContent = 'Tier ' + n;
+    btn.title = tierLabelMap[n] || ('Tier ' + n);
     btn.onclick = function() { setPill(this, 'tier'); };
     tierPills.appendChild(btn);
   });
@@ -1178,10 +1180,10 @@ function renderSleepers() {
   const rookies     = all.filter(p => p.aav == null || p.aav <= 1.5);
 
   function cardHtml(p, i, color) {
-    return `<div class='sleeper-card' style='border-color:${color}'>
+    return `<div class='sleeper-card' style='border-color:${color};cursor:pointer' onclick='openModal(${p.id})'>
     <div class='sleeper-rank'><span style='color:${color}'>●</span> Sleeper Pick #${i + 1}</div>
     <div class='sleeper-name'>${p.name}</div>
-    <div class='sleeper-meta'>${p.team} · ${p.pos} · Age ${p.age ?? 'N/A'} · ${p.proj_gp} GP${p.aav ? ' · $' + p.aav + 'M' : ' · ELC'}</div>
+    <div class='sleeper-meta'>${p.team} · ${p.pos} · Age ${p.age ?? 'N/A'} · ${p.proj_gp} GP${p.aav ? ' · $' + p.aav + 'M' : ' · ELC'}${p.last_gp ? ' · ' + p.last_gp + ' GP last yr' : ''}</div>
     <div class='sleeper-stats'>
       <div class='sleeper-stat'><div class='val proj-pts'>${p.proj_pts}</div><div class='lbl'>PTS</div></div>
       <div class='sleeper-stat'><div class='val ppg-proj'>${ppg(p.proj_pts, p.proj_gp)}</div><div class='lbl'>PPG</div></div>
@@ -1242,10 +1244,10 @@ function renderImprovers() {
     grid.innerHTML = `<div class='empty-state'><div class='icon'>📈</div>No last-season data yet — this tab will populate once 2025-26 stats are entered.</div>`;
     return;
   }
-  grid.innerHTML = eligible.map((p, i) => `<div class='sleeper-card' style='border-color:#86efac'>
+  grid.innerHTML = eligible.map((p, i) => `<div class='sleeper-card' style='border-color:#86efac;cursor:pointer' onclick='openModal(${p.id})'>
     <div class='sleeper-rank' style='color:#15803d'>📈 Improver #${i + 1}</div>
     <div class='sleeper-name'>${p.name}</div>
-    <div class='sleeper-meta'>${p.team} · ${p.pos} · Age ${p.age ?? 'N/A'}${p.aav ? ' · $' + p.aav + 'M' : ''}</div>
+    <div class='sleeper-meta'>${p.team} · ${p.pos} · Age ${p.age ?? 'N/A'}${p.aav ? ' · $' + p.aav + 'M' : ''} · ${p.last_gp} GP last yr</div>
     <div class='sleeper-stats'>
       <div class='sleeper-stat'><div class='val last-pts'>${p.last_pts}</div><div class='lbl'>Last PTS</div></div>
       <div class='sleeper-stat'><div class='val proj-pts'>${p.proj_pts}</div><div class='lbl'>Proj PTS</div></div>
@@ -1268,10 +1270,10 @@ function renderRegression() {
     grid.innerHTML = `<div class='empty-state'><div class='icon'>📉</div>No last-season data yet — this tab will populate once 2025-26 stats are entered.</div>`;
     return;
   }
-  grid.innerHTML = eligible.map((p, i) => `<div class='sleeper-card' style='border-color:#fca5a5;background:#fff8f8'>
+  grid.innerHTML = eligible.map((p, i) => `<div class='sleeper-card' style='border-color:#fca5a5;background:#fff8f8;cursor:pointer' onclick='openModal(${p.id})'>
     <div class='sleeper-rank' style='color:#dc2626'>📉 Regression #${i + 1}</div>
     <div class='sleeper-name'>${p.name}</div>
-    <div class='sleeper-meta'>${p.team} · ${p.pos} · Age ${p.age ?? 'N/A'}${p.aav ? ' · $' + p.aav + 'M' : ''}</div>
+    <div class='sleeper-meta'>${p.team} · ${p.pos} · Age ${p.age ?? 'N/A'}${p.aav ? ' · $' + p.aav + 'M' : ''} · ${p.last_gp} GP last yr</div>
     <div class='sleeper-stats'>
       <div class='sleeper-stat'><div class='val last-pts'>${p.last_pts}</div><div class='lbl'>Last PTS</div></div>
       <div class='sleeper-stat'><div class='val proj-pts'>${p.proj_pts}</div><div class='lbl'>Proj PTS</div></div>
