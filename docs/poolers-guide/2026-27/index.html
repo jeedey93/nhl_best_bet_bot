@@ -1262,7 +1262,7 @@ function renderBusts() {
 // ── RENDER IMPROVERS ─────────────────────────────────────
 function renderImprovers() {
   const grid = document.getElementById('improversGrid');
-  const eligible = allPlayers.filter(p => p.last_pts != null && p.proj_pts != null)
+  const eligible = allPlayers.filter(p => p.last_pts != null && p.proj_pts != null && (p.last_gp ?? 0) >= 40)
     .map(p => ({ ...p, delta: p.proj_pts - p.last_pts }))
     .filter(p => p.delta > 0)
     .sort((a, b) => b.delta - a.delta)
