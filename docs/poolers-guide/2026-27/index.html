@@ -812,6 +812,7 @@ function sorted(players) {
     if (sortCol === '_goalie_otl') return getGoalieStats(p).otl ?? 0;
     if (sortCol === '_goalie_gaa') return getGoalieStats(p).gaa ?? 99;
     if (sortCol === '_goalie_svp') return getGoalieStats(p).svp ?? 0;
+    if (sortCol === 'tier') return parseInt(tierNum(p.tier)) || 99;
     return p[sortCol];
   };
   return [...players].sort((a, b) => {
