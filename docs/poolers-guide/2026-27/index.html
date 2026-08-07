@@ -1169,30 +1169,6 @@ function renderCards(filtered) {
   }).join('');
 }
 
-// ── RENDER BY TEAM ────────────────────────────────────────
-function renderByTeam() {
-  const teams = {};
-  allPlayers.forEach(p => { if (!teams[p.team]) teams[p.team] = []; teams[p.team].push(p); });
-  const grid = document.getElementById('teamGrid');
-  grid.innerHTML = Object.keys(teams).sort().map(team => {
-    const players = teams[team].sort((a, b) => b.proj_pts - a.proj_pts);
-    const rows = players.map(p => `<tr>
-      <td><span class='player-name' style='font-size:0.88em'>${p.name}</span></td>
-      <td><span class='pos-tag pos-${p.pos}'>${p.pos}</span></td>
-      <td class='last-pts'>${p.last_pts ?? '—'}</td>
-      <td class='proj-pts'>${p.proj_pts}</td>
-      <td><span class='ppg-proj'>${ppg(p.proj_pts, p.proj_gp)}</span></td>
-      <td><span class='tier ${tierClass(p.tier)}' style='font-size:0.7em'>${p.tier ?? '—'}</span></td>
-    </tr>`).join('');
-    return `<div class='team-card'>
-      <div class='team-card-header'><span class='team-abbr'>${team}</span><span class='team-count'>${players.length} players</span></div>
-      <div style='overflow-x:auto'><table>
-        <thead><tr><th>Player</th><th>Pos</th><th>Last PTS</th><th>Proj PTS</th><th>PPG</th><th>Tier</th></tr></thead>
-        <tbody>${rows}</tbody>
-      </table></div>
-    </div>`;
-  }).join('');
-}
 
 // ── RENDER SLEEPERS ───────────────────────────────────────
 function renderSleepers() {
