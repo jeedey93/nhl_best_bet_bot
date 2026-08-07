@@ -562,7 +562,10 @@ td.col-proj-last  { border-right: 2px solid #bbf7d0 !important; }
     <div style='background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:0.83em;color:#15803d;line-height:1.6'>
       <strong>🌟 What is a Sleeper?</strong> An under-the-radar player who combines strong points-per-dollar efficiency (proj PTS ÷ √AAV ≥ 25) with a ceiling at least 20 points above their base projection — and not already ranked in the top 30. These are players with a real breakout scenario: a new line, a contract year, a return from injury, or simply a conservative projection. High reward potential, low draft cost. Best targeted in the middle and later rounds.
     </div>
+    <h3 style='font-size:0.95em;font-weight:800;color:#065f46;margin-bottom:10px;margin-top:4px'>💰 Established Players (AAV &gt; $1.5M)</h3>
     <div id='sleepersGrid' class='sleepers-grid'></div>
+    <h3 style='font-size:0.95em;font-weight:800;color:#1d4ed8;margin-bottom:10px;margin-top:24px'>🧢 Rookies &amp; Entry-Level (AAV ≤ $1.5M)</h3>
+    <div id='sleepersRookieGrid' class='sleepers-grid'></div>
   </div>
 
   <div id='tab-busts' class='tab-pane'>
@@ -1199,21 +1202,34 @@ function renderByTeam() {
 
 // ── RENDER SLEEPERS ───────────────────────────────────────
 function renderSleepers() {
-  const sleepers = allPlayers.filter(p => parseInt(tierNum(p.tier)) >= 8 && p.pos !== 'G')
+  const all = allPlayers.filter(p => parseInt(tierNum(p.tier)) >= 8 && p.pos !== 'G')
     .sort((a, b) => (b.proj_pts || 0) - (a.proj_pts || 0));
-  const grid = document.getElementById('sleepersGrid');
-  if (!sleepers.length) { grid.innerHTML = '<div class="empty-state"><div class="icon">🌟</div>No sleepers yet.</div>'; return; }
-  grid.innerHTML = sleepers.map((p, i) => `<div class='sleeper-card'>
-    <div class='sleeper-rank'><span style='color:#34d399'>●</span> Sleeper Pick #${i + 1}</div>
+  const established = all.filter(p => p.aav != null && p.aav > 1.5);
+  const rookies     = all.filter(p => p.aav == null || p.aav <= 1.5);
+
+  function cardHtml(p, i, color) {
+    return `<div class='sleeper-card' style='border-color:${color}'>
+    <div class='sleeper-rank'><span style='color:${color}'>●</span> Sleeper Pick #${i + 1}</div>
     <div class='sleeper-name'>${p.name}</div>
-    <div class='sleeper-meta'>${p.team} · ${p.pos} · Age ${p.age ?? 'N/A'} · ${p.proj_gp} GP${p.aav ? ' · $' + p.aav + 'M' : ''}</div>
+    <div class='sleeper-meta'>${p.team} · ${p.pos} · Age ${p.age ?? 'N/A'} · ${p.proj_gp} GP${p.aav ? ' · $' + p.aav + 'M' : ' · ELC'}</div>
     <div class='sleeper-stats'>
       <div class='sleeper-stat'><div class='val proj-pts'>${p.proj_pts}</div><div class='lbl'>PTS</div></div>
       <div class='sleeper-stat'><div class='val ppg-proj'>${ppg(p.proj_pts, p.proj_gp)}</div><div class='lbl'>PPG</div></div>
       <div class='sleeper-stat'><div class='val last-pts'>${p.last_pts ?? '—'}</div><div class='lbl'>Last PTS</div></div>
     </div>
     <div class='sleeper-note'>"${p.notes}"</div>
-  </div>`).join('');
+  </div>`;
+  }
+
+  const grid = document.getElementById('sleepersGrid');
+  grid.innerHTML = established.length
+    ? established.map((p, i) => cardHtml(p, i, '#34d399')).join('')
+    : '<div class="empty-state"><div class="icon">🌟</div>No established sleepers yet.</div>';
+
+  const rookieGrid = document.getElementById('sleepersRookieGrid');
+  rookieGrid.innerHTML = rookies.length
+    ? rookies.map((p, i) => cardHtml(p, i, '#60a5fa')).join('')
+    : '<div class="empty-state"><div class="icon">🧢</div>No rookie sleepers yet.</div>';
 }
 
 // ── RENDER BUSTS ─────────────────────────────────────────

@@ -48,7 +48,7 @@ insert into poolers_players (rank,name,team,pos,age,aav,pp_pct,last_gp,last_g,la
 (13,'Elias Pettersson','VAN','C',27,11.6,78,72,26,38,64,75,36,48,84,'Top','Bounce-back after down year'),
 (14,'Brayden Point','TBL','C',30,9.5,76,65,32,38,70,72,38,44,82,'Top','Injury risk, but elite when healthy'),
 (15,'Jack Hughes','NJD','C',25,8.0,72,70,29,40,69,75,35,46,81,'Top','Team around him improving'),
-(16,'Quinn Hughes','VAN','D',26,7.85,86,78,18,54,72,80,22,58,80,'Top','Top D2 pick value'),
+(16,'Quinn Hughes','VAN','D',26,7.85,86,78,7,69,76,80,22,58,80,'Top','Top D2 pick value'),
 (17,'Brady Tkachuk','OTT','LW',26,9.5,60,82,35,34,69,82,38,38,76,'Mid','Physical and consistent'),
 (18,'Tage Thompson','BUF','C',27,7.14,65,78,38,29,67,79,42,33,75,'Mid','Volume shooter on bad team'),
 (19,'Alex DeBrincat','DET','LW',28,9.5,70,82,36,28,64,80,40,33,73,'Mid','Goal scorer, weak team limits pts'),
