@@ -1379,12 +1379,28 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
 
 def main():
     """Main execution"""
-    print("🔍 Scanning for results files...")
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--season", help="Archive season slug, e.g. 2025-26")
+    args = parser.parse_args()
+
+    season = args.season  # e.g. "2025-26" or None
+
+    if season:
+        nhl_dir = RESULTS_DIR / "nhl" / season
+        nba_dir = RESULTS_DIR / "nba" / season
+        summary_override = RESULTS_DIR / f"total_results_summary_{season}.txt"
+        output_file = BASE_DIR / "docs" / f"performance-{season}.html"
+        print(f"🔍 Scanning archive for season {season}...")
+    else:
+        nhl_dir = RESULTS_DIR / "nhl"
+        nba_dir = RESULTS_DIR / "nba"
+        summary_override = None
+        output_file = OUTPUT_FILE
+        print("🔍 Scanning for results files...")
 
     all_data = []
 
-    # Parse NHL results
-    nhl_dir = RESULTS_DIR / "nhl"
     if nhl_dir.exists():
         for file in nhl_dir.glob("*.txt"):
             data = parse_results_file(file)
@@ -1392,8 +1408,6 @@ def main():
                 all_data.append(data)
                 print(f"  ✓ Parsed {file.name}")
 
-    # Parse NBA results
-    nba_dir = RESULTS_DIR / "nba"
     if nba_dir.exists():
         for file in nba_dir.glob("*.txt"):
             data = parse_results_file(file)
@@ -1403,15 +1417,113 @@ def main():
 
     if not all_data:
         print("❌ No results data found!")
+        if not season:
+            # Write a minimal placeholder page for the current season with archive link
+            nav_path = BASE_DIR / "docs" / "nav.html"
+            nav_html = nav_path.read_text(encoding="utf-8") if nav_path.exists() else ""
+            placeholder = f"""<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='UTF-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+<title>Performance Dashboard | Parieur Discipliné</title>
+<link rel='icon' type='image/png' href='parieur_discipline_icon_1024.png'>
+<style>
+* {{ margin: 0; padding: 0; box-sizing: border-box; }}
+body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8fafc; color: #1e293b; }}
+.hero {{ background: linear-gradient(135deg, #1e3a5f 0%, #2d6a9f 100%); color: white; padding: 60px 20px; text-align: center; }}
+.hero h1 {{ font-size: 2.5em; font-weight: 800; margin-bottom: 12px; }}
+.hero p {{ font-size: 1.1em; opacity: 0.85; }}
+.container {{ max-width: 900px; margin: 60px auto; padding: 0 20px; text-align: center; }}
+.card {{ background: white; border-radius: 16px; padding: 40px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); border: 1px solid #e2e8f0; }}
+.archive-link {{ display: inline-block; margin-top: 24px; padding: 14px 32px; background: linear-gradient(135deg, #16a34a, #15803d); color: white; text-decoration: none; border-radius: 10px; font-weight: 700; font-size: 1em; }}
+</style>
+</head>
+<body>
+{nav_html}
+<div style='background:#f0fdf4;border-bottom:2px solid #86efac;padding:10px 20px;text-align:center;font-size:0.95em;font-weight:600;color:#166534;'>
+Showing 2026-27 season &nbsp;·&nbsp; <a href='performance-2025-26.html' style='color:#16a34a;text-decoration:underline;'>View 2025-26 Season Archive →</a>
+</div>
+<div class='hero'>
+  <h1>📊 Performance Dashboard</h1>
+  <p>2026-27 season results will appear here once games are tracked</p>
+</div>
+<div class='container'>
+  <div class='card'>
+    <div style='font-size:3em;margin-bottom:16px;'>🏒🏀</div>
+    <h2 style='font-size:1.6em;font-weight:800;color:#1e293b;margin-bottom:12px;'>New Season Starting Soon</h2>
+    <p style='color:#64748b;font-size:1.05em;line-height:1.7;'>The 2026-27 NHL and NBA seasons are just getting underway. Daily results will populate this dashboard as games are tracked.</p>
+    <a class='archive-link' href='performance-2025-26.html'>📁 View 2025-26 Season Archive</a>
+  </div>
+</div>
+</body>
+</html>"""
+            output_file.write_text(placeholder)
+            print(f"✅ Placeholder dashboard created: {output_file}")
         return
+
+    # Temporarily swap summary path if using an archive season
+    global_summary = BASE_DIR / "data" / "bot_results" / "total_results_summary.txt"
+    if summary_override and summary_override.exists():
+        # Monkey-patch: generate_dashboard_html reads the global path; swap it
+        import shutil, tempfile
+        tmp = Path(tempfile.mktemp(suffix=".txt"))
+        shutil.copy(summary_override, tmp)
+        bak = None
+        if global_summary.exists():
+            bak = Path(tempfile.mktemp(suffix=".txt"))
+            shutil.copy(global_summary, bak)
+        shutil.copy(tmp, global_summary)
 
     print(f"\n📊 Generating dashboard from {len(all_data)} result files...")
     html = generate_dashboard_html(all_data)
 
-    # Write HTML file
-    OUTPUT_FILE.write_text(html)
-    print(f"✅ Dashboard created: {OUTPUT_FILE}")
-    print(f"🌐 View at: file://{OUTPUT_FILE.absolute()}")
+    # Restore original summary if we swapped it
+    if summary_override and summary_override.exists():
+        if bak:
+            shutil.copy(bak, global_summary)
+            bak.unlink(missing_ok=True)
+        else:
+            global_summary.unlink(missing_ok=True)
+        tmp.unlink(missing_ok=True)
+
+    # Patch title and hero for archive pages
+    if season:
+        html = html.replace(
+            "<title>Performance Dashboard - Historical Betting Results | Parieur Discipliné</title>",
+            f"<title>Performance Dashboard {season} Season | Parieur Discipliné</title>"
+        )
+        html = html.replace(
+            "<h1>📊 Performance Dashboard</h1>",
+            f"<h1>📊 Performance Dashboard — {season} Season</h1>"
+        )
+        html = html.replace(
+            "<p>Track our AI prediction performance with detailed statistics and historical results</p>",
+            f"<p>Archived results for the {season} NHL &amp; NBA season</p>"
+        )
+        # Add back-link banner after the hero div
+        back_banner = (
+            "<div style='background:#fffbeb;border-bottom:2px solid #fbbf24;padding:10px 20px;"
+            "text-align:center;font-size:0.95em;font-weight:600;color:#78350f;'>"
+            f"Viewing archived {season} season &nbsp;·&nbsp; "
+            "<a href='performance.html' style='color:#d97706;text-decoration:underline;'>"
+            "← Current Season</a></div>"
+        )
+        html = html.replace("<div class='container'>", back_banner + "\n<div class='container'>", 1)
+    else:
+        # Add archive link to current season page
+        archive_banner = (
+            "<div style='background:#f0fdf4;border-bottom:2px solid #86efac;padding:10px 20px;"
+            "text-align:center;font-size:0.95em;font-weight:600;color:#166534;'>"
+            "Showing 2026-27 season &nbsp;·&nbsp; "
+            "<a href='performance-2025-26.html' style='color:#16a34a;text-decoration:underline;'>"
+            "View 2025-26 Season Archive →</a></div>"
+        )
+        html = html.replace("<div class='container'>", archive_banner + "\n<div class='container'>", 1)
+
+    output_file.write_text(html)
+    print(f"✅ Dashboard created: {output_file}")
+    print(f"🌐 View at: file://{output_file.absolute()}")
 
 if __name__ == "__main__":
     main()

@@ -1984,9 +1984,8 @@ def update_latest_predictions(preliminary=False):
     season_net_units = nhl_all["net_units"] + nba_all["net_units"]
     season_units_display = f"+{season_net_units:.2f} units" if season_net_units >= 0 else f"{season_net_units:.2f} units"
 
+    content += "<div style='text-align:center;margin-bottom:8px;'><span style='font-size:0.8em;font-weight:700;color:#6b7280;letter-spacing:1px;text-transform:uppercase;'>2026-27 Season</span></div>\n"
     content += "<div class='stats-grid'>\n"
-
-    # Yesterday's Win Rate Card with Units
     content += "<div class='stat-card'>\n"
     content += "<div class='stat-label'>Yesterday</div>\n"
     content += f"<div class='stat-value'>{yesterday_wr}</div>\n"
@@ -2002,9 +2001,8 @@ def update_latest_predictions(preliminary=False):
     content += f"<div class='stat-record' style='margin-top: 5px; color: {'#10b981' if week_net_units >= 0 else '#ef4444'}; font-weight: 600;'>{week_units_display}</div>\n"
     content += "</div>\n"
 
-    # All Time Win Rate Card with Units
     content += "<div class='stat-card'>\n"
-    content += "<div class='stat-label'>All Time</div>\n"
+    content += "<div class='stat-label'>2026-27 Season</div>\n"
     content += f"<div class='stat-value'>{overall_wr}</div>\n"
     content += f"<div class='stat-record'>{overall_total_w}W - {overall_total_l}L</div>\n"
     content += f"<div class='stat-record' style='margin-top: 5px; color: {'#10b981' if season_net_units >= 0 else '#ef4444'}; font-weight: 600;'>{season_units_display}</div>\n"
