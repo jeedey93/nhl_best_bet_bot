@@ -410,7 +410,7 @@ def get_nhl_team_season_stats(team_name):
         return None
 
 
-def get_head_to_head_stats(team1_name, team2_name, season='20252026'):
+def get_head_to_head_stats(team1_name, team2_name, season='20262027'):
     """
     Get head-to-head stats between two teams for the current season.
 
@@ -1409,7 +1409,7 @@ def get_nhl_special_teams_stats():
     Returns dict mapping team abbreviations to their PP% and PK%.
     """
     try:
-        stats_url = 'https://api.nhle.com/stats/rest/en/team/summary?cayenneExp=seasonId=20252026'
+        stats_url = 'https://api.nhle.com/stats/rest/en/team/summary?cayenneExp=seasonId=20262027'
         response = requests.get(stats_url, timeout=10)
         response.raise_for_status()
         data = response.json()

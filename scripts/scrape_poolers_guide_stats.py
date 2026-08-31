@@ -34,7 +34,7 @@ if not SUPABASE_URL or not SUPABASE_KEY:
 from supabase import create_client
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-SEASON   = "20252026"
+SEASON   = "20262027"
 GAMETYPE = 2
 
 NHL_TEAMS = [

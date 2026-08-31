@@ -267,7 +267,7 @@ def get_nhl_team_last_games(team_name, last_n_games=10):
         return None
 
 
-def get_head_to_head_stats(team1_name, team2_name, season='20252026'):
+def get_head_to_head_stats(team1_name, team2_name, season='20262027'):
     """
     Get head-to-head stats between two teams for the current season.
     """
@@ -460,7 +460,7 @@ def get_nhl_special_teams_stats():
     Returns dict mapping full team names (odds API format) to their PP% and PK%.
     """
     try:
-        stats_url = 'https://api.nhle.com/stats/rest/en/team/summary?cayenneExp=seasonId=20252026'
+        stats_url = 'https://api.nhle.com/stats/rest/en/team/summary?cayenneExp=seasonId=20262027'
         response = requests.get(stats_url, timeout=10)
         response.raise_for_status()
         data = response.json()
@@ -566,7 +566,7 @@ def get_rest_days_for_team(team_name):
         return None
 
 
-def get_playoff_series_status(season='20252026'):
+def get_playoff_series_status(season='20262027'):
     """
     Fetch current NHL playoff series status from the commissioner page GitHub Issue
     (the same source updated manually via the commissioner UI).
@@ -764,7 +764,7 @@ def _get_playoff_series_status_from_nhl_api():
         return f"Playoff series status: Error fetching data ({e})"
 
 
-def get_playoff_goalie_stats(home_team, away_team, starting_goalies, season='20252026'):
+def get_playoff_goalie_stats(home_team, away_team, starting_goalies, season='20262027'):
     """
     For both teams' confirmed starting goalies, fetch their playoff-specific stats.
     Returns a formatted string ready to inject into {{PLAYOFF_GOALIE_STATS}}.

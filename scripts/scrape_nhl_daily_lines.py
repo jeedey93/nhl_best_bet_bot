@@ -133,7 +133,7 @@ def scrape_nhl_daily_lines(save_to_files=True):
         print(f"⚠️ Skipping daily lines scraping - before 2pm Montreal time (current: {current_time.strftime('%I:%M %p')})")
         return {}
 
-    url = "https://www.nhl.com/news/nhl-lineup-projections-2025-26-season"
+    url = "https://www.nhl.com/news/nhl-lineup-projections-2026-27-season"
     response = requests.get(url)
     response.raise_for_status()
     soup = BeautifulSoup(response.text, "html.parser")
