@@ -21,7 +21,7 @@ ROOT       = Path(__file__).resolve().parent.parent
 INPUT_FILE = ROOT / "data" / "predictions" / "dual_bet_of_the_day.txt"
 LOGO_FILE  = ROOT / "docs" / "parieur_discipline_icon_1024.png"
 LOGOS_DIR  = ROOT / "docs" / "logos"
-DOCS_DIR   = ROOT / "docs"
+DOCS_DIR   = ROOT / "docs" / "picks"
 TZ         = ZoneInfo("America/Toronto")
 
 # ── Colours ───────────────────────────────────────────────────────────────────
