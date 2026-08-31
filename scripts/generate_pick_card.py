@@ -21,7 +21,8 @@ ROOT       = Path(__file__).resolve().parent.parent
 INPUT_FILE = ROOT / "data" / "predictions" / "dual_bet_of_the_day.txt"
 LOGO_FILE  = ROOT / "docs" / "parieur_discipline_icon_1024.png"
 LOGOS_DIR  = ROOT / "docs" / "logos"
-DOCS_DIR   = ROOT / "docs" / "picks"
+DOCS_DIR      = ROOT / "docs" / "picks"
+ARCHIVE_DIR   = DOCS_DIR / "archive"
 TZ         = ZoneInfo("America/Toronto")
 
 # ── Colours ───────────────────────────────────────────────────────────────────
@@ -366,12 +367,13 @@ def main():
     date_str   = today.strftime("%B %d, %Y").upper()
     date_slug  = today.strftime("%Y-%m-%d")
     DOCS_DIR.mkdir(exist_ok=True)
+    ARCHIVE_DIR.mkdir(exist_ok=True)
 
     cards = []
     for pick in picks:
         sport = pick["sport"].lower()
         card  = draw_card(pick, date_str, brand_logo)
-        out_dated  = DOCS_DIR / f"pick_card_{sport}_{date_slug}.png"
+        out_dated  = ARCHIVE_DIR / f"pick_card_{sport}_{date_slug}.png"
         out_latest = DOCS_DIR / f"pick_card_{sport}_latest.png"
         card.save(out_dated,  "PNG", optimize=True)
         card.save(out_latest, "PNG", optimize=True)
@@ -387,7 +389,7 @@ def main():
         for c in cards:
             combined.paste(c, (0, y))
             y += c.height
-        out_dual = DOCS_DIR / f"pick_card_dual_{date_slug}.png"
+        out_dual = ARCHIVE_DIR / f"pick_card_dual_{date_slug}.png"
         combined.save(out_dual, "PNG", optimize=True)
         combined.save(DOCS_DIR / "pick_card_latest.png", "PNG", optimize=True)
         print(f"✅ Dual card  → {out_dual.name}")
