@@ -46,6 +46,35 @@
       gap: 1rem;
     }
     .nav-brand { font-family: 'Bebas Neue', cursive; font-size: 1.3rem; color: var(--gold); letter-spacing: 4px; text-decoration: none; }
+    .site-nav-links { display: flex; align-items: center; gap: 0.5rem; }
+    .site-nav-links a { font-family: 'Barlow Condensed', sans-serif; font-size: 1rem; font-weight: 600; color: var(--silver); text-decoration: none; padding: 0.3rem 0.8rem; border-radius: 5px; letter-spacing: 1.5px; transition: color 0.15s, background 0.15s; }
+    .site-nav-links a:hover { color: white; background: rgba(255,255,255,0.07); }
+    .site-nav-links a.active { color: var(--gold); background: rgba(255,184,28,0.1); }
+    .nav-hamburger {
+      display: none; flex-direction: column; justify-content: center; gap: 5px;
+      width: 36px; height: 36px; cursor: pointer; border: none;
+      background: none; padding: 6px; border-radius: 6px;
+    }
+    .nav-hamburger span { display: block; height: 2px; background: var(--silver); border-radius: 2px; transition: background 0.15s; }
+    .nav-hamburger:hover span { background: white; }
+    .nav-drawer {
+      display: none; position: fixed; top: var(--nav-h); left: 0; right: 0; bottom: 0;
+      z-index: 99; background: rgba(7,17,31,0.97); backdrop-filter: blur(16px);
+      flex-direction: column; gap: 0.25rem; padding: 1.25rem 1.5rem;
+      border-top: 1px solid var(--line);
+    }
+    .nav-drawer.open { display: flex; }
+    .nav-drawer a {
+      font-family: 'Bebas Neue', cursive; font-size: 1.4rem; letter-spacing: 3px;
+      color: var(--silver); text-decoration: none; padding: 0.65rem 0.75rem;
+      border-radius: 8px; transition: color 0.15s, background 0.15s;
+    }
+    .nav-drawer a:hover { color: white; background: rgba(255,255,255,0.06); }
+    .nav-drawer a.active { color: var(--gold); background: rgba(255,184,28,0.08); }
+    @media (max-width: 700px) {
+      .site-nav-links { display: none; }
+      .nav-hamburger { display: flex; }
+    }
     .nav-league { font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 3px; color: white; }
     .nav-code { color: var(--gold); margin-left: 0.5rem; font-size: 0.85rem; }
 
@@ -634,15 +663,26 @@
 <nav class="site-nav">
   <div class="site-nav-inner">
     <a class="nav-brand" href="/pool.html">Parieur Discipliné</a>
-    <div style="display:flex;align-items:center;gap:0.5rem;">
-      <a href="/pool" style="font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:600;color:var(--silver);text-decoration:none;padding:0.3rem 0.8rem;border-radius:5px;letter-spacing:1.5px;transition:color 0.15s,background 0.15s;" onmouseover="this.style.color='white';this.style.background='rgba(255,255,255,0.07)'" onmouseout="this.style.color='';this.style.background=''">Home</a>
-      <a href="" id="nav-draft" style="font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:600;color:var(--silver);text-decoration:none;padding:0.3rem 0.8rem;border-radius:5px;letter-spacing:1.5px;transition:color 0.15s,background 0.15s;" onmouseover="this.style.color='white';this.style.background='rgba(255,255,255,0.07)'" onmouseout="this.style.color='';this.style.background=''">Draft</a>
-      <a href="" id="nav-live-draft" style="font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:600;color:var(--gold);background:rgba(255,184,28,0.1);text-decoration:none;padding:0.3rem 0.8rem;border-radius:5px;letter-spacing:1.5px;">Live Draft</a>
-      <a href="" id="nav-standings" style="font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:600;color:var(--silver);text-decoration:none;padding:0.3rem 0.8rem;border-radius:5px;letter-spacing:1.5px;transition:color 0.15s,background 0.15s;" onmouseover="this.style.color='white';this.style.background='rgba(255,255,255,0.07)'" onmouseout="this.style.color='';this.style.background=''">Standings</a>
-      <a href="" id="nav-settings" style="font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:600;color:var(--silver);text-decoration:none;padding:0.3rem 0.8rem;border-radius:5px;letter-spacing:1.5px;transition:color 0.15s,background 0.15s;" onmouseover="this.style.color='white';this.style.background='rgba(255,255,255,0.07)'" onmouseout="this.style.color='';this.style.background=''">Settings</a>
+    <div class="site-nav-links">
+      <a href="/pool">Home</a>
+      <a href="" id="nav-draft">Draft</a>
+      <a href="" id="nav-live-draft" class="active">Live Draft</a>
+      <a href="" id="nav-standings">Standings</a>
+      <a href="" id="nav-settings">Settings</a>
     </div>
+    <button class="nav-hamburger" id="hamburger" aria-label="Open menu" onclick="toggleDrawer()">
+      <span></span><span></span><span></span>
+    </button>
   </div>
 </nav>
+
+<div class="nav-drawer" id="nav-drawer">
+  <a href="/pool">Home</a>
+  <a href="" id="nav-drawer-draft">Draft</a>
+  <a href="" id="nav-drawer-live-draft" class="active">Live Draft</a>
+  <a href="" id="nav-drawer-standings">Standings</a>
+  <a href="" id="nav-drawer-settings">Settings</a>
+</div>
 
 <!-- ── Setup Screen ── -->
 <div id="setup-screen">
@@ -787,6 +827,19 @@
 </div>
 
 <script>
+  function toggleDrawer() {
+    const drawer = document.getElementById('nav-drawer');
+    const isOpen = drawer.classList.toggle('open');
+    document.getElementById('hamburger').setAttribute('aria-expanded', isOpen);
+    document.body.style.overflow = isOpen ? 'hidden' : '';
+  }
+  document.addEventListener('click', function(e) {
+    const drawer = document.getElementById('nav-drawer'), hamburger = document.getElementById('hamburger');
+    if (drawer && drawer.classList.contains('open') && !drawer.contains(e.target) && !hamburger.contains(e.target)) {
+      drawer.classList.remove('open'); document.body.style.overflow = '';
+    }
+  });
+
 // ══════════════════════════════════════════════════════════════════
 //  CONFIG
 // ══════════════════════════════════════════════════════════════════
@@ -855,6 +908,10 @@ let lastPickCount = 0;
   document.getElementById('nav-live-draft').href = `/pool/live-draft?league=${LEAGUE_CODE}`;
   document.getElementById('nav-standings').href = `/pool/standings?league=${LEAGUE_CODE}`;
   document.getElementById('nav-settings').href = `/pool/settings?league=${LEAGUE_CODE}`;
+  document.getElementById('nav-drawer-draft').href = `/pool/join?league=${LEAGUE_CODE}`;
+  document.getElementById('nav-drawer-live-draft').href = `/pool/live-draft?league=${LEAGUE_CODE}`;
+  document.getElementById('nav-drawer-standings').href = `/pool/standings?league=${LEAGUE_CODE}`;
+  document.getElementById('nav-drawer-settings').href = `/pool/settings?league=${LEAGUE_CODE}`;
 
   // Check if draft already exists in Supabase
   await loadDraftFromDB();

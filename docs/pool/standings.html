@@ -643,6 +643,8 @@
       const fromUrl = new URLSearchParams(window.location.search).get('token');
       if (fromUrl) {
         try { localStorage.setItem(`pool_token_${_leagueCode}`, fromUrl); } catch(_) {}
+        const clean = new URL(window.location.href); clean.searchParams.delete('token');
+        history.replaceState(null, '', clean.toString());
         return fromUrl;
       }
       try { return localStorage.getItem(`pool_token_${_leagueCode}`) || null; } catch(_) { return null; }

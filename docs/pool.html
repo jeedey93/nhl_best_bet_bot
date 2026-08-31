@@ -79,7 +79,11 @@
       width: 100%; max-width: 640px;
       align-items: start;
     }
-    @media (max-width: 500px) { .hub-cards { grid-template-columns: 1fr; } }
+    @media (max-width: 540px) {
+      .hub-cards { grid-template-columns: 1fr; gap: 0.85rem; }
+      .hub-card { padding: 1.25rem 1.1rem 1.1rem; }
+      .hub-card.primary { padding: 1.5rem 1.25rem 1.25rem; }
+    }
 
     .hub-card {
       background: rgba(255,255,255,0.04);
@@ -302,7 +306,7 @@
 
 <div class="hub-wrap">
   <h1 class="hub-title">Hockey <span>Pool</span></h1>
-  <p class="hub-sub">2025–26 Season</p>
+  <p class="hub-sub">2026–27 Season</p>
 
   <div class="hub-cards">
     <!-- Create league -->
@@ -483,11 +487,11 @@
     } catch(e) { /* silent */ }
   }
 
-  function goToDraft(code, name)    { saveRecent(code, name); window.location.href = withToken(code, `/pool/join?league=${code}`); }
+  function goToDraft(code, name)    { saveRecent(code, name); window.location.href = `/pool/join?league=${code}`; }
   function goToLiveDraft(code)      { window.location.href = `/pool/live-draft?league=${code}`; }
-  function goToStandings(code)      { window.location.href = withToken(code, `/pool/standings?league=${code}`); }
-  function goToTrades(code)         { window.location.href = withToken(code, `/pool/roster?league=${code}`); }
-  function goToSettings(code)       { window.location.href = withToken(code, `/pool/settings?league=${code}`); }
+  function goToStandings(code)      { window.location.href = `/pool/standings?league=${code}`; }
+  function goToTrades(code)         { window.location.href = `/pool/roster?league=${code}`; }
+  function goToSettings(code)       { window.location.href = `/pool/settings?league=${code}`; }
 
   // ── Password modal ────────────────────────────────────────────────────────
   let _pwAction = null;
@@ -565,12 +569,7 @@
   function getStoredToken(code) {
     try { return localStorage.getItem(`pool_token_${code}`) || null; } catch(_) { return null; }
   }
-  function withToken(code, url) {
-    const t = getStoredToken(code);
-    return t ? `${url}&token=${t}` : url;
-  }
-
-  async function doCreateLeague() {
+async function doCreateLeague() {
     const btn       = document.getElementById('btn-create');
     const nameInput = document.getElementById('league-name-input');
     const leagueName = nameInput.value.trim() || 'League';
@@ -687,17 +686,15 @@
     errEl.textContent = '';
     if (code.length < 4) { errEl.textContent = 'Enter a valid league code.'; return; }
     try {
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/pool_leagues?code=eq.${code}&select=code`, { headers: sbHeaders() });
-      if (res.ok) {
-        const rows = await res.json();
-        if (!rows.length) { errEl.textContent = 'League not found. Check your code.'; return; }
-        saveRecent(code, code);
-        window.location.href = `/pool/join?league=${code}`;
-        return;
-      }
-    } catch(e) {}
-    saveRecent(code, 'League');
-    window.location.href = `/pool/join?league=${code}`;
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/pool_leagues?code=eq.${code}&select=code,name`, { headers: sbHeaders() });
+      if (!res.ok) throw new Error(res.status);
+      const rows = await res.json();
+      if (!rows.length) { errEl.textContent = 'League not found. Check your code.'; return; }
+      saveRecent(code, rows[0].name || code);
+      window.location.href = `/pool/join?league=${code}`;
+    } catch(e) {
+      errEl.textContent = 'Could not connect. Check your connection and try again.';
+    }
   }
 
   // ── Init ──────────────────────────────────────────────────────────────────

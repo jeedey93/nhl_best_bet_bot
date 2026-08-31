@@ -34,6 +34,31 @@
     .site-nav-links a { font-family: 'Barlow Condensed', sans-serif; font-size: 1rem; font-weight: 600; color: var(--silver); text-decoration: none; padding: 0.3rem 0.8rem; border-radius: 5px; letter-spacing: 1.5px; transition: color 0.15s, background 0.15s; }
     .site-nav-links a:hover { color: white; background: rgba(255,255,255,0.07); }
     .site-nav-links a.active { color: var(--gold); background: rgba(255,184,28,0.1); }
+    .nav-hamburger {
+      display: none; flex-direction: column; justify-content: center; gap: 5px;
+      width: 36px; height: 36px; cursor: pointer; border: none;
+      background: none; padding: 6px; border-radius: 6px;
+    }
+    .nav-hamburger span { display: block; height: 2px; background: var(--silver); border-radius: 2px; transition: background 0.15s; }
+    .nav-hamburger:hover span { background: white; }
+    .nav-drawer {
+      display: none; position: fixed; top: var(--nav-h); left: 0; right: 0; bottom: 0;
+      z-index: 99; background: rgba(7,17,31,0.97); backdrop-filter: blur(16px);
+      flex-direction: column; gap: 0.25rem; padding: 1.25rem 1.5rem;
+      border-top: 1px solid var(--line);
+    }
+    .nav-drawer.open { display: flex; }
+    .nav-drawer a {
+      font-family: 'Bebas Neue', cursive; font-size: 1.4rem; letter-spacing: 3px;
+      color: var(--silver); text-decoration: none; padding: 0.65rem 0.75rem;
+      border-radius: 8px; transition: color 0.15s, background 0.15s;
+    }
+    .nav-drawer a:hover { color: white; background: rgba(255,255,255,0.06); }
+    .nav-drawer a.active { color: var(--gold); background: rgba(255,184,28,0.08); }
+    @media (max-width: 700px) {
+      .site-nav-links { display: none; }
+      .nav-hamburger { display: flex; }
+    }
 
     /* ── LAYOUT ── */
     .page-wrap { max-width: 1000px; margin: 0 auto; padding: 1rem 1rem 1.5rem; }
@@ -675,8 +700,20 @@
       <a href="" id="nav-trades" class="active">Roster</a>
       <a href="" id="nav-settings">Settings</a>
     </div>
+    <button class="nav-hamburger" id="hamburger" aria-label="Open menu" onclick="toggleDrawer()">
+      <span></span><span></span><span></span>
+    </button>
   </div>
 </nav>
+
+<div class="nav-drawer" id="nav-drawer">
+  <a href="/pool">Home</a>
+  <a href="" id="nav-drawer-draft">Draft</a>
+  <a href="" id="nav-drawer-live-draft">Live Draft</a>
+  <a href="" id="nav-drawer-standings">Standings</a>
+  <a href="" id="nav-drawer-trades" class="active">Roster</a>
+  <a href="" id="nav-drawer-settings">Settings</a>
+</div>
 
 <div class="page-wrap">
   <header>
@@ -826,6 +863,19 @@
 </div>
 
 <script>
+  function toggleDrawer() {
+    const drawer = document.getElementById('nav-drawer');
+    const isOpen = drawer.classList.toggle('open');
+    document.getElementById('hamburger').setAttribute('aria-expanded', isOpen);
+    document.body.style.overflow = isOpen ? 'hidden' : '';
+  }
+  document.addEventListener('click', function(e) {
+    const drawer = document.getElementById('nav-drawer'), hamburger = document.getElementById('hamburger');
+    if (drawer && drawer.classList.contains('open') && !drawer.contains(e.target) && !hamburger.contains(e.target)) {
+      drawer.classList.remove('open'); document.body.style.overflow = '';
+    }
+  });
+
   /* ═══════════════════════════════════════════════════
      CONSTANTS & STATE
   ═══════════════════════════════════════════════════ */
@@ -866,7 +916,7 @@
     const id = String(p.nhl_player_id || '').trim();
     const abbr = TEAM_ABBR[p.team];
     if (!id) return [];
-    return [`https://assets.nhle.com/mugs/nhl/latest/${id}.png`, ...(abbr?[`https://assets.nhle.com/mugs/nhl/20252026/${abbr}/${id}.png`]:[])];
+    return [`https://assets.nhle.com/mugs/nhl/latest/${id}.png`, ...(abbr?[`https://assets.nhle.com/mugs/nhl/20262027/${abbr}/${id}.png`]:[])];
   }
   function handleHeadshotError(imgEl) {
     if (!imgEl) return;
@@ -883,7 +933,12 @@
 
   function getToken() {
     const fromUrl = new URLSearchParams(window.location.search).get('token');
-    if (fromUrl) { try { localStorage.setItem(`pool_token_${_leagueCode}`, fromUrl); } catch(_) {} return fromUrl; }
+    if (fromUrl) {
+      try { localStorage.setItem(`pool_token_${_leagueCode}`, fromUrl); } catch(_) {}
+      const clean = new URL(window.location.href); clean.searchParams.delete('token');
+      history.replaceState(null, '', clean.toString());
+      return fromUrl;
+    }
     try { return localStorage.getItem(`pool_token_${_leagueCode}`) || null; } catch(_) { return null; }
   }
   function showInvalidGate() { document.getElementById('invalid-gate').classList.add('show'); }
@@ -932,6 +987,11 @@
   document.getElementById('nav-standings').href   = `/pool/standings?league=${_leagueCode}`;
   document.getElementById('nav-trades').href      = `/pool/roster?league=${_leagueCode}`;
   document.getElementById('nav-settings').href    = `/pool/settings?league=${_leagueCode}`;
+  document.getElementById('nav-drawer-draft').href       = `/pool/join?league=${_leagueCode}`;
+  document.getElementById('nav-drawer-live-draft').href  = `/pool/live-draft?league=${_leagueCode}`;
+  document.getElementById('nav-drawer-standings').href   = `/pool/standings?league=${_leagueCode}`;
+  document.getElementById('nav-drawer-trades').href      = `/pool/roster?league=${_leagueCode}`;
+  document.getElementById('nav-drawer-settings').href    = `/pool/settings?league=${_leagueCode}`;
 
   function syncNavOffset(){
     const nav=document.querySelector('.site-nav');
