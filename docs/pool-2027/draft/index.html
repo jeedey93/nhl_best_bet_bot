@@ -361,6 +361,7 @@
   <div class="site-nav-inner">
     <a class="site-nav-brand" href="/pool-2027/">Parieur Discipliné</a>
     <div class="site-nav-links">
+      <a href="https://parieurdiscipline.com" style="color:rgba(168,178,190,0.5);font-size:0.85rem;">← Site</a>
       <a href="/pool-2027/">Home</a>
       <a href="/pool-2027/draft/" class="active">Draft</a>
       <a href="/pool-2027/standings/">Standings</a>
@@ -371,6 +372,7 @@
   </div>
 </nav>
 <div class="nav-drawer" id="nav-drawer">
+  <a href="https://parieurdiscipline.com" style="color:rgba(168,178,190,0.5);font-size:1rem;">← parieurdiscipline.com</a>
   <a href="/pool-2027/">Home</a>
   <a href="/pool-2027/draft/" class="active">Draft</a>
   <a href="/pool-2027/standings/">Standings</a>
@@ -399,6 +401,10 @@
     <div class="success-icon">🎉</div>
     <div class="success-title">Team Submitted!</div>
     <div class="success-sub" id="success-sub">Your team has been entered into the pool.</div>
+    <div id="payment-reminder" class="hidden" style="margin:1rem 0 0.5rem;background:rgba(255,184,28,0.1);border:1px solid rgba(255,184,28,0.3);border-radius:8px;padding:0.75rem 1rem;font-size:0.88rem;color:#fde68a;line-height:1.5;text-align:left;">
+      <strong style="color:#ffb81c;display:block;margin-bottom:3px;">💸 Complete your paid entry</strong>
+      Send <strong>$20</strong> via <strong>Interac e-Transfer</strong> to <strong>justin.do@hotmail.com</strong> — use your name as the message so we can match it.
+    </div>
     <div class="success-btns">
       <a href="/pool-2027/standings/" class="btn-success-primary">View Standings</a>
       <button class="btn-success-secondary" onclick="document.getElementById('success-overlay').classList.add('hidden')">Keep Editing</button>
@@ -417,6 +423,9 @@
     <div class="modal-pool-type">
       <div class="modal-type-btn active" id="type-paid" onclick="setPoolType(true)">💰 Paid</div>
       <div class="modal-type-btn" id="type-free" onclick="setPoolType(false)">🎮 Free</div>
+    </div>
+    <div id="modal-pay-note" style="font-size:0.82rem;color:#fde68a;background:rgba(255,184,28,0.08);border:1px solid rgba(255,184,28,0.2);border-radius:6px;padding:0.5rem 0.75rem;margin-top:0.5rem;line-height:1.5;">
+      After submitting, send <strong>$20</strong> via Interac to <strong>justin.do@hotmail.com</strong>
     </div>
     <div class="modal-btns">
       <button class="modal-btn modal-btn-cancel" onclick="closeSubmitModal()">Cancel</button>
@@ -1189,6 +1198,8 @@
     _isPaid = paid;
     document.getElementById('type-paid').classList.toggle('active', paid);
     document.getElementById('type-free').classList.toggle('active', !paid);
+    const note = document.getElementById('modal-pay-note');
+    if (note) note.style.display = paid ? '' : 'none';
   }
 
   async function checkExistingSubmission(email) {
@@ -1245,7 +1256,9 @@
       if (!res.ok) throw new Error(res.status);
       closeSubmitModal();
       const sub = document.getElementById('success-sub');
-      if (sub) sub.innerHTML = `<strong>${name}</strong>'s team is in the pool${_isPaid ? ' — remember to send $20 to <strong>justin.do@hotmail.com</strong> (Interac)' : ''}.`;
+      if (sub) sub.innerHTML = `<strong>${name}</strong>'s team is in the pool${_isPaid ? ' (paid entry)' : ' (free entry)'}.`;
+      const payReminder = document.getElementById('payment-reminder');
+      if (payReminder) payReminder.classList.toggle('hidden', !_isPaid);
       document.getElementById('success-overlay').classList.remove('hidden');
       updateSubmitBtn();
     } catch(e) {
