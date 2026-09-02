@@ -1693,7 +1693,7 @@
           <div class="hc-price" style="font-size:0.95rem">${h.marketValue != null ? fmtC(h.marketValue) : (pricesLoaded ? fmtC(h.cost) : '<span class="skeleton-cell" style="width:60px;display:inline-block">&nbsp;</span>')}</div>
           <div style="display:flex;flex-direction:column;align-items:flex-end;gap:1px;margin-top:3px">
             <div class="hc-day ${dcPos ? 'pos' : 'neg'}" style="font-size:0.78rem">${h.dayChange != null && !isNaN(h.dayChange) ? (dcPos?'+':'') + fmtC(h.dayChange) + ' (' + (dcPos?'+':'') + fmt(h.changePct ?? 0) + '%)' : (pricesLoaded ? '—' : '<span class="skeleton-cell" style="width:55px;display:inline-block">&nbsp;</span>')}</div>
-            ${gainPct != null ? `<div style="font-size:0.72rem;font-weight:700;color:${gcPos?'#4ade80':'#f87171'}">${gcPos?'+':''}${fmt(gainPct)}% all-time</div>` : ''}
+            ${gainPct != null ? `<div style="font-size:0.72rem;font-weight:700;color:${gcPos?'#4ade80':'#f87171'}">${gcPos?'+':''}${fmtC(h.overallGain)} (${gcPos?'+':''}${fmt(gainPct)}%) all-time</div>` : ''}
           </div>
         </div>
         <div class="dot-menu-wrap" onclick="event.stopPropagation()">
