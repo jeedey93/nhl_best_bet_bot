@@ -66,7 +66,7 @@
     .portfolio-section-label.label-private span { color: rgba(168,178,190,0.4); }
     .portfolio-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1rem; }
     .portfolio-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 1.25rem 1.5rem; cursor: pointer; transition: background 0.15s, border-color 0.15s, transform 0.1s; }
-    .portfolio-card:hover { background: rgba(255,255,255,0.06); border-color: rgba(255,184,28,0.3); transform: translateY(-2px); }
+    .portfolio-card:hover { background: rgba(255,184,28,0.04); border-color: rgba(255,184,28,0.3); transform: translateY(-2px); }
     .portfolio-card:active { transform: translateY(0); }
     .pc-name { font-family: 'Bebas Neue', cursive; font-size: 1.4rem; letter-spacing: 3px; color: white; margin-bottom: 0.35rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
     .pc-lock { color: var(--silver); font-size: 0.8rem; letter-spacing: 1px; opacity: 0.5; }
@@ -1685,15 +1685,14 @@
         <div class="hc-left">
           <div class="hc-name">${escHtml(tickerShort)}<span style="font-size:0.78rem;font-weight:600;color:rgba(255,255,255,0.35);margin-left:0.4rem">${escHtml(h.company_name?.split(' ').slice(0,3).join(' ') || '')}</span></div>
           <div class="hc-sub">
-            ${h.sector ? `<span style="font-size:0.68rem;font-weight:700;color:${sectorColor};letter-spacing:0.5px">${escHtml(h.sector)}</span>` : ''}
-            <span style="margin-left:${h.sector?'0.4rem':'0'};color:rgba(255,255,255,0.35)">${fmt(h.shares, 2)} shares</span>
+            ${h.sector ? `<span style="font-size:0.68rem;font-weight:700;color:${sectorColor};letter-spacing:0.5px">${escHtml(h.sector)}</span><span style="color:rgba(255,255,255,0.18);margin:0 0.3rem">·</span>` : ''}<span style="color:rgba(255,255,255,0.3);font-size:0.68rem">${fmt(h.shares, 2)} shares</span>
           </div>
         </div>
         <div class="hc-right">
-          <div class="hc-price" style="font-size:0.95rem">${h.marketValue != null ? fmtC(h.marketValue) : (pricesLoaded ? fmtC(h.cost) : '<span class="skeleton-cell" style="width:60px;display:inline-block">&nbsp;</span>')}</div>
-          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:1px;margin-top:3px">
+          <div class="hc-price">${h.marketValue != null ? fmtC(h.marketValue) : (pricesLoaded ? fmtC(h.cost) : '<span class="skeleton-cell" style="width:60px;display:inline-block">&nbsp;</span>')}</div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;margin-top:4px">
             <div class="hc-day ${dcPos ? 'pos' : 'neg'}" style="font-size:0.78rem">${h.dayChange != null && !isNaN(h.dayChange) ? (dcPos?'+':'') + fmtC(h.dayChange) + ' (' + (dcPos?'+':'') + fmt(h.changePct ?? 0) + '%)' : (pricesLoaded ? '—' : '<span class="skeleton-cell" style="width:55px;display:inline-block">&nbsp;</span>')}</div>
-            ${gainPct != null ? `<div style="font-size:0.72rem;font-weight:700;color:${gcPos?'#4ade80':'#f87171'}">${gcPos?'+':''}${fmtC(h.overallGain)} (${gcPos?'+':''}${fmt(gainPct)}%)</div>` : ''}
+            ${gainPct != null ? `<div style="font-size:0.68rem;font-weight:600;color:${gcPos?'rgba(74,222,128,0.65)':'rgba(248,113,113,0.65)'}">${gcPos?'+':''}${fmtC(h.overallGain)} (${gcPos?'+':''}${fmt(gainPct)}%)</div>` : ''}
           </div>
         </div>
         <div class="dot-menu-wrap" onclick="event.stopPropagation()">
