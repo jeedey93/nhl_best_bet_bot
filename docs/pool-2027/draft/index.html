@@ -182,9 +182,9 @@
     .salary-reset-btn { font-family: 'Bebas Neue', cursive; font-size: 0.72rem; letter-spacing: 1px; background: none; border: 1px solid #dce8f8; color: #9ca3af; border-radius: 4px; padding: 2px 7px; cursor: pointer; white-space: nowrap; transition: color 0.15s, border-color 0.15s; }
     .salary-reset-btn:hover { color: #1a1a1a; border-color: #c7d7f0; }
 
-    /* ── EFF legend ── */
-    .eff-legend { display: flex; align-items: center; gap: 8px; background: rgba(22,163,74,0.06); border: 1.5px solid rgba(22,163,74,0.2); border-radius: 8px; padding: 6px 12px; margin-bottom: 0.5rem; flex-shrink: 0; }
-    .eff-legend-badge { font-family: 'Bebas Neue', cursive; font-size: 0.78rem; letter-spacing: 1.5px; color: #16a34a; background: rgba(22,163,74,0.1); border-radius: 4px; padding: 2px 7px; flex-shrink: 0; }
+    /* ── GRADE legend ── */
+    .eff-legend { display: flex; align-items: center; gap: 8px; background: rgba(37,99,235,0.04); border: 1.5px solid rgba(37,99,235,0.15); border-radius: 8px; padding: 6px 12px; margin-bottom: 0.5rem; flex-shrink: 0; }
+    .eff-legend-badge { font-family: 'Bebas Neue', cursive; font-size: 0.78rem; letter-spacing: 1.5px; color: #2563eb; background: rgba(37,99,235,0.1); border-radius: 4px; padding: 2px 7px; flex-shrink: 0; }
     .eff-legend-text { font-size: 0.78rem; color: #374151; letter-spacing: 0.2px; flex: 1; }
     .eff-legend-text strong { color: #1a1a1a; font-weight: 600; }
 
@@ -233,7 +233,6 @@
     .pool-table tbody tr.row-owned-active { opacity: 0.32; pointer-events: none; }
     .pool-table tbody tr.row-top-eff { background: rgba(22,163,74,0.03); }
     .pool-table tbody tr.row-top-eff:hover { background: rgba(22,163,74,0.07); }
-    .pool-table tbody tr.row-top-eff .td-eff { color: #16a34a; }
     .pool-table td { padding: 0 7px; height: 42px; text-align: right; font-size: 0.95rem; font-weight: 600; border-right: 1px solid #f1f5f9; vertical-align: middle; white-space: nowrap; overflow: hidden; }
     .pool-table td:last-child { border-right: none; }
     .td-player { text-align: left; padding-left: 10px; padding-right: 7px; display: flex; align-items: center; gap: 7px; height: 42px; overflow: hidden; }
@@ -256,7 +255,19 @@
     .td-gaa  { color: #6b7280; font-size: 0.9rem; }
     .td-svpct{ color: #6b7280; font-size: 0.88rem; }
     .td-cap  { color: #6b7280; font-size: 0.88rem; }
-    .td-eff  { color: #16a34a; font-family: 'Bebas Neue', cursive; font-size: 1rem; }
+    .td-eff  { font-family: 'Bebas Neue', cursive; font-size: 1rem; font-weight: 700; text-align: center; }
+    .td-eff.grade-aplus  { color: #16a34a; }
+    .td-eff.grade-a      { color: #22c55e; }
+    .td-eff.grade-aminus { color: #4ade80; }
+    .td-eff.grade-bplus  { color: #2563eb; }
+    .td-eff.grade-b      { color: #3b82f6; }
+    .td-eff.grade-bminus { color: #60a5fa; }
+    .td-eff.grade-cplus  { color: #d97706; }
+    .td-eff.grade-c      { color: #f59e0b; }
+    .td-eff.grade-cminus { color: #fbbf24; }
+    .td-eff.grade-d      { color: #9ca3af; }
+    .td-eff.grade-f      { color: #d1d5db; }
+    .td-eff.grade-none   { color: #d1d5db; }
     .td-act  { padding: 0 5px; }
     .tbl-add-btn { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 24px; background: rgba(37,99,235,0.08); border: 1.5px solid rgba(37,99,235,0.3); border-radius: 5px; color: #2563eb; cursor: pointer; font-size: 1.1rem; font-weight: 700; line-height: 1; transition: background 0.12s, border-color 0.12s; flex-shrink: 0; }
     .tbl-add-btn:hover { background: rgba(37,99,235,0.18); border-color: rgba(37,99,235,0.5); }
@@ -523,8 +534,8 @@
     </div>
 
     <div class="eff-legend">
-      <span class="eff-legend-badge">EFF</span>
-      <span class="eff-legend-text"><strong>Pts ÷ √Cap($M)</strong> — rewards elite production per dollar</span>
+      <span class="eff-legend-badge">COTE</span>
+      <span class="eff-legend-text"><strong>A+ → F</strong> — rapport qualité/prix : pts de pool ÷ √salaire($M), classé par percentile</span>
     </div>
 
     <div class="nhl-team-strip-wrap">
@@ -541,7 +552,7 @@
           <th class="col-a"   onclick="setSort('assists',this)" data-sort="assists" title="Assists">A   <span class="sort-arrow" id="sa-assists"></span></th>
           <th class="col-pts" onclick="setSort('points',this)"  data-sort="points"  title="Pool Points">PTS <span class="sort-arrow" id="sa-points"></span></th>
           <th class="col-cap" onclick="setSort('salary',this)"  data-sort="salary"  title="Cap Hit">CAP <span class="sort-arrow" id="sa-salary">↓</span></th>
-          <th class="col-eff" onclick="setSort('value',this)"   data-sort="value"   title="Efficiency: Pts ÷ √Cap(M)">EFF <span class="sort-arrow" id="sa-value"></span></th>
+          <th class="col-eff" onclick="setSort('value',this)"   data-sort="value"   title="Cote de valeur A+→F : pts de pool ÷ √salaire, classé par percentile">COTE <span class="sort-arrow" id="sa-value"></span></th>
           <th class="col-act"></th>
         </tr>
         </thead>
@@ -616,22 +627,63 @@
     if (pos === 'D') return (p.goals ?? 0) * 2 + (p.assists ?? 0) * 1;
     return (p.points ?? 0) * 1;
   }
-  function effScore(p) {
-    if (p._eff !== undefined) return p._eff;
-    const capM = (p.cap_hit || 1) / 1_000_000;
-    p._eff = poolScore(p) / Math.sqrt(capM);
-    return p._eff;
+  function gradeRawScore(p) {
+    if (!p.cap_hit) return null;
+    const capM = p.cap_hit / 1_000_000;
+    const pos = normalizePos(p.position);
+    let pts;
+    if (pos === 'G') pts = (p.wins ?? 0) * 2 + (p.shutouts ?? 0) * 3;
+    else pts = poolScore(p);
+    if (pts <= 0) return 0;
+    // risk multiplier: default ×1.00 (no risk field in data yet)
+    return pts / Math.sqrt(capM);
+  }
+
+  // Percentile thresholds → letter grades (A+ best, F worst)
+  const GRADE_THRESHOLDS = [
+    { pct: 0.05, label: 'A+', cls: 'grade-aplus'  },
+    { pct: 0.15, label: 'A',  cls: 'grade-a'      },
+    { pct: 0.25, label: 'A-', cls: 'grade-aminus' },
+    { pct: 0.38, label: 'B+', cls: 'grade-bplus'  },
+    { pct: 0.50, label: 'B',  cls: 'grade-b'      },
+    { pct: 0.62, label: 'B-', cls: 'grade-bminus' },
+    { pct: 0.73, label: 'C+', cls: 'grade-cplus'  },
+    { pct: 0.83, label: 'C',  cls: 'grade-c'      },
+    { pct: 0.91, label: 'C-', cls: 'grade-cminus' },
+    { pct: 0.96, label: 'D',  cls: 'grade-d'      },
+    { pct: 1.00, label: 'F',  cls: 'grade-f'      },
+  ];
+
+  let _gradeMap = null; // slug → { label, cls }
+
+  function computeGrades() {
+    const eligible = allPlayers.filter(p => p.cap_hit && gradeRawScore(p) !== null);
+    const sorted = eligible.slice().sort((a, b) => gradeRawScore(b) - gradeRawScore(a));
+    const n = sorted.length;
+    _gradeMap = {};
+    sorted.forEach((p, i) => {
+      const rank = i / n; // 0 = best
+      const tier = GRADE_THRESHOLDS.find(t => rank < t.pct) || GRADE_THRESHOLDS[GRADE_THRESHOLDS.length - 1];
+      _gradeMap[p.puckpedia_slug] = { label: tier.label, cls: tier.cls };
+    });
+  }
+
+  function playerGrade(p) {
+    if (!p.cap_hit) return { label: '—', cls: 'grade-none' };
+    if (!_gradeMap) computeGrades();
+    return _gradeMap[p.puckpedia_slug] || { label: '—', cls: 'grade-none' };
   }
 
   function computeTopEffSlugs() {
-    const list = allPlayers.filter(p => p.cap_hit && poolScore(p) > 0).map(p => ({ slug: p.puckpedia_slug, eff: effScore(p) }));
-    list.sort((a, b) => b.eff - a.eff);
-    _topEffSlugs = new Set(list.slice(0, 10).map(x => x.slug));
+    if (!_gradeMap) computeGrades();
+    _topEffSlugs = new Set(
+      allPlayers.filter(p => _gradeMap?.[p.puckpedia_slug]?.label === 'A+').map(p => p.puckpedia_slug)
+    );
   }
 
   function playerSortKey(p) {
     if (activeSort === 'points')   return poolScore(p);
-    if (activeSort === 'value')    return effScore(p);
+    if (activeSort === 'value')    return gradeRawScore(p) ?? -1;
     if (activeSort === 'goals')    return p.goals ?? 0;
     if (activeSort === 'assists')  return p.assists ?? 0;
     if (activeSort === 'wins')     return p.wins ?? 0;
@@ -929,7 +981,7 @@
       <th class="col-svpct"  onclick="setSort('save_pct',this)" data-sort="save_pct" title="Save Percentage">SV% <span class="sort-arrow" id="sa-save_pct"></span></th>
       <th class="col-fpts"   onclick="setSort('points',this)"  data-sort="points"   title="Fantasy Points">FPTS <span class="sort-arrow" id="sa-points"></span></th>
       <th class="col-cap"    onclick="setSort('salary',this)" data-sort="salary" title="Cap Hit">CAP <span class="sort-arrow" id="sa-salary">↓</span></th>
-      <th class="col-eff"    onclick="setSort('value',this)"  data-sort="value"  title="Efficiency: Pts ÷ √Cap(M)">EFF <span class="sort-arrow" id="sa-value"></span></th>
+      <th class="col-eff"    onclick="setSort('value',this)"  data-sort="value"  title="Cote de valeur A+→F : pts de pool ÷ √salaire, classé par percentile">COTE <span class="sort-arrow" id="sa-value"></span></th>
       <th class="col-act"></th>
     </tr>` : `<tr>
       <th class="col-player" onclick="setSort('salary',this)" data-sort="salary">Player <span class="sort-arrow" id="sa-player"></span></th>
@@ -938,7 +990,7 @@
       <th class="col-a"      onclick="setSort('assists',this)" data-sort="assists" title="Assists">A   <span class="sort-arrow" id="sa-assists"></span></th>
       <th class="col-fpts"   onclick="setSort('points',this)" data-sort="points" title="Fantasy Points">FPTS <span class="sort-arrow" id="sa-points"></span></th>
       <th class="col-cap"    onclick="setSort('salary',this)" data-sort="salary" title="Cap Hit">CAP <span class="sort-arrow" id="sa-salary">↓</span></th>
-      <th class="col-eff"    onclick="setSort('value',this)"  data-sort="value"  title="Efficiency: Pts ÷ √Cap(M)">EFF <span class="sort-arrow" id="sa-value"></span></th>
+      <th class="col-eff"    onclick="setSort('value',this)"  data-sort="value"  title="Cote de valeur A+→F : pts de pool ÷ √salaire, classé par percentile">COTE <span class="sort-arrow" id="sa-value"></span></th>
       <th class="col-act"></th>
     </tr>`;
   }
@@ -1067,7 +1119,7 @@
     const abbr = TEAM_ABBR[p.team];
     const logoSrc = abbr ? `https://assets.nhle.com/logos/nhl/svg/${abbr}_dark.svg` : null;
     const capM = p.cap_hit ? (p.cap_hit / 1_000_000).toFixed(2) : '—';
-    const eff = p.cap_hit ? effScore(p).toFixed(1) : '—';
+    const grade = playerGrade(p);
     const pts = poolScore(p);
     const inactive = isLikelyInactive(p);
     const isTopEff = _topEffSlugs.has(slug) && !isOwned;
@@ -1092,7 +1144,7 @@
     </div></td>`;
     const gpVal = p.games_played != null ? p.games_played : '—';
     const capCell = `<td class="td-cap">${p.cap_hit ? `$${capM}M` : '—'}</td>`;
-    const effCell = `<td class="td-eff">${eff}</td>`;
+    const effCell = `<td class="td-eff ${grade.cls}">${grade.label}</td>`;
     const actCell = `<td class="td-act"><div class="td-act-wrap">${actBtn}</div></td>`;
 
     if (pos === 'G') {
@@ -1125,7 +1177,7 @@
       const addBtn = tr.querySelector('.tbl-add-btn');
       if (addBtn && !addBtn.disabled) addBtn.addEventListener('click', e => { e.stopPropagation(); addPlayer(p); });
       if (p.cap_hit) {
-        tr.addEventListener('mouseenter', e => showCapTooltip(e, p, currentCap, capLeft, wouldOverCap, pts, eff));
+        tr.addEventListener('mouseenter', e => showCapTooltip(e, p, currentCap, capLeft, wouldOverCap, pts, grade.label));
         tr.addEventListener('mousemove', moveCapTooltip);
         tr.addEventListener('mouseleave', hideCapTooltip);
       }
@@ -1148,7 +1200,7 @@
          <div class="cap-tooltip-row"><span class="cap-tooltip-label">SHUTOUTS</span><span class="cap-tooltip-val gold">${p.shutouts ?? '—'}</span></div>
          <div class="cap-tooltip-row"><span class="cap-tooltip-label">POOL PTS</span><span class="cap-tooltip-val gold">${pts}</span></div>`
       : `<div class="cap-tooltip-row"><span class="cap-tooltip-label">POOL PTS</span><span class="cap-tooltip-val gold">${pts}</span></div>
-         <div class="cap-tooltip-row"><span class="cap-tooltip-label">EFFICIENCY</span><span class="cap-tooltip-val green">${eff}</span></div>`;
+         <div class="cap-tooltip-row"><span class="cap-tooltip-label">COTE</span><span class="cap-tooltip-val green">${eff}</span></div>`;
     _tooltip.innerHTML = `
       <div class="cap-tooltip-row"><span class="cap-tooltip-label">CAP HIT</span><span class="cap-tooltip-val gold">$${(p.cap_hit/1_000_000).toFixed(2)}M</span></div>
       <div class="cap-tooltip-sep"></div>
@@ -1297,6 +1349,7 @@
         sessionStorage.setItem(PLAYERS_CACHE_KEY, JSON.stringify(allPlayers));
       }
       slugMapFn._cache = null;
+      _gradeMap = null;
       computeTopEffSlugs();
       const now = new Date();
       document.getElementById('stats-timestamp-label').textContent = `2025–26 Stats · Loaded ${now.toLocaleTimeString('en-CA', { hour: '2-digit', minute: '2-digit' })}`;
