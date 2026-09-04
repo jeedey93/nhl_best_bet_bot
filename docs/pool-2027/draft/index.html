@@ -320,6 +320,18 @@
     /* ── Stats proxy notice ── */
     .stats-notice { background: rgba(37,99,235,0.06); border: 1px solid rgba(37,99,235,0.15); border-radius: 7px; padding: 5px 12px; margin: 0 auto 0.5rem; max-width: 1100px; font-size: 0.75rem; color: #2563eb; letter-spacing: 1px; flex-shrink: 0; text-align: center; }
 
+    /* ── How to play ── */
+    .how-to-play { font-family: 'Barlow Condensed', sans-serif; flex-shrink: 0; }
+    .htp-toggle { background: none; border: 1px solid rgba(37,99,235,0.2); border-radius: 7px; color: #2563eb; font-family: 'Bebas Neue', cursive; font-size: 0.82rem; letter-spacing: 2px; padding: 4px 14px; cursor: pointer; transition: background 0.15s; width: 100%; text-align: left; }
+    .htp-toggle:hover { background: rgba(37,99,235,0.05); }
+    .htp-body { padding: 0.65rem 0 0.2rem; }
+    .htp-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .htp-step { background: white; border: 1px solid #e8ecf1; border-radius: 10px; padding: 0.7rem 0.9rem; display: flex; gap: 10px; align-items: flex-start; font-size: 0.83rem; color: #374151; line-height: 1.45; box-shadow: 0 1px 4px rgba(30,58,138,0.06); }
+    .htp-step strong { color: #1a1a1a; display: block; margin-bottom: 2px; }
+    .htp-num { font-family: 'Bebas Neue', cursive; font-size: 1.6rem; color: #2563eb; line-height: 1; flex-shrink: 0; margin-top: -2px; }
+    @media (max-width: 860px) { .htp-grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 500px) { .htp-grid { grid-template-columns: 1fr; } }
+
     /* ── Success overlay ── */
     .success-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 300; display: flex; align-items: center; justify-content: center; padding: 1rem; }
     .success-overlay.hidden { display: none; }
@@ -339,6 +351,8 @@
     .toast.show { transform: translateX(-50%) translateY(0); }
 
     /* ── Mobile ── */
+    /* ── Mobile sticky submit bar ── */
+    .mobile-submit-bar { display: none; }
     @media (max-width: 860px) {
       body { display: block; overflow-x: hidden; }
       .pool-layout { grid-template-columns: 1fr; height: auto; padding: 0; }
@@ -360,6 +374,25 @@
       .scoring-legend.collapsed { display: none; }
       .cap-bar-toggle { display: block; }
       .cap-bar-wrap.collapsed { display: none; }
+      /* Hide inline submit on mobile; use sticky bar instead */
+      #btn-submit { display: none; }
+      .mobile-submit-bar {
+        display: flex; position: fixed; bottom: 0; left: 0; right: 0; z-index: 60;
+        background: white; border-top: 1.5px solid #dce8f8;
+        box-shadow: 0 -4px 16px rgba(30,58,138,0.1);
+        padding: 0.65rem 1rem; gap: 10px; align-items: center;
+      }
+      .mobile-submit-bar .mob-cap-info {
+        flex: 1; font-family: 'Barlow Condensed', sans-serif; font-size: 0.85rem;
+        font-weight: 700; color: #374151; letter-spacing: 0.5px;
+      }
+      .mobile-submit-bar .mob-cap-info .mob-remaining { color: #16a34a; }
+      .mobile-submit-bar .mob-cap-info .mob-remaining.over { color: #dc2626; }
+      .mobile-submit-bar .btn-submit-roster {
+        font-size: 1rem; padding: 9px 22px; border-radius: 8px; flex-shrink: 0;
+      }
+      /* Keep space for the sticky bar */
+      .pool-layout { padding-bottom: 70px; }
     }
     @media (min-width: 861px) { .mobile-tabs { display: none; } }
     @media (max-width: 500px) { .site-nav-brand { font-size: 1.2rem; letter-spacing: 3px; } }
@@ -406,6 +439,19 @@
   ℹ Stats shown are from the <strong>2025–26</strong> regular season — used as a proxy for 2026–27 projections
 </div>
 
+<!-- How to play -->
+<div class="how-to-play" id="how-to-play" style="width:100%;max-width:1100px;margin:0 auto 0.6rem;">
+  <button class="htp-toggle" onclick="toggleHTP()">▾ How to play</button>
+  <div class="htp-body" id="htp-body">
+    <div class="htp-grid">
+      <div class="htp-step"><span class="htp-num">1</span><div><strong>Build your roster</strong><br>Pick 12 F · 6 D · 2 G under the $104M salary cap. Use filters, grades, and tooltips to find value.</div></div>
+      <div class="htp-step"><span class="htp-num">2</span><div><strong>Submit before Oct 1</strong><br>Rosters lock when the season opens. Add your name, team name, and email — then hit Submit.</div></div>
+      <div class="htp-step"><span class="htp-num">3</span><div><strong>Paid entry: $20</strong><br>Send via Interac to <strong>justin.do@hotmail.com</strong> — or play for free. Both pools are tracked.</div></div>
+      <div class="htp-step"><span class="htp-num">4</span><div><strong>Score all season</strong><br>F: G=1 · A=1 &nbsp;|&nbsp; D: G=2 · A=1 &nbsp;|&nbsp; G: W=2 · OTL=1 · SO=3. Best total at season end wins.</div></div>
+    </div>
+  </div>
+</div>
+
 <!-- Success overlay -->
 <div class="success-overlay hidden" id="success-overlay">
   <div class="success-box">
@@ -418,6 +464,7 @@
     </div>
     <div class="success-btns">
       <a href="/pool-2027/standings/" class="btn-success-primary">View Standings</a>
+      <button class="btn-success-secondary" id="btn-share-pool" onclick="sharePool()">Share Pool</button>
       <button class="btn-success-secondary" onclick="document.getElementById('success-overlay').classList.add('hidden')">Keep Editing</button>
     </div>
   </div>
@@ -429,6 +476,7 @@
     <div class="modal-title">Submit <span>Your Team</span></div>
     <div class="modal-roster-summary" id="modal-roster-summary"></div>
     <input id="sub-name" class="modal-input" placeholder="Your name" autocomplete="name">
+    <input id="sub-team-name" class="modal-input" placeholder="Team name (e.g. Auston's Army)" autocomplete="off">
     <input id="sub-email" class="modal-input" type="email" placeholder="Your email" autocomplete="email">
     <div class="modal-type-label">Pool type</div>
     <div class="modal-pool-type">
@@ -562,6 +610,14 @@
       </table>
     </div>
   </div>
+</div>
+
+<div class="mobile-submit-bar" id="mobile-submit-bar">
+  <div class="mob-cap-info">
+    <div id="mob-bar-roster">0 / 20 players</div>
+    <div><span id="mob-bar-remaining" class="mob-remaining">$104M left</span></div>
+  </div>
+  <button class="btn-submit-roster" id="btn-submit-mobile" onclick="openSubmitModal()" disabled>Submit My Team</button>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -1239,6 +1295,19 @@
     document.getElementById('cap-bar-wrap').classList.toggle('collapsed', !_capBarOpen);
     document.getElementById('cap-bar-toggle').textContent = (_capBarOpen ? '▾' : '▸') + ' Salary Cap';
   }
+  let _htpOpen = false;
+  function toggleHTP() {
+    _htpOpen = !_htpOpen;
+    const body = document.getElementById('htp-body');
+    const btn = document.querySelector('.htp-toggle');
+    if (body) body.style.display = _htpOpen ? '' : 'none';
+    if (btn) btn.textContent = (_htpOpen ? '▾' : '▸') + ' How to play';
+  }
+  // Initialize HTP as collapsed
+  document.addEventListener('DOMContentLoaded', () => {
+    const body = document.getElementById('htp-body');
+    if (body) body.style.display = 'none';
+  });
 
   // ── Toast ──────────────────────────────────────────────────────────────────
   let _toastTimer;
@@ -1383,10 +1452,31 @@
   }
 
   function updateSubmitBtn() {
+    const ready = isRosterComplete() && isRosterUnderCap();
+    // desktop button
     const btn = document.getElementById('btn-submit');
-    if (!btn) return;
-    if (_submittedId) { btn.disabled = true; btn.textContent = '✓ Submitted'; return; }
-    btn.disabled = !(isRosterComplete() && isRosterUnderCap());
+    if (btn) {
+      if (_submittedId) { btn.disabled = true; btn.textContent = '✓ Submitted'; }
+      else { btn.disabled = !ready; }
+    }
+    // mobile sticky button
+    const mobBtn = document.getElementById('btn-submit-mobile');
+    if (mobBtn) {
+      if (_submittedId) { mobBtn.disabled = true; mobBtn.textContent = '✓ Submitted'; }
+      else { mobBtn.disabled = !ready; }
+    }
+    // mobile bar info
+    const totalSlots = 12 + 6 + 2;
+    const filled = rosterSlugs.F.filter(Boolean).length + rosterSlugs.D.filter(Boolean).length + rosterSlugs.G.filter(Boolean).length;
+    const barRoster = document.getElementById('mob-bar-roster');
+    if (barRoster) barRoster.textContent = `${filled} / ${totalSlots} players`;
+    const capLeft = CAP_MAX - currentCapUsed();
+    const remEl = document.getElementById('mob-bar-remaining');
+    if (remEl) {
+      const over = capLeft < 0;
+      remEl.textContent = over ? `$${(Math.abs(capLeft)/1_000_000).toFixed(1)}M over cap` : `$${(capLeft/1_000_000).toFixed(1)}M left`;
+      remEl.classList.toggle('over', over);
+    }
   }
 
   // ── Roster rendering ───────────────────────────────────────────────────────
@@ -1700,6 +1790,7 @@
        F: ${fNames}…<br>D: ${dNames}…<br>G: ${gNames}<br>
        Projected: <span class="pts">${pts} pts</span>`;
     document.getElementById('sub-name').value = '';
+    document.getElementById('sub-team-name').value = '';
     document.getElementById('sub-email').value = '';
     setPoolType(true);
     document.getElementById('btn-confirm-submit').disabled = false;
@@ -1709,6 +1800,18 @@
 
   function closeSubmitModal() {
     document.getElementById('submit-modal').classList.add('hidden');
+  }
+
+  function sharePool() {
+    const url = 'https://parieurdiscipline.com/pool-2027/draft/';
+    const text = '🏒 Join the Parieur Discipliné Hockey Pool 2026–27! Draft your NHL team under the $104M salary cap — deadline October 1.';
+    if (navigator.share) {
+      navigator.share({ title: 'Hockey Pool 2026–27', text, url }).catch(() => {});
+    } else {
+      navigator.clipboard.writeText(`${text}\n${url}`).then(() => toast('Link copied!')).catch(() => {
+        window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text + ' ' + url)}`, '_blank');
+      });
+    }
   }
 
   function setPoolType(paid) {
@@ -1729,9 +1832,11 @@
   }
 
   async function confirmSubmit() {
-    const name  = document.getElementById('sub-name').value.trim();
-    const email = document.getElementById('sub-email').value.trim();
+    const name      = document.getElementById('sub-name').value.trim();
+    const teamName  = document.getElementById('sub-team-name').value.trim();
+    const email     = document.getElementById('sub-email').value.trim();
     if (!name)  { toast('Enter your name'); document.getElementById('sub-name').focus(); return; }
+    if (!teamName) { toast('Enter a team name'); document.getElementById('sub-team-name').focus(); return; }
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { toast('Enter a valid email'); document.getElementById('sub-email').focus(); return; }
 
     const btn = document.getElementById('btn-confirm-submit');
@@ -1745,6 +1850,7 @@
 
     const payload = {
       name,
+      team_name: teamName,
       email,
       paid: _isPaid,
       roster: { F: rosterSlugs.F.filter(Boolean), D: rosterSlugs.D.filter(Boolean), G: rosterSlugs.G.filter(Boolean) },
@@ -1773,7 +1879,7 @@
       if (!res.ok) throw new Error(res.status);
       closeSubmitModal();
       const sub = document.getElementById('success-sub');
-      if (sub) sub.innerHTML = `<strong>${name}</strong>'s team is in the pool${_isPaid ? ' (paid entry)' : ' (free entry)'}.`;
+      if (sub) sub.innerHTML = `<strong>${name}</strong>'s team "<em>${teamName}</em>" is in the pool${_isPaid ? ' (paid entry)' : ' (free entry)'}.`;
       const payReminder = document.getElementById('payment-reminder');
       if (payReminder) payReminder.classList.toggle('hidden', !_isPaid);
       document.getElementById('success-overlay').classList.remove('hidden');
