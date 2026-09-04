@@ -398,7 +398,6 @@
         <div class="lb-col-label lb-col-hide">F</div>
         <div class="lb-col-label lb-col-hide">D</div>
         <div class="lb-col-label lb-col-hide">G</div>
-        <div class="lb-col-label lb-col-hide" title="Points per $M cap used">EFF</div>
         <div class="lb-col-label">Pts</div>
       </div>`;
 
@@ -411,7 +410,6 @@
         : `<span class="lb-rank-num">${rank}</span>`;
       const isActive = sub.id === activeDetailId;
       const rowId = `lb-row-${sub.id}`;
-      const effScore = sub.cap_used ? (sub.score.total / (sub.cap_used / 1_000_000)).toFixed(1) : '—';
       html += `<div class="lb-row${tierCls}${isActive ? ' active' : ''}" id="${rowId}" onclick="toggleDetail('${sub.id}')" style="cursor:pointer;">
         <div class="lb-rank ${rankCls}">${rankInner}</div>
         <div class="lb-name">${escapeHtml(sub.name)}${sub.paid ? '<span class="paid-badge">PAID</span>' : ''}</div>
@@ -419,7 +417,6 @@
         <div class="lb-stat lb-col-hide">${sub.score.fPts}</div>
         <div class="lb-stat lb-col-hide">${sub.score.dPts}</div>
         <div class="lb-stat lb-col-hide">${sub.score.gPts}</div>
-        <div class="lb-stat eff lb-col-hide">${effScore}</div>
         <div class="lb-stat pts">${sub.score.total}</div>
       </div>`;
       if (rank === 3 && list.length > 3) html += `<div class="lb-tier-divider"></div>`;
@@ -453,14 +450,12 @@
 
   function buildDetailDrawer(sub) {
     const cap = fmtCap(sub.cap_used);
-    const effScore = sub.cap_used ? (sub.score.total / (sub.cap_used / 1_000_000)).toFixed(1) : '—';
     let html = `<div class="detail-drawer">
       <div class="detail-drawer-header">
         <div class="detail-drawer-name">${escapeHtml(sub.name)}</div>
         <div class="detail-badges">
           <span class="detail-badge pts">${sub.score.total} PTS</span>
           <span class="detail-badge cap">${cap}</span>
-          <span class="detail-badge" style="background:rgba(34,197,94,0.08);color:var(--green);border:1px solid rgba(34,197,94,0.25);" title="Points per $M cap">${effScore} EFF</span>
           ${sub.paid ? '<span class="detail-badge" style="background:rgba(34,197,94,0.1);color:var(--green);border:1px solid rgba(34,197,94,0.3);">PAID</span>' : ''}
         </div>
         <button class="detail-close" onclick="toggleDetail('${sub.id}')">✕</button>
