@@ -535,7 +535,7 @@
 
     <div class="eff-legend">
       <span class="eff-legend-badge">COTE</span>
-      <span class="eff-legend-text"><strong>A+ → F</strong> — rapport qualité/prix : pts de pool ÷ √salaire($M), classé par percentile</span>
+      <span class="eff-legend-text"><strong>A+ → F</strong> — rapport qualité/prix : pts de pool ÷ salaire($M), classé par percentile</span>
     </div>
 
     <div class="nhl-team-strip-wrap">
@@ -552,7 +552,7 @@
           <th class="col-a"   onclick="setSort('assists',this)" data-sort="assists" title="Assists">A   <span class="sort-arrow" id="sa-assists"></span></th>
           <th class="col-pts" onclick="setSort('points',this)"  data-sort="points"  title="Pool Points">PTS <span class="sort-arrow" id="sa-points"></span></th>
           <th class="col-cap" onclick="setSort('salary',this)"  data-sort="salary"  title="Cap Hit">CAP <span class="sort-arrow" id="sa-salary">↓</span></th>
-          <th class="col-eff" onclick="setSort('value',this)"   data-sort="value"   title="Cote de valeur A+→F : pts de pool ÷ √salaire, classé par percentile">COTE <span class="sort-arrow" id="sa-value"></span></th>
+          <th class="col-eff" onclick="setSort('value',this)"   data-sort="value"   title="Cote de valeur A+→F : pts de pool ÷ salaire($M), classé par percentile">COTE <span class="sort-arrow" id="sa-value"></span></th>
           <th class="col-act"></th>
         </tr>
         </thead>
@@ -1101,7 +1101,7 @@
     else pts = poolScore(p);
     if (pts <= 0) return 0;
     // risk multiplier: default ×1.00 (no risk field in data yet)
-    return pts / Math.sqrt(capM);
+    return pts / capM;
   }
 
   // Percentile thresholds → letter grades (A+ best, F worst)
@@ -1446,7 +1446,7 @@
       <th class="col-svpct"  onclick="setSort('save_pct',this)" data-sort="save_pct" title="Save Percentage">SV% <span class="sort-arrow" id="sa-save_pct"></span></th>
       <th class="col-fpts"   onclick="setSort('points',this)"  data-sort="points"   title="Fantasy Points">FPTS <span class="sort-arrow" id="sa-points"></span></th>
       <th class="col-cap"    onclick="setSort('salary',this)" data-sort="salary" title="Cap Hit">CAP <span class="sort-arrow" id="sa-salary">↓</span></th>
-      <th class="col-eff"    onclick="setSort('value',this)"  data-sort="value"  title="Cote de valeur A+→F : pts de pool ÷ √salaire, classé par percentile">COTE <span class="sort-arrow" id="sa-value"></span></th>
+      <th class="col-eff"    onclick="setSort('value',this)"  data-sort="value"  title="Cote de valeur A+→F : pts de pool ÷ salaire($M), classé par percentile">COTE <span class="sort-arrow" id="sa-value"></span></th>
       <th class="col-act"></th>
     </tr>` : `<tr>
       <th class="col-player" onclick="setSort('salary',this)" data-sort="salary">Player <span class="sort-arrow" id="sa-player"></span></th>
@@ -1455,7 +1455,7 @@
       <th class="col-a"      onclick="setSort('assists',this)" data-sort="assists" title="Assists">A   <span class="sort-arrow" id="sa-assists"></span></th>
       <th class="col-fpts"   onclick="setSort('points',this)" data-sort="points" title="Fantasy Points">FPTS <span class="sort-arrow" id="sa-points"></span></th>
       <th class="col-cap"    onclick="setSort('salary',this)" data-sort="salary" title="Cap Hit">CAP <span class="sort-arrow" id="sa-salary">↓</span></th>
-      <th class="col-eff"    onclick="setSort('value',this)"  data-sort="value"  title="Cote de valeur A+→F : pts de pool ÷ √salaire, classé par percentile">COTE <span class="sort-arrow" id="sa-value"></span></th>
+      <th class="col-eff"    onclick="setSort('value',this)"  data-sort="value"  title="Cote de valeur A+→F : pts de pool ÷ salaire($M), classé par percentile">COTE <span class="sort-arrow" id="sa-value"></span></th>
       <th class="col-act"></th>
     </tr>`;
   }
