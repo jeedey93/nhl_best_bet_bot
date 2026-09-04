@@ -92,6 +92,7 @@
 
     /* ── LEADERBOARD ── */
     .leaderboard { background: white; border: 1px solid #dce8f8; border-radius: 16px; overflow: hidden; margin-bottom: 2rem; box-shadow: 0 4px 20px rgba(30,58,138,0.1); }
+    .lb-tiebreak-note { font-family: 'Barlow Condensed', sans-serif; font-size: 0.78rem; font-weight: 600; color: #6b7280; letter-spacing: 0.5px; text-align: center; padding: 0.5rem 1rem 1.5rem; }
     .lb-row {
       display: grid;
       grid-template-columns: 36px 1fr 60px 58px 58px 58px 52px 60px;
@@ -424,7 +425,8 @@
       if (rank === 3 && list.length > 3) html += `<div class="lb-tier-divider"></div>`;
     });
 
-    html += `</div>`;
+    html += `</div>
+    <div class="lb-tiebreak-note">🏒 En cas d'égalité, le cap hit total le plus bas l'emporte. Si toujours à égalité, le prix est partagé.</div>`;
 
     // Detail drawer (if one is open)
     if (activeDetailId) {
