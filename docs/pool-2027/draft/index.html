@@ -571,7 +571,7 @@
   const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZpZnVycWxpdGt5d3RtaGd0emV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3MDIyMjQsImV4cCI6MjA5MjI3ODIyNH0.KPVPj1qwbSJJMyLR_-AhDcRs0vi2sUU6qbFQ-kH53C0';
   const CAP_MAX = 95_500_000;
   const DRAFT_KEY = 'pool2027_draft';
-  const PLAYERS_CACHE_KEY = 'hp_players_v7';
+  const PLAYERS_CACHE_KEY = 'hp_players_v8';
   const VIRTUAL_PAGE = 60;
 
   const TEAM_ABBR = {
@@ -1039,9 +1039,17 @@
 
   function applySalaryOverrides(players) {
     for (const p of players) {
-      const key = (p.player_name || '').toLowerCase().trim();
+      const raw = (p.player_name || '').toLowerCase().trim();
+      // DB stores "Last, First" — normalize to "first last" for map lookup
+      let key = raw;
+      if (raw.includes(',')) {
+        const [last, first] = raw.split(',').map(s => s.trim());
+        key = `${first} ${last}`;
+      }
       if (key in SALARY_OVERRIDES) {
-        p.cap_hit = SALARY_OVERRIDES[key]; // null means unsigned
+        p.cap_hit = SALARY_OVERRIDES[key];
+      } else if (raw in SALARY_OVERRIDES) {
+        p.cap_hit = SALARY_OVERRIDES[raw];
       }
     }
   }
