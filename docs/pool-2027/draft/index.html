@@ -23,7 +23,7 @@
       --nav-h: 44px;
     }
     body {
-      background: #f5f7fa;
+      background: linear-gradient(160deg, #dce8f8 0%, #eef2f8 40%, #f0f4fa 100%);
       min-height: 100vh;
       font-family: 'Barlow Condensed', sans-serif;
       color: #1a1a1a;
@@ -78,9 +78,9 @@
     .scoring-legend-toggle { display: none; width: 100%; font-family: 'Bebas Neue', cursive; font-size: 0.78rem; letter-spacing: 2px; color: #374151; background: white; border: 1px solid #e8ecf1; border-radius: 5px; padding: 4px 10px; cursor: pointer; text-align: left; margin-bottom: 4px; }
     .scoring-legend { display: flex; flex-wrap: wrap; gap: 4px; }
     .scoring-legend-pill { display: flex; align-items: center; gap: 5px; border-radius: 5px; padding: 3px 8px; flex: 1; min-width: 0; }
-    .scoring-legend-pill.F { background: rgba(224,90,110,0.07); border: 1px solid rgba(224,90,110,0.18); }
-    .scoring-legend-pill.D { background: rgba(53,122,189,0.07); border: 1px solid rgba(53,122,189,0.18); }
-    .scoring-legend-pill.G { background: rgba(212,149,15,0.07); border: 1px solid rgba(212,149,15,0.18); }
+    .scoring-legend-pill.F { background: #fff1f2; border: 1px solid #fda4af; }
+    .scoring-legend-pill.D { background: #eff6ff; border: 1px solid #93c5fd; }
+    .scoring-legend-pill.G { background: #fffbeb; border: 1px solid #fcd34d; }
     .scoring-legend-pos { font-family: 'Bebas Neue', cursive; font-size: 0.65rem; letter-spacing: 1.5px; white-space: nowrap; }
     .scoring-legend-pill.F .scoring-legend-pos { color: #e05a6e; }
     .scoring-legend-pill.D .scoring-legend-pos { color: #357abd; }
@@ -89,7 +89,7 @@
 
     /* ── Cap bar ── */
     .cap-bar-toggle { display: none; width: 100%; font-family: 'Bebas Neue', cursive; font-size: 0.78rem; letter-spacing: 2px; color: #374151; background: white; border: 1px solid #e8ecf1; border-radius: 5px; padding: 4px 10px; cursor: pointer; text-align: left; margin-bottom: 4px; }
-    .cap-bar-wrap { margin-bottom: 0.7rem; flex-shrink: 0; background: #f9fafb; border: 1px solid #e8ecf1; border-radius: 7px; padding: 0.55rem 0.85rem; transition: border-color 0.3s, background 0.3s; }
+    .cap-bar-wrap { margin-bottom: 0.7rem; flex-shrink: 0; background: #f0f7ff; border: 1px solid #bfdbfe; border-radius: 7px; padding: 0.55rem 0.85rem; transition: border-color 0.3s, background 0.3s; }
     .cap-bar-wrap.warning { border-color: rgba(245,158,11,0.4); background: rgba(245,158,11,0.04); }
     .cap-bar-wrap.over { border-color: rgba(200,16,46,0.4); background: rgba(200,16,46,0.04); }
     .cap-remaining-row { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 2px; }
@@ -198,12 +198,12 @@
     .nhl-team-pill.active span { color: #357abd; }
 
     /* ── Pool table ── */
-    .pool-table-wrap { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; border: 1px solid #e8ecf1; border-radius: 7px; position: relative; background: white; }
+    .pool-table-wrap { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; border: 1px solid #d4dce8; border-radius: 7px; position: relative; background: white; box-shadow: 0 2px 8px rgba(30,58,138,0.07), 0 1px 2px rgba(0,0,0,0.04); }
     .pool-table-wrap::-webkit-scrollbar { width: 4px; }
     .pool-table-wrap::-webkit-scrollbar-thumb { background: #e8ecf1; border-radius: 2px; }
     .pool-table { width: 100%; border-collapse: collapse; table-layout: fixed; font-family: 'Barlow Condensed', sans-serif; }
     .pool-table thead { position: sticky; top: 0; z-index: 10; }
-    .pool-table thead tr { background: #f9fafb; border-bottom: 1px solid #e8ecf1; }
+    .pool-table thead tr { background: linear-gradient(90deg, #eff6ff 0%, #dbeafe 100%); border-bottom: 2px solid #bfdbfe; }
     .pool-table th { font-family: 'Bebas Neue', cursive; font-size: 0.72rem; letter-spacing: 2px; color: #6b7280; padding: 7px 6px; text-align: right; cursor: pointer; user-select: none; white-space: nowrap; transition: color 0.15s; border-right: 1px solid #f1f5f9; }
     .pool-table th:first-child { text-align: left; padding-left: 10px; }
     .pool-table th:last-child { border-right: none; cursor: default; }
@@ -226,7 +226,8 @@
     .col-eff   { width: 46px; }
     .col-act   { width: 38px; }
     .pool-table tbody tr { border-bottom: 1px solid #f1f5f9; transition: background 0.1s; cursor: default; }
-    .pool-table tbody tr:hover { background: #f9fafb; }
+    .pool-table tbody tr:nth-child(even) { background: #fafbff; }
+    .pool-table tbody tr:hover { background: #eff6ff; }
     .pool-table tbody tr.row-can-add:hover { background: rgba(53,122,189,0.04); }
     .pool-table tbody tr.row-owned-active { opacity: 0.32; pointer-events: none; }
     .pool-table tbody tr.row-top-eff { background: rgba(22,163,74,0.03); }
