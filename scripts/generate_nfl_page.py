@@ -303,7 +303,15 @@ def build_page(date_str, predictions_html, last_updated_label, nav_html=""):
 <meta property='og:url' content='https://parieurdiscipline.com/nfl/'>
 <meta property='og:title' content='NFL Weekly Picks - AI Predictions | Parieur Discipliné'>
 <meta property='og:description' content='Weekly NFL predictions with AI-powered betting analysis.'>
-<meta property='og:image' content='https://parieurdiscipline.com/parieur_discipline_icon_1024.png'>
+<meta property='og:image' content='https://parieurdiscipline.com/nfl/og-nfl.png'>
+<meta property='og:image:width' content='1200'>
+<meta property='og:image:height' content='630'>
+<meta property='og:image:alt' content='NFL Weekly Picks - AI-powered betting analysis'>
+<meta name='twitter:card' content='summary_large_image'>
+<meta name='twitter:site' content='@parieurdiscipl'>
+<meta name='twitter:title' content='NFL Weekly Picks - AI Predictions | Parieur Discipliné'>
+<meta name='twitter:description' content='Weekly NFL predictions with AI-powered betting analysis. Spread, moneyline and over/under picks.'>
+<meta name='twitter:image' content='https://parieurdiscipline.com/nfl/og-nfl.png'>
 <link rel='preconnect' href='https://fonts.googleapis.com'>
 <link href='https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&display=swap' rel='stylesheet'>
 <style>
@@ -329,7 +337,7 @@ body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans
 <script>
 function shareNFL() {{
   const url = 'https://parieurdiscipline.com/nfl/';
-  const text = '🏈 Check out this week\'s NFL AI picks on Parieur Discipliné!';
+  const text = '🏈 Check out this week\\'s NFL AI picks on Parieur Discipliné!';
   if (navigator.share) {{
     navigator.share({{ title: 'NFL Weekly Picks', text: text, url: url }});
   }} else {{
