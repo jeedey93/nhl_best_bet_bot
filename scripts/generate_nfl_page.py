@@ -114,13 +114,17 @@ def render_game_card(g):
         return f"<span style='background:{bg};color:{color};padding:3px 10px;border-radius:20px;font-size:0.78em;font-weight:700;white-space:nowrap;'>{label}: {val}</span>"
 
     odds_chips = ""
-    if home_odds:
-        fav = home_odds < away_odds if away_odds else True
-        odds_chips += chip(f"🏠 {home.split()[-1]}", home_odds, highlight=fav)
+    if home_odds and away_odds:
+        home_is_fav = home_odds < away_odds
+        odds_chips += chip(f"🏠 {home.split()[-1]}", home_odds, highlight=home_is_fav)
         odds_chips += " "
-    if away_odds:
-        fav = away_odds < home_odds if home_odds else True
-        odds_chips += chip(f"✈ {away.split()[-1]}", away_odds, highlight=fav)
+        odds_chips += chip(f"✈ {away.split()[-1]}", away_odds, highlight=not home_is_fav)
+        odds_chips += " "
+    elif home_odds:
+        odds_chips += chip(f"🏠 {home.split()[-1]}", home_odds, highlight=False)
+        odds_chips += " "
+    elif away_odds:
+        odds_chips += chip(f"✈ {away.split()[-1]}", away_odds, highlight=False)
         odds_chips += " "
     if ou:
         odds_chips += chip(f"O/U", f"{ou}", highlight=False)
