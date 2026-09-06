@@ -43,8 +43,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .share-btn:hover { background: #2563eb; }
 .share-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 .share-toast { display: none; position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #1e293b; color: white; padding: 10px 20px; border-radius: 30px; font-size: 0.88em; font-weight: 600; z-index: 9999; box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
-/* Branding bar added to screenshot */
-#share-brand-bar { display:none; background:linear-gradient(135deg,#1e3a8a,#2563eb); color:white; text-align:center; padding:10px 20px; font-size:0.85em; font-weight:700; letter-spacing:0.5px; border-radius:0 0 20px 20px; }
 </style>
 <script src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js'></script>
 <script>
@@ -270,15 +268,15 @@ document.addEventListener('DOMContentLoaded', function() {
   </div>
 
   <div class='container'>
-    <div class='section-card' id='picks-snapshot'>
+    <div class='section-card'>
       <div class='week-bar'>
         <span class='week-label'>Week of September 06, 2026</span>
         <div style='display:flex;align-items:center;gap:8px;flex-wrap:wrap;'>
-          <span class='updated-badge'>🕐 September 06, 2026 at 10:28</span>
+          <span class='updated-badge'>🕐 September 06, 2026 at 10:30</span>
           <button class='share-btn' id='share-btn' onclick='shareNFL()'>📸 Share Picks</button>
         </div>
       </div>
-      <div style='margin-bottom:28px;'>
+      <div id='picks-snapshot' style='padding:20px;'><div style='margin-bottom:28px;'>
 <h3 style='font-size:1em;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:14px;'>📋 This Week's Matchups</h3>
 <div style='display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px;'>
 <div style='background:white;border:1px solid #e5e7eb;border-radius:14px;padding:18px 20px;box-shadow:0 2px 8px rgba(0,0,0,0.06);transition:box-shadow 0.2s;' onmouseover='this.style.boxShadow="0 4px 16px rgba(37,99,235,0.12)"' onmouseout='this.style.boxShadow="0 2px 8px rgba(0,0,0,0.06)"'>
@@ -314,13 +312,13 @@ document.addEventListener('DOMContentLoaded', function() {
   </div>
   <div style='font-size:1em;font-weight:700;color:#1e293b;margin-bottom:8px;'>New England Patriots +3.5 vs Seattle Seahawks @ 1.87</div>
   <div style='font-size:0.88em;color:#6b7280;line-height:1.7;'>Similar to the other Week 1 matchup, the Seattle Seahawks are afforded a minimal home-field advantage with their 0-0 home record. Our model's estimated moneyline win probability for the Seahawks is 58%. The New England Patriots, as the road underdog, are offered at +3.5 with odds of 1.87, which implies a 53.5% chance to cover. Our estimated probability for the Patriots to cover +3.5 is 57% (based on their 42% estimated moneyline win probability plus a 15% adjustment for covering the spread). This creates a +3.5% edge over the implied odds, making it a viable play in a week with limited high-edge opportunities.</div>
-</div><div style='margin-top:20px;background:#f8fafc;border-radius:12px;padding:20px;border:1px solid #e2e8f0;'>
+</div></div>
+<div id='share-brand-bar' style='display:none;background:linear-gradient(135deg,#1e3a8a,#2563eb);color:white;text-align:center;padding:10px 20px;font-size:0.85em;font-weight:700;border-radius:12px;margin-top:16px;'>🏈 parieurdiscipline.com — NFL Weekly AI Picks</div></div>
+<div style='margin-top:20px;background:#f8fafc;border-radius:12px;padding:20px;border:1px solid #e2e8f0;'>
 <div style='font-size:0.9em;font-weight:700;color:#64748b;margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;'>📝 Analysis Notes</div>
 <div style='font-size:0.88em;color:#475569;line-height:1.75;'>Today is Week 1 of the 2026 NFL season. Given the early date of 2026-09-06, all teams begin with a 0-0 record, meaning comprehensive team statistics for the current season are unavailable. This significantly limits the application of several analytical factors. As such, our analysis relies heavily on general NFL probabilities and a minimal home-field advantage for Week 1 matchups. Due to the lack of specific team performance data, last 5 games performance, head-to-head history, and current season standings are all neutral factors (0% adjustment). No injury data or specific weather conditions have been provided, rendering those factors neutral as well. All teams are on standard rest for Week 1. Our baseline estimated win probability for a home team in the NFL is 57%. With all teams at 0-0 records, the home/road performance gap for Factor 1 is 0.000, resulting in a minimal +1% adjustment to the home team. Therefore, our base estimated win probability for any home team in Week 1 with no other data is 58%, and for any away team is 42%. When converting these to spread probabilities without specific historical data, we apply a general heuristic: a favorite at -3.5 is estimated at 53% to cover (ML probability - 5%), and an underdog at +3.5 is estimated at 57% to cover (ML probability + 15%). After analyzing all available games, the following plays represent the best value in a challenging, data-sparse Week 1 environment, adhering to the mandatory requirement to find value plays even if slightly below our typical +5% edge.</div>
 </div>
-</div>
 
-      <div id='share-brand-bar'>🏈 parieurdiscipline.com — NFL Weekly AI Picks</div>
     </div>
   </div>
 </div>

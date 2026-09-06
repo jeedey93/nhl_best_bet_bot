@@ -244,43 +244,47 @@ def format_predictions_html(raw_text):
 
     # Game matchup cards
     games = parse_matchups(matchups_raw)
+    snapshot_html = ""
     if games:
-        html += "<div style='margin-bottom:28px;'>\n"
-        html += "<h3 style='font-size:1em;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:14px;'>📋 This Week's Matchups</h3>\n"
-        html += "<div style='display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px;'>\n"
+        snapshot_html += "<div style='margin-bottom:28px;'>\n"
+        snapshot_html += "<h3 style='font-size:1em;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:14px;'>📋 This Week's Matchups</h3>\n"
+        snapshot_html += "<div style='display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px;'>\n"
         for g in games:
-            html += render_game_card(g) + "\n"
-        html += "</div></div>\n"
+            snapshot_html += render_game_card(g) + "\n"
+        snapshot_html += "</div></div>\n"
 
     # AI section
     if ai_raw.strip():
         picks = parse_picks(ai_raw)
         intro = parse_intro(ai_raw)
 
-        html += "<div style='margin-top:8px;'>\n"
-        html += "<h3 style='font-size:1em;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:20px;'>🤖 AI Analysis & Picks</h3>\n"
+        snapshot_html += "<div style='margin-top:8px;'>\n"
+        snapshot_html += "<h3 style='font-size:1em;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:20px;'>🤖 AI Analysis & Picks</h3>\n"
 
-        # BET OF THE WEEK first
         for p in picks:
             if p["type"] == "best":
-                html += render_pick_card(p)
+                snapshot_html += render_pick_card(p)
                 break
 
-        # Other picks
         others = [p for p in picks if p["type"] == "other"]
         if others:
-            html += "<h4 style='font-size:0.9em;font-weight:700;color:#374151;margin:20px 0 12px;'>Other Recommended Plays</h4>\n"
+            snapshot_html += "<h4 style='font-size:0.9em;font-weight:700;color:#374151;margin:20px 0 12px;'>Other Recommended Plays</h4>\n"
             for p in others:
-                html += render_pick_card(p)
+                snapshot_html += render_pick_card(p)
 
-        # Context/analysis text
+        snapshot_html += "</div>\n"
+
+        # Analysis notes outside the snapshot
         if intro:
+            html += f"<div id='picks-snapshot' style='padding:20px;'>{snapshot_html}<div id='share-brand-bar' style='display:none;background:linear-gradient(135deg,#1e3a8a,#2563eb);color:white;text-align:center;padding:10px 20px;font-size:0.85em;font-weight:700;border-radius:12px;margin-top:16px;'>🏈 parieurdiscipline.com — NFL Weekly AI Picks</div></div>\n"
             html += f"<div style='margin-top:20px;background:#f8fafc;border-radius:12px;padding:20px;border:1px solid #e2e8f0;'>\n"
             html += f"<div style='font-size:0.9em;font-weight:700;color:#64748b;margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;'>📝 Analysis Notes</div>\n"
             html += f"<div style='font-size:0.88em;color:#475569;line-height:1.75;'>{intro}</div>\n"
             html += "</div>\n"
-
-        html += "</div>\n"
+        else:
+            html += f"<div id='picks-snapshot' style='padding:20px;'>{snapshot_html}<div id='share-brand-bar' style='display:none;background:linear-gradient(135deg,#1e3a8a,#2563eb);color:white;text-align:center;padding:10px 20px;font-size:0.85em;font-weight:700;border-radius:12px;margin-top:16px;'>🏈 parieurdiscipline.com — NFL Weekly AI Picks</div></div>\n"
+    else:
+        html += f"<div id='picks-snapshot'>{snapshot_html}</div>\n"
 
     return html or "<p>No data available.</p>"
 
@@ -338,8 +342,6 @@ body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans
 .share-btn:hover {{ background: #2563eb; }}
 .share-btn:disabled {{ opacity: 0.6; cursor: not-allowed; }}
 .share-toast {{ display: none; position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #1e293b; color: white; padding: 10px 20px; border-radius: 30px; font-size: 0.88em; font-weight: 600; z-index: 9999; box-shadow: 0 4px 16px rgba(0,0,0,0.2); }}
-/* Branding bar added to screenshot */
-#share-brand-bar {{ display:none; background:linear-gradient(135deg,#1e3a8a,#2563eb); color:white; text-align:center; padding:10px 20px; font-size:0.85em; font-weight:700; letter-spacing:0.5px; border-radius:0 0 20px 20px; }}
 </style>
 <script src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js'></script>
 <script>
@@ -416,7 +418,7 @@ async function shareNFL() {{
   </div>
 
   <div class='container'>
-    <div class='section-card' id='picks-snapshot'>
+    <div class='section-card'>
       <div class='week-bar'>
         <span class='week-label'>Week of {nice_date}</span>
         <div style='display:flex;align-items:center;gap:8px;flex-wrap:wrap;'>
@@ -425,7 +427,6 @@ async function shareNFL() {{
         </div>
       </div>
       {predictions_html}
-      <div id='share-brand-bar'>🏈 parieurdiscipline.com — NFL Weekly AI Picks</div>
     </div>
   </div>
 </div>
