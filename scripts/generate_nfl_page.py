@@ -151,13 +151,10 @@ def render_game_card(g, ai_pick=None):
     # Odds chips
     odds_chips = ""
     if home_odds and away_odds:
-        home_is_fav = home_odds < away_odds
         odds_chips += chip(f"🏠 {home.split()[-1]}", home_odds,
-                           highlight=home_is_fav and pick_highlight != 'home_ml',
                            is_pick=pick_highlight == 'home_ml')
         odds_chips += " "
         odds_chips += chip(f"✈ {away.split()[-1]}", away_odds,
-                           highlight=not home_is_fav and pick_highlight != 'away_ml',
                            is_pick=pick_highlight == 'away_ml')
         odds_chips += " "
     elif home_odds:
