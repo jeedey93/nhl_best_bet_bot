@@ -311,22 +311,46 @@ def parse_game_picks(ai_text):
     return picks
 
 
-def render_pick_card(pick):
+def render_pick_card(pick, game_time=None, home_logo=None, away_logo=None):
     is_best = pick["type"] == "best"
     conf = pick.get("conf", "")
     units = pick.get("units", "")
     prob = pick.get("prob", "")
     detail = pick.get("detail", "").replace("\n", "<br>")
+    pick_line = pick.get("pick", "")
 
     conf_color = {"High": "#16a34a", "Medium": "#d97706", "Low": "#dc2626"}.get(conf, "#6b7280")
 
+    # Extract team names from pick line for logo row: "<TEAM> ... vs <OPPONENT> @ <ODDS>"
+    logo_row = ""
+    logo_match = re.search(r'^(.+?)\s+(?:ML|[+-][\d.]+|Over|Under).+?vs\s+(.+?)\s+@', pick_line)
+    if logo_match:
+        t1, t2 = logo_match.group(1).strip(), logo_match.group(2).strip()
+        l1 = get_team_logo(t1)
+        l2 = get_team_logo(t2)
+        def logo_img_pick(url, name, highlight=False):
+            opacity = "1" if highlight else "0.55"
+            border = "2px solid rgba(255,255,255,0.5)" if (is_best and highlight) else ("2px solid #2563eb" if highlight else "none")
+            return f"<div style='text-align:center;'><img src='{url}' alt='{name}' style='width:40px;height:40px;object-fit:contain;opacity:{opacity};' onerror='this.style.display=\"none\"'><div style='font-size:0.7em;font-weight:700;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:70px;'>{name.split()[-1]}</div></div>" if url else ""
+        picked_team = pick_line.split()[0] + " " + pick_line.split()[1] if len(pick_line.split()) > 1 else ""
+        h1 = t1.lower() in pick_line.lower()
+        logo_row = f"<div style='display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:14px;{'color:rgba(255,255,255,0.9);' if is_best else 'color:#475569;'}'>"
+        logo_row += logo_img_pick(l1, t1, highlight=h1)
+        logo_row += f"<span style='font-size:0.75em;font-weight:700;opacity:0.6;'>vs</span>"
+        logo_row += logo_img_pick(l2, t2, highlight=not h1)
+        logo_row += "</div>"
+
+    time_chip = f"<span style='{'background:rgba(255,255,255,0.15);color:white;' if is_best else 'background:#f1f5f9;color:#64748b;'}padding:3px 10px;border-radius:20px;font-size:0.75em;font-weight:600;'>🗓 {game_time}</span>" if game_time else ""
+
     if is_best:
         return f"""<div style='background:linear-gradient(135deg,#1e3a8a 0%,#2563eb 100%);border-radius:16px;padding:24px;margin-bottom:20px;color:white;box-shadow:0 6px 24px rgba(37,99,235,0.3);'>
-  <div style='display:flex;align-items:center;gap:10px;margin-bottom:14px;'>
+  <div style='display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap;'>
     <span style='background:rgba(255,255,255,0.2);padding:4px 14px;border-radius:20px;font-size:0.75em;font-weight:800;letter-spacing:2px;text-transform:uppercase;'>⭐ BET OF THE WEEK</span>
     {"<span style='background:rgba(255,255,255,0.15);padding:3px 10px;border-radius:20px;font-size:0.8em;font-weight:700;'>" + conf + " Confidence</span>" if conf else ""}
+    {time_chip}
   </div>
-  <div style='font-size:1.2em;font-weight:800;margin-bottom:12px;line-height:1.3;'>{pick["pick"]}</div>
+  {logo_row}
+  <div style='font-size:1.2em;font-weight:800;margin-bottom:12px;line-height:1.3;'>{pick_line}</div>
   <div style='display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;'>
     {"<span style='background:rgba(255,255,255,0.15);padding:4px 12px;border-radius:20px;font-size:0.82em;font-weight:700;'>📊 " + units + "</span>" if units else ""}
     {"<span style='background:rgba(255,255,255,0.15);padding:4px 12px;border-radius:20px;font-size:0.82em;font-weight:700;'>🎯 " + prob + " win prob</span>" if prob else ""}
@@ -335,12 +359,14 @@ def render_pick_card(pick):
 </div>"""
     else:
         return f"""<div style='background:white;border:1px solid #e5e7eb;border-left:4px solid #2563eb;border-radius:12px;padding:20px;margin-bottom:14px;box-shadow:0 2px 8px rgba(0,0,0,0.05);'>
-  <div style='display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;'>
+  <div style='display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap;'>
     {"<span style='background:" + conf_color + ";color:white;padding:3px 10px;border-radius:20px;font-size:0.75em;font-weight:700;'>" + conf + "</span>" if conf else ""}
     {"<span style='background:#eff6ff;color:#2563eb;padding:3px 10px;border-radius:20px;font-size:0.78em;font-weight:700;'>" + units + "</span>" if units else ""}
     {"<span style='background:#f0fdf4;color:#16a34a;padding:3px 10px;border-radius:20px;font-size:0.78em;font-weight:700;'>🎯 " + prob + "</span>" if prob else ""}
+    {time_chip}
   </div>
-  <div style='font-size:1em;font-weight:700;color:#1e293b;margin-bottom:8px;'>{pick["pick"]}</div>
+  {logo_row}
+  <div style='font-size:1em;font-weight:700;color:#1e293b;margin-bottom:8px;'>{pick_line}</div>
   {"<div style='font-size:0.88em;color:#6b7280;line-height:1.7;'>" + detail + "</div>" if detail else ""}
 </div>"""
 
@@ -384,12 +410,10 @@ def format_predictions_html(raw_text):
     def find_pick_for_game(game):
         home = game.get("home", "").lower()
         away = game.get("away", "").lower()
-        # Direct key lookup first
         if home in game_picks:
             return game_picks[home]
         if away in game_picks:
             return game_picks[away]
-        # Partial match on last word of team name
         for key, val in game_picks.items():
             if home.split()[-1] in key or key.split()[-1] in home:
                 return val
@@ -397,51 +421,63 @@ def format_predictions_html(raw_text):
                 return val
         return None
 
-    snapshot_html = ""
+    def get_game_time_for_teams(team1, team2):
+        k1, k2 = team1.lower(), team2.lower()
+        return game_times.get((k1, k2)) or game_times.get((k2, k1))
+
+    # ── Matchups section (outside the share snapshot) ──
+    matchups_html = ""
     if games:
-        snapshot_html += "<div style='margin-bottom:28px;'>\n"
-        snapshot_html += "<h3 style='font-size:1em;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:14px;'>📋 This Week's Matchups</h3>\n"
-        snapshot_html += "<div style='display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px;'>\n"
+        matchups_html += "<div style='margin-bottom:28px;'>\n"
+        matchups_html += "<h3 style='font-size:1em;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:14px;'>📋 This Week's Matchups</h3>\n"
+        matchups_html += "<div style='display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:12px;'>\n"
         for g in games:
             ai_pick = find_pick_for_game(g)
             home_key = g.get("home", "").lower()
             away_key = g.get("away", "").lower()
             game_time = game_times.get((home_key, away_key)) or game_times.get((away_key, home_key))
-            snapshot_html += render_game_card(g, ai_pick=ai_pick, game_time=game_time) + "\n"
-        snapshot_html += "</div></div>\n"
+            matchups_html += render_game_card(g, ai_pick=ai_pick, game_time=game_time) + "\n"
+        matchups_html += "</div></div>\n"
 
-    # AI section
+    # ── Picks section (inside the share snapshot) ──
+    picks_html = ""
+    intro = ""
     if ai_raw.strip():
         picks = parse_picks(ai_raw)
         intro = parse_intro(ai_raw)
 
-        snapshot_html += "<div style='margin-top:8px;'>\n"
-        snapshot_html += "<h3 style='font-size:1em;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:20px;'>🤖 AI Analysis & Picks</h3>\n"
+        picks_html += "<div style='margin-top:8px;'>\n"
+        picks_html += "<h3 style='font-size:1em;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:20px;'>🤖 AI Analysis & Picks</h3>\n"
 
         for p in picks:
             if p["type"] == "best":
-                snapshot_html += render_pick_card(p)
+                # Extract teams from pick line to get logo and time
+                m = re.search(r'^(.+?)\s+(?:ML|[+-][\d.]+|Over|Under).+?vs\s+(.+?)\s+@', p.get("pick", ""))
+                gt = get_game_time_for_teams(m.group(1).strip(), m.group(2).strip()) if m else None
+                picks_html += render_pick_card(p, game_time=gt)
                 break
 
         others = [p for p in picks if p["type"] == "other"]
         if others:
-            snapshot_html += "<h4 style='font-size:0.9em;font-weight:700;color:#374151;margin:20px 0 12px;'>Other Recommended Plays</h4>\n"
+            picks_html += "<h4 style='font-size:0.9em;font-weight:700;color:#374151;margin:20px 0 12px;'>Other Recommended Plays</h4>\n"
             for p in others:
-                snapshot_html += render_pick_card(p)
+                m = re.search(r'^(.+?)\s+(?:ML|[+-][\d.]+|Over|Under).+?vs\s+(.+?)\s+@', p.get("pick", ""))
+                gt = get_game_time_for_teams(m.group(1).strip(), m.group(2).strip()) if m else None
+                picks_html += render_pick_card(p, game_time=gt)
 
-        snapshot_html += "</div>\n"
+        picks_html += "</div>\n"
 
-        # Analysis notes outside the snapshot
-        if intro:
-            html += f"<div id='picks-snapshot' style='padding:20px;'>{snapshot_html}<div id='share-brand-bar' style='display:none;background:linear-gradient(135deg,#1e3a8a,#2563eb);color:white;text-align:center;padding:10px 20px;font-size:0.85em;font-weight:700;border-radius:12px;margin-top:16px;'>🏈 parieurdiscipline.com — NFL Weekly AI Picks</div></div>\n"
-            html += f"<div style='margin-top:20px;background:#f8fafc;border-radius:12px;padding:20px;border:1px solid #e2e8f0;'>\n"
-            html += f"<div style='font-size:0.9em;font-weight:700;color:#64748b;margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;'>📝 Analysis Notes</div>\n"
-            html += f"<div style='font-size:0.88em;color:#475569;line-height:1.75;'>{intro}</div>\n"
-            html += "</div>\n"
-        else:
-            html += f"<div id='picks-snapshot' style='padding:20px;'>{snapshot_html}<div id='share-brand-bar' style='display:none;background:linear-gradient(135deg,#1e3a8a,#2563eb);color:white;text-align:center;padding:10px 20px;font-size:0.85em;font-weight:700;border-radius:12px;margin-top:16px;'>🏈 parieurdiscipline.com — NFL Weekly AI Picks</div></div>\n"
-    else:
-        html += f"<div id='picks-snapshot'>{snapshot_html}</div>\n"
+    brand_bar = "<div id='share-brand-bar' style='display:none;background:linear-gradient(135deg,#1e3a8a,#2563eb);color:white;text-align:center;padding:10px 20px;font-size:0.85em;font-weight:700;border-radius:12px;margin-top:16px;'>🏈 parieurdiscipline.com — NFL Weekly AI Picks</div>"
+
+    # Matchups are OUTSIDE the snapshot; picks are INSIDE
+    html += matchups_html
+    html += f"<div id='picks-snapshot' style='padding:20px;'>{picks_html}{brand_bar}</div>\n"
+
+    if intro:
+        html += f"<div style='margin-top:20px;background:#f8fafc;border-radius:12px;padding:20px;border:1px solid #e2e8f0;'>\n"
+        html += f"<div style='font-size:0.9em;font-weight:700;color:#64748b;margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;'>📝 Analysis Notes</div>\n"
+        html += f"<div style='font-size:0.88em;color:#475569;line-height:1.75;'>{intro}</div>\n"
+        html += "</div>\n"
 
     return html or "<p>No data available.</p>"
 
@@ -499,6 +535,17 @@ body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans
 .share-btn:hover {{ background: #2563eb; }}
 .share-btn:disabled {{ opacity: 0.6; cursor: not-allowed; }}
 .share-toast {{ display: none; position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #1e293b; color: white; padding: 10px 20px; border-radius: 30px; font-size: 0.88em; font-weight: 600; z-index: 9999; box-shadow: 0 4px 16px rgba(0,0,0,0.2); }}
+@media (max-width: 640px) {{
+  .page-wrap {{ padding-top: 70px; }}
+  .hero {{ padding: 36px 16px 32px; }}
+  .hero-emoji {{ font-size: 2.5em; }}
+  .hero h1 {{ font-size: 2em; }}
+  .hero p {{ font-size: 0.95em; }}
+  .container {{ padding: 20px 12px 48px; }}
+  .section-card {{ padding: 18px 14px; border-radius: 14px; }}
+  .week-bar {{ flex-direction: column; align-items: flex-start; }}
+  .week-label {{ font-size: 1.25em; }}
+}}
 </style>
 <script src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js'></script>
 <script>

@@ -43,6 +43,17 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .share-btn:hover { background: #2563eb; }
 .share-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 .share-toast { display: none; position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #1e293b; color: white; padding: 10px 20px; border-radius: 30px; font-size: 0.88em; font-weight: 600; z-index: 9999; box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
+@media (max-width: 640px) {
+  .page-wrap { padding-top: 70px; }
+  .hero { padding: 36px 16px 32px; }
+  .hero-emoji { font-size: 2.5em; }
+  .hero h1 { font-size: 2em; }
+  .hero p { font-size: 0.95em; }
+  .container { padding: 20px 12px 48px; }
+  .section-card { padding: 18px 14px; border-radius: 14px; }
+  .week-bar { flex-direction: column; align-items: flex-start; }
+  .week-label { font-size: 1.25em; }
+}
 </style>
 <script src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js'></script>
 <script>
@@ -272,13 +283,13 @@ document.addEventListener('DOMContentLoaded', function() {
       <div class='week-bar'>
         <span class='week-label'>Week of September 06, 2026</span>
         <div style='display:flex;align-items:center;gap:8px;flex-wrap:wrap;'>
-          <span class='updated-badge'>🕐 September 06, 2026 at 11:00</span>
+          <span class='updated-badge'>🕐 September 06, 2026 at 11:05</span>
           <button class='share-btn' id='share-btn' onclick='shareNFL()'>📸 Share Picks</button>
         </div>
       </div>
-      <div id='picks-snapshot' style='padding:20px;'><div style='margin-bottom:28px;'>
+      <div style='margin-bottom:28px;'>
 <h3 style='font-size:1em;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:14px;'>📋 This Week's Matchups</h3>
-<div style='display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px;'>
+<div style='display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:12px;'>
 <div style='background:white;border:1px solid #e5e7eb;border-radius:14px;padding:16px 18px;box-shadow:0 2px 10px rgba(0,0,0,0.06);transition:all 0.2s;border-top:3px solid #2563eb;' onmouseover='this.style.boxShadow="0 6px 20px rgba(37,99,235,0.12)";this.style.transform="translateY(-1px)"' onmouseout='this.style.boxShadow="0 2px 10px rgba(0,0,0,0.06)";this.style.transform=""'>
   <div style='font-size:0.72em;font-weight:700;color:#64748b;margin-bottom:12px;text-align:center;'>🗓 Wed Sep 9 · 8:20 PM ET</div>
   
@@ -616,13 +627,15 @@ document.addEventListener('DOMContentLoaded', function() {
   <div style='margin-top:12px;padding:8px 12px;background:linear-gradient(135deg,#eff6ff,#dbeafe);border-radius:8px;border-left:3px solid #2563eb;font-size:0.8em;font-weight:700;color:#1e40af;'>🤖 Kansas City Chiefs -3.0 @ 2.0</div>
 </div>
 </div></div>
-<div style='margin-top:8px;'>
+<div id='picks-snapshot' style='padding:20px;'><div style='margin-top:8px;'>
 <h3 style='font-size:1em;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:20px;'>🤖 AI Analysis & Picks</h3>
 <div style='background:linear-gradient(135deg,#1e3a8a 0%,#2563eb 100%);border-radius:16px;padding:24px;margin-bottom:20px;color:white;box-shadow:0 6px 24px rgba(37,99,235,0.3);'>
-  <div style='display:flex;align-items:center;gap:10px;margin-bottom:14px;'>
+  <div style='display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap;'>
     <span style='background:rgba(255,255,255,0.2);padding:4px 14px;border-radius:20px;font-size:0.75em;font-weight:800;letter-spacing:2px;text-transform:uppercase;'>⭐ BET OF THE WEEK</span>
     
+    <span style='background:rgba(255,255,255,0.15);color:white;padding:3px 10px;border-radius:20px;font-size:0.75em;font-weight:600;'>🗓 Sun Sep 13 · 1:00 PM ET</span>
   </div>
+  <div style='display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:14px;color:rgba(255,255,255,0.9);'><div style='text-align:center;'><img src='https://a.espncdn.com/i/teamlogos/nfl/500/car.png' alt='Carolina Panthers' style='width:40px;height:40px;object-fit:contain;opacity:1;' onerror='this.style.display="none"'><div style='font-size:0.7em;font-weight:700;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:70px;'>Panthers</div></div><span style='font-size:0.75em;font-weight:700;opacity:0.6;'>vs</span><div style='text-align:center;'><img src='https://a.espncdn.com/i/teamlogos/nfl/500/chi.png' alt='Chicago Bears' style='width:40px;height:40px;object-fit:contain;opacity:0.55;' onerror='this.style.display="none"'><div style='font-size:0.7em;font-weight:700;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:70px;'>Bears</div></div></div>
   <div style='font-size:1.2em;font-weight:800;margin-bottom:12px;line-height:1.3;'>Carolina Panthers +2.5 vs Chicago Bears @ 1.98</div>
   <div style='display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;'>
     
@@ -631,35 +644,43 @@ document.addEventListener('DOMContentLoaded', function() {
   <div style='font-size:0.88em;opacity:0.9;line-height:1.7;'>The Panthers, playing at home, are being offered at +2.5 points against the Bears. Historically, NFL home teams win around 57% of their games, establishing a strong baseline. With both teams having 0-0 home and away records, the standard home field advantage is the most significant factor available. The estimated probability of the home underdog Panthers covering a +2.5 spread is around 65%, considering both outright win probability and the likelihood of a close loss. The implied probability from the 1.98 odds is 50.5%, yielding a substantial edge of 14.5%. The market appears to undervalue the Panthers' ability to either win outright or lose by a narrow margin at home.</div>
 </div><h4 style='font-size:0.9em;font-weight:700;color:#374151;margin:20px 0 12px;'>Other Recommended Plays</h4>
 <div style='background:white;border:1px solid #e5e7eb;border-left:4px solid #2563eb;border-radius:12px;padding:20px;margin-bottom:14px;box-shadow:0 2px 8px rgba(0,0,0,0.05);'>
-  <div style='display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;'>
+  <div style='display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap;'>
     <span style='background:#16a34a;color:white;padding:3px 10px;border-radius:20px;font-size:0.75em;font-weight:700;'>High</span>
     <span style='background:#eff6ff;color:#2563eb;padding:3px 10px;border-radius:20px;font-size:0.78em;font-weight:700;'>1.5u</span>
     <span style='background:#f0fdf4;color:#16a34a;padding:3px 10px;border-radius:20px;font-size:0.78em;font-weight:700;'>🎯 65%</span>
+    <span style='background:#f1f5f9;color:#64748b;padding:3px 10px;border-radius:20px;font-size:0.75em;font-weight:600;'>🗓 Sun Sep 13 · 8:20 PM ET</span>
   </div>
+  <div style='display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:14px;color:#475569;'><div style='text-align:center;'><img src='https://a.espncdn.com/i/teamlogos/nfl/500/nyg.png' alt='New York Giants' style='width:40px;height:40px;object-fit:contain;opacity:1;' onerror='this.style.display="none"'><div style='font-size:0.7em;font-weight:700;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:70px;'>Giants</div></div><span style='font-size:0.75em;font-weight:700;opacity:0.6;'>vs</span><div style='text-align:center;'><img src='https://a.espncdn.com/i/teamlogos/nfl/500/dal.png' alt='Dallas Cowboys' style='width:40px;height:40px;object-fit:contain;opacity:0.55;' onerror='this.style.display="none"'><div style='font-size:0.7em;font-weight:700;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:70px;'>Cowboys</div></div></div>
   <div style='font-size:1em;font-weight:700;color:#1e293b;margin-bottom:8px;'>New York Giants +2.5 vs Dallas Cowboys @ 1.98</div>
   <div style='font-size:0.88em;color:#6b7280;line-height:1.7;'>The Giants, as a home underdog receiving +2.5 points, represent significant value in Week 1. Similar to other home underdogs this week, the inherent NFL home field advantage (with both teams at 0-0 home/away records) suggests a higher probability of covering the spread than the odds imply. Our estimated probability for the Giants to cover this spread is 65%, which is notably higher than the implied probability of 50.5% from the 1.98 odds, providing a 14.5% edge.</div>
 </div><div style='background:white;border:1px solid #e5e7eb;border-left:4px solid #2563eb;border-radius:12px;padding:20px;margin-bottom:14px;box-shadow:0 2px 8px rgba(0,0,0,0.05);'>
-  <div style='display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;'>
+  <div style='display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap;'>
     <span style='background:#16a34a;color:white;padding:3px 10px;border-radius:20px;font-size:0.75em;font-weight:700;'>High</span>
     <span style='background:#eff6ff;color:#2563eb;padding:3px 10px;border-radius:20px;font-size:0.78em;font-weight:700;'>1.5u</span>
     <span style='background:#f0fdf4;color:#16a34a;padding:3px 10px;border-radius:20px;font-size:0.78em;font-weight:700;'>🎯 65%</span>
+    <span style='background:#f1f5f9;color:#64748b;padding:3px 10px;border-radius:20px;font-size:0.75em;font-weight:600;'>🗓 Sun Sep 13 · 1:00 PM ET</span>
   </div>
+  <div style='display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:14px;color:#475569;'><div style='text-align:center;'><img src='https://a.espncdn.com/i/teamlogos/nfl/500/ind.png' alt='Indianapolis Colts' style='width:40px;height:40px;object-fit:contain;opacity:1;' onerror='this.style.display="none"'><div style='font-size:0.7em;font-weight:700;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:70px;'>Colts</div></div><span style='font-size:0.75em;font-weight:700;opacity:0.6;'>vs</span><div style='text-align:center;'><img src='https://a.espncdn.com/i/teamlogos/nfl/500/bal.png' alt='Baltimore Ravens' style='width:40px;height:40px;object-fit:contain;opacity:0.55;' onerror='this.style.display="none"'><div style='font-size:0.7em;font-weight:700;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:70px;'>Ravens</div></div></div>
   <div style='font-size:1em;font-weight:700;color:#1e293b;margin-bottom:8px;'>Indianapolis Colts +3.5 vs Baltimore Ravens @ 1.89</div>
   <div style='font-size:0.88em;color:#6b7280;line-height:1.7;'>This matchup sees the Colts as home underdogs with a +3.5 spread. Despite both teams having 0-0 home/away records, the consistent NFL home field advantage suggests the Colts are undervalued at 1.89 odds. Our models estimate a 65% chance for the Colts to cover this spread, which is a considerable premium over the implied 52.9% probability. This 12.1% edge makes the Colts +3.5 a strong play.</div>
 </div><div style='background:white;border:1px solid #e5e7eb;border-left:4px solid #2563eb;border-radius:12px;padding:20px;margin-bottom:14px;box-shadow:0 2px 8px rgba(0,0,0,0.05);'>
-  <div style='display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;'>
+  <div style='display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap;'>
     <span style='background:#16a34a;color:white;padding:3px 10px;border-radius:20px;font-size:0.75em;font-weight:700;'>High</span>
     <span style='background:#eff6ff;color:#2563eb;padding:3px 10px;border-radius:20px;font-size:0.78em;font-weight:700;'>1.5u</span>
     <span style='background:#f0fdf4;color:#16a34a;padding:3px 10px;border-radius:20px;font-size:0.78em;font-weight:700;'>🎯 65%</span>
+    <span style='background:#f1f5f9;color:#64748b;padding:3px 10px;border-radius:20px;font-size:0.75em;font-weight:600;'>🗓 Sun Sep 13 · 1:00 PM ET</span>
   </div>
+  <div style='display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:14px;color:#475569;'><div style='text-align:center;'><img src='https://a.espncdn.com/i/teamlogos/nfl/500/hou.png' alt='Houston Texans' style='width:40px;height:40px;object-fit:contain;opacity:1;' onerror='this.style.display="none"'><div style='font-size:0.7em;font-weight:700;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:70px;'>Texans</div></div><span style='font-size:0.75em;font-weight:700;opacity:0.6;'>vs</span><div style='text-align:center;'><img src='https://a.espncdn.com/i/teamlogos/nfl/500/buf.png' alt='Buffalo Bills' style='width:40px;height:40px;object-fit:contain;opacity:0.55;' onerror='this.style.display="none"'><div style='font-size:0.7em;font-weight:700;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:70px;'>Bills</div></div></div>
   <div style='font-size:1em;font-weight:700;color:#1e293b;margin-bottom:8px;'>Houston Texans +1.5 vs Buffalo Bills @ 1.87</div>
   <div style='font-size:0.88em;color:#6b7280;line-height:1.7;'>The Texans are home underdogs receiving +1.5 points against the Bills. With both teams holding 0-0 home and away records, the traditional NFL home field advantage provides a solid foundation for the Texans. We project the Texans to cover the +1.5 spread at a 65% probability, significantly exceeding the implied probability of 53.5% from the 1.87 odds. This gives us an 11.5% edge, highlighting a mispriced spread.</div>
 </div><div style='background:white;border:1px solid #e5e7eb;border-left:4px solid #2563eb;border-radius:12px;padding:20px;margin-bottom:14px;box-shadow:0 2px 8px rgba(0,0,0,0.05);'>
-  <div style='display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;'>
+  <div style='display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap;'>
     <span style='background:#16a34a;color:white;padding:3px 10px;border-radius:20px;font-size:0.75em;font-weight:700;'>High</span>
     <span style='background:#eff6ff;color:#2563eb;padding:3px 10px;border-radius:20px;font-size:0.78em;font-weight:700;'>1.5u</span>
     <span style='background:#f0fdf4;color:#16a34a;padding:3px 10px;border-radius:20px;font-size:0.78em;font-weight:700;'>🎯 58%</span>
+    <span style='background:#f1f5f9;color:#64748b;padding:3px 10px;border-radius:20px;font-size:0.75em;font-weight:600;'>🗓 Mon Sep 14 · 8:15 PM ET</span>
   </div>
+  <div style='display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:14px;color:#475569;'><div style='text-align:center;'><img src='https://a.espncdn.com/i/teamlogos/nfl/500/kc.png' alt='Kansas City Chiefs' style='width:40px;height:40px;object-fit:contain;opacity:1;' onerror='this.style.display="none"'><div style='font-size:0.7em;font-weight:700;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:70px;'>Chiefs</div></div><span style='font-size:0.75em;font-weight:700;opacity:0.6;'>vs</span><div style='text-align:center;'><img src='https://a.espncdn.com/i/teamlogos/nfl/500/den.png' alt='Denver Broncos' style='width:40px;height:40px;object-fit:contain;opacity:0.55;' onerror='this.style.display="none"'><div style='font-size:0.7em;font-weight:700;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:70px;'>Broncos</div></div></div>
   <div style='font-size:1em;font-weight:700;color:#1e293b;margin-bottom:8px;'>Kansas City Chiefs -3.0 vs Denver Broncos @ 2.0</div>
   <div style='font-size:0.88em;color:#6b7280;line-height:1.7;'>The Chiefs are home favorites laying 3 points against the Broncos. With all teams starting with 0-0 home/away records, the standard NFL home field advantage (57% baseline win rate + 1% for minimal gap) gives the Chiefs an estimated 58% chance of winning outright and covering the -3.0 spread. The market's 2.0 odds for this spread imply a 50% probability, creating an 8.0% edge for the Chiefs.</div>
 </div></div>
