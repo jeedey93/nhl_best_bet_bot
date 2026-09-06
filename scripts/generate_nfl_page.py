@@ -10,6 +10,14 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 
 OUTPUT = "docs/nfl/index.html"
 PREDICTIONS_DIR = os.path.join("data", "predictions", "nfl")
+NAV_PATH = os.path.join("docs", "nav.html")
+
+
+def get_nav_html():
+    if os.path.exists(NAV_PATH):
+        with open(NAV_PATH, "r", encoding="utf-8") as f:
+            return f.read()
+    return ""
 
 
 def get_latest_predictions():
@@ -96,7 +104,7 @@ def _format_ai_text(text):
     return text
 
 
-def build_page(date_str, predictions_html, last_updated_label):
+def build_page(date_str, predictions_html, last_updated_label, nav_html=""):
     return f"""<!DOCTYPE html>
 <html lang='en'>
 <head>
@@ -128,19 +136,9 @@ body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans
 </head>
 <body>
 
-<div style='background: linear-gradient(135deg, #1e3a8a 0%, #2c5aa0 100%); padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.1);'>
-  <div style='display: flex; align-items: center; gap: 10px;'>
-    <img src='../parieur_discipline_icon_1024.png' alt='Logo' style='width: 28px; height: 28px; border-radius: 50%;'>
-    <span style='color: white; font-weight: 700; font-size: 0.95em;'>Parieur Discipliné</span>
-  </div>
-  <div style='display: flex; gap: 6px; align-items: center; flex-wrap: wrap;'>
-    <a href='../' style='color: rgba(255,255,255,0.8); text-decoration: none; padding: 6px 12px; border-radius: 6px; font-weight: 600; font-size: 0.85em;'>Home</a>
-    <a href='../nba.html' style='color: rgba(255,255,255,0.8); text-decoration: none; padding: 6px 12px; border-radius: 6px; font-weight: 600; font-size: 0.85em;'>🏀 NBA</a>
-    <a href='./' style='color: white; text-decoration: none; padding: 6px 12px; border-radius: 6px; font-weight: 600; font-size: 0.85em; background: rgba(255,255,255,0.15);'>🏈 NFL</a>
-    <a href='../performance.html' style='color: rgba(255,255,255,0.8); text-decoration: none; padding: 6px 12px; border-radius: 6px; font-weight: 600; font-size: 0.85em;'>📊 Performance</a>
-  </div>
-</div>
+{nav_html}
 
+<div style='padding-top: 95px;'>
 <div class='header'>
   <h1>🏈 NFL Weekly Picks</h1>
   <p>AI-powered spread, moneyline &amp; over/under analysis for every game</p>
@@ -155,6 +153,7 @@ body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans
     </div>
     {predictions_html}
   </div>
+</div>
 </div>
 
 </body>
@@ -172,7 +171,8 @@ def main():
 
     predictions_html = format_predictions_html(raw_text)
     last_updated = datetime.now().strftime("%B %d, %Y at %H:%M")
-    page = build_page(date_str, predictions_html, last_updated)
+    nav_html = get_nav_html()
+    page = build_page(date_str, predictions_html, last_updated, nav_html)
 
     with open(OUTPUT, "w", encoding="utf-8") as f:
         f.write(page)

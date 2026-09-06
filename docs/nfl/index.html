@@ -7,11 +7,11 @@
 <meta name='description' content='Weekly NFL predictions with AI-powered betting analysis. Spread, moneyline and over/under picks with team stats, home/away splits and historical context.'>
 <link rel='canonical' href='https://parieurdiscipline.com/nfl/'>
 <link rel='icon' type='image/png' href='../parieur_discipline_icon_1024.png'>
-<meta name='theme-color' content='#15803d'>
+<meta name='theme-color' content='#1e3a8a'>
 <meta property='og:type' content='website'>
 <meta property='og:url' content='https://parieurdiscipline.com/nfl/'>
 <meta property='og:title' content='NFL Weekly Picks - AI Predictions | Parieur Discipliné'>
-<meta property='og:description' content='Weekly NFL predictions with AI-powered betting analysis. Spread, moneyline and over/under picks.'>
+<meta property='og:description' content='Weekly NFL predictions with AI-powered betting analysis.'>
 <meta property='og:image' content='https://parieurdiscipline.com/parieur_discipline_icon_1024.png'>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -22,51 +22,190 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .header p { color: rgba(255,255,255,0.9); font-size: 1.1em; font-weight: 500; }
 .header .badge { display: inline-block; background: rgba(255,255,255,0.15); color: white; padding: 4px 14px; border-radius: 20px; font-size: 0.85em; font-weight: 700; margin-top: 12px; letter-spacing: 1px; }
 .predictions-section { background: white; border-radius: 16px; padding: 30px; margin-top: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
-.predictions-title { font-size: 1.4em; font-weight: 700; color: #15803d; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid #dcfce7; }
-.predictions-content { font-size: 0.95em; line-height: 1.7; color: #374151; white-space: pre-wrap; font-family: inherit; }
-.empty-state { text-align: center; padding: 60px 20px; color: #6b7280; }
-.empty-state .icon { font-size: 3em; margin-bottom: 16px; }
-.empty-state h3 { font-size: 1.3em; font-weight: 700; color: #374151; margin-bottom: 8px; }
-.empty-state p { font-size: 0.95em; }
-.meta-bar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; font-size: 0.85em; color: #6b7280; font-weight: 600; }
-.meta-bar .date { background: #f0fdf4; color: #15803d; padding: 4px 12px; border-radius: 20px; border: 1px solid #bbf7d0; }
+.meta-bar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid #dbeafe; }
+.meta-bar .title { font-size: 1.3em; font-weight: 700; color: #2563eb; }
+.meta-bar .date { background: #eff6ff; color: #2563eb; padding: 4px 12px; border-radius: 20px; border: 1px solid #bfdbfe; font-size: 0.85em; font-weight: 600; }
 </style>
 </head>
 <body>
 
-<div style='background: linear-gradient(135deg, #1e3a8a 0%, #2c5aa0 100%); padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.1);'>
-  <div style='display: flex; align-items: center; gap: 10px;'>
-    <img src='../parieur_discipline_icon_1024.png' alt='Logo' style='width: 28px; height: 28px; border-radius: 50%;'>
-    <span style='color: white; font-weight: 700; font-size: 0.95em;'>Parieur Discipliné</span>
-  </div>
-  <div style='display: flex; gap: 6px; align-items: center;'>
-    <a href='../' style='color: rgba(255,255,255,0.8); text-decoration: none; padding: 6px 12px; border-radius: 6px; font-weight: 600; font-size: 0.85em;'>Home</a>
-    <a href='../nba.html' style='color: rgba(255,255,255,0.8); text-decoration: none; padding: 6px 12px; border-radius: 6px; font-weight: 600; font-size: 0.85em;'>🏀 NBA</a>
-    <a href='./' style='color: white; text-decoration: none; padding: 6px 12px; border-radius: 6px; font-weight: 600; font-size: 0.85em; background: rgba(255,255,255,0.15);'>🏈 NFL</a>
-    <a href='../performance.html' style='color: rgba(255,255,255,0.8); text-decoration: none; padding: 6px 12px; border-radius: 6px; font-weight: 600; font-size: 0.85em;'>📊 Performance</a>
+<nav style='position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: linear-gradient(135deg, #2c5aa0 0%, #1e3a8a 100%); box-shadow: 0 2px 10px rgba(0,0,0,0.1); backdrop-filter: blur(10px);'>
+<div style='max-width: 1600px; margin: 0 auto; padding: 10px 15px; display: flex; align-items: center; justify-content: space-between;'>
+<div style='display: flex; align-items: center; gap: 10px;'>
+<img src='parieur_discipline_icon_1024.png' alt='Logo' style='width: 32px; height: 32px; border-radius: 50%;' />
+<span style='color: white; font-weight: 700; font-size: 1em;'>Parieur Discipliné</span>
+</div>
+<button id='mobileMenuBtn' style='display: none; background: none; border: none; color: white; font-size: 1.5em; cursor: pointer; padding: 5px;' onclick='toggleMobileMenu()'>☰</button>
+<div id='navLinks'>
+<a href='index.html' style='color: white; text-decoration: none; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 0.9em; transition: background 0.2s; white-space: nowrap;' onmouseover='this.style.background="rgba(255,255,255,0.15)"' onmouseout='this.style.background="transparent"'>Home</a>
+<a href='daily-picks.html' style='color: white; text-decoration: none; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 0.9em; transition: background 0.2s; white-space: nowrap;' onmouseover='this.style.background="rgba(255,255,255,0.15)"' onmouseout='this.style.background="transparent"'>🎯 Daily Picks</a>
+<div class='nav-dropdown' style='position: relative;'>
+  <a href='#' class='nav-dropdown-toggle' style='color: white; text-decoration: none; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 0.9em; transition: background 0.2s; white-space: nowrap; display: flex; align-items: center; gap: 4px;' onmouseover='this.style.background="rgba(255,255,255,0.15)"' onmouseout='this.style.background="transparent"'>🏒 NHL <span style='font-size: 0.7em;'>▼</span></a>
+  <div class='nav-dropdown-menu' style='position: absolute; top: 100%; left: 0; background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); min-width: 180px; opacity: 0; visibility: hidden; transform: translateY(-10px); transition: all 0.2s ease; margin-top: 5px; z-index: 1100;'>
+    <a href='nhl/games/index.html' style='display: block; color: #1e293b; text-decoration: none; padding: 10px 16px; font-weight: 600; font-size: 0.9em; transition: background 0.2s; border-bottom: 1px solid #e5e7eb;' onmouseover='this.style.background="#f1f5f9"' onmouseout='this.style.background="white"'>📅 Today's Games</a>
+    <a href='nhl/teams/index.html' style='display: block; color: #1e293b; text-decoration: none; padding: 10px 16px; font-weight: 600; font-size: 0.9em; transition: background 0.2s;' onmouseover='this.style.background="#f1f5f9"' onmouseout='this.style.background="white"'>🏒 All Teams</a>
   </div>
 </div>
+<a href='nba.html' style='color: white; text-decoration: none; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 0.9em; transition: background 0.2s; white-space: nowrap;' onmouseover='this.style.background="rgba(255,255,255,0.15)"' onmouseout='this.style.background="transparent"'>🏀 NBA</a>
+<a href='nfl/index.html' style='color: white; text-decoration: none; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 0.9em; transition: background 0.2s; white-space: nowrap;' onmouseover='this.style.background="rgba(255,255,255,0.15)"' onmouseout='this.style.background="transparent"'>🏈 NFL</a>
+<a href='performance.html' style='color: white; text-decoration: none; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 0.9em; transition: background 0.2s; white-space: nowrap;' onmouseover='this.style.background="rgba(255,255,255,0.15)"' onmouseout='this.style.background="transparent"'>📊 Performance</a>
+<a href='about.html' style='color: white; text-decoration: none; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 0.9em; transition: background 0.2s; white-space: nowrap;' onmouseover='this.style.background="rgba(255,255,255,0.15)"' onmouseout='this.style.background="transparent"'>ℹ️ About</a>
+</div>
+</div>
+</nav>
+<div style='position: fixed; top: 52px; left: 0; right: 0; z-index: 999; background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); padding: 8px 20px; text-align: center; box-shadow: 0 2px 8px rgba(251, 191, 36, 0.3);'>
+<span style='color: #78350f; font-weight: 600; font-size: 0.85em; letter-spacing: 0.3px;'>🎯 Our AI is learning and improving every day to bring you better predictions</span>
+</div>
+<style>
+#navLinks { display: flex; gap: 8px; align-items: center; }
+.nav-dropdown:hover .nav-dropdown-menu {
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: translateY(0) !important;
+}
+.nav-dropdown-menu.show {
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: translateY(0) !important;
+}
+@media (max-width: 768px) {
+  nav div:first-child span { font-size: 0.85em; }
+  nav div:first-child img { width: 28px; height: 28px; }
+  #mobileMenuBtn { display: block !important; }
+  #navLinks {
+    display: none !important;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: linear-gradient(135deg, #2c5aa0 0%, #1e3a8a 100%);
+    flex-direction: column;
+    gap: 0;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    align-items: stretch;
+    max-height: calc(100vh - 52px);
+    overflow-y: auto;
+  }
+  #navLinks.active { display: flex !important; }
+  #navLinks a {
+    padding: 14px 20px;
+    font-size: 1em;
+    border-radius: 0;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+  .nav-dropdown {
+    width: 100%;
+  }
+  .nav-dropdown-toggle {
+    width: 100%;
+    padding: 14px 20px !important;
+    border-bottom: 1px solid rgba(255,255,255,0.1) !important;
+    border-radius: 0 !important;
+    justify-content: space-between !important;
+  }
+  .nav-dropdown-menu {
+    position: static !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    max-height: 0;
+    overflow: hidden;
+    transform: none !important;
+    box-shadow: none !important;
+    background: rgba(255,255,255,0.1) !important;
+    margin: 0 !important;
+    transition: max-height 0.3s ease, opacity 0.2s ease !important;
+  }
+  .nav-dropdown.mobile-open .nav-dropdown-menu {
+    opacity: 1 !important;
+    visibility: visible !important;
+    max-height: 200px;
+  }
+  .nav-dropdown-menu a {
+    color: white !important;
+    border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+    padding: 12px 20px 12px 40px !important;
+    font-size: 0.95em !important;
+  }
+  .nav-dropdown-menu a:hover {
+    background: rgba(255,255,255,0.1) !important;
+  }
+  .nav-dropdown-menu a:last-child {
+    border-bottom: none !important;
+  }
+}
+</style>
+<script>
+function toggleMobileMenu() {
+  const navLinks = document.getElementById('navLinks');
+  navLinks.classList.toggle('active');
+}
+// Close menu when clicking outside
+document.addEventListener('click', function(event) {
+  const nav = document.querySelector('nav');
+  const menuBtn = document.getElementById('mobileMenuBtn');
+  const navLinks = document.getElementById('navLinks');
+  const dropdown = document.querySelector('.nav-dropdown');
+  const dropdownMenu = document.querySelector('.nav-dropdown-menu');
 
+  // Close mobile menu when clicking outside
+  if (!nav.contains(event.target) && navLinks.classList.contains('active')) {
+    navLinks.classList.remove('active');
+  }
+
+  // Close dropdown when clicking outside
+  if (dropdown && !dropdown.contains(event.target) && dropdownMenu) {
+    dropdownMenu.classList.remove('show');
+  }
+});
+// Handle dropdown toggle
+document.addEventListener('DOMContentLoaded', function() {
+  const dropdownToggle = document.querySelector('.nav-dropdown-toggle');
+  const dropdown = document.querySelector('.nav-dropdown');
+  const dropdownMenu = document.querySelector('.nav-dropdown-menu');
+
+  if (dropdownToggle && dropdownMenu) {
+    dropdownToggle.addEventListener('click', function(e) {
+      e.preventDefault();
+
+      // On mobile, toggle the mobile-open class
+      if (window.innerWidth <= 768) {
+        dropdown.classList.toggle('mobile-open');
+      } else {
+        // On desktop, toggle the show class
+        dropdownMenu.classList.toggle('show');
+      }
+    });
+  }
+});
+</script>
+
+
+<div style='padding-top: 95px;'>
 <div class='header'>
   <h1>🏈 NFL Weekly Picks</h1>
-  <p>AI-powered spread, moneyline & over/under analysis for every game</p>
+  <p>AI-powered spread, moneyline &amp; over/under analysis for every game</p>
   <div class='badge'>Updated every Sunday morning</div>
 </div>
 
 <div class='container'>
   <div class='predictions-section'>
     <div class='meta-bar'>
-      <span class='predictions-title'>This Week's Analysis</span>
-      <span class='date' id='last-updated'>—</span>
+      <span class='title'>Week of 2026-09-06</span>
+      <span class='date'>Updated September 06, 2026 at 10:10</span>
     </div>
-    <div class='predictions-content' id='predictions-content'>
-      <div class='empty-state'>
-        <div class='icon'>🏈</div>
-        <h3>NFL Season Coming Soon</h3>
-        <p>Weekly picks will appear here every Sunday once the season kicks off.</p>
-      </div>
-    </div>
+    <div style='margin-bottom:24px;'>
+<h3 style='font-size:1.1em;font-weight:700;color:#374151;margin-bottom:12px;'>📋 This Week's Games & Odds</h3>
+<div style='display:grid;gap:10px;'>
+<div style='background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:12px 16px;'><div style='font-weight:700;color:#1a1a1a;margin-bottom:4px;'>Seattle Seahawks vs New England Patriots</div><div style='font-size:0.85em;color:#6b7280;'>Seattle Seahawks ML (Home): 1.56, New England Patriots ML (Away): 2.5, O/U: 44.5 (Over: 1.95 / Under: 1.87) &nbsp;·&nbsp; Spreads: Home -3.5 (1.95), Away 3.5 (1.87)</div></div>
+<div style='background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:12px 16px;'><div style='font-weight:700;color:#1a1a1a;margin-bottom:4px;'>Los Angeles Rams vs San Francisco 49ers</div><div style='font-size:0.85em;color:#6b7280;'>Los Angeles Rams ML (Home): 1.54, San Francisco 49ers ML (Away): 2.54, O/U: 48.5 (Over: 1.95 / Under: 1.87) &nbsp;·&nbsp; Spreads: Home -3.5 (1.93), Away 3.5 (1.89)</div></div>
+</div></div>
+<div style='margin-top:30px;'>
+<h3 style='font-size:1.2em;font-weight:700;color:#2563eb;margin-bottom:16px;border-bottom:2px solid #dbeafe;padding-bottom:8px;'>🤖 AI Analysis</h3>
+<div style='line-height:1.75;color:#374151;'>Current Roster Data Unavailable<br><br>Today is Week 1 of the 2026 NFL season. Given the early date of 2026-09-06, all teams begin with a 0-0 record, meaning comprehensive team statistics for the current season are unavailable. This significantly limits the application of several analytical factors. As such, our analysis relies heavily on general NFL probabilities and a minimal home-field advantage for Week 1 matchups. Due to the lack of specific team performance data, last 5 games performance, head-to-head history, and current season standings are all neutral factors (0% adjustment). No injury data or specific weather conditions have been provided, rendering those factors neutral as well. All teams are on standard rest for Week 1.<br><br>Our baseline estimated win probability for a home team in the NFL is 57%. With all teams at 0-0 records, the home/road performance gap for Factor 1 is 0.000, resulting in a minimal +1% adjustment to the home team. Therefore, our base estimated win probability for any home team in Week 1 with no other data is 58%, and for any away team is 42%. When converting these to spread probabilities without specific historical data, we apply a general heuristic: a favorite at -3.5 is estimated at 53% to cover (ML probability - 5%), and an underdog at +3.5 is estimated at 57% to cover (ML probability + 15%).<br><br>After analyzing all available games, the following plays represent the best value in a challenging, data-sparse Week 1 environment, adhering to the mandatory requirement to find value plays even if slightly below our typical +5% edge.<br><br><div style="background:linear-gradient(135deg,#1e3a8a,#2563eb);color:white;padding:6px 14px;border-radius:8px;display:inline-block;font-weight:700;letter-spacing:1px;font-size:0.9em;margin-bottom:8px;">BET OF THE WEEK</div><br><br>San Francisco 49ers +3.5 vs Los Angeles Rams @ 1.89<br>In this Week 1 NFC West clash, with both teams starting at 0-0, the Los Angeles Rams hold a minimal home-field advantage. Our model estimates the Rams' moneyline win probability at 58% based on the standard NFL home win rate adjusted by a +1% for the early season. The market, however, is offering the San Francisco 49ers at +3.5 spread with odds of 1.89, implying a 52.9% chance for them to cover. Our estimated probability for the 49ers to cover +3.5 points is 57% (derived from their 42% estimated moneyline win probability plus a 15% adjustment for covering the spread), creating a +4.1% edge over the implied odds. This represents the week's strongest value given the limited data.<br>Confidence Level: Medium, Units: 1u, Win Probability: 57%<br><br><strong>Other Recommended Plays</strong><br><br>New England Patriots +3.5 vs Seattle Seahawks @ 1.87<br>Similar to the other Week 1 matchup, the Seattle Seahawks are afforded a minimal home-field advantage with their 0-0 home record. Our model's estimated moneyline win probability for the Seahawks is 58%. The New England Patriots, as the road underdog, are offered at +3.5 with odds of 1.87, which implies a 53.5% chance to cover. Our estimated probability for the Patriots to cover +3.5 is 57% (based on their 42% estimated moneyline win probability plus a 15% adjustment for covering the spread). This creates a +3.5% edge over the implied odds, making it a viable play in a week with limited high-edge opportunities.<br>Confidence Level: Medium, Units: 1u, Win Probability: 57%</div>
+</div>
+
   </div>
+</div>
 </div>
 
 </body>

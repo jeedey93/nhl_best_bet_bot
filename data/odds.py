@@ -192,6 +192,7 @@ def match_nfl_odds_to_games(games, odds_data):
     return match_odds_to_games(games, odds_data, NFL_TEAM_NAME_MAP)
 
 
+NHL_TEAM_NAME_MAP = {
     "anaheim": ["Anaheim Ducks"],
     "arizona": ["Arizona Coyotes"],
     "boston": ["Boston Bruins"],

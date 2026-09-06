@@ -23,6 +23,7 @@ import pytz
 CACHE_DIR = "data/cache"
 NHL_CACHE_FILE_TEMPLATE = os.path.join(CACHE_DIR, "nhl_odds_{date}.json")
 NBA_CACHE_FILE_TEMPLATE = os.path.join(CACHE_DIR, "nba_odds_{date}.json")
+NFL_CACHE_FILE_TEMPLATE = os.path.join(CACHE_DIR, "nfl_odds_{date}.json")
 CACHE_TTL = 2 * 60 * 60  # 2 hours in seconds
 
 
@@ -46,6 +47,8 @@ def get_cache_filepath(sport, date_str):
         return NHL_CACHE_FILE_TEMPLATE.format(date=date_str)
     elif sport.lower() == 'nba':
         return NBA_CACHE_FILE_TEMPLATE.format(date=date_str)
+    elif sport.lower() == 'nfl':
+        return NFL_CACHE_FILE_TEMPLATE.format(date=date_str)
     else:
         raise ValueError(f"Unsupported sport: {sport}")
 
