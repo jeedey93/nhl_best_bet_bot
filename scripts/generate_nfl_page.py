@@ -164,7 +164,7 @@ def render_game_card(g, ai_pick=None):
         bg = "#1e3a8a" if is_pick else "#f8fafc"
         color = "white" if is_pick else "#64748b"
         border = "none" if is_pick else "1px solid #e2e8f0"
-        return f"<span style='background:{bg};color:{color};border:{border};padding:3px 10px;border-radius:20px;font-size:0.75em;font-weight:700;white-space:nowrap;'>{label} {val}</span>"
+        return f"<span style='background:{bg};color:{color};border:{border};padding:3px 10px;border-radius:20px;font-size:0.75em;font-weight:700;white-space:nowrap;'>{label} @ {val}</span>"
 
     # Home vs Away odds row with logos
     home_logo = get_team_logo(home)
@@ -195,15 +195,13 @@ def render_game_card(g, ai_pick=None):
     # Spread + O/U chips row
     chips = []
     if sh:
-        chips.append(pill(f"Home {sh['points']}", sh['price'], is_pick=pick_highlight == 'home_spread'))
+        chips.append(pill(f"{home} {sh['points']}", sh['price'], is_pick=pick_highlight == 'home_spread'))
     if sa:
-        chips.append(pill(f"Away {sa['points']}", sa['price'], is_pick=pick_highlight == 'away_spread'))
-    if ou:
-        chips.append(pill("O/U", ou))
-    if over_price:
-        chips.append(pill("Over", over_price, is_pick=pick_highlight == 'over'))
-    if under_price:
-        chips.append(pill("Under", under_price, is_pick=pick_highlight == 'under'))
+        chips.append(pill(f"{away} {sa['points']}", sa['price'], is_pick=pick_highlight == 'away_spread'))
+    if ou and over_price:
+        chips.append(pill(f"Over {ou}", over_price, is_pick=pick_highlight == 'over'))
+    if ou and under_price:
+        chips.append(pill(f"Under {ou}", under_price, is_pick=pick_highlight == 'under'))
     chips_html = f"<div style='display:flex;flex-wrap:wrap;gap:6px;'>" + "".join(chips) + "</div>" if chips else ""
 
     # AI pick banner at bottom
