@@ -12,6 +12,34 @@ OUTPUT = "docs/nfl/index.html"
 PREDICTIONS_DIR = os.path.join("data", "predictions", "nfl")
 NAV_PATH = os.path.join("docs", "nav.html")
 
+# ESPN team logo CDN: https://a.espncdn.com/i/teamlogos/nfl/500/{abbr}.png
+NFL_LOGO_MAP = {
+    "arizona cardinals": "ari", "atlanta falcons": "atl", "baltimore ravens": "bal",
+    "buffalo bills": "buf", "carolina panthers": "car", "chicago bears": "chi",
+    "cincinnati bengals": "cin", "cleveland browns": "cle", "dallas cowboys": "dal",
+    "denver broncos": "den", "detroit lions": "det", "green bay packers": "gb",
+    "houston texans": "hou", "indianapolis colts": "ind", "jacksonville jaguars": "jax",
+    "kansas city chiefs": "kc", "las vegas raiders": "lv", "los angeles chargers": "lac",
+    "los angeles rams": "lar", "miami dolphins": "mia", "minnesota vikings": "min",
+    "new england patriots": "ne", "new orleans saints": "no", "new york giants": "nyg",
+    "new york jets": "nyj", "philadelphia eagles": "phi", "pittsburgh steelers": "pit",
+    "san francisco 49ers": "sf", "seattle seahawks": "sea", "tampa bay buccaneers": "tb",
+    "tennessee titans": "ten", "washington commanders": "was",
+}
+
+def get_team_logo(team_name):
+    key = team_name.lower().strip()
+    abbr = NFL_LOGO_MAP.get(key)
+    if not abbr:
+        # Try partial match on last word
+        for full, ab in NFL_LOGO_MAP.items():
+            if full.split()[-1] == key.split()[-1]:
+                abbr = ab
+                break
+    if abbr:
+        return f"https://a.espncdn.com/i/teamlogos/nfl/500/{abbr}.png"
+    return ""
+
 
 def get_nav_html():
     if os.path.exists(NAV_PATH):
@@ -138,20 +166,28 @@ def render_game_card(g, ai_pick=None):
         border = "none" if is_pick else "1px solid #e2e8f0"
         return f"<span style='background:{bg};color:{color};border:{border};padding:3px 10px;border-radius:20px;font-size:0.75em;font-weight:700;white-space:nowrap;'>{label} {val}</span>"
 
-    # Home vs Away odds row
-    home_abbr = home.split()[-1]
-    away_abbr = away.split()[-1]
+    # Home vs Away odds row with logos
+    home_logo = get_team_logo(home)
+    away_logo = get_team_logo(away)
+
+    def logo_img(url, alt):
+        if url:
+            return f"<img src='{url}' alt='{alt}' style='width:44px;height:44px;object-fit:contain;margin-bottom:6px;' onerror='this.style.display=\"none\"'>"
+        return "<div style='width:44px;height:44px;margin-bottom:6px;'></div>"
+
     teams_html = f"""
   <div style='display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;'>
     <div style='text-align:center;flex:1;'>
       <div style='font-size:0.72em;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;'>Home</div>
-      <div style='font-size:0.95em;font-weight:800;color:#1e293b;margin-bottom:6px;line-height:1.2;'>{home}</div>
+      {logo_img(home_logo, home)}
+      <div style='font-size:0.88em;font-weight:800;color:#1e293b;margin-bottom:6px;line-height:1.2;'>{home}</div>
       {odds_badge(home_odds, is_pick=pick_highlight=='home_ml') if home_odds else ''}
     </div>
     <div style='color:#cbd5e1;font-weight:700;font-size:0.85em;padding:0 8px;flex-shrink:0;'>VS</div>
     <div style='text-align:center;flex:1;'>
       <div style='font-size:0.72em;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;'>Away</div>
-      <div style='font-size:0.95em;font-weight:800;color:#1e293b;margin-bottom:6px;line-height:1.2;'>{away}</div>
+      {logo_img(away_logo, away)}
+      <div style='font-size:0.88em;font-weight:800;color:#1e293b;margin-bottom:6px;line-height:1.2;'>{away}</div>
       {odds_badge(away_odds, is_pick=pick_highlight=='away_ml') if away_odds else ''}
     </div>
   </div>"""
@@ -280,11 +316,15 @@ def render_pick_card(pick):
 
 
 def parse_intro(ai_text):
-    """Get the intro/context paragraph — text between GAME PICKS section and BET OF THE WEEK."""
-    # Skip GAME PICKS block, take text before BET OF THE WEEK
+    """Get the weekly analysis narrative from the WEEKLY ANALYSIS section."""
+    # Try the explicit WEEKLY ANALYSIS section first
+    match = re.search(r'WEEKLY ANALYSIS\s*\n(.*?)(?=\n---|\nSECTION\s*3|\nBET OF THE WEEK|\Z)', ai_text, re.DOTALL | re.IGNORECASE)
+    if match:
+        return match.group(1).strip()
+    # Fallback: text between GAME PICKS block and BET OF THE WEEK
     text = re.sub(r'GAME PICKS.*?(?=BET OF THE WEEK)', '', ai_text, flags=re.DOTALL | re.IGNORECASE)
     before_botw = re.split(r'BET OF THE WEEK', text, flags=re.IGNORECASE)[0]
-    lines = [l for l in before_botw.strip().splitlines() if l.strip()]
+    lines = [l for l in before_botw.strip().splitlines() if l.strip() and not l.strip().startswith('---')]
     if lines and len(lines[0]) < 60:
         lines = lines[1:]
     return " ".join(lines).strip()
