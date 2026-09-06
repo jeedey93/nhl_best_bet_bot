@@ -430,7 +430,7 @@ def format_predictions_html(raw_text):
     if games:
         matchups_html += "<div style='margin-bottom:28px;'>\n"
         matchups_html += "<h3 style='font-size:1em;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:14px;'>📋 This Week's Matchups</h3>\n"
-        matchups_html += "<div style='display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:12px;'>\n"
+        matchups_html += "<div style='display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,280px),1fr));gap:14px;'>\n"
         for g in games:
             ai_pick = find_pick_for_game(g)
             home_key = g.get("home", "").lower()
@@ -460,10 +460,12 @@ def format_predictions_html(raw_text):
         others = [p for p in picks if p["type"] == "other"]
         if others:
             picks_html += "<h4 style='font-size:0.9em;font-weight:700;color:#374151;margin:20px 0 12px;'>Other Recommended Plays</h4>\n"
+            picks_html += "<div style='display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,420px),1fr));gap:14px;'>\n"
             for p in others:
                 m = re.search(r'^(.+?)\s+(?:ML|[+-][\d.]+|Over|Under).+?vs\s+(.+?)\s+@', p.get("pick", ""))
                 gt = get_game_time_for_teams(m.group(1).strip(), m.group(2).strip()) if m else None
                 picks_html += render_pick_card(p, game_time=gt)
+            picks_html += "</div>\n"
 
         picks_html += "</div>\n"
 
@@ -526,7 +528,7 @@ body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans
 .hero p {{ color: rgba(255,255,255,0.85); font-size: 1.05em; font-weight: 500; max-width: 500px; margin: 0 auto 16px; }}
 .hero-badges {{ display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }}
 .hero-badge {{ background: rgba(255,255,255,0.15); color: white; padding: 5px 16px; border-radius: 20px; font-size: 0.8em; font-weight: 700; letter-spacing: 0.5px; backdrop-filter: blur(4px); }}
-.container {{ max-width: 900px; margin: 0 auto; padding: 32px 20px 60px; }}
+.container {{ max-width: 1400px; margin: 0 auto; padding: 32px 32px 60px; }}
 .section-card {{ background: white; border-radius: 20px; padding: 28px; margin-bottom: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.07); }}
 .week-bar {{ display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 24px; padding-bottom: 18px; border-bottom: 2px solid #e2e8f0; }}
 .week-label {{ font-family: 'Barlow Condensed', sans-serif; font-size: 1.5em; font-weight: 700; color: #1e3a8a; letter-spacing: 0.5px; }}
