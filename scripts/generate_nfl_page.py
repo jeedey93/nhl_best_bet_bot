@@ -31,12 +31,205 @@ def get_latest_predictions():
     return date_str, content
 
 
+def parse_game_line(line):
+    """Parse a game line into structured data."""
+    game = {"title": "", "home": "", "away": "", "home_odds": None, "away_odds": None,
+            "ou": None, "over_price": None, "under_price": None,
+            "spread_home": None, "spread_away": None}
+
+    # Title line: "Team A vs Team B"
+    if " vs " in line and "ML" not in line and "Spread" not in line:
+        game["title"] = line.strip()
+        parts = line.strip().split(" vs ")
+        if len(parts) == 2:
+            game["home"] = parts[0].strip()
+            game["away"] = parts[1].strip()
+
+    # Moneyline + O/U line
+    ml_match = re.search(r'(.+?) ML \(Home\): ([\d.]+),.+?ML \(Away\): ([\d.]+).*?O/U: ([\d.]+).*?Over: ([\d.]+).*?Under: ([\d.]+)', line)
+    if ml_match:
+        game["home_odds"] = float(ml_match.group(2))
+        game["away_odds"] = float(ml_match.group(3))
+        game["ou"] = float(ml_match.group(4))
+        game["over_price"] = float(ml_match.group(5))
+        game["under_price"] = float(ml_match.group(6))
+
+    # Spreads line
+    spread_match = re.search(r'Spreads?: Home ([+-]?[\d.]+) \(([\d.]+)\), Away ([+-]?[\d.]+) \(([\d.]+)\)', line)
+    if spread_match:
+        game["spread_home"] = {"points": spread_match.group(1), "price": spread_match.group(2)}
+        game["spread_away"] = {"points": spread_match.group(3), "price": spread_match.group(4)}
+
+    return game
+
+
+def parse_matchups(raw):
+    """Parse matchup blocks into list of game dicts."""
+    games = []
+    current = {}
+    for line in raw.splitlines():
+        line = line.strip()
+        if not line or line.startswith("Date:"):
+            continue
+        if line.startswith("------"):
+            if current.get("title"):
+                games.append(current)
+            current = {}
+            continue
+        if " vs " in line and "ML" not in line and "Spread" not in line and "@" not in line:
+            current["title"] = line
+            parts = line.split(" vs ", 1)
+            current["home"] = parts[0].strip()
+            current["away"] = parts[1].strip() if len(parts) > 1 else ""
+        ml = re.search(r'ML \(Home\): ([\d.]+).*?ML \(Away\): ([\d.]+).*?O/U: ([\d.]+).*?Over: ([\d.]+).*?Under: ([\d.]+)', line)
+        if ml:
+            current["home_odds"] = float(ml.group(1))
+            current["away_odds"] = float(ml.group(2))
+            current["ou"] = float(ml.group(3))
+            current["over_price"] = float(ml.group(4))
+            current["under_price"] = float(ml.group(5))
+        sp = re.search(r'Spreads?: Home ([+-]?[\d.]+) \(([\d.]+)\), Away ([+-]?[\d.]+) \(([\d.]+)\)', line)
+        if sp:
+            current["spread_home"] = {"points": sp.group(1), "price": sp.group(2)}
+            current["spread_away"] = {"points": sp.group(3), "price": sp.group(4)}
+    if current.get("title"):
+        games.append(current)
+    return games
+
+
+def render_game_card(g):
+    home = g.get("home", "")
+    away = g.get("away", "")
+    home_odds = g.get("home_odds")
+    away_odds = g.get("away_odds")
+    ou = g.get("ou")
+    over_price = g.get("over_price")
+    under_price = g.get("under_price")
+    sh = g.get("spread_home", {})
+    sa = g.get("spread_away", {})
+
+    def chip(label, val, highlight=False):
+        bg = "#1e3a8a" if highlight else "#f1f5f9"
+        color = "white" if highlight else "#374151"
+        return f"<span style='background:{bg};color:{color};padding:3px 10px;border-radius:20px;font-size:0.78em;font-weight:700;white-space:nowrap;'>{label}: {val}</span>"
+
+    odds_chips = ""
+    if home_odds:
+        fav = home_odds < away_odds if away_odds else True
+        odds_chips += chip(f"🏠 {home.split()[-1]}", home_odds, highlight=fav)
+        odds_chips += " "
+    if away_odds:
+        fav = away_odds < home_odds if home_odds else True
+        odds_chips += chip(f"✈ {away.split()[-1]}", away_odds, highlight=fav)
+        odds_chips += " "
+    if ou:
+        odds_chips += chip(f"O/U", f"{ou}", highlight=False)
+
+    spread_chips = ""
+    if sh:
+        spread_chips += chip(f"Home {sh['points']}", sh['price'])
+        spread_chips += " "
+    if sa:
+        spread_chips += chip(f"Away {sa['points']}", sa['price'])
+
+    return f"""<div style='background:white;border:1px solid #e5e7eb;border-radius:14px;padding:18px 20px;box-shadow:0 2px 8px rgba(0,0,0,0.06);transition:box-shadow 0.2s;' onmouseover='this.style.boxShadow="0 4px 16px rgba(37,99,235,0.12)"' onmouseout='this.style.boxShadow="0 2px 8px rgba(0,0,0,0.06)"'>
+  <div style='font-size:1.05em;font-weight:700;color:#1e293b;margin-bottom:10px;'>🏈 {home} <span style='color:#94a3b8;font-weight:500;font-size:0.9em;'>vs</span> {away}</div>
+  <div style='display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;'>{odds_chips}</div>
+  {"<div style='display:flex;flex-wrap:wrap;gap:6px;'>" + spread_chips + "</div>" if spread_chips else ""}
+</div>"""
+
+
+def parse_picks(ai_text):
+    """Extract BET OF THE WEEK and other recommended plays from AI text."""
+    picks = []
+
+    # BET OF THE WEEK block
+    botw_match = re.search(r'BET OF THE WEEK\s*\n+(.*?)(?=\*\*Other|Confidence Level.*?\n\n|\Z)', ai_text, re.DOTALL | re.IGNORECASE)
+    if botw_match:
+        block = botw_match.group(1).strip()
+        conf_match = re.search(r'Confidence Level: (\w+).*?Units: ([\d.]+u).*?Win Probability: (\d+%)', block)
+        conf = conf_match.group(1) if conf_match else None
+        units = conf_match.group(2) if conf_match else None
+        prob = conf_match.group(3) if conf_match else None
+        # Remove confidence line from body
+        body = re.sub(r'Confidence Level:.*', '', block).strip()
+        first_line = body.split('\n')[0].strip()
+        rest = '\n'.join(body.split('\n')[1:]).strip()
+        picks.append({"type": "best", "pick": first_line, "detail": rest, "conf": conf, "units": units, "prob": prob})
+
+    # Other recommended plays
+    other_match = re.search(r'\*\*Other Recommended Plays\*\*\s*\n+(.*?)$', ai_text, re.DOTALL | re.IGNORECASE)
+    if other_match:
+        block = other_match.group(1).strip()
+        # Split by blank lines — each play is a paragraph
+        paragraphs = re.split(r'\n\n+', block)
+        for para in paragraphs:
+            para = para.strip()
+            if not para:
+                continue
+            conf_match = re.search(r'Confidence Level: (\w+).*?Units: ([\d.]+u).*?Win Probability: (\d+%)', para)
+            conf = conf_match.group(1) if conf_match else None
+            units = conf_match.group(2) if conf_match else None
+            prob = conf_match.group(3) if conf_match else None
+            body = re.sub(r'Confidence Level:.*', '', para).strip()
+            first_line = body.split('\n')[0].strip()
+            rest = '\n'.join(body.split('\n')[1:]).strip()
+            if first_line:
+                picks.append({"type": "other", "pick": first_line, "detail": rest, "conf": conf, "units": units, "prob": prob})
+
+    return picks
+
+
+def render_pick_card(pick):
+    is_best = pick["type"] == "best"
+    conf = pick.get("conf", "")
+    units = pick.get("units", "")
+    prob = pick.get("prob", "")
+    detail = pick.get("detail", "").replace("\n", "<br>")
+
+    conf_color = {"High": "#16a34a", "Medium": "#d97706", "Low": "#dc2626"}.get(conf, "#6b7280")
+
+    if is_best:
+        return f"""<div style='background:linear-gradient(135deg,#1e3a8a 0%,#2563eb 100%);border-radius:16px;padding:24px;margin-bottom:20px;color:white;box-shadow:0 6px 24px rgba(37,99,235,0.3);'>
+  <div style='display:flex;align-items:center;gap:10px;margin-bottom:14px;'>
+    <span style='background:rgba(255,255,255,0.2);padding:4px 14px;border-radius:20px;font-size:0.75em;font-weight:800;letter-spacing:2px;text-transform:uppercase;'>⭐ BET OF THE WEEK</span>
+    {"<span style='background:rgba(255,255,255,0.15);padding:3px 10px;border-radius:20px;font-size:0.8em;font-weight:700;'>" + conf + " Confidence</span>" if conf else ""}
+  </div>
+  <div style='font-size:1.2em;font-weight:800;margin-bottom:12px;line-height:1.3;'>{pick["pick"]}</div>
+  <div style='display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;'>
+    {"<span style='background:rgba(255,255,255,0.15);padding:4px 12px;border-radius:20px;font-size:0.82em;font-weight:700;'>📊 " + units + "</span>" if units else ""}
+    {"<span style='background:rgba(255,255,255,0.15);padding:4px 12px;border-radius:20px;font-size:0.82em;font-weight:700;'>🎯 " + prob + " win prob</span>" if prob else ""}
+  </div>
+  {"<div style='font-size:0.88em;opacity:0.9;line-height:1.7;'>" + detail + "</div>" if detail else ""}
+</div>"""
+    else:
+        return f"""<div style='background:white;border:1px solid #e5e7eb;border-left:4px solid #2563eb;border-radius:12px;padding:20px;margin-bottom:14px;box-shadow:0 2px 8px rgba(0,0,0,0.05);'>
+  <div style='display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;'>
+    {"<span style='background:" + conf_color + ";color:white;padding:3px 10px;border-radius:20px;font-size:0.75em;font-weight:700;'>" + conf + "</span>" if conf else ""}
+    {"<span style='background:#eff6ff;color:#2563eb;padding:3px 10px;border-radius:20px;font-size:0.78em;font-weight:700;'>" + units + "</span>" if units else ""}
+    {"<span style='background:#f0fdf4;color:#16a34a;padding:3px 10px;border-radius:20px;font-size:0.78em;font-weight:700;'>🎯 " + prob + "</span>" if prob else ""}
+  </div>
+  <div style='font-size:1em;font-weight:700;color:#1e293b;margin-bottom:8px;'>{pick["pick"]}</div>
+  {"<div style='font-size:0.88em;color:#6b7280;line-height:1.7;'>" + detail + "</div>" if detail else ""}
+</div>"""
+
+
+def parse_intro(ai_text):
+    """Get the intro/context paragraph before the picks."""
+    # Everything before BET OF THE WEEK
+    before_botw = re.split(r'BET OF THE WEEK', ai_text, flags=re.IGNORECASE)[0]
+    # Remove the header line if present
+    lines = [l for l in before_botw.strip().splitlines() if l.strip()]
+    # Skip first line if it's a short header
+    if lines and len(lines[0]) < 60:
+        lines = lines[1:]
+    return " ".join(lines).strip()
+
+
 def format_predictions_html(raw_text):
-    """Convert raw prediction text to readable HTML."""
     if not raw_text:
         return "<p>No predictions available.</p>"
 
-    # Split into matchup blocks and AI summary
     ai_marker = "AI Analysis Summary:"
     if ai_marker in raw_text:
         matchups_raw, ai_raw = raw_text.split(ai_marker, 1)
@@ -45,66 +238,57 @@ def format_predictions_html(raw_text):
 
     html = ""
 
-    # Matchups table
-    matchup_lines = [l for l in matchups_raw.splitlines() if l.strip() and not l.startswith("Date:")]
-    if matchup_lines:
-        html += "<div style='margin-bottom:24px;'>\n"
-        html += "<h3 style='font-size:1.1em;font-weight:700;color:#374151;margin-bottom:12px;'>📋 This Week's Games & Odds</h3>\n"
-        html += "<div style='display:grid;gap:10px;'>\n"
-        current_game = []
-        for line in matchup_lines:
-            if line.startswith("------"):
-                if current_game:
-                    html += _render_game_card(current_game)
-                    current_game = []
-            else:
-                current_game.append(line)
-        if current_game:
-            html += _render_game_card(current_game)
+    # Game matchup cards
+    games = parse_matchups(matchups_raw)
+    if games:
+        html += "<div style='margin-bottom:28px;'>\n"
+        html += "<h3 style='font-size:1em;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:14px;'>📋 This Week's Matchups</h3>\n"
+        html += "<div style='display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px;'>\n"
+        for g in games:
+            html += render_game_card(g) + "\n"
         html += "</div></div>\n"
 
-    # AI Analysis
+    # AI section
     if ai_raw.strip():
-        html += "<div style='margin-top:30px;'>\n"
-        html += "<h3 style='font-size:1.2em;font-weight:700;color:#2563eb;margin-bottom:16px;border-bottom:2px solid #dbeafe;padding-bottom:8px;'>🤖 AI Analysis</h3>\n"
-        ai_html = _format_ai_text(ai_raw.strip())
-        html += f"<div style='line-height:1.75;color:#374151;'>{ai_html}</div>\n"
+        picks = parse_picks(ai_raw)
+        intro = parse_intro(ai_raw)
+
+        html += "<div style='margin-top:8px;'>\n"
+        html += "<h3 style='font-size:1em;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:20px;'>🤖 AI Analysis & Picks</h3>\n"
+
+        # BET OF THE WEEK first
+        for p in picks:
+            if p["type"] == "best":
+                html += render_pick_card(p)
+                break
+
+        # Other picks
+        others = [p for p in picks if p["type"] == "other"]
+        if others:
+            html += "<h4 style='font-size:0.9em;font-weight:700;color:#374151;margin:20px 0 12px;'>Other Recommended Plays</h4>\n"
+            for p in others:
+                html += render_pick_card(p)
+
+        # Context/analysis text
+        if intro:
+            html += f"<div style='margin-top:20px;background:#f8fafc;border-radius:12px;padding:20px;border:1px solid #e2e8f0;'>\n"
+            html += f"<div style='font-size:0.9em;font-weight:700;color:#64748b;margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;'>📝 Analysis Notes</div>\n"
+            html += f"<div style='font-size:0.88em;color:#475569;line-height:1.75;'>{intro}</div>\n"
+            html += "</div>\n"
+
         html += "</div>\n"
 
     return html or "<p>No data available.</p>"
 
 
-def _render_game_card(lines):
-    if not lines:
-        return ""
-    title = lines[0] if lines else ""
-    details = " &nbsp;·&nbsp; ".join(l for l in lines[1:] if l.strip() and not l.startswith("Bookmakers"))
-    return (
-        f"<div style='background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:12px 16px;'>"
-        f"<div style='font-weight:700;color:#1a1a1a;margin-bottom:4px;'>{title}</div>"
-        f"<div style='font-size:0.85em;color:#6b7280;'>{details}</div>"
-        f"</div>\n"
-    )
-
-
-def _format_ai_text(text):
-    """Convert AI text output to readable HTML preserving structure."""
-    # Escape HTML entities
-    text = text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
-    # Bold headers: **text**
-    text = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', text)
-    # BET OF THE WEEK block
-    text = re.sub(
-        r'(BET OF THE WEEK)',
-        r'<div style="background:linear-gradient(135deg,#1e3a8a,#2563eb);color:white;padding:6px 14px;border-radius:8px;display:inline-block;font-weight:700;letter-spacing:1px;font-size:0.9em;margin-bottom:8px;">\1</div>',
-        text
-    )
-    # Line breaks
-    text = text.replace("\n", "<br>")
-    return text
-
-
 def build_page(date_str, predictions_html, last_updated_label, nav_html=""):
+    # Format date nicely
+    try:
+        dt = datetime.strptime(date_str, "%Y-%m-%d")
+        nice_date = dt.strftime("%B %d, %Y")
+    except Exception:
+        nice_date = date_str
+
     return f"""<!DOCTYPE html>
 <html lang='en'>
 <head>
@@ -120,40 +304,51 @@ def build_page(date_str, predictions_html, last_updated_label, nav_html=""):
 <meta property='og:title' content='NFL Weekly Picks - AI Predictions | Parieur Discipliné'>
 <meta property='og:description' content='Weekly NFL predictions with AI-powered betting analysis.'>
 <meta property='og:image' content='https://parieurdiscipline.com/parieur_discipline_icon_1024.png'>
+<link rel='preconnect' href='https://fonts.googleapis.com'>
+<link href='https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&display=swap' rel='stylesheet'>
 <style>
 * {{ margin: 0; padding: 0; box-sizing: border-box; }}
-body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f7fa; color: #1a1a1a; min-height: 100vh; }}
-.container {{ max-width: 1100px; margin: 0 auto; padding: 40px 20px; }}
-.header {{ text-align: center; background: linear-gradient(135deg, #1e3a8a 0%, #2c5aa0 100%); padding: 60px 40px 40px; box-shadow: 0 4px 20px rgba(30,58,138,0.25); }}
-.header h1 {{ font-size: 2.8em; color: white; margin-bottom: 12px; font-weight: 800; }}
-.header p {{ color: rgba(255,255,255,0.9); font-size: 1.1em; font-weight: 500; }}
-.header .badge {{ display: inline-block; background: rgba(255,255,255,0.15); color: white; padding: 4px 14px; border-radius: 20px; font-size: 0.85em; font-weight: 700; margin-top: 12px; letter-spacing: 1px; }}
-.predictions-section {{ background: white; border-radius: 16px; padding: 30px; margin-top: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }}
-.meta-bar {{ display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid #dbeafe; }}
-.meta-bar .title {{ font-size: 1.3em; font-weight: 700; color: #2563eb; }}
-.meta-bar .date {{ background: #eff6ff; color: #2563eb; padding: 4px 12px; border-radius: 20px; border: 1px solid #bfdbfe; font-size: 0.85em; font-weight: 600; }}
+body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f1f5f9; color: #1a1a1a; min-height: 100vh; }}
+.page-wrap {{ padding-top: 95px; }}
+.hero {{ background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 60%, #3b82f6 100%); padding: 52px 24px 44px; text-align: center; position: relative; overflow: hidden; }}
+.hero::before {{ content: ''; position: absolute; inset: 0; background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); }}
+.hero-emoji {{ font-size: 3.5em; margin-bottom: 12px; display: block; }}
+.hero h1 {{ font-family: 'Barlow Condensed', sans-serif; font-size: 3em; font-weight: 800; color: white; margin-bottom: 10px; letter-spacing: 1px; text-transform: uppercase; }}
+.hero p {{ color: rgba(255,255,255,0.85); font-size: 1.05em; font-weight: 500; max-width: 500px; margin: 0 auto 16px; }}
+.hero-badges {{ display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }}
+.hero-badge {{ background: rgba(255,255,255,0.15); color: white; padding: 5px 16px; border-radius: 20px; font-size: 0.8em; font-weight: 700; letter-spacing: 0.5px; backdrop-filter: blur(4px); }}
+.container {{ max-width: 900px; margin: 0 auto; padding: 32px 20px 60px; }}
+.section-card {{ background: white; border-radius: 20px; padding: 28px; margin-bottom: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.07); }}
+.week-bar {{ display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 24px; padding-bottom: 18px; border-bottom: 2px solid #e2e8f0; }}
+.week-label {{ font-family: 'Barlow Condensed', sans-serif; font-size: 1.5em; font-weight: 700; color: #1e3a8a; letter-spacing: 0.5px; }}
+.updated-badge {{ background: #eff6ff; color: #2563eb; padding: 5px 14px; border-radius: 20px; border: 1px solid #bfdbfe; font-size: 0.8em; font-weight: 600; }}
 </style>
 </head>
 <body>
 
 {nav_html}
 
-<div style='padding-top: 95px;'>
-<div class='header'>
-  <h1>🏈 NFL Weekly Picks</h1>
-  <p>AI-powered spread, moneyline &amp; over/under analysis for every game</p>
-  <div class='badge'>Updated every Sunday morning</div>
-</div>
-
-<div class='container'>
-  <div class='predictions-section'>
-    <div class='meta-bar'>
-      <span class='title'>Week of {date_str}</span>
-      <span class='date'>Updated {last_updated_label}</span>
+<div class='page-wrap'>
+  <div class='hero'>
+    <span class='hero-emoji'>🏈</span>
+    <h1>NFL Weekly Picks</h1>
+    <p>AI-powered spread, moneyline &amp; over/under analysis for every game</p>
+    <div class='hero-badges'>
+      <span class='hero-badge'>📅 Updated Every Sunday</span>
+      <span class='hero-badge'>🤖 Gemini AI Analysis</span>
+      <span class='hero-badge'>📊 Spread + Moneyline + O/U</span>
     </div>
-    {predictions_html}
   </div>
-</div>
+
+  <div class='container'>
+    <div class='section-card'>
+      <div class='week-bar'>
+        <span class='week-label'>Week of {nice_date}</span>
+        <span class='updated-badge'>🕐 {last_updated_label}</span>
+      </div>
+      {predictions_html}
+    </div>
+  </div>
 </div>
 
 </body>
@@ -166,7 +361,6 @@ def main():
 
     if not date_str:
         print("No NFL predictions found — writing placeholder page.")
-        # Keep the existing placeholder
         return
 
     predictions_html = format_predictions_html(raw_text)
