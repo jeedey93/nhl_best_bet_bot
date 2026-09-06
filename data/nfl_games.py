@@ -9,14 +9,28 @@ load_dotenv()
 
 API_KEY = os.getenv("ODDS_API_KEY")
 
-def get_nfl_games_this_week():
-    """Return all NFL games scheduled within the next 7 days using the odds endpoint."""
+def get_nfl_week_window():
+    """Return (start, end) spanning the current + upcoming NFL week (14-day window from most recent Tuesday).
+
+    Using a 14-day window ensures we always capture the next week's games even
+    when today falls in the gap between weeks (e.g., a Sunday before Thursday kickoff).
+    """
     eastern = pytz.timezone("America/Toronto")
     now = datetime.now(eastern)
-    start_local = eastern.localize(datetime(now.year, now.month, now.day))
-    end_local = start_local + timedelta(days=7)
-    start_utc = start_local.astimezone(pytz.utc).isoformat().replace("+00:00", "Z")
-    end_utc = end_local.astimezone(pytz.utc).isoformat().replace("+00:00", "Z")
+    # Find the most recent Tuesday
+    days_since_tuesday = (now.weekday() - 1) % 7
+    this_tuesday = (now - timedelta(days=days_since_tuesday)).replace(
+        hour=0, minute=0, second=0, microsecond=0
+    )
+    week_end = this_tuesday + timedelta(days=14)
+    return this_tuesday, week_end
+
+def get_nfl_games_this_week():
+    """Return all NFL games in the current NFL week (Tue–Mon) using the odds endpoint."""
+    eastern = pytz.timezone("America/Toronto")
+    week_start, week_end = get_nfl_week_window()
+    start_utc = week_start.astimezone(pytz.utc).isoformat().replace("+00:00", "Z")
+    end_utc = week_end.astimezone(pytz.utc).isoformat().replace("+00:00", "Z")
 
     url = "https://api.the-odds-api.com/v4/sports/americanfootball_nfl/odds"
     params = {

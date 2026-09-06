@@ -2110,14 +2110,6 @@ def update_latest_predictions(preliminary=False):
             if nba_pick:
                 featured_picks.append(nba_pick)
 
-        # Add NFL Bet of the Week (latest weekly file, shown all week)
-        nfl_weekly_path = sport_files.get("nfl")
-        if nfl_weekly_path and os.path.exists(nfl_weekly_path):
-            nfl_content = read_file(nfl_weekly_path).strip()
-            nfl_pick = extract_bet_of_day_from_prediction(nfl_content, "NFL", "🏈")
-            if nfl_pick:
-                featured_picks.append(nfl_pick)
-
         if featured_picks:
             featured_content = "<div class='featured-grid'>\n"
             for pick in featured_picks:
@@ -2133,17 +2125,37 @@ def update_latest_predictions(preliminary=False):
                 if dual_content:
                     featured_content = format_dual_bet(dual_content)
 
-        # Append NFL Bet of the Week (shown all week regardless of daily run time)
-        nfl_weekly_path = sport_files.get("nfl")
-        if nfl_weekly_path and os.path.exists(nfl_weekly_path):
-            nfl_content = read_file(nfl_weekly_path).strip()
-            nfl_pick = extract_bet_of_day_from_prediction(nfl_content, "NFL", "🏈")
-            if nfl_pick:
-                if featured_content:
-                    # Inject into existing grid
-                    featured_content = featured_content.replace("</div>\n", nfl_pick + "</div>\n", 1)
-                else:
-                    featured_content = "<div class='featured-grid'>\n" + nfl_pick + "</div>\n"
+    # Build NFL section separately (shown all week, outside the daily featured box)
+    nfl_section = ""
+    nfl_weekly_path = sport_files.get("nfl")
+    if nfl_weekly_path and os.path.exists(nfl_weekly_path):
+        nfl_content = read_file(nfl_weekly_path).strip()
+        nfl_pick = extract_bet_of_day_from_prediction(nfl_content, "NFL", "🏈")
+        if nfl_pick:
+            # Get week date from filename
+            import re as _re
+            nfl_date_match = _re.search(r'(\d{4}-\d{2}-\d{2})', os.path.basename(nfl_weekly_path))
+            nfl_week_label = ""
+            if nfl_date_match:
+                from datetime import datetime as _dt
+                try:
+                    nfl_week_label = _dt.strptime(nfl_date_match.group(1), "%Y-%m-%d").strftime("Week of %B %-d")
+                except Exception:
+                    nfl_week_label = nfl_date_match.group(1)
+            nfl_section  = "<div style='margin: 28px 0 0; position:relative;'>\n"
+            nfl_section += "<div style='background:linear-gradient(135deg,#1e3a8a 0%,#2563eb 100%);padding:8px 20px;border-radius:12px 12px 0 0;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;'>\n"
+            nfl_section += "<div style='color:white;font-weight:900;font-size:0.9em;letter-spacing:1.5px;text-transform:uppercase;'>🏈 NFL Bet of the Week</div>\n"
+            nfl_section += f"<div style='background:rgba(255,255,255,0.15);color:white;padding:3px 12px;border-radius:20px;font-size:0.78em;font-weight:700;'>{nfl_week_label}</div>\n"
+            nfl_section += "</div>\n"
+            nfl_section += "<div style='background:linear-gradient(160deg,#ffffff 60%,#eff6ff 100%);border:2px solid #2563eb;border-top:none;border-radius:0 0 16px 16px;padding:24px;box-shadow:0 8px 30px rgba(37,99,235,0.12);'>\n"
+            nfl_section += "<div class='featured-grid' style='margin:0;'>\n"
+            nfl_section += nfl_pick
+            nfl_section += "</div>\n"
+            nfl_section += "<div style='text-align:center;margin-top:16px;'>\n"
+            nfl_section += "<a href='nfl/index.html' style='display:inline-flex;align-items:center;gap:6px;padding:10px 24px;background:linear-gradient(135deg,#1e3a8a,#2563eb);color:white;text-decoration:none;border-radius:20px;font-weight:700;font-size:0.88em;box-shadow:0 3px 10px rgba(37,99,235,0.3);transition:all 0.2s;' onmouseover='this.style.transform=\"translateY(-2px)\"' onmouseout='this.style.transform=\"\"'>View All NFL Picks →</a>\n"
+            nfl_section += "</div>\n"
+            nfl_section += "</div>\n"
+            nfl_section += "</div>\n"
 
     if featured_content:
         content += "<div id='featured-picks' style='position: relative; margin: 0 -15px;'>\n"
@@ -2259,6 +2271,11 @@ def update_latest_predictions(preliminary=False):
         content += "</div>\n"
         content += "</div>\n\n"
 
+    # ── NFL Bet of the Week (standalone section, outside gold box) ──
+    if nfl_section:
+        content += "<div id='nfl-weekly-pick' style='margin: 0 0 24px;'>\n"
+        content += nfl_section
+        content += "</div>\n\n"
 
     # ── Yesterday's Results ──
     content += "<div id='yesterday-results'>\n"
