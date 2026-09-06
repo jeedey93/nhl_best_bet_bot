@@ -41,20 +41,62 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .updated-badge { background: #eff6ff; color: #2563eb; padding: 5px 14px; border-radius: 20px; border: 1px solid #bfdbfe; font-size: 0.8em; font-weight: 600; }
 .share-btn { display: inline-flex; align-items: center; gap: 6px; background: #1e3a8a; color: white; border: none; padding: 7px 16px; border-radius: 20px; font-size: 0.82em; font-weight: 700; cursor: pointer; transition: background 0.2s; }
 .share-btn:hover { background: #2563eb; }
+.share-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 .share-toast { display: none; position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #1e293b; color: white; padding: 10px 20px; border-radius: 30px; font-size: 0.88em; font-weight: 600; z-index: 9999; box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
+/* Branding bar added to screenshot */
+#share-brand-bar { display:none; background:linear-gradient(135deg,#1e3a8a,#2563eb); color:white; text-align:center; padding:10px 20px; font-size:0.85em; font-weight:700; letter-spacing:0.5px; border-radius:0 0 20px 20px; }
 </style>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js'></script>
 <script>
-function shareNFL() {
-  const url = 'https://parieurdiscipline.com/nfl/';
-  const text = '🏈 Check out this week\'s NFL AI picks on Parieur Discipliné!';
-  if (navigator.share) {
-    navigator.share({ title: 'NFL Weekly Picks', text: text, url: url });
-  } else {
-    navigator.clipboard.writeText(url).then(function() {
-      const toast = document.getElementById('share-toast');
-      toast.style.display = 'block';
-      setTimeout(function() { toast.style.display = 'none'; }, 2500);
+async function shareNFL() {
+  const btn = document.getElementById('share-btn');
+  const toast = document.getElementById('share-toast');
+  const brandBar = document.getElementById('share-brand-bar');
+  const target = document.getElementById('picks-snapshot');
+
+  btn.disabled = true;
+  btn.textContent = '⏳ Generating...';
+
+  // Briefly show brand bar for screenshot
+  brandBar.style.display = 'block';
+
+  try {
+    const canvas = await html2canvas(target, {
+      scale: 2,
+      backgroundColor: '#ffffff',
+      useCORS: true,
+      logging: false
     });
+
+    brandBar.style.display = 'none';
+    btn.disabled = false;
+    btn.innerHTML = '📸 Share Picks';
+
+    canvas.toBlob(async function(blob) {
+      const file = new File([blob], 'nfl-picks.png', { type: 'image/png' });
+      // Try native share with image (mobile)
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: 'NFL Weekly Picks',
+          text: '🏈 This week\'s NFL AI picks from Parieur Discipliné'
+        });
+      } else {
+        // Desktop fallback: download the image
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'nfl-picks.png';
+        a.click();
+        toast.textContent = '✅ Image downloaded!';
+        toast.style.display = 'block';
+        setTimeout(() => { toast.style.display = 'none'; }, 2500);
+      }
+    }, 'image/png');
+  } catch(e) {
+    brandBar.style.display = 'none';
+    btn.disabled = false;
+    btn.innerHTML = '📸 Share Picks';
+    console.error(e);
   }
 }
 </script>
@@ -225,12 +267,12 @@ document.addEventListener('DOMContentLoaded', function() {
   </div>
 
   <div class='container'>
-    <div class='section-card'>
+    <div class='section-card' id='picks-snapshot'>
       <div class='week-bar'>
         <span class='week-label'>Week of September 06, 2026</span>
         <div style='display:flex;align-items:center;gap:8px;flex-wrap:wrap;'>
-          <span class='updated-badge'>🕐 September 06, 2026 at 10:18</span>
-          <button class='share-btn' onclick='shareNFL()'>🔗 Share</button>
+          <span class='updated-badge'>🕐 September 06, 2026 at 10:20</span>
+          <button class='share-btn' id='share-btn' onclick='shareNFL()'>📸 Share Picks</button>
         </div>
       </div>
       <div style='margin-bottom:28px;'>
@@ -275,6 +317,7 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 </div>
 
+      <div id='share-brand-bar'>🏈 parieurdiscipline.com — NFL Weekly AI Picks</div>
     </div>
   </div>
 </div>
