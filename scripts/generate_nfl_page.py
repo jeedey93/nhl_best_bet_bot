@@ -58,7 +58,7 @@ def format_predictions_html(raw_text):
     # AI Analysis
     if ai_raw.strip():
         html += "<div style='margin-top:30px;'>\n"
-        html += "<h3 style='font-size:1.2em;font-weight:700;color:#15803d;margin-bottom:16px;border-bottom:2px solid #dcfce7;padding-bottom:8px;'>🤖 AI Analysis</h3>\n"
+        html += "<h3 style='font-size:1.2em;font-weight:700;color:#2563eb;margin-bottom:16px;border-bottom:2px solid #dbeafe;padding-bottom:8px;'>🤖 AI Analysis</h3>\n"
         ai_html = _format_ai_text(ai_raw.strip())
         html += f"<div style='line-height:1.75;color:#374151;'>{ai_html}</div>\n"
         html += "</div>\n"
@@ -88,7 +88,7 @@ def _format_ai_text(text):
     # BET OF THE WEEK block
     text = re.sub(
         r'(BET OF THE WEEK)',
-        r'<div style="background:linear-gradient(135deg,#15803d,#166534);color:white;padding:6px 14px;border-radius:8px;display:inline-block;font-weight:700;letter-spacing:1px;font-size:0.9em;margin-bottom:8px;">\1</div>',
+        r'<div style="background:linear-gradient(135deg,#1e3a8a,#2563eb);color:white;padding:6px 14px;border-radius:8px;display:inline-block;font-weight:700;letter-spacing:1px;font-size:0.9em;margin-bottom:8px;">\1</div>',
         text
     )
     # Line breaks
@@ -106,7 +106,7 @@ def build_page(date_str, predictions_html, last_updated_label):
 <meta name='description' content='Weekly NFL predictions with AI-powered betting analysis. Spread, moneyline and over/under picks with team stats, home/away splits and historical context.'>
 <link rel='canonical' href='https://parieurdiscipline.com/nfl/'>
 <link rel='icon' type='image/png' href='../parieur_discipline_icon_1024.png'>
-<meta name='theme-color' content='#15803d'>
+<meta name='theme-color' content='#1e3a8a'>
 <meta property='og:type' content='website'>
 <meta property='og:url' content='https://parieurdiscipline.com/nfl/'>
 <meta property='og:title' content='NFL Weekly Picks - AI Predictions | Parieur Discipliné'>
@@ -116,14 +116,14 @@ def build_page(date_str, predictions_html, last_updated_label):
 * {{ margin: 0; padding: 0; box-sizing: border-box; }}
 body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f7fa; color: #1a1a1a; min-height: 100vh; }}
 .container {{ max-width: 1100px; margin: 0 auto; padding: 40px 20px; }}
-.header {{ text-align: center; background: linear-gradient(135deg, #15803d 0%, #166534 100%); padding: 60px 40px 40px; box-shadow: 0 4px 20px rgba(21,128,61,0.25); }}
+.header {{ text-align: center; background: linear-gradient(135deg, #1e3a8a 0%, #2c5aa0 100%); padding: 60px 40px 40px; box-shadow: 0 4px 20px rgba(30,58,138,0.25); }}
 .header h1 {{ font-size: 2.8em; color: white; margin-bottom: 12px; font-weight: 800; }}
 .header p {{ color: rgba(255,255,255,0.9); font-size: 1.1em; font-weight: 500; }}
 .header .badge {{ display: inline-block; background: rgba(255,255,255,0.15); color: white; padding: 4px 14px; border-radius: 20px; font-size: 0.85em; font-weight: 700; margin-top: 12px; letter-spacing: 1px; }}
 .predictions-section {{ background: white; border-radius: 16px; padding: 30px; margin-top: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }}
-.meta-bar {{ display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid #dcfce7; }}
-.meta-bar .title {{ font-size: 1.3em; font-weight: 700; color: #15803d; }}
-.meta-bar .date {{ background: #f0fdf4; color: #15803d; padding: 4px 12px; border-radius: 20px; border: 1px solid #bbf7d0; font-size: 0.85em; font-weight: 600; }}
+.meta-bar {{ display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid #dbeafe; }}
+.meta-bar .title {{ font-size: 1.3em; font-weight: 700; color: #2563eb; }}
+.meta-bar .date {{ background: #eff6ff; color: #2563eb; padding: 4px 12px; border-radius: 20px; border: 1px solid #bfdbfe; font-size: 0.85em; font-weight: 600; }}
 </style>
 </head>
 <body>
