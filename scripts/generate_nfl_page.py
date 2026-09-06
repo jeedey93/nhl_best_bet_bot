@@ -4,13 +4,41 @@ import os
 import sys
 import glob
 import re
-from datetime import datetime
+import json
+from datetime import datetime, timezone
+import pytz
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 OUTPUT = "docs/nfl/index.html"
 PREDICTIONS_DIR = os.path.join("data", "predictions", "nfl")
 NAV_PATH = os.path.join("docs", "nav.html")
+EASTERN = pytz.timezone("America/Toronto")
+
+def load_game_times():
+    """Return dict mapping (home_lower, away_lower) -> formatted local datetime string."""
+    cache_dir = os.path.join("data", "cache")
+    pattern = os.path.join(cache_dir, "nfl_odds_*.json")
+    files = sorted(glob.glob(pattern), reverse=True)
+    if not files:
+        return {}
+    with open(files[0]) as f:
+        data = json.load(f)
+    times = {}
+    for g in data.get("odds", []):
+        ct = g.get("commence_time")
+        home = g.get("home_team", "").lower()
+        away = g.get("away_team", "").lower()
+        if ct and home and away:
+            try:
+                dt_utc = datetime.strptime(ct, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
+                dt_local = dt_utc.astimezone(EASTERN)
+                label = dt_local.strftime("%a %b %-d · %-I:%M %p ET")
+                times[(home, away)] = label
+                times[(away, home)] = label
+            except Exception:
+                pass
+    return times
 
 # ESPN team logo CDN: https://a.espncdn.com/i/teamlogos/nfl/500/{abbr}.png
 NFL_LOGO_MAP = {
@@ -125,7 +153,7 @@ def parse_matchups(raw):
     return games
 
 
-def render_game_card(g, ai_pick=None):
+def render_game_card(g, ai_pick=None, game_time=None):
     home = g.get("home", "")
     away = g.get("away", "")
     home_odds = g.get("home_odds")
@@ -165,6 +193,9 @@ def render_game_card(g, ai_pick=None):
         color = "white" if is_pick else "#64748b"
         border = "none" if is_pick else "1px solid #e2e8f0"
         return f"<span style='background:{bg};color:{color};border:{border};padding:3px 10px;border-radius:20px;font-size:0.75em;font-weight:700;white-space:nowrap;'>{label} @ {val}</span>"
+
+    # Game time label
+    time_label = f"<div style='font-size:0.72em;font-weight:700;color:#64748b;margin-bottom:12px;text-align:center;'>🗓 {game_time}</div>" if game_time else ""
 
     # Home vs Away odds row with logos
     home_logo = get_team_logo(home)
@@ -212,6 +243,7 @@ def render_game_card(g, ai_pick=None):
     border_style = "border-top:3px solid #2563eb;" if ai_pick else ""
 
     return f"""<div style='background:white;border:1px solid #e5e7eb;border-radius:14px;padding:16px 18px;box-shadow:0 2px 10px rgba(0,0,0,0.06);transition:all 0.2s;{border_style}' onmouseover='this.style.boxShadow="0 6px 20px rgba(37,99,235,0.12)";this.style.transform="translateY(-1px)"' onmouseout='this.style.boxShadow="0 2px 10px rgba(0,0,0,0.06)";this.style.transform=""'>
+  {time_label}
   {teams_html}
   {chips_html}
   {pick_banner}
@@ -346,6 +378,9 @@ def format_predictions_html(raw_text):
     # Per-game picks from GAME PICKS section
     game_picks = parse_game_picks(ai_raw) if ai_raw.strip() else {}
 
+    # Game times from odds cache
+    game_times = load_game_times()
+
     def find_pick_for_game(game):
         home = game.get("home", "").lower()
         away = game.get("away", "").lower()
@@ -369,7 +404,10 @@ def format_predictions_html(raw_text):
         snapshot_html += "<div style='display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px;'>\n"
         for g in games:
             ai_pick = find_pick_for_game(g)
-            snapshot_html += render_game_card(g, ai_pick=ai_pick) + "\n"
+            home_key = g.get("home", "").lower()
+            away_key = g.get("away", "").lower()
+            game_time = game_times.get((home_key, away_key)) or game_times.get((away_key, home_key))
+            snapshot_html += render_game_card(g, ai_pick=ai_pick, game_time=game_time) + "\n"
         snapshot_html += "</div></div>\n"
 
     # AI section
