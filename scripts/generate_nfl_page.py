@@ -108,18 +108,15 @@ def render_game_card(g, ai_pick=None):
     sh = g.get("spread_home", {})
     sa = g.get("spread_away", {})
 
-    # Determine which chip to highlight from the AI pick text
-    pick_highlight = None  # one of: 'home_ml', 'away_ml', 'over', 'under', 'home_spread', 'away_spread'
+    # Determine which market is being picked
+    pick_highlight = None
     if ai_pick:
         p = ai_pick.lower()
-        # Check spread first (more specific)
-        if re.search(r'\b' + re.escape(home.split()[-1].lower()) + r'.*spread|spread.*' + re.escape(home.split()[-1].lower()), p):
+        if re.search(r'\b' + re.escape(home.split()[-1].lower()) + r'.{0,20}[+-][\d.]', p) or \
+           (sh.get('points') and sh['points'] in ai_pick):
             pick_highlight = 'home_spread'
-        elif re.search(r'\b' + re.escape(away.split()[-1].lower()) + r'.*spread|spread.*' + re.escape(away.split()[-1].lower()), p):
-            pick_highlight = 'away_spread'
-        elif sh.get('points') and sh['points'] in ai_pick:
-            pick_highlight = 'home_spread'
-        elif sa.get('points') and sa['points'] in ai_pick:
+        elif re.search(r'\b' + re.escape(away.split()[-1].lower()) + r'.{0,20}[+-][\d.]', p) or \
+             (sa.get('points') and sa['points'] in ai_pick):
             pick_highlight = 'away_spread'
         elif 'over' in p and 'under' not in p:
             pick_highlight = 'over'
@@ -130,64 +127,60 @@ def render_game_card(g, ai_pick=None):
         elif away.split()[-1].lower() in p or away.lower() in p:
             pick_highlight = 'away_ml'
 
-    def chip(label, val, highlight=False, is_pick=False):
-        if is_pick:
-            bg = "#1e3a8a"
-            color = "white"
-            border = "none"
-        elif highlight:
-            bg = "#dbeafe"
-            color = "#1e3a8a"
-            border = "1px solid #93c5fd"
-        else:
-            bg = "#f1f5f9"
-            color = "#374151"
-            border = "none"
-        style = f"background:{bg};color:{color};padding:3px 10px;border-radius:20px;font-size:0.78em;font-weight:700;white-space:nowrap;"
-        if border != "none":
-            style += f"border:{border};"
-        return f"<span style='{style}'>{label}: {val}</span>"
+    def odds_badge(val, is_pick=False):
+        bg = "#1e3a8a" if is_pick else "#f1f5f9"
+        color = "white" if is_pick else "#374151"
+        return f"<span style='background:{bg};color:{color};padding:2px 9px;border-radius:8px;font-size:0.82em;font-weight:800;'>{val}</span>"
 
-    # Odds chips
-    odds_chips = ""
-    if home_odds and away_odds:
-        odds_chips += chip(f"🏠 {home.split()[-1]}", home_odds,
-                           is_pick=pick_highlight == 'home_ml')
-        odds_chips += " "
-        odds_chips += chip(f"✈ {away.split()[-1]}", away_odds,
-                           is_pick=pick_highlight == 'away_ml')
-        odds_chips += " "
-    elif home_odds:
-        odds_chips += chip(f"🏠 {home.split()[-1]}", home_odds, is_pick=pick_highlight == 'home_ml')
-        odds_chips += " "
-    elif away_odds:
-        odds_chips += chip(f"✈ {away.split()[-1]}", away_odds, is_pick=pick_highlight == 'away_ml')
-        odds_chips += " "
-    if ou:
-        odds_chips += chip("O/U", f"{ou}")
-    if over_price:
-        odds_chips += " " + chip("Over", over_price, is_pick=pick_highlight == 'over')
-    if under_price:
-        odds_chips += " " + chip("Under", under_price, is_pick=pick_highlight == 'under')
+    def pill(label, val, is_pick=False):
+        bg = "#1e3a8a" if is_pick else "#f8fafc"
+        color = "white" if is_pick else "#64748b"
+        border = "none" if is_pick else "1px solid #e2e8f0"
+        return f"<span style='background:{bg};color:{color};border:{border};padding:3px 10px;border-radius:20px;font-size:0.75em;font-weight:700;white-space:nowrap;'>{label} {val}</span>"
 
-    # Spread chips
-    spread_chips = ""
+    # Home vs Away odds row
+    home_abbr = home.split()[-1]
+    away_abbr = away.split()[-1]
+    teams_html = f"""
+  <div style='display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;'>
+    <div style='text-align:center;flex:1;'>
+      <div style='font-size:0.72em;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;'>Home</div>
+      <div style='font-size:0.95em;font-weight:800;color:#1e293b;margin-bottom:6px;line-height:1.2;'>{home}</div>
+      {odds_badge(home_odds, is_pick=pick_highlight=='home_ml') if home_odds else ''}
+    </div>
+    <div style='color:#cbd5e1;font-weight:700;font-size:0.85em;padding:0 8px;flex-shrink:0;'>VS</div>
+    <div style='text-align:center;flex:1;'>
+      <div style='font-size:0.72em;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;'>Away</div>
+      <div style='font-size:0.95em;font-weight:800;color:#1e293b;margin-bottom:6px;line-height:1.2;'>{away}</div>
+      {odds_badge(away_odds, is_pick=pick_highlight=='away_ml') if away_odds else ''}
+    </div>
+  </div>"""
+
+    # Spread + O/U chips row
+    chips = []
     if sh:
-        spread_chips += chip(f"Home {sh['points']}", sh['price'], is_pick=pick_highlight == 'home_spread')
-        spread_chips += " "
+        chips.append(pill(f"Home {sh['points']}", sh['price'], is_pick=pick_highlight == 'home_spread'))
     if sa:
-        spread_chips += chip(f"Away {sa['points']}", sa['price'], is_pick=pick_highlight == 'away_spread')
+        chips.append(pill(f"Away {sa['points']}", sa['price'], is_pick=pick_highlight == 'away_spread'))
+    if ou:
+        chips.append(pill("O/U", ou))
+    if over_price:
+        chips.append(pill("Over", over_price, is_pick=pick_highlight == 'over'))
+    if under_price:
+        chips.append(pill("Under", under_price, is_pick=pick_highlight == 'under'))
+    chips_html = f"<div style='display:flex;flex-wrap:wrap;gap:6px;'>" + "".join(chips) + "</div>" if chips else ""
 
-    # AI pick label
-    pick_label = ""
+    # AI pick banner at bottom
+    pick_banner = ""
     if ai_pick:
-        pick_label = f"<div style='margin-top:10px;font-size:0.8em;font-weight:700;color:#2563eb;'>🤖 Pick: {ai_pick}</div>"
+        pick_banner = f"<div style='margin-top:12px;padding:8px 12px;background:linear-gradient(135deg,#eff6ff,#dbeafe);border-radius:8px;border-left:3px solid #2563eb;font-size:0.8em;font-weight:700;color:#1e40af;'>🤖 {ai_pick}</div>"
 
-    return f"""<div style='background:white;border:1px solid #e5e7eb;border-radius:14px;padding:18px 20px;box-shadow:0 2px 8px rgba(0,0,0,0.06);transition:box-shadow 0.2s;{"border-top:3px solid #2563eb;" if ai_pick else ""}' onmouseover='this.style.boxShadow="0 4px 16px rgba(37,99,235,0.12)"' onmouseout='this.style.boxShadow="0 2px 8px rgba(0,0,0,0.06)"'>
-  <div style='font-size:1.05em;font-weight:700;color:#1e293b;margin-bottom:10px;'>🏈 {home} <span style='color:#94a3b8;font-weight:500;font-size:0.9em;'>vs</span> {away}</div>
-  <div style='display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;'>{odds_chips}</div>
-  {"<div style='display:flex;flex-wrap:wrap;gap:6px;'>" + spread_chips + "</div>" if spread_chips else ""}
-  {pick_label}
+    border_style = "border-top:3px solid #2563eb;" if ai_pick else ""
+
+    return f"""<div style='background:white;border:1px solid #e5e7eb;border-radius:14px;padding:16px 18px;box-shadow:0 2px 10px rgba(0,0,0,0.06);transition:all 0.2s;{border_style}' onmouseover='this.style.boxShadow="0 6px 20px rgba(37,99,235,0.12)";this.style.transform="translateY(-1px)"' onmouseout='this.style.boxShadow="0 2px 10px rgba(0,0,0,0.06)";this.style.transform=""'>
+  {teams_html}
+  {chips_html}
+  {pick_banner}
 </div>"""
 
 
@@ -232,6 +225,26 @@ def parse_picks(ai_text):
     return picks
 
 
+def parse_game_picks(ai_text):
+    """Parse the GAME PICKS section into a dict keyed by team name (lowercase)."""
+    picks = {}
+    # Match either "GAME PICKS" or "SECTION 1 — GAME PICKS" header
+    match = re.search(r'(?:SECTION\s*1[^\n]*GAME PICKS|GAME PICKS)\s*\n(.*?)(?=\n---|\nSECTION\s*2|\nBET OF THE WEEK|\Z)', ai_text, re.DOTALL | re.IGNORECASE)
+    if not match:
+        return picks
+    for line in match.group(1).strip().splitlines():
+        line = line.strip()
+        if not line or ':' not in line:
+            continue
+        game_part, pick_text = line.split(':', 1)
+        if ' vs ' not in game_part:
+            continue
+        team_a, team_b = [t.strip() for t in game_part.split(' vs ', 1)]
+        picks[team_a.lower()] = pick_text.strip()
+        picks[team_b.lower()] = pick_text.strip()
+    return picks
+
+
 def render_pick_card(pick):
     is_best = pick["type"] == "best"
     conf = pick.get("conf", "")
@@ -267,12 +280,11 @@ def render_pick_card(pick):
 
 
 def parse_intro(ai_text):
-    """Get the intro/context paragraph before the picks."""
-    # Everything before BET OF THE WEEK
-    before_botw = re.split(r'BET OF THE WEEK', ai_text, flags=re.IGNORECASE)[0]
-    # Remove the header line if present
+    """Get the intro/context paragraph — text between GAME PICKS section and BET OF THE WEEK."""
+    # Skip GAME PICKS block, take text before BET OF THE WEEK
+    text = re.sub(r'GAME PICKS.*?(?=BET OF THE WEEK)', '', ai_text, flags=re.DOTALL | re.IGNORECASE)
+    before_botw = re.split(r'BET OF THE WEEK', text, flags=re.IGNORECASE)[0]
     lines = [l for l in before_botw.strip().splitlines() if l.strip()]
-    # Skip first line if it's a short header
     if lines and len(lines[0]) < 60:
         lines = lines[1:]
     return " ".join(lines).strip()
@@ -293,22 +305,23 @@ def format_predictions_html(raw_text):
     # Game matchup cards
     games = parse_matchups(matchups_raw)
 
-    # Build pick-per-game lookup from AI picks (all picks, not just "best")
-    all_picks_for_lookup = []
-    if ai_raw.strip():
-        all_picks_for_lookup = parse_picks(ai_raw)
+    # Per-game picks from GAME PICKS section
+    game_picks = parse_game_picks(ai_raw) if ai_raw.strip() else {}
 
     def find_pick_for_game(game):
-        """Return the short pick line (e.g. 'Houston Texans ML @ 1.98') for a game, or None."""
         home = game.get("home", "").lower()
         away = game.get("away", "").lower()
-        for p in all_picks_for_lookup:
-            pick_text = p.get("pick", "").lower()
-            # Match if either team name appears in the pick line
-            home_words = [w for w in home.split() if len(w) > 3]
-            away_words = [w for w in away.split() if len(w) > 3]
-            if any(w in pick_text for w in home_words) or any(w in pick_text for w in away_words):
-                return p.get("pick", "")
+        # Direct key lookup first
+        if home in game_picks:
+            return game_picks[home]
+        if away in game_picks:
+            return game_picks[away]
+        # Partial match on last word of team name
+        for key, val in game_picks.items():
+            if home.split()[-1] in key or key.split()[-1] in home:
+                return val
+            if away.split()[-1] in key or key.split()[-1] in away:
+                return val
         return None
 
     snapshot_html = ""

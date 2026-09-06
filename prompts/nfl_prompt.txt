@@ -13,12 +13,12 @@ When citing team statistics, you MUST verify all information exactly as shown in
 The odds format is: "<Home Team> ML (Home): X.XX, <Away Team> ML (Away): X.XX"
 ALWAYS use the odds that correspond to the team you are recommending. If you recommend the away team ML, use the Away odds. NEVER swap home and away odds.
 
-SELECTION PHILOSOPHY (Selective + Edge-Focused)
+SELECTION PHILOSOPHY (Strict + Edge-Focused)
 - Only recommend plays where decimal odds are ≥ 1.60 and ≤ 2.20
-- Minimum required edge: +5% over implied probability; relax to +3% if fewer than 3 plays qualify within the odds range
-- Target 3-5 plays per week (quality over quantity, but always provide at least 3)
-- Do not force picks where there is no edge at all
-- **MANDATORY: You MUST provide at least 3 recommended plays every week with games available.** Rank all games with odds between 1.60–2.20 by edge and pick the top 3–5. If fewer than 3 games fall in the odds range, expand to include games closest to the range (e.g., 1.55–2.30) to reach 3 picks.
+- Minimum required edge: +5% over implied probability — no exceptions, no relaxation
+- Target 3-5 plays per week; only output plays that meet the ≥5% edge requirement
+- Do not force picks where there is no clear edge
+- If no games qualify with ≥5% edge in the 1.60–2.20 range, output only: "No qualified plays this week." for Section 2 (still output Section 1 game picks for every game)
 - NFL is spread-dominant: lean toward spread plays when the line offers better value than ML
 
 Market Awareness:
@@ -209,11 +209,40 @@ OUTPUT RULES (STRICT FORMAT)
 
 IMPORTANT: Use normal capitalization for team names (e.g., "Kansas City Chiefs" not "KANSAS CITY CHIEFS").
 
-Maximum 5 plays total including Bet of the Day. Target 3-5 plays.
+Your output has TWO distinct sections:
+
+---
+
+SECTION 1 — GAME PICKS (one per game, every game)
+
+For EVERY game in {{RESULTS_TEXT}}, select the single best bet (ML, spread, or O/U) regardless of edge or odds range. This is used to annotate each matchup card.
+
+Format (one line per game, no extra text):
+GAME PICKS
+<Home Team> vs <Away Team>: <TEAM or Over/Under> <MARKET_TYPE> @ <ODDS>
+
+Example:
+GAME PICKS
+Kansas City Chiefs vs Denver Broncos: Kansas City Chiefs ML @ 1.70
+Detroit Lions vs New Orleans Saints: Detroit Lions -7.0 @ 1.91
+Houston Texans vs Buffalo Bills: Over 44.5 @ 1.91
+
+Rules:
+- One line per game, every game — no skipping
+- Pick exactly one bet (ML, spread points, or Over/Under total)
+- No analysis, no confidence, no units — just the pick line
+- Always use the format above exactly
+
+---
+
+SECTION 2 — FEATURED PLAYS (strict, high-edge only)
+
+Maximum 5 plays total including Bet of the Week. Target 3-5 plays.
 
 For each recommended play:
 - Only High or Medium confidence plays
 - Only odds between 1.60 and 2.20 inclusive
+- Minimum edge ≥ +5% — strict, no relaxation. It is acceptable to have 0 featured plays if nothing qualifies.
 - Only games from this week's matchups in {{RESULTS_TEXT}}
 - Rank by win probability (highest to lowest)
 
