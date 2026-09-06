@@ -1654,10 +1654,10 @@ def extract_bet_of_day_from_prediction(content, sport_name, sport_emoji):
     """Extract the Bet of the Day section from a prediction file."""
     lines = content.strip().splitlines()
 
-    # Find "BET OF THE DAY:" section
+    # Find "BET OF THE DAY:" or "BET OF THE WEEK" section
     bet_start = -1
     for i, line in enumerate(lines):
-        if "BET OF THE DAY" in line.upper():
+        if "BET OF THE DAY" in line.upper() or "BET OF THE WEEK" in line.upper():
             bet_start = i
             break
 
@@ -1848,7 +1848,7 @@ def update_latest_predictions(preliminary=False):
     content += "@keyframes glow { 0%, 100% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.5), 0 0 30px rgba(255, 215, 0, 0.3); } 50% { box-shadow: 0 0 30px rgba(255, 215, 0, 0.8), 0 0 50px rgba(255, 215, 0, 0.5); } }\n"
     content += ".badge-nhl { background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); color: white; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); }\n"
     content += ".badge-nba { background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%); color: white; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); }\n"
-    content += ".badge-nfl { background: linear-gradient(135deg, #15803d 0%, #166534 100%); color: white; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); }\n"
+    content += ".badge-nfl { background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%); color: white; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); }\n"
     content += ".badge-featured { background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%); color: white; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); }\n"
     content += ".pick-title { font-size: 1.4em; font-weight: 700; color: #2563eb; margin-bottom: 18px; line-height: 1.4; text-align: center; }\n"
     content += ".pick-meta { display: flex; flex-wrap: wrap; align-items: center; padding: 14px 18px; background: #f9fafb; border-radius: 10px; font-size: 0.9em; margin-bottom: 18px; border: 1px solid #e5e7eb; gap: 8px; }\n"
@@ -2081,6 +2081,14 @@ def update_latest_predictions(preliminary=False):
             if nba_pick:
                 featured_picks.append(nba_pick)
 
+        # Add NFL Bet of the Week (latest weekly file, shown all week)
+        nfl_weekly_path = sport_files.get("nfl")
+        if nfl_weekly_path and os.path.exists(nfl_weekly_path):
+            nfl_content = read_file(nfl_weekly_path).strip()
+            nfl_pick = extract_bet_of_day_from_prediction(nfl_content, "NFL", "🏈")
+            if nfl_pick:
+                featured_picks.append(nfl_pick)
+
         if featured_picks:
             featured_content = "<div class='featured-grid'>\n"
             for pick in featured_picks:
@@ -2095,6 +2103,18 @@ def update_latest_predictions(preliminary=False):
                 dual_content = read_file(dual_bet_path).strip()
                 if dual_content:
                     featured_content = format_dual_bet(dual_content)
+
+        # Append NFL Bet of the Week (shown all week regardless of daily run time)
+        nfl_weekly_path = sport_files.get("nfl")
+        if nfl_weekly_path and os.path.exists(nfl_weekly_path):
+            nfl_content = read_file(nfl_weekly_path).strip()
+            nfl_pick = extract_bet_of_day_from_prediction(nfl_content, "NFL", "🏈")
+            if nfl_pick:
+                if featured_content:
+                    # Inject into existing grid
+                    featured_content = featured_content.replace("</div>\n", nfl_pick + "</div>\n", 1)
+                else:
+                    featured_content = "<div class='featured-grid'>\n" + nfl_pick + "</div>\n"
 
     if featured_content:
         content += "<div id='featured-picks' style='position: relative; margin: 0 -15px;'>\n"
