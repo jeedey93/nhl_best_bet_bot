@@ -42,11 +42,12 @@ def format_date_nice(date_str):
 
 
 def parse_record(summary_path):
-    """Parse the total_results_summary.txt and return NBA/NHL records."""
+    """Parse the total_results_summary.txt and return NBA/NHL/NFL records."""
     nba_record = {"wins": 0, "losses": 0}
     nhl_record = {"wins": 0, "losses": 0}
+    nfl_record = {"wins": 0, "losses": 0}
     if not os.path.exists(summary_path):
-        return nba_record, nhl_record
+        return nba_record, nhl_record, nfl_record
     content = read_file(summary_path)
     current_sport = None
     for line in content.splitlines():
@@ -55,13 +56,20 @@ def parse_record(summary_path):
             current_sport = "nba"
         elif line.startswith("NHL:"):
             current_sport = "nhl"
+        elif line.startswith("NFL:"):
+            current_sport = "nfl"
         elif line.startswith("TOTAL:") and current_sport:
             m = re.match(r"TOTAL:\s*(\d+)\s*wins?,\s*(\d+)\s*losses?", line)
             if m:
-                record = nba_record if current_sport == "nba" else nhl_record
+                if current_sport == "nba":
+                    record = nba_record
+                elif current_sport == "nhl":
+                    record = nhl_record
+                else:
+                    record = nfl_record
                 record["wins"] = int(m.group(1))
                 record["losses"] = int(m.group(2))
-    return nba_record, nhl_record
+    return nba_record, nhl_record, nfl_record
 
 
 def parse_calendar_data(summary_path):
@@ -1535,6 +1543,9 @@ def format_dual_bet(raw_text):
         elif "NBA" in header:
             sport_badge_class = "badge-nba"
             sport_label = "NBA"
+        elif "NFL" in header:
+            sport_badge_class = "badge-nfl"
+            sport_label = "NFL"
         else:
             sport_badge_class = "badge-featured"
             sport_label = "Featured"
@@ -1688,7 +1699,14 @@ def extract_bet_of_day_from_prediction(content, sport_name, sport_emoji):
         return None
 
     # Determine sport badge class
-    sport_badge_class = "badge-nhl" if sport_name == "NHL" else "badge-nba"
+    if sport_name == "NHL":
+        sport_badge_class = "badge-nhl"
+    elif sport_name == "NBA":
+        sport_badge_class = "badge-nba"
+    elif sport_name == "NFL":
+        sport_badge_class = "badge-nfl"
+    else:
+        sport_badge_class = "badge-featured"
 
     # Format as a card
     html = "<div class='pick-card'>\n"
@@ -1729,14 +1747,15 @@ def update_latest_predictions(preliminary=False):
     sports_config = [
         {"key": "nhl", "name": "NHL", "emoji": "🏒"},
         {"key": "nba", "name": "NBA", "emoji": "🏀"},
+        {"key": "nfl", "name": "NFL", "emoji": "🏈"},
     ]
     output_html = "docs/index.html"
     summary_path = "data/bot_results/total_results_summary.txt"
     dual_bet_path = os.path.join(predictions_dir, "dual_bet_of_the_day.txt")
 
     # Parse records
-    nba_record, nhl_record = parse_record(summary_path)
-    records = {"nba": nba_record, "nhl": nhl_record}
+    nba_record, nhl_record, nfl_record = parse_record(summary_path)
+    records = {"nba": nba_record, "nhl": nhl_record, "nfl": nfl_record}
 
     # Find the latest date among all sports
     latest_dates = []
@@ -1744,7 +1763,8 @@ def update_latest_predictions(preliminary=False):
     for cfg in sports_config:
         sport = cfg["key"]
         folder = os.path.join(predictions_dir, sport)
-        latest_text_file = get_latest_file(folder, f"{sport}_daily_predictions", ext="txt")
+        prefix = f"{sport}_weekly_predictions" if sport == "nfl" else f"{sport}_daily_predictions"
+        latest_text_file = get_latest_file(folder, prefix, ext="txt")
         sport_files[sport] = latest_text_file
         if latest_text_file:
             date_str = os.path.basename(latest_text_file).split("_")[-1].replace(".txt", "")
@@ -1828,6 +1848,7 @@ def update_latest_predictions(preliminary=False):
     content += "@keyframes glow { 0%, 100% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.5), 0 0 30px rgba(255, 215, 0, 0.3); } 50% { box-shadow: 0 0 30px rgba(255, 215, 0, 0.8), 0 0 50px rgba(255, 215, 0, 0.5); } }\n"
     content += ".badge-nhl { background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); color: white; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); }\n"
     content += ".badge-nba { background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%); color: white; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); }\n"
+    content += ".badge-nfl { background: linear-gradient(135deg, #15803d 0%, #166534 100%); color: white; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); }\n"
     content += ".badge-featured { background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%); color: white; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); }\n"
     content += ".pick-title { font-size: 1.4em; font-weight: 700; color: #2563eb; margin-bottom: 18px; line-height: 1.4; text-align: center; }\n"
     content += ".pick-meta { display: flex; flex-wrap: wrap; align-items: center; padding: 14px 18px; background: #f9fafb; border-radius: 10px; font-size: 0.9em; margin-bottom: 18px; border: 1px solid #e5e7eb; gap: 8px; }\n"

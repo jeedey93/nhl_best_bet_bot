@@ -112,7 +112,86 @@ def get_nba_odds(force_refresh=False):
         print(f"⚠️ Error fetching NBA odds: {e}")
         return []
 
-NHL_TEAM_NAME_MAP = {
+def get_nfl_odds(force_refresh=False):
+    """Fetch NFL week odds using The Odds API with caching (7-day window, Thu–Mon)."""
+    if not force_refresh:
+        cached_data = get_cached_odds('nfl')
+        if cached_data is not None:
+            return cached_data
+
+    try:
+        url = "https://api.the-odds-api.com/v4/sports/americanfootball_nfl/odds"
+
+        eastern = pytz.timezone("America/Toronto")
+        now = datetime.now(eastern)
+
+        # Span today through 7 days out to capture the full NFL week
+        start_local = eastern.localize(datetime(now.year, now.month, now.day))
+        end_local = start_local + timedelta(days=7)
+
+        start_utc = start_local.astimezone(pytz.utc).isoformat().replace("+00:00", "Z")
+        end_utc = end_local.astimezone(pytz.utc).isoformat().replace("+00:00", "Z")
+
+        params = {
+            "apiKey": API_KEY,
+            "regions": "us",
+            "markets": "h2h,spreads,totals",
+            "oddsFormat": "decimal",
+            "dateFormat": "iso",
+            "commenceTimeFrom": start_utc,
+            "commenceTimeTo": end_utc,
+        }
+        response = requests.get(url, params=params, timeout=10)
+        response.raise_for_status()
+        odds_data = response.json()
+
+        save_odds_to_cache('nfl', odds_data)
+        return odds_data
+    except Exception as e:
+        print(f"⚠️ Error fetching NFL odds: {e}")
+        return []
+
+NFL_TEAM_NAME_MAP = {
+    "arizona": ["Arizona Cardinals"],
+    "atlanta": ["Atlanta Falcons"],
+    "baltimore": ["Baltimore Ravens"],
+    "buffalo": ["Buffalo Bills"],
+    "carolina": ["Carolina Panthers"],
+    "chicago": ["Chicago Bears"],
+    "cincinnati": ["Cincinnati Bengals"],
+    "cleveland": ["Cleveland Browns"],
+    "dallas": ["Dallas Cowboys"],
+    "denver": ["Denver Broncos"],
+    "detroit": ["Detroit Lions"],
+    "greenbay": ["Green Bay Packers"],
+    "houston": ["Houston Texans"],
+    "indianapolis": ["Indianapolis Colts"],
+    "jacksonville": ["Jacksonville Jaguars"],
+    "kansascity": ["Kansas City Chiefs"],
+    "lasvegas": ["Las Vegas Raiders"],
+    "losangeles": ["Los Angeles Rams", "Los Angeles Chargers"],
+    "lac": ["Los Angeles Chargers"],
+    "lar": ["Los Angeles Rams"],
+    "miami": ["Miami Dolphins"],
+    "minnesota": ["Minnesota Vikings"],
+    "newengland": ["New England Patriots"],
+    "neworleans": ["New Orleans Saints"],
+    "nygiants": ["New York Giants"],
+    "nyjets": ["New York Jets"],
+    "philadelphia": ["Philadelphia Eagles"],
+    "pittsburgh": ["Pittsburgh Steelers"],
+    "sanfrancisco": ["San Francisco 49ers"],
+    "seattle": ["Seattle Seahawks"],
+    "tampabay": ["Tampa Bay Buccaneers"],
+    "tennessee": ["Tennessee Titans"],
+    "washington": ["Washington Commanders"],
+}
+
+def match_nfl_odds_to_games(games, odds_data):
+    """Match NFL games to odds data using NFL_TEAM_NAME_MAP."""
+    return match_odds_to_games(games, odds_data, NFL_TEAM_NAME_MAP)
+
+
     "anaheim": ["Anaheim Ducks"],
     "arizona": ["Arizona Coyotes"],
     "boston": ["Boston Bruins"],
