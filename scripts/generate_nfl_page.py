@@ -369,23 +369,28 @@ async function shareNFL() {{
 
     canvas.toBlob(async function(blob) {{
       const file = new File([blob], 'nfl-picks.png', {{ type: 'image/png' }});
-      // Try native share with image (mobile)
-      if (navigator.canShare && navigator.canShare({{ files: [file] }})) {{
-        await navigator.share({{
-          files: [file],
-          title: 'NFL Weekly Picks',
-          text: '🏈 This week\\'s NFL AI picks from Parieur Discipliné'
-        }});
-      }} else {{
-        // Desktop fallback: download the image
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = 'nfl-picks.png';
-        a.click();
-        toast.textContent = '✅ Image downloaded!';
-        toast.style.display = 'block';
-        setTimeout(() => {{ toast.style.display = 'none'; }}, 2500);
+      // Try native share with image first (works on iOS Safari / Android Chrome)
+      try {{
+        if (navigator.share) {{
+          await navigator.share({{
+            files: [file],
+            title: 'NFL Weekly Picks',
+            text: '🏈 This week\\'s NFL AI picks from Parieur Discipliné'
+          }});
+          return;
+        }}
+      }} catch(shareErr) {{
+        // Share was cancelled or file sharing not supported — fall through to download
+        if (shareErr.name === 'AbortError') return;
       }}
+      // Desktop fallback: download the image
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'nfl-picks.png';
+      a.click();
+      toast.textContent = '✅ Image downloaded!';
+      toast.style.display = 'block';
+      setTimeout(() => {{ toast.style.display = 'none'; }}, 2500);
     }}, 'image/png');
   }} catch(e) {{
     brandBar.style.display = 'none';
