@@ -373,9 +373,7 @@ async function shareNFL() {{
       try {{
         if (navigator.share) {{
           await navigator.share({{
-            files: [file],
-            title: 'NFL Weekly Picks',
-            text: '🏈 This week\\'s NFL AI picks from Parieur Discipliné'
+            files: [file]
           }});
           return;
         }}
