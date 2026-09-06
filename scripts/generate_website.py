@@ -1708,7 +1708,34 @@ def extract_bet_of_day_from_prediction(content, sport_name, sport_emoji):
     else:
         sport_badge_class = "badge-featured"
 
-    # Format as a card
+    # Format as a card — NFL gets a special weekly pick card
+    if sport_name == "NFL":
+        html = "<div class='pick-card nfl-week-card'>\n"
+        html += "<div style='flex-grow: 1;'>\n"
+        html += "<div style='display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;'>\n"
+        html += f"<div class='pick-badge {sport_badge_class}' style='margin-bottom:0;animation:none;'>{sport_emoji} {sport_name}</div>\n"
+        html += "<span style='background:#eff6ff;color:#2563eb;border:1px solid #bfdbfe;padding:3px 12px;border-radius:20px;font-size:0.75em;font-weight:700;letter-spacing:0.5px;'>📅 BET OF THE WEEK</span>\n"
+        html += "</div>\n"
+        html += f"<div class='pick-title' style='color:#1e3a8a;'>{bet_line}</div>\n"
+        if confidence_line:
+            html += f"<div class='pick-meta'>{confidence_line}</div>\n"
+        if description:
+            import html as html_module
+            html += f"<div class='pick-description reasoning' data-raw='{html_module.escape(description, quote=True)}'></div>\n"
+        html += "</div>\n"
+        pick_id = f"featured-pick-{sport_name.lower()}"
+        html += f"<button class='share-button' onclick='event.stopPropagation(); handleShare(\"{pick_id}\", \"{sport_name}\")' id='share-btn-{pick_id}'>\n"
+        html += "<span style='font-size: 1.5em;'>📤</span>\n"
+        html += "<span>Share</span>\n"
+        html += "</button>\n"
+        html += "<div style='margin-top:15px;padding:10px 14px;background:#eff6ff;border-left:4px solid #2563eb;border-radius:6px;'>\n"
+        html += "<div style='font-size:0.82em;color:#1e3a8a;font-weight:700;'>🏈 Weekly Pick</div>\n"
+        html += "<div style='font-size:0.78em;color:#1e40af;margin-top:3px;'>Updated every Sunday — valid all week</div>\n"
+        html += "</div>\n"
+        html += "</div>\n"
+        return html
+
+    # Standard NHL/NBA card
     html = "<div class='pick-card'>\n"
 
     # Card content container (will grow to fill space)
@@ -1849,6 +1876,8 @@ def update_latest_predictions(preliminary=False):
     content += ".badge-nhl { background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); color: white; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); }\n"
     content += ".badge-nba { background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%); color: white; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); }\n"
     content += ".badge-nfl { background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%); color: white; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); }\n"
+    content += ".nfl-week-card { border-color: #bfdbfe !important; background: linear-gradient(160deg, #ffffff 60%, #eff6ff 100%) !important; }\n"
+    content += ".nfl-week-card:hover { border-color: #2563eb !important; box-shadow: 0 12px 35px rgba(37, 99, 235, 0.2) !important; }\n"
     content += ".badge-featured { background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%); color: white; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); }\n"
     content += ".pick-title { font-size: 1.4em; font-weight: 700; color: #2563eb; margin-bottom: 18px; line-height: 1.4; text-align: center; }\n"
     content += ".pick-meta { display: flex; flex-wrap: wrap; align-items: center; padding: 14px 18px; background: #f9fafb; border-radius: 10px; font-size: 0.9em; margin-bottom: 18px; border: 1px solid #e5e7eb; gap: 8px; }\n"
