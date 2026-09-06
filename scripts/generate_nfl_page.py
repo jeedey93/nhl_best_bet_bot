@@ -322,7 +322,25 @@ body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans
 .week-bar {{ display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 24px; padding-bottom: 18px; border-bottom: 2px solid #e2e8f0; }}
 .week-label {{ font-family: 'Barlow Condensed', sans-serif; font-size: 1.5em; font-weight: 700; color: #1e3a8a; letter-spacing: 0.5px; }}
 .updated-badge {{ background: #eff6ff; color: #2563eb; padding: 5px 14px; border-radius: 20px; border: 1px solid #bfdbfe; font-size: 0.8em; font-weight: 600; }}
+.share-btn {{ display: inline-flex; align-items: center; gap: 6px; background: #1e3a8a; color: white; border: none; padding: 7px 16px; border-radius: 20px; font-size: 0.82em; font-weight: 700; cursor: pointer; transition: background 0.2s; }}
+.share-btn:hover {{ background: #2563eb; }}
+.share-toast {{ display: none; position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #1e293b; color: white; padding: 10px 20px; border-radius: 30px; font-size: 0.88em; font-weight: 600; z-index: 9999; box-shadow: 0 4px 16px rgba(0,0,0,0.2); }}
 </style>
+<script>
+function shareNFL() {{
+  const url = 'https://parieurdiscipline.com/nfl/';
+  const text = '🏈 Check out this week\'s NFL AI picks on Parieur Discipliné!';
+  if (navigator.share) {{
+    navigator.share({{ title: 'NFL Weekly Picks', text: text, url: url }});
+  }} else {{
+    navigator.clipboard.writeText(url).then(function() {{
+      const toast = document.getElementById('share-toast');
+      toast.style.display = 'block';
+      setTimeout(function() {{ toast.style.display = 'none'; }}, 2500);
+    }});
+  }}
+}}
+</script>
 </head>
 <body>
 
@@ -344,12 +362,17 @@ body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans
     <div class='section-card'>
       <div class='week-bar'>
         <span class='week-label'>Week of {nice_date}</span>
-        <span class='updated-badge'>🕐 {last_updated_label}</span>
+        <div style='display:flex;align-items:center;gap:8px;flex-wrap:wrap;'>
+          <span class='updated-badge'>🕐 {last_updated_label}</span>
+          <button class='share-btn' onclick='shareNFL()'>🔗 Share</button>
+        </div>
       </div>
       {predictions_html}
     </div>
   </div>
 </div>
+
+<div id='share-toast' class='share-toast'>✅ Link copied to clipboard!</div>
 
 </body>
 </html>"""
